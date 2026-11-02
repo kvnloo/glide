@@ -131,7 +131,7 @@
 
     "@keyv/serialize": ["@keyv/serialize@1.1.1", "", {}, "sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA=="],
 
-    "@openuidev/lang-core": ["@openuidev/lang-core@0.3.1", "", { "dependencies": { "ci-info": "^4.4.0" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.0.0", "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-lya0jEt6MXYDJT14ZBxysRSg8AWxvcJLyMmqgl/IJ3Ci+D8rdRXPHGeHD5XxJmxqgdX+P1UxhLp9cQ+ml8diYw=="],
+    "@openuidev/lang-core": ["@openuidev/lang-core@0.3.1", "", {"dependencies":{"ci-info":"^4.4.0"},"peerDependencies":{"@modelcontextprotocol/sdk":">=1.0.0","zod":"^3.25.0 || ^4.0.0"},"optionalPeers":["@modelcontextprotocol/sdk"],"hasInstallScript":true}, "sha512-lya0jEt6MXYDJT14ZBxysRSg8AWxvcJLyMmqgl/IJ3Ci+D8rdRXPHGeHD5XxJmxqgdX+P1UxhLp9cQ+ml8diYw=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.154.0", "", {}, "sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA=="],
 
