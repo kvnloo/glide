@@ -1,0 +1,529 @@
+// The model picker (`/model`, the composer's model chip): every configured
+// provider's models in one `picker` sheet like omp's (search, a provider
+// scope column, facts, a preview pane, the current model checked), switching
+// the session's model through `config.set` as the Ink TUI's picker does. The effort strip picks the
+// reasoning effort to go with it (Ctrl+E steps it) and, for a model with a fast tier, Fast (Ctrl+F);
+// Save as default keeps the model and effort for new sessions where the gateway can write the
+// default (a private one: the shared gateway switches the session only).
+
+import type { ConfigSetResult, ModelOptionProvider } from '@hermes/shared/gateway-events'
+import { modelSearchText } from '@hermes/shared/model-search-text'
+import type { JSX, Key, KvItem, PickerColumn, PickerGroup, PickerItem, PickerScope } from '@stencil-hq/tern'
+
+import type { ChatPorts } from '../app/ports.js'
+import { optional } from '../core/assert.js'
+import { errorText } from '../core/errors.js'
+import { modelPayload, mutateSession } from '../hermes/mutate.js'
+import { providerDisplayNames } from '../hermes/providers.js'
+import { rememberCaps } from '../modelCaps.js'
+import { levelsFor } from '../session/effort.js'
+import { modelRecents, modelId } from '../shortcuts/model-recents.js'
+import { setFast } from '../session/fast.js'
+import { rpc } from '../wire/rpc.js'
+
+import { nativeOverlayKey } from './identity.js'
+import type { Overlay } from './overlay.js'
+import { editQuery, hitRuns, moveSelection, rank } from './search.js'
+
+/** What the model picker reaches of the app. */
+export type ModelsHost = Pick<ChatPorts, 'changed' | 'close' | 'gw' | 'open' | 'session' | 'setEffort' | 'transcript'>
+
+const KEY = 'models'
+const ALL = 'all'
+
+interface Row {
+  id: string
+  provider: ModelOptionProvider
+  providerName: string
+  model: string
+}
+
+interface Confirm {
+  row: Row
+  text: string
+}
+
+/** The shared gateway's one-time tokens for guarded model targets the user was asked about, by `sid value`. */
+const confirmTokens = new Map<string, string>()
+
+/** A model switch on the shared gateway: a revision-fenced `session.mutate operation=model`, shaped like `config.set`'s reply. */
+async function mutateModel(host: ModelsHost, value: string, confirmed: boolean): Promise<ConfigSetResult> {
+  const sid = host.session.ref.live
+  const key = `${sid} ${value}`
+  const confirm = confirmed ? confirmTokens.get(key) : undefined
+  confirmTokens.delete(key)
+  const result = await mutateSession(host.gw, sid ?? '', 'model', { ...modelPayload(value), ...(confirm ? { confirm } : {}) })
+
+  if (result.status === 'confirmation_required' && typeof result.confirm === 'string' && !confirmed) {
+    confirmTokens.set(key, result.confirm)
+
+    return {
+      confirm_required: true,
+      key: 'model',
+      ...(result.confirm_message === undefined ? {} : { confirm_message: result.confirm_message })
+    } satisfies ConfigSetResult
+  }
+
+  if (result.status === 'confirmation_required') {
+    throw new Error(result.confirm_message || 'The model switch needs confirming again; try once more.')
+  }
+
+  return { key: 'model', value: result.model ?? '' } satisfies ConfigSetResult
+}
+
+/** Switches the session's model to `value` (`<model> [--provider <slug>] [--session|--global]`); reports the switch in the transcript unless it needs a confirmation. */
+export async function switchModel(host: ModelsHost, value: string, confirmed = false): Promise<ConfigSetResult> {
+  const sid = host.session.ref.live
+
+  if (!sid) {
+    throw new Error('No active session for model selection.')
+  }
+
+  const r = host.gw.isCanonical
+    ? await mutateModel(host, value, confirmed)
+    : await rpc(host.gw, 'config.set', {
+        confirm_expensive_model: confirmed,
+        key: 'model',
+        session_id: host.session.ref.live,
+        value
+      })
+
+  // A late switch belongs to the old session, never the next pane's route.
+  if (host.session.ref.live !== sid) {
+    return { key: 'model', value: '' }
+  }
+
+  if (r.confirm_required) {
+    return r
+  }
+
+  const model = typeof r.value === 'string' ? r.value : ''
+
+  if (model) {
+    const provider = /--provider\s+(\S+)/.exec(value)?.[1] || host.session.info?.provider || ''
+    modelRecents(host.session).remember(sid, { model, provider })
+    host.session.info = { ...host.session.info, model, ...(provider ? { provider } : {}) }
+    host.transcript.notice(r.deferred ? `Model switches to ${model} from the next turn.` : `Switched to ${model}.`)
+  }
+
+  if (r.warning) {
+    host.transcript.notice(r.warning, 'warning')
+  }
+
+  host.changed()
+
+  return r
+}
+
+/** The switch the picker sends for a model row: this session's, or (`global`) also the default. */
+export function pickerValue(model: string, provider: string, global: boolean): string {
+  return `${model} --provider ${provider} ${global ? '--global' : '--session'}`
+}
+
+/** Opens the model picker over the session. */
+export function openModelPicker(host: ModelsHost) {
+  let state: 'loading' | 'ready' | 'error' = 'loading'
+  let message = ''
+  let rows: Row[] = []
+  let providers: { provider: ModelOptionProvider; name: string }[] = []
+  let current = ''
+  let query = ''
+  let scope = ALL
+  let selected: string | undefined
+  let global = false
+  // The shared gateway's model mutation switches this session only (as Desktop's and Ink's pickers there).
+  const canSave = !host.gw.isCanonical
+  /** The session's effort when the picker opened, and the one picked on the strip. */
+  const startEffort = host.session.info?.reasoning_effort || ''
+  let effort = startEffort || 'medium'
+  /** Fast mode as the session has it, and whether the user flipped it here. */
+  let fast = Boolean(host.session.info?.fast)
+  let fastTouched = false
+  let confirm: Confirm | null = null
+  let busy = false
+  /** The ids shown, in order, for ↑/↓. */
+  let shown: string[] = []
+
+  const load = async () => {
+    state = 'loading'
+    host.changed()
+
+    try {
+      const sid = host.session.ref.live
+      const r = await rpc(host.gw, 'model.options', sid ? { session_id: sid } : {})
+      const list = r.providers ?? []
+      rememberCaps(list)
+      const names = providerDisplayNames(list)
+      providers = list.map((provider, i) => ({ name: names[i] ?? provider.name, provider }))
+      rows = providers.flatMap(({ provider, name }) =>
+        (provider.models ?? []).map(model => ({
+          id: `${provider.slug}\t${model}`,
+          model,
+          provider,
+          providerName: name
+        }))
+      )
+      const currentProvider = list.find(p => p.is_current)?.slug ?? r.provider ?? ''
+      current =
+        rows.find(row => row.model === r.model && row.provider.slug === currentProvider)?.id ??
+        rows.find(row => row.model === r.model)?.id ??
+        ''
+      selected = current || rows[0]?.id
+      state = 'ready'
+    } catch (error) {
+      state = 'error'
+      message = errorText(error)
+    }
+
+    host.changed()
+  }
+
+  const choose = async (id: string | undefined, confirmed = false) => {
+    const row = rows.find(r => r.id === id)
+
+    if (!row || busy) {
+      return
+    }
+
+    busy = true
+
+    try {
+      const sid = host.session.ref.live
+      const r = await switchModel(host, pickerValue(row.model, row.provider.slug, canSave && global), confirmed)
+
+      if (host.session.ref.live !== sid) {
+        return
+      }
+
+      if (r.confirm_required) {
+        confirm = { row, text: r.confirm_message || r.warning || `${row.model} is expensive. Switch anyway?` }
+      } else {
+        host.close(overlay)
+
+        // The effort goes with the model: saved with it as the default, or set when it changed.
+        if (levelsFor(caps(row)).some(l => l.id === effort) && ((canSave && global) || effort !== startEffort)) {
+          await host.setEffort(effort, canSave && global ? 'global' : 'session')
+        }
+
+        // After the switch: the gateway checks the tier against the session's new route.
+        if (fastTouched && fastable(row)) {
+          await setFast(host, fast ? 'fast' : 'normal')
+        }
+      }
+    } catch (error) {
+      host.transcript.notice(errorText(error), 'error')
+      host.close(overlay)
+    }
+
+    busy = false
+    host.changed()
+  }
+
+  const view = () => {
+    const inScope = scope === ALL ? rows : rows.filter(r => `provider:${r.provider.slug}` === scope)
+    const ranked = rank(inScope, query, r => `${modelSearchText(r.model)} ${r.providerName} ${r.provider.slug}`)
+    const hits: Record<string, [number, number][]> = {}
+    const order: (string | PickerGroup)[] = []
+
+    // The current provider's group leads, then the backend's order.
+    const groups = [...providers].sort(
+      (a, b) => Number(Boolean(b.provider.is_current)) - Number(Boolean(a.provider.is_current))
+    )
+
+    for (const { provider, name } of groups) {
+      const mine = ranked.filter(r => r.item.provider === provider)
+
+      if (!mine.length) {
+        continue
+      }
+
+      if (scope === ALL) {
+        order.push({ count: mine.length, group: provider.slug, label: name })
+      }
+
+      for (const { item, positions } of mine) {
+        order.push(item.id)
+
+        if (positions.length) {
+          hits[item.id] = hitRuns(positions, item.model.length)
+        }
+      }
+    }
+
+    shown = order.filter(o => typeof o === 'string')
+
+    if (!selected || !shown.includes(selected)) {
+      selected = shown[0]
+    }
+
+    return { hits, order }
+  }
+
+  const overlay: Overlay = {
+    key: KEY,
+    modal: true,
+    node: id => {
+      const { hits, order } = view()
+      const priced = rows.some(r => r.provider.pricing?.[r.model])
+      const columns: PickerColumn[] = priced ? [{ format: 'price', head: '$/M', id: 'price', priority: 2 }] : []
+
+      const scopes: PickerScope[] = [
+        { count: rows.length, icon: 'list', id: ALL, label: 'All models' },
+        ...providers.map(({ provider, name }) => ({
+          count: provider.models?.length ?? 0,
+          ...optional('dot', provider.warning ? ('warning' as const) : undefined),
+          group: 'Providers',
+          id: `provider:${provider.slug}`,
+          label: name,
+          mark: { seed: provider.slug, text: name }
+        }))
+      ]
+
+      const row = rows.find(r => r.id === selected)
+      const levels = levelsFor(row && caps(row))
+
+      return (
+        <picker
+          actions={[
+            ...(row && fastable(row) ? [{ id: 'fast', keys: ['ctrl+f'], label: '⚡ Fast', on: fast }] : []),
+            ...(canSave ? [{ id: 'global', keys: ['ctrl+g'], label: 'Save as default', on: global }] : []),
+            { end: true, id: 'close', keys: ['esc'], label: 'Close' },
+            { id: 'use', keys: ['enter'], label: 'Switch', primary: true }
+          ]}
+          columns={columns}
+          key={nativeOverlayKey(id)}
+          {...optional('confirm', confirm ? { act: 'confirm', label: 'Switch anyway', text: confirm.text } : undefined)}
+          current={current ? [current] : []}
+          {...optional('empty', query ? undefined : 'No models in this scope')}
+          hits={hits}
+          icon="cpu"
+          items={rows.map(row => itemOf(row, modelRecents(host.session).list(host.session.ref.live ?? '').some(item => modelId(item) === row.id)))}
+          layout="rows"
+          {...optional('message', state === 'error' ? message : undefined)}
+          noun="models"
+          onAction={{
+            cancel: () => {
+              confirm = null
+              host.changed()
+            },
+            clear: () => {
+              query = ''
+              host.changed()
+            },
+            close: () => host.close(overlay),
+            confirm: () => void choose(confirm?.row.id, true),
+            fast: () => {
+              fast = !fast
+              fastTouched = true
+              host.changed()
+            },
+            global: () => {
+              global = !global
+              host.changed()
+            },
+            retry: () => void load(),
+            scope: ev => {
+              scope = ev.value ?? ALL
+              host.changed()
+            },
+            strip: ev => {
+              effort = levels.find(l => l.id === ev.value)?.id ?? effort
+              host.changed()
+            },
+            use: () => void choose(selected)
+          }}
+          onActivate={ev => void choose(ev.item)}
+          onSelect={ev => {
+            selected = ev.item
+            confirm = null
+            host.changed()
+          }}
+          order={order}
+          placeholder="Search models…"
+          preview="side"
+          query={query}
+          scope={scope}
+          scopes={scopes}
+          {...optional('selected', selected)}
+          size="lg"
+          state={state}
+          {...(levels.length
+            ? {
+                strip: {
+                  items: levels.map(l => ({ id: l.id, label: l.label, on: l.id === effort })),
+                  label: 'Effort  ⌃E',
+                  selected: effort
+                }
+              }
+            : {})}
+          title="Models"
+          total={rows.length}
+        >
+          {row ? preview(row, row.id === current) : null}
+        </picker>
+      )
+    },
+    onKey: (k: Key) => {
+      if (confirm) {
+        if (k.name === 'enter' || k.name === 'y') {
+          void choose(confirm.row.id, true)
+        } else if (k.name === 'escape' || k.name === 'n') {
+          confirm = null
+        }
+
+        return true
+      }
+
+      if (k.name === 'escape') {
+        host.close(overlay)
+
+        return true
+      }
+
+      if (k.name === 'enter') {
+        void choose(selected)
+
+        return true
+      }
+
+      if (canSave && k.ctrl && k.name === 'g') {
+        global = !global
+
+        return true
+      }
+
+      if (k.ctrl && k.name === 'e') {
+        const row = rows.find(r => r.id === selected)
+        const levels = levelsFor(row && caps(row))
+        const at = levels.findIndex(l => l.id === effort)
+        effort = levels[(at + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort
+
+        return true
+      }
+
+      if (k.ctrl && k.name === 'f') {
+        const row = rows.find(r => r.id === selected)
+
+        if (row && fastable(row)) {
+          fast = !fast
+          fastTouched = true
+        }
+
+        return true
+      }
+
+      if (k.name === 'tab') {
+        const ids = [ALL, ...providers.map(p => `provider:${p.provider.slug}`)]
+        scope = ids[(ids.indexOf(scope) + (k.shift ? ids.length - 1 : 1)) % ids.length] ?? ALL
+
+        return true
+      }
+
+      const moved = moveSelection(k, shown, selected)
+
+      if (moved !== undefined) {
+        selected = moved
+
+        return true
+      }
+
+      const edited = editQuery(k, query)
+
+      if (edited !== undefined) {
+        query = edited
+      }
+
+      return true
+    }
+  }
+
+  host.open(overlay)
+  void load()
+}
+
+const caps = (row: Row) => row.provider.capabilities?.[row.model]
+
+const RECENT_BADGE: { text: string; tone: 'info' } = { text: 'recent', tone: 'info' }
+
+/** The model has a fast tier on its provider. */
+const fastable = (row: Row) => Boolean(caps(row)?.fast || caps(row)?.ultrafast)
+
+function itemOf(row: Row, recent = false): PickerItem {
+  const price = row.provider.pricing?.[row.model]
+  const caps = row.provider.capabilities?.[row.model]
+  const free = Boolean(price?.free)
+  const unavailable = row.provider.unavailable_models?.includes(row.model)
+
+  return {
+    badges: [
+      ...(recent ? [RECENT_BADGE] : []),
+      ...(free ? [{ text: 'free', tone: 'success' as const }] : []),
+      ...(caps?.ultrafast
+        ? [{ text: 'ultrafast', tone: 'info' as const }]
+        : caps?.fast
+          ? [{ text: 'fast', tone: 'info' as const }]
+          : [])
+    ],
+    ...optional('disabled', unavailable ? `${row.providerName} doesn't offer ${row.model} on this plan` : undefined),
+    ...optional(
+      'facts',
+      price && !free && price.input
+        ? { price: `${price.input}·${price.output}` }
+        : free
+          ? { price: 'free' }
+          : undefined
+    ),
+    id: row.id,
+    label: row.model,
+    mono: true,
+    title: `${row.providerName} · ${row.model}`
+  }
+}
+
+function preview(row: Row, isCurrent: boolean): JSX.Element[] {
+  const caps = row.provider.capabilities?.[row.model]
+  const price = row.provider.pricing?.[row.model]
+
+  const facts: KvItem[] = [
+    { k: [{ t: 'Provider' }], v: row.providerName },
+    ...(price && (price.input || price.free)
+      ? [
+          {
+            k: [{ t: 'Price' }],
+            v: [{ s: 'mono', t: price.free ? 'free' : `${price.input} in · ${price.output} out` }]
+          }
+        ]
+      : []),
+    ...(caps
+      ? [
+          { k: [{ t: 'Reasoning' }], v: [{ s: 'mono', t: caps.reasoning ? 'yes' : 'no' }] },
+          { k: [{ t: 'Fast mode' }], v: [{ s: 'mono', t: caps.fast || caps.ultrafast ? 'yes' : 'no' }] }
+        ]
+      : []),
+    ...(row.provider.api_url ? [{ k: [{ t: 'Endpoint' }], v: [{ s: 'mono dim', t: row.provider.api_url }] }] : [])
+  ]
+
+  const short = row.model.split('/').at(-1) ?? row.model
+
+  return [
+    <text key="title" role="omp.picker.title" text={short} />,
+    <text
+      key="id"
+      spans={[{ s: 'mono', t: `${row.provider.slug}/${row.model}` }]}
+      title={row.model}
+      truncate="middle"
+    />,
+    <row gap="xs" key="badges" wrap>
+      {isCurrent ? <badge key="current" text="current" tone="success" /> : null}
+      {caps?.reasoning ? <badge key="reasoning" text="reasoning" /> : null}
+      {caps?.fast || caps?.ultrafast ? (
+        <badge key="fast" text={caps.ultrafast ? 'ultrafast' : 'fast'} tone="info" />
+      ) : null}
+      {price?.free ? <badge key="free" text="free" tone="success" /> : null}
+    </row>,
+    <kv items={facts} key="facts" />,
+    ...(row.provider.warning
+      ? [<text key="warning" spans={[{ s: 'warning', t: row.provider.warning }]} wrap="word" />]
+      : [])
+  ]
+}

@@ -1,0 +1,208 @@
+// A turn's work as t3code's timeline draws it (MessagesTimeline.tsx, WorkLog.tsx): quiet
+// one-line rows, an icon column, the label in the secondary text color. A work group is a
+// summary row ("Ran 3 commands") that opens to one row per step; a step opens to its output
+// and a thought to its text. The group still running is a single shining line ("Running
+// ls"). Tern keeps each section's open state, so a click needs no round trip.
+
+import type { JSX, Span } from '@stencil-hq/tern'
+
+import { type FileContext, NO_FILE_CONTEXT } from '../artifacts/links.js'
+import { isDefined, isNonEmpty, optional } from '../core/assert.js'
+import type { MediaDelivery } from '../media-delivery.js'
+import type { ToolCall, TurnEntry } from '../model.js'
+import { appOf, batchOf } from '../tools/bridge.js'
+
+import { clockShort } from './format.js'
+import { age } from './time.js'
+import type { BrowserFocus } from './tools/cards/browser.js'
+import type { LspLinkContext } from './tools/lsp-links.js'
+import { toolDetail } from './tools/shell.js'
+import { foldSection } from './ui/fold.js'
+import { shimmerText } from './ui/live.js'
+import {
+  actionIcon,
+  actionOf,
+  groupIcon,
+  liveLabel,
+  type Part,
+  stepLabel,
+  summarize,
+  thoughtTitle,
+  visibleItems,
+  type WorkItem
+} from './workLogModel.js'
+
+/** "Working for 12s" over a running turn, ruled off from its steps. */
+export function workingNode(turn: TurnEntry, now: number): JSX.Element {
+  return (
+    <row align="center" gap="xs" key="working" role="hermes.turn.working">
+      <text key="label" spans={[{ s: 'muted', t: 'Working for' }]} wrap="none" />
+      <elapsed age={age(turn, turn.startedAt, now)} format="short" key="age" />
+    </row>
+  )
+}
+
+/** "Thinking", shining, at the end of a running turn with nothing else moving. */
+/** The longest live label: Tern's shimmer splits the text per character and does not truncate. */
+const LIVE_MAX = 120
+
+/**
+ * A live label in Tern's own shimmer, the working line's: a highlight sweeps character by
+ * character from the muted text through the accent, so a running step reads as running.
+ */
+function liveText(label: string): JSX.Element {
+  const text = label.length > LIVE_MAX ? `${label.slice(0, LIVE_MAX - 1)}…` : label
+
+  return shimmerText({ key: 'label', role: 'hermes.work.live', text })
+}
+
+/** The newest step of `items` failed: the group no longer stands for live work. */
+export function latestFailed(items: readonly WorkItem[]): boolean {
+  const last = items.findLast(i => i.kind === 'tool')
+
+  return last?.kind === 'tool' && last.call.outcome.kind === 'error'
+}
+
+export function thinkingRow(): JSX.Element {
+  return (
+    <row align="center" gap="sm" key="thinking" role="hermes.work.row">
+      <icon key="icon" name="brain" />
+      {liveText('Thinking')}
+    </row>
+  )
+}
+
+/** "Worked for 54s": a finished stretch of the turn's steps and notes, folded until a click; `id` is its node id. */
+export function foldNode(part: Extract<Part, { kind: 'fold' }>, id: string, children: (JSX.Element | null)[]): JSX.Element {
+  return foldSection({
+    body: children,
+    head: (
+      <row align="center" gap="xs" key="head">
+        <text key="label" spans={[{ s: 'muted', t: part.label }]} wrap="none" />
+      </row>
+    ),
+    id,
+    key: part.key,
+    role: 'hermes.turn.fold'
+  })
+}
+
+/**
+ * One work group under `parent` (a node id): its single step as a row, or a summary row that
+ * opens to every step. `live` marks the group a running turn is in now: one shining line naming
+ * its latest step, which opens the same way.
+ */
+export function workNode(items: readonly WorkItem[], parent: string, live: boolean, now: number, context?: LspLinkContext, focusBrowser?: BrowserFocus, media?: MediaDelivery, links: FileContext = NO_FILE_CONTEXT): JSX.Element | null {
+  const shown = visibleItems(items)
+
+  if (!isNonEmpty(shown)) {
+    return null
+  }
+
+  const key = `w${(items[0] ?? shown[0]).id}`
+  const id = `${parent}.${key}`
+
+  if (!live && shown.length === 1) {
+    return itemNode(shown[0], parent, now, key, context, focusBrowser, media, links)
+  }
+
+  const calls = shown.flatMap(i => (i.kind === 'tool' ? [i.call] : []))
+  const failed = calls.at(-1)?.outcome.kind === 'error'
+  const latest = shown.findLast(i => i.kind === 'tool' && i.call.outcome.kind === 'running') ?? shown.at(-1) ?? shown[0]
+
+  const head = live ? (
+    <row align="center" gap="sm" key="head">
+      <icon key="icon" name={itemIcon(latest)} />
+      {liveText(liveLabel(latest, true))}
+      <icon key="chev" name="chev" role="hermes.work.chev" />
+    </row>
+  ) : (
+    <row align="center" gap="sm" key="head">
+      <icon key="icon" name={groupIcon(shown)} {...optional('tone', failed ? 'error' : undefined)} />
+      <text key="label" spans={[{ s: 'muted', t: summarize(shown) }]} truncate="end" wrap="none" />
+      <icon key="chev" name="chev" role="hermes.work.chev" />
+      <spacer grow={1} key="gap" />
+      <text key="time" role="hermes.work.time" spans={[{ s: 'dim', t: clockShort(startOf(shown[0])) }]} wrap="none" />
+    </row>
+  )
+
+  return foldSection({ body: shown.map(i => itemNode(i, id, now, i.id, context, focusBrowser, media, links)), head, id, key, role: 'hermes.work.group' })
+}
+
+/** One step: a call (opens to its output) or a thought (opens to its text). */
+function itemNode(item: WorkItem, parent: string, now: number, key: string = item.id, context?: LspLinkContext, focusBrowser?: BrowserFocus, media?: MediaDelivery, links: FileContext = NO_FILE_CONTEXT): JSX.Element {
+  const id = `${parent}.${key}`
+
+  if (item.kind === 'thinking') {
+    return foldSection({
+      body: (
+        <md key="body" role="hermes.work.thought" {...optional('stream', item.endedAt === undefined || undefined)}>
+          {item.text}
+        </md>
+      ),
+      head: (
+        <row align="center" gap="sm" key="head">
+          <icon key="icon" name="brain" />
+          <text grow={1} key="label" spans={[{ s: 'muted', t: thoughtTitle(item) }]} truncate="end" wrap="none" />
+        </row>
+      ),
+      id,
+      key,
+      role: 'hermes.work.row'
+    })
+  }
+
+  const call = item.call
+  const detail = toolDetail(call, now, context, focusBrowser, media, links)
+  const running = call.outcome.kind === 'running'
+
+  const head = (
+    <row align="center" gap="sm" key="head" {...optional('title', call.context || undefined)}>
+      <icon key="icon" name={itemIcon(item)} {...optional('tone', call.outcome.kind === 'error' ? 'error' : undefined)} />
+      {running ? liveText(stepLabel(call)) : <text grow={1} key="label" spans={labelSpans(call)} truncate="end" wrap="none" />}
+      {call.outcome.kind === 'error' ? <icon key="failed" name="x" tone="error" /> : null}
+    </row>
+  )
+
+  if (!detail.length) {
+    return (
+      <col key={key} role="hermes.work.row">
+        {head}
+      </col>
+    )
+  }
+
+  return foldSection({
+    body: (
+      <col gap="xs" key="detail" role="hermes.work.detail">
+        {detail}
+      </col>
+    ),
+    head,
+    id,
+    key,
+    role: 'hermes.work.row'
+  })
+}
+
+/** A step's words; a connector's app stands out from what it did there ("Linear · create issue"). */
+function labelSpans(call: ToolCall): Span[] {
+  const entries = (batchOf(call) ?? [call]).map(e => appOf(e.name, e.args))
+  const apps = entries.filter(isDefined)
+
+  if (apps.length < entries.length) {
+    return [{ s: 'muted', t: stepLabel(call) }]
+  }
+
+  return apps.flatMap((app, i) => [
+    ...(i ? [{ s: 'muted', t: ', ' }] : []),
+    { t: app.app },
+    { s: 'muted', t: ` · ${app.action}` }
+  ])
+}
+
+function itemIcon(item: WorkItem): string {
+  return item.kind === 'thinking' ? 'brain' : actionIcon(actionOf(item.call))
+}
+
+const startOf = (item: WorkItem) => (item.kind === 'tool' ? item.call.startedAt : item.startedAt)
