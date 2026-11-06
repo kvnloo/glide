@@ -31,7 +31,9 @@ if match is None:
 print(match[1])
 PY
 )
-printf 'plugin=%s\ncore=%s\nhost=%s\n' "$(git -C "$root" rev-parse HEAD)" "$pin" "$(hostname)" | tee "$out/source.txt"
+# Snapshot workers may omit .git; do not mistake a declared pin for a checkout proof.
+plugin=$(git -C "$root" rev-parse HEAD 2>/dev/null || printf 'unavailable-in-fleet-snapshot')
+printf 'plugin_git_head=%s\ncore=%s\nhost=%s\n' "$plugin" "$pin" "$(hostname)" | tee "$out/source.txt"
 git -c credential.helper= init -q "$core/source"
 git -c credential.helper= -C "$core/source" fetch --depth=1 https://github.com/kvnloo/hermes-agent.git "$pin"
 git -C "$core/source" checkout -q --detach FETCH_HEAD
