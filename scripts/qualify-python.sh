@@ -13,6 +13,12 @@ export UV_NO_PROGRESS=1
 export DO_NOT_TRACK=1
 export OPENUI_TELEMETRY_DISABLED=1
 unset PYTHONPATH HERMES_SRC HERMES_PROFILE
+if ! command -v uv >/dev/null; then
+    # Boat provides Python, not the host's toolchain. Keep bootstrap job-local.
+    python3 -m pip install --target "$core/bootstrap" uv==0.11.7
+    export PATH="$core/bootstrap/bin:$PATH"
+    export PYTHONPATH="$core/bootstrap"
+fi
 # Read the existing CI pin rather than introduce another dependency version.
 pin=$(python3 - "$root/.github/workflows/checks.yml" <<'PY'
 import re
