@@ -73,7 +73,43 @@ describe('/glide', () => {
     must(view(4).activate)(HOST_APPROVE_ID)
     await settle()
     expect(request.mock.calls.at(-1)).toEqual(['glide.enable', { session_id: 'glide-session', on: true }])
-    expect(titles().at(-1)).toBe('Glide memory is on')
+    expect(titles().slice(5)).toEqual(['Glide memory is on', 'Install the skill router'])
+  })
+
+  it('chains router, hill climb and savings, one tap each, with the numbers the plugin returns', async () => {
+    const { host, request, view, titles } = setup({
+      'glide.skill_router': { installed: true, fresh: true, categories: 5, skills: 19, top: [{ category: 'debugging', rule: 'root cause first', skills: ['systematic-debugging'] }] },
+      'glide.hill_climb': { target: 'CPU benchmark', metric: 'score', baseline: { mean: 5977.04 }, candidate: { mean: 5669.54 }, delta: -307.5, noise: 0.076, verdict: 'REVERT', reason: 'no improvement (rel=-0.051)' },
+      'glide.offload': { local_models: ['llama3.2:1b'], tasks: 1, tokens_offloaded: 118, est_cost_saved_usd: 0.00118, assumptions: ['Estimate: $0.01 per 1k'] }
+    })
+    await glideCommand(host, 'router')
+    expect(titles()).toEqual(['Install the skill router'])
+    expect(request).not.toHaveBeenCalled()
+
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.skill_router', { session_id: 'glide-session' }])
+    expect(titles().slice(1)).toEqual(['Skill router installed', 'Run your first hill climb'])
+
+    must(view(2).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.hill_climb', { session_id: 'glide-session', run: true }])
+    expect(titles().slice(3)).toEqual(['Hill climb: REVERT', 'Offload a small task to a local model'])
+
+    must(view(4).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.offload', { session_id: 'glide-session', run: true }])
+    expect(titles().at(-1)).toBe('Offload savings')
+    expect(JSON.stringify(view(5))).toContain('llama3.2:1b')
+  })
+
+  it('shows a failed step as an error notice', async () => {
+    const { host, transcript, view, titles } = setup({})
+    await glideCommand(host, 'climb')
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(titles()).toEqual(['Run your first hill climb'])
+    expect(JSON.stringify(transcript.entries.at(-1))).toContain('unknown method')
   })
 
   it('recalls and turns off on request', async () => {

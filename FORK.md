@@ -96,8 +96,8 @@ HERMES_FALLBACK_SOURCE=/tmp/hermes-src "$HERMES_PYTHON" -m pytest -q \
 ## Install the fork
 
 ```sh
-hermes plugins install kvnloo/glide         # this Tern frontend
-hermes plugins install kvnloo/glide#glide   # glide's corrections memory (works without Tern)
+hermes plugins install kvnloo/glide         # the Tern frontend with glide (/glide, corrections memory) built in
+hermes plugins install kvnloo/glide#glide   # glide alone, for Hermes without Tern (install one or the other)
 ```
 
 The checked-in `frontend/dist/entry.js` can lag the source on this fork (the bundle workflow needs a
