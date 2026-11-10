@@ -372,7 +372,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words>]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste]',
     name: 'glide',
     run: (host, arg) => glideCommand(host, arg)
   },
