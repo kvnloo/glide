@@ -46,14 +46,22 @@ def ctx():
 def test_registers_only_public_plugin_apis(ctx):
     assert {n for n, _, _ in ctx.calls} == {
         "register_cli_command", "register_auxiliary_task", "register_tool", "register_system_prompt_section",
-        "register_gateway_method", "register_command", "on_unload", "register_rpc", "register_session_env"}
+        "register_gateway_method", "register_command", "on_unload", "register_rpc", "register_session_env",
+        "register_hook", "register_skill"}
 
 
-def test_the_tools_are_the_declared_ones_and_there_is_no_hook_or_middleware(ctx):
+def test_the_tools_and_hooks_are_the_declared_ones_and_there_is_no_middleware(ctx):
     tools = [k["name"] for _, k in ctx.of("register_tool")]
     assert tools == ["link_pull_request", "unlink_pull_request", "list_pull_requests"]
     assert f"provides_tools: [{', '.join(tools)}]" in MANIFEST
-    assert not ctx.of("register_hook") and "provides_hooks" not in MANIFEST
+    # The one hook is glide's corrections recall, installed with the Tern UI in one plugin.
+    assert [a[0] for a, _ in ctx.of("register_hook")] == ["pre_llm_call"]
+    assert "provides_hooks: [pre_llm_call]" in MANIFEST
+
+
+def test_one_install_also_registers_glide(ctx):
+    assert ("glide",) == tuple(a[0] for a, _ in ctx.of("register_command") if a and a[0] == "glide")
+    assert any(a and a[0] == "glide" for a, _ in ctx.of("register_cli_command"))
     assert not ctx.of("register_middleware") and "provides_middleware" not in MANIFEST
 
 
@@ -75,8 +83,7 @@ def test_the_frontend_names_itself_with_the_plugins_version():
 
 
 def test_the_tern_command_parses_its_own_flags(ctx):
-    ((_, cmd),) = ctx.of("register_cli_command")
-    assert cmd["name"] == "tern"
+    ((_, cmd),) = [(a, k) for a, k in ctx.of("register_cli_command") if k.get("name") == "tern"]
     parser = argparse.ArgumentParser()
     cmd["setup_fn"](parser)
     args = parser.parse_args(["-c", "--image", "a.png"])
@@ -185,7 +192,7 @@ def test_channel_aliases_bind_their_own_channel_and_use_the_launcher(monkeypatch
     monkeypatch.setattr(channels, "aliases", lambda: {"mytern": "main", "myternp": "preview"})
     ctx = RecordingCtx()
     hermes_tern_plugin.register(ctx)
-    commands = {kwargs["name"]: kwargs for _, kwargs in ctx.of("register_cli_command")}
+    commands = {kwargs["name"]: kwargs for _, kwargs in ctx.of("register_cli_command") if "name" in kwargs}  # glide's is positional
     assert set(commands) == {"tern", "mytern", "myternp"}
     assert commands["tern"]["handler_fn"] is launcher.run
     calls = []
@@ -203,8 +210,7 @@ def test_channel_aliases_bind_their_own_channel_and_use_the_launcher(monkeypatch
 def test_talk_command_and_owned_unload_are_preserved(ctx):
     from hermes_tern_plugin import talk_backend
 
-    ((args, kwargs),) = ctx.of("register_command")
-    assert args == ("tern-talk",)
+    ((args, kwargs),) = [(a, k) for a, k in ctx.of("register_command") if a == ("tern-talk",)]
     assert kwargs["handler"] == talk_backend._controller.command
     assert kwargs["args_hint"] == "start|status|stop CALL_ID"
     assert any(args == (talk_backend._controller.close,) for args, _ in ctx.of("on_unload"))
