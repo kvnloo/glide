@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
-import { record } from './json.js'
+import { record } from '../../frontend/src/wire/json.js'
 
 export interface TasteBoard { url: string; title: string }
 

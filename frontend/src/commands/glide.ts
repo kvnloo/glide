@@ -8,8 +8,8 @@ import type { GatewayClient } from '@tui/gatewayClient.js'
 import type { SessionView } from '../app/ports.js'
 import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
-import { openTastePane, tasteBoard } from '../wire/taste.js'
-import { glideDetect, glideMemory, glideRecall, type GlideMemory } from '../wire/glide.js'
+import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import * as z from 'zod/mini'
 
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
@@ -18,9 +18,22 @@ export interface GlideHost {
   readonly eui?: Pick<EuiCards, 'host'> | undefined
 }
 
-export type { GlideDetect, GlideMemory } from '../wire/glide.js'
+const glideMemory = z.object({
+  sessions: z.number(), corrections: z.number(), complete: z.boolean(), on: z.boolean(), scanned: z.optional(z.number())
+})
+const glideDetect = z.object({
+  os: z.string(), cpus: z.number(), ram_gib: z.nullable(z.number()), gpus: z.array(z.string()), runtimes: z.array(z.string()),
+  z0int: z.object({
+    installed: z.boolean(), ok: z.optional(z.boolean()), failed: z.optional(z.array(z.string())),
+    hint: z.optional(z.string()), unchecked: z.optional(z.boolean())
+  }),
+  memory: glideMemory
+})
+const glideRecall = z.object({ hits: z.array(z.object({ text: z.string(), score: z.number() })) })
+export type GlideMemory = z.infer<typeof glideMemory>
+export type GlideDetect = z.infer<typeof glideDetect>
 
-// Served by the standalone glide plugin (github.com/kvnloo/glide).
+// Served by the memory plugin in this repository's glide/ folder.
 const NS = 'glide'
 const APP = 'glide'
 const SESSIONS = 100
