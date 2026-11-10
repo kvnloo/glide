@@ -30,7 +30,7 @@ bun run test src/__tests__/glideCommand.test.ts
 From the repository root, in an owned isolated Tern display, verify the plugin, server, and native browser together:
 
 ```sh
-GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.ts
+GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.mts
 ```
 
 The script loads this repository's `glide/` plugin by default. `GLIDE_SOURCE` can select another plugin directory.

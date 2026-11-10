@@ -86,8 +86,20 @@ health. Glide works without it.
 
 ## Development
 
+From `glide/`, with a Hermes checkout on `PYTHONPATH`:
+
+```sh
+python -m pytest -q tests
 ```
-python -m pytest tests   # with a hermes-agent checkout on PYTHONPATH for tests/test_memory_core.py
+
+From the repository root, check CLI registration, channel routing without an alias, and onboarding:
+
+```sh
+python glide/tools/verify_launch.py
+python glide/tools/check_layout.py --upstream upstream/main
 ```
+
+The launch check uses a temporary profile and synthetic history. It intercepts the final chat launch
+so it cannot open a desktop window. For the isolated native Taste check, see [Taste](docs/taste.md).
 
 MIT licensed.

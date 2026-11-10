@@ -1,5 +1,5 @@
 // Run only in an owned isolated Tern display with the existing Atlas server.
-// From the repo root: GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.ts
+// From the repo root: GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.mts
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { mkdtemp, readdir, rm } from 'node:fs/promises'
