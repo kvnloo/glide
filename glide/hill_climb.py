@@ -112,11 +112,13 @@ class KernelSpec:
 
 
 def default_kernel_spec() -> KernelSpec:
-    # Default: use the built-in CPU benchmark via python -c with absolute path
+    # Default: use the built-in CPU benchmark via python -c
+    # Use module-relative path so it works on any host
+    glide_dir = os.path.dirname(os.path.abspath(__file__))
     bench_cmd = [
         sys.executable,
         "-c",
-        "import json, sys; sys.path.insert(0, '/mnt/zer0models/worktrees/glide-steps-456/glide'); from hill_climb import cpu_benchmark; print(json.dumps(cpu_benchmark()))",
+        f"import json, sys; sys.path.insert(0, '{glide_dir}'); from hill_climb import cpu_benchmark; print(json.dumps(cpu_benchmark()))",
     ]
     return KernelSpec(
         target_command=bench_cmd,
