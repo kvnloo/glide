@@ -1,18 +1,18 @@
 // Run only in an owned isolated Tern display with the existing Atlas server.
-// GLIDE_SOURCE=/path/to/glide GLIDE_TASTE_VERIFY_ISOLATED=1 bun scripts/verify-glide-taste.ts
+// From the repo root: GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.ts
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { mkdtemp, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
+import { fileURLToPath } from 'node:url'
 
-import { decodeJson, record } from '../src/wire/json.js'
-import { openTastePane, tasteBoard } from '../src/wire/taste.js'
+import { decodeJson, record } from '../../frontend/src/wire/json.js'
+import { openTastePane, tasteBoard } from '../frontend/taste.js'
 
 assert.equal(process.env['GLIDE_TASTE_VERIFY_ISOLATED'], '1', 'An owned isolated Tern display is required')
-const source = process.env['GLIDE_SOURCE']
-assert.ok(source, 'Set GLIDE_SOURCE to the companion Glide plugin checkout')
+const source = process.env['GLIDE_SOURCE'] ?? fileURLToPath(new URL('../', import.meta.url))
 const execute = promisify(execFile)
 const home = await mkdtemp(join(tmpdir(), 'glide-taste-verify-'))
 let block: number | undefined

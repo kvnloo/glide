@@ -1,6 +1,6 @@
 # Open a Taste brainstorm beside chat
 
-1. Enable the Glide plugin in your Hermes profile.
+1. Enable both plugins from this repository in your Hermes profile. Install `kvnloo/glide` for Tern and `kvnloo/glide#glide` for memory.
 2. Start your existing Taste Atlas app with `node scripts/board.mjs serve` from the app directory.
 3. In a local Tern chat, run `/glide taste`.
 
@@ -24,14 +24,16 @@ frontends return the board link. If the server is down, the error names the serv
 Run the focused checks from `frontend`:
 
 ```sh
-bun run test src/__tests__/glideCommand.test.ts src/__tests__/glideTaste.test.ts src/__tests__/tastePane.test.ts
+bun run test src/__tests__/glideCommand.test.ts
 ```
 
-In an owned isolated Tern display, verify the real plugin, server, and native browser together:
+From the repository root, in an owned isolated Tern display, verify the plugin, server, and native browser together:
 
 ```sh
-GLIDE_SOURCE=/path/to/glide GLIDE_TASTE_VERIFY_ISOLATED=1 bun scripts/verify-glide-taste.ts
+GLIDE_TASTE_VERIFY_ISOLATED=1 bun glide/tools/verify-taste.ts
 ```
+
+The script loads this repository's `glide/` plugin by default. `GLIDE_SOURCE` can select another plugin directory.
 
 The script requires the test pane's `TERN_PANE` and daemon environment. It uses a temporary Hermes
 profile, checks that the native board finishes loading, closes its browser block, and removes the
