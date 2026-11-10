@@ -48,3 +48,8 @@ def register(ctx) -> None:
     from . import talk_backend
 
     talk_backend.register(ctx)
+    # Glide ships in the same install: `hermes plugins install kvnloo/glide` gives the Tern UI and /glide.
+    # (glide/ also installs alone, without Tern, as `kvnloo/glide#glide`; install one or the other.)
+    from . import glide
+
+    glide.register(ctx)

@@ -10,6 +10,7 @@ homepage: https://github.com/kvnloo/hermes-tern
 tags: [tern, tui, frontend]
 requires_hermes: ">=0.23.0"
 provides_tools: [link_pull_request, unlink_pull_request, list_pull_requests]
+provides_hooks: [pre_llm_call]
 optional_env:
   - name: GITHUB_TOKEN
     description: "GitHub token for the pull request view and its checks (`hermes config set GITHUB_TOKEN <token>`)"
