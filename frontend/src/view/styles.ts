@@ -137,6 +137,10 @@ export const STYLES = css`
 
   /* The session sidebar is a prefs sheet for its dock, not for settings: no search, no one-page
      strip, no page heading over the folder line. */
+  .sf-prefs[data-id='layer.factory'] .pf-search,
+  .sf-prefs[data-id='layer.factory'] .pf-groups,
+  .sf-prefs[data-id='layer.factory'] .pf-eyebrow,
+  .sf-prefs[data-id='layer.factory'] .pf-title,
   .sf-prefs[data-id='layer.sidebar'] .pf-mark,
   .sf-prefs[data-id='layer.sidebar'] .pf-search,
   .sf-prefs[data-id='layer.sidebar'] .pf-groups,

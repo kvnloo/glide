@@ -6,6 +6,7 @@
 import type { FileContext } from '../artifacts/links.js'
 import type { GatewayClient } from '@tui/gatewayClient.js'
 
+import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
 import type { ThinkingOrb } from '../chrome/orb.js'
 import type { Sidebar } from '../chrome/sidebar.js'
@@ -43,7 +44,8 @@ export interface FrameCx extends DockSources {
   readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries'>
   readonly prAside: Pick<PrAside, 'node' | 'open'>
   readonly sidebar: Pick<Sidebar, 'node'>
-  /** Tern has the aside feature: the PR aside or the session sidebar docks at the right edge. */
+  readonly factory: Pick<FactoryPane, 'node' | 'open'>
+  /** Tern has the aside feature: Factory, the PR aside or the session sidebar docks at the right edge. */
   aside(): boolean
   /** The dock's buttons, bound once. */
   readonly actions: DockActions
@@ -83,7 +85,9 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   const chrome = {
     dock: [...(voice ? [voice] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb ? { orb: cx.orb.props() } : {}) }, cx.actions)],
     layer: [
-      ...(cx.aside() ? [cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null) : []),
+      ...(cx.aside()
+        ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)
+        : []),
       ...cx.overlays.map(o => o.node(cx.stack.rootOf(o))),
       ...(modal ? [] : cx.completion.nodes(COMPOSER_ID))
     ]

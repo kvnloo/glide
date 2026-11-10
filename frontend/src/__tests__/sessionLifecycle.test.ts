@@ -154,6 +154,7 @@ function recordingHost() {
     automation: { adopt: sid => void log.push(`automation.adopt ${sid}`) },
     changed: rec('changed'),
     connect: { watch: rec('connect.watch') },
+    factory: { adopt: sid => void log.push(`factory.adopt ${sid}`) },
     forgetStatusNote: rec('forgetStatusNote'),
     hud: { adopt: sid => void log.push(`hud.adopt ${sid}`) },
     imageLanded: rec('imageLanded'),
@@ -245,6 +246,7 @@ describe('adoptSteps', () => {
       'connect.watch',
       'prs.adopt',
       'sidebar.adopt b',
+      'factory.adopt b',
       'automation.adopt b',
       'transcript.inflight',
       'changed'
@@ -290,6 +292,7 @@ describe('adoptSteps', () => {
       'connect.watch',
       'prs.adopt',
       'sidebar.adopt a',
+      'factory.adopt a',
       'automation.adopt a',
       'changed'
     ])

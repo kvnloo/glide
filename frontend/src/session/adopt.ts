@@ -10,6 +10,7 @@ import type { SessionInfo } from '@tui/types.js'
 import type { BtwThreads } from '../btw.js'
 
 import type { Agents } from '../agents/store.js'
+import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
 import type { NoticeStrip } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
@@ -74,6 +75,7 @@ export interface AdoptHost {
   readonly queue: Pick<PromptQueue, 'adopt'> & { readonly server: Pick<PromptQueue['server'], 'reset'> }
   readonly sheets: Pick<PromptSheets, 'dropAll'>
   readonly sidebar: Pick<Sidebar, 'adopt'>
+  readonly factory: Pick<FactoryPane, 'adopt'>
   readonly title: Pick<SessionTitle, 'adopt'>
   readonly hud: Pick<Hud, 'adopt'>
   readonly todoHud: Pick<TodoHud, 'adopt'>
@@ -193,6 +195,7 @@ export function adoptSteps(host: AdoptHost): readonly Adoptable[] {
         host.connect.watch()
         host.prs.adopt()
         host.sidebar.adopt(ref.live)
+        host.factory.adopt(ref.live)
         host.automation.adopt(ref.live)
       }
     },

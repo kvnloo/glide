@@ -92,6 +92,8 @@ export interface ChatPorts extends OverlayHost {
   openNotices(): void
   /** Docks PR `key` at the pane's right edge, in place of the session sidebar. */
   openPrAside(key: PrKey | undefined): void
+  /** Shows or hides Factory; false when Tern has no aside, so the command can show text. */
+  toggleFactory(): boolean
   /** Shows or hides the session sidebar. */
   toggleSidebar(): void
   /** Starts a new session, named `title` when given. */

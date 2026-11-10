@@ -8,6 +8,7 @@ import type { GatewayClient } from '@tui/gatewayClient.js'
 
 import { Agents } from '../agents/store.js'
 import { BtwThreads } from '../btw.js'
+import { FactoryPane } from '../chrome/factory.js'
 import { Hud } from '../chrome/hud.js'
 import { NoticeStrip } from '../chrome/notices.js'
 import { Reconnect } from '../chrome/reconnect.js'
@@ -124,6 +125,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const processes = new Processes(live, { author: hermesAuthor(), enabled: () => jobCharts, memory: chartMemory() })
   const cron = new Cron(chat)
   const sidebar = new Sidebar(chat)
+  const factory = new FactoryPane(chat)
   /** The session's standing /goal and /loop (the dock line above the pills and its sheets). */
   const automation = new Automation(live)
   /** The session's title, as Hermes names it: on the status strip and the tab. */
@@ -227,6 +229,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     composer,
     vimPreference,
     connect,
+    factory,
     hud,
     media,
     mediaDelivery,
@@ -313,5 +316,6 @@ export function disposeStores(s: ChatStores) {
   s.processes.dispose()
   s.prs.dispose()
   s.sidebar.dispose()
+  s.factory.dispose()
   s.cron.dispose()
 }

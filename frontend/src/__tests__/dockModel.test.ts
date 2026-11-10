@@ -272,6 +272,7 @@ function frame(over: Partial<FrameCx> = {}) {
     },
     prAside: { node: () => null, open: false },
     sidebar: { node: () => null },
+    factory: { node: () => null, open: false },
     surface: { closed: false, follow: id => void log.push(`follow ${id}`), render: () => void log.push('render') },
     transcript: { changedEntries: new Set(), currentTodos: () => undefined, entries: [] },
     welcome: { tip: '', version: '' },

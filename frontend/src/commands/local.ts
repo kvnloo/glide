@@ -66,6 +66,7 @@ export type CommandHost = Pick<
   | 'setEffort'
   | 'setTheme'
   | 'theme'
+  | 'toggleFactory'
   | 'toggleSidebar'
   | 'transcript'
 > &
@@ -378,7 +379,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: (host, arg) => glideCommand(host, arg)
   },
   {
-    help: 'Content factory: ComfyUI and recent renders, studied scenes, render a shot [scenes <words> | render <run>]',
+    help: 'Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
     run: (host, arg) => factoryCommand(host, arg)
   },

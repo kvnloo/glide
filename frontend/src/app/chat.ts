@@ -477,6 +477,10 @@ export class App implements ChatPorts {
     return this.stores.attachments.fromPath(raw)
   }
 
+  toggleFactory(): boolean {
+    return this.#act.toggleFactory()
+  }
+
   toggleSidebar() {
     this.#act.toggleSidebar()
   }
