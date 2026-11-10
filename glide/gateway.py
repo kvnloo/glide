@@ -1,4 +1,4 @@
-"""Gateway methods (`glide.detect|sync|enable|recall`) for frontends that draw their own cards.
+"""Gateway methods (`glide.detect|sync|enable|recall|taste`) for frontends that draw their own cards.
 
 Optional: Hermes cores without ``register_gateway_method`` skip them, and `/glide` still works.
 Every method is bound to the session the caller is attached to.
