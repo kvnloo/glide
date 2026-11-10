@@ -3,6 +3,7 @@
 // pre_llm_call hook). Every step that writes waits for a tap on a host-owned approve card.
 
 import type { EuiCards } from '../eui/cards.js'
+import type { EuiApprovalContext } from '../eui/host.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import type { SessionView } from '../app/ports.js'
@@ -16,6 +17,12 @@ export interface GlideHost {
   readonly eui?: Pick<EuiCards, 'host'> | undefined
 }
 
+export interface GlideRouter { installed: boolean; fresh: boolean; categories: number; skills: number; top: { category: string; rule: string; skills: string[] }[] }
+export interface GlideClimb {
+  target: string; metric: string; baseline: { mean: number } | null; candidate: { mean: number } | null
+  delta: number | null; noise: number | null; verdict: 'KEEP' | 'REVERT' | null; reason: string | null
+}
+export interface GlideSavings { local_models: string[]; tasks: number; tokens_offloaded: number; est_cost_saved_usd: number; assumptions: string[] }
 export interface GlideMemory { sessions: number; corrections: number; complete: boolean; on: boolean; scanned?: number }
 export interface GlideDetect {
   os: string
@@ -83,6 +90,73 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       return
     }
 
+    // Steps 4-6 each wait for a tap and chain to the next: skill router -> one hill climb -> savings.
+    const guarded = (run: (ctx: EuiApprovalContext) => Promise<void>) => async (ctx: EuiApprovalContext) => {
+      try { await run(ctx) } catch (error) { fail(error) }
+    }
+    const fmt = (n: number | null | undefined) => n === null || n === undefined ? '—' : Number(n.toFixed(2))
+    const savings = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Offload a small task to a local model',
+      rows: [{ label: 'Task', value: 'a two-sentence summary' }, { label: 'Runs on', value: 'your smallest local model' }],
+      approval: { label: 'Offload it', description: 'Sends one sample task to a local model through ollama, then shows the frontier tokens it kept out of your paid context.' }
+    }, guarded(async ({ signal }) => {
+      const r = await call<GlideSavings>('offload', { run: true })
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'intel-value', app: APP, title: 'Offload savings',
+        summary: r.assumptions.join(' '),
+        rows: [
+          { label: 'Local model', value: r.local_models[0] ?? 'none found' },
+          { label: 'Tasks offloaded', value: r.tasks },
+          { label: 'Tokens kept local', value: r.tokens_offloaded },
+          { label: 'Est. saved', value: `$${r.est_cost_saved_usd.toFixed(4)}` }
+        ]
+      })
+    }))
+    const climb = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Run your first hill climb',
+      rows: [{ label: 'Target', value: 'CPU benchmark' }, { label: 'Referee', value: 'paired samples, noise floor' }],
+      approval: { label: 'Run one round', description: 'Benchmarks a baseline and one candidate on this machine and keeps the candidate only if it beats the noise floor.' }
+    }, guarded(async ({ signal }) => {
+      const r = await call<GlideClimb>('hill_climb', { run: true })
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'metric', app: APP, title: r.verdict ? `Hill climb: ${r.verdict}` : 'Hill climb',
+        summary: r.reason ?? '',
+        rows: [
+          { label: 'Baseline', value: fmt(r.baseline?.mean) },
+          { label: 'Candidate', value: fmt(r.candidate?.mean) },
+          { label: 'Delta', value: fmt(r.delta) },
+          { label: 'Noise floor', value: fmt(r.noise) },
+          { label: 'Verdict', value: r.verdict ?? 'no round yet' }
+        ]
+      })
+      savings()
+    }))
+    const router = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Install the skill router',
+      rows: [{ label: 'Picks', value: 'skills by task category' }, { label: 'Writes', value: "your profile's glide folder" }],
+      approval: { label: 'Install', description: 'Installs a small category -> skills catalog so each turn loads the skills that fit the task.' }
+    }, guarded(async ({ signal }) => {
+      const r = await call<GlideRouter>('skill_router')
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'receipt', app: APP, title: r.fresh ? 'Skill router installed' : 'Skill router is installed',
+        rows: [
+          { label: 'Categories', value: r.categories },
+          { label: 'Skills', value: r.skills },
+          ...r.top.slice(0, 3).map(c => ({ label: c.category, value: c.skills.slice(0, 3).join(', ') || c.rule }))
+        ]
+      })
+      climb()
+    }))
+    const steps: Record<string, () => void> = { router, climb, savings }
+    const step = verb ? steps[verb] : undefined
+    if (step) {
+      step()
+      return
+    }
+
     const found = await call<GlideDetect>('detect')
     cards.publish({
       kind: 'infra-models', app: APP, title: 'This machine',
@@ -114,7 +188,9 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       }
     }, async ({ signal }) => {
       const m = await call<GlideMemory>('enable', { on: true })
-      if (!signal.aborted) cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is on', rows: memoryRows(m) })
+      if (signal.aborted) return
+      cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is on', rows: memoryRows(m) })
+      router()
     })
 
     cards.publish({
@@ -129,7 +205,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         const m = await call<GlideMemory>('sync', { limit: SESSIONS })
         if (signal.aborted) return
         cards.publish({ kind: 'intent-proof', app: APP, title: 'Local memory built', rows: [...memoryRows(m), { label: 'Messages scanned', value: m.scanned ?? 0 }] })
-        if (!m.on) enable()
+        if (m.on) router()
+        else enable()
       } catch (error) {
         fail(error)
       }
