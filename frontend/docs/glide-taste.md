@@ -26,3 +26,13 @@ Run the focused checks from `frontend`:
 ```sh
 bun run test src/__tests__/glideCommand.test.ts src/__tests__/glideTaste.test.ts src/__tests__/tastePane.test.ts
 ```
+
+In an owned isolated Tern display, verify the real plugin, server, and native browser together:
+
+```sh
+GLIDE_SOURCE=/path/to/glide GLIDE_TASTE_VERIFY_ISOLATED=1 bun scripts/verify-glide-taste.ts
+```
+
+The script requires the test pane's `TERN_PANE` and daemon environment. It uses a temporary Hermes
+profile, checks that the native board finishes loading, closes its browser block, and removes the
+profile. Do not run it on another person's desktop. It prints no private board content.
