@@ -192,7 +192,7 @@ def test_channel_aliases_bind_their_own_channel_and_use_the_launcher(monkeypatch
     monkeypatch.setattr(channels, "aliases", lambda: {"mytern": "main", "myternp": "preview"})
     ctx = RecordingCtx()
     hermes_tern_plugin.register(ctx)
-    commands = {kwargs["name"]: kwargs for _, kwargs in ctx.of("register_cli_command")}
+    commands = {kwargs["name"]: kwargs for _, kwargs in ctx.of("register_cli_command") if "name" in kwargs}  # glide's is positional
     assert set(commands) == {"tern", "mytern", "myternp"}
     assert commands["tern"]["handler_fn"] is launcher.run
     calls = []
@@ -210,8 +210,7 @@ def test_channel_aliases_bind_their_own_channel_and_use_the_launcher(monkeypatch
 def test_talk_command_and_owned_unload_are_preserved(ctx):
     from hermes_tern_plugin import talk_backend
 
-    ((args, kwargs),) = ctx.of("register_command")
-    assert args == ("tern-talk",)
+    ((args, kwargs),) = [(a, k) for a, k in ctx.of("register_command") if a == ("tern-talk",)]
     assert kwargs["handler"] == talk_backend._controller.command
     assert kwargs["args_hint"] == "start|status|stop CALL_ID"
     assert any(args == (talk_backend._controller.close,) for args, _ in ctx.of("on_unload"))
