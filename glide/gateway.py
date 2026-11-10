@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import core, source
+from . import core, source, taste
 
 NAMESPACE = "glide"
 
@@ -34,6 +34,7 @@ class RecallParams(SessionParams):
 
 VERBS = {
     "detect": (SessionParams, lambda home, p: core.detect(home)),
+    "taste": (SessionParams, lambda home, p: taste.board()),
     "sync": (SyncParams, lambda home, p: core.sync(home, p.limit, p.session_id)),
     "enable": (EnableParams, lambda home, p: core.set_enabled(home, p.on)),
     "recall": (RecallParams, lambda home, p: {"hits": core.recall(home, p.query)}),
