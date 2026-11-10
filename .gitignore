@@ -6,8 +6,3 @@ uv.lock
 .hermes-agent/
 .hermes-test-core/
 .sync-results/
-
-# Frontend
-frontend/node_modules/
-frontend/pnpm-lock.yaml
-frontend/pnpm-workspace.yaml

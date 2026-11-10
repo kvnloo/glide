@@ -41,13 +41,22 @@ class SkillRouterParams(SessionParams):
 
 
 class HillClimbParams(SessionParams):
-    """Params for hill_climb gateway method - no extra fields beyond session_id."""
+    """`run=True` scaffolds the CPU benchmark if needed and runs one paired round."""
     model_config = ConfigDict(extra="forbid")
+    run: bool = False
 
 
 class OffloadParams(SessionParams):
-    """Params for offload gateway method - no extra fields beyond session_id."""
+    """`run=True` sends one sample summarizing task to the smallest local model first."""
     model_config = ConfigDict(extra="forbid")
+    run: bool = False
+
+
+_SAMPLE_TASK = (
+    "Summarize in two sentences: Glide reads your past local Hermes sessions, keeps the corrections "
+    "you gave, and quotes up to three matching ones into each new turn. Recall is BM25 over the kept "
+    "corrections, with no embeddings and no model calls, and nothing leaves the machine."
+)
 
 
 VERBS = {
@@ -62,42 +71,33 @@ VERBS = {
 
 
 def _skill_router_run(home: Path, params: SkillRouterParams) -> dict:
-    """Run skill router and return structured JSON for the card."""
+    """Install the router catalog (idempotent) and return it for the card."""
+    from .skill_router import load_state
+
     result = skill_router_install(home)
-    if result.get("installed"):
-        from .skill_router import load_state
-
-        state = load_state(home)
-        top = []
-        for cat_name, cat_rule in state.categories.items():
-            skills_in_cat = []
-            for skill_name in cat_rule.preferred_order:
-                skill = state.skills.get(skill_name)
-                if skill:
-                    skills_in_cat.append(
-                        {"name": skill.name, "description": skill.description}
-                    )
-            top.append({"category": cat_name, "rule": cat_rule.rule, "skills": skills_in_cat})
-
-        return {
-            "installed": True,
-            "categories": result["categories"],
-            "skills": result["skills"],
-            "top": top,
-        }
-    else:
-        return {
-            "installed": False,
-            "categories": result["categories"],
-            "skills": result["skills"],
-            "top": [],
-        }
+    state = load_state(home)
+    top = [
+        {"category": name, "rule": rule.rule,
+         "skills": [s for s in rule.preferred_order if s in state.skills]}
+        for name, rule in state.categories.items()
+    ]
+    return {
+        "installed": bool(state.categories and state.skills),
+        "fresh": bool(result.get("installed")),
+        "categories": len(state.categories),
+        "skills": len(state.skills),
+        "top": top,
+    }
 
 
 def _hill_climb_run(home: Path, params: HillClimbParams) -> dict:
     """Run hill climb and return structured JSON for the card."""
-    from .hill_climb import status as hc_status
+    from .hill_climb import run_round, scaffold, status as hc_status
 
+    if params.run:
+        if not hc_status(home).get("scaffolded"):
+            scaffold(home)
+        run_round(home)
     state = hc_status(home)
 
     if not state.get("scaffolded"):
@@ -152,29 +152,22 @@ def _hill_climb_run(home: Path, params: HillClimbParams) -> dict:
 
 
 def _offload_run(home: Path, params: OffloadParams) -> dict:
-    """Run offload and return structured JSON for the card."""
-    result = offload_savings_card(home)
+    """Recorded offload savings plus the local models found right now."""
+    from .offload import detect_local_models, offload_task
 
-    if result.get("empty"):
-        return {
-            "local_model": None,
-            "tasks": 0,
-            "tokens_offloaded": 0,
-            "est_cost_saved_usd": 0.0,
-            "assumptions": ["No offload tasks recorded yet."],
-        }
-
-    # Map from savings_card format to gateway format
-    # savings_card returns: {empty, session_duration_s, total_tasks, total_prompt_tokens,
-    #   total_completion_tokens, total_tokens_saved, estimated_cost_saved_usd,
-    #   total_offload_time_ms, by_type, models_used}
-    # gateway format: {local_model, tasks, tokens_offloaded, est_cost_saved_usd, assumptions}
+    if params.run:
+        offload_task(home, "summarize", _SAMPLE_TASK)
+    models = [m.get("name") or m.get("model") or str(m) for m in detect_local_models()]
+    card = offload_savings_card(home)
+    if card.get("empty"):
+        return {"local_models": models, "tasks": 0, "tokens_offloaded": 0,
+                "est_cost_saved_usd": 0.0, "assumptions": ["No offload tasks recorded yet."]}
     return {
-        "local_model": result.get("models_used", [None])[0],
-        "tasks": result.get("total_tasks", 0),
-        "tokens_offloaded": result.get("total_tokens_saved", 0),
-        "est_cost_saved_usd": result.get("estimated_cost_saved_usd", 0.0),
-        "assumptions": ["Frontier cost @ ${0.01}/1k tokens (rough blend)"],
+        "local_models": card.get("models_used") or models,
+        "tasks": card.get("total_tasks", 0),
+        "tokens_offloaded": card.get("total_tokens_saved", 0),
+        "est_cost_saved_usd": card.get("estimated_cost_saved_usd", 0.0),
+        "assumptions": ["Estimate: frontier tokens priced at $0.01 per 1k (blended)"],
     }
 
 

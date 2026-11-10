@@ -6,7 +6,7 @@ import { EventEmitter } from 'node:events'
 
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { SessionInfo } from '@hermes/shared/gateway-types'
-import { type JSX, type Key, node, Node, type NodeJson, type OpenOptions, type Region, type RegionName, type Renderable, type Session, Span, type SurfaceLink, type TspEvent, type ViewInput } from '@stencil-hq/tern'
+import { type JSX, type Key, node, Node, type NodeJson, type OpenOptions, type Region, type RegionName, type Renderable, type Session, Span, Surface, type SurfaceLink, type TspEvent, type ViewInput } from '@stencil-hq/tern'
 import { vi } from 'vitest'
 
 import type { SessionView } from '../app/ports.js'
@@ -322,35 +322,4 @@ export function spanTexts(spans: unknown): string[] {
 /** An overlay with nothing to show that takes every key, for a test to open (`modal`: a question sheet). */
 export function stubOverlay(key: string, { modal }: { modal?: boolean } = {}): Overlay {
   return { key, ...(modal === undefined ? {} : { modal }), node: id => node('col', { key: nativeOverlayKey(id) }), onKey: () => true }
-}
-
-/** Reply fixtures for glide steps 4-6 */
-export const skillRouterReply = {
-  installed: true,
-  categories: 12,
-  skills: 47,
-  top: [
-    { category: 'coding', rule: 'ast' },
-    { category: 'writing', rule: 'tfidf' },
-    { category: 'analysis', rule: 'bm25' }
-  ]
-}
-
-export const hillClimbReply = {
-  target: 'cpu_benchmark',
-  metric: 'score',
-  baseline: { mean: 100.5, scores: [98, 101, 102, 100, 101] },
-  candidate: { mean: 102.3, scores: [101, 103, 102, 104, 101] },
-  delta: 1.8,
-  noise: 1.2,
-  verdict: 'KEEP' as const,
-  reason: 'delta > noise floor'
-}
-
-export const offloadReply = {
-  local_model: 'qwen2.5-coder-7b',
-  tasks: 23,
-  tokens_offloaded: 456789,
-  est_cost_saved_usd: 0.0914,
-  assumptions: ['$0.20/M tokens API', 'local inference free']
 }

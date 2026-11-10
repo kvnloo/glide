@@ -90,3 +90,21 @@ def test_hill_climb_referee_keept_revert_logic():
     print(f"  noise_floor: {v['stats']['noise_floor']:.4f}")
     print(f"  decision: {v['decision']}")
     assert v["decision"] in ("INCONCLUSIVE", "REVERT"), f"Expected INCONCLUSIVE or REVERT, got {v['decision']}"
+
+def test_gateway_card_runs_one_round_when_asked(home):
+    from glide_plugin import gateway
+
+    idle = gateway.call(home, "hill_climb", {"session_id": "s1"})
+    assert idle["verdict"] is None
+    card = gateway.call(home, "hill_climb", {"session_id": "s1", "run": True})
+    assert card["verdict"] in ("KEEP", "REVERT")
+    assert card["baseline"]["mean"] > 0 and card["candidate"]["mean"] > 0
+    with pytest.raises(Exception):
+        gateway.call(home, "hill_climb", {"session_id": "s1", "bogus": 1})
+
+
+def test_gateway_router_card_lists_categories(home):
+    from glide_plugin import gateway
+
+    card = gateway.call(home, "skill_router", {"session_id": "s1"})
+    assert card["installed"] and card["categories"] == len(card["top"]) > 0
