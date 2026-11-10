@@ -61,7 +61,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const fail = (error: unknown) => {
     host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, 'error')
   }
-  const [verb, ...rest] = arg.trim().split(/\s+/)
+  const [verb, ...rest] = arg.trim().split(/\\s+/)
 
   try {
     if (verb === 'off') {
@@ -77,11 +77,136 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       }
       const { hits } = await call<{ hits: { text: string; score: number }[] }>('recall', { query })
       cards.publish({
-        kind: 'search', app: APP, title: `Your corrections about “${query.slice(0, 80)}”`,
+        kind: 'search', app: APP, title: `Your corrections about "${query.slice(0, 80)}"`,
         rows: hits.length ? hits.map(h => ({ label: `score ${h.score}`, value: h.text })) : [{ label: 'No match', value: 'nothing quoted' }]
       })
       return
     }
+    // ---- Steps 4-6: new glide cards ----
+
+    // Step 4: Skill router install card
+    const skillRouterCard = () => cards.publish({
+      kind: 'approve',
+      app: APP,
+      title: 'Skill Router',
+      rows: [
+        { label: 'Categories', value: 'See detail' },
+        { label: 'Skills', value: 'See detail' },
+      ],
+      approval: {
+        label: 'Install',
+        description: 'Install the skill router catalog with tiered category rule skill ranking.',
+      },
+    }, async ({ signal }) => {
+      try {
+        const result = await call<{ installed: boolean; categories: number; skills: number; top: any[] }>('skill_router')
+        if (!signal.aborted) {
+          cards.publish({
+            kind: 'receipt',
+            app: APP,
+            title: 'Skill Router installed',
+            rows: [
+              { label: 'Installed', value: result.installed ? 'yes' : 'no' },
+              { label: 'Categories', value: result.categories },
+              { label: 'Skills', value: result.skills },
+              ...(result.top?.length > 0
+                ? result.top.map(cat => [{ label: cat.category, value: cat.rule }])
+                : []),
+            ],
+          })
+        }
+      } catch (error) {
+        if (!signal.aborted) fail(error)
+      }
+    })
+
+    // Step 5: Hill climb card
+    const hillClimbCard = () => cards.publish({
+      kind: 'approve',
+      app: APP,
+      title: 'Hill Climb',
+      rows: [
+        { label: 'Target', value: 'CPU benchmark' },
+        { label: 'Metric', value: 'score' },
+        { label: 'Verdict', value: '—' },
+      ],
+      approval: {
+        label: 'Run Round',
+        description: 'Run one hill-climb round with KEEP/REVERT verdict.',
+      },
+    }, async ({ signal }) => {
+      try {
+        const result = await call<{
+          target: string; metric: string; baseline: { mean: number; scores: number[] } | null;
+          candidate: { mean: number; scores: number[] } | null; delta: number | null;
+          noise: number | null; verdict: string | null; reason: string | null
+        }>('hill_climb')
+        if (!signal.aborted) {
+          const v = result.verdict ?? 'INCONCLUSIVE'
+          cards.publish({
+            kind: 'receipt',
+            app: APP,
+            title: 'Hill Climb Round',
+            rows: [
+              { label: 'Baseline mean', value: result.baseline?.mean ?? '—' },
+              { label: 'Candidate mean', value: result.candidate?.mean ?? '—' },
+              { label: 'Delta', value: result.delta ?? 0 },
+              { label: 'Noise floor', value: result.noise ?? 0 },
+              { label: 'Verdict', value: v },
+              { label: 'Reason', value: result.reason ?? '—' },
+            ],
+          })
+        }
+      } catch (error) {
+        if (!signal.aborted) fail(error)
+      }
+    })
+
+    // Step 6: Offload savings card
+    const offloadSavingsCard = () => cards.publish({
+      kind: 'approve',
+      app: APP,
+      title: 'Offload Savings',
+      rows: [
+        { label: 'Local model', value: '—' },
+        { label: 'Tasks', value: '—' },
+        { label: 'Tokens offloaded', value: '—' },
+      ],
+      approval: {
+        label: 'Refresh',
+        description: 'Show the offload savings card with token counts and cost estimate.',
+      },
+    }, async ({ signal }) => {
+      try {
+        const result = await call<{
+          local_model: string | null; tasks: number; tokens_offloaded: number;
+          est_cost_saved_usd: number; assumptions: string[]
+        }>('offload')
+        if (!signal.aborted) {
+          cards.publish({
+            kind: 'receipt',
+            app: APP,
+            title: 'Offload Savings Card',
+            rows: [
+              { label: 'Local model', value: result.local_model ?? 'none' },
+              { label: 'Tasks', value: result.tasks },
+              { label: 'Tokens offloaded', value: result.tokens_offloaded },
+              { label: 'Est. cost saved', value: `$${result.est_cost_saved_usd?.toFixed(4) ?? '0.0000'}` },
+              ...(result.assumptions?.length > 0
+                ? [{ label: 'Assumptions', value: result.assumptions.join('; ') }]
+                : []),
+            ],
+          })
+        }
+      } catch (error) {
+        if (!signal.aborted) fail(error)
+      }
+    })
+
+    // Publish all new cards
+    skillRouterCard()
+    hillClimbCard()
+    offloadSavingsCard()
 
     const found = await call<GlideDetect>('detect')
     cards.publish({

@@ -9,7 +9,7 @@ import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
-import { must, ofKind, stub } from './fakes.js'
+import { must, ofKind, skillRouterReply, hillClimbReply, offloadReply, stub } from './fakes.js'
 
 const memory = (m: Partial<GlideMemory> = {}): GlideMemory => ({ sessions: 0, corrections: 0, complete: false, on: false, ...m })
 const detected: GlideDetect = {
@@ -73,7 +73,7 @@ describe('/glide', () => {
     await glideCommand(host, 'recall push main')
     expect(request.mock.calls[0]).toEqual(['glide.recall', { session_id: 'glide-session', query: 'push main' }])
     await glideCommand(host, 'off')
-    expect(titles()).toEqual(['Your corrections about “push main”', 'Glide memory is off'])
+    expect(titles()).toEqual(['Your corrections about "push main"', 'Glide memory is off'])
   })
 
   it('says so when the backend is missing instead of drawing cards', async () => {
@@ -112,5 +112,75 @@ describe('/glide', () => {
     await glideCommand(host, 'recall staging')
     expect(panels()).toEqual([])
     expect(JSON.stringify(transcript.entries)).toContain('Build your memory first')
+  })
+
+  // Step 4: Skill Router card
+  it('shows Skill Router approve card and publishes receipt on tap', async () => {
+    const { host, request, titles, view } = setup({
+      'glide.skill_router': skillRouterReply
+    })
+    await glideCommand(host, '')
+    // The skill router card should appear among the new cards
+    expect(titles().includes('Skill Router')).toBe(true)
+
+    must(view(titles().findIndex(t => t === 'Skill Router')).activate)(HOST_APPROVE_ID)
+    await settle()
+
+    expect(request.mock.calls.some(c => c[0] === 'glide.skill_router')).toBe(true)
+    expect(request.mock.calls.find(c => c[0] === 'glide.skill_router')?.[1]).toEqual({ session_id: 'glide-session' })
+
+    // Receipt should be published
+    await settle()
+    expect(titles().includes('Skill Router installed')).toBe(true)
+  })
+
+  // Step 5: Hill Climb card
+  it('shows Hill Climb approve card and publishes receipt with verdict on tap', async () => {
+    const { host, request, titles, view } = setup({
+      'glide.hill_climb': hillClimbReply
+    })
+    await glideCommand(host, '')
+    expect(titles().includes('Hill Climb')).toBe(true)
+
+    must(view(titles().findIndex(t => t === 'Hill Climb')).activate)(HOST_APPROVE_ID)
+    await settle()
+
+    expect(request.mock.calls.some(c => c[0] === 'glide.hill_climb')).toBe(true)
+    expect(request.mock.calls.find(c => c[0] === 'glide.hill_climb')?.[1]).toEqual({ session_id: 'glide-session' })
+
+    // Receipt should be published with verdict
+    await settle()
+    expect(titles().includes('Hill Climb Round')).toBe(true)
+  })
+
+  // Step 6: Offload Savings card
+  it('shows Offload Savings approve card and publishes receipt on tap', async () => {
+    const { host, request, titles, view } = setup({
+      'glide.offload': offloadReply
+    })
+    await glideCommand(host, '')
+    expect(titles().includes('Offload Savings')).toBe(true)
+
+    must(view(titles().findIndex(t => t === 'Offload Savings')).activate)(HOST_APPROVE_ID)
+    await settle()
+
+    expect(request.mock.calls.some(c => c[0] === 'glide.offload')).toBe(true)
+    expect(request.mock.calls.find(c => c[0] === 'glide.offload')?.[1]).toEqual({ session_id: 'glide-session' })
+
+    // Receipt should be published
+    await settle()
+    expect(titles().includes('Offload Savings Card')).toBe(true)
+  })
+
+  it('all three new cards appear together in the flow', async () => {
+    const { host, titles } = setup({
+      'glide.skill_router': skillRouterReply,
+      'glide.hill_climb': hillClimbReply,
+      'glide.offload': offloadReply
+    })
+    await glideCommand(host, '')
+    expect(titles().includes('Skill Router')).toBe(true)
+    expect(titles().includes('Hill Climb')).toBe(true)
+    expect(titles().includes('Offload Savings')).toBe(true)
   })
 })
