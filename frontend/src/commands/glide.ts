@@ -8,6 +8,8 @@ import type { GatewayClient } from '@tui/gatewayClient.js'
 import type { SessionView } from '../app/ports.js'
 import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
+import { openTastePane, tasteBoard } from '../wire/taste.js'
+import { glideDetect, glideMemory, glideRecall, type GlideMemory } from '../wire/glide.js'
 
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
@@ -16,16 +18,7 @@ export interface GlideHost {
   readonly eui?: Pick<EuiCards, 'host'> | undefined
 }
 
-export interface GlideMemory { sessions: number; corrections: number; complete: boolean; on: boolean; scanned?: number }
-export interface GlideDetect {
-  os: string
-  cpus: number
-  ram_gib: number | null
-  gpus: string[]
-  runtimes: string[]
-  z0int: { installed: boolean; ok?: boolean; failed?: string[]; hint?: string; unchecked?: boolean }
-  memory: GlideMemory
-}
+export type { GlideDetect, GlideMemory } from '../wire/glide.js'
 
 // Served by the standalone glide plugin (github.com/kvnloo/glide).
 const NS = 'glide'
@@ -39,7 +32,8 @@ const memoryRows = (m: GlideMemory) => [
 ]
 
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
-  const sid = host.session.ref.live
+  const ref = host.session.ref
+  const sid = ref.live
   const cards = host.eui?.host
   if (!sid || !cards) {
     host.transcript.notice('/glide needs an attached session with ephemeral-ui cards', 'warning')
@@ -47,16 +41,16 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   }
   // Cores without plugin gateway methods answer "unknown method"; the same call then goes
   // through the plugin's `/glide json` command, which every core dispatches.
-  const call = async <T>(verb: string, params: Record<string, unknown> = {}): Promise<T> => {
+  const call = async (verb: string, params: Record<string, unknown> = {}): Promise<unknown> => {
     try {
-      return await host.gw.request<T>(`${NS}.${verb}`, { session_id: sid, ...params })
+      return await host.gw.request<unknown>(`${NS}.${verb}`, { session_id: sid, ...params })
     } catch (error) {
       if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error
     }
     const { output } = await host.gw.request<{ output: string }>('command.dispatch', {
       name: 'glide', arg: `json ${verb} ${JSON.stringify(params)}`, session_id: sid
     })
-    return commandReply<T>(output)
+    return commandReply<unknown>(output)
   }
   const fail = (error: unknown) => {
     host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, 'error')
@@ -64,8 +58,20 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const [verb, ...rest] = arg.trim().split(/\s+/)
 
   try {
+    if (verb === 'taste') {
+      const board = tasteBoard(await call('taste'))
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return
+      const block = await openTastePane(board)
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return
+      cards.publish({
+        kind: 'receipt', app: APP, title: board.title,
+        rows: [{ label: 'Taste pane', value: block }, { label: 'Board', value: board.url },
+          { label: 'Close', value: 'Close the browser pane to return to chat' }]
+      })
+      return
+    }
     if (verb === 'off') {
-      const m = await call<GlideMemory>('enable', { on: false })
+      const m = glideMemory.parse(await call('enable', { on: false }))
       cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is off', rows: memoryRows(m) })
       return
     }
@@ -75,7 +81,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         host.transcript.notice('Usage: /glide recall <words>', 'warning')
         return
       }
-      const { hits } = await call<{ hits: { text: string; score: number }[] }>('recall', { query })
+      const { hits } = glideRecall.parse(await call('recall', { query }))
       cards.publish({
         kind: 'search', app: APP, title: `Your corrections about “${query.slice(0, 80)}”`,
         rows: hits.length ? hits.map(h => ({ label: `score ${h.score}`, value: h.text })) : [{ label: 'No match', value: 'nothing quoted' }]
@@ -83,7 +89,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       return
     }
 
-    const found = await call<GlideDetect>('detect')
+    const found = glideDetect.parse(await call('detect'))
     cards.publish({
       kind: 'infra-models', app: APP, title: 'This machine',
       rows: [
@@ -113,7 +119,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         description: 'Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win.'
       }
     }, async ({ signal }) => {
-      const m = await call<GlideMemory>('enable', { on: true })
+      const m = glideMemory.parse(await call('enable', { on: true }))
       if (!signal.aborted) cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is on', rows: memoryRows(m) })
     })
 
@@ -126,7 +132,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       }
     }, async ({ signal }) => {
       try {
-        const m = await call<GlideMemory>('sync', { limit: SESSIONS })
+        const m = glideMemory.parse(await call('sync', { limit: SESSIONS }))
         if (signal.aborted) return
         cards.publish({ kind: 'intent-proof', app: APP, title: 'Local memory built', rows: [...memoryRows(m), { label: 'Messages scanned', value: m.scanned ?? 0 }] })
         if (!m.on) enable()
