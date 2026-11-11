@@ -1,4 +1,4 @@
-"""Gateway methods (`glide.detect|sync|enable|recall`) for frontends that draw their own cards.
+"""Gateway methods (`glide.detect|sync|enable|recall|taste`) for frontends that draw their own cards.
 
 Optional: Hermes cores without ``register_gateway_method`` skip them, and `/glide` still works.
 
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import core, source
+from . import core, source, taste
 from .skill_router import install as skill_router_install
 from .offload import savings_card as offload_savings_card
 
@@ -61,6 +61,7 @@ _SAMPLE_TASK = (
 
 VERBS = {
     "detect": (SessionParams, lambda home, p: core.detect(home)),
+    "taste": (SessionParams, lambda home, p: taste.board()),
     "sync": (SyncParams, lambda home, p: core.sync(home, p.limit, p.session_id)),
     "enable": (EnableParams, lambda home, p: core.set_enabled(home, p.on)),
     "recall": (RecallParams, lambda home, p: {"hits": core.recall(home, p.query)}),

@@ -184,6 +184,7 @@ def pre_llm_call(user_message=None, **_kwargs):
 USAGE = """/glide            show this machine and your memory
 /glide build      read your last 100 local sessions and keep the corrections you gave
 /glide on | off   quote up to three matching corrections into each turn
+/glide taste      open the optional local Taste Atlas brainstorm pane in Tern
 /glide recall <words>   show what would be quoted
 /glide setup      guided first run: build, show what was kept, self-test recall
 /glide skill-router      install skill router catalog
@@ -242,6 +243,14 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
         except MemoryNotReady:
             return "Build your memory first: /glide build"
         return "\n".join(f"- ({h['score']}) {h['text']}" for h in hits) or "No matching correction."
+    if verb == "taste":
+        from . import taste
+
+        try:
+            board = taste.board()
+        except ValueError as error:
+            return str(error)
+        return f"{board['title']}: {board['url']}"
     if verb == "json":
         return _json_call(home, rest, session_id or "")
     if verb == "skill-router":
@@ -275,26 +284,30 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
 def _setup_cli(parser) -> None:
     from . import onboarding
 
-    sub = parser.add_subparsers(dest="glide_command", required=True)
+    sub = parser.add_subparsers(dest="glide_command")
     onboarding.setup_cli(sub.add_parser("onboard", help="build, review and self-test the memory"))
 
 
 def _cli(args) -> int:
-    from . import onboarding
+    if args.glide_command == "onboard":
+        from . import onboarding
 
-    return onboarding.cli(args)
+        return onboarding.cli(args)
+    from . import launch
+
+    return launch.start(args)
 
 
 def register(ctx) -> None:
-    from . import gateway, onboarding
+    from . import gateway
 
     ctx.register_hook("pre_llm_call", pre_llm_call)
     if callable(getattr(ctx, "register_cli_command", None)):  # `hermes glide onboard`
-        ctx.register_cli_command("glide", "Glide corrections memory", _setup_cli, _cli,
-                                 description="Glide: guided onboarding for the corrections memory")
+        ctx.register_cli_command("glide", "Launch Glide or onboard corrections memory", _setup_cli, _cli,
+                                 description="Launch Glide in Tern or the regular TUI; onboard sets up corrections memory")
     if callable(getattr(ctx, "register_skill", None)):  # The model's half of onboarding.
         ctx.register_skill("onboarding", Path(__file__).with_name("skills") / "onboarding" / "SKILL.md",
                            description="Use when the user installs or sets up Glide, or asks what it remembers.")
     gateway.register(ctx)  # Card-drawing frontends (Tern); a no-op on cores without gateway methods.
-    ctx.register_command("glide", command, description="Local corrections memory: build, on, off, recall",
-                         args_hint="[build|on|off|recall <words>]")
+    ctx.register_command("glide", command, description="Local corrections memory and optional Taste Atlas board",
+                         args_hint="[build|on|off|recall <words>|taste]")

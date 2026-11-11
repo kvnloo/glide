@@ -38,7 +38,8 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | | Opt-in live voice and push-to-talk | [voice](frontend/docs/voice.md) | #15 |
 | Planning | Plan review and the session todo HUD | [PLAN-REVIEW](frontend/PLAN-REVIEW.md) | #12, #25 |
 | | Native `/btw` side questions and read-only MCP/SSH report sheets | [btw-operational-sheets](frontend/docs/btw-operational-sheets.md) | #13, #26 |
-| Agents and panes | Live OMP-style wait tiles for subagents | | #18 |
+| Agents and panes | Optional `/glide taste` brainstorm browser pane, off until requested | [glide-taste](glide/docs/taste.md) | |
+| | Live OMP-style wait tiles for subagents | | #18 |
 | | Delegation IDs isolated across overlapping sessions | | #11 |
 | | Fork a session into a sibling pane | | #7 |
 | | `/rewind` to any earlier prompt (rewind or branch), `/undo N` | | upstream #68 |

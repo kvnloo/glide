@@ -9,6 +9,14 @@ hermes plugins install kvnloo/glide#glide
 
 (`kvnloo/glide` is also a Tern frontend; the memory plugin is this `glide/` folder of it.)
 
+`hermes glide` or `hermes --tui glide` opens Tern when `hermes-tern` is enabled in the same profile.
+It selects the `glide` frontend channel when registered, otherwise the default Tern frontend.
+Without `hermes-tern`, Glide opens the regular TUI. `hermes glide onboard` still runs memory onboarding.
+
+If your Tern channel registry has `"alias": "glide"`, remove that alias from `channels.json`.
+Keep the channel itself. Glide now owns the CLI command, so the alias would collide with it.
+Glide never edits the registry.
+
 Then, in any Hermes chat (CLI, TUI, desktop or a messaging gateway):
 
 | Command | What it does |
@@ -18,6 +26,7 @@ Then, in any Hermes chat (CLI, TUI, desktop or a messaging gateway):
 | `/glide on` | Before each turn, quotes up to three matching corrections. Current instructions still win |
 | `/glide off` | Stops quoting |
 | `/glide recall <words>` | Shows what would be quoted for those words |
+| `/glide taste` | Opens the optional local Taste Atlas brainstorm board beside chat in Tern; text frontends show its URL |
 
 Nothing happens until you run `/glide build` and `/glide on`.
 
@@ -37,16 +46,33 @@ Details and the extraction contract: [docs/memory.md](docs/memory.md).
 
 ## Frontends that draw cards
 
-Glide also registers four gateway methods, bound to the caller's attached session: `glide.detect`,
-`glide.sync`, `glide.enable` and `glide.recall`. A frontend such as
+Glide registers session-bound gateway methods: `glide.detect`, `glide.sync`, `glide.enable`,
+`glide.recall`, and `glide.taste`. The same methods are available through `/glide json <verb> {params}`
+when the core has no plugin gateway methods. A frontend such as
 [Tern](https://github.com/alt-glitch/hermes-tern), or this repo's own Tern frontend
 (`hermes plugins install kvnloo/glide`), can call them to show `/glide` as cards with
 approve buttons. On a Hermes core without plugin gateway methods they are skipped, and `/glide`
 works as text.
 
+## Optional Taste pane
+
+Taste stays closed until you run `/glide taste`. It does not enable corrections memory or start a server.
+Use the existing Taste Atlas webapp with its private data configured, then run its server:
+
+```sh
+node scripts/board.mjs serve
+```
+
+Glide reads `http://127.0.0.1:8789/api/boards` and opens the newest brainstorm board in a native Tern
+browser pane. With no boards, it opens the Boards view. Close that pane with Tern's normal controls.
+Set `GLIDE_TASTE_URL=http://127.0.0.1:<port>` in the Hermes environment for another local server.
+Only HTTP loopback origins are accepted, without credentials, query strings, or redirects.
+The server owns the private data and live updates. Glide does not copy or publish them.
+The webapp can load the external reference images already saved on a board.
+
 ## Security and privacy
 
-- **Network:** none. No telemetry, no uploads, no downloads.
+- **Network:** no telemetry or uploads. Only `/glide taste` reads the existing loopback Taste Atlas server.
 - **Reads outside its data:** Hermes' session database, read-only.
 - **Commands:** `/glide` (the overview only) runs `nvidia-smi` and, if installed, `z0int doctor --json`,
   each with a 20 s timeout, to describe the machine. Nothing is installed.
@@ -60,8 +86,20 @@ health. Glide works without it.
 
 ## Development
 
+From `glide/`, with a Hermes checkout on `PYTHONPATH`:
+
+```sh
+python -m pytest -q tests
 ```
-python -m pytest tests   # with a hermes-agent checkout on PYTHONPATH for tests/test_memory_core.py
+
+From the repository root, check CLI registration, channel routing without an alias, and onboarding:
+
+```sh
+python glide/tools/verify_launch.py
+python glide/tools/check_layout.py --upstream upstream/main
 ```
+
+The launch check uses a temporary profile and synthetic history. It intercepts the final chat launch
+so it cannot open a desktop window. For the isolated native Taste check, see [Taste](docs/taste.md).
 
 MIT licensed.
