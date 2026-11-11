@@ -119,7 +119,35 @@ def main() -> None:
         run("setup", "recall:")
         check("setup-preserves-opt-in", not core.enabled(home), "memory remains off")
         taste(command)
+        focus(command, hook, sys.modules[f"{core.__package__}.attention"], stack)
         check("final-state", core.status(home)["corrections"] == 2 and not core.enabled(home), core.status(home))
+
+
+def focus(command, hook, attention, stack) -> None:
+    """The attention half: block, hold, digest, hours, wind-down. Circadian goes through the
+    stubbed core._run; Flowkit is stubbed so a real wearable service on this host is never read."""
+    stack.enter_context(patch.object(attention, "flowkit", return_value=None))
+
+    def run(args: str, expected: str) -> str:
+        result = command(args, session_id="e2e-live")
+        check(f"/glide {args}", expected in result, result)
+        return result
+
+    def route(title: str, cls: str) -> dict:
+        return json.loads(command("json route " + json.dumps({"title": title, "cls": cls}), session_id="e2e-live"))
+
+    run("focus", "Deep-work block: off")
+    run("focus start 30", "Deep-work block on until")
+    check("hook-in-block", "deep-work block" in hook("anything"), "guard rules reach the turn")
+    held = route("Synthetic PR ready for review", "decision")
+    check("route-held", held.get("deliver") is False, held)
+    critical = route("Synthetic build broke", "critical")
+    check("route-critical", critical.get("deliver") is True, critical)
+    run("focus", "Held for later: 1")
+    run("focus stop", "Synthetic PR ready for review")
+    check("hook-after-block", "deep-work block" not in hook("anything"), "guard lifted")
+    run("focus hours", "Best deep-work hours")
+    run("focus wind-down", "Time to wrap")
 
 
 def taste(command) -> None:
