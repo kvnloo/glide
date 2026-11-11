@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { focusBlock, orbitLayout, orbitSvg } from '../voice/orbit.js'
+import { focusBlock, HALO, orbitLayout, orbitRadius, orbitSvg, PERIOD, PLANET, SCENE, SCENE_H, TILT } from '../voice/orbit.js'
 
 const LANES = [
   { role: 'fast', state: 'thinking' },
@@ -8,26 +8,106 @@ const LANES = [
   { role: 'large', state: 'answered' },
   { role: 'council', state: 'thinking' }
 ]
+const ROLES = ['fast', 'small', 'large', 'council']
+const CX = SCENE / 2
+const CY = SCENE_H / 2
+const FRAMES = Array.from({ length: 144 }, (_, i) => (i * PERIOD) / 144)
+
+/** Every mix the broker can send: any non-empty subset of the roles, each lane live or dead. */
+function mixes() {
+  const out: { role: string; state: string }[][] = []
+  for (let set = 1; set < 16; set++) {
+    const roles = ROLES.filter((_, i) => set & (1 << i))
+    for (let dead = 0; dead < 1 << roles.length; dead++) {
+      out.push(roles.map((role, i) => ({ role, state: dead & (1 << i) ? 'dead' : i % 2 ? 'idle' : 'thinking' })))
+    }
+  }
+  return out
+}
+
+/** Where a lane sits on its ring, 1 exactly on it. */
+const onRing = (s: { x: number; y: number }, role: string) =>
+  ((s.x - CX) / (orbitRadius(role) * TILT)) ** 2 + ((s.y - CY) / orbitRadius(role)) ** 2
 
 describe('focus lane orbit', () => {
   it('places lanes deterministically for a given t, and they move over time', () => {
     expect(orbitLayout(LANES, 1.25)).toEqual(orbitLayout(LANES, 1.25))
     expect(orbitSvg('listening', LANES, 1.25, true)).toBe(orbitSvg('listening', LANES, 1.25, true))
-    expect(orbitLayout(LANES, 2)[0]?.x).not.toBeCloseTo(orbitLayout(LANES, 1)[0]?.x ?? 0)
-    // Fast is the inner orbit, council the outer.
-    const at = orbitLayout(LANES, 0, true)
-    const reach = (i: number) => Math.hypot((at[i]?.x ?? 0) - 92, ((at[i]?.y ?? 0) - 92) / 0.32)
-    expect(reach(0)).toBeLessThan(reach(3))
+    expect(orbitLayout(LANES, 2)[0]?.y).not.toBeCloseTo(orbitLayout(LANES, 1)[0]?.y ?? 0)
   })
 
   it('repeats on the 9.6 s cached cycle', () => {
-    expect(orbitLayout(LANES, 9.6).map(s => s.x.toFixed(3))).toEqual(orbitLayout(LANES, 0).map(s => s.x.toFixed(3)))
+    expect(orbitLayout(LANES, PERIOD).map(s => s.y.toFixed(3))).toEqual(orbitLayout(LANES, 0).map(s => s.y.toFixed(3)))
   })
 
-  it('reduced motion draws static, evenly spaced, front-facing seats', () => {
+  it('stands upright: planets pass above and below the orb on tall, narrow rings', () => {
+    expect(SCENE_H).toBeGreaterThan(SCENE)
+    const ys = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.y))
+    const xs = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.x))
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(2 * (Math.max(...xs) - Math.min(...xs)))
+    expect(Math.min(...ys)).toBeLessThan(CY - orbitRadius('fast') + 1)
+    expect(Math.max(...ys)).toBeGreaterThan(CY + orbitRadius('fast') - 1)
+    const svg = orbitSvg('listening', LANES, 0, false)
+    for (const m of svg.matchAll(/<ellipse [^>]*rx="([\d.]+)" ry="([\d.]+)"/g)) expect(Number(m[2])).toBeGreaterThan(Number(m[1]) * 2)
+    expect(svg).toContain(`viewBox="0 0 ${SCENE} ${SCENE_H}"`)
+  })
+
+  it('the far half draws behind the orb and dims', () => {
+    for (const t of FRAMES) {
+      const svg = orbitSvg('listening', LANES, t, false)
+      const core = svg.indexOf('<g transform=')
+      for (const [i, s] of orbitLayout(LANES, t).entries()) {
+        const at = svg.indexOf(`data-lane="${LANES[i]?.role}"`)
+        expect(at < core).toBe(s.z < 0)
+        expect(s.alpha).toBeCloseTo(0.55 + 0.45 * (s.z + 1) / 2)
+      }
+    }
+  })
+
+  it('every planet sits exactly on its ring, also in the drawn SVG', () => {
+    for (const t of FRAMES) {
+      for (const [i, s] of orbitLayout(LANES, t).entries()) expect(onRing(s, LANES[i]?.role ?? '')).toBeCloseTo(1, 6)
+    }
+    const svg = orbitSvg('listening', LANES, 1.7, false)
+    for (const [i, s] of orbitLayout(LANES, 1.7).entries()) {
+      const g = new RegExp(`data-lane="${LANES[i]?.role}"[^>]*>(?:<circle [^>]*fill-opacity="0.2"/>)?<circle cx="([\\d.]+)" cy="([\\d.]+)" r="[\\d.]+" fill="#`).exec(svg)
+      expect(Math.abs(Number(g?.[1]) - s.x)).toBeLessThan(0.06)
+      expect(Math.abs(Number(g?.[2]) - s.y)).toBeLessThan(0.06)
+    }
+  })
+
+  it('never bunches: in every lane mix and frame, planets keep clear of each other and inside the scene', () => {
+    for (const lanes of mixes()) {
+      for (const t of FRAMES) {
+        const sats = orbitLayout(lanes, t)
+        for (const [i, a] of sats.entries()) {
+          const halo = HALO * a.scale
+          expect(a.x - halo).toBeGreaterThanOrEqual(0)
+          expect(a.x + halo).toBeLessThanOrEqual(SCENE)
+          expect(a.y - halo).toBeGreaterThanOrEqual(0)
+          expect(a.y + halo).toBeLessThanOrEqual(SCENE_H)
+          for (const b of sats.slice(i + 1)) {
+            expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(PLANET * (a.scale + b.scale) + 2)
+          }
+        }
+      }
+    }
+  })
+
+  it('reduced motion draws static seats spread down the front half', () => {
     expect(orbitLayout(LANES, 0, true)).toEqual(orbitLayout(LANES, 7.3, true))
     expect(orbitSvg('speaking', LANES, 0, false, true)).toBe(orbitSvg('speaking', LANES, 5, false, true))
-    for (const s of orbitLayout(LANES, 3, true)) expect(s.z).toBeGreaterThan(0)
+    const seats = orbitLayout(LANES, 3, true)
+    for (const s of seats) expect(s.z).toBeGreaterThan(0)
+    const ys = seats.map(s => s.y)
+    expect([...ys].sort((a, b) => b - a)).toEqual(ys) // top to bottom in lane order: one vertical spread
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(orbitRadius('fast'))
+    for (const lanes of mixes()) {
+      const sats = orbitLayout(lanes, 0, true)
+      for (const [i, a] of sats.entries()) {
+        for (const b of sats.slice(i + 1)) expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(PLANET * (a.scale + b.scale) + 2)
+      }
+    }
   })
 
   it('parks a dead lane greyed on its orbit instead of hiding it', () => {
@@ -35,9 +115,12 @@ describe('focus lane orbit', () => {
     const a = orbitLayout(lanes, 0.4)[1]
     expect(a).toEqual(orbitLayout(lanes, 3.1)[1])
     expect(a?.parked).toBe(true)
-    expect(a?.alpha).toBeLessThan(0.5)
+    expect(a?.alpha).toBeLessThan(1)
     expect(a?.alpha).toBeGreaterThan(0)
-    expect(orbitSvg('listening', lanes, 0.4, true)).toContain('data-lane="council"')
+    expect(onRing(a ?? { x: 0, y: 0 }, 'council')).toBeCloseTo(1, 6)
+    const svg = orbitSvg('listening', lanes, 0.4, true)
+    expect(svg).toContain('data-lane="council"')
+    expect(svg).toContain('stroke-dasharray') // its orbit holds only a dead lane
   })
 
   it('is off outside a focus block', () => {

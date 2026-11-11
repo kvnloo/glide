@@ -243,28 +243,34 @@ export class LaneStrip {
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
         : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
+    const rows = lanes.map((lane, i) => (
+      <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
+        {this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
+        <col key="text">
+          <text key="who" spans={[
+            { s: 'strong', t: lane.role },
+            { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
+            lane.state === 'dead'
+              ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
+              : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
+                : lane.state === 'verified' ? { s: 'success', t: 'verified' }
+                  : { t: lane.state }
+          ]} wrap="none" />
+          {lane.researching ? <text key="doing" spans={[{ s: 'dim', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
+          {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
+        </col>
+      </row>
+    ))
     return (
       <col key="live-lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
-        {this.#orbit ? <image key="orbit" role="omp.live.lanes.orbit" {...this.#orbit.props()} /> : null}
-        {lanes.map((lane, i) => (
-          <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
-            {this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
-            <col key="text">
-              <text key="who" spans={[
-                { s: 'strong', t: lane.role },
-                { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
-                lane.state === 'dead'
-                  ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
-                  : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
-                    : lane.state === 'verified' ? { s: 'success', t: 'verified' }
-                      : { t: lane.state }
-              ]} wrap="none" />
-              {lane.researching ? <text key="doing" spans={[{ s: 'dim', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
-              {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
-            </col>
+        {this.#orbit
+          // The upright orbit stands beside the lane list, so its height adds nothing to the dock.
+          ? <row key="orbit" align="center" gap="md" role="omp.live.lanes.orbit">
+            <image key="scene" {...this.#orbit.props()} />
+            <col key="rows">{rows}</col>
           </row>
-        ))}
+          : rows}
       </col>
     )
   }

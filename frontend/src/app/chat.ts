@@ -17,6 +17,7 @@ import type { Agents } from '../agents/store.js'
 import { OrbActivity, type OrbState, ThinkingOrb } from '../chrome/orb.js'
 import { type LaneFeed, LaneStrip } from '../voice/lanes.js'
 import { focusBlock } from '../voice/orbit.js'
+import { refreshFocusBlock } from '../commands/glide.js'
 import { noticeReport } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import { sessionHost } from '../commands/host.js'
@@ -100,6 +101,7 @@ export class App implements ChatPorts {
   #orb: ThinkingOrb | undefined
   #lanes: LaneStrip | undefined
   #orbSid: string | null = null
+  #wasLive = false
   #visible = true
   #editingExternal = false
   #retention: Retention | undefined
@@ -334,18 +336,26 @@ export class App implements ChatPorts {
       this.#orbActivity.reset(Boolean(this.busy))
     }
 
+    const live = this.liveVoice.blocked && this.liveVoice.phase !== 'consent'
+    if (live && !this.#wasLive && sid && this.#lanes) {
+      // A block another pane started still counts: ask the plugin once as live voice starts.
+      void refreshFocusBlock(this.#gw, sid).then(() => this.#renders.request(), () => undefined)
+    }
+    this.#wasLive = live
+
     if (!this.#visible) {
       return
     }
 
-    const live = this.liveVoice.blocked && this.liveVoice.phase !== 'consent'
     const orbState: OrbState = live
       ? this.liveVoice.phase === 'speaking' ? 'speaking'
         : this.liveVoice.phase === 'thinking' || this.liveVoice.phase === 'starting' ? 'thinking'
           : this.liveVoice.phase === 'error' ? 'error' : 'listening'
       : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:')))
-    this.#orb?.update(orbState, this.overlays.at(-1)?.modal === true)
-    this.#lanes?.update(live, this.overlays.at(-1)?.modal === true, orbState, focusBlock.active())
+    const modal = this.overlays.at(-1)?.modal === true
+    this.#lanes?.update(live, modal, orbState, focusBlock.active())
+    // While the lanes orbit, the orbit's centre is the voice orb: the composer's copy stays hidden and still.
+    this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true)
     if (!this.#view || this.#surface.closed) {
       return
     }
