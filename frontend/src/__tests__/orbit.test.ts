@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { focusBlock, HALO, laneSwatch, ORB_R, orbitLayout, orbitRadius, orbitScene, orbitSvg, PERIOD, PLANET, stipple, TILT } from '../voice/orbit.js'
+import { focusBlock, HALO, lanePeriod, laneSwatch, ORB_R, orbitLayout, orbitRadius, orbitScene, orbitSvg, PERIOD, PLANET, stipple, TILT } from '../voice/orbit.js'
 
 const LANES = [
   { role: 'fast', state: 'thinking' },
@@ -78,13 +78,33 @@ describe('focus lane orbit', () => {
     }
   })
 
+  it('speed reads as the lane: fast laps quickest, large slowest, each tail as long as its speed', () => {
+    const sweep = (role: string) => {
+      const a = orbitLayout([{ role, state: 'idle' }], 0)[0]
+      const b = orbitLayout([{ role, state: 'idle' }], 0.1)[0]
+      return Math.abs((b?.theta ?? 0) - (a?.theta ?? 0))
+    }
+    expect(sweep('fast')).toBeGreaterThan(sweep('small'))
+    expect(sweep('small')).toBeGreaterThan(sweep('large'))
+    for (const role of ['fast', 'small', 'large', 'council']) expect(PERIOD % lanePeriod(role)).toBeCloseTo(0, 9)
+    const tailSpan = (role: string) => {
+      const svg = orbitSvg('listening', [{ role, state: 'idle' }], 1, true)
+      const pts = [...(new RegExp(`data-tail="${role}"[^>]*>((?:<circle [^>]*/>)+)</g>`).exec(svg)?.[1] ?? '').matchAll(/cx="([\d.-]+)" cy="([\d.-]+)"/g)].map(m => [Number(m[1]), Number(m[2])])
+      const first = pts[0] ?? [0, 0]
+      const last = pts[pts.length - 1] ?? [0, 0]
+      return Math.hypot((first[0] ?? 0) - (last[0] ?? 0), (first[1] ?? 0) - (last[1] ?? 0))
+    }
+    expect(tailSpan('fast')).toBeGreaterThan(tailSpan('large') * 2)
+    expect(orbitSvg('listening', [{ role: 'fast', state: 'idle' }], 1, true, true)).not.toContain('data-tail')
+  })
+
   it('every planet sits exactly on its ring, also in the drawn SVG', () => {
     for (const t of FRAMES) {
       for (const [i, s] of orbitLayout(LANES, t).entries()) expect(onRing(s, LANES[i]?.role ?? '')).toBeCloseTo(1, 6)
     }
     const svg = orbitSvg('listening', LANES, 1.7, false)
     for (const [i, s] of orbitLayout(LANES, 1.7).entries()) {
-      const g = new RegExp(`data-lane="${LANES[i]?.role}"[^>]*>(?:<circle [^>]*fill-opacity="0.2"/>)?<circle cx="([\\d.]+)" cy="([\\d.]+)" r="[\\d.]+" fill="#`).exec(svg)
+      const g = new RegExp(`data-lane="${LANES[i]?.role}"[^>]*>(?:<g data-tail[^>]*>(?:<circle [^>]*/>)+</g>)?(?:<circle [^>]*fill-opacity="0.2"/>)?<circle cx="([\\d.]+)" cy="([\\d.]+)" r="[\\d.]+" fill="#`).exec(svg)
       expect(Math.abs(Number(g?.[1]) - s.x)).toBeLessThan(0.06)
       expect(Math.abs(Number(g?.[2]) - s.y)).toBeLessThan(0.06)
     }
@@ -146,7 +166,7 @@ describe('focus lane orbit', () => {
       expect(tags(svg)).toEqual(TAGS)
     }
     expect(laneSwatch({ role: 'council', state: 'dead' }, false)).toContain('stroke="#c62828"')
-    expect(laneSwatch({ role: 'fast', state: 'idle' }, false)).toContain('fill="#b5730f"')
+    expect(laneSwatch({ role: 'fast', state: 'idle' }, false)).toContain('fill="#c47a12"')
     expect(tags(laneSwatch({ role: 'council', state: 'dead' }, true))).toEqual(TAGS)
   })
 
@@ -165,7 +185,7 @@ describe('focus lane orbit', () => {
     expect(orbitScene(three).h).toBeLessThan(orbitScene(LANES).h)
     expect(orbitScene(three).h).toBeLessThanOrEqual(2 * (orbitRadius('large') + HALO * 1.3 + 1) + 1)
     const svg = orbitSvg('listening', three, 0, false)
-    for (const [role, c] of [['fast', '#b5730f'], ['small', '#1f6fb2'], ['large', '#a03c9c']] as const) {
+    for (const [role, c] of [['fast', '#c47a12'], ['small', '#0f8a7a'], ['large', '#6a4fc4']] as const) {
       expect(svg).toContain(`<g data-ring="${orbitRadius(role)}" fill="${c}">`)
     }
   })

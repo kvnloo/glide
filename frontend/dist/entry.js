@@ -23793,23 +23793,25 @@ import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 
 // src/voice/orbit.ts
-var ORBIT_R = { fast: 46, small: 60, large: 74, council: 88 };
-var FALLBACK_R = 67;
+var ORBIT_R = { fast: 46, small: 62, large: 78, council: 94 };
+var FALLBACK_R = 70;
 var ROLE_TINT = {
-  fast: "#e8b04a",
-  small: "#5aa9e6",
-  large: "#d08ad8",
-  council: "#5b8cff"
+  fast: "#f2b24c",
+  small: "#3fc8b4",
+  large: "#a98bf5",
+  council: "#5aa7ff"
 };
 var ROLE_TINT_LIGHT = {
-  fast: "#b5730f",
-  small: "#1f6fb2",
-  large: "#a03c9c",
-  council: "#2a4fb8"
+  fast: "#c47a12",
+  small: "#0f8a7a",
+  large: "#6a4fc4",
+  council: "#1f6fd6"
 };
 var tint = (role, dark) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? "#aaaaaa" : "#555555");
 var deadTint = (dark) => dark ? "#ff6b6b" : "#c62828";
 var PERIOD = 9.6;
+var ROLE_PERIOD = { fast: 2.4, small: 4.8, large: 9.6, council: 9.6 };
+var lanePeriod = (role) => ROLE_PERIOD[role] ?? PERIOD;
 var TILT = 1;
 var PLANET = 5;
 var HALO = 8;
@@ -23836,7 +23838,7 @@ function orbitLayout(lanes2, seconds, reduce = false) {
       parkedAt.set(r, j + 1);
       theta = Math.PI + j * 0.45;
     } else {
-      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + 2 * Math.PI * k / moving + 2 * Math.PI * seconds / PERIOD;
+      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + 2 * Math.PI * k / moving + 2 * Math.PI * seconds / lanePeriod(lane.role);
       k++;
     }
     const z = parked ? 0 : Math.sin(theta);
@@ -23849,7 +23851,9 @@ function orbitLayout(lanes2, seconds, reduce = false) {
       // Face-on there is no near or far: every planet is drawn at one size and strength.
       scale: TILT < 1 ? 0.9 + 0.4 * depth : 1.1,
       alpha: parked ? 0.9 : TILT < 1 ? 0.75 + 0.25 * depth : 1,
-      parked
+      parked,
+      theta,
+      r
     };
   });
 }
@@ -23907,8 +23911,15 @@ function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
   const planet = (s2, lane) => {
     const r = PLANET * s2.scale;
     const c = tint(lane.role, dark);
+    const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
+      const lag = (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
+      const th = s2.theta - lag;
+      const k = 1 - (i + 1) / 7;
+      return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
+    }).join("");
+    const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
     const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${body}</g>`;
+    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
   };
   const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
   const back = order2.filter((o) => o.s.z < 0).map((o) => planet(o.s, o.lane)).join("");
@@ -23918,14 +23929,14 @@ function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
     const on = lanes2.filter((l) => orbitRadius(l.role) === r);
     const dead = on.every((l) => l.state === "dead");
     const dots = stipple(CX, CY, r * TILT, r, 2);
-    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.85"/>`;
+    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.7"/>`;
     if (dead) {
       const dash2 = dots.filter((_2, i) => i % 4 < 2).map(dot).join("");
       return `<g data-ring="${r}" fill="${dark ? "#9a9a9a" : "#6a6a6a"}" fill-opacity="0.6">${dash2}</g>`;
     }
     const near = dots.filter(([x]) => x >= CX).map(dot).join("");
     const far = dots.filter(([x]) => x < CX).map(dot).join("");
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.85}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.85}">${near}</g></g>`;
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.38}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.38}">${near}</g></g>`;
   }).join("");
   const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
