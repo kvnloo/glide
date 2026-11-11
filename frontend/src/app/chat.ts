@@ -15,6 +15,7 @@ import { ternSharesFrontendHost } from '../artifacts/links.js'
 import type { BtwThreads } from '../btw.js'
 import type { Agents } from '../agents/store.js'
 import { OrbActivity, ThinkingOrb } from '../chrome/orb.js'
+import { LaneStrip } from '../voice/lanes.js'
 import { noticeReport } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import { sessionHost } from '../commands/host.js'
@@ -95,6 +96,7 @@ export class App implements ChatPorts {
   #surface!: SurfaceHost
   readonly #orbActivity = new OrbActivity()
   #orb: ThinkingOrb | undefined
+  #lanes: LaneStrip | undefined
   #orbSid: string | null = null
   #visible = true
   #editingExternal = false
@@ -182,11 +184,12 @@ export class App implements ChatPorts {
           this.#orb = new ThinkingOrb(this.#tern, surface)
           this.#orb.environment({ visible: this.#visible })
         }
+        this.#lanes?.surface(surface)
         this.#retention = this.#tern.caps.features.includes('settle')
           ? new Retention(surface, () => this.changed(), () => ({ entries: this.transcript.entries, lifetime: this.transcript.lifetime }))
           : undefined
         if (this.#view) {
-          this.#view = { ...this.#view, retention: this.#retention, ...(this.#orb ? { orb: this.#orb } : {}) }
+          this.#view = { ...this.#view, retention: this.#retention, ...(this.#orb ? { orb: this.#orb } : {}), ...(this.#lanes ? { lanes: this.#lanes } : {}) }
         }
         this.#surface.guardHandlers(Boolean(this.#retention))
         this.#guardOverlayHandlers()
@@ -204,6 +207,7 @@ export class App implements ChatPorts {
     this.#guardOverlayHandlers()
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
+      if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion)
     }
     this.#view = {
       ...s,
@@ -217,6 +221,7 @@ export class App implements ChatPorts {
       charts: this.tableCharts,
       eui: this.eui,
       ...(this.#orb ? { orb: this.#orb } : {}),
+      ...(this.#lanes ? { lanes: this.#lanes } : {}),
       gateway: this.#gw,
       surface: this.#surface,
       retention: this.#retention
@@ -312,6 +317,7 @@ export class App implements ChatPorts {
     this.tableCharts.close()
     this.eui.close()
     this.#orb?.close()
+    this.#lanes?.close()
     this.#surface?.dispose()
     this.#act.dispose()
     disposeStores(this.stores)
@@ -337,6 +343,7 @@ export class App implements ChatPorts {
         : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:'))),
       this.overlays.at(-1)?.modal === true
     )
+    this.#lanes?.update(this.liveVoice.blocked && this.liveVoice.phase !== 'consent', this.overlays.at(-1)?.modal === true)
     if (!this.#view || this.#surface.closed) {
       return
     }
@@ -423,17 +430,21 @@ export class App implements ChatPorts {
     if ((ev.ev === 'visible' || ev.ev === 'resize') && ev.visible !== undefined) {
       this.#visible = ev.visible
       this.#orb?.environment({ visible: ev.visible })
+      this.#lanes?.environment({ visible: ev.visible })
       this.stores.notices.visible(ev.visible)
     }
     if (ev.ev === 'theme') {
       this.#orb?.environment({ dark: ev.dark })
+      this.#lanes?.environment({ dark: ev.dark })
       this.eui.theme(ev.dark)
     }
     if (ev.ev === 'motion') {
       this.#orb?.environment({ reduce: ev.reduce })
+      this.#lanes?.environment({ reduce: ev.reduce })
     }
     if (ev.ev === 'gone' && ev.ids.includes(this.#surface.raw.id)) {
       this.#orb?.close()
+      this.#lanes?.close()
     }
   }
 

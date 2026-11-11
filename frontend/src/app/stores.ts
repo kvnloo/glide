@@ -57,6 +57,7 @@ import { PromptQueue } from '../turn/queue.js'
 import { canDrain, canSwitch, PromptRouter } from '../turn/router.js'
 import type { WelcomeContext } from '../view/welcome.js'
 import { LiveVoice } from '../voice/live.js'
+import { laneFeedFromEnv } from '../voice/lanes.js'
 import { TalkGateway } from '../voice/talk-gateway.js'
 
 import type { AppActions } from './actions.js'
@@ -299,18 +300,22 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     sid: () => session.ref.live,
     switching: () => life.switching
   })
+  /** The live call's helper lanes from the local lane broker; null when this machine has none. */
+  const laneFeed = laneFeedFromEnv(changed)
+  laneFeed?.start()
   /** Whose colors the surface wears, and the gateway's skin. */
   const theme = new Theme({ palette: palette => surface().palette(palette), settings }, saved.theme ?? 'tern')
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */
 export function disposeStores(s: ChatStores) {
   s.mediaDelivery.clear(true)
   s.liveVoice.dispose()
+  s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()
   s.timers.dispose()
