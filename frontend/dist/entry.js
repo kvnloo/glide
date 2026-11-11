@@ -73995,7 +73995,173 @@ async function openTastePane(board) {
   return block;
 }
 
+// ../glide/frontend/lanesPopup.ts
+import { mkdirSync as mkdirSync3, readFileSync as readFileSync5, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir8 } from "node:os";
+import { dirname as dirname5, join as join11 } from "node:path";
+var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
+var MODELS_ENV = "GLIDE_LANE_MODELS";
+var CLOSE_ID2 = 2;
+var PICK_BASE = 100;
+var PICK_STRIDE = 32;
+var APP2 = "glide";
+var ROLE_ORDER2 = ["fast", "small", "large", "council"];
+function fileBindings(path2 = process.env[BINDINGS_ENV] || join11(homedir8(), ".config/glide/lane-bindings.json")) {
+  const get = () => {
+    try {
+      const v = JSON.parse(readFileSync5(path2, "utf8"));
+      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
+    } catch {
+      return {};
+    }
+  };
+  return {
+    where: path2,
+    get,
+    set: (role, model) => {
+      mkdirSync3(dirname5(path2), { recursive: true });
+      writeFileSync2(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
+    }
+  };
+}
+var DOT = {
+  idle: NIGHT.text3,
+  thinking: NIGHT.strong,
+  answered: NIGHT.action,
+  verified: NIGHT.agree,
+  corrected: NIGHT.muted,
+  dead: NIGHT.danger
+};
+var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
+function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
+  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
+  return [...new Set(all8)].slice(0, PICK_STRIDE);
+}
+var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
+var clip3 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
+function lanesCard(src, bound2, where, extra) {
+  let next2 = 10;
+  const text18 = (value) => ({ t: "text", text: value });
+  const el = (tag3, style2, kids, opts = {}) => ({
+    t: "el",
+    tag: tag3,
+    id: opts.id ?? next2++,
+    cls: "",
+    style: style2,
+    attrs: opts.attrs ?? {},
+    click: opts.id !== void 0,
+    kids
+  });
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
+  const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+  const choices = modelChoices(lanes2, bound2, extra);
+  const dead = lanes2.filter((l) => l.state === "dead").length;
+  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
+    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
+      el("span", `${micro};letter-spacing:2px`, [text18("VOICE LANES \xB7 GLIDE")]),
+      el(
+        "span",
+        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (lanes2.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
+        [text18(lanes2.length ? `LIVE \xB7 ${(src.call?.revision || "CALL").toUpperCase()}` : "NO CALL")],
+        { attrs: { "data-lanes-source": lanes2.length ? "live" : "none" } }
+      )
+    ]),
+    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
+    el("span", `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(lanes2.length ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : src.error || "no open lane call (the lane broker runs the Hermes app Live path)")])
+  ]);
+  const rows = lanes2.map((lane, i) => {
+    const binding = bound2[lane.role];
+    const isDead = lane.state === "dead";
+    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : lane.model;
+    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip3(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip3(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip3(lane.researching, 100)}` : "no blackboard entry yet";
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
+      el("div", "display:flex;align-items:center;gap:8px", [
+        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
+        el("span", `${micro};font-size:9px`, [text18(model.toUpperCase())]),
+        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
+        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text18(lane.state.toUpperCase())])
+      ]),
+      el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } }),
+      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
+        const on = (binding ?? lane.model) === m;
+        return el(
+          "button",
+          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
+          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text2}`, [text18(m)])],
+          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
+        );
+      }))
+    ]);
+  });
+  const close = el(
+    "button",
+    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
+    { id: CLOSE_ID2, attrs: { "data-eui-action": "close" } }
+  );
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+    header,
+    el("div", "display:flex;flex-direction:column", rows),
+    el("div", "display:flex;justify-content:flex-end", [close]),
+    el(
+      "span",
+      `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
+      [text18(`state read from the lane broker \xB7 bindings saved locally to ${where.split("/").pop() ?? where} (the broker has no binding endpoint)`)]
+    )
+  ])]);
+}
+function openLanesPopup(host, feed, bindings = fileBindings()) {
+  const eui = host.eui;
+  if (!eui) {
+    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
+    return void 0;
+  }
+  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "no lane broker token (set GLIDE_LANES_TOKEN_FILE)" };
+  const overlay2 = {
+    key: "glide-lanes",
+    modal: true,
+    focus: () => null,
+    node: (id) => {
+      const src = source2();
+      const bound2 = bindings.get();
+      const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+      const choices = modelChoices(lanes2, bound2);
+      const view = {
+        spec: { kind: "lanes", app: APP2 },
+        app: APP2,
+        label: "Voice lanes",
+        identity: "lanes",
+        node: lanesCard(src, bound2, bindings.where),
+        activate: (n3) => {
+          if (n3 === CLOSE_ID2) return host.close(overlay2);
+          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
+          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
+          if (n3 < PICK_BASE || !lane || !model) return;
+          try {
+            bindings.set(lane.role, model);
+          } catch (e) {
+            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
+          }
+          host.changed();
+        }
+      };
+      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
+    },
+    onKey: (key3) => {
+      if (key3.name === "escape") host.close(overlay2);
+      return true;
+    }
+  };
+  host.open(overlay2);
+  return overlay2;
+}
+
 // src/commands/glide.ts
+function glideLanes(host) {
+  openLanesPopup(host, host.laneFeed);
+}
 function glideTheme(host, sub) {
   if (sub === "auto" || sub === "default") {
     host.setTheme?.(sub === "auto" ? "auto" : "tern");
@@ -74084,7 +74250,7 @@ var glideFocus = object({
   }))
 });
 var NS2 = "glide";
-var APP2 = "glide";
+var APP3 = "glide";
 var SESSIONS = 100;
 var memoryRows = (m) => [
   { label: "Sessions read", value: m.sessions },
@@ -74129,7 +74295,7 @@ async function glideCommand(host, arg) {
       if (host.session.ref !== ref || host.session.ref.live !== sid) return;
       cards.publish({
         kind: "receipt",
-        app: APP2,
+        app: APP3,
         title: board.title,
         rows: [
           { label: "Taste pane", value: block },
@@ -74155,7 +74321,7 @@ async function glideCommand(host, arg) {
     }
     if (verb === "off") {
       const m = glideMemory.parse(await call("enable", { on: false }));
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m) });
+      cards.publish({ kind: "receipt", app: APP3, title: "Glide memory is off", rows: memoryRows(m) });
       return;
     }
     if (verb === "recall") {
@@ -74167,7 +74333,7 @@ async function glideCommand(host, arg) {
       const { hits } = glideRecall.parse(await call("recall", { query: query2 }));
       cards.publish({
         kind: "search",
-        app: APP2,
+        app: APP3,
         title: `Your corrections about \u201C${query2.slice(0, 80)}\u201D`,
         rows: hits.length ? hits.map((h2) => ({ label: `score ${h2.score}`, value: h2.text })) : [{ label: "No match", value: "nothing quoted" }]
       });
@@ -74183,7 +74349,7 @@ async function glideCommand(host, arg) {
     const fmt = (n3) => n3 === null || n3 === void 0 ? "\u2014" : Number(n3.toFixed(2));
     const savings = () => cards.publish({
       kind: "approve",
-      app: APP2,
+      app: APP3,
       title: "Offload a small task to a local model",
       rows: [{ label: "Task", value: "a two-sentence summary" }, { label: "Runs on", value: "your smallest local model" }],
       approval: { label: "Offload it", description: "Sends one sample task to a local model through ollama, then shows the frontier tokens it kept out of your paid context." }
@@ -74192,7 +74358,7 @@ async function glideCommand(host, arg) {
       if (signal.aborted) return;
       cards.publish({
         kind: "intel-value",
-        app: APP2,
+        app: APP3,
         title: "Offload savings",
         summary: r.assumptions.join(" "),
         rows: [
@@ -74205,7 +74371,7 @@ async function glideCommand(host, arg) {
     }));
     const climb = () => cards.publish({
       kind: "approve",
-      app: APP2,
+      app: APP3,
       title: "Run your first hill climb",
       rows: [{ label: "Target", value: "CPU benchmark" }, { label: "Referee", value: "paired samples, noise floor" }],
       approval: { label: "Run one round", description: "Benchmarks a baseline and one candidate on this machine and keeps the candidate only if it beats the noise floor." }
@@ -74214,7 +74380,7 @@ async function glideCommand(host, arg) {
       if (signal.aborted) return;
       cards.publish({
         kind: "metric",
-        app: APP2,
+        app: APP3,
         title: r.verdict ? `Hill climb: ${r.verdict}` : "Hill climb",
         summary: r.reason ?? "",
         rows: [
@@ -74229,7 +74395,7 @@ async function glideCommand(host, arg) {
     }));
     const router = () => cards.publish({
       kind: "approve",
-      app: APP2,
+      app: APP3,
       title: "Install the skill router",
       rows: [{ label: "Picks", value: "skills by task category" }, { label: "Writes", value: "your profile's glide folder" }],
       approval: { label: "Install", description: "Installs a small category -> skills catalog so each turn loads the skills that fit the task." }
@@ -74238,7 +74404,7 @@ async function glideCommand(host, arg) {
       if (signal.aborted) return;
       cards.publish({
         kind: "receipt",
-        app: APP2,
+        app: APP3,
         title: r.fresh ? "Skill router installed" : "Skill router is installed",
         rows: [
           { label: "Categories", value: r.categories },
@@ -74257,7 +74423,7 @@ async function glideCommand(host, arg) {
     const found = glideDetect.parse(await call("detect"));
     cards.publish({
       kind: "infra-models",
-      app: APP2,
+      app: APP3,
       title: "This machine",
       rows: [
         { label: "System", value: found.os },
@@ -74270,14 +74436,14 @@ async function glideCommand(host, arg) {
     const z0 = found.z0int;
     cards.publish({
       kind: "intel-health",
-      app: APP2,
+      app: APP3,
       title: "z0intelligence",
       summary: !z0.installed ? "Optional. Adds local training loops, hill climbs and model management." : z0.ok ? "Ready for training loops and hill climbs." : z0.unchecked || !z0.failed?.length ? "Installed. Run `z0int doctor` for details." : `Needs: ${z0.failed.join(", ")}`,
       rows: z0.installed ? [{ label: "doctor", value: z0.ok ? "ok" : z0.unchecked ? "not checked" : "attention" }] : [{ label: "Install", value: z0.hint ?? "pip install z0intelligence" }]
     });
     const enable = () => cards.publish({
       kind: "approve",
-      app: APP2,
+      app: APP3,
       title: "Quote them into matching turns",
       rows: [{ label: "Per turn", value: "top 3 matching corrections" }, { label: "Turn off", value: "/glide off" }],
       approval: {
@@ -74287,12 +74453,12 @@ async function glideCommand(host, arg) {
     }, async ({ signal }) => {
       const m = glideMemory.parse(await call("enable", { on: true }));
       if (signal.aborted) return;
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m) });
+      cards.publish({ kind: "receipt", app: APP3, title: "Glide memory is on", rows: memoryRows(m) });
       router();
     });
     cards.publish({
       kind: "approve",
-      app: APP2,
+      app: APP3,
       title: found.memory.complete ? "Refresh your local memory" : "Build your local memory",
       rows: memoryRows(found.memory),
       approval: {
@@ -74303,7 +74469,7 @@ async function glideCommand(host, arg) {
       try {
         const m = glideMemory.parse(await call("sync", { limit: SESSIONS }));
         if (signal.aborted) return;
-        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
+        cards.publish({ kind: "intent-proof", app: APP3, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
         if (m.on) router();
         else enable();
       } catch (error) {
@@ -74368,7 +74534,7 @@ async function focusCommand(cards, call, sub, fail2) {
   };
   const stopCard = () => cards.publish({
     kind: "approve",
-    app: APP2,
+    app: APP3,
     title: "End the deep-work block",
     rows: [{ label: "Then", value: "everything held arrives as one digest" }],
     approval: { label: "End block", description: "Ends the block and shows the asks Glide held while you worked." }
@@ -74378,7 +74544,7 @@ async function focusCommand(cards, call, sub, fail2) {
     const held = f2.digest ?? [];
     cards.publish({
       kind: "receipt",
-      app: APP2,
+      app: APP3,
       title: held.length ? `While you were in deep work: ${held.length} held` : "Block ended, nothing held",
       rows: held.length ? held.map((i) => ({ label: i.cls, value: i.title })) : [{ label: "Held", value: "nothing" }]
     });
@@ -74386,7 +74552,7 @@ async function focusCommand(cards, call, sub, fail2) {
   const blockOn = (f2) => {
     cards.publish({
       kind: "receipt",
-      app: APP2,
+      app: APP3,
       title: `Deep-work block on until ${f2.block?.until ?? "\u2014"}`,
       rows: [
         { label: "Agent asks", value: "held until the block ends" },
@@ -74398,7 +74564,7 @@ async function focusCommand(cards, call, sub, fail2) {
   };
   const startCard = () => cards.publish({
     kind: "approve",
-    app: APP2,
+    app: APP3,
     title: "Start a deep-work block",
     rows: [{ label: "Length", value: "50 min" }, { label: "Holds", value: "non-critical agent asks" }],
     approval: { label: "Start block", description: "For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass." }
@@ -74416,7 +74582,7 @@ async function focusCommand(cards, call, sub, fail2) {
     const asks = f2.wind_down?.resume?.last_asks ?? [];
     cards.publish({
       kind: "receipt",
-      app: APP2,
+      app: APP3,
       title: "Time to wrap: here's where you left off",
       rows: [
         { label: "Bedtime", value: clock2(f2.bedtime) },
@@ -74430,7 +74596,7 @@ async function focusCommand(cards, call, sub, fail2) {
   if (sub === "hours") {
     cards.publish({
       kind: "metric",
-      app: APP2,
+      app: APP3,
       title: "Your best deep-work hours",
       summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
       rows: [
@@ -74446,7 +74612,7 @@ async function focusCommand(cards, call, sub, fail2) {
   }
   cards.publish({
     kind: "metric",
-    app: APP2,
+    app: APP3,
     title: "Your attention",
     summary: f.phase_source === "circadian" ? "From your circadian schedule." : `From ${f.learned.source}.`,
     rows: [
@@ -75144,9 +75310,9 @@ var COMMANDS3 = [
     run: (host) => openBranchTree(host)
   },
   {
-    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | theme auto|default|export]",
+    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export]",
     name: "glide",
-    run: (host, arg) => glideCommand(host, arg)
+    run: (host, arg) => arg.trim() === "lanes" ? glideLanes(host) : glideCommand(host, arg)
   },
   {
     help: "Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]",
@@ -75575,24 +75741,24 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
 }
 
 // src/session/pane.ts
-import { mkdirSync as mkdirSync3, rmSync, writeFileSync as writeFileSync2 } from "node:fs";
-import { join as join12 } from "node:path";
+import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
+import { join as join13 } from "node:path";
 
 // src/config/dataDir.ts
-import { homedir as homedir8 } from "node:os";
-import { join as join11 } from "node:path";
-var dataDir = (env2 = process.env) => join11(env2["HERMES_HOME"] || join11(homedir8(), ".hermes"), "plugin-data", "hermes-tern");
+import { homedir as homedir9 } from "node:os";
+import { join as join12 } from "node:path";
+var dataDir = (env2 = process.env) => join12(env2["HERMES_HOME"] || join12(homedir9(), ".hermes"), "plugin-data", "hermes-tern");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join12(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join13(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync3(join12(dir2, "panes"), { recursive: true });
-    writeFileSync2(paneFile(launch3.pane, dir2), JSON.stringify(record3));
+    mkdirSync4(join13(dir2, "panes"), { recursive: true });
+    writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
 }
@@ -75607,19 +75773,19 @@ function forgetPane(launch3, dir2 = dataDir()) {
 }
 
 // src/settings.ts
-import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3 } from "node:fs";
-import { homedir as homedir9 } from "node:os";
-import { dirname as dirname5, join as join13 } from "node:path";
+import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
+import { homedir as homedir10 } from "node:os";
+import { dirname as dirname6, join as join14 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join13(env2["HERMES_HOME"] || join13(homedir9(), ".hermes"), "hermes-tern", "settings.json");
+  return join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "hermes-tern", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
 }
 function saveSettings(patch6, file2 = settingsFile2()) {
   const next2 = { ...readStoredSettings(file2), ...patch6 };
-  mkdirSync4(dirname5(file2), { recursive: true });
-  writeFileSync3(file2, `${JSON.stringify(next2, null, 2)}
+  mkdirSync5(dirname6(file2), { recursive: true });
+  writeFileSync4(file2, `${JSON.stringify(next2, null, 2)}
 `);
   return settingsOf(next2);
 }
@@ -75909,8 +76075,8 @@ var SurfaceLifecycle = class {
 
 // src/eui/cards.ts
 import { createHash as createHash4 } from "node:crypto";
-import { readFileSync as readFileSync6 } from "node:fs";
-import { dirname as dirname6, join as join15, resolve as resolve8 } from "node:path";
+import { readFileSync as readFileSync7 } from "node:fs";
+import { dirname as dirname7, join as join16, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -76321,8 +76487,8 @@ var EuiHostCards = class {
 };
 
 // src/eui/sandbox.js
-import { existsSync as existsSync3, readFileSync as readFileSync5 } from "node:fs";
-import { join as join14 } from "node:path";
+import { existsSync as existsSync3, readFileSync as readFileSync6 } from "node:fs";
+import { join as join15 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -87057,13 +87223,13 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join14(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join15(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join14(dir2, "data", match[1] + ".json");
-  return existsSync3(file2) ? readFileSync5(file2, "utf8") : void 0;
+  const file2 = join15(dir2, "data", match[1] + ".json");
+  return existsSync3(file2) ? readFileSync6(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
 }) {
@@ -87263,14 +87429,14 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync5(join14(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync6(join15(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K = ctx.__EUI;
   await K.loadApps();
-  const themes = JSON.parse(readFileSync5(join14(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync6(join15(dir2, "data", "themes.json"), "utf8")).themes;
   K.theme.themes = themes;
   K.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join14(dir2, "kit.css");
-  const rules = existsSync3(kitCss2) ? svgRules(readFileSync5(kitCss2, "utf8"), scheme2) : [];
+  const kitCss2 = join15(dir2, "kit.css");
+  const rules = existsSync3(kitCss2) ? svgRules(readFileSync6(kitCss2, "utf8"), scheme2) : [];
   K.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
   const byId = /* @__PURE__ */ new Map();
@@ -87413,7 +87579,7 @@ var INLINE_SHEET = "ephemeral-ui-inline";
 var KIT_SHEET = "ephemeral-ui";
 var euiSheets = /* @__PURE__ */ new Map();
 function euiDir() {
-  const here = dirname6(fileURLToPath8(import.meta.url));
+  const here = dirname7(fileURLToPath8(import.meta.url));
   return vendorDir([resolve8(here, "../vendor/ephemeral-ui"), resolve8(here, "../src/vendor/ephemeral-ui")]);
 }
 var kitCss;
@@ -87422,7 +87588,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = dir2 ? readFileSync6(join15(dir2, "kit.css"), "utf8") : "";
+  const kit = dir2 ? readFileSync7(join16(dir2, "kit.css"), "utf8") : "";
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--accent-ink, var(--card)); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -87442,7 +87608,7 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync6(join15(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync7(join16(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -92649,169 +92815,6 @@ function openPrAside(cx, key3) {
 }
 async function openAgent(cx, id) {
   return openAgentPane(cx, id);
-}
-
-// ../glide/frontend/lanesPopup.ts
-import { mkdirSync as mkdirSync5, readFileSync as readFileSync7, writeFileSync as writeFileSync4 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { dirname as dirname7, join as join16 } from "node:path";
-var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
-var MODELS_ENV = "GLIDE_LANE_MODELS";
-var CLOSE_ID2 = 2;
-var PICK_BASE = 100;
-var PICK_STRIDE = 32;
-var APP3 = "glide";
-var ROLE_ORDER2 = ["fast", "small", "large", "council"];
-function fileBindings(path2 = process.env[BINDINGS_ENV] || join16(homedir10(), ".config/glide/lane-bindings.json")) {
-  const get = () => {
-    try {
-      const v = JSON.parse(readFileSync7(path2, "utf8"));
-      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
-      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
-    } catch {
-      return {};
-    }
-  };
-  return {
-    where: path2,
-    get,
-    set: (role, model) => {
-      mkdirSync5(dirname7(path2), { recursive: true });
-      writeFileSync4(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
-    }
-  };
-}
-var DOT = {
-  idle: NIGHT.text3,
-  thinking: NIGHT.strong,
-  answered: NIGHT.action,
-  verified: NIGHT.agree,
-  corrected: NIGHT.muted,
-  dead: NIGHT.danger
-};
-var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
-function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
-  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
-  return [...new Set(all8)].slice(0, PICK_STRIDE);
-}
-var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
-var clip3 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
-function lanesCard(src, bound2, where, extra) {
-  let next2 = 10;
-  const text18 = (value) => ({ t: "text", text: value });
-  const el = (tag3, style2, kids, opts = {}) => ({
-    t: "el",
-    tag: tag3,
-    id: opts.id ?? next2++,
-    cls: "",
-    style: style2,
-    attrs: opts.attrs ?? {},
-    click: opts.id !== void 0,
-    kids
-  });
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
-  const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
-  const choices = modelChoices(lanes2, bound2, extra);
-  const dead = lanes2.filter((l) => l.state === "dead").length;
-  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
-    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text18("VOICE LANES \xB7 GLIDE")]),
-      el(
-        "span",
-        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (lanes2.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-        [text18(lanes2.length ? `LIVE \xB7 ${(src.call?.revision || "CALL").toUpperCase()}` : "NO CALL")],
-        { attrs: { "data-lanes-source": lanes2.length ? "live" : "none" } }
-      )
-    ]),
-    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
-    el("span", `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(lanes2.length ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : src.error || "no open lane call (the lane broker runs the Hermes app Live path)")])
-  ]);
-  const rows = lanes2.map((lane, i) => {
-    const binding = bound2[lane.role];
-    const isDead = lane.state === "dead";
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : lane.model;
-    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip3(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip3(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip3(lane.researching, 100)}` : "no blackboard entry yet";
-    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
-      el("div", "display:flex;align-items:center;gap:8px", [
-        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
-        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
-        el("span", `${micro};font-size:9px`, [text18(model.toUpperCase())]),
-        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
-        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text18(lane.state.toUpperCase())])
-      ]),
-      el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } }),
-      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
-        const on = (binding ?? lane.model) === m;
-        return el(
-          "button",
-          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
-          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text2}`, [text18(m)])],
-          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
-        );
-      }))
-    ]);
-  });
-  const close = el(
-    "button",
-    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
-    { id: CLOSE_ID2, attrs: { "data-eui-action": "close" } }
-  );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
-    header,
-    el("div", "display:flex;flex-direction:column", rows),
-    el("div", "display:flex;justify-content:flex-end", [close]),
-    el(
-      "span",
-      `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
-      [text18(`state read from the lane broker \xB7 bindings saved locally to ${where.split("/").pop() ?? where} (the broker has no binding endpoint)`)]
-    )
-  ])]);
-}
-function openLanesPopup(host, feed, bindings = fileBindings()) {
-  const eui = host.eui;
-  if (!eui) {
-    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
-    return void 0;
-  }
-  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "no lane broker token (set GLIDE_LANES_TOKEN_FILE)" };
-  const overlay2 = {
-    key: "glide-lanes",
-    modal: true,
-    focus: () => null,
-    node: (id) => {
-      const src = source2();
-      const bound2 = bindings.get();
-      const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
-      const choices = modelChoices(lanes2, bound2);
-      const view = {
-        spec: { kind: "lanes", app: APP3 },
-        app: APP3,
-        label: "Voice lanes",
-        identity: "lanes",
-        node: lanesCard(src, bound2, bindings.where),
-        activate: (n3) => {
-          if (n3 === CLOSE_ID2) return host.close(overlay2);
-          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
-          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
-          if (n3 < PICK_BASE || !lane || !model) return;
-          try {
-            bindings.set(lane.role, model);
-          } catch (e) {
-            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
-          }
-          host.changed();
-        }
-      };
-      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
-    },
-    onKey: (key3) => {
-      if (key3.name === "escape") host.close(overlay2);
-      return true;
-    }
-  };
-  host.open(overlay2);
-  return overlay2;
 }
 
 // src/app/actions.ts
