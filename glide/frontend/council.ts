@@ -311,7 +311,7 @@ export function gem(id: string, kind: Mineral, cx: number, cy: number, r: number
   if (opts.low) {
     const body = kind === 'clear'
       ? tag('circle', { cx, cy, r: r * 0.86, fill: m.base, 'fill-opacity': 0.16, stroke: m.light, 'stroke-opacity': 0.85, 'stroke-width': r * 0.28 })
-      : tag('circle', { cx, cy, r, fill: `url(#${id}b)` })
+      : tag('circle', { cx, cy, r, fill: m.base }) + tag('circle', { cx, cy, r, fill: `url(#${id}b)` })
     return tag('g', { opacity: op },
       (kind === 'clear' ? '' : tag('defs', {}, tag('radialGradient', { id: `${id}b`, cx: '36%', cy: '32%', r: '72%' }, stop(0, m.light) + stop(0.45, m.base) + stop(1, m.deep)))) +
       body + tag('circle', { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: '#fff', 'fill-opacity': 0.8 }))
@@ -326,13 +326,13 @@ export function gem(id: string, kind: Mineral, cx: number, cy: number, r: number
   if (kind === 'labradorite') defs += tag('linearGradient', { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, '#2a6fb8', 0) + stop(0.3, '#3f8fe0') + stop(0.55, '#46cdb4') + stop(0.78, '#d8c05a') + stop(1, '#d8c05a', 0))
   if (kind === 'moonstone') defs += tag('radialGradient', { id: `${id}a`, cx: '50%', cy: '50%', r: '50%' }, stop(0, '#a9c8ff', 0.95) + stop(1, '#7fa6ff', 0))
 
-  let body = ''
+  let body = tag('circle', { cx, cy, r, fill: m.base })
   if (m.cut === 'brilliant') {
-    body = brilliant(cx, cy, r).map((f, k) => {
+    body += brilliant(cx, cy, r).map((f, k) => {
       const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32)
       let fill = mix(m.deep, m.base, b * 1.35)
       if (b > 0.72) fill = mix(fill, m.light, (b - 0.72) * 3 + shine * 0.25)
-      return tag('polygon', { points: pts(f.p), fill, stroke: m.light, 'stroke-opacity': 0.22, 'stroke-width': 0.5 })
+      return tag('path', { d: `M ${pts(f.p).replace(/ /g, ' L ')} Z`, fill, stroke: m.light, 'stroke-opacity': 0.22, 'stroke-width': 0.5 })
     }).join('')
     // inclusions stay inside the stone
     if (kind === 'smoky') body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) =>
@@ -341,11 +341,18 @@ export function gem(id: string, kind: Mineral, cx: number, cy: number, r: number
     if (kind === 'rose') body += tag('circle', { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: '#fff0ee', 'fill-opacity': 0.16 })
     if (kind === 'clear') body += tag('line', { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: '#ffffff', 'stroke-opacity': 0.35, 'stroke-width': 0.5 })
   } else {
-    body = tag('circle', { cx, cy, r, fill: `url(#${id}d)` })
-    if (kind === 'malachite') body += Array.from({ length: 9 }, (_, k) => tag('circle', {
-      cx: cx + r * 0.62, cy: cy + r * 0.82, r: r * (0.28 + k * 0.2), fill: 'none',
-      stroke: k % 2 ? '#0c3a26' : '#5cc893', 'stroke-opacity': k % 2 ? 0.75 : 0.45, 'stroke-width': r * (k % 3 === 0 ? 0.1 : 0.055)
-    })).join('')
+    body += tag('circle', { cx, cy, r, fill: `url(#${id}d)` })
+    if (kind === 'malachite') body += Array.from({ length: 9 }, (_, k) => {
+      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2)
+      const distance = Math.hypot(bx - cx, by - cy)
+      const angle = Math.atan2(cy - by, cx - bx)
+      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))))
+      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half)
+      return tag('path', {
+        d: `M ${pts([start])} A ${n2(radius)} ${n2(radius)} 0 0 1 ${pts([end])}`, fill: 'none',
+        stroke: k % 2 ? '#0c3a26' : '#5cc893', 'stroke-opacity': k % 2 ? 0.75 : 0.45, 'stroke-width': r * (k % 3 === 0 ? 0.1 : 0.055)
+      })
+    }).join('')
     if (kind === 'labradorite') body += tag('ellipse', {
       cx: cx + r * (0.05 + (g - 0.5) * 0.35), cy: cy + r * 0.05, rx: r * 0.95, ry: r * 0.42,
       transform: `rotate(${n2(-32 + (g - 0.5) * 50)} ${n2(cx)} ${n2(cy)})`, fill: `url(#${id}f)`, 'fill-opacity': 0.5 + 0.45 * shine
@@ -455,6 +462,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
   }
   // the brief: a brass boss, warm only while the council sits
   if (m.running) s += tag('circle', { cx: c, cy: c, r: ringMin * 1.5, fill: 'url(#wm)' })
+  s += tag('circle', { cx: c, cy: c, r: ringMin * 0.82, fill: '#c49a55' })
   s += tag('circle', { cx: c, cy: c, r: ringMin * 0.82, fill: 'url(#bf)', 'fill-opacity': 0.92 })
   s += tag('circle', { cx: c, cy: c, r: ringMin * 0.66, fill: 'none', stroke: '#3b2a0e', 'stroke-opacity': 0.45, 'stroke-width': 0.6 })
   s += tag('text', { x: c, y: c + 5, fill: '#2e1e06', 'font-size': Math.max(12, size * 0.03), 'font-style': 'italic', 'font-family': SERIF, 'text-anchor': 'middle' }, 'brief')
