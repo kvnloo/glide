@@ -118,12 +118,14 @@ def run(app_path: str, mode: str) -> dict:
             )
 
         def send(parts) -> None:
+            # Keep separate writes, but never wait for output mid-escape sequence.
+            # Under CPU load, that wait can exceed the SDK's escape flush deadline.
             for part in parts:
                 view = memoryview(part)
                 while view:
                     count = os.write(master, view)
                     view = view[count:]
-                pump(0.006)
+            pump(0.006)
 
         def calls(method: str) -> list:
             return [

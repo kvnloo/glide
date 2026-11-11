@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import type { Key } from '@stencil-hq/tern'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { App } from '../app/chat.js'
 import { Composer } from '../draft/composer.js'
 
 import { FakeGateway, fakeTern, given, key, settle } from './fakes.js'
@@ -252,7 +253,6 @@ describe('Composer: the pastes a draft holds', () => {
 
   it('a `!cmd` typed after Ctrl+C cleared a pasted one runs: the old paste is not the new draft', async () => {
     process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-composer-'))
-    const { App } = await import('../app/chat.js')
     const gw = new FakeGateway({ replies: { 'shell.exec': () => ({ code: 0, stderr: '', stdout: 'hi' }) } })
     const tern = fakeTern()
     const app = new App(tern.session, gw.client, '')
@@ -280,7 +280,6 @@ describe('Composer: the pastes a draft holds', () => {
 
   it('a pasted `!cmd` that Ctrl+C cleared and Ctrl+Z brought back still goes as written, not to the shell', async () => {
     process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-composer-'))
-    const { App } = await import('../app/chat.js')
     const gw = new FakeGateway({ replies: { 'shell.exec': () => ({ code: 0, stderr: '', stdout: 'hi' }) } })
     const tern = fakeTern()
     const app = new App(tern.session, gw.client, '')
