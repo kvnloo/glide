@@ -72,6 +72,24 @@ describe('live lane strip', () => {
     expect(texts(s.node()).map(t => t.text)).toEqual(['Lanes · lane broker answered 401'])
   })
 
+  it('orbits lanes around the voice orb only in a focus block with live voice; otherwise the strip is unchanged', async () => {
+    const { feed } = feedWith(STATUS)
+    await feed.poll()
+    feed.stop()
+    const s = strip(feed)
+    s.update(true, false, 'listening', false)
+    expect(s.orbiting).toBe(false)
+    s.update(false, false, 'idle', true)
+    expect(s.orbiting).toBe(false) // focus without live voice
+    s.update(true, false, 'listening', true)
+    expect(s.orbiting).toBe(true)
+    expect(JSON.stringify(s.node())).toContain('omp.live.lanes.orbit')
+    s.update(true, false, 'listening', false)
+    expect(s.orbiting).toBe(false)
+    expect(JSON.stringify(s.node())).not.toContain('omp.live.lanes.orbit')
+    s.close()
+  })
+
   it('draws each lane with role, model, real state, ticker and blackboard entry; dead renders dead', async () => {
     const { feed } = feedWith(STATUS)
     await feed.poll()

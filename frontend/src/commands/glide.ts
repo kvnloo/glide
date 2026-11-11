@@ -13,6 +13,7 @@ import { exportPalette, readWal, walFile, walPalette } from '../../../glide/fron
 import type { ThemeMode } from '../settings.js'
 import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
+import { focusBlock } from '../voice/orbit.js'
 
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
@@ -146,7 +147,11 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       return
     }
     if (verb === 'focus') {
-      await focusCommand(cards, async (params) => glideFocus.parse(await call('focus', params)), rest[0] ?? '', fail)
+      await focusCommand(cards, async (params) => {
+        const f = glideFocus.parse(await call('focus', params))
+        focusBlock.note(f) // live voice lanes orbit the orb while a block runs
+        return f
+      }, rest[0] ?? '', fail)
       return
     }
     if (verb === 'off') {
