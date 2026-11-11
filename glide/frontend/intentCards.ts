@@ -112,8 +112,8 @@ export function intentHero(d: EuiHostCardData, el: El): EuiNode | undefined {
 
 export const INTENT_CSS = `
 [data-eui='card'] .ih-hero { --ih-acc: var(--h-success, #7fd1a0); --ih-scope: var(--h-primary); --ih-due: var(--h-warning, #e8b04a); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
-[data-eui='card'] .ih-wavebox { position: relative; min-height: 72px; }
-[data-eui='card'] .ih-wave { position: absolute; left: 0; top: 0; opacity: .9; }
+[data-eui='card'] .ih-wavebox { position: relative; }
+[data-eui='card'] .ih-wave { display: block; width: 100%; height: 40px; margin-bottom: 8px; opacity: .45; }
 [data-eui='card'] .ih-ask { position: relative; margin: 0; padding: 14px 4px; font-size: 20px; line-height: 1.5; font-weight: 600; color: var(--h-fg); letter-spacing: -.01em; }
 [data-eui='card'] .ih-u { padding-bottom: 1px; border-bottom: 3px solid var(--h-primary); }
 [data-eui='card'] .ih-c-acceptance { border-color: var(--ih-acc); color: var(--ih-acc); }

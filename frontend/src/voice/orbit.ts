@@ -89,11 +89,16 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   const t = reduce ? 0 : seconds
   const sat = (s: Satellite, lane: OrbitLane) => {
     const k = s.scale
-    const tint = ROLE_TINT[lane.role]
-    const body = marks(ROLE_DESIGN[lane.role] ?? 'breathing', SAT, t, !reduce && lane.state === 'thinking', dark, s.parked, tint)
-    // A soft planet disc under the dots so each satellite reads as one body, not loose particles.
-    const disc = `<circle cx="${SAT / 2}" cy="${SAT / 2}" r="${SAT / 2}" fill="${s.parked ? '#888888' : tint ?? '#888888'}" fill-opacity="${s.parked ? 0.08 : 0.18}"/>`
-    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}" transform="translate(${n(s.x - (SAT * k) / 2)} ${n(s.y - (SAT * k) / 2)}) scale(${k.toFixed(3)})">${disc}${body}</g>`
+    const tint = ROLE_TINT[lane.role] ?? '#888888'
+    const h = SAT / 2
+    // Satellites are plain planets, not more thinking orbs: a solid shaded body, a halo while the lane
+    // thinks, and a hollow grey ring when the lane is dead.
+    const body = s.parked
+      ? `<circle cx="${h}" cy="${h}" r="${h * 0.45}" fill="none" stroke="#888888" stroke-width="1"/>`
+      : (lane.state === 'thinking' ? `<circle cx="${h}" cy="${h}" r="${h * 0.8}" fill="${tint}" fill-opacity="0.18"/>` : '') +
+        `<circle cx="${h}" cy="${h}" r="${h * 0.45}" fill="${tint}"/>` +
+        `<circle cx="${h * 0.86}" cy="${h * 0.86}" r="${h * 0.16}" fill="#ffffff" fill-opacity="0.35"/>`
+    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}" transform="translate(${n(s.x - (SAT * k) / 2)} ${n(s.y - (SAT * k) / 2)}) scale(${k.toFixed(3)})">${body}</g>`
   }
   const order = sats.flatMap((s, i) => (lanes[i] ? [{ s, lane: lanes[i] }] : [])).sort((a, b) => a.s.z - b.s.z)
   const back = order.filter(o => o.s.z < 0).map(o => sat(o.s, o.lane)).join('')
