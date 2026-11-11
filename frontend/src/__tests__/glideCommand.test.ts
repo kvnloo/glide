@@ -70,8 +70,8 @@ describe('/glide focus', () => {
     const { host, request, view, titles } = setup()
     request.mockImplementation(async (method: string, params: Record<string, unknown>) => {
       if (method !== 'glide.focus') throw new Error(`unknown method ${method}`)
-      if (params.action === 'start') return on
-      if (params.action === 'stop') return { ...focus(), digest: [{ title: 'PR #12 ready for review', cls: 'decision' }] }
+      if (params['action'] === 'start') return on
+      if (params['action'] === 'stop') return { ...focus(), digest: [{ title: 'PR #12 ready for review', cls: 'decision' }] }
       return replies['glide.focus']
     })
     await glideCommand(host, 'focus')

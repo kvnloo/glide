@@ -1,6 +1,9 @@
 # Glide
 
-Stop repeating your corrections to Hermes. Glide is a [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin with a native [Tern](https://stencil.so/tern) chat frontend and opt-in corrections memory. It reads eligible local sessions, keeps explicit corrections, and quotes up to three matching corrections into a later turn. [Memory implementation](glide/docs/memory.md)
+An agent workspace that guards two scarce resources: your attention and the agent's context window. Glide is a [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin with a native [Tern](https://stencil.so/tern) chat frontend.
+
+- **Your attention.** `/glide focus` shows your phase, next deep-work window, and bedtime. A deep-work block holds non-critical agent asks and hands them back as one digest. At wind-down it saves where you left off, and the next morning's first turn starts there. It learns your best hours from your own local sessions and uses z0intelligence's circadian schedule and a Flowkit flow likelihood when they are installed. [Attention](glide/docs/attention.md)
+- **The agent's context.** Opt-in corrections memory quotes up to three matching past corrections into a turn, so you stop repeating yourself; offload sends small tasks to a local model. [Memory implementation](glide/docs/memory.md)
 
 Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backend, onboarding cards, a skill-ranking catalog, a benchmark referee, and local-model offload code. [Submission](docs/SUBMISSION.md) · [Fork details](FORK.md) · [License](LICENSE)
 
@@ -24,7 +27,23 @@ hermes tern
 
 The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py)
 
-## Try the guided flow
+## Guard your attention
+
+In the attached Tern chat:
+
+```text
+/glide focus
+```
+
+1. **Focus card.** Phase, flow likelihood (only with a live Flowkit estimate; an estimate, not a diagnosis), next deep-work window, bedtime, and how many asks are held.
+2. **Start block.** Approve a 50-minute block. Hermes keeps replies short and holds non-critical questions. Notices routed through `glide.route` wait; `critical` still passes.
+3. **End block.** One digest card lists everything held.
+4. **Wind-down.** `/glide focus wind-down` saves your last session's open asks; tomorrow's first turn quotes them once.
+5. **Your hours.** `/glide focus hours` shows the two-hour windows you worked in most over the last 30 days.
+
+With no wearable and no z0intelligence, everything comes from your local session timestamps. [How it decides](glide/docs/attention.md)
+
+## Guard the context window
 
 In the attached Tern chat, enter:
 
