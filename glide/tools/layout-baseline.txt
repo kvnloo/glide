@@ -85,6 +85,9 @@ frontend/openui/schema/card.v0.json
 frontend/PLAN-REVIEW.md
 frontend/scripts/vendor-ephemeral-ui.mjs
 frontend/SHORTCUTS.md
+frontend/src/__tests__/factoryApp.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/factoryCommand.test.ts  # same
+frontend/src/__tests__/factoryPane.test.ts  # same
 frontend/src/agents/ownership.ts
 frontend/src/agents/tiles.tsx
 frontend/src/app/actions-session.ts
@@ -105,8 +108,10 @@ frontend/src/artifacts.ts
 frontend/src/artifacts/written.ts
 frontend/src/btw.ts
 frontend/src/chrome/attention.ts
+frontend/src/chrome/factory.tsx  # esbuild and tsc resolve @stencil-hq/tern and zod only from frontend/
 frontend/src/chrome/orb.ts
 frontend/src/code/review.ts
+frontend/src/commands/factory.ts  # same
 frontend/src/commands/glide.ts
 frontend/src/commands/voice.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/core/keys.ts
@@ -394,6 +399,7 @@ frontend/src/wire/browser.ts
 frontend/src/wire/card.ts
 frontend/src/wire/euiCard.ts
 frontend/src/wire/euiHostCard.ts
+frontend/src/wire/factory.ts  # same
 frontend/src/wire/fork.ts
 frontend/src/wire/openui.ts
 frontend/src/wire/plan.ts
