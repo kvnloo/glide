@@ -23793,16 +23793,6 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 // src/voice/orbit.ts
-var ROLE_DESIGN = {
-  fast: "working",
-  // particles on tilted orbits
-  small: "searching",
-  // globe
-  large: "solving",
-  // the main orb's thinking rubik
-  council: "connecting"
-  // a web of seats
-};
 var ORBIT = {
   fast: { r: 46, period: 3.2 },
   small: { r: 57, period: 4.8 },
@@ -23860,10 +23850,10 @@ function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
   const t = reduce ? 0 : seconds;
   const sat = (s2, lane) => {
     const k = s2.scale;
-    const tint = ROLE_TINT[lane.role];
-    const body = marks(ROLE_DESIGN[lane.role] ?? "breathing", SAT, t, !reduce && lane.state === "thinking", dark, s2.parked, tint);
-    const disc = `<circle cx="${SAT / 2}" cy="${SAT / 2}" r="${SAT / 2}" fill="${s2.parked ? "#888888" : tint ?? "#888888"}" fill-opacity="${s2.parked ? 0.08 : 0.18}"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}" transform="translate(${n(s2.x - SAT * k / 2)} ${n(s2.y - SAT * k / 2)}) scale(${k.toFixed(3)})">${disc}${body}</g>`;
+    const tint = ROLE_TINT[lane.role] ?? "#888888";
+    const h2 = SAT / 2;
+    const body = s2.parked ? `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.45}" fill="none" stroke="#888888" stroke-width="1"/>` : (lane.state === "thinking" ? `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.8}" fill="${tint}" fill-opacity="0.18"/>` : "") + `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.45}" fill="${tint}"/><circle cx="${h2 * 0.86}" cy="${h2 * 0.86}" r="${h2 * 0.16}" fill="#ffffff" fill-opacity="0.35"/>`;
+    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}" transform="translate(${n(s2.x - SAT * k / 2)} ${n(s2.y - SAT * k / 2)}) scale(${k.toFixed(3)})">${body}</g>`;
   };
   const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
   const back = order2.filter((o) => o.s.z < 0).map((o) => sat(o.s, o.lane)).join("");
@@ -76189,8 +76179,8 @@ function intentHero(d, el) {
 }
 var INTENT_CSS = `
 [data-eui='card'] .ih-hero { --ih-acc: var(--h-success, #7fd1a0); --ih-scope: var(--h-primary); --ih-due: var(--h-warning, #e8b04a); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
-[data-eui='card'] .ih-wavebox { position: relative; min-height: 72px; }
-[data-eui='card'] .ih-wave { position: absolute; left: 0; top: 0; opacity: .9; }
+[data-eui='card'] .ih-wavebox { position: relative; }
+[data-eui='card'] .ih-wave { display: block; width: 100%; height: 40px; margin-bottom: 8px; opacity: .45; }
 [data-eui='card'] .ih-ask { position: relative; margin: 0; padding: 14px 4px; font-size: 20px; line-height: 1.5; font-weight: 600; color: var(--h-fg); letter-spacing: -.01em; }
 [data-eui='card'] .ih-u { padding-bottom: 1px; border-bottom: 3px solid var(--h-primary); }
 [data-eui='card'] .ih-c-acceptance { border-color: var(--ih-acc); color: var(--ih-acc); }
