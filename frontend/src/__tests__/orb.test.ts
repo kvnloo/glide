@@ -167,6 +167,32 @@ describe('orb animation boundaries', () => {
   })
 })
 
+describe('orb scene clock', () => {
+  it('keeps a scene moving through voice state changes instead of snapping back to its first frame', () => {
+    vi.useFakeTimers()
+    const times: number[] = []
+    const scene = { w: 10, h: 10, key: () => '', svg: (_s: string, seconds: number) => (times.push(seconds), `<svg>${seconds}</svg>`) }
+    const orb = new ThinkingOrb(
+      stub<Session>({ blob: (b: Uint8Array) => Buffer.from(b).toString(), caps: { dark: true, reduceMotion: false } }),
+      stub<Surface>({ send: vi.fn(), blocked: false, closed: false }),
+      { scene }
+    )
+
+    try {
+      orb.update('listening')
+      vi.advanceTimersByTime(1000)
+      const before = times.at(-1) ?? 0
+      orb.update('thinking')
+      orb.props()
+      expect(before).toBeGreaterThan(0.5)
+      expect(times.at(-1)).toBeGreaterThanOrEqual(before)
+    } finally {
+      orb.close()
+      vi.useRealTimers()
+    }
+  })
+})
+
 describe('orb drawing', () => {
   it('draws the thinking-orbs library frame for each agent state, in monochrome ink', async () => {
     const { MODE_FRAMES, resolvePreset } = await import('thinking-orbs/engine')
