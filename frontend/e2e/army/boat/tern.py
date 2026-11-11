@@ -70,7 +70,11 @@ def start(spawn, sha):
         time.sleep(1)
     else:
         raise RuntimeError('tern serve did not create the private --control socket')
-    subprocess.run(['tern', 'ctl', '--control', str(control), 'run', json.dumps(shlex.join(command))],
+    launch = scratch / 'launch.sh'
+    launch.write_text('#!/bin/sh\nset -a\n. ' + shlex.quote(str(dotenv)) + '\nset +a\nexec ' + shlex.join(command) + '\n')
+    launch.chmod(0o700)
+    clean = ['env', '-i', *(key + '=' + value for key, value in env.items() if key != 'NVIDIA_API_KEY'), str(launch)]
+    subprocess.run(['tern', 'ctl', '--control', str(control), 'run', json.dumps(shlex.join(clean))],
                    env=env, stdin=subprocess.DEVNULL, check=True, timeout=120,
                    stdout=open('runs/tern-run.log', 'w'), stderr=subprocess.STDOUT)
     port = free_port()

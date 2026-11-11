@@ -97,6 +97,11 @@ def main(root):
     lanes = collect(root)
     (root / 'findings.json').write_text(json.dumps(lanes, indent=2))
     text = render(lanes)
+    run = root / 'run.json'
+    if run.exists():
+        metadata = json.loads(run.read_text())
+        if metadata.get('error'):
+            text += '\nRun blocked before qualification. See run.json error and G0 receipts.\n'
     (root / 'FINDINGS.md').write_text(text)
     print(text)
     return lanes

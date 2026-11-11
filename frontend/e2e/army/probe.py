@@ -13,12 +13,19 @@ import urllib.request
 def probe(script, screenshot, model):
     if os.environ.get('E2E_KEY_ENV', 'NVIDIA_API_KEY') != 'NVIDIA_API_KEY':
         raise ValueError('canonical G0 requires NVIDIA_API_KEY from with-keys.sh')
-    replies = []
+    replies, errors = [], []
+    output = io.StringIO()
     original = urllib.request.urlopen
 
     def capture(*args, **kwargs):
-        with original(*args, **kwargs) as response:
-            data = response.read()
+        try:
+            with original(*args, **kwargs) as response:
+                data = response.read()
+        except urllib.error.HTTPError as error:
+            body = error.read().decode(errors='replace')[:1000]
+            body = body.replace(os.environ.get('NVIDIA_API_KEY', '<no-key>'), '<redacted>')
+            errors.append({'http_status': error.code, 'body': body})
+            raise
         replies.append(json.loads(data))
         return io.BytesIO(data)
 
@@ -27,13 +34,13 @@ def probe(script, screenshot, model):
         urllib.request.urlopen = capture
         sys.argv = [str(script), str(screenshot), model]
         # Canonical output truncates tool JSON. Do not infer pass from its printed text.
-        with contextlib.redirect_stdout(io.StringIO()):
+        with contextlib.redirect_stdout(output):
             runpy.run_path(str(script), run_name='__main__')
     finally:
         urllib.request.urlopen = original
         sys.argv = argv
     if len(replies) != 2:
-        raise ValueError('G0 provider failed to return both image/tool and schema responses')
+        raise ValueError('G0 provider failed: ' + json.dumps(errors) + ' ' + output.getvalue().strip())
     tool, plan = [reply['choices'][0]['message'] for reply in replies]
     calls = tool.get('tool_calls') or []
     if not calls or calls[0]['function']['name'] != 'click':

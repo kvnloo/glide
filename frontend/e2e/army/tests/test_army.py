@@ -78,6 +78,89 @@ class ArmyContracts(unittest.TestCase):
         b['findings'] = [{'title': 'Dead button'}]
         self.assertEqual(paired_diff(a, b)['only_second'], ['Dead button'])
 
+    def test_budget_fails_closed(self):
+        spec = importlib.util.spec_from_file_location('army_up', ROOT / 'boat/up.py')
+        up = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(up)
+        billing = {'limits': {'keepGoing': {'enabled': False}, 'nextStartDollars': 0,
+                              'canStart': True, 'creditBalanceSeconds': 7200,
+                              'starts': {key: {'remaining': 10} for key in ('day', 'hour', 'minute')}},
+                   'walletStatus': {'balanceDollars': 0, 'autoTopUp': {'enabled': False}}}
+        up.guard_budget(billing, 2)
+        for key in ('enabled',):
+            billing['limits']['keepGoing'][key] = True
+            with self.assertRaises(RuntimeError):
+                up.guard_budget(billing, 1)
+            billing['limits']['keepGoing'][key] = False
+        billing['walletStatus']['balanceDollars'] = 1
+        with self.assertRaises(RuntimeError):
+            up.guard_budget(billing, 1)
+        billing['walletStatus']['balanceDollars'] = 0
+        billing['limits']['starts']['minute']['remaining'] = 0
+        with self.assertRaises(RuntimeError):
+            up.guard_budget(billing, 1)
+
+    def test_usage_failure_cannot_block_sandbox_deletion(self):
+        spec = importlib.util.spec_from_file_location('army_up_cleanup', ROOT / 'boat/up.py')
+        up = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(up)
+        calls = []
+        def fake_boat(*args):
+            calls.append(args)
+            if args[0] == 'usage':
+                raise RuntimeError('usage temporarily unavailable')
+            return {}
+        up.boat = fake_boat
+        with tempfile.TemporaryDirectory() as d:
+            army = up.Army(Path(d))
+            army.owned = ['owned-sandbox']
+            army.meta['sandboxes'] = [{'id': 'owned-sandbox', 'deleted': False}]
+            army.delete('owned-sandbox')
+            self.assertIn(('delete', 'owned-sandbox', '--yes'), calls)
+            self.assertTrue(army.meta['sandboxes'][0]['deleted'])
+            self.assertEqual(army.owned, [])
+
+    def test_probe_rejects_empty_plans(self):
+        from probe import probe
+        with tempfile.TemporaryDirectory() as d:
+            script = Path(d) / 'canonical.py'
+            # Exercise the canonical-script wrapper's real JSON parsing with a tiny local responder.
+            import io
+            import urllib.request
+            original = urllib.request.urlopen
+            replies = [
+                {'choices': [{'message': {'tool_calls': [{'function': {'name': 'click', 'arguments': '{"label":"Agents"}'}}]}}]},
+                {'choices': [{'message': {'content': ''}}]},
+            ]
+            script.write_text('import urllib.request, json\nfor _ in range(2):\n json.load(urllib.request.urlopen("test-response"))\n')
+            try:
+                urllib.request.urlopen = lambda *a, **k: io.BytesIO(json.dumps(replies.pop(0)).encode())
+                with self.assertRaises(ValueError):
+                    probe(script, Path(d) / 'real.jpg', 'free-model')
+            finally:
+                urllib.request.urlopen = original
+
+    def test_checked_in_pair_reuses_goal_and_target(self):
+        import os
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location('army_up_pair', ROOT / 'boat/up.py')
+        up = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(up)
+        with patch.dict(os.environ, {'ONLY': '^kit-hosts$', 'KIND': 'kit',
+                                    'PAIR_CONFIG': str(ROOT / 'paired-lane.json')}, clear=True):
+            first, second = up.goals()
+        self.assertEqual(first['goal'], second['goal'])
+        self.assertEqual(first['target'], second['target'])
+        self.assertNotEqual(first['model'], second['model'])
+        self.assertEqual(second['paired_with'], first['id'])
+
+    def test_pair_rejects_same_model_and_different_target(self):
+        a = {'id': 'a', 'sha': 'a' * 40, 'goal': 'Click', 'model': 'free', 'target': 'kit-phone', 'findings': []}
+        with self.assertRaises(ValueError):
+            paired_diff(a, dict(a, id='b'))
+        with self.assertRaises(ValueError):
+            paired_diff(a, dict(a, id='b', model='second', target='kit-desktop'))
+
     def test_no_private_or_paid_runtime_defaults(self):
         setup = (ROOT / 'boat' / 'tern.py').read_text()
         self.assertIn('env -i', setup)

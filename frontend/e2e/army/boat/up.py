@@ -53,7 +53,7 @@ def records(data):
 
 
 def stdout(data):
-    return ''.join(row.get('stdout', row.get('data', '') if row.get('stream') == 'stdout' else '') for row in records(data))
+    return ''.join(row.get('stdout', row.get('data', '') if row.get('type', row.get('stream')) == 'stdout' else '') for row in records(data))
 
 
 def guard_budget(billing, starts):
@@ -97,8 +97,12 @@ class Army:
         return sid
 
     def delete(self, sid):
-        usage = boat('usage', sid)
-        (self.out / f'{sid}-usage.json').write_text(json.dumps(usage, indent=2))
+        try:
+            usage = boat('usage', sid)
+            (self.out / f'{sid}-usage.json').write_text(json.dumps(usage, indent=2))
+        except Exception as error:
+            self.meta.setdefault('usage_errors', []).append(redact(str(error)))
+        # A failed usage query must never prevent deletion.
         boat('delete', sid, '--yes')
         self.owned.remove(sid)
         entry = next(item for item in self.meta['sandboxes'] if item['id'] == sid)
@@ -147,25 +151,29 @@ def goals():
         if pattern.search(lane) and target.startswith(os.getenv('KIND', '') + ('-' if os.getenv('KIND') else '')):
             selected.append({'id': lane, 'target': target, 'goal': goal,
                              'model': os.getenv('E2E_MODEL', 'google/gemma-4-31b-it')})
-    if os.getenv('PAIR_LANE'):
-        original = next((x for x in selected if x['id'] == os.environ['PAIR_LANE']), None)
-        if not original or not os.getenv('PAIR_MODEL'):
+    pair = json.loads(Path(os.environ['PAIR_CONFIG']).read_text()) if os.getenv('PAIR_CONFIG') else {}
+    pair_lane = os.getenv('PAIR_LANE', pair.get('lane'))
+    pair_model = os.getenv('PAIR_MODEL', pair.get('model'))
+    if pair_lane:
+        original = next((x for x in selected if x['id'] == pair_lane), None)
+        if not original or not pair_model:
             raise ValueError('PAIR_LANE must select a lane and PAIR_MODEL must name a second model')
-        if os.environ['PAIR_MODEL'] == original['model']:
+        if pair_model == original['model']:
             raise ValueError('PAIR_MODEL must differ from the primary model')
-        selected.append(dict(original, id=original['id'] + '-paired', model=os.environ['PAIR_MODEL'], paired_with=original['id']))
+        selected.append(dict(original, id=original['id'] + '-paired', model=pair_model, paired_with=original['id']))
     if not selected:
         raise ValueError('no goals selected')
     return selected
 
 
-def bundle(dest, sha, kit, probe, tern):
+def bundle(dest, sha, kit, probe, tern, bun):
     army = dest / 'army'
     shutil.copytree(ROOT, army, ignore=shutil.ignore_patterns('node_modules', 'runs', '.e2e', '__pycache__', '*.pyc'))
     manifest = prepare_site(kit, army / 'site', os.getenv('CANARY') == '1')
     (army / 'canary-manifest.json').write_text(json.dumps(manifest, indent=2))
     shutil.copy2(probe, army / 'canonical-probe.py')
     shutil.copy2(tern, army / 'tern-bin')
+    shutil.copy2(bun, army / 'bun-bin')
     with open(dest / 'glide.tar', 'wb') as stream:
         subprocess.run(['git', '-C', str(ROOT.parents[2]), 'archive', sha], stdout=stream, check=True)
     glide = dest / 'glide'
@@ -201,11 +209,12 @@ def main():
     tag = os.getenv('HERMES_TAG', 'v0.23.1+canary.20261110T064422Z')
     hermes_sha = os.getenv('HERMES_SHA', 'da06acacc986ebe8e9c74f5a7b2867c5a8a7d64b')
     tern = Path(os.getenv('TERN_BIN', str(Path.home() / '.local/bin/tern'))).resolve()
+    bun = Path(os.getenv('BUN_BIN', shutil.which('bun') or '')).resolve()
     probe = Path(os.getenv('PROBE_SCRIPT', str(Path.home() / '.hermes/profiles/clean/skills/rendered-ui-qualification/scripts/probe-vision-model.py')))
     default_kit = Path('/mnt/zer0models/workspace/zer0/products/launch-videos/pretotypes/ephemeral-ui/src')
     kit = Path(os.getenv('KIT_DIR', str(default_kit)))
     key = hashlib.sha256((''.join([digest(ROOT / 'package-lock.json'), digest(ROOT / 'boat/setup.sh'),
-                                  sha, tag, hermes_sha, digest(tern)])).encode()).hexdigest()[:16]
+                                  sha, tag, hermes_sha, digest(tern), digest(bun)])).encode()).hexdigest()[:16]
     snap = 'glide-army-' + key
     army.meta.update(sha=sha, hermes_tag=tag, hermes_sha=hermes_sha, snapshot=snap,
                      steps=int(os.getenv('STEPS', '8')), canary=os.getenv('CANARY') == '1')
@@ -214,7 +223,7 @@ def main():
     signal.signal(signal.SIGINT, lambda *_: sys.exit(130))
     try:
         with tempfile.TemporaryDirectory(prefix='glide-army-') as temp:
-            archive = bundle(Path(temp), sha, kit, probe, tern)
+            archive = bundle(Path(temp), sha, kit, probe, tern, bun)
             army.meta['payload_sha256'] = digest(archive)
             snaps = boat('snapshots')
             existing = any(item['name'] == snap and item.get('status') == 'ready' for item in snaps['named'])
@@ -269,6 +278,10 @@ def main():
                         if status.get('exit', 1) != 0 or expired:
                             failures.append(lane['id'])
             army.meta['failed_lanes'] = failures
+    except Exception as error:
+        army.meta['error'] = redact(str(error))
+        army.save()
+        raise
     finally:
         army.cleanup()
         after = boat('billing')

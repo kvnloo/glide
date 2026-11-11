@@ -20,8 +20,10 @@ UV_PROJECT_ENVIRONMENT="$core/.venv" uv sync --project "$core" --frozen --no-dev
 cd /home/user/glide/frontend
 export HERMES_PYTHON_SRC_ROOT="$core" HERMES_SRC="$core"
 # Compile against the same disposable Hermes tag used by this snapshot.
-command -v bun >/dev/null || { curl -fsSL https://bun.sh/install | bash; }
-export PATH="/home/user/.bun/bin:$PATH"
+# Reuse the staged Bun binary; Boat's default Bun cannot read lockfile version 2.
+install -m 755 /home/user/army/bun-bin /home/user/army-deps/bin/bun
+export PATH="/home/user/army-deps/bin:$PATH"
+node scripts/hermes-src.mjs
 bun install --frozen-lockfile
 bun run bundle
 cd /home/user/army

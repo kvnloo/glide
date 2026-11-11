@@ -4,9 +4,9 @@ from pathlib import Path
 import shutil
 
 DEFECTS = [
-    {'id': 'dead-button', 'selector': '.fh-needs', 'expected': 'Needs you filters blocked agents',
+    {'id': 'dead-button', 'selector': '.fh-btn:first enabled action', 'expected': 'Open chat dispatches an intent and shows feedback',
      'terms': ['needs you', 'button', 'click', 'nothing', 'respond', 'dead', 'filter']},
-    {'id': 'black-light-surface', 'selector': '[data-scheme=light] .fh-root',
+    {'id': 'black-light-surface', 'selector': '[data-scheme=light] .fh-head',
      'expected': 'Light theme uses the light surface token',
      'terms': ['black', 'dark', 'light', 'theme', 'surface', 'background']},
     {'id': 'phone-clipped-label', 'selector': '.fh-title at <=390px',
@@ -34,12 +34,13 @@ def prepare_site(source: Path, dest: Path, enabled: bool):
         (dest / 'army-canary.js').write_text('''
 (() => {
   const css = document.createElement('style');
-  css.textContent = `[data-scheme="light"] .fh-root { background: #000 !important; }
+  css.textContent = `[data-scheme="light"] .fh-head { background: #000 !important; }
     @media(max-width:390px) { .fh-title { display:block!important; max-width:18px!important;
       overflow:hidden!important; white-space:nowrap!important; text-overflow:clip!important; } }`;
   document.head.append(css);
   document.addEventListener('click', event => {
-    if (event.target.closest('.fh-needs')) { event.preventDefault(); event.stopImmediatePropagation(); }
+    const first = document.querySelector('.fh-btn:not(:disabled)');
+    if (first && event.target.closest('.fh-btn') === first) { event.preventDefault(); event.stopImmediatePropagation(); }
   }, true);
   const patch = () => {
     const count = document.querySelector('.fh-count');
