@@ -24,6 +24,14 @@ const ORBIT: Readonly<Record<string, { r: number; period: number }>> = {
 }
 const FALLBACK = { r: 62, period: 9.6 }
 
+/** Each role's planet tint (council keeps its lapis seat colour); a parked lane drops to grey. */
+export const ROLE_TINT: Readonly<Record<string, string>> = {
+  fast: '#e8b04a',
+  small: '#5aa9e6',
+  large: '#b07cd8',
+  council: '#3f6fd8'
+}
+
 export const SCENE = 184 // council's outer orbit plus a near satellite fits
 export const SCENE_H = 80 // the voice orb plus the tilted orbits' height
 const C = SCENE / 2
@@ -59,10 +67,11 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
 
 const n = (v: number) => v.toFixed(1)
 
-function marks(state: LibraryState, size: 20 | 64, seconds: number, animated: boolean, dark: boolean, muted = false): string {
+function marks(state: LibraryState, size: 20 | 64, seconds: number, animated: boolean, dark: boolean, muted = false, tint?: string): string {
   const preset = resolvePreset(state, size)
   const frame = MODE_FRAMES[preset.mode](size, animated ? seconds * preset.speed : 0.6, preset.opts)
   const grey = (white: number) => {
+    if (tint && !muted) return tint
     const ink = Math.min(1, Math.max(0, muted ? 0.55 + white * 0.3 : white))
     return `#${Math.round((dark ? 1 - ink : ink) * 255).toString(16).padStart(2, '0').repeat(3)}`
   }
@@ -80,15 +89,18 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   const t = reduce ? 0 : seconds
   const sat = (s: Satellite, lane: OrbitLane) => {
     const k = s.scale
-    const body = marks(ROLE_DESIGN[lane.role] ?? 'breathing', SAT, t, !reduce && lane.state === 'thinking', dark, s.parked)
-    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}" transform="translate(${n(s.x - (SAT * k) / 2)} ${n(s.y - (SAT * k) / 2)}) scale(${k.toFixed(3)})">${body}</g>`
+    const tint = ROLE_TINT[lane.role]
+    const body = marks(ROLE_DESIGN[lane.role] ?? 'breathing', SAT, t, !reduce && lane.state === 'thinking', dark, s.parked, tint)
+    // A soft planet disc under the dots so each satellite reads as one body, not loose particles.
+    const disc = `<circle cx="${SAT / 2}" cy="${SAT / 2}" r="${SAT / 2}" fill="${s.parked ? '#888888' : tint ?? '#888888'}" fill-opacity="${s.parked ? 0.08 : 0.18}"/>`
+    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}" transform="translate(${n(s.x - (SAT * k) / 2)} ${n(s.y - (SAT * k) / 2)}) scale(${k.toFixed(3)})">${disc}${body}</g>`
   }
   const order = sats.flatMap((s, i) => (lanes[i] ? [{ s, lane: lanes[i] }] : [])).sort((a, b) => a.s.z - b.s.z)
   const back = order.filter(o => o.s.z < 0).map(o => sat(o.s, o.lane)).join('')
   const front = order.filter(o => o.s.z >= 0).map(o => sat(o.s, o.lane)).join('')
   const ring = dark ? '#ffffff' : '#000000'
   const rings = [...new Set(lanes.map(l => (ORBIT[l.role] ?? FALLBACK).r))]
-    .map(r => `<ellipse cx="${C}" cy="${C}" rx="${r}" ry="${n(r * TILT)}" fill="none" stroke="${ring}" stroke-opacity="0.08" stroke-width="0.6"/>`).join('')
+    .map(r => `<ellipse cx="${C}" cy="${C}" rx="${r}" ry="${n(r * TILT)}" fill="none" stroke="${ring}" stroke-opacity="0.16" stroke-width="0.6"/>`).join('')
   const core = `<g transform="translate(${C - MAIN / 2} ${C - MAIN / 2})">${marks(LIBRARY_STATE[main], MAIN, t, !reduce && !still(main), dark)}</g>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SCENE}" height="${SCENE_H}" viewBox="0 ${C - SCENE_H / 2} ${SCENE} ${SCENE_H}">${rings}${back}${core}${front}</svg>`
 }
