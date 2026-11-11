@@ -13,6 +13,7 @@ import io
 import json
 import os
 from pathlib import Path
+import signal
 import sys
 import tempfile
 
@@ -28,11 +29,29 @@ def package(name: str, path: Path):
     return module
 
 
+def scratch_parent() -> str:
+    """Disk-backed temp parent. Each run installs a ~1 GiB Hermes venv; on a
+    tmpfs /tmp that lands in RAM and swap and starves the host."""
+    parent = tempfile.gettempdir()
+    with open("/proc/mounts") as mounts:
+        tmpfs = {line.split()[1] for line in mounts if line.split()[2] == "tmpfs"}
+    probe = Path(parent).resolve()
+    while str(probe) not in tmpfs and probe != probe.parent:
+        probe = probe.parent
+    if str(probe) not in tmpfs:
+        return parent
+    disk = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "agent-tmp"
+    disk.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return str(disk)
+
+
 def main() -> None:
     options = argparse.ArgumentParser(description=__doc__)
     options.add_argument("--glide-source", type=Path, default=ROOT / "glide")
     source = options.parse_args().glide_source.resolve()
-    with tempfile.TemporaryDirectory(prefix="glide-launch-verify-") as temporary:
+    # A killed run must still remove its install: SIGTERM unwinds the with-block.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(128 + signal.SIGTERM))
+    with tempfile.TemporaryDirectory(prefix="glide-launch-verify-", dir=scratch_parent()) as temporary:
         home = Path(temporary)
         os.environ.update(HERMES_HOME=str(home), HERMES_TERN_CHANNELS=str(home / "channels.json"))
         os.environ.pop("TERN_PANE", None)
