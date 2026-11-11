@@ -3,11 +3,15 @@
 Stop repeating yourself to Hermes. Glide reads your past local sessions, keeps the corrections you
 gave ("no, …", "actually, …", "correction: …"), and quotes the ones that match into each new turn.
 
-```
-hermes plugins install kvnloo/glide#glide
+With Hermes Agent ≥0.23.0 and Tern, one install gives you the native UI and this plugin:
+
+```sh
+hermes plugins install kvnloo/glide
 ```
 
-(`kvnloo/glide` is also a Tern frontend; the memory plugin is this `glide/` folder of it.)
+For memory without Tern, install `kvnloo/glide#glide` instead. Do not install both variants.
+The [main README](../README.md#walk-through-glide) covers the guided cards, skill router,
+hill climb, local offload, and optional Taste pane.
 
 `hermes glide` or `hermes --tui glide` opens Tern when `hermes-tern` is enabled in the same profile.
 It selects the `glide` frontend channel when registered, otherwise the default Tern frontend.
