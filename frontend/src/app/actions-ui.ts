@@ -54,8 +54,24 @@ export function openPill(cx: ActionsCx, pill: SheetPill) {
   else openAutomation(chat, pill)
 }
 
+export function toggleFactory(cx: ActionsCx): boolean {
+  if (!cx.tern.caps.features.includes('aside')) {
+    return false
+  }
+
+  const { factory, prAside, sidebar } = cx
+
+  if (!factory.open) {
+    if (sidebar.open) sidebar.toggle()
+    if (prAside.open) prAside.close()
+  }
+
+  factory.toggle()
+  return true
+}
+
 export function toggleSidebar(cx: ActionsCx) {
-  const { prAside, sidebar } = cx
+  const { factory, prAside, sidebar } = cx
 
   if (!cx.tern.caps.features.includes('aside')) {
     cx.transcript.notice('This Tern has no side panel (the aside feature). /changes and /prs still work.', 'warning')
@@ -64,9 +80,10 @@ export function toggleSidebar(cx: ActionsCx) {
     return
   }
 
-  // One sheet docks at the edge at a time: the session sidebar takes the PR aside's place.
-  if (!sidebar.open && prAside.open) {
-    prAside.close()
+  // Only one aside docks at the edge at a time.
+  if (!sidebar.open) {
+    if (factory.open) factory.toggle()
+    if (prAside.open) prAside.close()
   }
 
   sidebar.toggle()
@@ -79,6 +96,9 @@ export function openPrAside(cx: ActionsCx, key: PrKey | undefined) {
 
   if (cx.sidebar.open) {
     cx.sidebar.toggle()
+  }
+  if (cx.factory.open) {
+    cx.factory.toggle()
   }
 
   cx.prAside.show(key)

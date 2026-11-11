@@ -10,6 +10,7 @@ import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import { Artifacts } from '../artifacts.js'
 import type { BtwThreads } from '../btw.js'
+import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud, SheetPill } from '../chrome/hud.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import { copyToClipboard } from '../clipboard.js'
@@ -85,6 +86,7 @@ import {
   openPrAside as openActionPrAside,
   showArtifacts as showActionArtifacts,
   showImage as showActionImage,
+  toggleFactory as toggleActionFactory,
   toggleSidebar as toggleActionSidebar
 } from './actions-ui.js'
 import type { ChatPorts } from './ports.js'
@@ -113,6 +115,7 @@ export interface ActionsCx {
   readonly media: Media
   readonly connect: ConnectWatcher
   readonly sidebar: Sidebar
+  readonly factory: FactoryPane
   readonly prAside: PrAside
   /** Timers with no field of their own (a compaction's summary read). */
   readonly timers: Disposables
@@ -490,6 +493,11 @@ export class AppActions {
   /** Opens the sheet behind a pill. */
   openPill(pill: SheetPill) {
     openActionPill(this.#cx, pill)
+  }
+
+  /** Opens or closes Factory; false lets the command fall back to text. */
+  toggleFactory(): boolean {
+    return toggleActionFactory(this.#cx)
   }
 
   /** Opens or closes the session sidebar (Tern's aside); says why where Tern has none. */
