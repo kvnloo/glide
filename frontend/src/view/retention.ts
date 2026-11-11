@@ -188,6 +188,21 @@ export class Retention {
       return undefined
     }
 
+    // Never retain settled-row handlers: rebuild only the addressed, still-live entry.
+    // A named action no node handles (a Task card tile's `open-agent=…`) must stay
+    // unclaimed, or the SDK never yields it to App's input loop.
+    const router = new Surface({ send() {}, credits: () => 1, dropped() {} }, this.#surface.id, { listen: false })
+    router.render({ main: [entryNode(row.entry, row.id, this.#cx)] })
+    const action = router.dispatch(event)
+
+    if (row.settled) {
+      forgetEntryNode(row.entry)
+    }
+
+    if (!action) {
+      return undefined
+    }
+
     // SDK handlers can run after reset/load, before the next frame has reconciled
     // #byId. Check the actual transcript and lifetime when the gesture executes.
     const lifetime = this.#live().lifetime
@@ -200,22 +215,7 @@ export class Retention {
         return
       }
 
-      const cx = this.#cx
-      if (!cx) {
-        return
-      }
-
-      // Never retain settled-row handlers: rebuild only the addressed, still-live
-      // entry against the current presentation context at dispatch time.
-      const router = new Surface({ send() {}, credits: () => 1, dropped() {} }, this.#surface.id, { listen: false })
-      router.render({ main: [entryNode(row.entry, row.id, cx)] })
-      const action = router.dispatch(event)
-
-      if (row.settled) {
-        forgetEntryNode(row.entry)
-      }
-
-      return action?.()
+      return action()
     }
   }
 
