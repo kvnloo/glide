@@ -67,6 +67,29 @@ function setup(answers: Record<string, unknown> = {}) {
 
 const settle = async () => { for (let i = 0; i < 8; i++) await Promise.resolve() }
 
+describe('/glide intent', () => {
+  it('declares the ask, drafts an unevidenced contract, and advances to work only on approve', async () => {
+    const { host, request, view, titles } = setup()
+    await glideCommand(host, 'intent Make the voice orb feel alive, and ship it in the plugin by Friday.')
+    expect(request).not.toHaveBeenCalled()
+    expect(titles()).toEqual(['One ask. Exact words.', 'Review before execution'])
+    const declare = JSON.stringify(view(0))
+    for (const clause of ['acceptance · Make the voice orb feel alive', 'scope · plugin', 'deadline · Friday']) expect(declare).toContain(clause)
+    expect(JSON.stringify(view(1))).toContain('0/4 criteria evidenced')
+    must(view(1).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(titles()).toEqual(['One ask. Exact words.', 'Review before execution', 'Implementation is not acceptance'])
+    expect(JSON.stringify(view(2))).toContain('Sample work rail (synthetic)')
+  })
+
+  it('asks for the ask when it is missing', async () => {
+    const { host, titles, transcript } = setup()
+    await glideCommand(host, 'intent')
+    expect(titles()).toEqual([])
+    expect(JSON.stringify(transcript.entries)).toContain('Usage: /glide intent <ask>')
+  })
+})
+
 describe('/glide focus', () => {
   const focus = (f: Partial<GlideFocus> = {}): GlideFocus => ({
     phase: 'PEAK', phase_source: 'circadian', flow: { flow: 0.72, confidence: 0.6 }, next_window: 'now, until 09:00–11:00',
