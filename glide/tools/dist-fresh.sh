@@ -2,8 +2,8 @@
 # Fails when a revision's committed frontend/dist/entry.js is not what its source builds.
 # The fork has Actions off, so bundle.yml never rebuilds dist on main; this is the local gate.
 #
-#   scripts/dist-fresh.sh [REV]           check REV (default HEAD) in a throwaway worktree
-#   scripts/dist-fresh.sh --commit        rebuild in this checkout and commit dist if it changed
+#   glide/tools/dist-fresh.sh [REV]           check REV (default HEAD) in a throwaway worktree
+#   glide/tools/dist-fresh.sh --commit        rebuild in this checkout and commit dist if it changed
 #
 # Builds against the Hermes checkout pinned by frontend/hermes-src.lock. HERMES_SRC names any
 # hermes-agent clone (default: this checkout's frontend/.hermes-src link); when its HEAD is not
@@ -60,5 +60,5 @@ if [[ $mode == commit ]]; then
   exit 0
 fi
 echo "dist-fresh: STALE ${sha:0:12} committed dist/entry.js $before, source builds $after" >&2
-echo "  fix: scripts/dist-fresh.sh --commit   (on the branch being pushed)" >&2
+echo "  fix: glide/tools/dist-fresh.sh --commit   (on the branch being pushed)" >&2
 exit 1
