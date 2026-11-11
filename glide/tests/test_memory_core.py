@@ -13,22 +13,23 @@ import pytest
 from glide_plugin import GlideMemory, MemoryNotReady
 
 
-@pytest.fixture(autouse=True)
-def no_network(monkeypatch):
+@pytest.fixture
+def offline_session_db(monkeypatch, _hermes_home):
+    from hermes_state import SessionDB
+
     def forbidden(*args, **kwargs):
         raise AssertionError("Glide memory must remain local.")
     monkeypatch.setattr(socket.socket, "connect", forbidden)
     monkeypatch.setattr(socket, "create_connection", forbidden)
     monkeypatch.setattr(socket, "getaddrinfo", forbidden)
     monkeypatch.setattr(subprocess, "Popen", forbidden)
+    return SessionDB
 
 
-def test_core_compression_rewind_withdraws_absorbed_correction(tmp_path):
-    from hermes_state import SessionDB
-
+def test_core_compression_rewind_withdraws_absorbed_correction(tmp_path, offline_session_db):
     home = tmp_path / "glide-core"
     home.mkdir()
-    db = SessionDB(db_path=home / "state.db")
+    db = offline_session_db(db_path=home / "state.db")
     try:
         db.create_session("parent", "cli")
         retained = db.append_message(

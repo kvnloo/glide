@@ -32,6 +32,7 @@ import { fastCommand, type FastHost } from '../session/fast.js'
 import { answerText } from '../transcript/turns.js'
 import { HOLD_UNAVAILABLE } from '../voice/hold.js'
 import { rpc } from '../wire/rpc.js'
+import { councilCommand } from '../../../glide/frontend/councilPopup.js'
 
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
@@ -382,6 +383,11 @@ const COMMANDS: readonly LocalCommand[] = [
     help: 'Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
     run: (host, arg) => factoryCommand(host, arg)
+  },
+  {
+    help: 'The Socratic council as a popup: seats as minerals, rounds as rings, a verdict per seat [card]',
+    name: 'council',
+    run: (host, arg) => councilCommand(host, arg)
   },
   {
     help: 'Read-only session identity, model, context, and tool/token counters',

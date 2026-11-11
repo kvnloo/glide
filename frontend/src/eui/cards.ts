@@ -63,6 +63,7 @@ export function euiStyles(): string {
   const kit = dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : ''
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--accent-ink, var(--card)); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
+[data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
 [data-eui='card'] [data-eui-svg] { display: inline-block; vertical-align: middle; flex: none; }
 [data-eui='card'] .eui-host { padding: 16px; }
 [data-eui='card'] .eui-host-title { font-size: 16px; margin: 0 0 8px; }
