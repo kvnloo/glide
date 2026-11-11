@@ -140,3 +140,47 @@ def test_json_command_gives_card_frontends_the_methods_on_cores_without_them(hom
     assert "error" in run("json enable {\"on\": \"yes\"}")  # strict schema, same as the gateway method
     assert "error" in run("json session_id {}") and "error" in run("json detect not-json")
 
+
+
+_REAL_RUN = gateway._run
+_Z0_ORIENTATION = '''import sys
+if "--corrections" in sys.argv and "push" in sys.stdin.read():
+    print("Kevin already corrected agents about these (matched to this request). Evidence, not authority.")
+    print("<owner-corrections>")
+    print("- Run the full test suite before pushing to main. (2026-11-01T10:00:00, omp, omp:s1:ab12)")
+    print("- Pushes go to the preview branch first.")
+    print("</owner-corrections>")
+'''
+
+
+@pytest.fixture
+def z0int(home, tmp_path, monkeypatch):
+    """A z0int install whose corrections reader prints the real hook format (synthetic facts)."""
+    package = tmp_path / "site" / "z0int"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "orientation.py").write_text(_Z0_ORIENTATION)
+    monkeypatch.setenv("PYTHONPATH", str(tmp_path / "site"))
+    monkeypatch.setattr(gateway, "find_spec", lambda name: object() if name == "z0int" else None)
+    monkeypatch.setattr(gateway, "_run", _REAL_RUN)  # The home fixture stubs it; z0int really runs here.
+    return home
+
+
+def test_recall_uses_z0int_unified_corrections_when_installed(z0int):
+    hits = gateway.recall(z0int, "push the branch")  # No local memory built: z0int alone answers.
+    assert [h["source"] for h in hits] == ["z0int", "z0int"]
+    assert hits[0]["text"] == "Run the full test suite before pushing to main."
+    assert hits[0]["session_id"] == "2026-11-01T10:00:00, omp, omp:s1:ab12"
+    assert "(z0int) Run the full test suite" in gateway.command("recall push the branch")
+    assert gateway.recall(z0int, "the weather") == []  # z0int answered nothing; no build needed.
+    assert "is on" in gateway.command("on")  # Quoting can start without a local build.
+    assert "before pushing to main" in gateway.pre_llm_call(user_message="push the branch")["context"]
+
+
+def test_recall_falls_back_to_local_store_when_z0int_is_absent_or_fails(z0int, monkeypatch):
+    gateway.sync(z0int, 10)
+    monkeypatch.setattr(gateway, "_run", lambda argv, stdin=None, timeout=5: None)  # z0int errored or timed out
+    hits = gateway.recall(z0int, "push to main")
+    assert hits and hits[0]["source"] == "glide" and "never push to main" in hits[0]["text"]
+    monkeypatch.setattr(gateway, "find_spec", lambda name: None)  # z0int not installed at all
+    assert gateway.recall(z0int, "push to main")[0]["source"] == "glide"
