@@ -40,6 +40,19 @@ def test_runner_refuses_a_marked_home_outside_the_temp_directory(tmp_path, monke
         driver().isolated_home()
 
 
+def test_driver_reads_the_checksummed_checkpoint_not_its_envelope(tmp_path):
+    from glide_plugin import core
+    from glide_plugin.storage import StateStore
+
+    state = {"version": 1, "sessions": ["fixture"], "source_digest": "0" * 64,
+             "cursor": 1, "complete": True, "limited": False,
+             "records": [{"message_id": 1, "session_id": "fixture", "text": "Use synthetic fixtures."}]}
+    store = StateStore(tmp_path / "glide")
+    with store.locked():
+        store.save(state)
+    assert driver().kept_texts(core, tmp_path) == "Use synthetic fixtures."
+
+
 def test_a_failed_step_is_never_logged_as_passed(capsys):
     with pytest.raises(RuntimeError, match="recall"):
         driver().check("recall", False, "wrong result")

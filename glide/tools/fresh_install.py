@@ -39,6 +39,12 @@ def isolated_home() -> Path:
     return home
 
 
+def kept_texts(core, home: Path) -> str:
+    state = core._state(home)  # Use Glide's locked, checksum-validated reader.
+    check("persisted-memory", bool(state and state.get("complete")), "validated checkpoint")
+    return " ".join(record["text"] for record in state["records"])
+
+
 def forbidden(*args, **kwargs):
     raise RuntimeError("The new-user flow must not start processes or call a model")
 
@@ -99,8 +105,7 @@ def main() -> None:
         check("synthetic-history", True, "4 sessions, no user transcript read")
         check("hook-before-on", not hook("release tests"), "no injection")
         run("build", "corrections kept: 2")
-        state = json.loads((home / "glide" / "memory.json").read_text())
-        texts = " ".join(record["text"] for record in state["records"])
+        texts = kept_texts(core, home)
         check("scope", "sentinel" not in texts, "cron and current session excluded")
         run("on", "quoted into turns: on")
         check("hook-after-on", "Run release tests" in hook("release tests"), "matching correction quoted")
