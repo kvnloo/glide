@@ -7,8 +7,8 @@ import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'think
 import { LIBRARY_STATE, type OrbState } from '../chrome/orb.js'
 
 /** Orbit radius per role (viewBox units): fast inner, council outer, one track per lane. */
-const ORBIT_R: Readonly<Record<string, number>> = { fast: 64, small: 78, large: 92, council: 106 }
-const FALLBACK_R = 85
+const ORBIT_R: Readonly<Record<string, number>> = { fast: 46, small: 60, large: 74, council: 88 }
+const FALLBACK_R = 67
 
 /** Each role's planet and track tint (council keeps its lapis seat colour), deeper on a light theme for contrast. */
 export const ROLE_TINT: Readonly<Record<string, string>> = {
@@ -30,9 +30,9 @@ export const deadTint = (dark: boolean) => (dark ? '#ff6b6b' : '#c62828')
 // Every lane shares one angular velocity, one turn per 9.6 s cached cycle, so the gaps set at the start
 // never close: lanes with different periods drift into a bunch on one side and overlap where rings meet.
 export const PERIOD = 9.6
-// The orbit plane stands upright, seen at a slant: planets pass above and below the voice orb, sweeping
-// an ellipse sideways. TILT is that sweep, wide enough that a near planet's halo on the inner ring clears the orb.
-export const TILT = 0.6
+// The orbit is seen face-on: every track is a true circle around the voice orb (owner ask: circular, not oval).
+// TILT stays as the horizontal sweep factor so the layout math keeps one shape; 1 means a circle.
+export const TILT = 1
 export const PLANET = 5 // body radius before depth scaling
 export const HALO = 8
 const PAD = HALO * 1.3 + 1 // a near planet's halo, so nothing on a ring is clipped
@@ -79,8 +79,9 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
       x: w / 2 + r * TILT * Math.sin(theta),
       y: h / 2 + r * Math.cos(theta),
       z,
-      scale: 0.9 + 0.4 * depth,
-      alpha: parked ? 0.9 : 0.75 + 0.25 * depth,
+      // Face-on there is no near or far: every planet is drawn at one size and strength.
+      scale: TILT < 1 ? 0.9 + 0.4 * depth : 1.1,
+      alpha: parked ? 0.9 : TILT < 1 ? 0.75 + 0.25 * depth : 1,
       parked
     }
   })
@@ -176,7 +177,7 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
     }
     const near = dots.filter(([x]) => x >= CX).map(dot).join('')
     const far = dots.filter(([x]) => x < CX).map(dot).join('')
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? '', dark)}"><g fill-opacity="0.7">${far}</g>${near}</g>`
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? '', dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.85}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.85}">${near}</g></g>`
   }).join('')
   const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rings}${back}${core}${front}</svg>`
