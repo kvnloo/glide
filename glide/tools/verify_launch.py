@@ -13,6 +13,7 @@ import io
 import json
 import os
 from pathlib import Path
+import signal
 import sys
 import tempfile
 import types
@@ -33,7 +34,12 @@ def main() -> None:
     options = argparse.ArgumentParser(description=__doc__)
     options.add_argument("--glide-source", type=Path, default=ROOT / "glide")
     source = options.parse_args().glide_source.resolve()
-    with tempfile.TemporaryDirectory(prefix="glide-launch-verify-") as temporary:
+    # The private home gets a ~1 GB Hermes installs/ tree: keep it off tmpfs, and turn SIGTERM
+    # into SystemExit so the with-block still deletes it when a harness times the run out.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+    cache = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    cache.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="glide-launch-verify-", dir=cache) as temporary:
         home = Path(temporary)
         os.environ.update(HERMES_HOME=str(home), HERMES_TERN_CHANNELS=str(home / "channels.json"))
         os.environ.pop("TERN_PANE", None)
