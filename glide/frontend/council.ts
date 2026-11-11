@@ -114,11 +114,15 @@ function readRun(raw: unknown): CouncilRun {
     const cites = e['cites'] === undefined ? [] : list(e['cites'], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`))
     return Object.freeze({ type, seat: seat(e['seat'], `events.${i}.seat`), round: int(e['round'], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) })
   })
+  const heard = new Set<number>()
   const verdicts = list(d['verdicts'], 'verdicts', 0, 6).map((v, i): CouncilVerdict => {
     const e = obj(v, `verdicts.${i}`, KEYS.verdict)
+    const s = seat(e['seat'], `verdicts.${i}.seat`)
+    if (heard.has(s)) fail(`verdicts.${i}.seat`, 'seat already has a verdict')
+    heard.add(s)
     const stance = e['stance']
-    if (stance !== 'agree' && stance !== 'dissent' && stance !== 'abstain') fail(`verdicts.${i}.stance`, 'expected agree, dissent or abstain')
-    return Object.freeze({ seat: seat(e['seat'], `verdicts.${i}.seat`), stance: stance as Stance, text: str(e['text'], `verdicts.${i}.text`, 240) })
+    if (stance !== 'agree' && stance !== 'dissent' && stance !== 'abstain') return fail(`verdicts.${i}.stance`, 'expected agree, dissent or abstain')
+    return Object.freeze({ seat: s, stance, text: str(e['text'], `verdicts.${i}.text`, 240) })
   })
   return Object.freeze({
     brief: str(d['brief'], 'brief', 280), rounds, seats: Object.freeze(seats), events: Object.freeze(events), verdicts: Object.freeze(verdicts),

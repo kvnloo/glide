@@ -85,7 +85,9 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
   const done = frame.t !== null && frame.t >= schedule(run).total
   const playing = frame.t !== null && !done
   const shown = closedSeats(run, frame)
+  const agree = run.verdicts.filter(v => v.stance === 'agree').length
   const dissent = run.verdicts.filter(v => v.stance === 'dissent').length
+  const abstain = run.verdicts.filter(v => v.stance === 'abstain').length
 
   const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
@@ -105,7 +107,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
       el('span', `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
     ]),
     el('span', `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text(done
-      ? `${run.verdicts.length - dissent} of ${run.verdicts.length} agree · ${dissent} dissent`
+      ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}`
       : `${run.seats.length} seats · ${run.rounds} rounds · verdicts appear as each seat closes`)])
   ])
 
