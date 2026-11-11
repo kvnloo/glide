@@ -74147,6 +74147,12 @@ async function glideCommand(host, arg) {
       }, rest[0] ?? "", fail2);
       return;
     }
+    if (verb === "intent") {
+      const ask = rest.join(" ");
+      if (!ask) host.transcript.notice("Usage: /glide intent <ask>", "warning");
+      else intentCommand(cards, ask);
+      return;
+    }
     if (verb === "off") {
       const m = glideMemory.parse(await call("enable", { on: false }));
       cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m) });
@@ -74307,6 +74313,37 @@ async function glideCommand(host, arg) {
   } catch (error) {
     fail2(error);
   }
+}
+function askClauses(ask) {
+  const acceptance = ask.split(/,|\band\b|\bby\b/)[0]?.trim().slice(0, 80);
+  const scope2 = /\bin (?:the |my )?([\w-]+)/i.exec(ask)?.[1];
+  const deadline = /\bby ([\w-]+)/i.exec(ask)?.[1];
+  return [
+    ...acceptance ? [{ label: "acceptance", value: acceptance }] : [],
+    ...scope2 ? [{ label: "scope", value: scope2 }] : [],
+    ...deadline ? [{ label: "deadline", value: deadline }] : []
+  ];
+}
+function intentCommand(cards, ask) {
+  const clauses = askClauses(ask);
+  cards.publish({ kind: "intent-declare", app: "ripple", title: "One ask. Exact words.", summary: ask.slice(0, 2048), rows: clauses });
+  cards.publish({
+    kind: "intent-contract",
+    app: "aodl",
+    title: "Review before execution",
+    summary: "Criteria drafted from your ask. None is evidenced until a real turn produces a receipt.",
+    rows: [...clauses.map((c) => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: "missing" })), { label: "real-turn receipt", value: "missing" }],
+    approval: { label: "Hold to approve", description: "Approve this contract revision for execution. Nothing runs until approved." }
+  }, async ({ signal }) => {
+    if (signal.aborted) return;
+    cards.publish({
+      kind: "intent-work",
+      app: "aodl",
+      title: "Implementation is not acceptance",
+      summary: "Sample work rail (synthetic): no agent has been dispatched.",
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? "running" : "queued"} \xB7 ${c.label}` }))
+    });
+  });
 }
 var PHASE = {
   PEAK: "Peak",
