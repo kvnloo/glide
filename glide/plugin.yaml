@@ -3,7 +3,7 @@ label: Glide
 version: 0.1.0
 manifest_version: 2
 kind: standalone
-description: "Stop repeating yourself: /glide keeps the corrections you gave in past local sessions and quotes the matching ones into new turns. Opt-in, local, no model calls."
+description: "Stop repeating yourself: /glide quotes the corrections you gave before into new turns, from z0intelligence's unified memory when installed, else from a local store of your past sessions. Opt-in, local, no model calls."
 author: "Kevin Rajan"
 license: MIT
 homepage: https://github.com/kvnloo/glide
