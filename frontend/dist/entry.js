@@ -23690,7 +23690,9 @@ var ThinkingOrb = class {
     }
     if (state !== this.#state) {
       this.#state = state;
-      this.#frame = 0;
+      if (!this.#scene) {
+        this.#frame = 0;
+      }
     }
     this.#paused = paused;
     this.#sync();

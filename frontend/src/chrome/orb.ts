@@ -192,7 +192,10 @@ export class ThinkingOrb {
 
     if (state !== this.#state) {
       this.#state = state
-      this.#frame = 0
+      // A scene's planets share one clock with the orb: restarting it on every voice state change made them all jump back.
+      if (!this.#scene) {
+        this.#frame = 0
+      }
     }
 
     this.#paused = paused
