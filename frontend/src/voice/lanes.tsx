@@ -3,7 +3,7 @@
 // comes from the lane broker's GET /v1/lanes/status (z0live); no lane activity is ever inferred here, and
 // a dead lane renders as dead.
 import { readFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { homedir, userInfo } from 'node:os'
 import { join } from 'node:path'
 import type { JSX, Session, Surface } from '@stencil-hq/tern'
 
@@ -123,16 +123,25 @@ export class LaneFeed {
   }
 }
 
+const TOKEN_PATH = '.config/z0live/hermes-mobile-relay.token'
+
+/** The relay token: $GLIDE_LANES_TOKEN_FILE, else ~/.config/z0live (the real user's home too, under a private $HOME). */
+export function laneToken(env = process.env): string {
+  const real = (() => { try { return userInfo().homedir } catch { return '' } })()
+  const files = env['GLIDE_LANES_TOKEN_FILE'] ? [env['GLIDE_LANES_TOKEN_FILE']] : [...new Set([homedir(), real].filter(Boolean))].map(h => join(h, TOKEN_PATH))
+  for (const file of files) {
+    try {
+      const token = readFileSync(file, 'utf8').trim()
+      if (token) return token
+    } catch { /* next */ }
+  }
+  return ''
+}
+
 /** The feed for this machine's lane broker; null (no strip at all) without its relay token. */
 export function laneFeedFromEnv(changed: () => void, env = process.env): LaneFeed | null {
   if (env['GLIDE_LANES'] === 'off' || env['VITEST']) return null
-  const file = env['GLIDE_LANES_TOKEN_FILE'] || join(homedir(), '.config/z0live/hermes-mobile-relay.token')
-  let token = ''
-  try {
-    token = readFileSync(file, 'utf8').trim()
-  } catch {
-    return null
-  }
+  const token = laneToken(env)
   if (!token) return null
   return new LaneFeed({ url: env['GLIDE_LANES_URL'] || 'http://127.0.0.1:8791', token, changed })
 }

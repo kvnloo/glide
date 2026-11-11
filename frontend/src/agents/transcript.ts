@@ -15,6 +15,11 @@ import { type Requester, rpc } from '../wire/rpc.js'
 const PAGE_ROWS = 200
 /** Pages one read takes at most, so a long transcript draws while the rest loads. */
 const MAX_PAGES = 5
+/**
+ * Reads of an ended child the gateway could not find yet before it counts as never stored: the
+ * owner drops a child from its roster a moment before the child's stored session is stamped.
+ */
+const ENDED_UNAVAILABLE_READS = 5
 
 /** What the stored rows read so far of one subagent. */
 export class SubagentTranscript {
@@ -28,6 +33,7 @@ export class SubagentTranscript {
   readonly #subagent: string
   #cursor: string | null = null
   #caughtUp = false
+  #endedUnavailable = 0
   #published = false
 
   /** The transcript of subagent `subagent` of session `sid` (its runtime id), read over `gw`. */
@@ -39,7 +45,7 @@ export class SubagentTranscript {
 
   /** The child ended and every row it wrote is read: no read can bring more. */
   get finished(): boolean {
-    return this.running === false && (this.#caughtUp || !this.available)
+    return this.running === false && (this.available ? this.#caughtUp : this.#endedUnavailable >= ENDED_UNAVAILABLE_READS)
   }
 
   /** Reads the rows written since the last read; true when the rows changed. */
@@ -50,6 +56,7 @@ export class SubagentTranscript {
       const page = await this.#page()
       this.running = page.running ?? false
       this.available = page.available ?? false
+      this.#endedUnavailable = !this.running && !this.available ? this.#endedUnavailable + 1 : 0
 
       if (page.reset) {
         changed ||= this.rows.length > 0 || page.rows.length > 0
@@ -107,6 +114,8 @@ export type AgentStep =
       /** The gateway's one-line preview of the call's arguments. */
       args: string
       running: boolean
+      /** The call's whole arguments, when the row carries them (`args` is the one-line preview). */
+      call?: Record<string, unknown>
     }
 
 const ms = (seconds: number | null | undefined) => (seconds === null || seconds === undefined ? undefined : Math.round(seconds * 1000))
@@ -124,7 +133,7 @@ export function stepsOf(rows: readonly StoredTranscriptRow[]): AgentStep[] {
     const text = row.text?.trim() ?? ''
 
     if (row.row_kind === 'message' && row.role === 'tool') {
-      steps.push({ args: row.context ?? '', at, kind: 'tool', name: row.name ?? 'tool', running: false })
+      steps.push({ args: row.context ?? '', at, kind: 'tool', name: row.name ?? 'tool', running: false, ...optional('call', row.args ?? undefined) })
     } else if (row.row_kind === 'message' && row.role === 'assistant') {
       if (row.reasoning?.trim()) {
         steps.push({ at, kind: 'think', text: row.reasoning.trim() })

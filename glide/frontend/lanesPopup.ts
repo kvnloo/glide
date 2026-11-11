@@ -2,7 +2,8 @@
 // layer (the council popup's pattern). One row per lane of the newest lane call (fast / small / large /
 // council): role, model, live state dot and newest blackboard line, all read from the lane broker's
 // GET /v1/lanes/status. A dead lane renders dead, never hidden. The lane broker exposes no binding
-// endpoint, so a model pick is saved to a local bindings file and the popup says so.
+// endpoint, so a model pick is saved to a local bindings file (said in the subtitle's tooltip). With no
+// call open the broker still reports its configured lanes, and the popup lists them as idle.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -82,44 +83,57 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
   })
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`
-  const lanes = src.call?.open ? sortLanes(src.call.lanes) : []
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`
+  const lanes = sortLanes(src.call?.lanes ?? [])
+  const live = Boolean(src.call?.open && lanes.length)
   const choices = modelChoices(lanes, bound, extra)
   const dead = lanes.filter(l => l.state === 'dead').length
+  const revision = (src.call?.revision || 'call').toUpperCase()
+  // The preset id is the broker's, not the reader's: it rides in the badge's tooltip until a call is live.
+  const badge = live ? `LIVE · ${revision}` : lanes.length ? 'NO CALL OPEN' : 'NOT CONNECTED'
+  const ready = lanes.length - dead
+  const summary = lanes.length
+    ? live
+      ? `${lanes.length} lanes · ${dead ? `${dead} dead · ` : ''}pick a model to rebind a lane`
+      : `${ready} of ${lanes.length} lanes ready for the next call${dead ? ` · ${dead} dead` : ''} · pick a model to rebind a lane`
+    : src.error || 'the lane broker has no lanes configured'
 
   const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
-      el('span', `${micro};letter-spacing:2px`, [text('VOICE LANES · GLIDE')]),
+      el('span', `${micro};letter-spacing:2px`, [text('LANE BROKER')]),
       el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` +
-        (lanes.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-      [text(lanes.length ? `LIVE · ${(src.call?.revision || 'CALL').toUpperCase()}` : 'NO CALL')], { attrs: { 'data-lanes-source': lanes.length ? 'live' : 'none' } })
+        (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
+      [text(badge)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {}) } })
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text('Helper lanes')]),
-    el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text(lanes.length
-      ? `${lanes.length} lanes · ${dead ? `${dead} dead · ` : ''}pick a model to rebind a lane`
-      : src.error || 'no open lane call (the lane broker runs the Hermes app Live path)')])
+    el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
+      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } })
   ])
 
   const rows = lanes.map((lane, i) => {
     const binding = bound[lane.role]
     const isDead = lane.state === 'dead'
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} → ${lane.resolved}` : lane.model
+    // A ready lane between calls is green; its model is already the lit chip, so only a resolved alias is named.
+    const waiting = !live && lane.state === 'idle'
+    const tone = waiting ? NIGHT.agree : DOT[lane.state]
+    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} → ${lane.resolved}` : ''
     const line = isDead ? `dead${lane.error ? ` · ${clip(lane.error, 80)}` : ''}`
-      : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `researching: ${clip(lane.researching, 100)}` : 'no blackboard entry yet'
+      : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `researching: ${clip(lane.researching, 100)}`
+        : live ? 'no blackboard entry yet' : ''
     return el('div', `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : ''), [
       el('div', 'display:flex;align-items:center;gap:8px', [
-        el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` +
+        el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${tone}` +
           (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
         el('span', `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
-        el('span', `${micro};font-size:9px`, [text(model.toUpperCase())]),
+        ...(model ? [el('span', `${micro};font-size:9px`, [text(model)])] : []),
         ...(binding && binding !== lane.model ? [el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text(`BOUND LOCALLY → ${binding.toUpperCase()}`)], { attrs: { 'data-lane-rebound': lane.role } })] : []),
-        el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text(lane.state.toUpperCase())])
+        el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [text(waiting ? 'READY' : lane.state.toUpperCase())])
       ]),
-      el('span', `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } }),
+      ...(line ? [el('span', `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
       el('div', 'display:flex;flex-wrap:wrap;gap:6px', choices.map((m, j) => {
         const on = (binding ?? lane.model) === m
         return el('button', `padding:3px 10px;border-radius:999px;border:1px solid ${on ? '#f0d7a0' : NIGHT.borderStrong};background-color:${on ? '#cfae74' : 'transparent'}`,
-          [el('span', `font-family:${MONO};font-size:10px;color:${on ? '#1d160b' : NIGHT.text2}`, [text(m)])],
+          [el('span', `font-family:${MONO};font-size:10px;color:${on ? '#1d160b' : NIGHT.text}`, [text(m)])],
           { id: pickId(i, j), attrs: { 'data-lane-pick': `${lane.role}=${m}`, ...(on ? { 'data-lane-bound': 'true' } : {}) } })
       }))
     ])
@@ -131,9 +145,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
   return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el('div', 'display:flex;flex-direction:column', rows),
-    el('div', 'display:flex;justify-content:flex-end', [close]),
-    el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
-      [text(`state read from the lane broker · bindings saved locally to ${where.split('/').pop() ?? where} (the broker has no binding endpoint)`)])
+    el('div', 'display:flex;justify-content:flex-end', [close])
   ])])
 }
 
@@ -146,7 +158,7 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
   }
   const source = (): LaneSource => feed
     ? { call: feed.call, error: feed.error }
-    : { call: null, error: 'no lane broker token (set GLIDE_LANES_TOKEN_FILE)' }
+    : { call: null, error: 'Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token.' }
   const overlay: Overlay = {
     key: 'glide-lanes',
     modal: true,
@@ -154,7 +166,7 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
     node: id => {
       const src = source()
       const bound = bindings.get()
-      const lanes = src.call?.open ? sortLanes(src.call.lanes) : []
+      const lanes = sortLanes(src.call?.lanes ?? [])
       const choices = modelChoices(lanes, bound)
       const view = {
         spec: { kind: 'lanes', app: APP }, app: APP, label: 'Voice lanes', identity: 'lanes',

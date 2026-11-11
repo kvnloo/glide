@@ -177,13 +177,13 @@ export function openAgents(host: AgentsSheetHost, focus?: { id: string; watch?: 
             { id: 'beside', keys: ['enter'], label: 'Open beside', primary: true },
             { id: 'pause', keys: ['p'], label: host.agents.paused ? 'Resume spawns' : 'Pause spawns' }
           ]),
-      {
-        ...optional('disabled', running ? (a?.steerable === false ? 'Not taking steering now' : undefined) : 'Finished'),
-        id: 'steer',
-        keys: ['s'],
-        label: 'Steer'
-      },
-      { danger: true, ...optional('disabled', running ? undefined : 'Finished'), id: 'stop', keys: ['x'], label: 'Stop' },
+      // A finished agent takes neither: the buttons go rather than sit disabled.
+      ...(running
+        ? [
+            { ...optional('disabled', a?.steerable === false ? 'Not taking steering now' : undefined), id: 'steer', keys: ['s'], label: 'Steer' },
+            { danger: true, id: 'stop', keys: ['x'], label: 'Stop' }
+          ]
+        : []),
       { end: true, id: 'close', keys: ['esc'], label: inTimeline ? 'Back' : 'Close' }
     ]
   }
@@ -263,12 +263,12 @@ export function openAgents(host: AgentsSheetHost, focus?: { id: string; watch?: 
         preview="side"
         {...optional('selected', sel)}
         size="lg"
-        subtitle={[{ s: 'muted', t: `${SUBAGENT_LOOK[a.status].word} · ${a.goal}` }]}
+        subtitle={[{ s: SUBAGENT_LOOK[a.status].tone, t: SUBAGENT_LOOK[a.status].word }, { s: 'muted', t: agentLine(a, now) }]}
         title={agentName(a)}
         total={entries.length}
         {...steerProps(a)}
       >
-        {shown ? stepPreview(shown, a, briefFor(host, a)) : [agentNode(a, now)]}
+        {shown ? stepPreview(shown, a, now, entries[at - 1]?.at, briefFor(host, a)) : [agentNode(a, now)]}
       </picker>
     )
   }
@@ -288,6 +288,19 @@ function summary(all: Subagent[]): string {
     [a => a.status === 'cancelled', 'stopped']
   ])
 }
+
+/** The timeline's facts line: model, time so far (ticking while it runs), tools and tokens. */
+function agentLine(a: Subagent, now: number): string {
+  return [
+    a.model?.split('/').at(-1),
+    elapsed(a, now),
+    `${a.toolCount} ${a.toolCount === 1 ? 'tool' : 'tools'}`,
+    a.tokens ? `${a.tokens >= 1000 ? `${(a.tokens / 1000).toFixed(1)}k` : a.tokens} tokens` : undefined
+  ].filter(Boolean).map(s => ` · ${s}`).join('')
+}
+
+/** Characters of one argument the preview shows. */
+const ARG_CHARS = 600
 
 function elapsed(a: Subagent, now: number): string {
   return duration(isRunning(a) ? now - a.startedAt : (a.duration ?? 0))
@@ -368,7 +381,8 @@ function hubPreview(a: Subagent, now: number, brief?: string): JSX.Element[] {
 function stepItem(e: AgentStep, id: string, a: Subagent): PickerItem {
   if (e.kind === 'tool') {
     return {
-      detail: e.args,
+      // The call's own command over the gateway's compact preview (`git log … + 1 command`).
+      detail: typeof e.call?.command === 'string' ? compactCommand(e.call.command) : e.args,
       ...optional('dot', e.running && isRunning(a) ? 'accent' : undefined),
       facts: { at: clock(e.at) },
       icon: hubIconOf(e.name),
@@ -379,11 +393,15 @@ function stepItem(e: AgentStep, id: string, a: Subagent): PickerItem {
     }
   }
 
+  if (e.kind === 'kickoff' || e.kind === 'assistant') {
+    return { detail: plain(e.text), facts: { at: clock(e.at) }, id, label: e.kind === 'kickoff' ? 'Task' : 'Answer', node: e.kind === 'kickoff' ? 'user' : 'assistant' }
+  }
+
   return {
     facts: { at: clock(e.at) },
     id,
-    label: e.kind === 'kickoff' ? `Task: ${e.text}` : e.kind === 'think' ? `Thinking: ${e.text}` : e.text,
-    node: e.kind === 'kickoff' ? 'user' : 'assistant',
+    label: plain(e.kind === 'think' ? `Thinking: ${e.text}` : e.text),
+    node: 'assistant',
     ...optional('tone', e.kind === 'think' || e.kind === 'note' ? 'muted' : undefined)
   }
 }
@@ -392,15 +410,29 @@ function stepItem(e: AgentStep, id: string, a: Subagent): PickerItem {
  * One step of `a`'s timeline. Its kickoff is the whole prompt the agent got, from the delegation
  * (the goal, then its `brief`).
  */
-function stepPreview(e: AgentStep, a: Subagent, brief?: string): JSX.Element[] {
+function stepPreview(e: AgentStep, a: Subagent, now: number, prevAt: number | undefined, brief?: string): JSX.Element[] {
   if (e.kind !== 'tool') {
     const head = { assistant: 'Answer', kickoff: 'Task', note: 'Note', think: 'Thinking' }[e.kind]
-    const text = e.kind === 'kickoff' && a.goal ? (brief ? `${a.goal}\n\n---\n\n${brief}` : a.goal) : e.text
+
+    if (e.kind === 'kickoff' && a.goal) {
+      return [
+        <text key="title" role="omp.hub.title" text={head} />,
+        <section head="Goal" key="goal">
+          <md key="text" text={a.goal} />
+        </section>,
+        ...(brief
+          ? [
+              <section head="Brief" key="brief">
+                <md key="text" text={brief} />
+              </section>
+            ]
+          : [])
+      ]
+    }
 
     return [
       <text key="title" role="omp.hub.title" text={head} />,
-      <text key="at" spans={[{ s: 'dim mono', t: clock(e.at) }]} />,
-      <md key="body" text={text} {...optional('tone', e.kind === 'think' ? 'muted' : undefined)} />
+      <md key="body" text={e.text} {...optional('tone', e.kind === 'think' ? 'muted' : undefined)} />
     ]
   }
 
@@ -408,19 +440,14 @@ function stepPreview(e: AgentStep, a: Subagent, brief?: string): JSX.Element[] {
     <text key="title" role="omp.hub.title" spans={[{ s: 'mono strong', t: e.name }]} />,
     <kv
       items={facts([
-        ['Status', [{ s: e.running ? 'accent' : 'success', t: e.running ? 'running' : 'done' }]],
-        [e.running ? 'Started' : 'Returned', clock(e.at)]
+        ['Status', e.running ? [{ s: 'accent', t: 'running' }] : [{ s: 'success', t: 'done' }]],
+        ['Started', clock(e.at) || undefined],
+        ['Running for', e.running && e.at !== undefined ? duration(now - e.at) : undefined]
       ])}
       key="facts"
       role="omp.hub.kv"
     />,
-    ...(e.args
-      ? [
-          <section head="Arguments" key="args">
-            <code key="code" text={e.args} wrap />
-          </section>
-        ]
-      : []),
+    ...callNodes(e)
   ]
 }
 
@@ -448,6 +475,45 @@ function stepSpans(e: AgentStep): { s?: string; t: string }[] {
 /** A step's time as the clock read it (`14:05:09`); '' for a row with no time. */
 function clock(at: number | undefined): string {
   return at === undefined ? '' : new Date(at).toTimeString().slice(0, 8)
+}
+
+/** A tool step's whole call, one block per argument; its one-line preview when the row has no arguments. */
+function callNodes(e: Extract<AgentStep, { kind: 'tool' }>): JSX.Element[] {
+  const args = Object.entries(e.call ?? {}).filter(([, v]) => v !== null && v !== undefined && v !== '')
+
+  if (!args.length) {
+    return e.args ? [<section head="Call" key="call"><code key="code" text={e.args} wrap /></section>] : []
+  }
+
+  return [
+    <section head="Call" key="call">
+      {args.map(([k, v]) => {
+        const s = typeof v === 'string' ? v : JSON.stringify(v, null, 2)
+
+        return (
+          <section head={k} key={`a-${k}`}>
+            <code key="code" text={s.length > ARG_CHARS ? `${s.slice(0, ARG_CHARS - 1)}…` : s} wrap />
+          </section>
+        )
+      })}
+    </section>
+  ]
+}
+
+/**
+ * A command as its timeline row shows it: on one line, with a leading `cd <dir> &&` dropped and each
+ * long absolute path cut to its last two parts, so the row ends on what was run, not on the worktree.
+ * The preview keeps the command whole.
+ */
+export function compactCommand(command: string): string {
+  return oneLine(command)
+    .replace(/^cd\s+\S+\s*&&\s*/, '')
+    .replace(/(?:\/[^\s/'"]+){3,}(\/[^\s/'"]+\/[^\s/'"]+)/g, '…$1')
+}
+
+/** `text` on one line without inline markdown marks, for a row label. */
+function plain(text: string): string {
+  return oneLine(text.replace(/[`*_]+/g, ''))
 }
 
 /** `text` on one line, for a row that does not wrap. */

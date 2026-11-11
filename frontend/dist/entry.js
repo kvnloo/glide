@@ -22875,10 +22875,10 @@ function markdownFileTarget(target2, cwd) {
     return void 0;
   }
   const anchored = /^(.*)#L([1-9]\d*)(?:-L?([1-9]\d*))?$/i.exec(target2);
-  const plain4 = anchored?.[1] ?? target2;
+  const plain5 = anchored?.[1] ?? target2;
   let path2;
   try {
-    path2 = decodeURIComponent(plain4);
+    path2 = decodeURIComponent(plain5);
   } catch {
     return void 0;
   }
@@ -23789,7 +23789,7 @@ function orbSvg(state, seconds, dark) {
 
 // src/voice/lanes.tsx
 import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 
 // src/voice/orbit.ts
@@ -24022,15 +24022,28 @@ var LaneFeed = class {
     }
   }
 };
+var TOKEN_PATH = ".config/z0live/hermes-mobile-relay.token";
+function laneToken(env2 = process.env) {
+  const real = (() => {
+    try {
+      return userInfo().homedir;
+    } catch {
+      return "";
+    }
+  })();
+  const files = env2["GLIDE_LANES_TOKEN_FILE"] ? [env2["GLIDE_LANES_TOKEN_FILE"]] : [...new Set([homedir(), real].filter(Boolean))].map((h2) => join(h2, TOKEN_PATH));
+  for (const file2 of files) {
+    try {
+      const token = readFileSync(file2, "utf8").trim();
+      if (token) return token;
+    } catch {
+    }
+  }
+  return "";
+}
 function laneFeedFromEnv(changed, env2 = process.env) {
   if (env2["GLIDE_LANES"] === "off" || env2["VITEST"]) return null;
-  const file2 = env2["GLIDE_LANES_TOKEN_FILE"] || join(homedir(), ".config/z0live/hermes-mobile-relay.token");
-  let token = "";
-  try {
-    token = readFileSync(file2, "utf8").trim();
-  } catch {
-    return null;
-  }
+  const token = laneToken(env2);
   if (!token) return null;
   return new LaneFeed({ url: env2["GLIDE_LANES_URL"] || "http://127.0.0.1:8791", token, changed });
 }
@@ -26894,43 +26907,55 @@ function lanesCard(src, bound2, where, extra) {
     click: opts.id !== void 0,
     kids
   });
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
-  const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
+  const lanes2 = sortLanes(src.call?.lanes ?? []);
+  const live = Boolean(src.call?.open && lanes2.length);
   const choices = modelChoices(lanes2, bound2, extra);
   const dead = lanes2.filter((l) => l.state === "dead").length;
+  const revision = (src.call?.revision || "call").toUpperCase();
+  const badge = live ? `LIVE \xB7 ${revision}` : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
+  const ready = lanes2.length - dead;
+  const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
   const header = el("div", "display:flex;flex-direction:column;gap:4px", [
     el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text18("VOICE LANES \xB7 GLIDE")]),
+      el("span", `${micro};letter-spacing:2px`, [text18("LANE BROKER")]),
       el(
         "span",
-        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (lanes2.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-        [text18(lanes2.length ? `LIVE \xB7 ${(src.call?.revision || "CALL").toUpperCase()}` : "NO CALL")],
-        { attrs: { "data-lanes-source": lanes2.length ? "live" : "none" } }
+        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
+        [text18(badge)],
+        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {} } }
       )
     ]),
     el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
-    el("span", `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(lanes2.length ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : src.error || "no open lane call (the lane broker runs the Hermes app Live path)")])
+    el(
+      "span",
+      `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`,
+      [text18(summary4)],
+      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } }
+    )
   ]);
   const rows = lanes2.map((lane, i) => {
     const binding = bound2[lane.role];
     const isDead = lane.state === "dead";
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : lane.model;
-    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : "no blackboard entry yet";
+    const waiting5 = !live && lane.state === "idle";
+    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
+    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : "";
+    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
     return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
       el("div", "display:flex;align-items:center;gap:8px", [
-        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
         el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
-        el("span", `${micro};font-size:9px`, [text18(model.toUpperCase())]),
+        ...model ? [el("span", `${micro};font-size:9px`, [text18(model)])] : [],
         ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
-        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text18(lane.state.toUpperCase())])
+        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [text18(waiting5 ? "READY" : lane.state.toUpperCase())])
       ]),
-      el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } }),
+      ...line ? [el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
       el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
         const on = (binding ?? lane.model) === m;
         return el(
           "button",
           `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
-          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text2}`, [text18(m)])],
+          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text}`, [text18(m)])],
           { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
         );
       }))
@@ -26945,12 +26970,7 @@ function lanesCard(src, bound2, where, extra) {
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-direction:column", rows),
-    el("div", "display:flex;justify-content:flex-end", [close]),
-    el(
-      "span",
-      `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
-      [text18(`state read from the lane broker \xB7 bindings saved locally to ${where.split("/").pop() ?? where} (the broker has no binding endpoint)`)]
-    )
+    el("div", "display:flex;justify-content:flex-end", [close])
   ])]);
 }
 function openLanesPopup(host, feed, bindings = fileBindings()) {
@@ -26959,7 +26979,7 @@ function openLanesPopup(host, feed, bindings = fileBindings()) {
     host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
     return void 0;
   }
-  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "no lane broker token (set GLIDE_LANES_TOKEN_FILE)" };
+  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token." };
   const overlay2 = {
     key: "glide-lanes",
     modal: true,
@@ -26967,7 +26987,7 @@ function openLanesPopup(host, feed, bindings = fileBindings()) {
     node: (id) => {
       const src = source2();
       const bound2 = bindings.get();
-      const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+      const lanes2 = sortLanes(src.call?.lanes ?? []);
       const choices = modelChoices(lanes2, bound2);
       const view = {
         spec: { kind: "lanes", app: APP },
@@ -32922,6 +32942,7 @@ var JsonRpcRequestChannel = class {
 // src/agents/transcript.ts
 var PAGE_ROWS = 200;
 var MAX_PAGES = 5;
+var ENDED_UNAVAILABLE_READS = 5;
 var SubagentTranscript = class {
   rows = [];
   /** The child runs (or waits for a slot), as the last page said; undefined before the first read. */
@@ -32933,6 +32954,7 @@ var SubagentTranscript = class {
   #subagent;
   #cursor = null;
   #caughtUp = false;
+  #endedUnavailable = 0;
   #published = false;
   /** The transcript of subagent `subagent` of session `sid` (its runtime id), read over `gw`. */
   constructor(gw2, sid, subagent2) {
@@ -32942,7 +32964,7 @@ var SubagentTranscript = class {
   }
   /** The child ended and every row it wrote is read: no read can bring more. */
   get finished() {
-    return this.running === false && (this.#caughtUp || !this.available);
+    return this.running === false && (this.available ? this.#caughtUp : this.#endedUnavailable >= ENDED_UNAVAILABLE_READS);
   }
   /** Reads the rows written since the last read; true when the rows changed. */
   async read() {
@@ -32951,6 +32973,7 @@ var SubagentTranscript = class {
       const page = await this.#page();
       this.running = page.running ?? false;
       this.available = page.available ?? false;
+      this.#endedUnavailable = !this.running && !this.available ? this.#endedUnavailable + 1 : 0;
       if (page.reset) {
         changed ||= this.rows.length > 0 || page.rows.length > 0;
         this.rows = [...page.rows];
@@ -32993,7 +33016,7 @@ function stepsOf(rows) {
     const at2 = ms(row2.timestamp);
     const text18 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
-      steps.push({ args: row2.context ?? "", at: at2, kind: "tool", name: row2.name ?? "tool", running: false });
+      steps.push({ args: row2.context ?? "", at: at2, kind: "tool", name: row2.name ?? "tool", running: false, ...optional2("call", row2.args ?? void 0) });
     } else if (row2.row_kind === "message" && row2.role === "assistant") {
       if (row2.reasoning?.trim()) {
         steps.push({ at: at2, kind: "think", text: row2.reasoning.trim() });
@@ -37625,9 +37648,9 @@ var SUFFIX_SCALE = { G: 1e9, K: 1e3, M: 1e6, k: 1e3 };
 function parseValue(text18) {
   const first = text18.charCodeAt(0);
   if (first >= 48 && first <= 57 && !/[xXbBoO]/.test(text18.charAt(1))) {
-    const plain4 = Number(text18);
-    if (Number.isFinite(plain4)) {
-      return plain4;
+    const plain5 = Number(text18);
+    if (Number.isFinite(plain5)) {
+      return plain5;
     }
   }
   const compact3 = text18.trim().replace(/[,_]/g, "");
@@ -40699,13 +40722,11 @@ function openAgents(host, focus) {
         { id: "beside", keys: ["enter"], label: "Open beside", primary: true },
         { id: "pause", keys: ["p"], label: host.agents.paused ? "Resume spawns" : "Pause spawns" }
       ],
-      {
-        ...optional2("disabled", running2 ? a2?.steerable === false ? "Not taking steering now" : void 0 : "Finished"),
-        id: "steer",
-        keys: ["s"],
-        label: "Steer"
-      },
-      { danger: true, ...optional2("disabled", running2 ? void 0 : "Finished"), id: "stop", keys: ["x"], label: "Stop" },
+      // A finished agent takes neither: the buttons go rather than sit disabled.
+      ...running2 ? [
+        { ...optional2("disabled", a2?.steerable === false ? "Not taking steering now" : void 0), id: "steer", keys: ["s"], label: "Steer" },
+        { danger: true, id: "stop", keys: ["x"], label: "Stop" }
+      ] : [],
       { end: true, id: "close", keys: ["esc"], label: inTimeline ? "Back" : "Close" }
     ];
   };
@@ -40778,11 +40799,11 @@ function openAgents(host, focus) {
         preview: "side",
         ...optional2("selected", sel),
         size: "lg",
-        subtitle: [{ s: "muted", t: `${SUBAGENT_LOOK[a2.status].word} \xB7 ${a2.goal}` }],
+        subtitle: [{ s: SUBAGENT_LOOK[a2.status].tone, t: SUBAGENT_LOOK[a2.status].word }, { s: "muted", t: agentLine(a2, now) }],
         title: agentName(a2),
         total: entries2.length,
         ...steerProps(a2),
-        children: shown3 ? stepPreview(shown3, a2, briefFor(host, a2)) : [agentNode(a2, now)]
+        children: shown3 ? stepPreview(shown3, a2, now, entries2[at2 - 1]?.at, briefFor(host, a2)) : [agentNode(a2, now)]
       },
       nativeOverlayKey(id)
     );
@@ -40800,6 +40821,15 @@ function summary2(all8) {
     [(a2) => a2.status === "cancelled", "stopped"]
   ]);
 }
+function agentLine(a2, now) {
+  return [
+    a2.model?.split("/").at(-1),
+    elapsed(a2, now),
+    `${a2.toolCount} ${a2.toolCount === 1 ? "tool" : "tools"}`,
+    a2.tokens ? `${a2.tokens >= 1e3 ? `${(a2.tokens / 1e3).toFixed(1)}k` : a2.tokens} tokens` : void 0
+  ].filter(Boolean).map((s2) => ` \xB7 ${s2}`).join("");
+}
+var ARG_CHARS = 600;
 function elapsed(a2, now) {
   return duration2(isRunning(a2) ? now - a2.startedAt : a2.duration ?? 0);
 }
@@ -40859,7 +40889,8 @@ function hubPreview(a2, now, brief) {
 function stepItem(e, id, a2) {
   if (e.kind === "tool") {
     return {
-      detail: e.args,
+      // The call's own command over the gateway's compact preview (`git log … + 1 command`).
+      detail: typeof e.call?.command === "string" ? compactCommand(e.call.command) : e.args,
       ...optional2("dot", e.running && isRunning(a2) ? "accent" : void 0),
       facts: { at: clock2(e.at) },
       icon: hubIconOf(e.name),
@@ -40869,26 +40900,32 @@ function stepItem(e, id, a2) {
       node: "tool"
     };
   }
+  if (e.kind === "kickoff" || e.kind === "assistant") {
+    return { detail: plain3(e.text), facts: { at: clock2(e.at) }, id, label: e.kind === "kickoff" ? "Task" : "Answer", node: e.kind === "kickoff" ? "user" : "assistant" };
+  }
   return {
     facts: { at: clock2(e.at) },
     id,
-    label: e.kind === "kickoff" ? `Task: ${e.text}` : e.kind === "think" ? `Thinking: ${e.text}` : e.text,
-    node: e.kind === "kickoff" ? "user" : "assistant",
+    label: plain3(e.kind === "think" ? `Thinking: ${e.text}` : e.text),
+    node: "assistant",
     ...optional2("tone", e.kind === "think" || e.kind === "note" ? "muted" : void 0)
   };
 }
-function stepPreview(e, a2, brief) {
+function stepPreview(e, a2, now, prevAt, brief) {
   if (e.kind !== "tool") {
     const head2 = { assistant: "Answer", kickoff: "Task", note: "Note", think: "Thinking" }[e.kind];
-    const text18 = e.kind === "kickoff" && a2.goal ? brief ? `${a2.goal}
-
----
-
-${brief}` : a2.goal : e.text;
+    if (e.kind === "kickoff" && a2.goal) {
+      return [
+        /* @__PURE__ */ jsx("text", { role: "omp.hub.title", text: head2 }, "title"),
+        /* @__PURE__ */ jsx("section", { head: "Goal", children: /* @__PURE__ */ jsx("md", { text: a2.goal }, "text") }, "goal"),
+        ...brief ? [
+          /* @__PURE__ */ jsx("section", { head: "Brief", children: /* @__PURE__ */ jsx("md", { text: brief }, "text") }, "brief")
+        ] : []
+      ];
+    }
     return [
       /* @__PURE__ */ jsx("text", { role: "omp.hub.title", text: head2 }, "title"),
-      /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock2(e.at) }] }, "at"),
-      /* @__PURE__ */ jsx("md", { text: text18, ...optional2("tone", e.kind === "think" ? "muted" : void 0) }, "body")
+      /* @__PURE__ */ jsx("md", { text: e.text, ...optional2("tone", e.kind === "think" ? "muted" : void 0) }, "body")
     ];
   }
   return [
@@ -40897,16 +40934,15 @@ ${brief}` : a2.goal : e.text;
       "kv",
       {
         items: facts([
-          ["Status", [{ s: e.running ? "accent" : "success", t: e.running ? "running" : "done" }]],
-          [e.running ? "Started" : "Returned", clock2(e.at)]
+          ["Status", e.running ? [{ s: "accent", t: "running" }] : [{ s: "success", t: "done" }]],
+          ["Started", clock2(e.at) || void 0],
+          ["Running for", e.running && e.at !== void 0 ? duration2(now - e.at) : void 0]
         ]),
         role: "omp.hub.kv"
       },
       "facts"
     ),
-    ...e.args ? [
-      /* @__PURE__ */ jsx("section", { head: "Arguments", children: /* @__PURE__ */ jsx("code", { text: e.args, wrap: true }, "code") }, "args")
-    ] : []
+    ...callNodes(e)
   ];
 }
 function stepSpans(e) {
@@ -40927,6 +40963,24 @@ function stepSpans(e) {
 }
 function clock2(at2) {
   return at2 === void 0 ? "" : new Date(at2).toTimeString().slice(0, 8);
+}
+function callNodes(e) {
+  const args = Object.entries(e.call ?? {}).filter(([, v]) => v !== null && v !== void 0 && v !== "");
+  if (!args.length) {
+    return e.args ? [/* @__PURE__ */ jsx("section", { head: "Call", children: /* @__PURE__ */ jsx("code", { text: e.args, wrap: true }, "code") }, "call")] : [];
+  }
+  return [
+    /* @__PURE__ */ jsx("section", { head: "Call", children: args.map(([k, v]) => {
+      const s2 = typeof v === "string" ? v : JSON.stringify(v, null, 2);
+      return /* @__PURE__ */ jsx("section", { head: k, children: /* @__PURE__ */ jsx("code", { text: s2.length > ARG_CHARS ? `${s2.slice(0, ARG_CHARS - 1)}\u2026` : s2, wrap: true }, "code") }, `a-${k}`);
+    }) }, "call")
+  ];
+}
+function compactCommand(command2) {
+  return oneLine2(command2).replace(/^cd\s+\S+\s*&&\s*/, "").replace(/(?:\/[^\s/'"]+){3,}(\/[^\s/'"]+\/[^\s/'"]+)/g, "\u2026$1");
+}
+function plain3(text18) {
+  return oneLine2(text18.replace(/[`*_]+/g, ""));
 }
 function oneLine2(text18) {
   return text18.replace(/\s+/g, " ").trim();
@@ -76266,7 +76320,8 @@ function declare(d, el) {
   const runs3 = clauseRuns(ask, d.rows);
   return el("div", [
     el("div", [waveSvg(ask), el("p", runs3.map((r) => r.clause ? el("span", [text14(r.text)], `ih-u ih-c-${r.clause.replace(/[^a-z]/g, "")}`, { "data-clause": r.clause }) : text14(r.text)), "ih-ask")], "ih-wavebox"),
-    el("div", d.rows.map((r) => el("span", [text14(`${r.label} \xB7 ${str6(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, "")}`)), "ih-keys")
+    // A clause that is the whole ask is already the headline: its key names the kind alone.
+    el("div", d.rows.map((r) => el("span", [text14(str6(r.value).trim() === ask.trim() ? r.label : `${r.label} \xB7 ${str6(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, "")}`)), "ih-keys")
   ], "ih-hero ih-declare");
 }
 var met = (v) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str6(v));
@@ -76425,19 +76480,19 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-mark { flex: none; width: 84px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
 [data-eui='card'] .ih-met .ih-mark { color: var(--ih-acc); }
 [data-eui='card'] .ih-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ih-due); animation: ih-pulse 1.4s ease-in-out infinite; }
-[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
+[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px 8px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
 [data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-fg); text-transform: uppercase; letter-spacing: .06em; }
 [data-eui='card'] .ih-flowlink { flex: 1; min-width: 8px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-flowlink.ih-gated { min-width: 18px; background: #a855d6; }
+[data-eui='card'] .ih-flowlink.ih-gated { min-width: 14px; background: #a855d6; }
 [data-eui='card'] .ih-term.ih-due { border: 1.5px dashed var(--ih-due); color: var(--h-fg); }
 [data-eui='card'] .ih-fan { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-left: 2px solid var(--h-mutedFg); border-right: 2px solid var(--h-mutedFg); border-radius: 4px; }
 [data-eui='card'] .ih-branch { display: flex; align-items: center; }
 [data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-lane { flex: none; width: 96px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
+[data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
 [data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
 [data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
 [data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
-[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .9; }
 [data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #9ca39a; }
 [data-eui='card'] .ih-led.ih-ok { background: #7ee3a0; box-shadow: 0 0 6px rgba(126,227,160,.6); }
@@ -76552,12 +76607,12 @@ function hostSnapshot(data, status) {
   });
   const hero = intentHero(data, el);
   const hold = data.kind === "intent-contract";
+  const drawn = hero !== void 0 && (hold || data.kind === "intent-declare");
   const kids = [
     el("h3", [text18(data.title)], "eui-host-title"),
     ...hero ? [hero] : [],
-    ...data.summary === void 0 ? [] : [el("p", [text18(data.summary)])],
-    // The contract hero draws every row (criteria, lanes, hosts, gate, budget); a list would repeat it.
-    ...hold && hero ? [] : [el("dl", data.rows.flatMap((row2) => [
+    ...data.summary === void 0 || drawn && !hold ? [] : [el("p", [text18(data.summary)])],
+    ...drawn ? [] : [el("dl", data.rows.flatMap((row2) => [
       el("dt", [text18(row2.label)]),
       el("dd", [text18(String(row2.value))])
     ]), "eui-host-rows")]
@@ -92201,14 +92256,14 @@ var BusyDraft = class {
 };
 
 // src/chrome/hud.ts
-var plain3 = (k) => !k.ctrl && !k.alt && !k.meta && !k.shift;
+var plain4 = (k) => !k.ctrl && !k.alt && !k.meta && !k.shift;
 function hudKey(k, cx) {
   const { focused, pills: pills2 } = cx;
   if (!focused || !pills2.includes(focused)) {
-    return k.name === "down" && plain3(k) && cx.idle && pills2.length ? { consumed: true, focused: pills2[0] } : { consumed: false };
+    return k.name === "down" && plain4(k) && cx.idle && pills2.length ? { consumed: true, focused: pills2[0] } : { consumed: false };
   }
   const at2 = pills2.indexOf(focused);
-  switch (plain3(k) ? k.name : "") {
+  switch (plain4(k) ? k.name : "") {
     case "left":
       return { consumed: true, focused: pills2[Math.max(0, at2 - 1)] };
     case "right":
@@ -94420,6 +94475,10 @@ var Agents = class {
     }
     try {
       if (!await t.read()) {
+        if (t.finished && !a2.steps) {
+          a2.steps = [];
+          return true;
+        }
         return false;
       }
     } catch {
@@ -101573,9 +101632,9 @@ var redactUrl = (raw2) => {
   }
   try {
     const url = new URL(raw2);
-    const userInfo = url.username || url.password ? "***@" : "";
+    const userInfo2 = url.username || url.password ? "***@" : "";
     const query2 = url.search ? "?***" : "";
-    return `${url.protocol}//${userInfo}${url.host}${url.pathname}${query2}`;
+    return `${url.protocol}//${userInfo2}${url.host}${url.pathname}${query2}`;
   } catch {
     const noUserInfo = raw2.replace(_USERINFO_FALLBACK_RE, "$1***@");
     const queryIdx = noUserInfo.indexOf("?");

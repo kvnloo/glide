@@ -424,6 +424,11 @@ export class Agents {
 
     try {
       if (!(await t.read())) {
+        // An ended child with nothing stored: its timeline is empty, not still loading.
+        if (t.finished && !a.steps) {
+          a.steps = []
+          return true
+        }
         return false
       }
     } catch {
