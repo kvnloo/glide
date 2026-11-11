@@ -89,11 +89,26 @@ describe('voice lanes popup', () => {
     expect(out).toContain('1 dead')
   })
 
-  it('says why there are no lanes without a broker token', () => {
+  it('says how to connect without a broker token', () => {
     const { host, bindings, draw } = setup()
     openLanesPopup(host, null, bindings)
-    expect(draw()).toContain('no lane broker token')
+    expect(draw()).toContain('Lane broker not connected: point GLIDE_LANES_TOKEN_FILE')
+    expect(draw()).toContain('NOT CONNECTED')
     expect(draw()).toContain('"data-lanes-source":"none"')
+  })
+
+  it('lists the configured lanes while no call is open, dead ones dead, the bindings caveat only in a tooltip', () => {
+    const { host, bindings, draw } = setup()
+    const call = must(parseLaneStatus({ ...status, open: false }))
+    openLanesPopup(host, { call, error: '' }, bindings)
+    const out = draw()
+    expect(out).toContain('"data-lanes-source":"configured"')
+    expect(out).toContain('NO CALL OPEN · R7')
+    expect(out).toContain('no call open · 4 lanes · 1 dead')
+    expect(out).toContain('provider timed out')
+    expect(out).toContain('ready · joins the next live call')
+    expect(out).toContain('"title":"Lane state comes from the lane broker; a model pick is saved locally to')
+    expect(out).not.toMatch(/"text":"[^"]*binding endpoint/)
   })
 
   it('a picked model rebinds its lane and is saved locally', () => {

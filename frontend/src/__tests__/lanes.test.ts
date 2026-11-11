@@ -1,7 +1,11 @@
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { type JSX, Node, type Session, type Surface } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LANE_ORB, LaneFeed, laneFeedFromEnv, LaneStrip, parseLaneStatus } from '../voice/lanes.js'
+import { LANE_ORB, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, parseLaneStatus } from '../voice/lanes.js'
 
 import { stub } from './fakes.js'
 
@@ -112,6 +116,13 @@ describe('live lane strip', () => {
   it('animates only a lane with a job in flight', () => {
     expect(Object.entries(LANE_ORB).filter(([, orb]) => orb === 'thinking').map(([s]) => s)).toEqual(['thinking'])
     expect(LANE_ORB.dead).toBe('error')
+  })
+
+  it('reads the relay token from $GLIDE_LANES_TOKEN_FILE', () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'lane-token-')), 'token')
+    writeFileSync(file, ' secret\n')
+    expect(laneToken({ GLIDE_LANES_TOKEN_FILE: file })).toBe('secret')
+    expect(laneToken({ GLIDE_LANES_TOKEN_FILE: '/nonexistent/token' })).toBe('')
   })
 
   it('stays off without a relay token and under tests', () => {

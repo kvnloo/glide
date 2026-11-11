@@ -263,12 +263,12 @@ export function openAgents(host: AgentsSheetHost, focus?: { id: string; watch?: 
         preview="side"
         {...optional('selected', sel)}
         size="lg"
-        subtitle={[{ s: 'muted', t: `${SUBAGENT_LOOK[a.status].word} · ${a.goal}` }]}
+        subtitle={[{ s: SUBAGENT_LOOK[a.status].tone, t: SUBAGENT_LOOK[a.status].word }, { s: 'muted', t: agentLine(a, now) }]}
         title={agentName(a)}
         total={entries.length}
         {...steerProps(a)}
       >
-        {shown ? stepPreview(shown, a, briefFor(host, a)) : [agentNode(a, now)]}
+        {shown ? stepPreview(shown, a, now, entries[at - 1]?.at, briefFor(host, a)) : [agentNode(a, now)]}
       </picker>
     )
   }
@@ -288,6 +288,21 @@ function summary(all: Subagent[]): string {
     [a => a.status === 'cancelled', 'stopped']
   ])
 }
+
+/** The timeline's facts line: model, time so far (ticking while it runs), tools and tokens. */
+function agentLine(a: Subagent, now: number): string {
+  return [
+    a.model?.split('/').at(-1),
+    elapsed(a, now),
+    `${a.toolCount} ${a.toolCount === 1 ? 'tool' : 'tools'}`,
+    a.tokens ? `${a.tokens >= 1000 ? `${(a.tokens / 1000).toFixed(1)}k` : a.tokens} tokens` : undefined
+  ].filter(Boolean).map(s => ` · ${s}`).join('')
+}
+
+/** Arguments shorter than this already read whole on their timeline row. */
+const ROW_ARGS = 48
+/** Output lines a tool step previews. */
+const OUTPUT_LINES = 14
 
 function elapsed(a: Subagent, now: number): string {
   return duration(isRunning(a) ? now - a.startedAt : (a.duration ?? 0))
@@ -392,14 +407,13 @@ function stepItem(e: AgentStep, id: string, a: Subagent): PickerItem {
  * One step of `a`'s timeline. Its kickoff is the whole prompt the agent got, from the delegation
  * (the goal, then its `brief`).
  */
-function stepPreview(e: AgentStep, a: Subagent, brief?: string): JSX.Element[] {
+function stepPreview(e: AgentStep, a: Subagent, now: number, prevAt: number | undefined, brief?: string): JSX.Element[] {
   if (e.kind !== 'tool') {
     const head = { assistant: 'Answer', kickoff: 'Task', note: 'Note', think: 'Thinking' }[e.kind]
     const text = e.kind === 'kickoff' && a.goal ? (brief ? `${a.goal}\n\n---\n\n${brief}` : a.goal) : e.text
 
     return [
       <text key="title" role="omp.hub.title" text={head} />,
-      <text key="at" spans={[{ s: 'dim mono', t: clock(e.at) }]} />,
       <md key="body" text={text} {...optional('tone', e.kind === 'think' ? 'muted' : undefined)} />
     ]
   }
@@ -409,18 +423,26 @@ function stepPreview(e: AgentStep, a: Subagent, brief?: string): JSX.Element[] {
     <kv
       items={facts([
         ['Status', [{ s: e.running ? 'accent' : 'success', t: e.running ? 'running' : 'done' }]],
-        [e.running ? 'Started' : 'Returned', clock(e.at)]
+        [e.running ? 'Running for' : 'Took', e.running ? (e.at === undefined ? undefined : duration(now - e.at)) : prevAt !== undefined && e.at !== undefined ? duration(e.at - prevAt) : undefined],
+        ['Model', a.model?.split('/').at(-1)]
       ])}
       key="facts"
       role="omp.hub.kv"
     />,
-    ...(e.args
+    ...(e.args.length > ROW_ARGS
       ? [
           <section head="Arguments" key="args">
             <code key="code" text={e.args} wrap />
           </section>
         ]
       : []),
+    ...(e.output
+      ? [
+          <section head="Output" key="output">
+            <code key="code" text={previewLines(e.output)} wrap />
+          </section>
+        ]
+      : [])
   ]
 }
 
@@ -448,6 +470,14 @@ function stepSpans(e: AgentStep): { s?: string; t: string }[] {
 /** A step's time as the clock read it (`14:05:09`); '' for a row with no time. */
 function clock(at: number | undefined): string {
   return at === undefined ? '' : new Date(at).toTimeString().slice(0, 8)
+}
+
+/** The first lines of a tool's output, with how many more there are. */
+function previewLines(text: string): string {
+  const lines = text.trimEnd().split('\n')
+  const head = lines.slice(0, OUTPUT_LINES).map(l => (l.length > 160 ? l.slice(0, 159) + '…' : l))
+
+  return lines.length > OUTPUT_LINES ? `${head.join('\n')}\n… ${lines.length - OUTPUT_LINES} more lines` : head.join('\n')
 }
 
 /** `text` on one line, for a row that does not wrap. */
