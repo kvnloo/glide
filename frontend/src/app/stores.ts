@@ -14,6 +14,7 @@ import { NoticeStrip } from '../chrome/notices.js'
 import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
 import { Theme } from '../chrome/theme.js'
+import { euiSheets } from '../eui/cards.js'
 import { TodoHud } from '../todo-hud.js'
 import { dispatched } from '../commands/slash.js'
 import type { LaunchEnv } from '../config/env.js'
@@ -304,7 +305,16 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const laneFeed = laneFeedFromEnv(changed)
   laneFeed?.start()
   /** Whose colors the surface wears, and the gateway's skin. */
-  const theme = new Theme({ palette: palette => surface().palette(palette), settings }, saved.theme ?? 'tern')
+  const theme = new Theme({
+    palette: palette => surface().palette(palette),
+    // Kept with the card sheets so a recovered surface gets the wallpaper variables again.
+    stylesheet: (name, css) => {
+      if (css === null) euiSheets.delete(name)
+      else euiSheets.set(name, css)
+      surface().raw.stylesheet(name, css)
+    },
+    settings
+  }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
@@ -315,6 +325,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
 export function disposeStores(s: ChatStores) {
   s.mediaDelivery.clear(true)
   s.liveVoice.dispose()
+  s.theme.dispose()
   s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()

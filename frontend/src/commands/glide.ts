@@ -9,6 +9,8 @@ import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { SessionView } from '../app/ports.js'
 import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
+import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
+import type { ThemeMode } from '../settings.js'
 import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
 
@@ -17,6 +19,28 @@ export interface GlideHost {
   readonly session: Pick<SessionView, 'ref'>
   readonly transcript: Pick<Transcript, 'notice'>
   readonly eui?: Pick<EuiCards, 'host'> | undefined
+  /** `/glide theme auto|default`: the same switch as `/theme`. */
+  setTheme?(mode: ThemeMode): void
+}
+
+/** `/glide theme auto|default|export`: wear the wallpaper's pywal colors, go back, or write them out. */
+export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
+  if (sub === 'auto' || sub === 'default') {
+    host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
+    host.transcript.notice(sub === 'auto' ? `Glide theme follows the wallpaper: ${walFile()}` : 'Glide theme is back to the default')
+    return
+  }
+  if (sub === 'export') {
+    const wal = readWal(walFile())
+    if (!wal) {
+      host.transcript.notice(`/glide theme export: no pywal colors at ${walFile()} (run wal, or set GLIDE_WAL_COLORS)`, 'warning')
+      return
+    }
+    const palette = walPalette(wal, walFile())
+    host.transcript.notice(`Glide palette written to ${exportPalette(palette)}\n${JSON.stringify(palette)}`)
+    return
+  }
+  host.transcript.notice('Usage: /glide theme auto|default|export', 'warning')
 }
 
 const glideMemory = z.object({
@@ -78,6 +102,11 @@ const memoryRows = (m: GlideMemory) => [
 ]
 
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
+  const [first, second] = arg.trim().split(/\s+/)
+  if (first === 'theme') {
+    glideTheme(host, second)
+    return
+  }
   const ref = host.session.ref
   const sid = ref.live
   const cards = host.eui?.host

@@ -232,7 +232,7 @@ const COMMANDS: readonly LocalCommand[] = [
     }
   },
   {
-    help: 'Pick the colors: Tern, Nous or the Hermes skin [tern|nous|skin]',
+    help: 'Pick the colors: Tern, Nous, the Hermes skin or the wallpaper [tern|nous|skin|auto]',
     name: 'theme',
     run: (host, arg) => {
       if (!arg) {
@@ -240,7 +240,7 @@ const COMMANDS: readonly LocalCommand[] = [
       }
 
       if (!isThemeMode(arg)) {
-        host.transcript.notice('Usage: /theme [tern|nous|skin]', 'warning')
+        host.transcript.notice('Usage: /theme [tern|nous|skin|auto]', 'warning')
 
         return
       }
@@ -375,7 +375,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | theme auto|default|export]',
     name: 'glide',
     run: (host, arg) => glideCommand(host, arg)
   },
