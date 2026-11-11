@@ -154,6 +154,12 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       }, rest[0] ?? '', fail)
       return
     }
+    if (verb === 'intent') {
+      const ask = rest.join(' ')
+      if (!ask) host.transcript.notice('Usage: /glide intent <ask>', 'warning')
+      else intentCommand(cards, ask)
+      return
+    }
     if (verb === 'off') {
       const m = glideMemory.parse(await call('enable', { on: false }))
       cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is off', rows: memoryRows(m) })
@@ -300,6 +306,38 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
 }
 
 type Cards = NonNullable<GlideHost['eui']>['host']
+
+/** Clauses named verbatim in the ask: acceptance (first clause), scope ("in the X"), deadline ("by X"). */
+export function askClauses(ask: string): { label: string; value: string }[] {
+  const acceptance = ask.split(/,|\band\b|\bby\b/)[0]?.trim().slice(0, 80)
+  const scope = /\bin (?:the |my )?([\w-]+)/i.exec(ask)?.[1]
+  const deadline = /\bby ([\w-]+)/i.exec(ask)?.[1]
+  return [
+    ...(acceptance ? [{ label: 'acceptance', value: acceptance }] : []),
+    ...(scope ? [{ label: 'scope', value: scope }] : []),
+    ...(deadline ? [{ label: 'deadline', value: deadline }] : [])
+  ]
+}
+
+// /glide intent <ask>: the AODL loop on host cards. Declare quotes the ask; the contract drafts one
+// criterion per clause, none evidenced yet; holding approve advances to a sample work rail. Nothing runs.
+export function intentCommand(cards: Cards, ask: string): void {
+  const clauses = askClauses(ask)
+  cards.publish({ kind: 'intent-declare', app: 'ripple', title: 'One ask. Exact words.', summary: ask.slice(0, 2048), rows: clauses })
+  cards.publish({
+    kind: 'intent-contract', app: 'aodl', title: 'Review before execution',
+    summary: 'Criteria drafted from your ask. None is evidenced until a real turn produces a receipt.',
+    rows: [...clauses.map(c => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: 'missing' })), { label: 'real-turn receipt', value: 'missing' }],
+    approval: { label: 'Hold to approve', description: 'Approve this contract revision for execution. Nothing runs until approved.' }
+  }, async ({ signal }) => {
+    if (signal.aborted) return
+    cards.publish({
+      kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
+      summary: 'Sample work rail (synthetic): no agent has been dispatched.',
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'queued'} · ${c.label}` }))
+    })
+  })
+}
 type FocusCall = (params: Record<string, unknown>) => Promise<GlideFocus>
 
 const PHASE: Record<string, string> = {
