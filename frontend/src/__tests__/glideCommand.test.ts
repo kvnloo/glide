@@ -565,6 +565,9 @@ describe('walPalette', () => {
   it('rebinds the surface and kit variables in its stylesheet', () => {
     const css = walCss(walPalette(A))
     expect(css).toContain('[data-surface]')
+    // A program pane (hermes tern) has no [data-surface]: the bare region and each card rebind too.
+    expect(css).toMatch(/^\.sf-region, \[data-surface\] \{[^}]*--t1: /)
+    expect(css).toMatch(/\[data-eui='card'\] \{[^}]*--card: /)
     expect(css).toContain('--accent: #ff7a00')
     expect(css).toContain('background: #0f1420')
     expect(css).toContain('--h-primary-ink: #000000')

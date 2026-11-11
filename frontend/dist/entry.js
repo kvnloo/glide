@@ -73806,8 +73806,8 @@ function walCss(p3) {
     `--panel: ${p3.bg}`,
     `--sf-c-error: ${p3.error}`
   ];
-  return `[data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
-[data-eui='card'] { --h-primary-ink: ${p3.accentInk}; }
+  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
+[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
 `;
 }
 function exportPalette(p3, file2 = exportFile()) {
