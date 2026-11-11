@@ -23793,8 +23793,8 @@ import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
 
 // src/voice/orbit.ts
-var ORBIT_R = { fast: 64, small: 78, large: 92, council: 106 };
-var FALLBACK_R = 85;
+var ORBIT_R = { fast: 46, small: 60, large: 74, council: 88 };
+var FALLBACK_R = 67;
 var ROLE_TINT = {
   fast: "#e8b04a",
   small: "#5aa9e6",
@@ -23810,7 +23810,7 @@ var ROLE_TINT_LIGHT = {
 var tint = (role, dark) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? "#aaaaaa" : "#555555");
 var deadTint = (dark) => dark ? "#ff6b6b" : "#c62828";
 var PERIOD = 9.6;
-var TILT = 0.6;
+var TILT = 1;
 var PLANET = 5;
 var HALO = 8;
 var PAD = HALO * 1.3 + 1;
@@ -23846,8 +23846,9 @@ function orbitLayout(lanes2, seconds, reduce = false) {
       x: w / 2 + r * TILT * Math.sin(theta),
       y: h2 / 2 + r * Math.cos(theta),
       z,
-      scale: 0.9 + 0.4 * depth,
-      alpha: parked ? 0.9 : 0.75 + 0.25 * depth,
+      // Face-on there is no near or far: every planet is drawn at one size and strength.
+      scale: TILT < 1 ? 0.9 + 0.4 * depth : 1.1,
+      alpha: parked ? 0.9 : TILT < 1 ? 0.75 + 0.25 * depth : 1,
       parked
     };
   });
@@ -23924,7 +23925,7 @@ function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
     }
     const near = dots.filter(([x]) => x >= CX).map(dot).join("");
     const far = dots.filter(([x]) => x < CX).map(dot).join("");
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="0.7">${far}</g>${near}</g>`;
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.85}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.85}">${near}</g></g>`;
   }).join("");
   const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
