@@ -1,13 +1,62 @@
-<h1 align="center">hermes-tern</h1>
+# Glide
 
-<p align="center">
-  <b><a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a>, drawn natively by <a href="https://stencil.so/tern">Tern</a>.</b><br>
-  The transcript, tool cards, approvals, subagents and pull requests are real Tern UI, not text in a terminal.
-</p>
+Glide gives [Hermes Agent](https://github.com/NousResearch/hermes-agent) a native
+[Tern](https://stencil.so/tern) UI and a `/glide` flow for local corrections memory,
+a skill catalog, a CPU hill climb, and local-model offload. Approve cards let you
+review each action before it runs. The optional Taste pane opens a local brainstorm board.
+
+Derived from [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern), MIT licensed.
+The native transcript, tool cards, approvals, subagents, and pull requests come from that lineage.
+See [FORK.md](FORK.md) for the fork's changes.
+
+## Install
+
+Requires Hermes Agent ≥0.23.0 and [Tern](https://stencil.so/tern).
+One command installs the Tern UI and registers the bundled Glide plugin:
+
+```sh
+hermes plugins install kvnloo/glide
+```
+
+In a Tern pane, run `hermes tern --new`, then type `/glide` in chat.
+If the installed frontend bundle is stale, follow the [bundle instructions](FORK.md#install-the-fork).
+For memory without Tern, install `kvnloo/glide#glide` instead. Do not install both variants.
+
+## Walk through `/glide`
+
+| Step | What you see and approve |
+| --- | --- |
+| Detect | `/glide` shows CPU, RAM, GPUs, local runtimes, and optional z0intelligence health. |
+| Memory | Approve reading up to 100 local sessions, then enable recall of up to three matching corrections per turn. `/glide off` disables recall. |
+| Skill router | Approve the category-to-skill catalog. `/glide router` opens this card directly in Tern. |
+| Hill climb | Approve one CPU benchmark round. `/glide climb` opens the card directly. The referee reports KEEP, REVERT, or INCONCLUSIVE with measured noise. |
+| Offload | Approve a sample summary through an installed Ollama model. `/glide savings` opens the card directly. Token and dollar savings are estimates, not billing measurements. |
+| Taste | `/glide taste` opens an existing local Taste Atlas board beside chat. It stays closed until requested. Native-pane proof is pending. [Setup](glide/docs/taste.md). |
+
+Memory, router, hill-climb, and offload records stay under your Hermes profile's `glide/` directory.
+No model download runs as part of this flow. Offload needs Ollama and an installed model.
+Taste needs a separately running local Atlas server. The full z0intelligence onboarding plan is not implemented.
+
+## Real Tern screenshots
+
+These captures show the approval chain and its actual results, not mockups.
+The hill-climb run was INCONCLUSIVE because noise exceeded its threshold. It is not a claimed speedup.
+
+| Router approval | Router receipt and next step |
+| --- | --- |
+| ![Tern card asking to install the skill router](glide/docs/media/glide-s4-ask.png) | ![Router receipt showing five categories and 19 skills, followed by hill-climb approval](glide/docs/media/glide-s4-router.png) |
+
+| Hill-climb result | Local offload receipt |
+| --- | --- |
+| ![INCONCLUSIVE CPU benchmark with noise above threshold, followed by offload approval](glide/docs/media/glide-s5-hillclimb.png) | ![Completed offload with llama3.2:1b, two tasks, 341 estimated tokens, and 0.0034 dollars estimated savings](glide/docs/media/glide-s6-savings.png) |
+
+## Tern chat reference
+
+The sections below describe the inherited Tern UI.
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <img alt="Hermes Agent newer than 0.23.0" src="https://img.shields.io/badge/hermes--agent-%3E0.23.0-6f42c1">
+  <img alt="Hermes Agent 0.23.0 or newer" src="https://img.shields.io/badge/hermes--agent-%E2%89%A50.23.0-6f42c1">
   <img alt="Tern 0.9.5" src="https://img.shields.io/badge/tern-0.9.5-2b7a78">
 </p>
 
@@ -28,20 +77,12 @@
   </picture>
 </p>
 
-> [!NOTE]
-> **This is [kvnloo/hermes-tern](https://github.com/kvnloo/hermes-tern), a fork of [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern).**
-> Everything below is the upstream README, unchanged. What the fork adds, how to install it, and how it stays in sync are in [FORK.md](FORK.md).
+### Open a chat
 
-## Install
+The plugin is built and tested on Tern 0.9.5. When the pane connects, it checks what the gateway supports.
+On an unsupported Hermes version it opens no session and reports the missing capability.
 
-```sh
-hermes plugins install hermes-tern            # from the plugin catalog, once listed
-hermes plugins install alt-glitch/hermes-tern # or from GitHub
-```
-
-You need a Hermes Agent newer than the 0.23.0 release (run `hermes update`) and [Tern](https://stencil.so/tern). The plugin is built and tested on Tern 0.9.5. When the pane connects, it checks what the gateway supports. On a Hermes that is too old it opens no session and says to run `hermes update`.
-
-Then, in a Tern pane:
+In a Tern pane:
 
 ```sh
 hermes tern        # the chat, drawn by Tern

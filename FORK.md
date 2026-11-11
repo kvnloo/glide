@@ -1,10 +1,32 @@
 # kvnloo/glide
 
-Glide is a fork of [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern), the community plugin
-that draws [Hermes Agent](https://github.com/NousResearch/hermes-agent) natively in
-[Tern](https://stencil.so/tern). The fork carries features ported from the Hermes TSP frontend and
-from OMP, plus fixes that make tool cards say what actually happened. Upstream's
-[README](README.md) still describes the base plugin; this file describes only what differs.
+Glide combines the native Tern UI with `/glide` onboarding to local intelligence.
+It is derived from [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern), MIT licensed.
+Hermes Agent ≥0.23.0 and Tern are required.
+
+```sh
+hermes plugins install kvnloo/glide
+```
+
+One install registers both the Tern frontend and the bundled Glide plugin. Open
+`hermes tern --new` in Tern, then type `/glide`.
+
+| Step | Current behavior |
+| --- | --- |
+| Detect | Hardware, runtime, and optional z0intelligence health cards. |
+| Memory | Approve a local-session scan and opt into three matching corrections per turn. |
+| Skill router | Approve the category-to-skill catalog with `/glide router`. |
+| Hill climb | Approve one real CPU round with `/glide climb`. KEEP, REVERT, and INCONCLUSIVE are valid outcomes. |
+| Offload | Approve an Ollama sample task with `/glide savings`. Savings are estimates. |
+| Taste | Request `/glide taste` to open an existing local brainstorm board. Native-pane proof is pending. |
+
+The [README screenshots](README.md#real-tern-screenshots) show the real router,
+hill-climb, and offload cards. The measured hill-climb result is INCONCLUSIVE, not a speedup.
+The full z0intelligence onboarding plan is not implemented. Taste needs a separately
+running Atlas server, and offload needs an installed Ollama model.
+
+This file records the fork's differences, including features ported from the Hermes TSP frontend
+and OMP, plus fixes that make tool cards report what happened.
 
 - [What the fork adds](#what-the-fork-adds)
 - [Behavior that differs from upstream](#behavior-that-differs-from-upstream)
@@ -38,7 +60,7 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | | Opt-in live voice and push-to-talk | [voice](frontend/docs/voice.md) | #15 |
 | Planning | Plan review and the session todo HUD | [PLAN-REVIEW](frontend/PLAN-REVIEW.md) | #12, #25 |
 | | Native `/btw` side questions and read-only MCP/SSH report sheets | [btw-operational-sheets](frontend/docs/btw-operational-sheets.md) | #13, #26 |
-| Agents and panes | Optional `/glide taste` brainstorm browser pane, off until requested | [glide-taste](glide/docs/taste.md) | |
+| Agents and panes | Optional `/glide taste` brainstorm browser pane, off until requested. Native-pane proof pending | [glide-taste](glide/docs/taste.md) | #219 |
 | | Live OMP-style wait tiles for subagents | | #18 |
 | | Delegation IDs isolated across overlapping sessions | | #11 |
 | | Fork a session into a sibling pane | | #7 |
@@ -136,8 +158,8 @@ The fork keeps its diff against upstream easy to merge:
    rule; it may only shrink as they move into `glide/` or land upstream.
 1. **Add, don't edit.** New behavior goes into new files (`frontend/src/...`, `*_backend.py`,
    `frontend/docs/*.md`). When an upstream file has to change, keep the change small and local.
-2. **Docs live here.** `README.md` stays upstream's text plus one note at the top; fork docs go in
-   this file and `frontend/docs/`.
+2. **Keep entry docs current.** `README.md` opens with Glide's install, flow, and real screenshots,
+   then retains the inherited Tern reference. Fork differences live here, with Glide guides in `glide/docs/`.
 3. **Merge, don't rebase `main`.** Rebasing would rewrite every merged fork PR.
 
 ```sh
