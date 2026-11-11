@@ -49,6 +49,14 @@ describe('intent-declare hero', () => {
     expect(waveform(DEMO_ASK)).toEqual(waveform(DEMO_ASK))
   })
 
+  it('says the ask once: no repeat paragraph or row list under the hero, and a whole-ask clause keys by kind', () => {
+    const ask = 'Make the voice orb feel alive'
+    const node = snap({ kind: 'intent-declare', app: 'ripple', title: 'One ask. Exact words.', summary: ask, rows: [{ label: 'acceptance', value: ask }] })
+    expect(words(node).split(ask)).toHaveLength(2)
+    expect(find(node, 'eui-host-rows')).toHaveLength(0)
+    expect(find(node, 'ih-key').map(words)).toEqual(['acceptance'])
+  })
+
   it('leaves unmatched clauses out of the text rather than inventing a phrase', () => {
     expect(clauseRuns('ship it', [{ label: 'deadline', value: 'Friday' }])).toEqual([{ text: 'ship it' }])
   })

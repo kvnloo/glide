@@ -114,8 +114,8 @@ export type AgentStep =
       /** The gateway's one-line preview of the call's arguments. */
       args: string
       running: boolean
-      /** What the call returned, when the row stored it. */
-      output?: string
+      /** The call's whole arguments, when the row carries them (`args` is the one-line preview). */
+      call?: Record<string, unknown>
     }
 
 const ms = (seconds: number | null | undefined) => (seconds === null || seconds === undefined ? undefined : Math.round(seconds * 1000))
@@ -133,7 +133,7 @@ export function stepsOf(rows: readonly StoredTranscriptRow[]): AgentStep[] {
     const text = row.text?.trim() ?? ''
 
     if (row.row_kind === 'message' && row.role === 'tool') {
-      steps.push({ args: row.context ?? '', at, kind: 'tool', name: row.name ?? 'tool', running: false, ...optional('output', text || undefined) })
+      steps.push({ args: row.context ?? '', at, kind: 'tool', name: row.name ?? 'tool', running: false, ...optional('call', row.args ?? undefined) })
     } else if (row.row_kind === 'message' && row.role === 'assistant') {
       if (row.reasoning?.trim()) {
         steps.push({ at, kind: 'think', text: row.reasoning.trim() })

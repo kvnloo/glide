@@ -12557,6 +12557,69 @@
     "limit": 200,
     "order": "oldest",
     "session_id": "s1",
+    "subagent_id": "a"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "a"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "b"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "a"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "b"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "c"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "a"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
     "subagent_id": "b"
    }
   },
@@ -12584,7 +12647,142 @@
     "limit": 200,
     "order": "oldest",
     "session_id": "s1",
+    "subagent_id": "b"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "c"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "d"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "b"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "c"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "d"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "c"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "d"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "d"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
     "subagent_id": "e"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "e"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "f"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "e"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "f"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "e"
+   }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "f"
    }
   },
   {

@@ -4720,6 +4720,15 @@
     "session_id": "s1",
     "subagent_id": "solo-agent"
    }
+  },
+  {
+   "method": "session.transcript",
+   "params": {
+    "limit": 200,
+    "order": "oldest",
+    "session_id": "s1",
+    "subagent_id": "solo-agent"
+   }
   }
  ]
 }

@@ -57,7 +57,8 @@ function declare(d: EuiHostCardData, el: El): EuiNode {
     el('div', [waveSvg(ask), el('p', runs.map(r => r.clause
       ? el('span', [text(r.text)], `ih-u ih-c-${r.clause.replace(/[^a-z]/g, '')}`, { 'data-clause': r.clause })
       : text(r.text)), 'ih-ask')], 'ih-wavebox'),
-    el('div', d.rows.map(r => el('span', [text(`${r.label} · ${str(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, '')}`)), 'ih-keys')
+    // A clause that is the whole ask is already the headline: its key names the kind alone.
+    el('div', d.rows.map(r => el('span', [text(str(r.value).trim() === ask.trim() ? r.label : `${r.label} · ${str(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, '')}`)), 'ih-keys')
   ], 'ih-hero ih-declare')
 }
 
@@ -220,19 +221,19 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-mark { flex: none; width: 84px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
 [data-eui='card'] .ih-met .ih-mark { color: var(--ih-acc); }
 [data-eui='card'] .ih-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ih-due); animation: ih-pulse 1.4s ease-in-out infinite; }
-[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
+[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px 8px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
 [data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-fg); text-transform: uppercase; letter-spacing: .06em; }
 [data-eui='card'] .ih-flowlink { flex: 1; min-width: 8px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-flowlink.ih-gated { min-width: 18px; background: #a855d6; }
+[data-eui='card'] .ih-flowlink.ih-gated { min-width: 14px; background: #a855d6; }
 [data-eui='card'] .ih-term.ih-due { border: 1.5px dashed var(--ih-due); color: var(--h-fg); }
 [data-eui='card'] .ih-fan { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-left: 2px solid var(--h-mutedFg); border-right: 2px solid var(--h-mutedFg); border-radius: 4px; }
 [data-eui='card'] .ih-branch { display: flex; align-items: center; }
 [data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-lane { flex: none; width: 96px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
+[data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
 [data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
 [data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
 [data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
-[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .9; }
 [data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #9ca39a; }
 [data-eui='card'] .ih-led.ih-ok { background: #7ee3a0; box-shadow: 0 0 6px rgba(126,227,160,.6); }

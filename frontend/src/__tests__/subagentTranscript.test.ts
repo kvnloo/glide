@@ -3,13 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { stepsOf, SubagentTranscript } from '../agents/transcript.js'
 import type { Requester } from '../wire/rpc.js'
 
+import { stub } from './fakes.js'
+
 /** A gateway answering `session.transcript` with the queued pages, the last one repeated. */
 function gateway(pages: Record<string, unknown>[]): Requester {
   let i = 0
-  return { request: async () => pages[Math.min(i++, pages.length - 1)] } as unknown as Requester
+  return stub<Requester>({ request: async () => pages[Math.min(i++, pages.length - 1)] })
 }
 
-const row = { context: 'sed -n 1,80p README.md', name: 'terminal', role: 'tool', row_kind: 'message', text: '# Glide', timestamp: 2 }
+const row = { args: { command: 'sed -n 1,80p README.md' }, context: 'sed -n 1,80p README.md', name: 'terminal', role: 'tool', row_kind: 'message', timestamp: 2 }
 
 describe('subagent transcript', () => {
   it('keeps reading an ended child the gateway has not stored yet, then reads its rows', async () => {
@@ -23,7 +25,7 @@ describe('subagent transcript', () => {
     expect(t.finished).toBe(false)
     expect(await t.read()).toBe(true)
     expect(t.finished).toBe(true)
-    expect(stepsOf(t.rows)).toEqual([{ args: 'sed -n 1,80p README.md', at: 2000, kind: 'tool', name: 'terminal', output: '# Glide', running: false }])
+    expect(stepsOf(t.rows)).toEqual([{ args: 'sed -n 1,80p README.md', at: 2000, call: { command: 'sed -n 1,80p README.md' }, kind: 'tool', name: 'terminal', running: false }])
   })
 
   it('gives up on an ended child that is never stored', async () => {
