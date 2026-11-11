@@ -14,6 +14,8 @@ export interface ActionCx {
   openAgent(id: string): void
   /** The agents hub, including agents hidden by a compact wait frame's limit. */
   openAgents(): void
+  /** The voice lanes popup (glide/frontend/lanesPopup.ts), from the subagents card. */
+  openLanes?(): void
   /** The Background sheet at process `id`. */
   openProcess(id: string): void
   /** `url` in the browser. */
@@ -36,6 +38,7 @@ export type ActionName =
   | 'connect-skip'
   | 'open-agent'
   | 'open-agents'
+  | 'open-lanes'
   | 'open-process'
   | 'open-url'
 
@@ -63,6 +66,7 @@ export const ACTIONS = {
   'connect-skip': (value, cx) => cx.connect.skip(...cardRow(value)),
   'open-agent': (value, cx) => cx.openAgent(value),
   'open-agents': (_value, cx) => cx.openAgents(),
+  'open-lanes': (_value, cx) => cx.openLanes?.(),
   'open-process': (value, cx) => cx.openProcess(value),
   // A connect card's Authorize: the app's link in the browser.
   'open-url': (value, cx) => cx.openUrl(value)

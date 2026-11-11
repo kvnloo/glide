@@ -24,6 +24,7 @@ import type { Automation } from '../session/automation.js'
 import type { ThemeMode } from '../settings.js'
 import type { Transcript } from '../transcript/store.js'
 import type { Busy } from '../turn/activity.js'
+import type { LaneFeed } from '../voice/lanes.js'
 import type { LiveVoice } from '../voice/live.js'
 
 import type { Ticket } from '../core/epoch.js'
@@ -54,6 +55,8 @@ export interface ChatPorts extends OverlayHost {
   readonly busy: Busy | null
   readonly transcript: Transcript
   readonly liveVoice: LiveVoice
+  /** The lane broker feed the lanes popup reads; null without a broker token. */
+  readonly laneFeed?: LaneFeed | null
   /** Dictation into the composer (`/voice`). */
   readonly dictation: Pick<Dictation, 'disable' | 'enable' | 'key' | 'phase'>
   readonly agents: Agents
