@@ -1,0 +1,76 @@
+{
+ "decision": {
+  "allowDecisions": "all",
+  "arithmetic": "phase=PEAK: wake 15:15Z (default) +1h15m; freeze 05:00Z; bed 08:30Z; last activity none; readiness unknown -> normal row; cap 3/6",
+  "batchWindow": "now",
+  "breakNudge": "none",
+  "capRemaining": 3,
+  "captureEnforced": false,
+  "captureMode": false,
+  "channel": "dash-focus",
+  "criticalOptIn": false,
+  "digestEarliestAt": "2026-11-11T15:45:00Z",
+  "enforce": "quiet_only",
+  "interruptCapPerBlock": 3,
+  "nextPeakAt": "2026-11-11T16:00:00Z",
+  "nextTransitionAt": "2026-11-11T21:15:00Z",
+  "notifyBudgetPerHour": 6,
+  "peakStartAt": "2026-11-11T16:00:00Z",
+  "phase": "PEAK",
+  "posture": "BURN",
+  "quality": "default",
+  "schema": "dash.interaction_decision/v1",
+  "verbosity": "full",
+  "workAssignment": "hard"
+ },
+ "enforcement": {
+  "enforcingNow": false,
+  "mode": "quiet_only",
+  "ownerDate": "2026-11-11"
+ },
+ "generatedAt": "2026-11-11T16:30:00Z",
+ "local": {
+  "bedTarget": "2026-11-12T02:30:00-06:00",
+  "freezeAt": "2026-11-11T23:00:00-06:00",
+  "lastActivityAt": null,
+  "nextPeakAt": "2026-11-11T10:00:00-06:00",
+  "nextTransitionAt": "2026-11-11T15:15:00-06:00",
+  "now": "2026-11-11T10:30:00-06:00",
+  "phase": "PEAK",
+  "wakeAt": "2026-11-11T09:15:00-06:00"
+ },
+ "public": {
+  "allowDecisions": "all",
+  "nextPeakAt": "2026-11-11T16:00:00Z"
+ },
+ "schema": "z0.circadian_posture/v1",
+ "sources": {
+  "note": {
+   "available": false,
+   "reason": "posture.json missing or stale"
+  }
+ },
+ "state": {
+  "activityAvailable": false,
+  "anchors": {
+   "bedTarget": "2026-11-12T08:30:00Z",
+   "freezeAt": "2026-11-12T05:00:00Z",
+   "nightModeAt": "2026-11-12T05:00:00Z",
+   "wakeAt": "2026-11-11T15:15:00Z",
+   "wakeTarget": "2026-11-12T15:15:00Z"
+  },
+  "arm": "B",
+  "criticalOptIn": false,
+  "deliveredThisHour": 0,
+  "disengagedUntil": null,
+  "enforce": "quiet_only",
+  "hardBlocksUsed": 0,
+  "interruptsThisBlock": 0,
+  "lastActivityAt": null,
+  "quality": "default",
+  "readiness": "unknown",
+  "schema": "dash.human_state/v1",
+  "sleepOnsetLast": null,
+  "wakeSource": "clock"
+ }
+}

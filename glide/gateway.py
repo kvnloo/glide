@@ -1,4 +1,4 @@
-"""Gateway methods (`glide.detect|sync|enable|recall|taste`) for frontends that draw their own cards.
+"""Gateway methods (`glide.detect|sync|enable|recall|taste|focus|route`) for frontends that draw their own cards.
 
 Optional: Hermes cores without ``register_gateway_method`` skip them, and `/glide` still works.
 
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import core, source, taste
+from . import attention, core, source, taste
 from .skill_router import install as skill_router_install
 from .offload import savings_card as offload_savings_card
 
@@ -46,6 +46,19 @@ class HillClimbParams(SessionParams):
     run: bool = False
 
 
+class FocusParams(SessionParams):
+    """`action`: show the card, start/stop a deep-work block, or save the wind-down resume note."""
+    action: str = Field(default="show", pattern="^(show|start|stop|wind_down)$")
+    minutes: int = Field(default=50, ge=5, le=240, strict=True)
+
+
+class RouteParams(SessionParams):
+    """One agent notification or approval ask: delivered now, or held for the end of the block."""
+    title: str = Field(min_length=1, max_length=200)
+    body: str = Field(default="", max_length=1000)
+    cls: str = Field(default="report", pattern="^(critical|decision|report|digest)$")
+
+
 class OffloadParams(SessionParams):
     """`run=True` sends one sample summarizing task to the smallest local model first."""
     model_config = ConfigDict(extra="forbid")
@@ -68,7 +81,21 @@ VERBS = {
     "skill_router": (SkillRouterParams, lambda home, p: _skill_router_run(home, p)),
     "hill_climb": (HillClimbParams, lambda home, p: _hill_climb_run(home, p)),
     "offload": (OffloadParams, lambda home, p: _offload_run(home, p)),
+    "focus": (FocusParams, lambda home, p: _focus_run(home, p)),
+    "route": (RouteParams, lambda home, p: attention.route(home, p.title, p.body, p.cls)),
 }
+
+
+def _focus_run(home: Path, params: FocusParams) -> dict:
+    if params.action == "start":
+        attention.start_block(home, params.minutes)
+    if params.action == "stop":
+        released = attention.stop_block(home)
+        return {**attention.focus(home), **released}
+    if params.action == "wind_down":
+        nudge = attention.wind_down(home, session_id=params.session_id, force=True)
+        return {**attention.focus(home), "wind_down": nudge}
+    return attention.focus(home)
 
 
 def _skill_router_run(home: Path, params: SkillRouterParams) -> dict:
