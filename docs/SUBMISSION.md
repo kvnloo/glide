@@ -23,11 +23,13 @@ The [existing synthetic tests](../glide/tests/) cover memory, onboarding, routin
 
 Use a current Hermes Agent, Tern, and Node.js. The root manifest requires Hermes 0.23.0 or later. [Manifest](../plugin.yaml) · [Launcher](../launcher.py)
 
+Hermes scans community plugins and can block this command. Review any security findings before proceeding. A blocked install is not a completed setup, and this guide does not override the scan. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+
 ```sh
 hermes plugins install kvnloo/glide
 ```
 
-Accept Hermes' plugin-enable prompt. This installs both the Tern frontend and Glide as the `hermes-tern` plugin. Do not install the standalone subdirectory as well. [Merged registration](https://github.com/kvnloo/glide/pull/223)
+After a successful install, accept Hermes' plugin-enable prompt. This installs both the Tern frontend and Glide as the `hermes-tern` plugin. Do not install the standalone subdirectory as well. [Merged registration](https://github.com/kvnloo/glide/pull/223)
 
 In a Tern pane, outside terminal multiplexers:
 

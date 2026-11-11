@@ -8,11 +8,13 @@ Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backe
 
 Use a current Hermes Agent with standalone-plugin and gateway support, Tern, and Node.js. The plugin manifest requires Hermes ≥0.23.0. [Manifest](plugin.yaml) · [Launcher](launcher.py)
 
+Hermes scans community plugins and can block this install with a security warning. Review the findings before proceeding. This guide does not bypass that check. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+
 ```sh
 hermes plugins install kvnloo/glide
 ```
 
-Accept Hermes' plugin-enable prompt. One install includes the Tern frontend and Glide. The installed plugin is named `hermes-tern`, not `glide`. Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
+After a successful install, accept Hermes' plugin-enable prompt. One install includes the Tern frontend and Glide. The installed plugin is named `hermes-tern`, not `glide`. Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
 
 In a Tern pane, outside tmux, screen, or zellij:
 
