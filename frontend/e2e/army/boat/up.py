@@ -189,6 +189,9 @@ def bundle(dest, sha, kit, probe, tern, bun):
 
 
 def main():
+    if os.getenv('SWEEPS') == '1':
+        from sweeps_up import main as sweeps
+        return sweeps()
     os.chdir(ROOT)
     os.environ['BOAT_NO_UPDATE'] = '1'
     if not os.getenv('NVIDIA_API_KEY'):

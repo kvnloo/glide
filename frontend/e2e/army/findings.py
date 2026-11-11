@@ -53,6 +53,27 @@ def collect(root: Path):
             continue
         folder = meta.parent / lane['id']
         reports = list(folder.rglob('report.json')) if folder.exists() else []
+        if lane.get('deterministic'):
+            report = json.loads(reports[0].read_text()) if reports else {}
+            shots = [str((meta.parent.parent / p).resolve()) for p in report.get('screenshots', [])]
+            # Remote paths are relative to /home/user/army; results extract into <lane>/runs/.
+            def local_shot(value):
+                return str((meta.parent.parent / value).resolve())
+            found = report.get('findings', [])
+            for finding in found:
+                finding['evidence'] = [local_shot(p) for p in finding.get('evidence', [])]
+            gaps = report.get('gaps', [])
+            if lane.get('error') or report.get('error') or not reports:
+                gaps.append({'classification': 'provider gap', 'error': lane.get('error') or report.get('error') or 'missing deterministic report'})
+            real = [f for f in found if f.get('classification') != 'canary']
+            seeds = [f for f in found if f.get('classification') == 'canary']
+            lane.update(findings=real, seeded_findings=seeds, gaps=gaps, screenshots=shots,
+                        pass_screenshots=[str((meta.parent.parent / c['evidence']).resolve()) for c in report.get('checks', []) if c.get('pass') and c.get('evidence')],
+                        verdict='coverage-gap' if gaps else 'canary-fail' if report.get('canary', {}).get('missed') else 'findings' if real else 'pass',
+                        canary=report.get('canary'), controls=len(report.get('controls', [])),
+                        coverage=report.get('coverage', []), pass_trusted=False)
+            lanes.append(lane)
+            continue
         found, states = [], []
         for report in reports:
             for item in walk(json.loads(report.read_text())):
@@ -86,7 +107,13 @@ def render(lanes):
             out.append('| ' + ' | '.join(map(cell, (lane['id'], lane['verdict'], finding['severity'], finding['title'], evidence))) + ' |')
         if lane['canary']:
             r = lane['canary']
-            out.append(f"\n{lane['id']} seeded recall: {len(r['reported'])}/4. Reported: {', '.join(r['reported']) or 'none'}. Missed: {', '.join(r['missed']) or 'none'}.")
+            total = len(r.get('expected', DEFECTS))
+            out.append(f"\n{lane['id']} seeded recall: {len(r['reported'])}/{total}. Reported: {', '.join(r['reported']) or 'none'}. Missed: {', '.join(r['missed']) or 'none'}.")
+        for gap in lane.get('gaps', []):
+            out.append(f"\n{lane['id']} [{gap.get('classification', 'provider gap')}]: {cell(gap.get('error', 'unknown gap'))}")
+        for finding in lane['findings']:
+            if lane.get('deterministic'):
+                out.append('\n' + json.dumps({k: finding.get(k) for k in ('classification', 'check', 'selector', 'theme', 'width', 'actual', 'expected', 'repro_steps', 'evidence')}, ensure_ascii=False))
     out += ['', 'Coverage gaps are provider, setup, or automation failures, not app defects.',
             'PASS verdicts remain untrusted until SANITY.md is completed. Canary misses void PASS.',
             'A two-step smoke is infrastructure proof, not a completed goal or recall qualification.']

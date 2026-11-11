@@ -10,8 +10,8 @@ from findings import collect
 
 
 def sample(lanes, rng):
-    passes = [{'lane': lane['id'], 'path': shot} for lane in lanes if lane['verdict'] == 'pass'
-              for shot in lane['screenshots']]
+    passes = [{'lane': lane['id'], 'path': shot} for lane in lanes
+              for shot in (lane.get('pass_screenshots', []) if lane.get('deterministic') else lane['screenshots'] if lane['verdict'] == 'pass' else [])]
     return {'rejudge_status': 'pending', 'model': 'premium model, separately authorized',
             'pass_population': len(passes), 'sample_fraction': 0.10,
             'pass_screenshots': rng.sample(passes, math.ceil(len(passes) * .10)),

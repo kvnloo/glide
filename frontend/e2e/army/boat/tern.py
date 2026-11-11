@@ -31,7 +31,7 @@ def start(spawn, sha):
            'PYTHONPATH': str(core), 'HERMES_PYTHON_SRC_ROOT': str(core),
            'HERMES_TERN': '1', 'HERMES_TERN_HERMES': exe, 'TERM': 'xterm-256color',
            'TERN_CONFIG_DIR': str(tc), 'TERN_DAEMON_SOCKET': str(tc / 'daemon.sock'),
-           'NVIDIA_API_KEY': os.environ['NVIDIA_API_KEY'],
+           'NVIDIA_API_KEY': os.environ.get('NVIDIA_API_KEY', '') if os.getenv('ARMY_DETERMINISTIC') == '1' else os.environ['NVIDIA_API_KEY'],
            'HERMES_ENABLE_PROJECT_PLUGINS': 'false', 'PYTHONNOUSERSITE': '1'}
     config = {'model': {'provider': 'nvidia', 'default': 'google/gemma-4-31b-it',
                         'base_url': 'https://integrate.api.nvidia.com/v1'},
@@ -46,7 +46,7 @@ def start(spawn, sha):
     (hh / 'config.yaml').write_text(json.dumps(config))
     # Only a disposable dotenv is linked. No live profile file or auth.json is ever copied.
     dotenv = scratch / 'lane.env'
-    dotenv.write_text('NVIDIA_API_KEY=' + os.environ['NVIDIA_API_KEY'] + '\n')
+    dotenv.write_text('NVIDIA_API_KEY=' + env['NVIDIA_API_KEY'] + '\n')
     dotenv.chmod(0o600)
     (hh / '.env').symlink_to(dotenv)
     plugins = hh / 'plugins'
