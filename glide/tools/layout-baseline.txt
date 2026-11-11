@@ -251,6 +251,7 @@ frontend/src/__tests__/followGateway.test.ts
 frontend/src/__tests__/forkPane.test.ts
 frontend/src/__tests__/generalReportSheets.test.ts
 frontend/src/__tests__/glideCommand.test.ts
+frontend/src/__tests__/lanesPopup.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/historyLiteralPersistence.test.ts
 frontend/src/__tests__/historyLiteral.test.ts
 frontend/src/__tests__/historySearch.test.ts
