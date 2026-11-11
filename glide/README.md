@@ -41,8 +41,9 @@ Nothing happens until you run `/glide build` and `/glide on`.
   messages are resolved to their newest copy, and a correction you later withdrew is dropped.
 - **Memory:** `<profile>/glide/memory.json` (plus a backup and a lock file), written atomically and
   resumable.
-- **Recall:** deterministic BM25 over the kept corrections, top three, content words only. No
-  embeddings, no model calls.
+- **Recall:** if z0intelligence is installed, its unified corrections store answers first (see
+  below). Otherwise, or when z0int fails or finds nothing, deterministic BM25 over the kept
+  corrections, top three, content words only. No embeddings, no model calls either way.
 - **Per turn:** a `pre_llm_call` hook adds the matches as quoted history. If anything fails, the
   turn goes on without it.
 
@@ -79,14 +80,23 @@ The webapp can load the external reference images already saved on a board.
 - **Network:** no telemetry or uploads. Only `/glide taste` reads the existing loopback Taste Atlas server.
 - **Reads outside its data:** Hermes' session database, read-only.
 - **Commands:** `/glide` (the overview only) runs `nvidia-smi` and, if installed, `z0int doctor --json`,
-  each with a 20 s timeout, to describe the machine. Nothing is installed.
+  each with a 20 s timeout, to describe the machine. Recall (and each turn, once on) runs
+  `python -m z0int.orientation --corrections --raw` with a 5 s timeout when z0int is installed.
+  Nothing is installed.
 - **Writes:** only under `<profile>/glide/`.
 - **Background processes:** none.
 
 ## Optional: z0intelligence
 
 If [z0intelligence](https://github.com/kvnloo/z0intelligence) is installed, `/glide` reports its
-health. Glide works without it.
+health, and recall uses z0int's unified owner corrections: the same reader its Claude Code, Hermes and
+omp hooks run (`z0int.orientation --corrections`, store `~/.local/state/z0int/CORRECTIONS.jsonl` or
+`$Z0INT_CORRECTIONS`). Those come from every harness z0int reads, not only this profile, so `/glide on`
+works without `/glide build`. `/glide recall` labels them `(z0int)`. z0int counts as installed when
+this Python can import it or a `z0int` script on `PATH` names its Python.
+
+Glide works without it: the local store above is the fallback, and also answers when z0int errors,
+times out or matches nothing.
 
 ## Development
 

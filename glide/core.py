@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -24,6 +25,7 @@ from .offload import command as offload_command, offload_task, savings_card, USA
 
 RUNTIMES = ("ollama", "llama-server", "llama-cli", "lms", "vllm", "mlx_lm.server")
 _TIMEOUT = 20
+_RECALL_TIMEOUT = 5  # Per turn: a slow z0int falls back to the local store instead of stalling the turn.
 # Function words match every correction under plain BM25; the hook queries content words only.
 _STOP = frozenset("""a an and are as at be but by can do for from have how i if in is it its me my of on
 or please so that the this to us was we what when with you your""".split())
@@ -46,9 +48,9 @@ def enabled(home: Path | None = None) -> bool:
         return False
 
 
-def _run(argv: list[str]) -> str | None:
+def _run(argv: list[str], stdin: str | None = None, timeout: float = _TIMEOUT) -> str | None:
     try:
-        done = subprocess.run(argv, capture_output=True, text=True, timeout=_TIMEOUT, check=False)
+        done = subprocess.run(argv, input=stdin, capture_output=True, text=True, timeout=timeout, check=False)
     except (OSError, subprocess.SubprocessError):
         return None
     return done.stdout if done.returncode == 0 else None
@@ -84,6 +86,41 @@ def _z0int() -> dict:
         return {"installed": True, "ok": False, "failed": [], "unchecked": True}
     failed = [c["id"] for c in doctor.get("checks", []) if c.get("required") and not c.get("ok")]
     return {"installed": True, "ok": bool(doctor.get("ok")), "failed": failed}
+
+
+def _z0int_python() -> str | None:
+    """The interpreter that can import z0int: this one, or the `z0int` script's own shebang."""
+    if find_spec("z0int"):
+        return sys.executable
+    exe = shutil.which("z0int")
+    try:
+        with open(exe or "", encoding="utf-8") as script:
+            first = script.readline(512)
+    except (OSError, UnicodeError):
+        return None
+    interpreter = first[2:].strip().split(" ")[0] if first.startswith("#!") else ""
+    return interpreter if "python" in Path(interpreter).name else None
+
+
+_Z0_LINE = re.compile(r"^- (?P<text>.+?)(?: \((?P<where>[^()]*)\))?$")
+
+
+def z0int_corrections(query: str) -> list[dict] | None:
+    """z0intelligence's unified owner corrections for this query, via the same reader its harness hooks
+    run (`python -m z0int.orientation --corrections --raw`). None when z0int is absent or fails."""
+    python = _z0int_python()
+    if not python:
+        return None
+    out = _run([python, "-m", "z0int.orientation", "--corrections", "--raw"], stdin=query, timeout=_RECALL_TIMEOUT)
+    if out is None:
+        return None
+    body = out.partition("<owner-corrections>")[2].partition("</owner-corrections>")[0]
+    hits = []
+    for line in body.splitlines():
+        match = _Z0_LINE.match(line.strip())
+        if match:
+            hits.append({"text": match["text"], "session_id": match["where"] or "", "score": None, "source": "z0int"})
+    return hits[:3]
 
 
 def recent_sessions(home: Path, limit: int, exclude: str = "") -> list[str]:
@@ -151,16 +188,22 @@ def set_enabled(home: Path, on: bool) -> dict:
 
 
 def recall(home: Path, query: str) -> list[dict]:
+    """z0intelligence's unified corrections when installed; the local BM25 store otherwise."""
+    z0 = z0int_corrections(query)
+    if z0:
+        return z0
     memory = GlideMemory(home)
     try:
         hits = memory.search(query)
     except MemoryNotReady:
         state = _state(home)
         if not state:
+            if z0 is not None:
+                return []  # z0int answered (nothing matched); the local store is optional then.
             raise
         memory.sync(state["sessions"])  # Sessions grew since the last sync; refresh the same scope.
         hits = memory.search(query)
-    return [{"text": h.text, "session_id": h.session_id, "score": round(h.score, 2)} for h in hits]
+    return [{"text": h.text, "session_id": h.session_id, "score": round(h.score, 2), "source": "glide"} for h in hits]
 
 
 def pre_llm_call(user_message=None, **_kwargs):
@@ -228,7 +271,7 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
             "" if m["on"] else "\nTurn it on with /glide on.")
     if verb in ("on", "off"):
         m = status(home)
-        if verb == "on" and not m["complete"]:
+        if verb == "on" and not m["complete"] and not _z0int_python():
             return "Build your memory first: /glide build"
         return f"Glide memory is {verb}. {_rows(set_enabled(home, verb == 'on'))}"
     if verb == "setup":
@@ -242,7 +285,8 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
             hits = recall(home, rest.strip()[:512])
         except MemoryNotReady:
             return "Build your memory first: /glide build"
-        return "\n".join(f"- ({h['score']}) {h['text']}" for h in hits) or "No matching correction."
+        return "\n".join(f"- ({h['score'] if h['score'] is not None else h['source']}) {h['text']}"
+                         for h in hits) or "No matching correction."
     if verb == "taste":
         from . import taste
 
@@ -309,5 +353,5 @@ def register(ctx) -> None:
         ctx.register_skill("onboarding", Path(__file__).with_name("skills") / "onboarding" / "SKILL.md",
                            description="Use when the user installs or sets up Glide, or asks what it remembers.")
     gateway.register(ctx)  # Card-drawing frontends (Tern); a no-op on cores without gateway methods.
-    ctx.register_command("glide", command, description="Local corrections memory and optional Taste Atlas board",
+    ctx.register_command("glide", command, description="Corrections memory (z0intelligence when installed, else local) and optional Taste Atlas board",
                          args_hint="[build|on|off|recall <words>|taste]")
