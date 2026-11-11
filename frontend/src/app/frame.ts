@@ -4,7 +4,7 @@
 // sent only when that changed. Every step but those three only reads.
 
 import type { FileContext } from '../artifacts/links.js'
-import type { GatewayClient } from '@tui/gatewayClient.js'
+import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'

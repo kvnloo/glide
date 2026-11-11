@@ -1,4 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
+import { execFile } from 'node:child_process'
+
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { euiHostPort } from '../app/eui-host.js'
 import { glideCommand, type GlideDetect, type GlideHost, type GlideMemory } from '../commands/glide.js'
@@ -10,6 +12,15 @@ import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
 import { must, ofKind, stub } from './fakes.js'
+
+import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+
+vi.mock('node:child_process', () => ({
+  execFile: vi.fn((_file: string, _args: string[], _options: unknown,
+    callback: (error: null, result: { stdout: string }) => void) => callback(null, { stdout: '{"ok":{"block":42}}' }))
+}))
+
+afterEach(() => { vi.unstubAllEnvs(); vi.clearAllMocks() })
 
 const memory = (m: Partial<GlideMemory> = {}): GlideMemory => ({ sessions: 0, corrections: 0, complete: false, on: false, ...m })
 const detected: GlideDetect = {
@@ -62,7 +73,43 @@ describe('/glide', () => {
     must(view(4).activate)(HOST_APPROVE_ID)
     await settle()
     expect(request.mock.calls.at(-1)).toEqual(['glide.enable', { session_id: 'glide-session', on: true }])
-    expect(titles().at(-1)).toBe('Glide memory is on')
+    expect(titles().slice(5)).toEqual(['Glide memory is on', 'Install the skill router'])
+  })
+
+  it('chains router, hill climb and savings, one tap each, with the numbers the plugin returns', async () => {
+    const { host, request, view, titles } = setup({
+      'glide.skill_router': { installed: true, fresh: true, categories: 5, skills: 19, top: [{ category: 'debugging', rule: 'root cause first', skills: ['systematic-debugging'] }] },
+      'glide.hill_climb': { target: 'CPU benchmark', metric: 'score', baseline: { mean: 5977.04 }, candidate: { mean: 5669.54 }, delta: -307.5, noise: 0.076, verdict: 'REVERT', reason: 'no improvement (rel=-0.051)' },
+      'glide.offload': { local_models: ['llama3.2:1b'], tasks: 1, tokens_offloaded: 118, est_cost_saved_usd: 0.00118, assumptions: ['Estimate: $0.01 per 1k'] }
+    })
+    await glideCommand(host, 'router')
+    expect(titles()).toEqual(['Install the skill router'])
+    expect(request).not.toHaveBeenCalled()
+
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.skill_router', { session_id: 'glide-session' }])
+    expect(titles().slice(1)).toEqual(['Skill router installed', 'Run your first hill climb'])
+
+    must(view(2).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.hill_climb', { session_id: 'glide-session', run: true }])
+    expect(titles().slice(3)).toEqual(['Hill climb: REVERT', 'Offload a small task to a local model'])
+
+    must(view(4).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.offload', { session_id: 'glide-session', run: true }])
+    expect(titles().at(-1)).toBe('Offload savings')
+    expect(JSON.stringify(view(5))).toContain('llama3.2:1b')
+  })
+
+  it('shows a failed step as an error notice', async () => {
+    const { host, transcript, view, titles } = setup({})
+    await glideCommand(host, 'climb')
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(titles()).toEqual(['Run your first hill climb'])
+    expect(JSON.stringify(transcript.entries.at(-1))).toContain('unknown method')
   })
 
   it('recalls and turns off on request', async () => {
@@ -91,7 +138,7 @@ describe('/glide', () => {
     })
     const request = vi.fn(async (method: string, params: Record<string, unknown>) => {
       if (method !== 'command.dispatch') throw new Error(`unknown method: ${method}`)
-      dispatched.push(String(params.arg))
+      dispatched.push(String(params['arg']))
       expect(params).toMatchObject({ name: 'glide', session_id: 'glide-session' })
       return { type: 'plugin', output: JSON.stringify(detected) }
     })
@@ -114,3 +161,88 @@ describe('/glide', () => {
     expect(JSON.stringify(transcript.entries)).toContain('Build your memory first')
   })
 })
+
+function setupTaste() {
+  vi.stubEnv('TERN_PANE', '17')
+  const session = new SessionState(() => undefined)
+  session.ref = { live: liveSessionId('taste-session'), stored: null }
+  const transcript = new Transcript()
+  const request = vi.fn(async (method: string) => {
+    if (method === 'glide.taste') throw new Error('unknown method glide.taste')
+    return { output: JSON.stringify({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }) }
+  })
+  const publish = vi.fn()
+  const host: GlideHost = { gw: stub({ request }), session, transcript, eui: stub({ host: { publish } }) }
+  return { host, request, publish, session, transcript }
+}
+
+describe('/glide taste', () => {
+  it('uses the card seam fallback and opens the real board beside chat only on request', async () => {
+    const { host, request, publish } = setupTaste()
+    expect(execFile).not.toHaveBeenCalled()
+    await glideCommand(host, 'taste')
+    expect(request.mock.calls).toEqual([
+      ['glide.taste', { session_id: 'taste-session' }],
+      ['command.dispatch', { name: 'glide', arg: 'json taste {}', session_id: 'taste-session' }]
+    ])
+    expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
+      op: 'open', owner: 17, url: 'http://127.0.0.1:8789/s/launch-ab12/', how: 'beside'
+    }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
+    expect(publish).toHaveBeenCalledWith(expect.objectContaining({ title: 'Launch ideas', kind: 'receipt' }))
+    expect(request.mock.calls.some((c: readonly unknown[]) => c[0] === 'glide.enable')).toBe(false)
+  })
+
+  it('does not open a late reply after a session switch', async () => {
+    const { host, session } = setupTaste()
+    host.gw.request = stub(async () => {
+      session.ref = { live: liveSessionId('different'), stored: null }
+      return { url: 'http://127.0.0.1:8789/boards', title: 'Boards' }
+    })
+    await glideCommand(host, 'taste')
+    expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('reports a failed pane open, never a success receipt', async () => {
+    const { host, publish, transcript } = setupTaste()
+    vi.stubEnv('TERN_PANE', '')
+    await glideCommand(host, 'taste')
+    expect(publish).not.toHaveBeenCalled()
+    expect(JSON.stringify(transcript.entries)).toContain('local Tern pane')
+  })
+})
+
+const board = { url: 'http://127.0.0.1:8789/s/sketch-ab12/', title: 'Sketch' }
+
+describe('Taste native pane adapter', () => {
+  it('opens beside the exact current owner using argv, without a shell', async () => {
+    vi.stubEnv('TERN_PANE', '17')
+    expect(await openTastePane(tasteBoard(board))).toBe(42)
+    expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
+      op: 'open', owner: 17, url: board.url, how: 'beside'
+    }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
+  })
+
+  it('cannot open on the desktop without a current pane', async () => {
+    vi.stubEnv('TERN_PANE', '')
+    await expect(openTastePane(board)).rejects.toThrow('local Tern pane')
+    expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('rejects an error response instead of inventing a pane receipt', async () => {
+    vi.stubEnv('TERN_PANE', '17')
+    vi.mocked(execFile).mockImplementationOnce(stub(stubReply))
+    await expect(openTastePane(board)).rejects.toThrow('did not confirm')
+  })
+
+  it.each(['https://example.com/boards', 'file:///tmp/board', 'http://127.0.0.1:8789/private',
+    'http://user:pass@127.0.0.1:8789/boards', 'http://localhost.evil/boards'])(
+    'rejects unsafe board URL %s', (url: string) => {
+      expect(() => tasteBoard({ ...board, url })).toThrow()
+    })
+})
+
+function stubReply(...args: unknown[]) {
+  const callback = args.at(-1)
+  if (typeof callback === 'function') callback(null, { stdout: '{"error":{"message":"unavailable"}}' })
+  return undefined
+}

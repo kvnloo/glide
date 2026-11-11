@@ -3,10 +3,14 @@
 // pre_llm_call hook). Every step that writes waits for a tap on a host-owned approve card.
 
 import type { EuiCards } from '../eui/cards.js'
-import type { GatewayClient } from '@tui/gatewayClient.js'
+import type { EuiApprovalContext } from '../eui/host.js'
+import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import type { SessionView } from '../app/ports.js'
 import type { Transcript } from '../transcript/store.js'
+import { commandReply } from '../wire/json.js'
+import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import * as z from 'zod/mini'
 
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
@@ -15,18 +19,36 @@ export interface GlideHost {
   readonly eui?: Pick<EuiCards, 'host'> | undefined
 }
 
-export interface GlideMemory { sessions: number; corrections: number; complete: boolean; on: boolean; scanned?: number }
-export interface GlideDetect {
-  os: string
-  cpus: number
-  ram_gib: number | null
-  gpus: string[]
-  runtimes: string[]
-  z0int: { installed: boolean; ok?: boolean; failed?: string[]; hint?: string; unchecked?: boolean }
-  memory: GlideMemory
-}
+const glideMemory = z.object({
+  sessions: z.number(), corrections: z.number(), complete: z.boolean(), on: z.boolean(), scanned: z.optional(z.number())
+})
+const glideDetect = z.object({
+  os: z.string(), cpus: z.number(), ram_gib: z.nullable(z.number()), gpus: z.array(z.string()), runtimes: z.array(z.string()),
+  z0int: z.object({
+    installed: z.boolean(), ok: z.optional(z.boolean()), failed: z.optional(z.array(z.string())),
+    hint: z.optional(z.string()), unchecked: z.optional(z.boolean())
+  }),
+  memory: glideMemory
+})
+const glideRecall = z.object({ hits: z.array(z.object({ text: z.string(), score: z.number() })) })
+export type GlideMemory = z.infer<typeof glideMemory>
+export type GlideDetect = z.infer<typeof glideDetect>
+const glideRouter = z.object({
+  installed: z.boolean(), fresh: z.boolean(), categories: z.number(), skills: z.number(),
+  top: z.array(z.object({ category: z.string(), rule: z.string(), skills: z.array(z.string()) }))
+})
+const glideClimb = z.object({
+  target: z.string(), metric: z.string(),
+  baseline: z.nullable(z.object({ mean: z.number() })), candidate: z.nullable(z.object({ mean: z.number() })),
+  delta: z.nullable(z.number()), noise: z.nullable(z.number()),
+  verdict: z.nullable(z.string()), reason: z.nullable(z.string())
+})
+const glideSavings = z.object({
+  local_models: z.array(z.string()), tasks: z.number(), tokens_offloaded: z.number(),
+  est_cost_saved_usd: z.number(), assumptions: z.array(z.string())
+})
 
-// Served by the standalone glide plugin (github.com/kvnloo/glide).
+// Served by the memory plugin in this repository's glide/ folder.
 const NS = 'glide'
 const APP = 'glide'
 const SESSIONS = 100
@@ -38,7 +60,8 @@ const memoryRows = (m: GlideMemory) => [
 ]
 
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
-  const sid = host.session.ref.live
+  const ref = host.session.ref
+  const sid = ref.live
   const cards = host.eui?.host
   if (!sid || !cards) {
     host.transcript.notice('/glide needs an attached session with ephemeral-ui cards', 'warning')
@@ -46,18 +69,16 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   }
   // Cores without plugin gateway methods answer "unknown method"; the same call then goes
   // through the plugin's `/glide json` command, which every core dispatches.
-  const call = async <T>(verb: string, params: Record<string, unknown> = {}): Promise<T> => {
+  const call = async (verb: string, params: Record<string, unknown> = {}): Promise<unknown> => {
     try {
-      return await host.gw.request<T>(`${NS}.${verb}`, { session_id: sid, ...params })
+      return await host.gw.request<unknown>(`${NS}.${verb}`, { session_id: sid, ...params })
     } catch (error) {
       if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error
     }
     const { output } = await host.gw.request<{ output: string }>('command.dispatch', {
       name: 'glide', arg: `json ${verb} ${JSON.stringify(params)}`, session_id: sid
     })
-    const result = JSON.parse(output) as T & { error?: string }
-    if (result.error) throw new Error(result.error)
-    return result
+    return commandReply<unknown>(output)
   }
   const fail = (error: unknown) => {
     host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, 'error')
@@ -65,8 +86,20 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const [verb, ...rest] = arg.trim().split(/\s+/)
 
   try {
+    if (verb === 'taste') {
+      const board = tasteBoard(await call('taste'))
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return
+      const block = await openTastePane(board)
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return
+      cards.publish({
+        kind: 'receipt', app: APP, title: board.title,
+        rows: [{ label: 'Taste pane', value: block }, { label: 'Board', value: board.url },
+          { label: 'Close', value: 'Close the browser pane to return to chat' }]
+      })
+      return
+    }
     if (verb === 'off') {
-      const m = await call<GlideMemory>('enable', { on: false })
+      const m = glideMemory.parse(await call('enable', { on: false }))
       cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is off', rows: memoryRows(m) })
       return
     }
@@ -76,7 +109,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         host.transcript.notice('Usage: /glide recall <words>', 'warning')
         return
       }
-      const { hits } = await call<{ hits: { text: string; score: number }[] }>('recall', { query })
+      const { hits } = glideRecall.parse(await call('recall', { query }))
       cards.publish({
         kind: 'search', app: APP, title: `Your corrections about “${query.slice(0, 80)}”`,
         rows: hits.length ? hits.map(h => ({ label: `score ${h.score}`, value: h.text })) : [{ label: 'No match', value: 'nothing quoted' }]
@@ -84,7 +117,74 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       return
     }
 
-    const found = await call<GlideDetect>('detect')
+    // Steps 4-6 each wait for a tap and chain to the next: skill router -> one hill climb -> savings.
+    const guarded = (run: (ctx: EuiApprovalContext) => Promise<void>) => async (ctx: EuiApprovalContext) => {
+      try { await run(ctx) } catch (error) { fail(error) }
+    }
+    const fmt = (n: number | null | undefined) => n === null || n === undefined ? '—' : Number(n.toFixed(2))
+    const savings = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Offload a small task to a local model',
+      rows: [{ label: 'Task', value: 'a two-sentence summary' }, { label: 'Runs on', value: 'your smallest local model' }],
+      approval: { label: 'Offload it', description: 'Sends one sample task to a local model through ollama, then shows the frontier tokens it kept out of your paid context.' }
+    }, guarded(async ({ signal }) => {
+      const r = glideSavings.parse(await call('offload', { run: true }))
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'intel-value', app: APP, title: 'Offload savings',
+        summary: r.assumptions.join(' '),
+        rows: [
+          { label: 'Local model', value: r.local_models[0] ?? 'none found' },
+          { label: 'Tasks offloaded', value: r.tasks },
+          { label: 'Tokens kept local', value: r.tokens_offloaded },
+          { label: 'Est. saved', value: `$${r.est_cost_saved_usd.toFixed(4)}` }
+        ]
+      })
+    }))
+    const climb = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Run your first hill climb',
+      rows: [{ label: 'Target', value: 'CPU benchmark' }, { label: 'Referee', value: 'paired samples, noise floor' }],
+      approval: { label: 'Run one round', description: 'Benchmarks a baseline and one candidate on this machine and keeps the candidate only if it beats the noise floor.' }
+    }, guarded(async ({ signal }) => {
+      const r = glideClimb.parse(await call('hill_climb', { run: true }))
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'metric', app: APP, title: r.verdict ? `Hill climb: ${r.verdict}` : 'Hill climb',
+        summary: r.reason ?? '',
+        rows: [
+          { label: 'Baseline', value: fmt(r.baseline?.mean) },
+          { label: 'Candidate', value: fmt(r.candidate?.mean) },
+          { label: 'Delta', value: fmt(r.delta) },
+          { label: 'Noise floor', value: fmt(r.noise) },
+          { label: 'Verdict', value: r.verdict ?? 'no round yet' }
+        ]
+      })
+      savings()
+    }))
+    const router = () => cards.publish({
+      kind: 'approve', app: APP, title: 'Install the skill router',
+      rows: [{ label: 'Picks', value: 'skills by task category' }, { label: 'Writes', value: "your profile's glide folder" }],
+      approval: { label: 'Install', description: 'Installs a small category -> skills catalog so each turn loads the skills that fit the task.' }
+    }, guarded(async ({ signal }) => {
+      const r = glideRouter.parse(await call('skill_router'))
+      if (signal.aborted) return
+      cards.publish({
+        kind: 'receipt', app: APP, title: r.fresh ? 'Skill router installed' : 'Skill router is installed',
+        rows: [
+          { label: 'Categories', value: r.categories },
+          { label: 'Skills', value: r.skills },
+          ...r.top.slice(0, 3).map(c => ({ label: c.category, value: c.skills.slice(0, 3).join(', ') || c.rule }))
+        ]
+      })
+      climb()
+    }))
+    const steps: Record<string, () => void> = { router, climb, savings }
+    const step = verb ? steps[verb] : undefined
+    if (step) {
+      step()
+      return
+    }
+
+    const found = glideDetect.parse(await call('detect'))
     cards.publish({
       kind: 'infra-models', app: APP, title: 'This machine',
       rows: [
@@ -114,8 +214,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         description: 'Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win.'
       }
     }, async ({ signal }) => {
-      const m = await call<GlideMemory>('enable', { on: true })
-      if (!signal.aborted) cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is on', rows: memoryRows(m) })
+      const m = glideMemory.parse(await call('enable', { on: true }))
+      if (signal.aborted) return
+      cards.publish({ kind: 'receipt', app: APP, title: 'Glide memory is on', rows: memoryRows(m) })
+      router()
     })
 
     cards.publish({
@@ -127,10 +229,11 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       }
     }, async ({ signal }) => {
       try {
-        const m = await call<GlideMemory>('sync', { limit: SESSIONS })
+        const m = glideMemory.parse(await call('sync', { limit: SESSIONS }))
         if (signal.aborted) return
         cards.publish({ kind: 'intent-proof', app: APP, title: 'Local memory built', rows: [...memoryRows(m), { label: 'Messages scanned', value: m.scanned ?? 0 }] })
-        if (!m.on) enable()
+        if (m.on) router()
+        else enable()
       } catch (error) {
         fail(error)
       }

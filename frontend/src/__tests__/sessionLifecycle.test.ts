@@ -6,11 +6,11 @@ import { join } from 'node:path'
 
 import type { Usage } from '@hermes/shared/gateway-events'
 import type { ServerRequest } from '@hermes/shared/json-rpc-channel'
-import type { SessionInfo } from '@tui/types.js'
+import type { SessionInfo } from '@hermes/shared/gateway-types'
 import { describe, expect, it } from 'vitest'
 
 import { Epoch } from '../core/epoch.js'
-import { liveSessionId, NO_SESSION, type SessionIds, storedSessionId } from '../core/ids.js'
+import { durable, liveSessionId, NO_SESSION, type SessionIds, storedSessionId } from '../core/ids.js'
 import { adoptAll, type AdoptHost, adoptSteps, type Snapshot } from '../session/adopt.js'
 import { SessionLifecycle } from '../session/lifecycle.js'
 import { SessionState } from '../session/state.js'
@@ -153,23 +153,24 @@ function recordingHost() {
     btw: { adopt: sid => void log.push(`btw.adopt ${sid}`) },
     automation: { adopt: sid => void log.push(`automation.adopt ${sid}`) },
     changed: rec('changed'),
-    connect: { watch: rec('connect.watch') },
+    connect: { restore: rec('connect.restore'), watch: rec('connect.watch') },
     factory: { adopt: sid => void log.push(`factory.adopt ${sid}`) },
     forgetStatusNote: rec('forgetStatusNote'),
     hud: { adopt: sid => void log.push(`hud.adopt ${sid}`) },
     imageLanded: rec('imageLanded'),
     markPane: id => void log.push(`markPane ${id}`),
-    markViewer: (now, before) => void log.push(`markViewer ${now} ${before}`),
+    markViewer: (now, before) => void log.push(`markViewer ${durable(now)} ${durable(before)}`),
     media: { showAll: rec('media.showAll') },
     mediaDelivery: { clear: rec('mediaDelivery.clear') },
     notices: { reset: rec('notices.reset') },
     operations: { adopt: sid => void log.push(`operations.adopt ${sid}`) },
     processes: { poke: rec('processes.poke') },
     prs: { adopt: rec('prs.adopt') },
-    queue: { adopt: ref => void log.push(`queue.adopt ${ref.live}`), server: { reset: rec('queue.reset') } },
+    queue: { server: { reset: rec('queue.reset') } },
     readBusyMode: rec('readBusyMode'),
     readShortcuts: rec('readShortcuts'),
     readVimPreference: rec('readVimPreference'),
+    restoreCompactions: rec('restoreCompactions'),
     reportCwd: rec('reportCwd'),
     sheets: { dropAll: rec('sheets.dropAll') },
     sidebar: { adopt: sid => void log.push(`sidebar.adopt ${sid}`) },
@@ -185,8 +186,7 @@ function recordingHost() {
       inflight: rec('transcript.inflight'),
       load: rec('transcript.load'),
       reset: ({ session }) => void log.push(`transcript.reset ${session}`)
-    },
-    writeActiveSession: id => void log.push(`writeActiveSession ${id}`)
+    }
   }
 
   return { host, log }
@@ -223,7 +223,6 @@ describe('adoptSteps', () => {
       'queue.reset',
       'showThoughts b',
       'markViewer sb sa',
-      'writeActiveSession sb',
       'markPane sb',
       'info',
       'usage',
@@ -238,10 +237,9 @@ describe('adoptSteps', () => {
       'transcript.load',
       'agents.scan',
       'media.showAll',
+      'restoreCompactions',
       'todoHud.adopt sb',
       'hud.adopt sb',
-      // Held prompts for another session go back after the history, so their notice stays.
-      'queue.adopt b',
       'processes.poke',
       'connect.watch',
       'prs.adopt',
@@ -249,6 +247,8 @@ describe('adoptSteps', () => {
       'factory.adopt b',
       'automation.adopt b',
       'transcript.inflight',
+      // A connect card the session still waits on, on its running call.
+      'connect.restore',
       'changed'
     ])
   })
@@ -274,7 +274,6 @@ describe('adoptSteps', () => {
       'queue.reset',
       'showThoughts a',
       'markViewer sa sa',
-      'writeActiveSession sa',
       'markPane sa',
       'info',
       'usage',
@@ -287,13 +286,13 @@ describe('adoptSteps', () => {
       'agents.adopt a',
       'todoHud.adopt sa',
       'hud.adopt sa',
-      'queue.adopt a',
       'processes.poke',
       'connect.watch',
       'prs.adopt',
       'sidebar.adopt a',
       'factory.adopt a',
       'automation.adopt a',
+      'connect.restore',
       'changed'
     ])
   })
@@ -318,14 +317,14 @@ function lifecycle() {
       awaitingStartup: () => false,
       canSwitch: () => ({ kind: 'switch' }),
       changed: () => void log.push('changed'),
-      cols: () => 80,
       drain: () => void log.push('drain'),
       gw: gw.client,
-      launch: { restored: false, resume: '', sessionCwd: '' },
+      launch: { create: {}, paneCwd: '', restored: false, resume: '', sessionCwd: '' },
       operations: { adopt: () => undefined },
       rename: () => Promise.resolve(),
       request: req => void log.push(`request ${req.id}`),
       sheets: { dropShared: () => undefined },
+      shownElsewhere: () => Promise.resolve(false),
       state,
       transcript: new Transcript()
     },
