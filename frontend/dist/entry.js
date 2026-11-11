@@ -89477,25 +89477,24 @@ var Retention = class {
     if (this.#absentTarget(row2, target2)) {
       return void 0;
     }
+    const router = new Surface({ send() {
+    }, credits: () => 1, dropped() {
+    } }, this.#surface.id, { listen: false });
+    router.render({ main: [entryNode(row2.entry, row2.id, this.#cx)] });
+    const action = router.dispatch(event);
+    if (row2.settled) {
+      forgetEntryNode(row2.entry);
+    }
+    if (!action) {
+      return void 0;
+    }
     const lifetime = this.#live().lifetime;
     return () => {
       const live = this.#live();
       if (live.lifetime !== lifetime || this.#byId.get(row2.entry.id) !== row2 || !row2.present || row2.evicted || this.#absentTarget(row2, event.id) || !live.entries.includes(row2.entry)) {
         return;
       }
-      const cx = this.#cx;
-      if (!cx) {
-        return;
-      }
-      const router = new Surface({ send() {
-      }, credits: () => 1, dropped() {
-      } }, this.#surface.id, { listen: false });
-      router.render({ main: [entryNode(row2.entry, row2.id, cx)] });
-      const action = router.dispatch(event);
-      if (row2.settled) {
-        forgetEntryNode(row2.entry);
-      }
-      return action?.();
+      return action();
     };
   }
   /** Send just changed rows plus chrome; no old JSX or Tree rebuild on tokens. */
