@@ -159,8 +159,8 @@ The fork keeps its diff against upstream easy to merge:
    rule; it may only shrink as they move into `glide/` or land upstream.
 1. **Add, don't edit.** New behavior goes into new files (`frontend/src/...`, `*_backend.py`,
    `frontend/docs/*.md`). When an upstream file has to change, keep the change small and local.
-2. **Keep entry docs current.** `README.md` opens with Glide's install, flow, and real screenshots,
-   then retains the inherited Tern reference. Fork differences live here, with Glide guides in `glide/docs/`.
+2. **Keep entry docs current.** `README.md` covers Glide installation, the flow, and existing screenshots.
+   `docs/SUBMISSION.md` is the hackathon entry. Fork differences live here, with Glide guides in `glide/docs/`.
 3. **Merge, don't rebase `main`.** Rebasing would rewrite every merged fork PR.
 
 ```sh
