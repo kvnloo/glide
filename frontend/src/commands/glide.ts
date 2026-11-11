@@ -48,6 +48,24 @@ const glideSavings = z.object({
   est_cost_saved_usd: z.number(), assumptions: z.array(z.string())
 })
 
+const glideFocus = z.object({
+  phase: z.string(), phase_source: z.string(),
+  flow: z.nullable(z.object({ flow: z.number(), confidence: z.number() })),
+  next_window: z.nullable(z.string()), bedtime: z.nullable(z.string()),
+  block: z.nullable(z.object({ until: z.string(), minutes_left: z.number() })),
+  guarded: z.boolean(), queued: z.number(),
+  learned: z.object({
+    days: z.number(), source: z.string(), stop: z.nullable(z.number()),
+    windows: z.array(z.object({ start: z.number(), end: z.number(), days: z.number() }))
+  }),
+  digest: z.optional(z.array(z.object({ title: z.string(), cls: z.string() }))),
+  wind_down: z.optional(z.object({
+    nudge: z.boolean(),
+    resume: z.optional(z.object({ title: z.optional(z.string()), last_asks: z.optional(z.array(z.string())) }))
+  }))
+})
+export type GlideFocus = z.infer<typeof glideFocus>
+
 // Served by the memory plugin in this repository's glide/ folder.
 const NS = 'glide'
 const APP = 'glide'
@@ -96,6 +114,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
         rows: [{ label: 'Taste pane', value: block }, { label: 'Board', value: board.url },
           { label: 'Close', value: 'Close the browser pane to return to chat' }]
       })
+      return
+    }
+    if (verb === 'focus') {
+      await focusCommand(cards, async (params) => glideFocus.parse(await call('focus', params)), rest[0] ?? '', fail)
       return
     }
     if (verb === 'off') {
@@ -241,4 +263,106 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   } catch (error) {
     fail(error)
   }
+}
+
+type Cards = NonNullable<GlideHost['eui']>['host']
+type FocusCall = (params: Record<string, unknown>) => Promise<GlideFocus>
+
+const PHASE: Record<string, string> = {
+  PEAK: 'Peak', DIP: 'Afternoon dip', SECOND: 'Second wind', WIND_DOWN: 'Wind-down', PRE_SLEEP: 'Before sleep',
+  SLEEP: 'Sleep', WAKE: 'Awake', TROUGH: 'Trough'
+}
+const phaseName = (p: string) => PHASE[p] ?? p.replace(/_/g, ' ').toLowerCase()
+// Circadian gives ISO times; learned history gives HH:MM. Cards show the clock time only.
+const clock = (t: string | null) => t ? (/T(\d\d:\d\d)/.exec(t)?.[1] ?? t) : 'unknown'
+const hours = (f: GlideFocus) => f.learned.windows.map(w => `${String(w.start).padStart(2, '0')}:00–${String(w.end).padStart(2, '0')}:00`)
+
+// /glide focus [start|stop|wind-down|hours]: the attention half. The card reads circadian and Flowkit
+// when they are installed, else hours learned from your own sessions. A block holds non-critical asks
+// and releases them as one digest when it ends.
+export async function focusCommand(cards: Cards, call: FocusCall, sub: string, fail: (e: unknown) => void): Promise<void> {
+  const guarded = (run: (ctx: EuiApprovalContext) => Promise<void>) => async (ctx: EuiApprovalContext) => {
+    try { await run(ctx) } catch (error) { fail(error) }
+  }
+  const stopCard = () => cards.publish({
+    kind: 'approve', app: APP, title: 'End the deep-work block',
+    rows: [{ label: 'Then', value: 'everything held arrives as one digest' }],
+    approval: { label: 'End block', description: 'Ends the block and shows the asks Glide held while you worked.' }
+  }, guarded(async ({ signal }) => {
+    const f = await call({ action: 'stop' })
+    if (signal.aborted) return
+    const held = f.digest ?? []
+    cards.publish({
+      kind: 'receipt', app: APP, title: held.length ? `While you were in deep work: ${held.length} held` : 'Block ended, nothing held',
+      rows: held.length ? held.map(i => ({ label: i.cls, value: i.title })) : [{ label: 'Held', value: 'nothing' }]
+    })
+  }))
+  const blockOn = (f: GlideFocus) => {
+    cards.publish({
+      kind: 'receipt', app: APP, title: `Deep-work block on until ${f.block?.until ?? '—'}`,
+      rows: [
+        { label: 'Agent asks', value: 'held until the block ends' },
+        { label: 'Critical', value: 'still passes' },
+        { label: 'Held so far', value: f.queued }
+      ]
+    })
+    stopCard()
+  }
+  const startCard = () => cards.publish({
+    kind: 'approve', app: APP, title: 'Start a deep-work block',
+    rows: [{ label: 'Length', value: '50 min' }, { label: 'Holds', value: 'non-critical agent asks' }],
+    approval: { label: 'Start block', description: 'For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.' }
+  }, guarded(async ({ signal }) => {
+    const on = await call({ action: 'start', minutes: 50 })
+    if (signal.aborted) return
+    blockOn(on)
+  }))
+
+  if (sub === 'stop') {
+    stopCard()
+    return
+  }
+  if (sub === 'wind-down') {
+    const f = await call({ action: 'wind_down' })
+    const asks = f.wind_down?.resume?.last_asks ?? []
+    cards.publish({
+      kind: 'receipt', app: APP, title: "Time to wrap: here's where you left off",
+      rows: [
+        { label: 'Bedtime', value: clock(f.bedtime) },
+        { label: 'Left off', value: asks.join(' · ') || 'nothing yet' },
+        { label: 'Tomorrow', value: 'your first turn starts from this note' }
+      ]
+    })
+    return
+  }
+  const f = await call(sub === 'start' ? { action: 'start' } : {})
+  if (sub === 'hours') {
+    cards.publish({
+      kind: 'metric', app: APP, title: 'Your best deep-work hours',
+      summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
+      rows: [
+        ...hours(f).map((h, i) => ({ label: i ? 'Also good' : 'Best', value: h })),
+        { label: 'Usual stop', value: f.learned.stop === null ? 'unknown' : `${String(f.learned.stop).padStart(2, '0')}:00` }
+      ]
+    })
+    return
+  }
+  if (sub === 'start') {
+    blockOn(f)
+    return
+  }
+  cards.publish({
+    kind: 'metric', app: APP, title: 'Your attention',
+    summary: f.phase_source === 'circadian' ? 'From your circadian schedule.' : `From ${f.learned.source}.`,
+    rows: [
+      { label: 'Phase', value: phaseName(f.phase) },
+      { label: 'Flow likelihood', value: f.flow ? `${Math.round(f.flow.flow * 100)}% (estimate)` : 'no wearable signal' },
+      { label: 'Next deep work', value: f.next_window ?? 'not learned yet' },
+      { label: 'Bedtime', value: clock(f.bedtime) },
+      { label: 'Deep-work block', value: f.block ? `on until ${f.block.until}` : 'off' },
+      { label: 'Held for later', value: f.queued }
+    ]
+  })
+  if (f.block) stopCard()
+  else startCard()
 }

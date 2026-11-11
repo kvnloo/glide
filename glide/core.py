@@ -216,22 +216,34 @@ def recall(home: Path, query: str) -> list[dict]:
     return [{"text": h.text, "session_id": h.session_id, "score": round(h.score, 2), "source": "glide"} for h in hits]
 
 
-def pre_llm_call(user_message=None, **_kwargs):
-    """Opt-in: quote the user's top three matching past corrections into this turn."""
-    home = _home()
+def _corrections_context(home: Path, user_message) -> str | None:
     if not enabled(home) or not isinstance(user_message, str) or not user_message.strip():
         return None
-    try:
-        words = [w for w in source.tokens(user_message) if w not in _STOP]
-        query = " ".join(words)[: source.MAX_CORRECTION_CHARS // 2]
-        hits = recall(home, query) if query.strip() else []
-    except Exception:  # noqa: BLE001 - memory is advisory; a turn never fails on it.
-        return None
+    words = [w for w in source.tokens(user_message) if w not in _STOP]
+    query = " ".join(words)[: source.MAX_CORRECTION_CHARS // 2]
+    hits = recall(home, query) if query.strip() else []
     if not hits:
         return None
     lines = "\n".join(f"- {h['text']}" for h in hits)
-    return {"context": "Your past corrections that match this request (quoted history; "
-                       f"current instructions take precedence):\n{lines}"}
+    return ("Your past corrections that match this request (quoted history; "
+            f"current instructions take precedence):\n{lines}")
+
+
+def pre_llm_call(user_message=None, **_kwargs):
+    """Opt-in corrections recall, plus the attention guard: the overnight resume note on the first
+    turn of the day and the deep-work block rules while one runs. Advisory; a turn never fails on it."""
+    from . import attention
+
+    home = _home()
+    parts = []
+    for build in (lambda: attention.turn_context(home), lambda: _corrections_context(home, user_message)):
+        try:
+            part = build()
+        except Exception:  # noqa: BLE001 - advisory context only.
+            part = None
+        if part:
+            parts.append(part)
+    return {"context": "\n\n".join(parts)} if parts else None
 
 
 USAGE = """/glide            show this machine and your memory
@@ -242,7 +254,8 @@ USAGE = """/glide            show this machine and your memory
 /glide setup      guided first run: build, show what was kept, self-test recall
 /glide skill-router      install skill router catalog
 /glide hill-climb      optimize a target with KEEP/REVERT referee
-/glide offload      route tasks to local model, view savings card"""
+/glide offload      route tasks to local model, view savings card
+/glide focus        your attention: phase, deep-work block, wind-down, best hours"""
 
 
 def _rows(m: dict) -> str:
@@ -313,6 +326,10 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
         return hill_climb_command(home, rest)
     if verb == "offload":
         return offload_command(home, rest)
+    if verb == "focus":
+        from . import attention
+
+        return attention.command(home, rest, session_id or "")
     if verb:
         return USAGE
     found = detect(home)
@@ -363,5 +380,5 @@ def register(ctx) -> None:
         ctx.register_skill("onboarding", Path(__file__).with_name("skills") / "onboarding" / "SKILL.md",
                            description="Use when the user installs or sets up Glide, or asks what it remembers.")
     gateway.register(ctx)  # Card-drawing frontends (Tern); a no-op on cores without gateway methods.
-    ctx.register_command("glide", command, description="Corrections memory (z0intelligence when installed, else local) and optional Taste Atlas board",
-                         args_hint="[build|on|off|recall <words>|taste]")
+    ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
+                         args_hint="[focus|build|on|off|recall <words>|taste]")
