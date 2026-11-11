@@ -16,12 +16,14 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   })
   const hero = intentHero(data, el)
   const hold = data.kind === 'intent-contract'
+  // The declare hero sets the ask and its clause keys; the contract hero draws every row (criteria,
+  // lanes, hosts, gate, budget). A paragraph or list under either would repeat it.
+  const drawn = hero !== undefined && (hold || data.kind === 'intent-declare')
   const kids: EuiNode[] = [
     el('h3', [text(data.title)], 'eui-host-title'),
     ...(hero ? [hero] : []),
-    ...(data.summary === undefined ? [] : [el('p', [text(data.summary)])]),
-    // The contract hero draws every row (criteria, lanes, hosts, gate, budget); a list would repeat it.
-    ...(hold && hero ? [] : [el('dl', data.rows.flatMap(row => [
+    ...(data.summary === undefined || (drawn && !hold) ? [] : [el('p', [text(data.summary)])]),
+    ...(drawn ? [] : [el('dl', data.rows.flatMap(row => [
       el('dt', [text(row.label)]),
       el('dd', [text(String(row.value))])
     ]), 'eui-host-rows')])
