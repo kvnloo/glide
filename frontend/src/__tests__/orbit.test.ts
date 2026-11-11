@@ -131,6 +131,51 @@ describe('focus lane orbit', () => {
     expect(bad.slice(0, 5)).toEqual([])
   })
 
+  it('spreads N lanes of one role evenly on that role\'s ring, each ring on its own (2πj/N), never one global spacing', () => {
+    const lanes = [
+      ...Array.from({ length: 3 }, () => ({ role: 'fast', state: 'idle' })),
+      ...Array.from({ length: 2 }, () => ({ role: 'small', state: 'thinking' })),
+      { role: 'large', state: 'idle' }
+    ]
+    for (const t of [0, 1.3, 4.1]) {
+      const sats = orbitLayout(lanes, t)
+      for (const [role, N] of [['fast', 3], ['small', 2]] as const) {
+        const th = sats.filter(s => s.role === role).map(s => s.theta)
+        expect(th).toHaveLength(N)
+        for (const [j, a] of th.entries()) expect((((a - (th[0] ?? 0)) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).toBeCloseTo((2 * Math.PI * j) / N, 9)
+      }
+      for (const [i, s] of sats.entries()) expect(onRing(s, lanes[i]?.role ?? '', lanes)).toBeCloseTo(1, 6)
+    }
+    // A dead lane does not take a seat: the moving ones close ranks around it.
+    const withDead = [...lanes.slice(0, 2), { role: 'fast', state: 'dead' }]
+    const th = orbitLayout(withDead, 0.7).filter(s => !s.parked).map(s => s.theta)
+    expect(Math.abs((th[1] ?? 0) - (th[0] ?? 0))).toBeCloseTo(Math.PI, 9)
+    // The planet wears the lane's provider hue; its track keeps the role tint.
+    const svg = orbitSvg('listening', [{ role: 'fast', state: 'idle', hue: '#54d7c2' }], 0, true)
+    expect(svg).toMatch(/data-lane="fast"[^>]*>(?:<g data-tail[^>]*>(?:<circle [^>]*\/>)+<\/g>)?<circle [^>]*fill="#54d7c2"/)
+    expect(svg).toContain(`<g data-ring="${orbitRadius('fast')}" fill="#f2b24c">`)
+  })
+
+  it('never bunches with five fast lanes beside the other roles, in any frame or with reduced motion', () => {
+    const five = Array.from({ length: 5 }, () => ({ role: 'fast', state: 'idle' }))
+    const bad: string[] = []
+    for (const lanes of [five, [...five, { role: 'small', state: 'idle' }, { role: 'small', state: 'idle' }, { role: 'large', state: 'idle' }, { role: 'council', state: 'thinking' }]]) {
+      const { w, h } = orbitScene(lanes)
+      for (const [t, reduce] of [...FRAMES.map(t => [t, false] as const), [0, true] as const]) {
+        const sats = orbitLayout(lanes, t, reduce)
+        for (const [i, a] of sats.entries()) {
+          const halo = HALO * a.scale
+          if (a.x - halo < 0 || a.x + halo > w || a.y - halo < 0 || a.y + halo > h) bad.push(`${i} clipped t=${t}`)
+          if (Math.hypot(a.x - w / 2, a.y - h / 2) <= ORB_R + halo + 1) bad.push(`${i} on the orb t=${t}`)
+          for (const [k, b] of sats.slice(i + 1).entries()) {
+            if (Math.hypot(a.x - b.x, a.y - b.y) <= PLANET * (a.scale + b.scale) + 2) bad.push(`${i}/${i + 1 + k} overlap t=${t} reduce=${reduce}`)
+          }
+        }
+      }
+    }
+    expect(bad.slice(0, 5)).toEqual([])
+  })
+
   it('reduced motion draws static seats spread down the front half', () => {
     expect(orbitLayout(LANES, 0, true)).toEqual(orbitLayout(LANES, 7.3, true))
     expect(orbitSvg('speaking', LANES, 0, false, true)).toBe(orbitSvg('speaking', LANES, 5, false, true))
@@ -166,6 +211,8 @@ describe('focus lane orbit', () => {
       expect(tags(svg)).toEqual(TAGS)
     }
     expect(laneSwatch({ role: 'council', state: 'dead' }, false)).toContain('stroke="#c62828"')
+    // The row key is the orbit's: a ring in the role's tint around a planet in the lane's provider hue.
+    expect(laneSwatch({ role: 'fast', state: 'idle', hue: '#e6b86f' }, false)).toMatch(/stroke="#c47a12"[^>]*\/><circle [^>]*fill="#e6b86f"/)
     expect(laneSwatch({ role: 'fast', state: 'idle' }, false)).toContain('fill="#c47a12"')
     expect(tags(laneSwatch({ role: 'council', state: 'dead' }, true))).toEqual(TAGS)
   })

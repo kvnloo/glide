@@ -8,7 +8,8 @@ import { join } from 'node:path'
 import type { JSX, Session, Surface } from '@stencil-hq/tern'
 
 import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
-import { laneSwatch, orbitScene, orbitSvg } from './orbit.js'
+import { laneModel, providerHue } from './catalog.js'
+import { laneSwatch, type OrbitLane, orbitScene, orbitSvg } from './orbit.js'
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -157,6 +158,9 @@ export const LANE_ORB: Readonly<Record<LaneState, OrbState>> = {
 }
 
 const ROLE_ORDER = ['fast', 'small', 'large', 'council']
+
+/** A lane as the orbit draws it: its planet wears its provider's hue. */
+export const orbitLane = (lane: Lane, dark: boolean): OrbitLane => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) })
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
 function entryLine(e: LaneEntry): string {
@@ -225,8 +229,8 @@ export class LaneStrip {
           node: 'dock.live-lanes.orbit', label: 'Voice and lanes', scene: {
             get w() { return orbitScene(current()).w },
             get h() { return orbitScene(current()).h },
-            key: () => this.lanes().map(l => `${l.role}=${l.state}`).join(','),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
+            key: () => this.lanes().map(l => `${l.role}=${l.model}=${l.state}`).join(','),
+            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes().map(l => orbitLane(l, dark)), seconds, dark, reduce)
           }
         })
         this.#orbit.environment(this.#env)
@@ -248,10 +252,11 @@ export class LaneStrip {
 
   #swatch(lane: Lane) {
     const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
-    const key = `${lane.role}:${lane.state === 'dead'}:${dark}`
+    const drawn = orbitLane(lane, dark)
+    const key = `${lane.role}:${drawn.hue}:${lane.state === 'dead'}:${dark}`
     let blob = this.#swatches.get(key)
     if (!blob) {
-      blob = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), 'image/svg+xml')
+      blob = this.#tern.blob(Buffer.from(laneSwatch(drawn, dark)), 'image/svg+xml')
       this.#swatches.set(key, blob)
     }
     return { blob, alt: `${lane.role} lane${lane.state === 'dead' ? ', dead' : ''}`, w: 14, h: 14 }
@@ -275,7 +280,7 @@ export class LaneStrip {
         <col key="text">
           <text key="who" spans={[
             { s: 'strong', t: lane.role },
-            { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
+            { s: 'muted', t: ' · ' + laneModel(lane.model, lane.resolved).label + ' · ' },
             lane.state === 'dead'
               ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
               : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }

@@ -1,9 +1,10 @@
 // The voice lanes popup: opened from the subagents card, drawn as a trusted ephemeral-ui card in the
 // layer (the council popup's pattern). One row per lane of the newest lane call (fast / small / large /
-// council): role, model, live state dot and newest blackboard line, all read from the lane broker's
-// GET /v1/lanes/status. A dead lane renders dead, never hidden. The lane broker exposes no binding
-// endpoint, so a model pick is saved to a local bindings file (said in the subtitle's tooltip). With no
-// call open the broker still reports its configured lanes, and the popup lists them as idle.
+// council): role, the bound model by name with provider, billing, effort and route badges, the live state
+// and newest blackboard line, all read from the lane broker's GET /v1/lanes/status (a voice-plan role alias
+// such as smol is named by the model it resolves to). A dead lane renders dead, never hidden. Rebinding offers
+// only that role's realistic models (catalog.ts); the broker exposes no binding endpoint, so a pick is saved to
+// a local bindings file (said in the subtitle's tooltip). A key card decodes the hues, effort pips and orbit.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -11,14 +12,15 @@ import { dirname, join } from 'node:path'
 import type { EuiNode } from '../../frontend/src/eui/sandbox.js'
 import { nativeOverlayKey } from '../../frontend/src/overlays/identity.js'
 import type { Overlay } from '../../frontend/src/overlays/overlay.js'
+import { BILLING, EFFORTS, type EffortId, laneModel, PROVIDERS, type ProviderId, roleChoices } from '../../frontend/src/voice/catalog.js'
 import type { Lane, LaneCall, LaneFeed, LaneState } from '../../frontend/src/voice/lanes.js'
+import { lanePeriod, tint } from '../../frontend/src/voice/orbit.js'
 import { euiPopupNode } from '../../frontend/src/view/euiCard.js'
 
 import type { CouncilHost } from './councilPopup.js'
 import { MONO, NIGHT, SERIF } from './council.js'
 
 export const BINDINGS_ENV = 'GLIDE_LANES_BINDINGS_FILE'
-export const MODELS_ENV = 'GLIDE_LANE_MODELS'
 export const CLOSE_ID = 2
 const PICK_BASE = 100
 const PICK_STRIDE = 32
@@ -66,31 +68,42 @@ const DOT: Readonly<Record<LaneState, string>> = {
 export const sortLanes = (lanes: readonly Lane[]): Lane[] =>
   [...lanes].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
 
-/** Picker choices: every model the call names, plus $GLIDE_LANE_MODELS (comma separated). */
-export function modelChoices(lanes: readonly Lane[], bound: Record<string, string>, extra = process.env[MODELS_ENV] ?? ''): string[] {
-  const all = [...lanes.flatMap(l => [l.model, l.resolved ?? '']), ...Object.values(bound), ...extra.split(',')].map(s => s.trim()).filter(Boolean)
-  return [...new Set(all)].slice(0, PICK_STRIDE)
-}
+/** Picker choices for a lane: its role's realistic models, plus what it is bound to now. */
+export const laneChoices = (lane: Lane, bound: Record<string, string>): string[] =>
+  roleChoices(lane.role, [lane.model, bound[lane.role] ?? '']).slice(0, PICK_STRIDE)
 
 export const pickId = (lane: number, choice: number) => PICK_BASE + lane * PICK_STRIDE + choice
 
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
+const rgba = (hex: string, a: number) => `rgba(${[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(',')},${a})`
+const ROLES_SHOWN = ['fast', 'small', 'large', 'council']
+const PROVIDERS_SHOWN: readonly ProviderId[] = ['local', 'anthropic', 'openai', 'opencode', 'groq', 'multi']
+const EFFORTS_SHOWN: readonly EffortId[] = ['min', 'standard', 'high', 'max']
+const BILL_SHORT = { free: 'FREE', subscription: 'SUB', paid: 'PAID', unknown: '?' } as const
+const BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 } as const
+
 /** The popup's card, as the same node data the ephemeral-ui sandbox produces. */
-export function lanesCard(src: LaneSource, bound: Record<string, string>, where: string, extra?: string): EuiNode {
+export function lanesCard(src: LaneSource, bound: Record<string, string>, where: string, roles?: Record<string, string>): EuiNode {
   let next = 10
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
   })
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`
+  const dot = (hue: string, size = 8) => el('span', `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, [])
+  // The orbit's own key: a planet in its provider's hue inside a ring of its role's tint.
+  const swatch = (role: string, hue: string) => el('span', `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)])
+  const pips = (effort: EffortId) => el('span', 'display:flex;align-items:center;gap:2px', [0, 1, 2, 3].map(i =>
+    el('span', `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort].orbits ? EFFORTS[effort].accent : NIGHT.faint}`, [])))
+  const badge = (kids: readonly EuiNode[], color: string, border: string, attrs: Record<string, string> = {}) =>
+    el('span', `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color}`, kids, { attrs })
   const lanes = sortLanes(src.call?.lanes ?? [])
   const live = Boolean(src.call?.open && lanes.length)
-  const choices = modelChoices(lanes, bound, extra)
   const dead = lanes.filter(l => l.state === 'dead').length
   const revision = (src.call?.revision || 'call').toUpperCase()
   // The preset id is the broker's, not the reader's: it rides in the badge's tooltip until a call is live.
-  const badge = live ? `LIVE · ${revision}` : lanes.length ? 'NO CALL OPEN' : 'NOT CONNECTED'
+  const status = live ? `LIVE · ${revision}` : lanes.length ? 'NO CALL OPEN' : 'NOT CONNECTED'
   const ready = lanes.length - dead
   const summary = lanes.length
     ? live
@@ -103,7 +116,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
       el('span', `${micro};letter-spacing:2px`, [text('LANE BROKER')]),
       el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` +
         (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
-      [text(badge)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {}) } })
+      [text(status)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {}) } })
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text('Helper lanes')]),
     el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
@@ -112,39 +125,77 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
 
   const rows = lanes.map((lane, i) => {
     const binding = bound[lane.role]
+    const current = binding ?? lane.model
+    const info = laneModel(current, binding ? null : lane.resolved, roles)
+    const hue = PROVIDERS[info.provider].hue
     const isDead = lane.state === 'dead'
-    // A ready lane between calls is green; its model is already the lit chip, so only a resolved alias is named.
     const waiting = !live && lane.state === 'idle'
     const tone = waiting ? NIGHT.agree : DOT[lane.state]
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} → ${lane.resolved}` : ''
+    const id = info.via ? `${info.via} → ${info.target ?? 'unresolved'}` : info.id
     const line = isDead ? `dead${lane.error ? ` · ${clip(lane.error, 80)}` : ''}`
       : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `researching: ${clip(lane.researching, 100)}`
         : live ? 'no blackboard entry yet' : ''
-    return el('div', `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : ''), [
-      el('div', 'display:flex;align-items:center;gap:8px', [
-        el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${tone}` +
-          (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
-        el('span', `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
-        ...(model ? [el('span', `${micro};font-size:9px`, [text(model)])] : []),
-        ...(binding && binding !== lane.model ? [el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text(`BOUND LOCALLY → ${binding.toUpperCase()}`)], { attrs: { 'data-lane-rebound': lane.role } })] : []),
-        el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [text(waiting ? 'READY' : lane.state.toUpperCase())])
+    const badges = [
+      badge([dot(hue, 6), text(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { 'data-lane-provider': `${lane.role}=${info.provider}` }),
+      badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` }),
+      badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' }),
+      badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` }),
+      ...(info.via ? [badge([text(`VIA ${info.via.toUpperCase()} ROLE`)], NIGHT.text2, NIGHT.border)] : []),
+      ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba('#eccd8c', 0.4), { 'data-lane-rebound': lane.role })] : [])
+    ]
+    return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : ''), [
+      el('div', 'display:flex;align-items:center;gap:9px', [
+        swatch(lane.role, hue),
+        el('span', `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
+        el('span', `font-size:13.5px;color:${NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
+        el('span', `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [
+          el('span', `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone}` + (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
+          text(waiting ? 'READY' : lane.state.toUpperCase())
+        ])
       ]),
-      ...(line ? [el('span', `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
-      el('div', 'display:flex;flex-wrap:wrap;gap:6px', choices.map((m, j) => {
-        const on = (binding ?? lane.model) === m
-        return el('button', `padding:3px 10px;border-radius:999px;border:1px solid ${on ? '#f0d7a0' : NIGHT.borderStrong};background-color:${on ? '#cfae74' : 'transparent'}`,
-          [el('span', `font-family:${MONO};font-size:10px;color:${on ? '#1d160b' : NIGHT.text}`, [text(m)])],
-          { id: pickId(i, j), attrs: { 'data-lane-pick': `${lane.role}=${m}`, ...(on ? { 'data-lane-bound': 'true' } : {}) } })
-      }))
+      el('div', 'display:flex;flex-wrap:wrap;gap:5px;padding-left:23px', badges),
+      ...(line ? [el('span', `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
+      el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px', [
+        el('span', `${micro};font-size:8.5px`, [text('REBIND')]),
+        ...laneChoices(lane, bound).map((m, j) => {
+          const on = current === m
+          const c = laneModel(m, null, roles)
+          // The dot already names the vendor, so a chip drops it: "Haiku 4.5 · smol", "Sonnet 5", "Sol".
+          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, '')
+          const label = c.via ? `${short} · ${c.via}` : short
+          return el('button', `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? 'rgba(236,232,223,0.62)' : NIGHT.borderStrong};background-color:${on ? 'rgba(236,232,223,0.16)' : 'transparent'}`,
+            [dot(PROVIDERS[c.provider].hue, 6), el('span', `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text(label)]),
+              el('span', `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text(BILL_SHORT[c.billing])])],
+            { id: pickId(i, j), attrs: { 'data-lane-pick': `${lane.role}=${m}`, title: [c.via ? `${c.via} → ${c.target ?? 'unresolved'}` : m, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(' · '), ...(on ? { 'data-lane-bound': 'true' } : {}) } })
+        })
+      ])
     ])
   })
+
+  // The key, after zerOS's agent-core legend: hue is provider only, pips are effort, the orbit maps the rest.
+  const keyRow = (title: string, items: readonly EuiNode[]) => el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px', [
+    el('span', `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text(title)]), ...items
+  ])
+  const item = (mark: EuiNode, label: string) => el('span', `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark, text(label)])
+  const ringMark = (role: string) => el('span', `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, [])
+  const legend = el('div', `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+    el('div', 'display:flex;align-items:center;justify-content:space-between', [
+      el('span', `${micro};letter-spacing:2px`, [text('KEY')]),
+      el('span', `font-size:11px;color:${NIGHT.text2}`, [text('hue = provider · pips = effort · ring = role')])
+    ]),
+    keyRow('PROVIDER', PROVIDERS_SHOWN.map(p => item(dot(PROVIDERS[p].hue), PROVIDERS[p].label))),
+    keyRow('EFFORT', EFFORTS_SHOWN.map(e => item(pips(e), EFFORTS[e].label))),
+    keyRow('ORBIT', [...ROLES_SHOWN.map(r => item(ringMark(r), `${r} ${lanePeriod(r)} s`)), item(dot(NIGHT.text2, 7), 'one dot per lane')]),
+    keyRow('BILLING', [item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text('FREE')]), 'local or free tier'), item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text('SUB')]), 'subscription'), item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text('PAID')]), 'metered')])
+  ], { attrs: { 'data-lanes-legend': 'true' } })
 
   const close = el('button', `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el('span', `color:${NIGHT.text2};font-size:13px`, [text('Close')])], { id: CLOSE_ID, attrs: { 'data-eui-action': 'close' } })
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el('div', 'display:flex;flex-direction:column', rows),
+    legend,
     el('div', 'display:flex;justify-content:flex-end', [close])
   ])])
 }
@@ -167,14 +218,13 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
       const src = source()
       const bound = bindings.get()
       const lanes = sortLanes(src.call?.lanes ?? [])
-      const choices = modelChoices(lanes, bound)
       const view = {
         spec: { kind: 'lanes', app: APP }, app: APP, label: 'Voice lanes', identity: 'lanes',
         node: lanesCard(src, bound, bindings.where),
         activate: (n: number) => {
           if (n === CLOSE_ID) return host.close(overlay)
           const lane = lanes[Math.floor((n - PICK_BASE) / PICK_STRIDE)]
-          const model = choices[(n - PICK_BASE) % PICK_STRIDE]
+          const model = lane && laneChoices(lane, bound)[(n - PICK_BASE) % PICK_STRIDE]
           if (n < PICK_BASE || !lane || !model) return
           try {
             bindings.set(lane.role, model)

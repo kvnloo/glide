@@ -35,6 +35,7 @@ export const deadTint = (dark: boolean) => (dark ? '#ff6b6b' : '#c62828')
 export const PERIOD = 9.6
 const ROLE_PERIOD: Readonly<Record<string, number>> = { fast: 2.4, small: 4.8, large: 9.6, council: 9.6 }
 export const lanePeriod = (role: string) => ROLE_PERIOD[role] ?? PERIOD
+const ROLE_PHASE: Readonly<Record<string, number>> = { fast: 0, small: Math.PI / 2, large: Math.PI, council: (3 * Math.PI) / 2 }
 // The orbit is seen face-on: every track is a true circle around the voice orb (owner ask: circular, not oval).
 // TILT stays as the horizontal sweep factor so the layout math keeps one shape; 1 means a circle.
 export const TILT = 1
@@ -48,7 +49,8 @@ export const ORB_R = (CORE * 28.4) / SOURCE
 
 export const orbitRadius = (role: string) => ORBIT_R[role] ?? FALLBACK_R
 
-export interface OrbitLane { role: string; state: string }
+/** One lane on the orbit; `hue` is its planet's colour (the provider's, see catalog.ts), else the role tint. */
+export interface OrbitLane { role: string; state: string; hue?: string }
 export interface Satellite { role: string; x: number; y: number; z: number; scale: number; alpha: number; parked: boolean; theta: number; r: number }
 
 /** The scene's size: just the outermost track in use plus a planet's halo, so the picture is no taller than its rings. */
@@ -60,8 +62,13 @@ export function orbitScene(lanes: readonly OrbitLane[]): { w: number; h: number 
 /** Where every lane sits at `seconds`: pure, so a given t always gives the same picture. */
 export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce = false): Satellite[] {
   const { w, h } = orbitScene(lanes)
-  const moving = lanes.filter(l => l.state !== 'dead').length
+  // Each ring spaces its own moving lanes evenly (5 fast lanes are 72 degrees apart on the fast ring), and
+  // rings start a quarter-turn apart from each other so one role's planets never line up behind another's.
+  const moving = new Map<number, number>()
+  for (const l of lanes) if (l.state !== 'dead') moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1)
+  const total = [...moving.values()].reduce((a, b) => a + b, 0)
   let k = 0
+  const seat = new Map<number, number>()
   const parkedAt = new Map<number, number>()
   return lanes.map(lane => {
     const r = orbitRadius(lane.role)
@@ -73,8 +80,12 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
       parkedAt.set(r, j + 1)
       theta = Math.PI + j * 0.45
     } else {
-      // Moving lanes are evenly spaced around the orbit and turn together; reduced motion seats them down the front half.
-      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + (2 * Math.PI * k) / moving + (2 * Math.PI * seconds) / lanePeriod(lane.role)
+      // A ring's lanes turn together, 2πj/N apart. Reduced motion seats every moving lane down the front half, in lane order.
+      const j = seat.get(r) ?? 0
+      seat.set(r, j + 1)
+      theta = reduce
+        ? Math.PI * (k + 0.5) / total
+        : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + (2 * Math.PI * j) / (moving.get(r) ?? 1) + (2 * Math.PI * seconds) / lanePeriod(lane.role)
       k++
     }
     const z = parked ? 0 : Math.sin(theta)
@@ -158,7 +169,7 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   // with a thin rim, a halo while the lane thinks, and a red struck-through ring when the lane is dead.
   const planet = (s: Satellite, lane: OrbitLane) => {
     const r = PLANET * s.scale
-    const c = tint(lane.role, dark)
+    const c = lane.hue ?? tint(lane.role, dark)
     // A comet tail as long as the lane is quick: the same 0.35 s of travel is a long streak on fast, a stub on large.
     const tail = s.parked || reduce ? '' : Array.from({ length: 6 }, (_, i) => {
       const lag = ((i + 1) / 6) * ((2 * Math.PI * 0.35) / lanePeriod(lane.role))
@@ -198,12 +209,13 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rings}${back}${core}${front}</svg>`
 }
 
-/** A row's key beside its label: the lane's planet, or its dead mark, so each track reads against its name. */
+/** A row's key beside its label, as on the orbit: the planet (provider hue) inside a ring of its role's tint, or its dead mark. */
 export function laneSwatch(lane: OrbitLane, dark: boolean, size = 14): string {
   const c = size / 2
   const body = lane.state === 'dead'
     ? deadMark(c, c, 4.6, dark)
-    : `<circle cx="${c}" cy="${c}" r="4.6" fill="${tint(lane.role, dark)}" stroke="${dark ? '#000000' : '#ffffff'}" stroke-width="0.8"/>`
+    : `<circle cx="${c}" cy="${c}" r="${n(c - 0.9)}" fill="none" stroke="${tint(lane.role, dark)}" stroke-width="1.2"/>` +
+      `<circle cx="${c}" cy="${c}" r="3.4" fill="${lane.hue ?? tint(lane.role, dark)}"/>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`
 }
 

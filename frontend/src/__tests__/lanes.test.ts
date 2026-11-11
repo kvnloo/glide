@@ -103,11 +103,11 @@ describe('live lane strip', () => {
     const lines = texts(s.node())
     expect(lines.map(t => t.text)).toEqual([
       'Lanes · preset-D-smol2000-router06b',
-      'fast · qwen3-1.7b · dead (URLError)',
-      'small · smol→claude-haiku-4-5 · answered',
+      'fast · Qwen3 1.7B · dead (URLError)',
+      'small · Claude Haiku 4.5 · answered',
       'last: answer: what is 17 times 23',
       'draft 0.90 · “17 times 23 is 391”',
-      'large · slow→claude-opus-5-5 · thinking',
+      'large · Claude Opus 5.5 · thinking',
       'researching: answer: what is 17 times 23'
     ])
     expect(lines[1]?.styles).toContain('error')
