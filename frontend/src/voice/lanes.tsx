@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import type { JSX, Session, Surface } from '@stencil-hq/tern'
 
 import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
-import { orbitSvg, SCENE, SCENE_H } from './orbit.js'
+import { laneSwatch, orbitScene, orbitSvg } from './orbit.js'
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -164,6 +164,7 @@ export class LaneStrip {
   #env: { dark?: boolean; reduce?: boolean; visible?: boolean } = {}
   #live = false
   #orbit: ThinkingOrb | undefined
+  readonly #swatches = new Map<string, string>()
 
   constructor(feed: LaneFeed, tern: Session, surface: Surface) {
     this.#feed = feed
@@ -195,8 +196,9 @@ export class LaneStrip {
     return this.#orbit !== undefined
   }
 
+  /** The newest call's lanes while it is open, or while this pane's live voice runs (their real health, call closed or not). */
   lanes(): Lane[] {
-    const lanes = this.#feed.call?.open ? this.#feed.call.lanes : []
+    const lanes = this.#feed.call?.open || this.#live ? this.#feed.call?.lanes ?? [] : []
     return [...lanes].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
   }
 
@@ -209,9 +211,11 @@ export class LaneStrip {
       for (const orb of this.#orbs) orb.close()
       this.#orbs = []
       if (!this.#orbit) {
+        const current = () => this.lanes()
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
           node: 'dock.live-lanes.orbit', label: 'Voice and lanes', scene: {
-            w: SCENE, h: SCENE_H,
+            get w() { return orbitScene(current()).w },
+            get h() { return orbitScene(current()).h },
             key: () => this.lanes().map(l => `${l.role}=${l.state}`).join(','),
             svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
           }
@@ -233,19 +237,32 @@ export class LaneStrip {
     lanes.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused))
   }
 
+  #swatch(lane: Lane) {
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
+    const key = `${lane.role}:${lane.state === 'dead'}:${dark}`
+    let blob = this.#swatches.get(key)
+    if (!blob) {
+      blob = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), 'image/svg+xml')
+      this.#swatches.set(key, blob)
+    }
+    return { blob, alt: `${lane.role} lane${lane.state === 'dead' ? ', dead' : ''}`, w: 14, h: 14 }
+  }
+
   /** Shown while the lane broker has an open call, or while this pane's live voice runs (then it says why it is empty). */
   node(): JSX.Element | null {
     const call = this.#feed.call
     const lanes = this.lanes()
     if (!lanes.length && !this.#live) return null
     const head = lanes.length
-      ? `Lanes · ${call?.revision ?? ''}`
+      ? `Lanes · ${call?.revision ?? ''}${call?.open ? '' : ' · no open call'}`
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
         : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
     const rows = lanes.map((lane, i) => (
       <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
-        {this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
+        {this.#orbit
+          ? <image key="key" role="omp.live.lane.key" {...this.#swatch(lane)} />
+          : this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
         <col key="text">
           <text key="who" spans={[
             { s: 'strong', t: lane.role },
@@ -262,15 +279,16 @@ export class LaneStrip {
       </row>
     ))
     return (
-      <col key="live-lanes" role="omp.live.lanes">
+      <col gap={this.#orbit ? 'sm' : 'none'} key="live-lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
         {this.#orbit
-          // The upright orbit stands beside the lane list, so its height adds nothing to the dock.
-          ? <row key="orbit" align="center" gap="md" role="omp.live.lanes.orbit">
+          // The orbit stands beside the lane list, which spreads to its height: top and bottom aligned, then a gap above the composer.
+          ? <row key="orbit" align="stretch" gap="md" role="omp.live.lanes.orbit">
             <image key="scene" {...this.#orbit.props()} />
-            <col key="rows">{rows}</col>
+            <col grow={1} justify="between" key="rows" min={{ w: 0 }}>{rows}</col>
           </row>
           : rows}
+        {this.#orbit ? <spacer key="gap" size="lg" /> : null}
       </col>
     )
   }

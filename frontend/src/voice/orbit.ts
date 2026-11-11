@@ -1,37 +1,43 @@
 // FOCUS-mode lane orbit: while a /glide focus block runs and live voice is on, the call's helper lanes
-// circle the voice orb as tinted planets on upright rings seen nearly edge-on, all drawn into one SVG per frame around the
-// thinking-orbs engine's voice orb. A thinking lane wears a halo, and a dead lane is parked as a hollow
-// grey ring on its orbit, never hidden. Reduced motion draws fixed seats down the front half.
+// circle the voice orb as tinted planets on upright, tinted tracks, all drawn into one SVG per frame around the
+// thinking-orbs engine's voice orb. A thinking lane wears a halo, and a dead lane is parked at the top of its
+// dashed track as a red struck-through ring, never hidden. Reduced motion draws fixed seats down the front half.
 import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'thinking-orbs/engine'
 
 import { LIBRARY_STATE, type OrbState } from '../chrome/orb.js'
 
-/** Orbit radius per role (viewBox units): fast inner, council outer. */
-const ORBIT_R: Readonly<Record<string, number>> = { fast: 60, small: 74, large: 88, council: 102 }
-const FALLBACK_R = 81
+/** Orbit radius per role (viewBox units): fast inner, council outer, one track per lane. */
+const ORBIT_R: Readonly<Record<string, number>> = { fast: 64, small: 78, large: 92, council: 106 }
+const FALLBACK_R = 85
 
-/** Each role's planet tint (council keeps its lapis seat colour); a parked lane drops to grey. */
+/** Each role's planet and track tint (council keeps its lapis seat colour), deeper on a light theme for contrast. */
 export const ROLE_TINT: Readonly<Record<string, string>> = {
   fast: '#e8b04a',
   small: '#5aa9e6',
-  large: '#b07cd8',
-  council: '#3f6fd8'
+  large: '#d08ad8',
+  council: '#5b8cff'
 }
+const ROLE_TINT_LIGHT: Readonly<Record<string, string>> = {
+  fast: '#b5730f',
+  small: '#1f6fb2',
+  large: '#a03c9c',
+  council: '#2a4fb8'
+}
+export const tint = (role: string, dark: boolean) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? '#aaaaaa' : '#555555')
+/** A dead lane's mark: a red hollow ring struck through. */
+export const deadTint = (dark: boolean) => (dark ? '#ff6b6b' : '#c62828')
 
 // Every lane shares one angular velocity, one turn per 9.6 s cached cycle, so the gaps set at the start
 // never close: lanes with different periods drift into a bunch on one side and overlap where rings meet.
 export const PERIOD = 9.6
-// The orbit plane stands vertical, seen nearly edge-on: planets pass above and below the voice orb, sweeping
-// a narrow ellipse sideways. TILT is that sweep, wide enough that a near planet's halo on the inner ring clears the orb.
-export const TILT = 0.46
-export const SCENE = 116 // the outer ring's sweep plus a near planet's halo
-export const SCENE_H = 228 // the outer orbit plus a planet's halo above and below
+// The orbit plane stands upright, seen at a slant: planets pass above and below the voice orb, sweeping
+// an ellipse sideways. TILT is that sweep, wide enough that a near planet's halo on the inner ring clears the orb.
+export const TILT = 0.6
 export const PLANET = 5 // body radius before depth scaling
 export const HALO = 8
-const CX = SCENE / 2
-const CY = SCENE_H / 2
+const PAD = HALO * 1.3 + 1 // a near planet's halo, so nothing on a ring is clipped
 const SOURCE = 64 // the engine's avatar preset
-const CORE = 36 // the voice orb as drawn here, near the composer orb's 34px
+const CORE = 60 // the voice orb as drawn here
 /** The voice orb's drawn radius: the engine's dots reach 28.4 of its 64-unit preset. */
 export const ORB_R = (CORE * 28.4) / SOURCE
 
@@ -40,8 +46,15 @@ export const orbitRadius = (role: string) => ORBIT_R[role] ?? FALLBACK_R
 export interface OrbitLane { role: string; state: string }
 export interface Satellite { role: string; x: number; y: number; z: number; scale: number; alpha: number; parked: boolean }
 
+/** The scene's size: just the outermost track in use plus a planet's halo, so the picture is no taller than its rings. */
+export function orbitScene(lanes: readonly OrbitLane[]): { w: number; h: number } {
+  const r = Math.max(orbitRadius('fast'), ...lanes.map(l => orbitRadius(l.role)))
+  return { w: Math.ceil(2 * (r * TILT + PAD)), h: Math.ceil(2 * (r + PAD)) }
+}
+
 /** Where every lane sits at `seconds`: pure, so a given t always gives the same picture. */
 export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce = false): Satellite[] {
+  const { w, h } = orbitScene(lanes)
   const moving = lanes.filter(l => l.state !== 'dead').length
   let k = 0
   const parkedAt = new Map<number, number>()
@@ -63,11 +76,11 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
     const depth = (z + 1) / 2
     return {
       role: lane.role,
-      x: CX + r * TILT * Math.sin(theta),
-      y: CY + r * Math.cos(theta),
+      x: w / 2 + r * TILT * Math.sin(theta),
+      y: h / 2 + r * Math.cos(theta),
       z,
       scale: 0.9 + 0.4 * depth,
-      alpha: parked ? 0.55 : 0.55 + 0.45 * depth,
+      alpha: parked ? 0.9 : 0.75 + 0.25 * depth,
       parked
     }
   })
@@ -79,7 +92,8 @@ function marks(state: LibraryState, seconds: number, animated: boolean, dark: bo
   const preset = resolvePreset(state, SOURCE)
   const frame = MODE_FRAMES[preset.mode](SOURCE, animated ? seconds * preset.speed : 0.6, preset.opts)
   const grey = (white: number) => {
-    const ink = Math.min(1, Math.max(0, white))
+    // On a light theme the voice orb's greys are deepened so it holds its own against the tinted planets.
+    const ink = Math.min(1, Math.max(0, dark ? white : white * 0.7))
     return `#${Math.round((dark ? 1 - ink : ink) * 255).toString(16).padStart(2, '0').repeat(3)}`
   }
   const a = (v: number | undefined) => (v ?? 1).toFixed(2)
@@ -90,41 +104,91 @@ function marks(state: LibraryState, seconds: number, animated: boolean, dark: bo
 
 const still = (s: OrbState) => s === 'idle' || s === 'waiting' || s === 'error'
 
-/** One frame of the planetary scene: rings, far planets, the voice orb, near planets. */
+/** Dots `step` apart along an ellipse's arc length, so a stippled track reads as one even line. */
+export function stipple(cx: number, cy: number, a: number, b: number, step: number): [number, number][] {
+  const N = 720
+  const pts: [number, number][] = []
+  for (let i = 0; i <= N; i++) {
+    const t = (i * 2 * Math.PI) / N
+    pts.push([cx + a * Math.sin(t), cy + b * Math.cos(t)])
+  }
+  const len = [0]
+  for (let i = 1; i <= N; i++) len.push((len[i - 1] ?? 0) + Math.hypot((pts[i]?.[0] ?? 0) - (pts[i - 1]?.[0] ?? 0), (pts[i]?.[1] ?? 0) - (pts[i - 1]?.[1] ?? 0)))
+  const total = len[N] ?? 0
+  const count = Math.round(total / step)
+  const out: [number, number][] = []
+  let j = 0
+  for (let k = 0; k < count; k++) {
+    const s = (k * total) / count
+    while ((len[j + 1] ?? total) < s) j++
+    const f = (s - (len[j] ?? 0)) / ((len[j + 1] ?? total) - (len[j] ?? 0) || 1)
+    out.push([(pts[j]?.[0] ?? 0) + f * ((pts[j + 1]?.[0] ?? 0) - (pts[j]?.[0] ?? 0)), (pts[j]?.[1] ?? 0) + f * ((pts[j + 1]?.[1] ?? 0) - (pts[j]?.[1] ?? 0))])
+  }
+  return out
+}
+
+/** A dead lane's mark at (x, y): a red hollow ring with an x struck through it, all circles. */
+export function deadMark(x: number, y: number, r: number, dark: boolean): string {
+  const red = deadTint(dark)
+  const strike: string[] = []
+  for (let i = -3; i <= 3; i++) {
+    const d = (i / 3) * r * 0.55
+    strike.push(`<circle cx="${n(x + d)}" cy="${n(y + d)}" r="0.55"/>`, `<circle cx="${n(x + d)}" cy="${n(y - d)}" r="0.55"/>`)
+  }
+  return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join('')}</g>`
+}
+
+/** One frame of the planetary scene: tracks, far planets, the voice orb, near planets. */
 export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: number, dark: boolean, reduce = false): string {
+  const { w, h } = orbitScene(lanes)
+  const CX = w / 2
+  const CY = h / 2
   const sats = orbitLayout(lanes, seconds, reduce)
   const t = reduce ? 0 : seconds
-  const ink = dark ? '#ffffff' : '#000000'
-  // Planets are drawn at their orbit point itself, so each sits exactly on its ring: a solid tinted body,
-  // a halo while the lane thinks, and a hollow grey ring when the lane is dead.
+  const edge = dark ? '#000000' : '#ffffff'
+  // Planets are drawn at their orbit point itself, so each sits exactly on its track: a solid tinted body
+  // with a thin rim, a halo while the lane thinks, and a red struck-through ring when the lane is dead.
   const planet = (s: Satellite, lane: OrbitLane) => {
     const r = PLANET * s.scale
-    const tint = ROLE_TINT[lane.role] ?? '#888888'
+    const c = tint(lane.role, dark)
     const body = s.parked
-      ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="none" stroke="#888888" stroke-width="1.2"/>`
-      : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${tint}" fill-opacity="0.2"/>` : '') +
-        `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="${tint}"/>` +
-        `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.35"/>`
+      ? deadMark(s.x, s.y, r, dark)
+      : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${c}" fill-opacity="0.2"/>` : '') +
+        `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/>` +
+        `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`
     return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}">${body}</g>`
   }
   const order = sats.flatMap((s, i) => (lanes[i] ? [{ s, lane: lanes[i] }] : [])).sort((a, b) => a.s.z - b.s.z)
   const back = order.filter(o => o.s.z < 0).map(o => planet(o.s, o.lane)).join('')
   const front = order.filter(o => o.s.z >= 0).map(o => planet(o.s, o.lane)).join('')
-  // One ring per orbit in use; an orbit whose every lane is dead is dashed.
+  // One track per orbit in use, tinted as its lane, stippled evenly from circles (Tern's native SVG renderer
+  // draws circles, not <ellipse> or <path>). The near half is bolder than the far half; a track holding only
+  // dead lanes is a grey dashed line.
   const radii = [...new Set(lanes.map(l => orbitRadius(l.role)))]
   const rings = radii.map(r => {
-    const dead = lanes.every(l => orbitRadius(l.role) !== r || l.state === 'dead')
-    // Stippled from circles, matching the orb's own dots: Tern's native SVG renderer draws circles, not
-    // <ellipse> or <polyline>. A dead orbit's ring is sparser and fainter.
-    const dots = dead ? 28 : 56
-    const ring = Array.from({ length: dots }, (_, i) => {
-      const a = (i * 2 * Math.PI) / dots
-      return `<circle cx="${n(CX + r * TILT * Math.sin(a))}" cy="${n(CY + r * Math.cos(a))}" r="0.7" fill="${ink}"/>`
-    }).join('')
-    return `<g data-ring="${r}" fill-opacity="${dead ? 0.18 : 0.32}">${ring}</g>`
+    const on = lanes.filter(l => orbitRadius(l.role) === r)
+    const dead = on.every(l => l.state === 'dead')
+    const dots = stipple(CX, CY, r * TILT, r, 2)
+    const dot = ([x, y]: [number, number]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.85"/>`
+    if (dead) {
+      const dash = dots.filter((_, i) => i % 4 < 2).map(dot).join('')
+      return `<g data-ring="${r}" fill="${dark ? '#9a9a9a' : '#6a6a6a'}" fill-opacity="0.6">${dash}</g>`
+    }
+    const near = dots.filter(([x]) => x >= CX).map(dot).join('')
+    const far = dots.filter(([x]) => x < CX).map(dot).join('')
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? '', dark)}"><g fill-opacity="0.7">${far}</g>${near}</g>`
   }).join('')
-  const core = `<g transform="translate(${CX - CORE / 2} ${CY - CORE / 2}) scale(${CORE / SOURCE})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SCENE}" height="${SCENE_H}" viewBox="0 0 ${SCENE} ${SCENE_H}">${rings}${back}${core}${front}</svg>`
+  const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rings}${back}${core}${front}</svg>`
+}
+
+/** A row's key beside its label: the lane's planet, or its dead mark, so each track reads against its name. */
+export function laneSwatch(lane: OrbitLane, dark: boolean, size = 14): string {
+  const c = size / 2
+  const body = lane.state === 'dead'
+    ? deadMark(c, c, 4.6, dark)
+    : `<circle cx="${c}" cy="${c}" r="4.6" fill="${tint(lane.role, dark)}" stroke="${dark ? '#000000' : '#ffffff'}" stroke-width="0.8"/>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`
 }
 
 /** The newest /glide focus answer: a block is active until its end time. */

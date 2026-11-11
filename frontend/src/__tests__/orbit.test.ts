@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { focusBlock, HALO, ORB_R, orbitLayout, orbitRadius, orbitSvg, PERIOD, PLANET, SCENE, SCENE_H, TILT } from '../voice/orbit.js'
+import { focusBlock, HALO, laneSwatch, ORB_R, orbitLayout, orbitRadius, orbitScene, orbitSvg, PERIOD, PLANET, stipple, TILT } from '../voice/orbit.js'
 
 const LANES = [
   { role: 'fast', state: 'thinking' },
@@ -9,8 +9,11 @@ const LANES = [
   { role: 'council', state: 'thinking' }
 ]
 const ROLES = ['fast', 'small', 'large', 'council']
-const CX = SCENE / 2
+const { w: SCENE, h: SCENE_H } = orbitScene(LANES)
+
 const CY = SCENE_H / 2
+const TAGS = new Set(['svg', 'g', 'circle'])
+const tags = (svg: string) => new Set([...svg.matchAll(/<(\w+)[ >]/g)].map(m => m[1]))
 const FRAMES = Array.from({ length: 144 }, (_, i) => (i * PERIOD) / 144)
 
 /** Every mix the broker can send: any non-empty subset of the roles, each lane live or dead. */
@@ -26,8 +29,10 @@ function mixes() {
 }
 
 /** Where a lane sits on its ring, 1 exactly on it. */
-const onRing = (s: { x: number; y: number }, role: string) =>
-  ((s.x - CX) / (orbitRadius(role) * TILT)) ** 2 + ((s.y - CY) / orbitRadius(role)) ** 2
+const onRing = (s: { x: number; y: number }, role: string, lanes = LANES) => {
+  const { w, h } = orbitScene(lanes)
+  return ((s.x - w / 2) / (orbitRadius(role) * TILT)) ** 2 + ((s.y - h / 2) / orbitRadius(role)) ** 2
+}
 
 describe('focus lane orbit', () => {
   it('places lanes deterministically for a given t, and they move over time', () => {
@@ -44,20 +49,20 @@ describe('focus lane orbit', () => {
     expect(SCENE_H).toBeGreaterThan(SCENE)
     const ys = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.y))
     const xs = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.x))
-    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(2 * (Math.max(...xs) - Math.min(...xs)))
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(1.5 * (Math.max(...xs) - Math.min(...xs)))
     expect(Math.min(...ys)).toBeLessThan(CY - orbitRadius('fast') + 1)
     expect(Math.max(...ys)).toBeGreaterThan(CY + orbitRadius('fast') - 1)
     const svg = orbitSvg('listening', LANES, 0, false)
-    const rings = [...svg.matchAll(/<g data-ring="[\d.]+"[^>]*>((?:<circle [^>]*\/>)+)<\/g>/g)]
+    const rings = [...svg.matchAll(/<g data-ring="[\d.]+"[^>]*>((?:<g [^>]*>|<\/g>|<circle [^>]*\/>)+?)<\/g>(?=<g data-(?:ring|lane)|<g transform)/g)]
     expect(rings).toHaveLength(4)
     for (const m of rings) {
       const pts = [...(m[1] ?? '').matchAll(/cx="([\d.-]+)" cy="([\d.-]+)"/g)].map(p => [Number(p[1]), Number(p[2])] as const)
       const w = Math.max(...pts.map(p => p[0])) - Math.min(...pts.map(p => p[0]))
       const h = Math.max(...pts.map(p => p[1])) - Math.min(...pts.map(p => p[1]))
-      expect(h).toBeGreaterThan(w * 2) // tall, narrow rings
+      expect(h).toBeGreaterThan(w * 1.5) // tall, narrow rings
     }
     // Only elements Tern's native SVG renderer draws.
-    expect(new Set([...svg.matchAll(/<(\w+)[ >]/g)].map(m => m[1]))).toEqual(new Set(['svg', 'g', 'circle']))
+    expect(tags(svg)).toEqual(TAGS)
     expect(svg).toContain(`viewBox="0 0 ${SCENE} ${SCENE_H}"`)
   })
 
@@ -68,7 +73,7 @@ describe('focus lane orbit', () => {
       for (const [i, s] of orbitLayout(LANES, t).entries()) {
         const at = svg.indexOf(`data-lane="${LANES[i]?.role}"`)
         expect(at < core).toBe(s.z < 0)
-        expect(s.alpha).toBeCloseTo(0.55 + 0.45 * (s.z + 1) / 2)
+        expect(s.alpha).toBeCloseTo(0.75 + 0.25 * (s.z + 1) / 2)
       }
     }
   })
@@ -92,6 +97,7 @@ describe('focus lane orbit', () => {
         const sats = orbitLayout(lanes, t)
         for (const [i, a] of sats.entries()) {
           const halo = HALO * a.scale
+          const { w: SCENE, h: SCENE_H } = orbitScene(lanes)
           const at = `${lanes.map(l => `${l.role}=${l.state}`).join(',')} t=${t}`
           if (a.x - halo < 0 || a.x + halo > SCENE || a.y - halo < 0 || a.y + halo > SCENE_H) bad.push(`${a.role} clipped, ${at}`)
           // Planets pass above, below and beside the voice orb, never across it.
@@ -128,10 +134,40 @@ describe('focus lane orbit', () => {
     expect(a?.parked).toBe(true)
     expect(a?.alpha).toBeLessThan(1)
     expect(a?.alpha).toBeGreaterThan(0)
-    expect(onRing(a ?? { x: 0, y: 0 }, 'council')).toBeCloseTo(1, 6)
-    const svg = orbitSvg('listening', lanes, 0.4, true)
-    expect(svg).toContain('data-lane="council"')
-    expect(svg).toMatch(/<g data-ring="[\d.]+" fill-opacity="0.18">/) // its orbit holds only a dead lane: a sparse, faint ring
+    expect(onRing(a ?? { x: 0, y: 0 }, 'council', lanes)).toBeCloseTo(1, 6)
+    for (const dark of [true, false]) {
+      const svg = orbitSvg('listening', lanes, 0.4, dark)
+      // A red hollow ring struck through, on a grey dashed track that holds only the dead lane.
+      const mark = /data-lane="council"[^>]*><circle [^>]*fill="none" stroke="(#[0-9a-f]{6})"[^>]*\/><g fill="(#[0-9a-f]{6})">((?:<circle [^>]*\/>)+)<\/g>/.exec(svg)
+      expect(mark?.[1]).toBe(dark ? '#ff6b6b' : '#c62828')
+      expect(mark?.[2]).toBe(mark?.[1])
+      expect(mark?.[3]?.match(/<circle/g)?.length).toBeGreaterThanOrEqual(10)
+      expect(svg).toMatch(new RegExp(`<g data-ring="${orbitRadius('council')}" fill="#[0-9a-f]{6}" fill-opacity="0.6">`))
+      expect(tags(svg)).toEqual(TAGS)
+    }
+    expect(laneSwatch({ role: 'council', state: 'dead' }, false)).toContain('stroke="#c62828"')
+    expect(laneSwatch({ role: 'fast', state: 'idle' }, false)).toContain('fill="#b5730f"')
+    expect(tags(laneSwatch({ role: 'council', state: 'dead' }, true))).toEqual(TAGS)
+  })
+
+  it('stipples each track evenly along its arc length, dense enough to read as one line', () => {
+    const dots = stipple(50, 100, 40, 90, 2.2)
+    const gaps = dots.map((p, i) => {
+      const q = dots[(i + 1) % dots.length] ?? p
+      return Math.hypot(q[0] - p[0], q[1] - p[1])
+    })
+    expect(Math.max(...gaps) - Math.min(...gaps)).toBeLessThan(0.05)
+    expect(Math.max(...gaps)).toBeLessThan(2.4)
+  })
+
+  it('sizes the scene to the outermost track in use, and every live track is tinted as its lane', () => {
+    const three = [{ role: 'fast', state: 'idle' }, { role: 'small', state: 'idle' }, { role: 'large', state: 'idle' }]
+    expect(orbitScene(three).h).toBeLessThan(orbitScene(LANES).h)
+    expect(orbitScene(three).h).toBeLessThanOrEqual(2 * (orbitRadius('large') + HALO * 1.3 + 1) + 1)
+    const svg = orbitSvg('listening', three, 0, false)
+    for (const [role, c] of [['fast', '#b5730f'], ['small', '#1f6fb2'], ['large', '#a03c9c']] as const) {
+      expect(svg).toContain(`<g data-ring="${orbitRadius(role)}" fill="${c}">`)
+    }
   })
 
   it('is off outside a focus block', () => {
