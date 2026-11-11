@@ -1,16 +1,11 @@
 # Fork-added files kept outside glide/. This list may only shrink; see glide/tools/check_layout.py.
 # Lines marked '# upstream: <PR>' stay in upstream's layout because they are meant for an upstream PR.
-.github/pull_request_template.md
-.github/workflows/bundle-candidate.yml
-.github/workflows/fettl.yml
-FORK.md
 browser_backend.py
 browser_native.py
 browser_transport.py
 channels.py
 dictation.py  # upstream: alt-glitch/hermes-tern PR 71
 docs/BUNDLE-ARTIFACT.md
-docs/MEDIA-DELIVERY.md
 docs/images/agent-wait-after.png
 docs/images/agent-wait-before.png
 docs/images/agent-wait-dock.png
@@ -18,9 +13,9 @@ docs/images/agent-wait-hub.png
 docs/images/agent-wait-settled.png
 docs/images/agent-wait-timeline.png
 docs/images/omp-agent-wait-reference.png
+docs/MEDIA-DELIVERY.md
 ephemeral_cards.py
-frontend/PLAN-REVIEW.md
-frontend/SHORTCUTS.md
+FORK.md
 frontend/bench/retention.ts
 frontend/docs/artifacts-links.md
 frontend/docs/browser-blocks.md
@@ -31,21 +26,21 @@ frontend/docs/retention.md
 frontend/docs/table-charts.md
 frontend/docs/vim-editor.md
 frontend/docs/voice.md
-frontend/openui/LICENSE
 frontend/openui/card.mjs
-frontend/openui/openui-generation/.gitignore
-frontend/openui/openui-generation/.npmrc
-frontend/openui/openui-generation/README.md
+frontend/openui/LICENSE
 frontend/openui/openui-generation/cli.mjs
-frontend/openui/openui-generation/fixtures/architecture-services.v0.json
 frontend/openui/openui-generation/fixtures/architecture.openui
+frontend/openui/openui-generation/fixtures/architecture-services.v0.json
 frontend/openui/openui-generation/fixtures/architecture.v0.json
 frontend/openui/openui-generation/fixtures/ephemeral-intent.v1.json
 frontend/openui/openui-generation/fixtures/explorer.openui
 frontend/openui/openui-generation/fixtures/host.json
 frontend/openui/openui-generation/fixtures/intent.openui
-frontend/openui/openui-generation/package-lock.json
+frontend/openui/openui-generation/.gitignore
+frontend/openui/openui-generation/.npmrc
 frontend/openui/openui-generation/package.json
+frontend/openui/openui-generation/package-lock.json
+frontend/openui/openui-generation/README.md
 frontend/openui/openui-generation/src/adapter.d.mts
 frontend/openui/openui-generation/src/adapter.mjs
 frontend/openui/openui-generation/src/architecture.mjs
@@ -58,12 +53,12 @@ frontend/openui/openui-generation/test/host.test.mjs
 frontend/openui/openui-generation/test/intent.test.mjs
 frontend/openui/openui-generation/test/openui.test.mjs
 frontend/openui/openui-preview/CAPTURE-GUARDS.md
-frontend/openui/openui-preview/README.md
 frontend/openui/openui-preview/cli.mjs
 frontend/openui/openui-preview/fixtures/architecture-board.json
 frontend/openui/openui-preview/fixtures/intent-board.json
 frontend/openui/openui-preview/fixtures/repository.json
 frontend/openui/openui-preview/package.json
+frontend/openui/openui-preview/README.md
 frontend/openui/openui-preview/src/architecture-document.mjs
 frontend/openui/openui-preview/src/bundle.mjs
 frontend/openui/openui-preview/src/control.mjs
@@ -87,10 +82,97 @@ frontend/openui/openui-preview/test/lifecycle.test.mjs
 frontend/openui/openui-preview/test/renderer.lua
 frontend/openui/prepare.mjs
 frontend/openui/schema/card.v0.json
+frontend/PLAN-REVIEW.md
 frontend/scripts/vendor-ephemeral-ui.mjs
-frontend/src/__tests__/__snapshots__/golden/agent-wait-solo.json
-frontend/src/__tests__/__snapshots__/golden/agent-wait-tiles.json
-frontend/src/__tests__/__snapshots__/golden/context-meter.json
+frontend/SHORTCUTS.md
+frontend/src/__tests__/factoryApp.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/factoryCommand.test.ts  # same
+frontend/src/__tests__/factoryPane.test.ts  # same
+frontend/src/agents/ownership.ts
+frontend/src/agents/tiles.tsx
+frontend/src/app/actions-session.ts
+frontend/src/app/actions-ui.ts
+frontend/src/app/agent-pane.ts
+frontend/src/app/busy-intent.ts
+frontend/src/app/eui-host.ts
+frontend/src/app/native-artifacts.ts
+frontend/src/app/palette.ts
+frontend/src/app/tool-blob.ts
+frontend/src/artifacts/attachments.ts
+frontend/src/artifacts/card.tsx
+frontend/src/artifacts/clipboard.ts
+frontend/src/artifacts/display-text.ts
+frontend/src/artifacts/links.ts
+frontend/src/artifacts/media-node.ts
+frontend/src/artifacts.ts
+frontend/src/artifacts/written.ts
+frontend/src/btw.ts
+frontend/src/chrome/attention.ts
+frontend/src/chrome/factory.tsx  # esbuild and tsc resolve @stencil-hq/tern and zod only from frontend/
+frontend/src/chrome/orb.ts
+frontend/src/code/review.ts
+frontend/src/commands/factory.ts  # same
+frontend/src/commands/glide.ts
+frontend/src/commands/voice.ts  # upstream: alt-glitch/hermes-tern PR 71
+frontend/src/core/keys.ts
+frontend/src/draft/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
+frontend/src/draft/external-editor.ts
+frontend/src/draft/readline-words.ts
+frontend/src/draft/vim-keys.ts
+frontend/src/draft/vim-preference.ts
+frontend/src/draft/vim.ts
+frontend/src/eui/cards.ts
+frontend/src/eui/hostSnapshot.ts
+frontend/src/eui/host.ts
+frontend/src/eui/sandbox.d.ts
+frontend/src/eui/sandbox.js
+frontend/src/eui/svgStyle.d.ts
+frontend/src/eui/svgStyle.js
+frontend/src/eui/ternCss.d.ts
+frontend/src/eui/ternCss.js
+frontend/src/fork-session.ts
+frontend/src/hermes/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
+frontend/src/hermes/sessionTree.ts  # upstream: alt-glitch/hermes-tern PR 69
+frontend/src/host-lifecycle.ts
+frontend/src/media-delivery.ts
+frontend/src/operations.ts
+frontend/src/overlays/browser.tsx
+frontend/src/overlays/btw.tsx
+frontend/src/overlays/codeReview.tsx
+frontend/src/overlays/context.tsx
+frontend/src/overlays/historySearch.tsx
+frontend/src/overlays/identity.ts
+frontend/src/overlays/modelHub.tsx
+frontend/src/overlays/operational.tsx
+frontend/src/overlays/plan.tsx
+frontend/src/overlays/rewind.tsx  # upstream: alt-glitch/hermes-tern PR 68
+frontend/src/overlays/sessionInfo.tsx
+frontend/src/overlays/settings.tsx
+frontend/src/overlays/toolResults.tsx
+frontend/src/overlays/tree.tsx  # upstream: alt-glitch/hermes-tern PR 69
+frontend/src/overlays/visualPicker.tsx
+frontend/src/overlays/visual.tsx
+frontend/src/pane-launcher.ts
+frontend/src/plan-editor.ts
+frontend/src/plan.ts
+frontend/src/preferences/contracts.ts
+frontend/src/preferences/transactions.ts
+frontend/src/read-media.ts
+frontend/src/reports.ts
+frontend/src/session/context.ts
+frontend/src/shortcuts/actions.ts
+frontend/src/shortcuts/binding-preferences.ts
+frontend/src/shortcuts/model-cycle.ts
+frontend/src/shortcuts/model-recents.ts
+frontend/src/shortcuts/palette.tsx
+frontend/src/shortcuts/__tests__/actions.test.ts
+frontend/src/shortcuts/__tests__/binding-preferences.test.ts
+frontend/src/shortcuts/__tests__/fixtures/native-keybindings-profile-core.py
+frontend/src/shortcuts/__tests__/help.test.ts
+frontend/src/shortcuts/__tests__/model-cycle.test.ts
+frontend/src/shortcuts/__tests__/palette.test.ts
+frontend/src/surface/lifecycle.ts
+frontend/src/tern-media.ts
 frontend/src/__tests__/a11y.test.ts  # upstream: alt-glitch/hermes-tern PR 70
 frontend/src/__tests__/actionsSplit.test.ts
 frontend/src/__tests__/agentTiles.test.ts
@@ -119,8 +201,8 @@ frontend/src/__tests__/delegateFold.test.ts
 frontend/src/__tests__/delegateIterationLimit.test.ts
 frontend/src/__tests__/delegationOwnership.test.ts
 frontend/src/__tests__/denseSearch.test.ts
-frontend/src/__tests__/dictation.test.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/__tests__/dictationKeys.test.ts
+frontend/src/__tests__/dictation.test.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/__tests__/ephemeralCard.test.ts
 frontend/src/__tests__/euiApp.test.ts
 frontend/src/__tests__/euiCards.test.ts
@@ -131,9 +213,6 @@ frontend/src/__tests__/euiOffline.test.ts
 frontend/src/__tests__/evalFold.test.ts
 frontend/src/__tests__/evalTruncation.test.ts
 frontend/src/__tests__/externalEditor.test.ts
-frontend/src/__tests__/factoryApp.test.ts  # vitest only collects frontend/src
-frontend/src/__tests__/factoryCommand.test.ts  # same
-frontend/src/__tests__/factoryPane.test.ts  # same
 frontend/src/__tests__/fastMode.test.ts
 frontend/src/__tests__/fileLanguage.test.ts
 frontend/src/__tests__/fixtures/agent-wait-solo.jsonl
@@ -172,21 +251,21 @@ frontend/src/__tests__/followGateway.test.ts
 frontend/src/__tests__/forkPane.test.ts
 frontend/src/__tests__/generalReportSheets.test.ts
 frontend/src/__tests__/glideCommand.test.ts
-frontend/src/__tests__/historyLiteral.test.ts
 frontend/src/__tests__/historyLiteralPersistence.test.ts
+frontend/src/__tests__/historyLiteral.test.ts
 frontend/src/__tests__/historySearch.test.ts
 frontend/src/__tests__/holdVoice.test.ts
 frontend/src/__tests__/hostLifecycle.test.ts
 frontend/src/__tests__/liveUx.test.ts
 frontend/src/__tests__/liveVoice.test.ts
 frontend/src/__tests__/lspResults.test.ts
-frontend/src/__tests__/media-delivery.test.ts
 frontend/src/__tests__/mediaAttachments.test.ts
 frontend/src/__tests__/mediaDeliveryFixtures.ts
-frontend/src/__tests__/memoryStaged.test.ts
+frontend/src/__tests__/media-delivery.test.ts
 frontend/src/__tests__/memoryStagedFold.test.ts
-frontend/src/__tests__/nativeSettings.test.ts
+frontend/src/__tests__/memoryStaged.test.ts
 frontend/src/__tests__/nativeSettingsPty.test.ts
+frontend/src/__tests__/nativeSettings.test.ts
 frontend/src/__tests__/nestedTodos.test.ts
 frontend/src/__tests__/no-content-media.test.ts
 frontend/src/__tests__/openuiInstall.test.ts
@@ -195,10 +274,10 @@ frontend/src/__tests__/operationalSheets.test.ts
 frontend/src/__tests__/orb.test.ts
 frontend/src/__tests__/overlayOwnership.test.ts
 frontend/src/__tests__/overlayRoots.ts
-frontend/src/__tests__/patchContextWarning.test.ts
 frontend/src/__tests__/patchContextWarningFold.test.ts
-frontend/src/__tests__/patchLint.test.ts
+frontend/src/__tests__/patchContextWarning.test.ts
 frontend/src/__tests__/patchLintFold.test.ts
+frontend/src/__tests__/patchLint.test.ts
 frontend/src/__tests__/patchNoop.test.ts
 frontend/src/__tests__/patchWarningIntegration.test.ts
 frontend/src/__tests__/patchWarningPrivacy.test.ts
@@ -206,10 +285,10 @@ frontend/src/__tests__/plan-editor.test.ts
 frontend/src/__tests__/plan-review.test.ts
 frontend/src/__tests__/postmergeSmoke.test.ts
 frontend/src/__tests__/ptyComposer.test.ts
-frontend/src/__tests__/read-media.test.ts
-frontend/src/__tests__/readConflict.test.ts
 frontend/src/__tests__/readConflictFold.test.ts
 frontend/src/__tests__/readConflictIntegration.test.ts
+frontend/src/__tests__/readConflict.test.ts
+frontend/src/__tests__/read-media.test.ts
 frontend/src/__tests__/readStatus.test.ts
 frontend/src/__tests__/retention.test.ts
 frontend/src/__tests__/rewind.test.ts  # upstream: alt-glitch/hermes-tern PR 68
@@ -225,6 +304,9 @@ frontend/src/__tests__/shortcutOwnership.test.ts
 frontend/src/__tests__/sideGateway.test.ts
 frontend/src/__tests__/sideSetup.ts
 frontend/src/__tests__/skillStub.test.ts
+frontend/src/__tests__/__snapshots__/golden/agent-wait-solo.json
+frontend/src/__tests__/__snapshots__/golden/agent-wait-tiles.json
+frontend/src/__tests__/__snapshots__/golden/context-meter.json
 frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
@@ -234,24 +316,24 @@ frontend/src/__tests__/talkGateway.test.ts
 frontend/src/__tests__/talkNative.test.ts
 frontend/src/__tests__/terminalAsyncNotify.test.ts
 frontend/src/__tests__/terminalDescription.test.ts
-frontend/src/__tests__/terminalMasked.test.ts
 frontend/src/__tests__/terminalMaskedFold.test.ts
-frontend/src/__tests__/terminalRecreated.test.ts
+frontend/src/__tests__/terminalMasked.test.ts
 frontend/src/__tests__/terminalRecreatedFold.test.ts
+frontend/src/__tests__/terminalRecreated.test.ts
 frontend/src/__tests__/todo-hud.test.ts
 frontend/src/__tests__/toolResults.test.ts
 frontend/src/__tests__/transcriptTodos.test.ts
 frontend/src/__tests__/undoHistory.test.ts
 frontend/src/__tests__/v4aFailureNoLint.test.ts
-frontend/src/__tests__/v4aLint.test.ts
 frontend/src/__tests__/v4aLintFold.test.ts
+frontend/src/__tests__/v4aLint.test.ts
 frontend/src/__tests__/v4aPartial.test.ts
-frontend/src/__tests__/v4aValidation.test.ts
 frontend/src/__tests__/v4aValidationIntegration.test.ts
+frontend/src/__tests__/v4aValidation.test.ts
 frontend/src/__tests__/viewTime.test.ts
-frontend/src/__tests__/vim.test.ts
 frontend/src/__tests__/vimApp.test.ts
 frontend/src/__tests__/vimPreference.test.ts
+frontend/src/__tests__/vim.test.ts
 frontend/src/__tests__/visual-discovery.test.ts
 frontend/src/__tests__/visualOverlay.test.ts
 frontend/src/__tests__/visuals.test.ts
@@ -259,99 +341,14 @@ frontend/src/__tests__/watchRecovery.test.ts
 frontend/src/__tests__/webErrors.test.ts
 frontend/src/__tests__/webFold.test.ts
 frontend/src/__tests__/widgetCheck.test.ts
-frontend/src/__tests__/writeContextWarning.test.ts
 frontend/src/__tests__/writeContextWarningFold.test.ts
-frontend/src/__tests__/writeLint.test.ts
+frontend/src/__tests__/writeContextWarning.test.ts
 frontend/src/__tests__/writeLintFold.test.ts
-frontend/src/__tests__/writeRefusal.test.ts
+frontend/src/__tests__/writeLint.test.ts
 frontend/src/__tests__/writeRefusalFold.test.ts
+frontend/src/__tests__/writeRefusal.test.ts
 frontend/src/__tests__/writeWarningIntegration.test.ts
 frontend/src/__tests__/writtenArtifacts.test.ts
-frontend/src/agents/ownership.ts
-frontend/src/agents/tiles.tsx
-frontend/src/app/actions-session.ts
-frontend/src/app/actions-ui.ts
-frontend/src/app/agent-pane.ts
-frontend/src/app/busy-intent.ts
-frontend/src/app/eui-host.ts
-frontend/src/app/native-artifacts.ts
-frontend/src/app/palette.ts
-frontend/src/app/tool-blob.ts
-frontend/src/artifacts.ts
-frontend/src/artifacts/attachments.ts
-frontend/src/artifacts/card.tsx
-frontend/src/artifacts/clipboard.ts
-frontend/src/artifacts/display-text.ts
-frontend/src/artifacts/links.ts
-frontend/src/artifacts/media-node.ts
-frontend/src/artifacts/written.ts
-frontend/src/btw.ts
-frontend/src/chrome/attention.ts
-frontend/src/chrome/factory.tsx  # esbuild and tsc resolve @stencil-hq/tern and zod only from frontend/
-frontend/src/chrome/orb.ts
-frontend/src/code/review.ts
-frontend/src/commands/factory.ts  # same
-frontend/src/commands/glide.ts
-frontend/src/commands/voice.ts  # upstream: alt-glitch/hermes-tern PR 71
-frontend/src/core/keys.ts
-frontend/src/draft/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
-frontend/src/draft/external-editor.ts
-frontend/src/draft/readline-words.ts
-frontend/src/draft/vim-keys.ts
-frontend/src/draft/vim-preference.ts
-frontend/src/draft/vim.ts
-frontend/src/eui/cards.ts
-frontend/src/eui/host.ts
-frontend/src/eui/hostSnapshot.ts
-frontend/src/eui/sandbox.d.ts
-frontend/src/eui/sandbox.js
-frontend/src/eui/svgStyle.d.ts
-frontend/src/eui/svgStyle.js
-frontend/src/eui/ternCss.d.ts
-frontend/src/eui/ternCss.js
-frontend/src/fork-session.ts
-frontend/src/hermes/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
-frontend/src/hermes/sessionTree.ts  # upstream: alt-glitch/hermes-tern PR 69
-frontend/src/host-lifecycle.ts
-frontend/src/media-delivery.ts
-frontend/src/operations.ts
-frontend/src/overlays/browser.tsx
-frontend/src/overlays/btw.tsx
-frontend/src/overlays/codeReview.tsx
-frontend/src/overlays/context.tsx
-frontend/src/overlays/historySearch.tsx
-frontend/src/overlays/identity.ts
-frontend/src/overlays/modelHub.tsx
-frontend/src/overlays/operational.tsx
-frontend/src/overlays/plan.tsx
-frontend/src/overlays/rewind.tsx  # upstream: alt-glitch/hermes-tern PR 68
-frontend/src/overlays/sessionInfo.tsx
-frontend/src/overlays/settings.tsx
-frontend/src/overlays/toolResults.tsx
-frontend/src/overlays/tree.tsx  # upstream: alt-glitch/hermes-tern PR 69
-frontend/src/overlays/visual.tsx
-frontend/src/overlays/visualPicker.tsx
-frontend/src/pane-launcher.ts
-frontend/src/plan-editor.ts
-frontend/src/plan.ts
-frontend/src/preferences/contracts.ts
-frontend/src/preferences/transactions.ts
-frontend/src/read-media.ts
-frontend/src/reports.ts
-frontend/src/session/context.ts
-frontend/src/shortcuts/__tests__/actions.test.ts
-frontend/src/shortcuts/__tests__/binding-preferences.test.ts
-frontend/src/shortcuts/__tests__/fixtures/native-keybindings-profile-core.py
-frontend/src/shortcuts/__tests__/help.test.ts
-frontend/src/shortcuts/__tests__/model-cycle.test.ts
-frontend/src/shortcuts/__tests__/palette.test.ts
-frontend/src/shortcuts/actions.ts
-frontend/src/shortcuts/binding-preferences.ts
-frontend/src/shortcuts/model-cycle.ts
-frontend/src/shortcuts/model-recents.ts
-frontend/src/shortcuts/palette.tsx
-frontend/src/surface/lifecycle.ts
-frontend/src/tern-media.ts
 frontend/src/thinking-orbs.d.ts
 frontend/src/todo-hud.ts
 frontend/src/tool-results.ts
@@ -374,11 +371,11 @@ frontend/src/tools/write-refusal.ts
 frontend/src/transcript/tableChartPlanner.ts
 frontend/src/transcript/tableCharts.ts
 frontend/src/turn/busyInput.ts
-frontend/src/vendor/ephemeral-ui/PIN.json
 frontend/src/vendor/ephemeral-ui/data/apps.json
 frontend/src/vendor/ephemeral-ui/data/themes.json
 frontend/src/vendor/ephemeral-ui/kit.css
 frontend/src/vendor/ephemeral-ui/kit.js
+frontend/src/vendor/ephemeral-ui/PIN.json
 frontend/src/view/btwNotices.tsx
 frontend/src/view/context.tsx
 frontend/src/view/dictation.tsx  # upstream: alt-glitch/hermes-tern PR 71
@@ -408,17 +405,20 @@ frontend/src/wire/openui.ts
 frontend/src/wire/plan.ts
 frontend/src/wire/side.ts
 gateway_operations.py
+.github/pull_request_template.md
+.github/workflows/bundle-candidate.yml
+.github/workflows/fettl.yml
 media_backend.py
 plan_gateway.py
 scripts/bundle_provenance.py
 table_chart_gateway.py
 table_chart_planner.py
 talk_backend.py
-tests/fixtures/table_charts/agent/__init__.py
 tests/fixtures/table_charts/agent/auxiliary_client.py
+tests/fixtures/table_charts/agent/__init__.py
 tests/fixtures/table_charts/agent/redact.py
-tests/fixtures/table_charts/pm/__init__.py
 tests/fixtures/table_charts/pm/environments.py
+tests/fixtures/table_charts/pm/__init__.py
 tests/test_browser_backend.py
 tests/test_browser_gateway_dispatch.py
 tests/test_browser_native.py
