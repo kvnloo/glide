@@ -7,11 +7,13 @@ calls, adds no dependencies and never writes Hermes' database. `core.py` wires i
 ## z0intelligence first, this store as fallback
 
 `core.recall()` first asks z0intelligence, when installed, for its unified owner corrections:
-it runs `<python> -m z0int.orientation --corrections --raw` with the query on stdin (5 s timeout),
+it runs z0int's `orientation.py --corrections --raw` with the query on stdin (5 s timeout),
 the reader z0int's own harness hooks use, and keeps up to three `- fact (ts, harness, source)` lines
 from its `<owner-corrections>` block. Those hits carry `"source": "z0int"`, `score: null` and the
-provenance in `session_id`. `<python>` is the current interpreter when it can import `z0int`, else the
-shebang interpreter of a `z0int` script on `PATH`.
+provenance in `session_id`. The reader is, in order: `$Z0INT_ORIENTATION`; the deployed
+`~/.local/lib/z0-state-packet/current/src/z0int/orientation.py` (what a live host has, with no
+`z0int` importable here or on `PATH`); `-m z0int.orientation` when this Python's `z0int` ships it; the
+shebang Python of a `z0int` script on `PATH`.
 
 When z0int is absent, exits non-zero, times out or matches nothing, recall uses this local BM25
 store (`"source": "glide"`). If z0int answered and the local store was never built, recall returns

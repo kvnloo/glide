@@ -35,6 +35,8 @@ def home(tmp_path, monkeypatch):
     monkeypatch.setattr(gateway, "_run", lambda argv: None)  # no nvidia-smi / z0int on the test host
     monkeypatch.setattr(gateway.shutil, "which", lambda name: None)
     monkeypatch.setattr(gateway, "find_spec", lambda name: None)
+    monkeypatch.setattr(gateway, "_Z0_READER", tmp_path / "no-z0int" / "orientation.py")  # not the host's live one
+    monkeypatch.delenv("Z0INT_ORIENTATION", raising=False)
     return home
 
 
@@ -155,13 +157,13 @@ if "--corrections" in sys.argv and "push" in sys.stdin.read():
 
 @pytest.fixture
 def z0int(home, tmp_path, monkeypatch):
-    """A z0int install whose corrections reader prints the real hook format (synthetic facts)."""
+    """z0int's deployed corrections reader (the state-packet file its hooks run), printing the real hook
+    format (synthetic facts). No z0int package is importable and none is on PATH, as on a live host."""
     package = tmp_path / "site" / "z0int"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text("")
     (package / "orientation.py").write_text(_Z0_ORIENTATION)
-    monkeypatch.setenv("PYTHONPATH", str(tmp_path / "site"))
-    monkeypatch.setattr(gateway, "find_spec", lambda name: object() if name == "z0int" else None)
+    monkeypatch.setattr(gateway, "_Z0_READER", package / "orientation.py")
     monkeypatch.setattr(gateway, "_run", _REAL_RUN)  # The home fixture stubs it; z0int really runs here.
     return home
 
@@ -182,5 +184,20 @@ def test_recall_falls_back_to_local_store_when_z0int_is_absent_or_fails(z0int, m
     monkeypatch.setattr(gateway, "_run", lambda argv, stdin=None, timeout=5: None)  # z0int errored or timed out
     hits = gateway.recall(z0int, "push to main")
     assert hits and hits[0]["source"] == "glide" and "never push to main" in hits[0]["text"]
-    monkeypatch.setattr(gateway, "find_spec", lambda name: None)  # z0int not installed at all
+    monkeypatch.setattr(gateway, "_run", _REAL_RUN)
+    monkeypatch.setattr(gateway, "_Z0_READER", z0int / "absent.py")  # z0int not installed at all
+    assert gateway._z0int_reader() is None
     assert gateway.recall(z0int, "push to main")[0]["source"] == "glide"
+
+
+def test_z0int_reader_is_found_where_z0int_lives(z0int, tmp_path, monkeypatch):
+    package = tmp_path / "site" / "z0int"
+    assert gateway._z0int_reader()[-1] == str(package / "orientation.py")  # the deployed reader
+    monkeypatch.setattr(gateway, "_Z0_READER", tmp_path / "absent.py")
+    spec = types.SimpleNamespace(submodule_search_locations=[str(package)])
+    monkeypatch.setattr(gateway, "find_spec", lambda name: spec if name == "z0int" else None)
+    assert gateway._z0int_reader()[1:] == ["-m", "z0int.orientation"]  # importable, with the reader module
+    (package / "orientation.py").rename(package / "other.py")  # a z0int without the reader: not usable
+    assert gateway._z0int_reader() is None
+    monkeypatch.setenv("Z0INT_ORIENTATION", str(package / "other.py"))
+    assert gateway._z0int_reader()[-1] == str(package / "other.py")

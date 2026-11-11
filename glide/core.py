@@ -88,10 +88,20 @@ def _z0int() -> dict:
     return {"installed": True, "ok": bool(doctor.get("ok")), "failed": failed}
 
 
-def _z0int_python() -> str | None:
-    """The interpreter that can import z0int: this one, or the `z0int` script's own shebang."""
-    if find_spec("z0int"):
-        return sys.executable
+# The reader z0intelligence deploys for its harness hooks (stdlib only, so any Python runs it). On a host
+# with z0int live this file exists even when no z0int package is importable or on PATH.
+_Z0_READER = Path("~/.local/lib/z0-state-packet/current/src/z0int/orientation.py")
+
+
+def _z0int_reader() -> list[str] | None:
+    """argv for z0int's corrections reader: $Z0INT_ORIENTATION, an importable z0int.orientation, the deployed
+    state-packet reader, or the shebang Python of a `z0int` script on PATH. None when z0int is absent."""
+    for path in (os.environ.get("Z0INT_ORIENTATION", ""), str(_Z0_READER.expanduser())):
+        if path and Path(path).is_file():
+            return [sys.executable, "-I", path]
+    spec = find_spec("z0int")
+    if spec and any((Path(d) / "orientation.py").is_file() for d in spec.submodule_search_locations or ()):
+        return [sys.executable, "-m", "z0int.orientation"]
     exe = shutil.which("z0int")
     try:
         with open(exe or "", encoding="utf-8") as script:
@@ -99,7 +109,7 @@ def _z0int_python() -> str | None:
     except (OSError, UnicodeError):
         return None
     interpreter = first[2:].strip().split(" ")[0] if first.startswith("#!") else ""
-    return interpreter if "python" in Path(interpreter).name else None
+    return [interpreter, "-m", "z0int.orientation"] if "python" in Path(interpreter).name else None
 
 
 _Z0_LINE = re.compile(r"^- (?P<text>.+?)(?: \((?P<where>[^()]*)\))?$")
@@ -107,11 +117,11 @@ _Z0_LINE = re.compile(r"^- (?P<text>.+?)(?: \((?P<where>[^()]*)\))?$")
 
 def z0int_corrections(query: str) -> list[dict] | None:
     """z0intelligence's unified owner corrections for this query, via the same reader its harness hooks
-    run (`python -m z0int.orientation --corrections --raw`). None when z0int is absent or fails."""
-    python = _z0int_python()
-    if not python:
+    run (`orientation.py --corrections --raw`). None when z0int is absent or fails."""
+    reader = _z0int_reader()
+    if not reader:
         return None
-    out = _run([python, "-m", "z0int.orientation", "--corrections", "--raw"], stdin=query, timeout=_RECALL_TIMEOUT)
+    out = _run([*reader, "--corrections", "--raw"], stdin=query, timeout=_RECALL_TIMEOUT)
     if out is None:
         return None
     body = out.partition("<owner-corrections>")[2].partition("</owner-corrections>")[0]
@@ -271,7 +281,7 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
             "" if m["on"] else "\nTurn it on with /glide on.")
     if verb in ("on", "off"):
         m = status(home)
-        if verb == "on" and not m["complete"] and not _z0int_python():
+        if verb == "on" and not m["complete"] and not _z0int_reader():
             return "Build your memory first: /glide build"
         return f"Glide memory is {verb}. {_rows(set_enabled(home, verb == 'on'))}"
     if verb == "setup":
