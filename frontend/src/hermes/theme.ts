@@ -5,6 +5,9 @@
 import { ensureContrast, relativeLuminance } from '@hermes/shared/color'
 import type { SkinColors } from '@hermes/shared/skin'
 
+/** The contrast helpers, for glide/ code that cannot resolve @hermes/shared itself. */
+export { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '@hermes/shared/color'
+
 /** The four colors tern takes from a skin. */
 export interface SkinSemantics {
   accent: string

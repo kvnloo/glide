@@ -3,13 +3,19 @@
 // stylesheet that rebinds the surface's CSS variables, so the chat and every ephemeral-ui card retint
 // together. Text tokens are lifted to a 4.5:1 floor against the wallpaper background.
 
-import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '@hermes/shared/color'
-import type { Palette } from '@stencil-hq/tern'
 import { mkdirSync, readFileSync, watch, writeFileSync, type FSWatcher } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 
-import { parseJson, record } from '../wire/json.js'
+import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '../../frontend/src/hermes/theme.js'
+import { parseJson, record } from '../../frontend/src/wire/json.js'
+
+/** Tern's program palette (`t`), as @stencil-hq/tern's Palette. */
+export interface TernPalette {
+  dark: Record<string, string>
+  light: Record<string, string>
+  name: { dark: string; light: string }
+}
 
 /** WCAG AA for body text. */
 export const TEXT_FLOOR = 4.5
@@ -114,7 +120,7 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
     bg,
     fg,
     accent,
-    accentInk: readableOn(accent, [bg, fg]),
+    accentInk: readableOn(accent),
     muted: text(wal.colors['color7'], fg),
     dim: text(wal.colors['color8'], fg),
     error: text(wal.colors['color1'], fg),
@@ -126,7 +132,7 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
 }
 
 /** The Tern palette (`t`) the wallpaper sends, the same tokens for both polarities. */
-export function walTernPalette(p: WalPalette): Palette {
+export function walTernPalette(p: WalPalette): TernPalette {
   const tokens = {
     accent: p.accent, borderAccent: p.accent, dim: p.dim, error: p.error, mdLink: p.accent, mdListBullet: p.accent,
     muted: p.muted, selectedBg: p.selectedBg, statusLineModel: p.accent, statusLinePath: p.muted,
@@ -143,7 +149,8 @@ export function walCss(p: WalPalette): string {
     `--text: ${p.fg}`, `--muted: ${p.muted}`, `--t1: ${p.fg}`, `--t2: ${p.muted}`, `--t3: ${p.dim}`,
     `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`
   ]
-  return `[data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n`
+  // The kit's primary buttons read --h-primary-ink, which its host binding leaves unset.
+  return `[data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { --h-primary-ink: ${p.accentInk}; }\n`
 }
 
 /** Writes the resolved palette JSON for other tools (the fframes film); returns the path. */

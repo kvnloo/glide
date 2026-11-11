@@ -8,7 +8,7 @@ import type { Palette } from '@stencil-hq/tern'
 import type { SettingsSource, ThemeMode } from '../settings.js'
 
 import { paletteFor } from './palette.js'
-import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from './wal.js'
+import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from '../../../glide/frontend/wal.js'
 
 /** What the theme reaches of the app. */
 export interface ThemeHost {
