@@ -124,9 +124,9 @@ def learn(home: Path, now: datetime) -> dict:
         for hour, count in hours.items():
             if count >= _BUSY:
                 score[hour] += 1
-    spans = sorted(((score[h] + score[(h + 1) % 24], -h, h) for h in range(24)), reverse=True)
+    spans = sorted(((score[h] + score[(h + 1) % 24], score[h], -h, h) for h in range(24)), reverse=True)
     windows: list[dict] = []
-    for total, _neg, hour in spans:
+    for total, _first, _neg, hour in spans:
         if total == 0 or len(windows) == 2:
             break
         if all(abs(((hour - w["start"]) + 12) % 24 - 12) >= 2 for w in windows):
