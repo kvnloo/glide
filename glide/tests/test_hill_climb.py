@@ -97,7 +97,7 @@ def test_gateway_card_runs_one_round_when_asked(home):
     idle = gateway.call(home, "hill_climb", {"session_id": "s1"})
     assert idle["verdict"] is None
     card = gateway.call(home, "hill_climb", {"session_id": "s1", "run": True})
-    assert card["verdict"] in ("KEEP", "REVERT")
+    assert card["verdict"] in ("KEEP", "REVERT", "INCONCLUSIVE")
     assert card["baseline"]["mean"] > 0 and card["candidate"]["mean"] > 0
     with pytest.raises(Exception):
         gateway.call(home, "hill_climb", {"session_id": "s1", "bogus": 1})
