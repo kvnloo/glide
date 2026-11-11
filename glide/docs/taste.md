@@ -1,6 +1,6 @@
 # Open a Taste brainstorm beside chat
 
-1. Enable both plugins from this repository in your Hermes profile. Install `kvnloo/glide` for Tern and `kvnloo/glide#glide` for memory.
+1. Install `kvnloo/glide` on Hermes Agent ≥0.23.0. This one install registers both the Tern UI and Glide. Do not also install `kvnloo/glide#glide`.
 2. Start your existing Taste Atlas app with `node scripts/board.mjs serve` from the app directory.
 3. In a local Tern chat, run `/glide taste`.
 

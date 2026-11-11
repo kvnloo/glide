@@ -21,7 +21,7 @@ def test_bare_glide_is_valid_and_onboard_keeps_its_options():
     assert args.glide_command == "onboard" and args.json and args.limit == 5
 
 
-@pytest.mark.parametrize("channels,expected", [({}, []), ({"glide": {}}, ["--channel", "glide"])])
+@pytest.mark.parametrize("channels,expected", [({}, None), ({"glide": {}}, "glide")])
 def test_bare_glide_routes_through_registered_tern(monkeypatch, channels, expected):
     from glide_plugin import launch
 
@@ -29,7 +29,7 @@ def test_bare_glide_routes_through_registered_tern(monkeypatch, channels, expect
     fake = SimpleNamespace(channels=SimpleNamespace(load=lambda: channels))
 
     def run(args):
-        calls.append(args.tui_args)
+        calls.append(getattr(args, "channel", None))
         return 7
 
     monkeypatch.setitem(sys.modules, run.__module__, fake)

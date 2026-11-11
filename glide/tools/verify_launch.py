@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import types
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -62,14 +63,16 @@ def main() -> None:
         registry.write_text(json.dumps({"version": 1, "channels": {"glide": {"dir": str(channel.parent)}}}))
         before = registry.read_bytes()
         chats = []
-        tern._chat = lambda flags, frontend, env=None: chats.append((flags, frontend)) or 0
+        # The launcher's last step spawns node on the channel bundle; record it instead.
+        tern.launcher.subprocess = types.SimpleNamespace(
+            call=lambda argv, env=None: chats.append(argv[-1]) or 0)
         for argv in (["glide"], ["--tui", "glide"]):
             args = parser.parse_args(argv)
             try:
                 args.func(args)
             except SystemExit as done:
-                assert done.code == 0
-            assert chats[-1] == ([], str(channel))
+                assert done.code == 0, done.code
+            assert chats[-1] == str(channel / "dist" / "entry.js"), chats
         assert registry.read_bytes() == before
 
         # Exercise onboarding through the same CLI parser and real persistence API.
