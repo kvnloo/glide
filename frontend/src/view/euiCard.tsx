@@ -7,6 +7,9 @@ import type { EuiCards, EuiCardView } from '../eui/cards.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
+/** What drawing a card needs of the card registry: blobs for SVG, rules for inline styles, demo clicks. */
+export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'>
+
 const TAGS: ReadonlySet<string> = new Set(EL_TAGS)
 const BOOLEAN = new Set(['checked', 'open', 'hidden', 'disabled'])
 const INLINE = new Set(['a', 'small', 'sup', 'sub', 'abbr', 'time', 's', 'u', 'var', 'cite', 'q', 'output', 'bdi', 'textarea', 'select', 'option'])
@@ -24,7 +27,7 @@ function ternTag(tag: string, attrs: Readonly<Record<string, string>>): ElTag {
   return isTag(tag) ? tag : INLINE.has(tag) ? 'span' : 'div'
 }
 
-function convert(n: EuiNode, key: string, eui: EuiCards, activate: (id: number) => void): JSX.Element | string | null {
+function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number) => void): JSX.Element | string | null {
   if (n.t === 'text') {
     return n.text
   }
@@ -83,7 +86,7 @@ function convert(n: EuiNode, key: string, eui: EuiCards, activate: (id: number) 
 }
 
 /** The card for one fence; `card` is the transcript-wide card key. */
-export function euiCardNode(card: string, view: EuiCardView, eui: EuiCards): JSX.Element {
+export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, popup = false): JSX.Element {
   if (view.error !== undefined || !view.node) {
     return (
       <col key={card} role="eui.card.pending">
@@ -96,6 +99,15 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiCards): JSX
   const key = view.identity === undefined ? card : `${card}.${view.identity}`
   const activate = view.activate ?? ((id: number) => { eui.click(card, id) })
 
-  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app }, class: root.t === 'el' ? root.cls : '', role: 'eui.card' },
+  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: root.t === 'el' ? root.cls : '', role: 'eui.card' },
     root.t === 'el' ? root.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `t${i}`, eui, activate)) : [])
+}
+
+/** A trusted host card drawn as a centred popup in the layer (glide's /council); `key` is the overlay's native key. */
+export function euiPopupNode(key: string, head: string, view: EuiCardView, eui: EuiRender): JSX.Element {
+  return (
+    <overlay anchor="center" aria={head} head={head} key={key} modal role="eui.popup" size="lg">
+      {euiCardNode('card', view, eui, true)}
+    </overlay>
+  )
 }

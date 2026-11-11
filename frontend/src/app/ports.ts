@@ -48,8 +48,8 @@ export interface SessionView {
 export interface ChatPorts extends OverlayHost {
   readonly session: SessionView
   readonly gw: GatewayClient
-  /** Host-owned ephemeral-ui cards (/glide); absent in panes without the pinned kit. */
-  readonly eui?: Pick<EuiCards, 'host'>
+  /** Host-owned ephemeral-ui cards (/glide, /council); absent in panes without the pinned kit. */
+  readonly eui?: Pick<EuiCards, 'click' | 'host' | 'style' | 'svg'>
   /** The running turn, null when idle. */
   readonly busy: Busy | null
   readonly transcript: Transcript
