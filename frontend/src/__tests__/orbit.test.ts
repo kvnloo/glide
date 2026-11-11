@@ -45,11 +45,11 @@ describe('focus lane orbit', () => {
     expect(orbitLayout(LANES, PERIOD).map(s => s.y.toFixed(3))).toEqual(orbitLayout(LANES, 0).map(s => s.y.toFixed(3)))
   })
 
-  it('stands upright: planets pass above and below the orb on tall, narrow rings', () => {
-    expect(SCENE_H).toBeGreaterThan(SCENE)
+  it('is circular: planets circle the orb on round tracks, in a square scene', () => {
+    expect(SCENE_H).toBe(SCENE)
     const ys = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.y))
     const xs = FRAMES.flatMap(t => orbitLayout(LANES, t).map(s => s.x))
-    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(1.5 * (Math.max(...xs) - Math.min(...xs)))
+    expect(Math.abs((Math.max(...ys) - Math.min(...ys)) - (Math.max(...xs) - Math.min(...xs)))).toBeLessThan(12)
     expect(Math.min(...ys)).toBeLessThan(CY - orbitRadius('fast') + 1)
     expect(Math.max(...ys)).toBeGreaterThan(CY + orbitRadius('fast') - 1)
     const svg = orbitSvg('listening', LANES, 0, false)
@@ -59,21 +59,21 @@ describe('focus lane orbit', () => {
       const pts = [...(m[1] ?? '').matchAll(/cx="([\d.-]+)" cy="([\d.-]+)"/g)].map(p => [Number(p[1]), Number(p[2])] as const)
       const w = Math.max(...pts.map(p => p[0])) - Math.min(...pts.map(p => p[0]))
       const h = Math.max(...pts.map(p => p[1])) - Math.min(...pts.map(p => p[1]))
-      expect(h).toBeGreaterThan(w * 1.5) // tall, narrow rings
+      expect(Math.abs(h - w)).toBeLessThan(w * 0.03) // round, not oval
     }
     // Only elements Tern's native SVG renderer draws.
     expect(tags(svg)).toEqual(TAGS)
     expect(svg).toContain(`viewBox="0 0 ${SCENE} ${SCENE_H}"`)
   })
 
-  it('the far half draws behind the orb and dims', () => {
+  it('planets keep a stable draw order and one strength face-on', () => {
     for (const t of FRAMES) {
       const svg = orbitSvg('listening', LANES, t, false)
       const core = svg.indexOf('<g transform=')
       for (const [i, s] of orbitLayout(LANES, t).entries()) {
         const at = svg.indexOf(`data-lane="${LANES[i]?.role}"`)
         expect(at < core).toBe(s.z < 0)
-        expect(s.alpha).toBeCloseTo(0.75 + 0.25 * (s.z + 1) / 2)
+        expect(s.alpha).toBe(1)
       }
     }
   })
