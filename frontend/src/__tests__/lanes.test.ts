@@ -126,5 +126,9 @@ describe('live lane strip', () => {
     const s = strip(feed)
     s.update(false)
     expect(s.node()).toBeNull()
+    // With this pane's live voice on, the broker's lanes still show their real health, marked as no open call.
+    s.update(true)
+    expect(texts(s.node()).map(t => t.text)[0]).toBe('Lanes · preset-D-smol2000-router06b · no open call')
+    s.close()
   })
 })

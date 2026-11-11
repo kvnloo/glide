@@ -112,6 +112,27 @@ const memoryRows = (m: GlideMemory) => [
   { label: 'Quoted into turns', value: m.on ? 'on' : 'off' }
 ]
 
+/** One glide plugin verb. Cores without plugin gateway methods answer "unknown method"; the same call
+ * then goes through the plugin's `/glide json` command, which every core dispatches. */
+export function glideCall(gw: Pick<GatewayClient, 'request'>, sid: string) {
+  return async (verb: string, params: Record<string, unknown> = {}): Promise<unknown> => {
+    try {
+      return await gw.request<unknown>(`${NS}.${verb}`, { session_id: sid, ...params })
+    } catch (error) {
+      if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error
+    }
+    const { output } = await gw.request<{ output: string }>('command.dispatch', {
+      name: 'glide', arg: `json ${verb} ${JSON.stringify(params)}`, session_id: sid
+    })
+    return commandReply<unknown>(output)
+  }
+}
+
+/** Reads the block from the plugin, whichever pane started it: the focus block lives in the Hermes home. */
+export async function refreshFocusBlock(gw: Pick<GatewayClient, 'request'>, sid: string): Promise<void> {
+  focusBlock.note(glideFocus.parse(await glideCall(gw, sid)('focus', { action: 'show' })))
+}
+
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
   const [first, second] = arg.trim().split(/\s+/)
   if (first === 'theme') {
@@ -125,19 +146,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
     host.transcript.notice('/glide needs an attached session with ephemeral-ui cards', 'warning')
     return
   }
-  // Cores without plugin gateway methods answer "unknown method"; the same call then goes
-  // through the plugin's `/glide json` command, which every core dispatches.
-  const call = async (verb: string, params: Record<string, unknown> = {}): Promise<unknown> => {
-    try {
-      return await host.gw.request<unknown>(`${NS}.${verb}`, { session_id: sid, ...params })
-    } catch (error) {
-      if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error
-    }
-    const { output } = await host.gw.request<{ output: string }>('command.dispatch', {
-      name: 'glide', arg: `json ${verb} ${JSON.stringify(params)}`, session_id: sid
-    })
-    return commandReply<unknown>(output)
-  }
+  const call = glideCall(host.gw, sid)
   const fail = (error: unknown) => {
     host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, 'error')
   }
@@ -395,7 +404,7 @@ const phaseName = (p: string) => PHASE[p] ?? p.replace(/_/g, ' ').toLowerCase()
 const clock = (t: string | null) => t ? (/T(\d\d:\d\d)/.exec(t)?.[1] ?? t) : 'unknown'
 const hours = (f: GlideFocus) => f.learned.windows.map(w => `${String(w.start).padStart(2, '0')}:00–${String(w.end).padStart(2, '0')}:00`)
 
-// /glide focus [start|stop|wind-down|hours]: the attention half. The card reads circadian and Flowkit
+// /glide focus [MINUTES|start|stop|wind-down|hours]: the attention half. The card reads circadian and Flowkit
 // when they are installed, else hours learned from your own sessions. A block holds non-critical asks
 // and releases them as one digest when it ends.
 export async function focusCommand(cards: Cards, call: FocusCall, sub: string, fail: (e: unknown) => void): Promise<void> {
@@ -438,6 +447,11 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
 
   if (sub === 'stop') {
     stopCard()
+    return
+  }
+  if (/^\d+$/.test(sub)) {
+    // `/glide focus 25`: the typed command is the consent, so the block starts at once.
+    blockOn(await call({ action: 'start', minutes: Math.max(5, Math.min(240, Number(sub))) }))
     return
   }
   if (sub === 'wind-down') {

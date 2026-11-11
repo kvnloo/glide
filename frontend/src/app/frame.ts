@@ -63,8 +63,8 @@ export interface FrameCx extends DockSources {
   readonly browser: BrowserFocusHost
   /** Optional SDK image on the composer line, updated by its own lifecycle-safe animator. */
   readonly orb?: Pick<ThinkingOrb, 'props'>
-  /** The live call's helper lanes, drawn under the live controls. */
-  readonly lanes?: Pick<LaneStrip, 'node'>
+  /** The live call's helper lanes, drawn under the live controls; while they orbit, that scene is the voice orb. */
+  readonly lanes?: Pick<LaneStrip, 'node' | 'orbiting'>
 }
 
 /** Draws one frame at `now`; nothing once the surface closed. */
@@ -87,7 +87,7 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   const voice = cx.liveVoice.node()
   const lanes = cx.lanes?.node() ?? null
   const chrome = {
-    dock: [...(voice ? [voice] : []), ...(lanes ? [lanes] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb ? { orb: cx.orb.props() } : {}) }, cx.actions)],
+    dock: [...(voice ? [voice] : []), ...(lanes ? [lanes] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions)],
     layer: [
       ...(cx.aside()
         ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)

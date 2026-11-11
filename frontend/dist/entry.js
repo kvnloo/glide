@@ -23265,14 +23265,14 @@ var Rt = (n3, s2, t) => {
         (x * Math.cos(I) + k * Math.sin(I)) * i,
         (g * Math.cos(I) + N * Math.sin(I)) * i,
         (d * Math.cos(I) + z * Math.sin(I)) * i
-      ), C2 = (T / i + 1) / 2;
+      ), C = (T / i + 1) / 2;
       h2.push({
         x: S,
         y: A,
         z: T,
         r: (t.ghostR ?? 0.9) * M,
         white: 0.72,
-        a: (t.ghostA ?? 0.5) * (0.4 + 0.6 * C2)
+        a: (t.ghostA ?? 0.5) * (0.4 + 0.6 * C)
       });
     }
     for (let B = 0; B < p3; B++) {
@@ -23280,13 +23280,13 @@ var Rt = (n3, s2, t) => {
         (x * Math.cos(I) + k * Math.sin(I)) * i,
         (g * Math.cos(I) + N * Math.sin(I)) * i,
         (d * Math.cos(I) + z * Math.sin(I)) * i
-      ), C2 = (T / i + 1) / 2;
+      ), C = (T / i + 1) / 2;
       h2.push({
         x: S,
         y: A,
         z: T,
-        r: ((t.partR ?? 1.2) + (t.partRDepth ?? 1.6) * C2) * M,
-        white: 0.3 - 0.22 * C2
+        r: ((t.partR ?? 1.2) + (t.partRDepth ?? 1.6) * C) * M,
+        white: 0.3 - 0.22 * C
       });
     }
   }
@@ -23302,7 +23302,7 @@ var Z = (n3, s2, t) => {
   for (let z = 0; z < N; z++) {
     const O = (z - (N - 1) / 2) * 0.075, B = Math.abs(z - (N - 1) / 2) / Math.max(1, (N - 1) / 2);
     for (let I = 0; I < k; I++) {
-      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C2 = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f * C2, F = w * Math.cos(S) + y * Math.sin(S) + P * C2, j = i * Math.cos(S) + b * Math.sin(S) + x * C2, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
+      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
       D2.push({
         x: ct,
         y: at2,
@@ -23793,50 +23793,71 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 // src/voice/orbit.ts
-var ORBIT = {
-  fast: { r: 46, period: 3.2 },
-  small: { r: 57, period: 4.8 },
-  large: { r: 67, period: 9.6 },
-  council: { r: 77, period: 9.6 }
-};
-var FALLBACK = { r: 62, period: 9.6 };
+var ORBIT_R = { fast: 64, small: 78, large: 92, council: 106 };
+var FALLBACK_R = 85;
 var ROLE_TINT = {
   fast: "#e8b04a",
   small: "#5aa9e6",
-  large: "#b07cd8",
-  council: "#3f6fd8"
+  large: "#d08ad8",
+  council: "#5b8cff"
 };
-var SCENE = 184;
-var SCENE_H = 80;
-var C = SCENE / 2;
-var TILT = 0.32;
-var SAT = 20;
-var MAIN = 64;
+var ROLE_TINT_LIGHT = {
+  fast: "#b5730f",
+  small: "#1f6fb2",
+  large: "#a03c9c",
+  council: "#2a4fb8"
+};
+var tint = (role, dark) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? "#aaaaaa" : "#555555");
+var deadTint = (dark) => dark ? "#ff6b6b" : "#c62828";
+var PERIOD = 9.6;
+var TILT = 0.6;
+var PLANET = 5;
+var HALO = 8;
+var PAD = HALO * 1.3 + 1;
+var SOURCE2 = 64;
+var CORE = 60;
+var ORB_R = CORE * 28.4 / SOURCE2;
+var orbitRadius = (role) => ORBIT_R[role] ?? FALLBACK_R;
+function orbitScene(lanes2) {
+  const r = Math.max(orbitRadius("fast"), ...lanes2.map((l) => orbitRadius(l.role)));
+  return { w: Math.ceil(2 * (r * TILT + PAD)), h: Math.ceil(2 * (r + PAD)) };
+}
 function orbitLayout(lanes2, seconds, reduce = false) {
-  return lanes2.map((lane, i) => {
-    const o = ORBIT[lane.role] ?? FALLBACK;
+  const { w, h: h2 } = orbitScene(lanes2);
+  const moving = lanes2.filter((l) => l.state !== "dead").length;
+  let k = 0;
+  const parkedAt = /* @__PURE__ */ new Map();
+  return lanes2.map((lane) => {
+    const r = orbitRadius(lane.role);
     const parked = lane.state === "dead";
-    const theta = parked ? Math.PI : reduce ? Math.PI * (i + 0.5) / lanes2.length : i * 2 * Math.PI / Math.max(1, lanes2.length) + 2 * Math.PI * seconds / o.period;
+    let theta;
+    if (parked) {
+      const j = parkedAt.get(r) ?? 0;
+      parkedAt.set(r, j + 1);
+      theta = Math.PI + j * 0.45;
+    } else {
+      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + 2 * Math.PI * k / moving + 2 * Math.PI * seconds / PERIOD;
+      k++;
+    }
     const z = parked ? 0 : Math.sin(theta);
     const depth = (z + 1) / 2;
     return {
       role: lane.role,
-      x: C + o.r * Math.cos(theta),
-      y: C + o.r * TILT * Math.sin(theta),
+      x: w / 2 + r * TILT * Math.sin(theta),
+      y: h2 / 2 + r * Math.cos(theta),
       z,
-      scale: 0.95 + 0.45 * depth,
-      alpha: parked ? 0.35 : 0.45 + 0.55 * depth,
+      scale: 0.9 + 0.4 * depth,
+      alpha: parked ? 0.9 : 0.75 + 0.25 * depth,
       parked
     };
   });
 }
 var n = (v) => v.toFixed(1);
-function marks(state, size, seconds, animated, dark, muted = false, tint) {
-  const preset = Lt(state, size);
-  const frame = vt[preset.mode](size, animated ? seconds * preset.speed : 0.6, preset.opts);
+function marks(state, seconds, animated, dark) {
+  const preset = Lt(state, SOURCE2);
+  const frame = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
   const grey = (white) => {
-    if (tint && !muted) return tint;
-    const ink2 = Math.min(1, Math.max(0, muted ? 0.55 + white * 0.3 : white));
+    const ink2 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink2 : ink2) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   };
   const a2 = (v) => (v ?? 1).toFixed(2);
@@ -23845,23 +23866,73 @@ function marks(state, size, seconds, animated, dark, muted = false, tint) {
   return out.join("");
 }
 var still = (s2) => s2 === "idle" || s2 === "waiting" || s2 === "error";
+function stipple(cx, cy, a2, b, step) {
+  const N = 720;
+  const pts2 = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i * 2 * Math.PI / N;
+    pts2.push([cx + a2 * Math.sin(t), cy + b * Math.cos(t)]);
+  }
+  const len = [0];
+  for (let i = 1; i <= N; i++) len.push((len[i - 1] ?? 0) + Math.hypot((pts2[i]?.[0] ?? 0) - (pts2[i - 1]?.[0] ?? 0), (pts2[i]?.[1] ?? 0) - (pts2[i - 1]?.[1] ?? 0)));
+  const total = len[N] ?? 0;
+  const count5 = Math.round(total / step);
+  const out = [];
+  let j = 0;
+  for (let k = 0; k < count5; k++) {
+    const s2 = k * total / count5;
+    while ((len[j + 1] ?? total) < s2) j++;
+    const f = (s2 - (len[j] ?? 0)) / ((len[j + 1] ?? total) - (len[j] ?? 0) || 1);
+    out.push([(pts2[j]?.[0] ?? 0) + f * ((pts2[j + 1]?.[0] ?? 0) - (pts2[j]?.[0] ?? 0)), (pts2[j]?.[1] ?? 0) + f * ((pts2[j + 1]?.[1] ?? 0) - (pts2[j]?.[1] ?? 0))]);
+  }
+  return out;
+}
+function deadMark(x, y, r, dark) {
+  const red = deadTint(dark);
+  const strike = [];
+  for (let i = -3; i <= 3; i++) {
+    const d = i / 3 * r * 0.55;
+    strike.push(`<circle cx="${n(x + d)}" cy="${n(y + d)}" r="0.55"/>`, `<circle cx="${n(x + d)}" cy="${n(y - d)}" r="0.55"/>`);
+  }
+  return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join("")}</g>`;
+}
 function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
+  const { w, h: h2 } = orbitScene(lanes2);
+  const CX = w / 2;
+  const CY = h2 / 2;
   const sats = orbitLayout(lanes2, seconds, reduce);
   const t = reduce ? 0 : seconds;
-  const sat = (s2, lane) => {
-    const k = s2.scale;
-    const tint = ROLE_TINT[lane.role] ?? "#888888";
-    const h2 = SAT / 2;
-    const body = s2.parked ? `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.45}" fill="none" stroke="#888888" stroke-width="1"/>` : (lane.state === "thinking" ? `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.8}" fill="${tint}" fill-opacity="0.18"/>` : "") + `<circle cx="${h2}" cy="${h2}" r="${h2 * 0.45}" fill="${tint}"/><circle cx="${h2 * 0.86}" cy="${h2 * 0.86}" r="${h2 * 0.16}" fill="#ffffff" fill-opacity="0.35"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}" transform="translate(${n(s2.x - SAT * k / 2)} ${n(s2.y - SAT * k / 2)}) scale(${k.toFixed(3)})">${body}</g>`;
+  const edge = dark ? "#000000" : "#ffffff";
+  const planet = (s2, lane) => {
+    const r = PLANET * s2.scale;
+    const c = tint(lane.role, dark);
+    const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
+    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${body}</g>`;
   };
   const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
-  const back = order2.filter((o) => o.s.z < 0).map((o) => sat(o.s, o.lane)).join("");
-  const front = order2.filter((o) => o.s.z >= 0).map((o) => sat(o.s, o.lane)).join("");
-  const ring = dark ? "#ffffff" : "#000000";
-  const rings = [...new Set(lanes2.map((l) => (ORBIT[l.role] ?? FALLBACK).r))].map((r) => `<ellipse cx="${C}" cy="${C}" rx="${r}" ry="${n(r * TILT)}" fill="none" stroke="${ring}" stroke-opacity="0.16" stroke-width="0.6"/>`).join("");
-  const core = `<g transform="translate(${C - MAIN / 2} ${C - MAIN / 2})">${marks(LIBRARY_STATE[main], MAIN, t, !reduce && !still(main), dark)}</g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SCENE}" height="${SCENE_H}" viewBox="0 ${C - SCENE_H / 2} ${SCENE} ${SCENE_H}">${rings}${back}${core}${front}</svg>`;
+  const back = order2.filter((o) => o.s.z < 0).map((o) => planet(o.s, o.lane)).join("");
+  const front = order2.filter((o) => o.s.z >= 0).map((o) => planet(o.s, o.lane)).join("");
+  const radii = [...new Set(lanes2.map((l) => orbitRadius(l.role)))];
+  const rings = radii.map((r) => {
+    const on = lanes2.filter((l) => orbitRadius(l.role) === r);
+    const dead = on.every((l) => l.state === "dead");
+    const dots = stipple(CX, CY, r * TILT, r, 2);
+    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.85"/>`;
+    if (dead) {
+      const dash2 = dots.filter((_2, i) => i % 4 < 2).map(dot).join("");
+      return `<g data-ring="${r}" fill="${dark ? "#9a9a9a" : "#6a6a6a"}" fill-opacity="0.6">${dash2}</g>`;
+    }
+    const near = dots.filter(([x]) => x >= CX).map(dot).join("");
+    const far = dots.filter(([x]) => x < CX).map(dot).join("");
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="0.7">${far}</g>${near}</g>`;
+  }).join("");
+  const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
+}
+function laneSwatch(lane, dark, size = 14) {
+  const c = size / 2;
+  const body = lane.state === "dead" ? deadMark(c, c, 4.6, dark) : `<circle cx="${c}" cy="${c}" r="4.6" fill="${tint(lane.role, dark)}" stroke="${dark ? "#000000" : "#ffffff"}" stroke-width="0.8"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`;
 }
 var focusBlock = {
   until: 0,
@@ -23984,6 +24055,7 @@ var LaneStrip = class {
   #env = {};
   #live = false;
   #orbit;
+  #swatches = /* @__PURE__ */ new Map();
   constructor(feed, tern, surface) {
     this.#feed = feed;
     this.#tern = tern;
@@ -24009,8 +24081,9 @@ var LaneStrip = class {
   get orbiting() {
     return this.#orbit !== void 0;
   }
+  /** The newest call's lanes while it is open, or while this pane's live voice runs (their real health, call closed or not). */
   lanes() {
-    const lanes2 = this.#feed.call?.open ? this.#feed.call.lanes : [];
+    const lanes2 = this.#feed.call?.open || this.#live ? this.#feed.call?.lanes ?? [] : [];
     return [...lanes2].sort((a2, b) => ROLE_ORDER.indexOf(a2.role) - ROLE_ORDER.indexOf(b.role));
   }
   /** Per frame: lane orb states follow the newest status. In a focus block with live voice, one scene orbits them around `main`. */
@@ -24022,12 +24095,17 @@ var LaneStrip = class {
       for (const orb of this.#orbs) orb.close();
       this.#orbs = [];
       if (!this.#orbit) {
+        const current = () => this.lanes();
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
           node: "dock.live-lanes.orbit",
           label: "Voice and lanes",
           scene: {
-            w: SCENE,
-            h: SCENE_H,
+            get w() {
+              return orbitScene(current()).w;
+            },
+            get h() {
+              return orbitScene(current()).h;
+            },
             key: () => this.lanes().map((l) => `${l.role}=${l.state}`).join(","),
             svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
           }
@@ -24048,328 +24126,360 @@ var LaneStrip = class {
     }
     lanes2.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused));
   }
+  #swatch(lane) {
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
+    const key3 = `${lane.role}:${lane.state === "dead"}:${dark}`;
+    let blob2 = this.#swatches.get(key3);
+    if (!blob2) {
+      blob2 = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), "image/svg+xml");
+      this.#swatches.set(key3, blob2);
+    }
+    return { blob: blob2, alt: `${lane.role} lane${lane.state === "dead" ? ", dead" : ""}`, w: 14, h: 14 };
+  }
   /** Shown while the lane broker has an open call, or while this pane's live voice runs (then it says why it is empty). */
   node() {
     const call = this.#feed.call;
     const lanes2 = this.lanes();
     if (!lanes2.length && !this.#live) return null;
-    const head2 = lanes2.length ? `Lanes \xB7 ${call?.revision ?? ""}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
-    return /* @__PURE__ */ jsxs("col", { role: "omp.live.lanes", children: [
+    const head2 = lanes2.length ? `Lanes \xB7 ${call?.revision ?? ""}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
+    const rows = lanes2.map((lane, i) => /* @__PURE__ */ jsxs("row", { align: "start", gap: "sm", role: "omp.live.lane", children: [
+      this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
+      /* @__PURE__ */ jsxs("col", { children: [
+        /* @__PURE__ */ jsx("text", { spans: [
+          { s: "strong", t: lane.role },
+          { s: "muted", t: " \xB7 " + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}\u2192${lane.resolved}` : lane.model) + " \xB7 " },
+          lane.state === "dead" ? { s: "error", t: "dead" + (lane.error ? ` (${clip(lane.error, 60)})` : "") } : lane.state === "corrected" ? { s: "warning", t: "corrected" } : lane.state === "verified" ? { s: "success", t: "verified" } : { t: lane.state }
+        ], wrap: "none" }, "who"),
+        lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
+        lane.entry ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: entryLine(lane.entry) }], wrap: "none" }, "entry") : null
+      ] }, "text")
+    ] }, `l${i}`));
+    return /* @__PURE__ */ jsxs("col", { gap: this.#orbit ? "sm" : "none", role: "omp.live.lanes", children: [
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
-      this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lanes.orbit", ...this.#orbit.props() }, "orbit") : null,
-      lanes2.map((lane, i) => /* @__PURE__ */ jsxs("row", { align: "start", gap: "sm", role: "omp.live.lane", children: [
-        this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
-        /* @__PURE__ */ jsxs("col", { children: [
-          /* @__PURE__ */ jsx("text", { spans: [
-            { s: "strong", t: lane.role },
-            { s: "muted", t: " \xB7 " + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}\u2192${lane.resolved}` : lane.model) + " \xB7 " },
-            lane.state === "dead" ? { s: "error", t: "dead" + (lane.error ? ` (${clip(lane.error, 60)})` : "") } : lane.state === "corrected" ? { s: "warning", t: "corrected" } : lane.state === "verified" ? { s: "success", t: "verified" } : { t: lane.state }
-          ], wrap: "none" }, "who"),
-          lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
-          lane.entry ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: entryLine(lane.entry) }], wrap: "none" }, "entry") : null
-        ] }, "text")
-      ] }, `l${i}`))
+      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "stretch", gap: "md", role: "omp.live.lanes.orbit", children: [
+        /* @__PURE__ */ jsx("image", { ...this.#orbit.props() }, "scene"),
+        /* @__PURE__ */ jsx("col", { grow: 1, justify: "between", min: { w: 0 }, children: rows }, "rows")
+      ] }, "orbit") : rows,
+      this.#orbit ? /* @__PURE__ */ jsx("spacer", { size: "lg" }, "gap") : null
     ] }, "live-lanes");
   }
 };
 
-// src/chrome/attention.ts
-var DEFAULT_TTL_MS = 6e3;
-var MAX_TTL_MS = 6e4;
-var MAX_DISPATCHES = 8;
-function trim(items, isStickyError) {
-  while (items.size > MAX_DISPATCHES) {
-    const entries2 = [...items.entries()];
-    const newest = entries2.at(-1)?.[0];
-    const error = entries2.toReversed().find(([, item3]) => isStickyError(item3))?.[0];
-    const victim = entries2.find(([key3]) => key3 !== newest && key3 !== error)?.[0];
-    if (victim === void 0) {
-      break;
-    }
-    items.delete(victim);
-  }
-}
-var Dispatches = class {
-  #items = /* @__PURE__ */ new Map();
-  #held = /* @__PURE__ */ new Map();
-  #serial = 0;
-  show(payload, now = Date.now(), hidden2 = false) {
-    const text18 = payload.text?.trim();
-    if (!text18) {
-      return;
-    }
-    const key3 = payload.key?.trim() || payload.id?.trim() || `anonymous:${++this.#serial}`;
-    if (hidden2) {
-      this.#items.delete(key3);
-      this.#held.delete(key3);
-      this.#held.set(key3, { ...payload, key: key3 });
-      trim(this.#held, (item3) => item3.kind === "sticky" && item3.level === "error");
-      return;
-    }
-    this.#held.delete(key3);
-    const existing = this.#items.get(key3);
-    const ttl = typeof payload.ttl_ms === "number" && Number.isFinite(payload.ttl_ms) && payload.ttl_ms > 0 ? Math.min(payload.ttl_ms, MAX_TTL_MS) : DEFAULT_TTL_MS;
-    const level = payload.level === "warning" ? "warn" : payload.level === "warn" || payload.level === "error" || payload.level === "success" ? payload.level : "info";
-    const note = {
-      key: key3,
-      serial: existing?.serial ?? ++this.#serial,
-      text: text18,
-      level,
-      expiresAt: payload.kind === "sticky" ? null : now + ttl
-    };
-    this.#items.delete(key3);
-    this.#items.set(key3, note);
-    this.#prune(now);
-    trim(this.#items, (item3) => item3.expiresAt === null && item3.level === "error");
-  }
-  /** A notification.clear removes both a shown key and one waiting for pane visibility. */
-  clear(key3) {
-    const shown3 = this.#items.delete(key3);
-    const held = this.#held.delete(key3);
-    return shown3 || held;
-  }
-  /** Display deferred notices with a fresh TTL, and keep the gateway's keyed order. */
-  resume(now = Date.now()) {
-    const held = [...this.#held.values()];
-    this.#held.clear();
-    for (const note of held) {
-      this.show(note, now);
-    }
-  }
-  reset() {
-    this.#items.clear();
-    this.#held.clear();
-  }
-  active(now = Date.now()) {
-    this.#prune(now);
-    return [...this.#items.values()];
-  }
-  nextExpiry(now = Date.now()) {
-    this.#prune(now);
-    let next2 = null;
-    for (const note of this.#items.values()) {
-      if (note.expiresAt !== null && (next2 === null || note.expiresAt < next2)) {
-        next2 = note.expiresAt;
-      }
-    }
-    return next2;
-  }
-  #prune(now) {
-    for (const [key3, note] of this.#items) {
-      if (note.expiresAt !== null && note.expiresAt <= now) {
-        this.#items.delete(key3);
-      }
-    }
-  }
-};
-
-// src/chrome/notices.ts
-function noticeReport(items) {
-  if (!items.length) {
-    return "No retained notices at the time this report was opened.";
-  }
-  const lines = items.flatMap((item3) => [`[${item3.tone}] ${item3.text}`, ""]);
-  return [
-    "Snapshot at open time. Up to eight notices are retained. On overflow, only the newest sticky error and the newest notice are protected; others may have been omitted.",
-    "",
-    ...lines.flatMap((line) => line.split(/\r\n|\r|\n/).map((part) => `    ${part}`))
-  ].join("\n");
-}
-var Notices = class {
-  #items = new Dispatches();
-  show(p3, now = Date.now(), hidden2 = false) {
-    if (!p3.text?.trim()) {
+// src/wire/json.ts
+function record(v) {
+  if (typeof v === "string") {
+    try {
+      return record(JSON.parse(v));
+    } catch {
       return void 0;
     }
-    this.#items.show(p3, now, hidden2);
-    return this.current(now);
   }
-  /** Clear a visible or deferred key; unkeyed clears never erase other notices. */
-  clear(key3) {
-    return key3 !== void 0 && this.#items.clear(key3);
-  }
-  current(now = Date.now()) {
-    return this.active(now).at(-1);
-  }
-  /** The retained gateway notices, oldest first; a snapshot, not durable history. */
-  active(now = Date.now()) {
-    return this.#items.active(now).map((item3) => ({
-      key: item3.key,
-      text: item3.text,
-      tone: item3.level === "warn" ? "warning" : item3.level,
-      ...item3.expiresAt !== null ? { expires: item3.expiresAt } : {}
-    }));
-  }
-  /** The newest retained error, if another notice is currently shown. */
-  otherError(now = Date.now()) {
-    const items = this.active(now);
-    const latest2 = items.at(-1);
-    return items.toReversed().find((item3) => item3.tone === "error" && item3.key !== latest2?.key);
-  }
-  nextExpiry(now = Number.NEGATIVE_INFINITY) {
-    return this.#items.nextExpiry(now) ?? void 0;
-  }
-  resume(now = Date.now()) {
-    this.#items.resume(now);
-  }
-  reset() {
-    this.#items.reset();
-  }
-};
-function isLoginNotice(p3) {
-  return Boolean(p3.key?.startsWith("login:"));
+  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
 }
-var NoticeStrip = class {
-  #host;
-  #notices = new Notices();
-  #timer;
-  #visible = true;
-  constructor(host) {
-    this.#host = host;
+function parseJson(text18) {
+  try {
+    return JSON.parse(text18);
+  } catch {
+    return void 0;
   }
-  /** Adds or replaces the notice, and re-arms the expiry render. */
-  show(p3) {
-    this.#notices.show(p3, Date.now(), !this.#visible);
-    this.#arm();
-  }
-  /** Drops the notice with `key`. */
-  clear(key3) {
-    this.#notices.clear(key3);
-    this.#arm();
-  }
-  /** The notice the strip shows at `now`. */
-  current(now = Date.now()) {
-    return this.#notices.current(now);
-  }
-  active(now = Date.now()) {
-    return this.#notices.active(now);
-  }
-  otherError(now = Date.now()) {
-    return this.#notices.otherError(now);
-  }
-  /** Forgets every notice (another session is shown). */
-  reset() {
-    this.#notices.reset();
-    this.#arm();
-  }
-  /** Visibility is host-owned; held notifications start their TTL when the pane returns. */
-  visible(shown3) {
-    if (shown3 === this.#visible) {
-      return;
-    }
-    this.#visible = shown3;
-    if (shown3) {
-      this.#notices.resume();
-    }
-    this.#arm();
-    if (shown3) {
-      this.#host.changed();
-    }
-  }
-  /** Stops the expiry render. */
-  dispose() {
-    clearTimeout(this.#timer);
-    this.#timer = void 0;
-  }
-  /** Re-renders when the next `ttl` notice expires, so the strip drops it on time. */
-  #arm() {
-    clearTimeout(this.#timer);
-    this.#timer = void 0;
-    const at2 = this.#visible ? this.#notices.nextExpiry(Date.now()) : void 0;
-    if (at2 !== void 0) {
-      this.#timer = setTimeout(() => {
-        this.#notices.current();
-        this.#arm();
-        this.#host.changed();
-      }, Math.max(0, at2 - Date.now()) + 10);
-    }
-  }
-};
-
-// src/core/ids.ts
-import { randomUUID } from "node:crypto";
-var liveSessionId = (raw2) => raw2;
-var storedSessionId = (raw2) => raw2;
-var subscriptionId = (raw2) => raw2;
-var admissionId = (raw2) => raw2;
-var inputId = (raw2) => raw2;
-var newInputId = () => inputId(randomUUID());
-var toolCallId = (raw2) => raw2;
-var entryId = (raw2) => raw2;
-var subagentKey = (raw2) => raw2;
-var prKey = (ref) => `${ref.host}/${ref.repository}#${ref.number}`;
-var stackKey = (host, repository, number4) => `${host}/${repository}#stack:${number4}`;
-var overlayKey = (raw2) => raw2;
-var isLive = (ids) => ids.live !== null;
-var NO_SESSION = { live: null, stored: null };
-function durable(ids) {
-  return ids.stored ?? ids.live;
+}
+function decodeJson(text18) {
+  return JSON.parse(text18);
+}
+function commandReply(output) {
+  const reply2 = record(output);
+  if (!reply2) throw new Error("the command did not answer with JSON");
+  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
+  return reply2;
 }
 
-// src/commands/host.ts
-function sessionHost(cx, literal3 = false) {
-  const ticket = cx.state.ticket();
-  const { sid } = ticket;
-  let started;
+// ../glide/frontend/wal.ts
+import { mkdirSync, readFileSync as readFileSync2, watch, writeFileSync } from "node:fs";
+import { homedir as homedir2 } from "node:os";
+import { basename as basename2, dirname, join as join2 } from "node:path";
+
+// node_modules/@hermes/shared/src/color.ts
+var HEX6_RE = /^#?([0-9a-f]{6})$/i;
+var HEX3_RE = /^#?([0-9a-f]{3})$/i;
+var RGB_FN_RE = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i;
+var clampChannel = (v) => Math.max(0, Math.min(255, Math.round(v)));
+function parseColor(input2) {
+  const value = input2.trim();
+  let m = HEX6_RE.exec(value);
+  if (m) {
+    const n3 = parseInt(m[1], 16);
+    return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255];
+  }
+  m = HEX3_RE.exec(value);
+  if (m) {
+    const [r, g, b] = m[1];
+    return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
+  }
+  m = RGB_FN_RE.exec(value);
+  if (m) {
+    return [clampChannel(Number(m[1])), clampChannel(Number(m[2])), clampChannel(Number(m[3]))];
+  }
+  return null;
+}
+var toHex = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
+function mix(a2, b, t) {
+  const pa = parseColor(a2);
+  const pb = parseColor(b);
+  if (!pa || !pb) {
+    return a2;
+  }
+  return toHex([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
+}
+function channelLuminance(value) {
+  const normalized = value / 255;
+  return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+}
+function relativeLuminance(color2) {
+  const rgb = parseColor(color2);
+  return rgb ? 0.2126 * channelLuminance(rgb[0]) + 0.7152 * channelLuminance(rgb[1]) + 0.0722 * channelLuminance(rgb[2]) : null;
+}
+function contrastRatio(a2, b) {
+  const la = relativeLuminance(a2);
+  const lb = relativeLuminance(b);
+  if (la === null || lb === null) {
+    return null;
+  }
+  const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+var DEFAULT_INKS = ["#000000", "#ffffff"];
+function readableOn(bg, inks = DEFAULT_INKS) {
+  let best = inks[inks.length - 1];
+  let bestRatio = -1;
+  for (const ink2 of inks) {
+    const ratio = contrastRatio(bg, ink2);
+    if (ratio !== null && ratio >= bestRatio) {
+      best = ink2;
+      bestRatio = ratio;
+    }
+  }
+  return best;
+}
+function ensureContrast(color2, bg, min, step = 0.2) {
+  const bgLuminance = relativeLuminance(bg);
+  if (bgLuminance === null || parseColor(color2) === null) {
+    return color2;
+  }
+  const ratio = contrastRatio(color2, bg);
+  if (ratio === null || ratio >= min) {
+    return color2;
+  }
+  const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
+  let best = color2;
+  const rung = Number.isFinite(step) && step >= 1e-3 ? Math.min(step, 1) : 0.2;
+  for (let amount = rung; amount <= 1.0001; amount += rung) {
+    best = mix(color2, pole, Math.min(amount, 1));
+    const stepRatio = contrastRatio(best, bg);
+    if (stepRatio !== null && stepRatio >= min) {
+      return best;
+    }
+  }
+  return best;
+}
+
+// src/hermes/theme.ts
+var SEEDS = {
+  dark: { accent: "#FFBF00", bg: "#101014", error: "#ef5350", ok: "#4caf50", warn: "#ffa726" },
+  light: { accent: "#956E00", bg: "#ffffff", error: "#C14240", ok: "#367E39", warn: "#956115" }
+};
+var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
+var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
+function background(raw2) {
+  const value = (raw2 ?? "").trim();
+  const hex2 = value.startsWith("#") ? value : `#${value}`;
+  return value && relativeLuminance(hex2) !== null ? hex2 : void 0;
+}
+function skinColors(colors, polarity) {
+  const seeds = SEEDS[polarity];
+  const bg = background(colors["background"]) ?? seeds.bg;
+  const lift = (color2, floor) => ensureContrast(color2, bg, floor);
   return {
-    get busy() {
-      return cx.activity.busy !== null;
-    },
-    draft: (text18) => {
-      cx.draft(text18);
-      cx.changed();
-    },
-    // A steer that fell back to the queue: steering carries no images.
-    enqueue: (text18) => cx.router.behind({ images: [], kind: "app", text: text18 }),
-    gw: cx.gw,
-    notice: (text18, tone2) => {
-      cx.transcript.notice(text18, tone2);
-      cx.changed();
-    },
-    // The shared gateway (the one /branch runs on) answers a resume with one id for both kinds.
-    open: async (id) => {
-      await cx.life.resume(id);
-      return durable(cx.state.ref) === id;
-    },
-    panel: (title, text18) => {
-      cx.transcript.panel(title, text18);
-      cx.changed();
-    },
-    compressing: (state) => {
-      if (state === "start") {
-        started = cx.transcript.compactions.compacting({ before: cx.state.usage?.context_used || void 0, manual: true });
-      } else if (state === "none") {
-        if (started) {
-          cx.transcript.compactions.uncompact(started);
-        }
-      } else {
-        cx.transcript.compactions.compacted(Date.now(), state);
-      }
-      cx.setCompacting(state === "start", { manual: true });
-      cx.changed();
-    },
-    get queued() {
-      return cx.queue.count();
-    },
-    reload: async () => {
-      if (sid && ticket.isCurrent()) {
-        await cx.life.reload(sid);
-      }
-    },
-    send: (text18) => cx.router.send({ images: [], kind: "app", text: text18 }),
-    sid,
-    stale: () => !ticket.isCurrent(),
-    steered: (text18) => {
-      cx.transcript.steer(text18);
-      cx.changed();
-    },
-    // /queue: behind the turn whatever busy_input_mode says.
-    submit: (text18) => cx.submit(text18, literal3)
+    accent: lift(colors["ui_accent"] ?? colors["banner_accent"] ?? seeds.accent, ACCENT_FLOOR[polarity]),
+    error: lift(colors["ui_error"] ?? seeds.error, STATUS_FLOOR[polarity]),
+    ok: lift(colors["ui_ok"] ?? seeds.ok, STATUS_FLOOR[polarity]),
+    warn: lift(colors["ui_warn"] ?? seeds.warn, STATUS_FLOOR[polarity])
   };
 }
 
-// src/hermes/connect.ts
+// ../glide/frontend/wal.ts
+var TEXT_FLOOR = 4.5;
+var WAL_SHEET = "glide-auto-theme";
+var HEX = /^#[0-9a-f]{6}$/i;
+function walFile(env2 = process.env) {
+  return env2["GLIDE_WAL_COLORS"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "wal", "colors.json");
+}
+function exportFile(env2 = process.env) {
+  return env2["GLIDE_THEME_EXPORT"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "glide", "theme.json");
+}
+function readWal(file2) {
+  let text18;
+  try {
+    text18 = readFileSync2(file2, "utf8");
+  } catch {
+    return void 0;
+  }
+  const raw2 = record(parseJson(text18));
+  const special = record(raw2?.["special"]);
+  const palette = record(raw2?.["colors"]);
+  const background2 = special?.["background"];
+  const foreground = special?.["foreground"];
+  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX.test(background2) || !HEX.test(foreground) || !palette) {
+    return void 0;
+  }
+  const colors = {};
+  for (const [k, v] of Object.entries(palette)) {
+    if (typeof v === "string") colors[k] = v;
+  }
+  return { special: { background: background2, foreground }, colors };
+}
+function saturation(hex2) {
+  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+  const [r, g, b] = [channel(1), channel(3), channel(5)];
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
+}
+function pickAccent(wal) {
+  let best = wal.special.foreground;
+  let top = -1;
+  for (let i = 1; i <= 6; i++) {
+    const c = wal.colors[`color${i}`] ?? "";
+    if (HEX.test(c) && saturation(c) > top) {
+      best = c;
+      top = saturation(c);
+    }
+  }
+  return best;
+}
+function walPalette(wal, source2 = "") {
+  const bg = wal.special.background;
+  const text18 = (c, fallback) => {
+    const lifted = ensureContrast(c && HEX.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
+    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
+  };
+  const fg = text18(wal.special.foreground, wal.special.foreground);
+  const accent = text18(pickAccent(wal), fg);
+  return {
+    source: source2,
+    dark: (relativeLuminance(bg) ?? 0) < 0.5,
+    bg,
+    fg,
+    accent,
+    accentInk: readableOn(accent),
+    muted: text18(wal.colors["color7"], fg),
+    dim: text18(wal.colors["color8"], fg),
+    error: text18(wal.colors["color1"], fg),
+    success: text18(wal.colors["color2"], fg),
+    warning: text18(wal.colors["color3"], fg),
+    selectedBg: mix(bg, accent, 0.18),
+    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)]
+  };
+}
+function walTernPalette(p3) {
+  const tokens2 = {
+    accent: p3.accent,
+    borderAccent: p3.accent,
+    dim: p3.dim,
+    error: p3.error,
+    mdLink: p3.accent,
+    mdListBullet: p3.accent,
+    muted: p3.muted,
+    selectedBg: p3.selectedBg,
+    statusLineModel: p3.accent,
+    statusLinePath: p3.muted,
+    success: p3.success,
+    text: p3.fg,
+    warning: p3.warning
+  };
+  return { dark: tokens2, light: tokens2, name: { dark: "auto", light: "auto" } };
+}
+function walCss(p3) {
+  const [l1, l2, l3] = p3.layers;
+  const vars = [
+    `--accent: ${p3.accent}`,
+    `--sf-p-accent: ${p3.accent}`,
+    `--accent-ink: ${p3.accentInk}`,
+    `--text: ${p3.fg}`,
+    `--muted: ${p3.muted}`,
+    `--t1: ${p3.fg}`,
+    `--t2: ${p3.muted}`,
+    `--t3: ${p3.dim}`,
+    `--l1: ${l1}`,
+    `--l2: ${l2}`,
+    `--l3: ${l3}`,
+    `--card: ${l1}`,
+    `--panel: ${p3.bg}`,
+    `--sf-c-error: ${p3.error}`
+  ];
+  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
+[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
+`;
+}
+function exportPalette(p3, file2 = exportFile()) {
+  mkdirSync(dirname(file2), { recursive: true });
+  writeFileSync(file2, `${JSON.stringify(p3, null, 2)}
+`);
+  return file2;
+}
+function watchWal(file2, changed, debounceMs = 50) {
+  let timer;
+  let watcher;
+  try {
+    watcher = watch(dirname(file2), (_event, name) => {
+      if (name && name.toString() !== basename2(file2)) return;
+      clearTimeout(timer);
+      timer = setTimeout(changed, debounceMs);
+    });
+    watcher.on("error", () => watcher?.close());
+  } catch {
+    watcher = void 0;
+  }
+  return () => {
+    clearTimeout(timer);
+    watcher?.close();
+  };
+}
+
+// ../glide/frontend/taste.ts
 import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+function tasteBoard(raw2) {
+  const value = record(raw2);
+  const url = value?.["url"];
+  const title = value?.["title"];
+  if (typeof url !== "string" || typeof title !== "string") {
+    throw new Error("Invalid Taste Atlas board reply");
+  }
+  const parsed2 = new URL(url);
+  if (parsed2.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsed2.hostname) || parsed2.username || parsed2.password || parsed2.search || parsed2.hash || !/^\/(?:boards|s\/[a-z0-9-]{4,40}\/)$/.test(parsed2.pathname)) {
+    throw new Error("Taste Atlas requires a loopback board URL");
+  }
+  return { url, title };
+}
+async function openTastePane(board) {
+  const owner2 = process.env["TERN_PANE"] ?? "";
+  if (!/^[1-9][0-9]*$/.test(owner2) || !Number.isSafeInteger(Number(owner2))) {
+    throw new Error("Taste pane needs a local Tern pane. Open the board URL in your browser instead.");
+  }
+  const { stdout } = await promisify(execFile)("tern", ["browser", JSON.stringify({
+    op: "open",
+    owner: Number(owner2),
+    url: board.url,
+    how: "beside"
+  }), "--timeout", "15"], { timeout: 2e4, shell: false });
+  const result = record(record(stdout)?.["ok"]);
+  const block = result?.["block"];
+  if (typeof block !== "number" || !Number.isSafeInteger(block) || block <= 0) {
+    throw new Error("Tern did not confirm opening the Taste pane");
+  }
+  return block;
+}
 
 // node_modules/zod/v4/core/core.js
 var _a;
@@ -26013,7 +26123,7 @@ var ZodMiniRecord = /* @__PURE__ */ $constructor("ZodMiniRecord", (inst, def) =>
   ZodMiniType.init(inst, def);
 });
 // @__NO_SIDE_EFFECTS__
-function record(keyType, valueType, params) {
+function record2(keyType, valueType, params) {
   if (!valueType || !valueType._zod) {
     return new ZodMiniRecord({
       type: "record",
@@ -26117,36 +26227,1585 @@ function pipe(in_, out) {
   });
 }
 
-// src/wire/json.ts
-function record2(v) {
-  if (typeof v === "string") {
-    try {
-      return record2(JSON.parse(v));
-    } catch {
-      return void 0;
-    }
+// ../glide/frontend/lanesPopup.ts
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir3 } from "node:os";
+import { dirname as dirname2, join as join3 } from "node:path";
+
+// src/overlays/identity.ts
+var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
+function nativeOverlayKey(root7) {
+  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
+  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
+    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
   }
-  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
+  return key3;
 }
-function parseJson(text18) {
-  try {
-    return JSON.parse(text18);
-  } catch {
+function withinOverlayRoot(id, root7) {
+  return id === root7 || id.startsWith(root7 + ".");
+}
+
+// src/eui/ternCss.js
+var TERN_DROP = /* @__PURE__ */ new Set([
+  "aspect-ratio",
+  "text-anchor",
+  "vector-effect",
+  "-webkit-appearance",
+  "appearance",
+  "-webkit-touch-callout",
+  "scroll-margin-top",
+  "grid-template-areas",
+  "grid-area",
+  "resize",
+  "offset-rotate",
+  "offset-anchor",
+  "text-underline-offset",
+  "text-decoration-thickness"
+]);
+var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
+var TERN_ATTR = "data-eui-a-";
+function ternDecl(decl) {
+  const at2 = decl.indexOf(":");
+  if (at2 < 0) {
+    return decl;
+  }
+  const prop2 = decl.slice(0, at2).trim().toLowerCase();
+  let value = decl.slice(at2 + 1).trim();
+  if (prop2.startsWith("--")) {
+    return decl;
+  }
+  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
     return void 0;
   }
+  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
+  if (prop2 === "position" && value === "fixed") {
+    return `${decl.slice(0, at2)}:absolute`;
+  }
+  if (prop2 === "border-block") {
+    return `border-top:${value};border-bottom:${value}`;
+  }
+  if (prop2 === "border-inline-start") {
+    return `border-left:${value}`;
+  }
+  return `${decl.slice(0, at2)}:${value}`;
 }
-function decodeJson(text18) {
-  return JSON.parse(text18);
+function ternBody(body) {
+  const out = [];
+  let depth = 0;
+  let quote2 = "";
+  let start = 0;
+  for (let i = 0; i <= body.length; i++) {
+    const ch = body[i];
+    if (quote2) {
+      if (ch === quote2 && body[i - 1] !== "\\") {
+        quote2 = "";
+      }
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote2 = ch;
+    } else if (ch === "(") {
+      depth++;
+    } else if (ch === ")") {
+      depth--;
+    } else if (ch === ";" && depth === 0 || i === body.length) {
+      const decl = body.slice(start, i).trim();
+      const kept = decl ? ternDecl(decl) : void 0;
+      if (kept) {
+        out.push(kept);
+      }
+      start = i + 1;
+    }
+  }
+  return out.join(";");
 }
-function commandReply(output) {
-  const reply2 = record2(output);
-  if (!reply2) throw new Error("the command did not answer with JSON");
-  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
-  return reply2;
+
+// src/view/euiCard.tsx
+var TAGS = new Set(EL_TAGS);
+var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
+var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
+function isTag(tag3) {
+  return TAGS.has(tag3);
+}
+function ternTag(tag3, attrs) {
+  if (tag3 === "input") {
+    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
+  }
+  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
+}
+function convert(n3, key3, eui, activate) {
+  if (n3.t === "text") {
+    return n3.text;
+  }
+  if (n3.t === "svg") {
+    const blob2 = eui.svg(n3.svg);
+    const attrs2 = { "data-eui-svg": "" };
+    if (n3.style) {
+      attrs2["data-eui-s"] = eui.style(n3.style);
+    }
+    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
+  }
+  const tag3 = ternTag(n3.tag, n3.attrs);
+  const attrs = {};
+  for (const [k, v] of Object.entries(n3.attrs)) {
+    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
+      attrs[k] = v;
+    }
+    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
+      attrs[`${TERN_ATTR}${k}`] = v;
+    }
+  }
+  if (tag3 !== n3.tag) {
+    attrs["data-eui-tag"] = n3.tag;
+  }
+  if (n3.style) {
+    attrs["data-eui-s"] = eui.style(n3.style);
+  }
+  const kids = n3.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
+  if (n3.tag === "input" && tag3 === "span") {
+    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
+  }
+  return ui.el({
+    key: key3,
+    tag: tag3,
+    attrs,
+    class: n3.cls,
+    ...n3.attrs["hidden"] ? { hidden: true } : {},
+    ...n3.attrs["disabled"] ? { disabled: true } : {},
+    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
+    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
+    ...n3.click ? { onClick: () => {
+      activate(n3.id);
+    } } : {}
+  }, kids);
+}
+function euiCardNode(card, view, eui, popup = false) {
+  if (view.error !== void 0 || !view.node) {
+    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
+  }
+  const root7 = view.node;
+  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
+  const activate = view.activate ?? ((id) => {
+    eui.click(card, id);
+  });
+  return html.div(
+    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
+    root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
+  );
+}
+function euiPopupNode(key3, head2, view, eui) {
+  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
+}
+
+// ../glide/frontend/council.ts
+var MINERAL = {
+  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
+  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
+  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
+  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
+  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
+  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
+  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
+  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
+};
+var FAMILY = {
+  anthropic: ["citrine", "rose", "smoky"],
+  openai: ["labradorite", "moonstone", "lapis"],
+  google: ["malachite"],
+  free: ["clear"]
+};
+var NIGHT = {
+  canvas: "#0c0c0a",
+  text: "#ECE8DF",
+  text2: "#B4AFA3",
+  text3: "#837F74",
+  faint: "#5e5b52",
+  action: "#d7b986",
+  strong: "#eccd8c",
+  muted: "#99835c",
+  danger: "#e37f65",
+  agree: "#98cf8b",
+  border: "rgba(236,232,223,0.10)",
+  borderStrong: "rgba(236,232,223,0.16)"
+};
+var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
+var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
+var COUNCIL_SCHEMA = "glide.council-run/v1";
+var MINERALS = new Set(Object.keys(MINERAL));
+var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
+var KEYS = {
+  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
+  seat: ["id", "name", "family", "mineral", "crew"],
+  turn: ["type", "seat", "round", "cites"],
+  spawn: ["type", "seat"],
+  verdict: ["seat", "stance", "text"]
+};
+var Bad = class extends Error {
+};
+var fail = (where, what) => {
+  throw new Bad(`${where}: ${what}`);
+};
+function obj2(v, where, keys3) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
+  const extra = Object.keys(v).find((k) => !keys3.includes(k));
+  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
+}
+function str3(v, where, max) {
+  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
+}
+function int2(v, where, min, max) {
+  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
+}
+function list(v, where, min, max) {
+  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
+}
+function mineral(v, where) {
+  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
+}
+function parseCouncilRun(raw2) {
+  try {
+    return readRun(raw2);
+  } catch (e) {
+    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
+    throw e;
+  }
+}
+function readRun(raw2) {
+  const d = obj2(raw2, "run", KEYS.run);
+  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
+  const rounds = int2(d["rounds"], "rounds", 1, 8);
+  const used = /* @__PURE__ */ new Map();
+  const index2 = /* @__PURE__ */ new Map();
+  const seats = list(d["seats"], "seats", 2, 6).map((v, i) => {
+    const s2 = obj2(v, `seats.${i}`, KEYS.seat);
+    const id = str3(s2["id"], `seats.${i}.id`, 40);
+    if (!SEAT_ID.test(id)) fail(`seats.${i}.id`, "expected a lowercase id");
+    if (index2.has(id)) fail(`seats.${i}.id`, "two seats share an id");
+    index2.set(id, i);
+    const family = str3(s2["family"], `seats.${i}.family`, 24);
+    const key3 = family.trim().toLowerCase();
+    const pool = FAMILY[key3] ?? ["clear"];
+    const n3 = used.get(key3) ?? 0;
+    used.set(key3, n3 + 1);
+    return Object.freeze({
+      id,
+      family,
+      name: str3(s2["name"], `seats.${i}.name`, 24),
+      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
+      crew: Object.freeze(s2["crew"] === void 0 ? [] : list(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
+    });
+  });
+  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
+  const events = list(d["events"], "events", 0, 400).map((v, i) => {
+    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
+    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS.spawn)["seat"], `events.${i}.seat`) });
+    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
+    const e = obj2(v, `events.${i}`, KEYS.turn);
+    const cites = e["cites"] === void 0 ? [] : list(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
+    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int2(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
+  });
+  const heard = /* @__PURE__ */ new Set();
+  const verdicts = list(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
+    const e = obj2(v, `verdicts.${i}`, KEYS.verdict);
+    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
+    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
+    heard.add(s2);
+    const stance = e["stance"];
+    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
+    return Object.freeze({ seat: s2, stance, text: str3(e["text"], `verdicts.${i}.text`, 240) });
+  });
+  return Object.freeze({
+    brief: str3(d["brief"], "brief", 280),
+    rounds,
+    seats: Object.freeze(seats),
+    events: Object.freeze(events),
+    verdicts: Object.freeze(verdicts),
+    ...d["outcome"] === void 0 ? {} : { outcome: str3(d["outcome"], "outcome", 160) }
+  });
+}
+function demoRun() {
+  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
+  const seats = [
+    { id: "argon", name: "Argon", family: "Google", crew: CREW },
+    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
+    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
+    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
+  ];
+  const ids = seats.map((s2) => s2.id);
+  const events = [];
+  for (const id of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id });
+  for (let round = 1; round <= 4; round++) {
+    ids.forEach((id, i) => {
+      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id });
+      const peers = ids.filter((p3) => p3 !== id);
+      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
+      events.push({ type: "turn", seat: id, round, cites });
+    });
+  }
+  for (const id of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id });
+  const run8 = parseCouncilRun({
+    schema: COUNCIL_SCHEMA,
+    brief: "Should a small team ship a plugin before its launcher?",
+    rounds: 4,
+    seats,
+    events,
+    verdicts: [
+      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
+      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
+      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
+      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
+    ],
+    outcome: "Ship the plugin first"
+  });
+  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
+  return run8;
+}
+var TURN_MS = 520;
+var SPAWN_MS = 90;
+var FLY_MS = 220;
+var THREAD_MS = 360;
+var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+function schedule(run8) {
+  const at2 = [];
+  let t = 0;
+  for (const e of run8.events) {
+    at2.push(t);
+    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
+  }
+  return { at: at2, total: t };
+}
+function moment(run8, frame) {
+  const { at: at2, total } = schedule(run8);
+  const t = frame.t;
+  const done = t !== null && t >= total;
+  let idx = -1;
+  if (t !== null) {
+    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
+  }
+  const running2 = t !== null && !done;
+  const lit2 = run8.seats.map(() => 0);
+  const born = /* @__PURE__ */ new Map();
+  const lastTurn = run8.seats.map(() => -1);
+  run8.events.forEach((e, i) => {
+    if (e.type === "turn") lastTurn[e.seat] = i;
+  });
+  let round = 0;
+  for (let i = 0; i <= idx; i++) {
+    const e = run8.events[i];
+    if (!e) continue;
+    if (e.type === "spawn") {
+      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
+      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
+    } else round = e.round;
+  }
+  const cur = idx >= 0 ? run8.events[idx] : void 0;
+  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
+  const closed = /* @__PURE__ */ new Set();
+  run8.seats.forEach((_2, s2) => {
+    const last = lastTurn[s2] ?? -1;
+    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
+  });
+  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
+}
+function narration(run8, frame) {
+  const m = moment(run8, frame);
+  const nm = (i) => run8.seats[i]?.name ?? "?";
+  const helpers = run8.events.filter((e) => e.type === "spawn").length;
+  if (frame.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
+  if (m.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
+  const cur = run8.events[m.idx];
+  if (!cur) return "The council takes its seats";
+  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
+  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
+  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
+  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
+}
+function closedSeats(run8, frame) {
+  return moment(run8, frame).closed;
+}
+var n2 = (v) => (Math.round(v * 10) / 10).toString();
+var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function tag2(name, attrs, kids = "") {
+  let a2 = "";
+  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n2(v) : esc2(v)}"`;
+  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
+}
+var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
+var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
+var toHex2 = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+var mix2 = (a2, b, t) => {
+  const x = hex(a2), y = hex(b);
+  return toHex2(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
+};
+var D = Math.PI / 180;
+var KEY = 225 * D;
+function lit(phi, tilt, az) {
+  const el = 52 * D;
+  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
+}
+var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
+var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
+var pts = (p3) => p3.map(([x, y]) => `${n2(x)},${n2(y)}`).join(" ");
+function brilliant(cx, cy, r) {
+  const f = [];
+  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
+  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
+  const g = (deg) => at(cx, cy, r, deg * D);
+  f.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
+  for (let k = 0; k < 8; k++) {
+    const a2 = 22.5 + 45 * k;
+    f.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
+    f.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
+    f.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
+    f.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
+  }
+  return f;
+}
+function gem(id, kind, cx, cy, r, opts = {}) {
+  const m = MINERAL[kind];
+  const glint = opts.glint ?? null;
+  const g = glint ?? 0.5;
+  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
+  const az = KEY + (g - 0.5) * 70 * D;
+  const hl = at(cx, cy, r * 0.42, az);
+  const far = at(cx, cy, r * 0.38, az + Math.PI);
+  const op = opts.dim ? 0.55 : void 0;
+  if (opts.low) {
+    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m.base, "fill-opacity": 0.16, stroke: m.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
+    return tag2(
+      "g",
+      { opacity: op },
+      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m.light) + stop(0.45, m.base) + stop(1, m.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
+    );
+  }
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m.glow, 0.75 + 0.2 * shine) + stop(1, m.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m.light) + stop(0.42, m.base) + stop(1, m.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
+  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
+  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
+  let body = tag2("circle", { cx, cy, r, fill: m.base });
+  if (m.cut === "brilliant") {
+    body += brilliant(cx, cy, r).map((f, k) => {
+      const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
+      let fill = mix2(m.deep, m.base, b * 1.35);
+      if (b > 0.72) fill = mix2(fill, m.light, (b - 0.72) * 3 + shine * 0.25);
+      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
+    }).join("");
+    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
+    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n2(cx + r * 0.18)} ${n2(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
+    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
+    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
+  } else {
+    body += tag2("circle", { cx, cy, r, fill: `url(#${id}d)` });
+    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
+      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
+      const distance = Math.hypot(bx - cx, by - cy);
+      const angle = Math.atan2(cy - by, cx - bx);
+      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
+      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
+      return tag2("path", {
+        d: `M ${pts([start])} A ${n2(radius)} ${n2(radius)} 0 0 1 ${pts([end])}`,
+        fill: "none",
+        stroke: k % 2 ? "#0c3a26" : "#5cc893",
+        "stroke-opacity": k % 2 ? 0.75 : 0.45,
+        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
+      });
+    }).join("");
+    if (kind === "labradorite") body += tag2("ellipse", {
+      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
+      cy: cy + r * 0.05,
+      rx: r * 0.95,
+      ry: r * 0.42,
+      transform: `rotate(${n2(-32 + (g - 0.5) * 50)} ${n2(cx)} ${n2(cy)})`,
+      fill: `url(#${id}f)`,
+      "fill-opacity": 0.5 + 0.45 * shine
+    });
+    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id}a)`, "fill-opacity": 0.55 + 0.4 * shine });
+    if (kind === "lapis") {
+      body += tag2("path", { d: `M ${n2(cx - r)} ${n2(cy + r * 0.35)} Q ${n2(cx - r * 0.1)} ${n2(cy + r * 0.05)} ${n2(cx + r)} ${n2(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
+      for (let k = 0; k < 14; k++) {
+        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
+        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
+      }
+    }
+  }
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
+  const [hx, hy] = hl;
+  body += m.cut === "brilliant" ? tag2("path", {
+    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n2(hx + r * dx)} ${n2(hy + r * dy)}`).join(" ") + " Z",
+    fill: "#ffffff",
+    "fill-opacity": 0.55 + 0.45 * shine
+  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n2(az / D + 90)} ${n2(hx)} ${n2(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
+  return tag2(
+    "g",
+    { opacity: op },
+    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id}c)` }, body)
+  );
+}
+function swatchSvg(kind, size) {
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
+}
+var STARS = (() => {
+  let seed = 11;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
+})();
+function instrumentSvg(run8, frame, size = 480) {
+  const m = moment(run8, frame);
+  const c = size / 2;
+  const orbit = size * 0.335;
+  const R = Math.max(18, size * 0.064);
+  const table3 = orbit + R + size * 0.06;
+  const ringMin = size * 0.085;
+  const ringMax = orbit - R * 0.35;
+  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
+  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
+  const n3 = run8.seats.length;
+  const pos = run8.seats.map((_2, i) => {
+    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
+    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
+  });
+  const t = frame.t ?? 0;
+  const cur = m.idx >= 0 ? run8.events[m.idx] : void 0;
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let s2 = tag2(
+    "defs",
+    {},
+    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
+  );
+  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
+  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
+  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
+  for (let i = 0; i < 72; i++) {
+    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
+    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
+  }
+  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
+  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
+  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
+  for (let i = 0; i < run8.rounds; i++) {
+    const r = ringR(i);
+    const now = m.running && m.round === i + 1;
+    const past = frame.t !== null && (m.round > i + 1 || m.done);
+    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
+    if (ringGap >= 12 || i % 2 === 1 || now) {
+      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
+      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
+    }
+  }
+  if (m.speaking >= 0 && cur?.type === "turn") {
+    const p3 = pos[m.speaking];
+    const k = ease(m.since / THREAD_MS);
+    const targets = cur.cites.filter((j) => j !== m.speaking);
+    if (p3 && !targets.length) {
+      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
+    }
+    for (const j of targets) {
+      const q2 = pos[j];
+      if (!p3 || !q2) continue;
+      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
+      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
+      s2 += tag2("path", { d: `M ${n2(p3.x)} ${n2(p3.y)} Q ${n2(mx)} ${n2(my)} ${n2(q2.x)} ${n2(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n2(len)} ${n2(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
+      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
+    }
+  }
+  if (m.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
+  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
+  run8.seats.forEach((seat, i) => {
+    const p3 = pos[i];
+    if (!p3) return;
+    const talk = m.speaking === i;
+    const crew = seat.crew;
+    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
+    crew.forEach((stone, k) => {
+      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
+      const on = frame.t === null || k < (m.lit[i] ?? 0);
+      const born = m.running ? m.born.get(`${i}.${k}`) : void 0;
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
+      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
+      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
+    });
+    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
+    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m.since / TURN_MS) : null, dim: m.running && !talk });
+    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
+    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
+  });
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
+}
+
+// ../glide/frontend/lanesPopup.ts
+var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
+var MODELS_ENV = "GLIDE_LANE_MODELS";
+var CLOSE_ID = 2;
+var PICK_BASE = 100;
+var PICK_STRIDE = 32;
+var APP = "glide";
+var ROLE_ORDER2 = ["fast", "small", "large", "council"];
+function fileBindings(path2 = process.env[BINDINGS_ENV] || join3(homedir3(), ".config/glide/lane-bindings.json")) {
+  const get = () => {
+    try {
+      const v = JSON.parse(readFileSync3(path2, "utf8"));
+      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
+    } catch {
+      return {};
+    }
+  };
+  return {
+    where: path2,
+    get,
+    set: (role, model) => {
+      mkdirSync2(dirname2(path2), { recursive: true });
+      writeFileSync2(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
+    }
+  };
+}
+var DOT = {
+  idle: NIGHT.text3,
+  thinking: NIGHT.strong,
+  answered: NIGHT.action,
+  verified: NIGHT.agree,
+  corrected: NIGHT.muted,
+  dead: NIGHT.danger
+};
+var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
+function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
+  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
+  return [...new Set(all8)].slice(0, PICK_STRIDE);
+}
+var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
+var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
+function lanesCard(src, bound2, where, extra) {
+  let next2 = 10;
+  const text18 = (value) => ({ t: "text", text: value });
+  const el = (tag3, style2, kids, opts = {}) => ({
+    t: "el",
+    tag: tag3,
+    id: opts.id ?? next2++,
+    cls: "",
+    style: style2,
+    attrs: opts.attrs ?? {},
+    click: opts.id !== void 0,
+    kids
+  });
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
+  const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+  const choices = modelChoices(lanes2, bound2, extra);
+  const dead = lanes2.filter((l) => l.state === "dead").length;
+  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
+    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
+      el("span", `${micro};letter-spacing:2px`, [text18("VOICE LANES \xB7 GLIDE")]),
+      el(
+        "span",
+        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (lanes2.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
+        [text18(lanes2.length ? `LIVE \xB7 ${(src.call?.revision || "CALL").toUpperCase()}` : "NO CALL")],
+        { attrs: { "data-lanes-source": lanes2.length ? "live" : "none" } }
+      )
+    ]),
+    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
+    el("span", `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(lanes2.length ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : src.error || "no open lane call (the lane broker runs the Hermes app Live path)")])
+  ]);
+  const rows = lanes2.map((lane, i) => {
+    const binding = bound2[lane.role];
+    const isDead = lane.state === "dead";
+    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : lane.model;
+    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : "no blackboard entry yet";
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
+      el("div", "display:flex;align-items:center;gap:8px", [
+        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
+        el("span", `${micro};font-size:9px`, [text18(model.toUpperCase())]),
+        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
+        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text18(lane.state.toUpperCase())])
+      ]),
+      el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } }),
+      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
+        const on = (binding ?? lane.model) === m;
+        return el(
+          "button",
+          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
+          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text2}`, [text18(m)])],
+          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
+        );
+      }))
+    ]);
+  });
+  const close = el(
+    "button",
+    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
+    { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
+  );
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+    header,
+    el("div", "display:flex;flex-direction:column", rows),
+    el("div", "display:flex;justify-content:flex-end", [close]),
+    el(
+      "span",
+      `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
+      [text18(`state read from the lane broker \xB7 bindings saved locally to ${where.split("/").pop() ?? where} (the broker has no binding endpoint)`)]
+    )
+  ])]);
+}
+function openLanesPopup(host, feed, bindings = fileBindings()) {
+  const eui = host.eui;
+  if (!eui) {
+    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
+    return void 0;
+  }
+  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "no lane broker token (set GLIDE_LANES_TOKEN_FILE)" };
+  const overlay2 = {
+    key: "glide-lanes",
+    modal: true,
+    focus: () => null,
+    node: (id) => {
+      const src = source2();
+      const bound2 = bindings.get();
+      const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
+      const choices = modelChoices(lanes2, bound2);
+      const view = {
+        spec: { kind: "lanes", app: APP },
+        app: APP,
+        label: "Voice lanes",
+        identity: "lanes",
+        node: lanesCard(src, bound2, bindings.where),
+        activate: (n3) => {
+          if (n3 === CLOSE_ID) return host.close(overlay2);
+          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
+          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
+          if (n3 < PICK_BASE || !lane || !model) return;
+          try {
+            bindings.set(lane.role, model);
+          } catch (e) {
+            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
+          }
+          host.changed();
+        }
+      };
+      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
+    },
+    onKey: (key3) => {
+      if (key3.name === "escape") host.close(overlay2);
+      return true;
+    }
+  };
+  host.open(overlay2);
+  return overlay2;
+}
+
+// src/commands/glide.ts
+function glideLanes(host) {
+  openLanesPopup(host, host.laneFeed);
+}
+function glideTheme(host, sub) {
+  if (sub === "auto" || sub === "default") {
+    host.setTheme?.(sub === "auto" ? "auto" : "tern");
+    host.transcript.notice(sub === "auto" ? `Glide theme follows the wallpaper: ${walFile()}` : "Glide theme is back to the default");
+    return;
+  }
+  if (sub === "export") {
+    const wal = readWal(walFile());
+    if (!wal) {
+      host.transcript.notice(`/glide theme export: no pywal colors at ${walFile()} (run wal, or set GLIDE_WAL_COLORS)`, "warning");
+      return;
+    }
+    const palette = walPalette(wal, walFile());
+    host.transcript.notice(`Glide palette written to ${exportPalette(palette)}
+${JSON.stringify(palette)}`);
+    return;
+  }
+  host.transcript.notice("Usage: /glide theme auto|default|export", "warning");
+}
+var glideMemory = object({
+  sessions: number2(),
+  corrections: number2(),
+  complete: boolean2(),
+  on: boolean2(),
+  scanned: optional(number2())
+});
+var glideDetect = object({
+  os: string2(),
+  cpus: number2(),
+  ram_gib: nullable(number2()),
+  gpus: array(string2()),
+  runtimes: array(string2()),
+  z0int: object({
+    installed: boolean2(),
+    ok: optional(boolean2()),
+    failed: optional(array(string2())),
+    hint: optional(string2()),
+    unchecked: optional(boolean2())
+  }),
+  memory: glideMemory
+});
+var glideRecall = object({ hits: array(object({ text: string2(), score: number2() })) });
+var glideRouter = object({
+  installed: boolean2(),
+  fresh: boolean2(),
+  categories: number2(),
+  skills: number2(),
+  top: array(object({ category: string2(), rule: string2(), skills: array(string2()) }))
+});
+var glideClimb = object({
+  target: string2(),
+  metric: string2(),
+  baseline: nullable(object({ mean: number2() })),
+  candidate: nullable(object({ mean: number2() })),
+  delta: nullable(number2()),
+  noise: nullable(number2()),
+  verdict: nullable(string2()),
+  reason: nullable(string2())
+});
+var glideSavings = object({
+  local_models: array(string2()),
+  tasks: number2(),
+  tokens_offloaded: number2(),
+  est_cost_saved_usd: number2(),
+  assumptions: array(string2())
+});
+var glideFocus = object({
+  phase: string2(),
+  phase_source: string2(),
+  flow: nullable(object({ flow: number2(), confidence: number2() })),
+  next_window: nullable(string2()),
+  bedtime: nullable(string2()),
+  block: nullable(object({ until: string2(), minutes_left: number2() })),
+  guarded: boolean2(),
+  queued: number2(),
+  learned: object({
+    days: number2(),
+    source: string2(),
+    stop: nullable(number2()),
+    windows: array(object({ start: number2(), end: number2(), days: number2() }))
+  }),
+  digest: optional(array(object({ title: string2(), cls: string2() }))),
+  wind_down: optional(object({
+    nudge: boolean2(),
+    resume: optional(object({ title: optional(string2()), last_asks: optional(array(string2())) }))
+  }))
+});
+var NS = "glide";
+var APP2 = "glide";
+var SESSIONS = 100;
+var memoryRows = (m) => [
+  { label: "Sessions read", value: m.sessions },
+  { label: "Corrections kept", value: m.corrections },
+  { label: "Quoted into turns", value: m.on ? "on" : "off" }
+];
+function glideCall(gw2, sid) {
+  return async (verb, params = {}) => {
+    try {
+      return await gw2.request(`${NS}.${verb}`, { session_id: sid, ...params });
+    } catch (error) {
+      if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error;
+    }
+    const { output } = await gw2.request("command.dispatch", {
+      name: "glide",
+      arg: `json ${verb} ${JSON.stringify(params)}`,
+      session_id: sid
+    });
+    return commandReply(output);
+  };
+}
+async function refreshFocusBlock(gw2, sid) {
+  focusBlock.note(glideFocus.parse(await glideCall(gw2, sid)("focus", { action: "show" })));
+}
+async function glideCommand(host, arg) {
+  const [first, second] = arg.trim().split(/\s+/);
+  if (first === "theme") {
+    glideTheme(host, second);
+    return;
+  }
+  const ref = host.session.ref;
+  const sid = ref.live;
+  const cards = host.eui?.host;
+  if (!sid || !cards) {
+    host.transcript.notice("/glide needs an attached session with ephemeral-ui cards", "warning");
+    return;
+  }
+  const call = glideCall(host.gw, sid);
+  const fail2 = (error) => {
+    host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, "error");
+  };
+  const [verb, ...rest] = arg.trim().split(/\s+/);
+  try {
+    if (verb === "taste") {
+      const board = tasteBoard(await call("taste"));
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return;
+      const block = await openTastePane(board);
+      if (host.session.ref !== ref || host.session.ref.live !== sid) return;
+      cards.publish({
+        kind: "receipt",
+        app: APP2,
+        title: board.title,
+        rows: [
+          { label: "Taste pane", value: block },
+          { label: "Board", value: board.url },
+          { label: "Close", value: "Close the browser pane to return to chat" }
+        ]
+      });
+      return;
+    }
+    if (verb === "focus") {
+      await focusCommand(cards, async (params) => {
+        const f = glideFocus.parse(await call("focus", params));
+        focusBlock.note(f);
+        return f;
+      }, rest[0] ?? "", fail2);
+      return;
+    }
+    if (verb === "intent") {
+      const ask = rest.join(" ");
+      if (!ask) host.transcript.notice("Usage: /glide intent <ask>", "warning");
+      else intentCommand(cards, ask, host.laneFeed?.call?.lanes);
+      return;
+    }
+    if (verb === "off") {
+      const m = glideMemory.parse(await call("enable", { on: false }));
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m) });
+      return;
+    }
+    if (verb === "recall") {
+      const query2 = rest.join(" ");
+      if (!query2) {
+        host.transcript.notice("Usage: /glide recall <words>", "warning");
+        return;
+      }
+      const { hits } = glideRecall.parse(await call("recall", { query: query2 }));
+      cards.publish({
+        kind: "search",
+        app: APP2,
+        title: `Your corrections about \u201C${query2.slice(0, 80)}\u201D`,
+        rows: hits.length ? hits.map((h2) => ({ label: `score ${h2.score}`, value: h2.text })) : [{ label: "No match", value: "nothing quoted" }]
+      });
+      return;
+    }
+    const guarded3 = (run8) => async (ctx) => {
+      try {
+        await run8(ctx);
+      } catch (error) {
+        fail2(error);
+      }
+    };
+    const fmt = (n3) => n3 === null || n3 === void 0 ? "\u2014" : Number(n3.toFixed(2));
+    const savings = () => cards.publish({
+      kind: "approve",
+      app: APP2,
+      title: "Offload a small task to a local model",
+      rows: [{ label: "Task", value: "a two-sentence summary" }, { label: "Runs on", value: "your smallest local model" }],
+      approval: { label: "Offload it", description: "Sends one sample task to a local model through ollama, then shows the frontier tokens it kept out of your paid context." }
+    }, guarded3(async ({ signal }) => {
+      const r = glideSavings.parse(await call("offload", { run: true }));
+      if (signal.aborted) return;
+      cards.publish({
+        kind: "intel-value",
+        app: APP2,
+        title: "Offload savings",
+        summary: r.assumptions.join(" "),
+        rows: [
+          { label: "Local model", value: r.local_models[0] ?? "none found" },
+          { label: "Tasks offloaded", value: r.tasks },
+          { label: "Tokens kept local", value: r.tokens_offloaded },
+          { label: "Est. saved", value: `$${r.est_cost_saved_usd.toFixed(4)}` }
+        ]
+      });
+    }));
+    const climb = () => cards.publish({
+      kind: "approve",
+      app: APP2,
+      title: "Run your first hill climb",
+      rows: [{ label: "Target", value: "CPU benchmark" }, { label: "Referee", value: "paired samples, noise floor" }],
+      approval: { label: "Run one round", description: "Benchmarks a baseline and one candidate on this machine and keeps the candidate only if it beats the noise floor." }
+    }, guarded3(async ({ signal }) => {
+      const r = glideClimb.parse(await call("hill_climb", { run: true }));
+      if (signal.aborted) return;
+      cards.publish({
+        kind: "metric",
+        app: APP2,
+        title: r.verdict ? `Hill climb: ${r.verdict}` : "Hill climb",
+        summary: r.reason ?? "",
+        rows: [
+          { label: "Baseline", value: fmt(r.baseline?.mean) },
+          { label: "Candidate", value: fmt(r.candidate?.mean) },
+          { label: "Delta", value: fmt(r.delta) },
+          { label: "Noise floor", value: fmt(r.noise) },
+          { label: "Verdict", value: r.verdict ?? "no round yet" }
+        ]
+      });
+      savings();
+    }));
+    const router = () => cards.publish({
+      kind: "approve",
+      app: APP2,
+      title: "Install the skill router",
+      rows: [{ label: "Picks", value: "skills by task category" }, { label: "Writes", value: "your profile's glide folder" }],
+      approval: { label: "Install", description: "Installs a small category -> skills catalog so each turn loads the skills that fit the task." }
+    }, guarded3(async ({ signal }) => {
+      const r = glideRouter.parse(await call("skill_router"));
+      if (signal.aborted) return;
+      cards.publish({
+        kind: "receipt",
+        app: APP2,
+        title: r.fresh ? "Skill router installed" : "Skill router is installed",
+        rows: [
+          { label: "Categories", value: r.categories },
+          { label: "Skills", value: r.skills },
+          ...r.top.slice(0, 3).map((c) => ({ label: c.category, value: c.skills.slice(0, 3).join(", ") || c.rule }))
+        ]
+      });
+      climb();
+    }));
+    const steps = { router, climb, savings };
+    const step = verb ? steps[verb] : void 0;
+    if (step) {
+      step();
+      return;
+    }
+    const found = glideDetect.parse(await call("detect"));
+    cards.publish({
+      kind: "infra-models",
+      app: APP2,
+      title: "This machine",
+      rows: [
+        { label: "System", value: found.os },
+        { label: "CPU threads", value: found.cpus },
+        { label: "RAM", value: found.ram_gib === null ? "unknown" : `${found.ram_gib} GiB` },
+        { label: "GPU", value: found.gpus.join(", ") || "none found" },
+        { label: "Local runtimes", value: found.runtimes.join(", ") || "none on PATH" }
+      ]
+    });
+    const z0 = found.z0int;
+    cards.publish({
+      kind: "intel-health",
+      app: APP2,
+      title: "z0intelligence",
+      summary: !z0.installed ? "Optional. Adds local training loops, hill climbs and model management." : z0.ok ? "Ready for training loops and hill climbs." : z0.unchecked || !z0.failed?.length ? "Installed. Run `z0int doctor` for details." : `Needs: ${z0.failed.join(", ")}`,
+      rows: z0.installed ? [{ label: "doctor", value: z0.ok ? "ok" : z0.unchecked ? "not checked" : "attention" }] : [{ label: "Install", value: z0.hint ?? "pip install z0intelligence" }]
+    });
+    const enable = () => cards.publish({
+      kind: "approve",
+      app: APP2,
+      title: "Quote them into matching turns",
+      rows: [{ label: "Per turn", value: "top 3 matching corrections" }, { label: "Turn off", value: "/glide off" }],
+      approval: {
+        label: "Turn on",
+        description: "Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win."
+      }
+    }, async ({ signal }) => {
+      const m = glideMemory.parse(await call("enable", { on: true }));
+      if (signal.aborted) return;
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m) });
+      router();
+    });
+    cards.publish({
+      kind: "approve",
+      app: APP2,
+      title: found.memory.complete ? "Refresh your local memory" : "Build your local memory",
+      rows: memoryRows(found.memory),
+      approval: {
+        label: found.memory.complete ? "Refresh" : "Build memory",
+        description: `Reads your last ${SESSIONS} local Hermes sessions on this machine and keeps the corrections you gave ("no, \u2026", "actually, \u2026", "correction: \u2026") under your profile's glide folder. Nothing leaves this machine.`
+      }
+    }, async ({ signal }) => {
+      try {
+        const m = glideMemory.parse(await call("sync", { limit: SESSIONS }));
+        if (signal.aborted) return;
+        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
+        if (m.on) router();
+        else enable();
+      } catch (error) {
+        fail2(error);
+      }
+    });
+  } catch (error) {
+    fail2(error);
+  }
+}
+function askClauses(ask) {
+  const acceptance = ask.split(/,|\band\b|\bby\b/)[0]?.trim().slice(0, 80);
+  const scope2 = /\bin (?:the |my )?([\w-]+)/i.exec(ask)?.[1];
+  const deadline = /\bby ([\w-]+)/i.exec(ask)?.[1];
+  return [
+    ...acceptance ? [{ label: "acceptance", value: acceptance }] : [],
+    ...scope2 ? [{ label: "scope", value: scope2 }] : [],
+    ...deadline ? [{ label: "deadline", value: deadline }] : []
+  ];
+}
+var NEEDS = {
+  acceptance: "needs a real-turn recording that shows it",
+  scope: "needs a build + install receipt",
+  deadline: "needs the merge to land before then",
+  proof: "needs a receipt hash from a real turn"
+};
+var PLAN = [
+  { role: "fast", job: "triage", model: "haiku", host: "MBP" },
+  { role: "small", job: "T2, T3", model: "kimi", host: "k3s" },
+  { role: "large", job: "T1", model: "opus", host: "groot" },
+  { role: "council", job: "review", model: "4 seats", host: "groot" }
+];
+var SAMPLE_HOSTS = [
+  { name: "groot", value: "online \xB7 large, council" },
+  { name: "MBP", value: "online \xB7 fast lane" },
+  { name: "phone", value: "idle \xB7 voice in" },
+  { name: "k3s", value: "3/3 ready \xB7 small, CI" }
+];
+function intentCommand(cards, ask, live) {
+  const clauses = askClauses(ask);
+  cards.publish({ kind: "intent-declare", app: "ripple", title: "One ask. Exact words.", summary: ask.slice(0, 2048), rows: clauses });
+  const lane = (p3) => {
+    const l = live?.find((x) => x.role === p3.role);
+    return { label: `lane: ${p3.role}`, value: `${p3.job} \xB7 ${l ? l.resolved ?? l.model : p3.model} \xB7 ${l ? l.state : "standby"}` };
+  };
+  cards.publish({
+    kind: "intent-contract",
+    app: "aodl",
+    title: "Review before execution",
+    summary: "Nothing counts until a real turn leaves its receipt.",
+    rows: [
+      ...[...clauses, { label: "proof", value: "real-turn receipt" }].map((c) => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: `missing \xB7 ${NEEDS[c.label] ?? "needs a receipt"}` })),
+      { label: "pattern", value: "fan-out \u2192 council review" },
+      ...PLAN.map(lane),
+      ...SAMPLE_HOSTS.map((h2) => ({ label: `host: ${h2.name}`, value: h2.value })),
+      { label: "gate", value: "council review \xB7 3 of 4 seats must pass" },
+      { label: "budget", value: "\u2264 40k tokens \xB7 61% of weekly quota left" },
+      { label: "sample", value: live?.length ? "hosts, budget" : "lanes, hosts, budget" }
+    ],
+    approval: { label: "Hold to approve", description: "Approve this contract revision for execution. Nothing runs until approved." }
+  }, async ({ signal }) => {
+    if (signal.aborted) return;
+    cards.publish({
+      kind: "intent-work",
+      app: "aodl",
+      title: "Implementation is not acceptance",
+      summary: "Sample work rail (synthetic): no agent has been dispatched.",
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? "running" : "queued"} \xB7 ${c.label}` }))
+    });
+  });
+}
+var PHASE = {
+  PEAK: "Peak",
+  DIP: "Afternoon dip",
+  SECOND: "Second wind",
+  WIND_DOWN: "Wind-down",
+  PRE_SLEEP: "Before sleep",
+  SLEEP: "Sleep",
+  WAKE: "Awake",
+  TROUGH: "Trough"
+};
+var phaseName = (p3) => PHASE[p3] ?? p3.replace(/_/g, " ").toLowerCase();
+var clock = (t) => t ? /T(\d\d:\d\d)/.exec(t)?.[1] ?? t : "unknown";
+var hours = (f) => f.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
+async function focusCommand(cards, call, sub, fail2) {
+  const guarded3 = (run8) => async (ctx) => {
+    try {
+      await run8(ctx);
+    } catch (error) {
+      fail2(error);
+    }
+  };
+  const stopCard = () => cards.publish({
+    kind: "approve",
+    app: APP2,
+    title: "End the deep-work block",
+    rows: [{ label: "Then", value: "everything held arrives as one digest" }],
+    approval: { label: "End block", description: "Ends the block and shows the asks Glide held while you worked." }
+  }, guarded3(async ({ signal }) => {
+    const f2 = await call({ action: "stop" });
+    if (signal.aborted) return;
+    const held = f2.digest ?? [];
+    cards.publish({
+      kind: "receipt",
+      app: APP2,
+      title: held.length ? `While you were in deep work: ${held.length} held` : "Block ended, nothing held",
+      rows: held.length ? held.map((i) => ({ label: i.cls, value: i.title })) : [{ label: "Held", value: "nothing" }]
+    });
+  }));
+  const blockOn = (f2) => {
+    cards.publish({
+      kind: "receipt",
+      app: APP2,
+      title: `Deep-work block on until ${f2.block?.until ?? "\u2014"}`,
+      rows: [
+        { label: "Agent asks", value: "held until the block ends" },
+        { label: "Critical", value: "still passes" },
+        { label: "Held so far", value: f2.queued }
+      ]
+    });
+    stopCard();
+  };
+  const startCard = () => cards.publish({
+    kind: "approve",
+    app: APP2,
+    title: "Start a deep-work block",
+    rows: [{ label: "Length", value: "50 min" }, { label: "Holds", value: "non-critical agent asks" }],
+    approval: { label: "Start block", description: "For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass." }
+  }, guarded3(async ({ signal }) => {
+    const on = await call({ action: "start", minutes: 50 });
+    if (signal.aborted) return;
+    blockOn(on);
+  }));
+  if (sub === "stop") {
+    stopCard();
+    return;
+  }
+  if (/^\d+$/.test(sub)) {
+    blockOn(await call({ action: "start", minutes: Math.max(5, Math.min(240, Number(sub))) }));
+    return;
+  }
+  if (sub === "wind-down") {
+    const f2 = await call({ action: "wind_down" });
+    const asks = f2.wind_down?.resume?.last_asks ?? [];
+    cards.publish({
+      kind: "receipt",
+      app: APP2,
+      title: "Time to wrap: here's where you left off",
+      rows: [
+        { label: "Bedtime", value: clock(f2.bedtime) },
+        { label: "Left off", value: asks.join(" \xB7 ") || "nothing yet" },
+        { label: "Tomorrow", value: "your first turn starts from this note" }
+      ]
+    });
+    return;
+  }
+  const f = await call(sub === "start" ? { action: "start" } : {});
+  if (sub === "hours") {
+    cards.publish({
+      kind: "metric",
+      app: APP2,
+      title: "Your best deep-work hours",
+      summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
+      rows: [
+        ...hours(f).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
+        { label: "Usual stop", value: f.learned.stop === null ? "unknown" : `${String(f.learned.stop).padStart(2, "0")}:00` }
+      ]
+    });
+    return;
+  }
+  if (sub === "start") {
+    blockOn(f);
+    return;
+  }
+  cards.publish({
+    kind: "metric",
+    app: APP2,
+    title: "Your attention",
+    summary: f.phase_source === "circadian" ? "From your circadian schedule." : `From ${f.learned.source}.`,
+    rows: [
+      { label: "Phase", value: phaseName(f.phase) },
+      { label: "Flow likelihood", value: f.flow ? `${Math.round(f.flow.flow * 100)}% (estimate)` : "no wearable signal" },
+      { label: "Next deep work", value: f.next_window ?? "not learned yet" },
+      { label: "Bedtime", value: clock(f.bedtime) },
+      { label: "Deep-work block", value: f.block ? `on until ${f.block.until}` : "off" },
+      { label: "Held for later", value: f.queued }
+    ]
+  });
+  if (f.block) stopCard();
+  else startCard();
+}
+
+// src/chrome/attention.ts
+var DEFAULT_TTL_MS = 6e3;
+var MAX_TTL_MS = 6e4;
+var MAX_DISPATCHES = 8;
+function trim(items, isStickyError) {
+  while (items.size > MAX_DISPATCHES) {
+    const entries2 = [...items.entries()];
+    const newest = entries2.at(-1)?.[0];
+    const error = entries2.toReversed().find(([, item3]) => isStickyError(item3))?.[0];
+    const victim = entries2.find(([key3]) => key3 !== newest && key3 !== error)?.[0];
+    if (victim === void 0) {
+      break;
+    }
+    items.delete(victim);
+  }
+}
+var Dispatches = class {
+  #items = /* @__PURE__ */ new Map();
+  #held = /* @__PURE__ */ new Map();
+  #serial = 0;
+  show(payload, now = Date.now(), hidden2 = false) {
+    const text18 = payload.text?.trim();
+    if (!text18) {
+      return;
+    }
+    const key3 = payload.key?.trim() || payload.id?.trim() || `anonymous:${++this.#serial}`;
+    if (hidden2) {
+      this.#items.delete(key3);
+      this.#held.delete(key3);
+      this.#held.set(key3, { ...payload, key: key3 });
+      trim(this.#held, (item3) => item3.kind === "sticky" && item3.level === "error");
+      return;
+    }
+    this.#held.delete(key3);
+    const existing = this.#items.get(key3);
+    const ttl = typeof payload.ttl_ms === "number" && Number.isFinite(payload.ttl_ms) && payload.ttl_ms > 0 ? Math.min(payload.ttl_ms, MAX_TTL_MS) : DEFAULT_TTL_MS;
+    const level = payload.level === "warning" ? "warn" : payload.level === "warn" || payload.level === "error" || payload.level === "success" ? payload.level : "info";
+    const note = {
+      key: key3,
+      serial: existing?.serial ?? ++this.#serial,
+      text: text18,
+      level,
+      expiresAt: payload.kind === "sticky" ? null : now + ttl
+    };
+    this.#items.delete(key3);
+    this.#items.set(key3, note);
+    this.#prune(now);
+    trim(this.#items, (item3) => item3.expiresAt === null && item3.level === "error");
+  }
+  /** A notification.clear removes both a shown key and one waiting for pane visibility. */
+  clear(key3) {
+    const shown3 = this.#items.delete(key3);
+    const held = this.#held.delete(key3);
+    return shown3 || held;
+  }
+  /** Display deferred notices with a fresh TTL, and keep the gateway's keyed order. */
+  resume(now = Date.now()) {
+    const held = [...this.#held.values()];
+    this.#held.clear();
+    for (const note of held) {
+      this.show(note, now);
+    }
+  }
+  reset() {
+    this.#items.clear();
+    this.#held.clear();
+  }
+  active(now = Date.now()) {
+    this.#prune(now);
+    return [...this.#items.values()];
+  }
+  nextExpiry(now = Date.now()) {
+    this.#prune(now);
+    let next2 = null;
+    for (const note of this.#items.values()) {
+      if (note.expiresAt !== null && (next2 === null || note.expiresAt < next2)) {
+        next2 = note.expiresAt;
+      }
+    }
+    return next2;
+  }
+  #prune(now) {
+    for (const [key3, note] of this.#items) {
+      if (note.expiresAt !== null && note.expiresAt <= now) {
+        this.#items.delete(key3);
+      }
+    }
+  }
+};
+
+// src/chrome/notices.ts
+function noticeReport(items) {
+  if (!items.length) {
+    return "No retained notices at the time this report was opened.";
+  }
+  const lines = items.flatMap((item3) => [`[${item3.tone}] ${item3.text}`, ""]);
+  return [
+    "Snapshot at open time. Up to eight notices are retained. On overflow, only the newest sticky error and the newest notice are protected; others may have been omitted.",
+    "",
+    ...lines.flatMap((line) => line.split(/\r\n|\r|\n/).map((part) => `    ${part}`))
+  ].join("\n");
+}
+var Notices = class {
+  #items = new Dispatches();
+  show(p3, now = Date.now(), hidden2 = false) {
+    if (!p3.text?.trim()) {
+      return void 0;
+    }
+    this.#items.show(p3, now, hidden2);
+    return this.current(now);
+  }
+  /** Clear a visible or deferred key; unkeyed clears never erase other notices. */
+  clear(key3) {
+    return key3 !== void 0 && this.#items.clear(key3);
+  }
+  current(now = Date.now()) {
+    return this.active(now).at(-1);
+  }
+  /** The retained gateway notices, oldest first; a snapshot, not durable history. */
+  active(now = Date.now()) {
+    return this.#items.active(now).map((item3) => ({
+      key: item3.key,
+      text: item3.text,
+      tone: item3.level === "warn" ? "warning" : item3.level,
+      ...item3.expiresAt !== null ? { expires: item3.expiresAt } : {}
+    }));
+  }
+  /** The newest retained error, if another notice is currently shown. */
+  otherError(now = Date.now()) {
+    const items = this.active(now);
+    const latest2 = items.at(-1);
+    return items.toReversed().find((item3) => item3.tone === "error" && item3.key !== latest2?.key);
+  }
+  nextExpiry(now = Number.NEGATIVE_INFINITY) {
+    return this.#items.nextExpiry(now) ?? void 0;
+  }
+  resume(now = Date.now()) {
+    this.#items.resume(now);
+  }
+  reset() {
+    this.#items.reset();
+  }
+};
+function isLoginNotice(p3) {
+  return Boolean(p3.key?.startsWith("login:"));
+}
+var NoticeStrip = class {
+  #host;
+  #notices = new Notices();
+  #timer;
+  #visible = true;
+  constructor(host) {
+    this.#host = host;
+  }
+  /** Adds or replaces the notice, and re-arms the expiry render. */
+  show(p3) {
+    this.#notices.show(p3, Date.now(), !this.#visible);
+    this.#arm();
+  }
+  /** Drops the notice with `key`. */
+  clear(key3) {
+    this.#notices.clear(key3);
+    this.#arm();
+  }
+  /** The notice the strip shows at `now`. */
+  current(now = Date.now()) {
+    return this.#notices.current(now);
+  }
+  active(now = Date.now()) {
+    return this.#notices.active(now);
+  }
+  otherError(now = Date.now()) {
+    return this.#notices.otherError(now);
+  }
+  /** Forgets every notice (another session is shown). */
+  reset() {
+    this.#notices.reset();
+    this.#arm();
+  }
+  /** Visibility is host-owned; held notifications start their TTL when the pane returns. */
+  visible(shown3) {
+    if (shown3 === this.#visible) {
+      return;
+    }
+    this.#visible = shown3;
+    if (shown3) {
+      this.#notices.resume();
+    }
+    this.#arm();
+    if (shown3) {
+      this.#host.changed();
+    }
+  }
+  /** Stops the expiry render. */
+  dispose() {
+    clearTimeout(this.#timer);
+    this.#timer = void 0;
+  }
+  /** Re-renders when the next `ttl` notice expires, so the strip drops it on time. */
+  #arm() {
+    clearTimeout(this.#timer);
+    this.#timer = void 0;
+    const at2 = this.#visible ? this.#notices.nextExpiry(Date.now()) : void 0;
+    if (at2 !== void 0) {
+      this.#timer = setTimeout(() => {
+        this.#notices.current();
+        this.#arm();
+        this.#host.changed();
+      }, Math.max(0, at2 - Date.now()) + 10);
+    }
+  }
+};
+
+// src/core/ids.ts
+import { randomUUID } from "node:crypto";
+var liveSessionId = (raw2) => raw2;
+var storedSessionId = (raw2) => raw2;
+var subscriptionId = (raw2) => raw2;
+var admissionId = (raw2) => raw2;
+var inputId = (raw2) => raw2;
+var newInputId = () => inputId(randomUUID());
+var toolCallId = (raw2) => raw2;
+var entryId = (raw2) => raw2;
+var subagentKey = (raw2) => raw2;
+var prKey = (ref) => `${ref.host}/${ref.repository}#${ref.number}`;
+var stackKey = (host, repository, number4) => `${host}/${repository}#stack:${number4}`;
+var overlayKey = (raw2) => raw2;
+var isLive = (ids) => ids.live !== null;
+var NO_SESSION = { live: null, stored: null };
+function durable(ids) {
+  return ids.stored ?? ids.live;
+}
+
+// src/commands/host.ts
+function sessionHost(cx, literal3 = false) {
+  const ticket = cx.state.ticket();
+  const { sid } = ticket;
+  let started;
+  return {
+    get busy() {
+      return cx.activity.busy !== null;
+    },
+    draft: (text18) => {
+      cx.draft(text18);
+      cx.changed();
+    },
+    // A steer that fell back to the queue: steering carries no images.
+    enqueue: (text18) => cx.router.behind({ images: [], kind: "app", text: text18 }),
+    gw: cx.gw,
+    notice: (text18, tone2) => {
+      cx.transcript.notice(text18, tone2);
+      cx.changed();
+    },
+    // The shared gateway (the one /branch runs on) answers a resume with one id for both kinds.
+    open: async (id) => {
+      await cx.life.resume(id);
+      return durable(cx.state.ref) === id;
+    },
+    panel: (title, text18) => {
+      cx.transcript.panel(title, text18);
+      cx.changed();
+    },
+    compressing: (state) => {
+      if (state === "start") {
+        started = cx.transcript.compactions.compacting({ before: cx.state.usage?.context_used || void 0, manual: true });
+      } else if (state === "none") {
+        if (started) {
+          cx.transcript.compactions.uncompact(started);
+        }
+      } else {
+        cx.transcript.compactions.compacted(Date.now(), state);
+      }
+      cx.setCompacting(state === "start", { manual: true });
+      cx.changed();
+    },
+    get queued() {
+      return cx.queue.count();
+    },
+    reload: async () => {
+      if (sid && ticket.isCurrent()) {
+        await cx.life.reload(sid);
+      }
+    },
+    send: (text18) => cx.router.send({ images: [], kind: "app", text: text18 }),
+    sid,
+    stale: () => !ticket.isCurrent(),
+    steered: (text18) => {
+      cx.transcript.steer(text18);
+      cx.changed();
+    },
+    // /queue: behind the turn whatever busy_input_mode says.
+    submit: (text18) => cx.submit(text18, literal3)
+  };
 }
 
 // src/hermes/connect.ts
-var command = object({ argv: tuple([string2()], string2()), env: _catch(record(string2(), string2()), {}) });
+import { execFile as execFile2 } from "node:child_process";
+var command = object({ argv: tuple([string2()], string2()), env: _catch(record2(string2(), string2()), {}) });
 function readHermesCommand(raw2) {
   return raw2 ? command.safeParse(parseJson(raw2)).data : void 0;
 }
@@ -26166,7 +27825,7 @@ var AttachError = class extends Error {
   terminal;
 };
 var runFile = (file2, args, env2) => new Promise((resolve11) => {
-  execFile(file2, args, { encoding: "utf8", env: env2, maxBuffer: 1024 * 1024, timeout: ATTACH_TIMEOUT_MS }, (error, stdout, stderr) => {
+  execFile2(file2, args, { encoding: "utf8", env: env2, maxBuffer: 1024 * 1024, timeout: ATTACH_TIMEOUT_MS }, (error, stdout, stderr) => {
     const code7 = error ? typeof error.code === "number" ? error.code : 1 : 0;
     resolve11({ code: code7, stderr: stderr || (error && !stdout ? error.message : ""), stdout });
   });
@@ -26259,7 +27918,7 @@ var isHoldInfoKey = (key3) => key3.name === "space" && key3.alt && key3.shift &&
 // src/draft/keys.ts
 var EXIT_ARM_MS = 1500;
 var DOUBLE_ESC_MS = 500;
-var KEYS = {
+var KEYS2 = {
   agents: { label: "alt+a", name: "a", with: ["alt"], without: ["ctrl", "meta"] },
   background: { label: "alt+j", name: "j", with: ["alt"], without: ["ctrl", "meta"] },
   browser: { label: "alt+shift+b", name: "b", with: ["alt", "shift"], without: ["ctrl", "meta"] },
@@ -26313,7 +27972,7 @@ function ctrlC(cx) {
   cx.transcript.notice("Press Ctrl+C again to exit.");
 }
 var cancel = (key3, cx, top) => {
-  if (!matches(key3, KEYS.cancel)) {
+  if (!matches(key3, KEYS2.cancel)) {
     return false;
   }
   if (!top) {
@@ -26326,7 +27985,7 @@ var cancel = (key3, cx, top) => {
   return true;
 };
 var liveCancel = (key3, cx) => {
-  if (!cx.liveVoice.blocked || key3.name !== "escape" && !matches(key3, KEYS.cancel)) {
+  if (!cx.liveVoice.blocked || key3.name !== "escape" && !matches(key3, KEYS2.cancel)) {
     return false;
   }
   void cx.liveVoice.control("stop");
@@ -26377,7 +28036,7 @@ var appShortcuts = (key3, cx) => {
   return found !== void 0;
 };
 var doubleEsc = (key3, cx) => {
-  if (!matches(key3, KEYS.clearOrStop)) {
+  if (!matches(key3, KEYS2.clearOrStop)) {
     return false;
   }
   const now = cx.now();
@@ -26391,20 +28050,20 @@ var doubleEsc = (key3, cx) => {
   return true;
 };
 var effort = (key3, cx) => {
-  if (!bound(cx, "app.thinking.cycle", key3, KEYS.effort)) {
+  if (!bound(cx, "app.thinking.cycle", key3, KEYS2.effort)) {
     return false;
   }
   cx.cycleEffort();
   return true;
 };
 var SHEETS = [
-  [KEYS.agents, (cx) => cx.openAgents()],
-  [KEYS.background, (cx) => cx.openBackground()],
-  [KEYS.browser, (cx) => cx.openBrowserBlocks()],
-  [KEYS.sidebar, (cx) => cx.toggleSidebar()],
-  [KEYS.prs, (cx) => cx.openPrs()],
-  [KEYS.plan, (cx) => cx.openPlan()],
-  [KEYS.fork, (cx) => cx.fork()]
+  [KEYS2.agents, (cx) => cx.openAgents()],
+  [KEYS2.background, (cx) => cx.openBackground()],
+  [KEYS2.browser, (cx) => cx.openBrowserBlocks()],
+  [KEYS2.sidebar, (cx) => cx.toggleSidebar()],
+  [KEYS2.prs, (cx) => cx.openPrs()],
+  [KEYS2.plan, (cx) => cx.openPlan()],
+  [KEYS2.fork, (cx) => cx.fork()]
 ];
 var sheets = (key3, cx) => {
   const ids = ["app.agents.hub", "app.jobs", void 0, "app.sidebar", "app.prs"];
@@ -26416,14 +28075,14 @@ var sheets = (key3, cx) => {
   return hit !== void 0;
 };
 var dequeue = (key3, cx) => {
-  if (!bound(cx, "app.message.dequeue", key3, KEYS.dequeue) || !cx.queue.count()) {
+  if (!bound(cx, "app.message.dequeue", key3, KEYS2.dequeue) || !cx.queue.count()) {
     return false;
   }
   cx.queue.dequeue(0);
   return true;
 };
 var steer = (key3, cx) => {
-  if (!bound(cx, "app.message.alternate", key3, KEYS.steer) || !cx.busy()) {
+  if (!bound(cx, "app.message.alternate", key3, KEYS2.steer) || !cx.busy()) {
     return false;
   }
   if (cx.composer.text) {
@@ -26437,7 +28096,7 @@ var steer = (key3, cx) => {
   return true;
 };
 var quit = (key3, cx) => {
-  if (!matches(key3, KEYS.quit) || hasDraft(cx)) {
+  if (!matches(key3, KEYS2.quit) || hasDraft(cx)) {
     return false;
   }
   cx.quit();
@@ -26445,14 +28104,14 @@ var quit = (key3, cx) => {
 };
 var pasteImage = (key3, cx) => key3.name === "paste" && cx.attachments.paste(key3.text ?? "");
 var clipboardImage = (key3, cx) => {
-  if (!matches(key3, KEYS.clipboardImage)) {
+  if (!matches(key3, KEYS2.clipboardImage)) {
     return false;
   }
   cx.attachClipboardImage();
   return true;
 };
 var copyDraft = (key3, cx) => {
-  if (!matches(key3, KEYS.copyDraft)) {
+  if (!matches(key3, KEYS2.copyDraft)) {
     return false;
   }
   cx.copyDraft(key3.shift);
@@ -26555,7 +28214,7 @@ function nextWord(text18, at2) {
 import { spawnSync } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join as join2 } from "node:path";
+import { join as join4 } from "node:path";
 function editorArgv(command2) {
   const args = [];
   let word = "";
@@ -26607,9 +28266,9 @@ var openDraftFile = (file2) => {
   }
 };
 async function editTextExternal(initial, opener = openDraftFile) {
-  const dir2 = await mkdtemp(join2(tmpdir(), "hermes-tern-edit-"));
+  const dir2 = await mkdtemp(join4(tmpdir(), "hermes-tern-edit-"));
   try {
-    const file2 = join2(dir2, "draft.txt");
+    const file2 = join4(dir2, "draft.txt");
     await writeFile(file2, initial, { mode: 384 });
     await opener(file2);
     return await readFile(file2, "utf8");
@@ -26907,19 +28566,6 @@ function negative(key3) {
   return unmodified(key3) && (key3.name === "escape" || key3.name === "n");
 }
 
-// src/overlays/identity.ts
-var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
-function nativeOverlayKey(root7) {
-  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
-  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
-    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
-  }
-  return key3;
-}
-function withinOverlayRoot(id, root7) {
-  return id === root7 || id.startsWith(root7 + ".");
-}
-
 // src/core/assert.ts
 function isNonEmpty(list10) {
   return list10.length > 0;
@@ -27204,12 +28850,12 @@ function approvalOverlay(host, prompt) {
 }
 
 // node_modules/@hermes/shared/src/node/prompt-history.ts
-import { appendFileSync as appendFileSync2, existsSync, mkdirSync, readFileSync as readFileSync2 } from "node:fs";
-import { homedir as homedir2 } from "node:os";
-import { join as join3 } from "node:path";
+import { appendFileSync as appendFileSync2, existsSync, mkdirSync as mkdirSync3, readFileSync as readFileSync4 } from "node:fs";
+import { homedir as homedir4 } from "node:os";
+import { join as join5 } from "node:path";
 var MAX = 1e3;
-var dir = process.env.HERMES_HOME ?? join3(homedir2(), ".hermes");
-var file = join3(dir, ".hermes_history");
+var dir = process.env.HERMES_HOME ?? join5(homedir4(), ".hermes");
+var file = join5(dir, ".hermes_history");
 var cache = null;
 function load() {
   if (cache) {
@@ -27222,7 +28868,7 @@ function load() {
     }
     const entries2 = [];
     let current = [];
-    for (const line of readFileSync2(file, "utf8").split("\n")) {
+    for (const line of readFileSync4(file, "utf8").split("\n")) {
       if (line.startsWith("+")) {
         current.push(line.slice(1));
       } else if (current.length) {
@@ -27254,7 +28900,7 @@ function append(line) {
   }
   try {
     if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
+      mkdirSync3(dir, { recursive: true });
     }
     const ts = (/* @__PURE__ */ new Date()).toISOString().replace("T", " ").replace("Z", "");
     const encoded = trimmed.split("\n").map((l) => `+${l}`).join("\n");
@@ -29238,7 +30884,7 @@ function todosOf({ merge: merge2, todos: todos2 }, current) {
 function mergeTodos(current, patch6) {
   const out = current.map((t) => ({ ...t }));
   for (const item3 of patch6) {
-    const r = record2(item3);
+    const r = record(item3);
     const id = String(r?.["id"] ?? "").trim();
     if (!r || !id) {
       continue;
@@ -29336,9 +30982,9 @@ function appOf(name, args) {
 function entriesOf(args) {
   const list10 = Array.isArray(args["calls"]) ? args["calls"] : [args];
   return list10.flatMap((e) => {
-    const r = record2(e);
+    const r = record(e);
     const name = r?.["name"];
-    return typeof name === "string" && name ? [{ args: record2(r?.["arguments"]) ?? {}, name }] : [];
+    return typeof name === "string" && name ? [{ args: record(r?.["arguments"]) ?? {}, name }] : [];
   });
 }
 function unwrap(name, args) {
@@ -29361,14 +31007,14 @@ function batchOf(call) {
   return call.via.kind === "batch" ? call.via.entries : void 0;
 }
 function batchResults(result) {
-  const results = record2(result)?.["results"];
+  const results = record(result)?.["results"];
   if (!Array.isArray(results)) {
     return void 0;
   }
   return results.map((e) => {
-    const r = record2(e) ?? {};
+    const r = record(e) ?? {};
     const err = r["error"];
-    return err === void 0 || err === null ? { result: r["response"] } : { error: typeof err === "string" ? err : String(record2(err)?.["message"] ?? "") || JSON.stringify(err) };
+    return err === void 0 || err === null ? { result: r["response"] } : { error: typeof err === "string" ? err : String(record(err)?.["message"] ?? "") || JSON.stringify(err) };
   });
 }
 function settleBridge(call) {
@@ -29411,7 +31057,7 @@ var CONNECT_TOOL = "manage_connections";
 var POLL_MS = 2e3;
 function parseTargets(targets) {
   return targets.flatMap((t) => {
-    const r = record2(t);
+    const r = record(t);
     const name = typeof r?.["name"] === "string" ? r["name"].trim() : "";
     const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f) => envField(f)) : [];
     const env2 = Object.fromEntries(fields.flatMap((f) => f.default ? [[f.name, f.default]] : []));
@@ -29433,7 +31079,7 @@ function parseTargets(targets) {
   });
 }
 function launchOf(raw2) {
-  const r = record2(raw2);
+  const r = record(raw2);
   const kind = r?.["kind"];
   const target2 = text(r?.["target"]);
   if (kind !== "remote" && kind !== "stdio" || !target2) {
@@ -29444,7 +31090,7 @@ function launchOf(raw2) {
 }
 var text = (v) => typeof v === "string" && v ? v : void 0;
 function envField(raw2) {
-  const r = record2(raw2);
+  const r = record(raw2);
   const name = text(r?.["name"]);
   return name ? [{ default: typeof r?.["default"] === "string" ? r["default"] : "", name, required: r?.["required"] === true }] : [];
 }
@@ -29471,7 +31117,7 @@ function settleReason(r) {
   }
 }
 function resultCard(call) {
-  const r = call.name === CONNECT_TOOL ? record2(call.result) : void 0;
+  const r = call.name === CONNECT_TOOL ? record(call.result) : void 0;
   const settled2 = r && r["status"] === "settled" && typeof r["op_id"] === "string" ? settleReason(r) : void 0;
   const targets = settled2 && Array.isArray(r?.["targets"]) ? parseTargets(r["targets"]) : [];
   return targets.length ? { opened: [], settled: settled2, targets } : void 0;
@@ -29486,7 +31132,7 @@ var LINK_TOOLS = /* @__PURE__ */ new Set(["link_pull_request", "list_pull_reques
 var LINKED_METHOD = "plugin.hermes-tern.pull_requests.linked";
 var LINKS_CHANGED = "plugin.hermes-tern.pull_requests.changed";
 function refOf(v) {
-  const r = record2(v);
+  const r = record(v);
   const host = typeof r?.["host"] === "string" ? r["host"] : "";
   const repository = typeof r?.["repository"] === "string" ? r["repository"] : "";
   const number4 = typeof r?.["number"] === "number" ? r["number"] : 0;
@@ -29496,11 +31142,11 @@ function linkedFromResult(call) {
   if (!LINK_TOOLS.has(call.name) || call.outcome.kind !== "done") {
     return void 0;
   }
-  const linked = record2(call.result)?.["linked"];
+  const linked = record(call.result)?.["linked"];
   return Array.isArray(linked) ? linked.map(refOf).filter((r) => Boolean(r)) : void 0;
 }
 async function linkedPullRequests(gw2, sid) {
-  const linked = record2(await gw2.request(LINKED_METHOD, { session_id: sid }))?.["linked"];
+  const linked = record(await gw2.request(LINKED_METHOD, { session_id: sid }))?.["linked"];
   return Array.isArray(linked) ? linked.map(refOf).filter((r) => Boolean(r)) : [];
 }
 
@@ -29754,10 +31400,10 @@ import { existsSync as existsSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 // src/wire/files.ts
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync5 } from "node:fs";
 function readJsonFile(file2) {
   try {
-    return parseJson(readFileSync3(file2, "utf8"));
+    return parseJson(readFileSync5(file2, "utf8"));
   } catch {
     return void 0;
   }
@@ -29900,7 +31546,7 @@ function hermesRecorder(env2 = process.env) {
 async function configuredRecordKey(gw2, sid) {
   try {
     const r = await rpc(gw2, "config.get", { key: "full", ...sid ? { session_id: sid } : {} });
-    return record2(record2(r.config)?.["voice"])?.["record_key"];
+    return record(record(r.config)?.["voice"])?.["record_key"];
   } catch {
     return void 0;
   }
@@ -29938,7 +31584,7 @@ function recordKey(raw2) {
   if (parts3.length !== 2 || !modifier || !name) {
     return DEFAULT_RECORD_KEY;
   }
-  if (modifier === "ctrl" && name === "b" || Object.values(KEYS).some((k) => k.name === name && k.with.includes(modifier))) {
+  if (modifier === "ctrl" && name === "b" || Object.values(KEYS2).some((k) => k.name === name && k.with.includes(modifier))) {
     return DEFAULT_RECORD_KEY;
   }
   return {
@@ -29992,19 +31638,19 @@ var HostLifecycle = class {
 
 // src/artifacts.ts
 var import_undici = __toESM(require_undici(), 1);
-import { execFile as execFile2 } from "node:child_process";
+import { execFile as execFile3 } from "node:child_process";
 import { createHash as createHash2 } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { mkdir, open, readFile as readFile2, rename, rm as rm2, stat, writeFile as writeFile2 } from "node:fs/promises";
 import { isIP } from "node:net";
-import { homedir as homedir3 } from "node:os";
-import { dirname, extname as extname2, join as join4, resolve as resolve2 } from "node:path";
+import { homedir as homedir5 } from "node:os";
+import { dirname as dirname3, extname as extname2, join as join6, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { promisify } from "node:util";
-var run2 = promisify(execFile2);
+import { promisify as promisify2 } from "node:util";
+var run2 = promisify2(execFile3);
 var MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i;
 var MAX_BYTES = 128 * 1024 * 1024;
-var CACHE = join4(process.env["XDG_CACHE_HOME"] || join4(homedir3(), ".cache"), "hermes-tern", "artifacts");
+var CACHE = join6(process.env["XDG_CACHE_HOME"] || join6(homedir5(), ".cache"), "hermes-tern", "artifacts");
 function extension(source2) {
   try {
     return extname2(new URL(source2).pathname).toLowerCase();
@@ -30128,13 +31774,13 @@ async function companions(source2, path2) {
   const text18 = await readFile2(path2, "utf8");
   let refs3;
   if (ext === ".gltf") {
-    const doc = record2(parseJson(text18));
+    const doc = record(parseJson(text18));
     if (!doc) {
       throw new Error("Invalid glTF document");
     }
     const resources = [doc["buffers"], doc["images"]].flatMap((items) => Array.isArray(items) ? items : []);
     refs3 = resources.flatMap((item3) => {
-      const uri = record2(item3)?.["uri"];
+      const uri = record(item3)?.["uri"];
       return typeof uri === "string" && !uri.startsWith("data:") ? [uri] : [];
     });
   } else {
@@ -30147,8 +31793,8 @@ async function companions(source2, path2) {
     if (/^[\w.+-]+:|^[/\\]|[?#]/.test(ref) || ref.split(/[/\\]/).includes("..")) {
       throw new Error("Model has an external companion. Use an embedded GLB instead.");
     }
-    const target2 = resolve2(dirname(path2), ref);
-    await mkdir(dirname(target2), { recursive: true, mode: 448 });
+    const target2 = resolve2(dirname3(path2), ref);
+    await mkdir(dirname3(target2), { recursive: true, mode: 448 });
     await download(new URL(ref, source2).href, target2);
   }
 }
@@ -30162,10 +31808,10 @@ async function openArtifact(source2, cwd = process.cwd()) {
     if (!MODEL.test(ext)) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz URL");
     }
-    const dir2 = join4(CACHE, createHash2("sha256").update(source2).digest("hex"));
-    path2 = join4(dir2, `model${ext}`);
+    const dir2 = join6(CACHE, createHash2("sha256").update(source2).digest("hex"));
+    path2 = join6(dir2, `model${ext}`);
     try {
-      await stat(join4(dir2, ".complete"));
+      await stat(join6(dir2, ".complete"));
     } catch {
       await mkdir(dir2, { recursive: true, mode: 448 });
       const temp = `${path2}.${process.pid}.part`;
@@ -30173,13 +31819,13 @@ async function openArtifact(source2, cwd = process.cwd()) {
         await download(source2, temp);
         await companions(source2, temp);
         await rename(temp, path2);
-        await writeFile2(join4(dir2, ".complete"), "", { mode: 384 });
+        await writeFile2(join6(dir2, ".complete"), "", { mode: 384 });
       } finally {
         await rm2(temp, { force: true });
       }
     }
   } else {
-    path2 = source2.startsWith("file://") ? fileURLToPath2(source2) : resolve2(cwd, source2.replace(/^~(?=\/)/, homedir3()));
+    path2 = source2.startsWith("file://") ? fileURLToPath2(source2) : resolve2(cwd, source2.replace(/^~(?=\/)/, homedir5()));
     if (!MODEL.test(extension(path2))) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz file");
     }
@@ -30193,7 +31839,7 @@ async function openArtifact(source2, cwd = process.cwd()) {
 var Artifacts = class {
   #seen = /* @__PURE__ */ new Set();
   show(call, cwd, notice) {
-    if (!call || call.outcome.kind !== "done" || record2(call.result)?.["success"] === false || record2(call.result)?.["isError"] === true) {
+    if (!call || call.outcome.kind !== "done" || record(call.result)?.["success"] === false || record(call.result)?.["isError"] === true) {
       return;
     }
     for (const source2 of modelSources([call.result, call.resultText])) {
@@ -30279,13 +31925,13 @@ function modelPayload(arg) {
 }
 
 // src/pane-launcher.ts
-import { execFile as execFile4 } from "node:child_process";
-import { promisify as promisify3 } from "node:util";
+import { execFile as execFile5 } from "node:child_process";
+import { promisify as promisify4 } from "node:util";
 
 // src/watch/spec.ts
-import { execFile as execFile3 } from "node:child_process";
-import { promisify as promisify2 } from "node:util";
-var run3 = promisify2(execFile3);
+import { execFile as execFile4 } from "node:child_process";
+import { promisify as promisify3 } from "node:util";
+var run3 = promisify3(execFile4);
 var WATCH_ENV = "HERMES_TERN_WATCH";
 function readWatchSpec(env2 = process.env) {
   return readWatchSpecText(env2[WATCH_ENV]);
@@ -30341,7 +31987,7 @@ async function openHermesSplit(args, cwd, env2 = process.env) {
 }
 
 // src/pane-launcher.ts
-async function launchPane(argv, cwd, env2 = process.env, execute = promisify3(execFile4)) {
+async function launchPane(argv, cwd, env2 = process.env, execute = promisify4(execFile5)) {
   const split2 = hermesSplit(env2, [], argv);
   if (!split2) {
     return false;
@@ -30512,7 +32158,7 @@ function ownersOf(calls) {
 }
 var byTask = (x, y) => x.index - y.index || (x.depth ?? 0) - (y.depth ?? 0);
 function dispatchOf(result) {
-  const { delegation_id: delegationId, goals, status, subagent_ids: ids } = record2(result) ?? {};
+  const { delegation_id: delegationId, goals, status, subagent_ids: ids } = record(result) ?? {};
   if (status !== "dispatched" || typeof delegationId !== "string") {
     return void 0;
   }
@@ -30739,7 +32385,7 @@ function taskGoals(call) {
   const tasks = typeof raw2 === "string" ? parseJson(raw2) : raw2;
   if (Array.isArray(tasks) && tasks.length) {
     return tasks.map((t) => {
-      const { goal: task } = record2(t) ?? {};
+      const { goal: task } = record(t) ?? {};
       return typeof task === "string" ? task.trim() : "";
     });
   }
@@ -31612,7 +33258,7 @@ function compact2(text18) {
   return line.length > PROGRESS_CHARS ? `${line.slice(0, PROGRESS_CHARS - 1)}\u2026` : line;
 }
 function intent(text18) {
-  const args = record2(text18);
+  const args = record(text18);
   const label = args?.["i"] ?? args?.["intent"];
   return compact2(typeof label === "string" && label.trim() ? label : text18);
 }
@@ -31696,7 +33342,7 @@ function agentTile(a2, now) {
 function plural(n3, one6, many = `${one6}s`) {
   return `${n3} ${n3 === 1 ? one6 : many}`;
 }
-function clip2(text18, o) {
+function clip3(text18, o) {
   if (text18.length <= o.max) {
     return text18;
   }
@@ -31715,11 +33361,11 @@ function text2(v) {
 function num3(v) {
   return typeof v === "number" ? v : void 0;
 }
-function list(v) {
+function list2(v) {
   return Array.isArray(v) ? v : void 0;
 }
 function records(v) {
-  return Array.isArray(v) ? v.map((i) => record2(i)) : [];
+  return Array.isArray(v) ? v.map((i) => record(i)) : [];
 }
 function objects(v) {
   return records(v).filter((r) => r !== void 0);
@@ -31730,7 +33376,7 @@ function texts(v) {
 
 // src/tools/ask.ts
 function askDetail({ args, result }) {
-  const asked2 = list(args["questions"]) ?? (text2(args["question"]) ? [args] : []);
+  const asked2 = list2(args["questions"]) ?? (text2(args["question"]) ? [args] : []);
   return {
     answered: result !== void 0,
     questions: objects(asked2).map((q2) => ({ choices: texts(q2["choices"]), question: text2(q2["question"]) })),
@@ -31767,7 +33413,7 @@ function diagnosticsOf(value) {
   const files = /* @__PURE__ */ new Map();
   const unavailable = [];
   for (const candidate of value) {
-    const file2 = record2(candidate);
+    const file2 = record(candidate);
     const path2 = file2?.["path"];
     if (!file2 || typeof path2 !== "string" || !path2) {
       return void 0;
@@ -31781,7 +33427,7 @@ function diagnosticsOf(value) {
     }
     const group = files.get(path2) ?? { path: path2, diagnostics: [], omitted: 0 };
     for (const candidateRow of file2["diagnostics"]) {
-      const row2 = record2(candidateRow);
+      const row2 = record(candidateRow);
       const tone2 = severity(row2?.["severity"]);
       const line = row2?.["line"];
       const col = row2?.["col"];
@@ -31813,7 +33459,7 @@ function diagnosticsOf(value) {
 }
 function lintEntry(lint) {
   if (!lint || typeof lint !== "object" || Array.isArray(lint)) return void 0;
-  const data = record2(lint);
+  const data = record(lint);
   if (!data || !Object.hasOwn(data, "status") || data["status"] !== "error" || !Object.hasOwn(data, "output") || typeof data["output"] !== "string" || Object.hasOwn(data, "message") && typeof data["message"] !== "string") return void 0;
   return { output: data["output"], ...optional2("message", Object.hasOwn(data, "message") ? text2(data["message"]) : void 0) };
 }
@@ -31829,7 +33475,7 @@ function v4aLint({ args, result }) {
   if (!failure5 && (result["success"] !== true || result["error"] !== void 0 && result["error"] !== null && result["error"] !== "")) return void 0;
   const map4 = Object.hasOwn(result, "lint") ? result["lint"] : void 0;
   if (!map4 || typeof map4 !== "object" || Array.isArray(map4)) return failure5 ? { errors: [], uninspected: false, failure: failure5 } : void 0;
-  const entries2 = record2(map4);
+  const entries2 = record(map4);
   if (!entries2) return failure5 ? { errors: [], uninspected: false, failure: failure5 } : void 0;
   const errors = [];
   let inspected = 0;
@@ -31906,7 +33552,7 @@ function plainDetail(tool) {
   return (raw2) => ({ ...genericFields(raw2), tool });
 }
 function todoDetail(raw2) {
-  return { ...genericFields(raw2), merge: raw2.args["merge"] === true, todos: list(raw2.args["todos"]), tool: "todo_list" };
+  return { ...genericFields(raw2), merge: raw2.args["merge"] === true, todos: list2(raw2.args["todos"]), tool: "todo_list" };
 }
 function processDetail(raw2) {
   return { ...genericFields(raw2), action: String(raw2.args["action"]), tool: "process_manage" };
@@ -31944,10 +33590,10 @@ function memoryDetail({ args, result }) {
   return { action: text2(args["action"]), tool: "memory", usage: text2(result?.["usage"]) };
 }
 function skillsDetail({ result }) {
-  const skills = list(result?.["skills"]) ?? [];
+  const skills = list2(result?.["skills"]) ?? [];
   return {
     message: text2(result?.["message"]),
-    names: skills.map((s2) => text2(record2(s2)?.["name"]) ?? text2(s2)).filter((n3) => n3 !== void 0),
+    names: skills.map((s2) => text2(record(s2)?.["name"]) ?? text2(s2)).filter((n3) => n3 !== void 0),
     tool: "skills_list"
   };
 }
@@ -31956,7 +33602,7 @@ function skillDetail({ args, result }) {
 }
 function toolSearchDetail(raw2) {
   const { args } = raw2;
-  const queries = list(args["queries"]);
+  const queries = list2(args["queries"]);
   return {
     ...genericFields(raw2),
     queries: queries ? queries.filter((q2) => typeof q2 === "string") : texts([text2(args["queries"]) ?? text2(args["query"])]),
@@ -31977,9 +33623,9 @@ function operation(value) {
   return value === "references" || value === "symbols" || value === "hover";
 }
 function range(value) {
-  const row2 = record2(value);
-  const start = record2(row2?.["start"]);
-  const end = record2(row2?.["end"]);
+  const row2 = record(value);
+  const start = record(row2?.["start"]);
+  const end = record(row2?.["end"]);
   if (!start || !end || !positive3(start["line"]) || !positive3(start["col"]) || !positive3(end["line"]) || !positive3(end["col"]) || end["line"] < start["line"] || end["line"] === start["line"] && end["col"] < start["col"]) {
     return void 0;
   }
@@ -31989,7 +33635,7 @@ function range(value) {
   };
 }
 function location(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const span2 = range(row2?.["range"]);
   const path2 = row2?.["path"];
   return typeof path2 === "string" && span2 ? { path: path2, range: span2 } : void 0;
@@ -32014,7 +33660,7 @@ function symbols(value, seen, depth = 0) {
   }
   const out = [];
   for (const item3 of value) {
-    const row2 = record2(item3);
+    const row2 = record(item3);
     const id = row2?.["id"];
     const name = row2?.["name"];
     const kind = row2?.["kind"];
@@ -32033,7 +33679,7 @@ function symbols(value, seen, depth = 0) {
   return out;
 }
 function hoverContent(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const format = row2?.["format"];
   const text18 = row2?.["text"];
   const language = row2?.["language"];
@@ -32043,7 +33689,7 @@ function hoverContent(value) {
   return { format, text: text18, language: language ?? null };
 }
 function parseLspResult(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const path2 = row2?.["path"];
   const server = row2?.["server"];
   if (!row2 || typeof path2 !== "string" || server !== null && typeof server !== "string" || row2["position_encoding"] !== "utf-16") {
@@ -32102,13 +33748,13 @@ function readCounts(value) {
   return { rows, clipped: false, invalid: invalid2 };
 }
 function searchDetail({ args, result }) {
-  const matches3 = list(result?.["matches"]);
+  const matches3 = list2(result?.["matches"]);
   const total = num3(result?.["total_count"]);
   return {
     countMode: args["output_mode"] === "count",
     counts: readCounts(result?.["counts"]),
     countsMalformed: result?.["counts"] !== void 0 && (!result["counts"] || typeof result["counts"] !== "object" || Array.isArray(result["counts"])),
-    files: list(result?.["files"]) ? texts(result?.["files"]) : void 0,
+    files: list2(result?.["files"]) ? texts(result?.["files"]) : void 0,
     filesOnly: args["target"] === "files",
     matches: matches3 ? objects(matches3).map((m) => ({
       line: num3(m["line"]) ?? 0,
@@ -32130,7 +33776,7 @@ function searchDetail({ args, result }) {
 // src/tools/task.ts
 function iterationLimit(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const r = record2(value);
+  const r = record(value);
   if (!r) return false;
   if (!["status", "exit_reason", "truncated", "summary"].every((key3) => Object.hasOwn(r, key3))) return false;
   return r["status"] === "completed" && r["exit_reason"] === "max_iterations" && r["truncated"] === true && (r["error"] === void 0 || r["error"] === null || r["error"] === "") && typeof r["summary"] === "string" && Boolean(r["summary"].trim()) && r["summary"].trim() !== "(empty)";
@@ -32214,7 +33860,7 @@ function source(r) {
   return { content: text2(r["content"]), title: text2(r["title"]), url: text2(r["url"]) };
 }
 function webSearchDetail({ args, result }) {
-  const web = list(record2(result?.["data"])?.["web"]);
+  const web = list2(record(result?.["data"])?.["web"]);
   return { hits: objects(web ?? result?.["results"]).map(source), query: text2(args["query"]), tool: "web_search" };
 }
 function fetchDetail({ args, result }) {
@@ -32222,7 +33868,7 @@ function fetchDetail({ args, result }) {
     pages: objects(result?.["results"]).map((r) => ({ ...source(r), error: typeof r["error"] === "string" && /\S/.test(r["error"]) ? r["error"] : void 0 })),
     tool: "web_extract",
     url: text2(args["url"]),
-    urls: (list(args["urls"]) ?? []).filter((u) => typeof u === "string")
+    urls: (list2(args["urls"]) ?? []).filter((u) => typeof u === "string")
   };
 }
 
@@ -32260,9 +33906,9 @@ var ALIASES = /* @__PURE__ */ new Map([
   ["process", "process_manage"],
   ["todo", "todo_list"]
 ]);
-var KEYS2 = new Set(Object.keys(PARSERS));
+var KEYS3 = new Set(Object.keys(PARSERS));
 function isToolKey(name) {
-  return KEYS2.has(name);
+  return KEYS3.has(name);
 }
 function toolKeyOf(name) {
   if (isToolKey(name)) {
@@ -32276,7 +33922,7 @@ function parsedOf(call) {
   if (hit?.name === call.name && hit.args === call.args && hit.result === call.result) {
     return hit;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   const fresh = { args: call.args, detail: PARSERS[toolKeyOf(call.name)]({ args: call.args, result }), name: call.name, record: result, result: call.result };
   parsed.set(call, fresh);
   return fresh;
@@ -32296,9 +33942,9 @@ function taskNeedsAttention(call) {
 }
 
 // src/view/tools/steps.ts
-import { homedir as homedir4 } from "node:os";
+import { homedir as homedir6 } from "node:os";
 function shortPath(path2) {
-  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir4() });
+  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir6() });
 }
 function namedStep(call) {
   const name = call.name.replace(/_/g, " ");
@@ -32413,7 +34059,7 @@ function briefNode(head2, text18) {
 }
 
 // src/media.ts
-import { homedir as homedir5 } from "node:os";
+import { homedir as homedir7 } from "node:os";
 import { isAbsolute as isAbsolute2 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
@@ -32486,23 +34132,23 @@ async function stageImageBytes(gw2, params) {
 }
 
 // src/media.ts
-var str3 = (v) => typeof v === "string" && v.trim() ? v.trim() : void 0;
+var str4 = (v) => typeof v === "string" && v.trim() ? v.trim() : void 0;
 var MAX_BYTES2 = 16 * 1024 * 1024;
 var FETCH_MS = 2e4;
 function shownImage(call) {
   if (call.outcome.kind === "error" || call.outcome.kind === "cancelled") {
     return void 0;
   }
-  const r = record2(call.result);
+  const r = record(call.result);
   if (r?.["success"] === false) {
     return void 0;
   }
   if (call.name === "image_generate") {
-    return str3(r?.["host_image"]) ?? str3(r?.["image"]);
+    return str4(r?.["host_image"]) ?? str4(r?.["image"]);
   }
   if (call.name.startsWith("browser")) {
-    const summary4 = call.resultText ?? str3(r?.["text_summary"]) ?? "";
-    return str3(record2(r?.["meta"])?.["screenshot_path"]) ?? str3(r?.["screenshot_path"]) ?? /Screenshot path: (\S+)/.exec(summary4)?.[1];
+    const summary4 = call.resultText ?? str4(r?.["text_summary"]) ?? "";
+    return str4(record(r?.["meta"])?.["screenshot_path"]) ?? str4(r?.["screenshot_path"]) ?? /Screenshot path: (\S+)/.exec(summary4)?.[1];
   }
   return void 0;
 }
@@ -32514,7 +34160,7 @@ function localSource(src) {
       return void 0;
     }
   }
-  const path2 = src.replace(/^~(?=\/)/, homedir5());
+  const path2 = src.replace(/^~(?=\/)/, homedir7());
   return isAbsolute2(path2) ? { path: path2 } : void 0;
 }
 var Media = class {
@@ -32892,7 +34538,7 @@ function webPage(call, index2) {
   if (!Array.isArray(rows)) return void 0;
   const row2 = rows[index2];
   if (!row2 || typeof row2 !== "object" || Array.isArray(row2)) return void 0;
-  const value = record2(row2)?.["content"];
+  const value = record(row2)?.["content"];
   return typeof value === "string" && value.length > RESULT_PREVIEW_LIMIT ? { row: row2, text: value } : void 0;
 }
 function hasRetainedWeb(call) {
@@ -33001,10 +34647,10 @@ function isWatchCall(call) {
   return isProcessTool(call.name) && ["log", "poll", "wait"].includes(String(call.args["action"])) && typeof call.args["session_id"] === "string";
 }
 function isBackgroundCall(call) {
-  return call.name === "terminal" && (call.args["background"] === true || typeof record2(call.result)?.["session_id"] === "string");
+  return call.name === "terminal" && (call.args["background"] === true || typeof record(call.result)?.["session_id"] === "string");
 }
 function isToolError(p3) {
-  const r = record2(p3.result);
+  const r = record(p3.result);
   if (r?.["error"]) {
     return true;
   }
@@ -33028,7 +34674,7 @@ function words(segment) {
   return out;
 }
 var base = (path2) => path2.replace(/\/+$/, "").split(/[/\\]/).at(-1) || path2;
-var quote = (s2) => `'${clip2(s2, { max: 32 })}'`;
+var quote = (s2) => `'${clip3(s2, { max: 32 })}'`;
 function operand(args, valued = /* @__PURE__ */ new Set()) {
   for (let i = 0; i < args.length; i++) {
     const a2 = args[i] ?? "";
@@ -33283,15 +34929,15 @@ function describe3(command2, budget, depth) {
   title ??= "Run a command";
   if (labels.length) {
     const two = `${title}: ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` +${labels.length - 2}` : ""}`;
-    title = two.length <= MAX2 ? two : `${title}: ${clip2(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
+    title = two.length <= MAX2 ? two : `${title}: ${clip3(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
   } else if (docs.length && /^Read input|^Read /.test(title) && real[0]?.cmd === "cat") {
     title = `Write ${base(operands(real[0].args).at(-1) ?? "a file")}`;
   }
-  return clip2(title.charAt(0).toUpperCase() + title.slice(1), { max: MAX2 });
+  return clip3(title.charAt(0).toUpperCase() + title.slice(1), { max: MAX2 });
 }
 function commandLine(command2, n3 = 96) {
   const flat2 = command2.replace(/<<-?\s*['"]?(\w+)['"]?[\s\S]*?\n\s*\1\s*(?=\n|$)/g, "<<'$1' \u2026").replace(/\s+/g, " ").trim();
-  return clip2(flat2, { max: n3 });
+  return clip3(flat2, { max: n3 });
 }
 function oneLine(text18) {
   return text18.replace(/\s+/g, " ").trim();
@@ -33333,18 +34979,18 @@ async function ensureMethod(gw2, caller, method) {
     profile: caller.profile
   });
   requireCaller(caller);
-  if (!record2(profileReply)) {
+  if (!record(profileReply)) {
     throw new Error("Hermes did not confirm a profile-qualified configuration read");
   }
   const capabilities2 = await gw2.request("gateway.capabilities", { session_id: caller.sessionId });
   requireCaller(caller);
-  const methods = record2(capabilities2)?.["plugin_methods"];
+  const methods = record(capabilities2)?.["plugin_methods"];
   if (!Array.isArray(methods) || !methods.every((m) => typeof m === "string") || !ALL.every((name) => methods.includes(name)) || !methods.includes(method)) {
     throw new Error("Native browser requires Hermes plugin gateway methods and operator drive consent");
   }
 }
 function blockOf(input2) {
-  const r = record2(input2);
+  const r = record(input2);
   const id = r?.["target_id"];
   const title = r?.["title"];
   const url = r?.["url"];
@@ -33367,7 +35013,7 @@ async function listBrowserBlocks(gw2, caller) {
   await ensureMethod(gw2, caller, "hermes-tern.browser.blocks");
   const raw2 = await gw2.request("hermes-tern.browser.blocks", { session_id: caller.sessionId });
   requireCaller(caller);
-  const data = record2(raw2);
+  const data = record(raw2);
   if (!data || typeof data["available"] !== "boolean" || !Array.isArray(data["blocks"])) {
     throw new Error("Invalid native browser blocks reply from Hermes");
   }
@@ -33392,7 +35038,7 @@ async function browserTarget(gw2, action, caller, targetId, frame) {
     ...action === "hermes-tern.browser.frame" ? { frame } : {}
   });
   requireCaller(caller);
-  const data = record2(raw2);
+  const data = record(raw2);
   const returned = data?.["target_id"];
   const title = data?.["title"];
   const url = data?.["url"];
@@ -33418,7 +35064,7 @@ async function releaseBrowserBlock(gw2, caller, targetId) {
     target_id: targetId
   });
   requireCaller(caller);
-  const result = record2(raw2);
+  const result = record(raw2);
   if (result?.["target_id"] !== targetId || result["released"] !== true) {
     throw new Error("Hermes did not confirm native browser block release");
   }
@@ -33429,7 +35075,7 @@ function ternTargetOf(call) {
   if (!call.name.startsWith("browser")) {
     return void 0;
   }
-  const target2 = record2(resultOf(call)?.["tern_target"]);
+  const target2 = record(resultOf(call)?.["tern_target"]);
   const id = target2?.["target_id"];
   const title = target2?.["title"];
   const url = target2?.["url"];
@@ -33596,7 +35242,7 @@ function confirmedWriteArtifact(call, cx) {
   if (call.name !== "write_file" || call.outcome.kind !== "done") {
     return void 0;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   const source2 = text3(call.args["content"]) ?? text3(call.args["contents"]);
   if (!result || !source2 || result["verified"] !== true || result["success"] === false || result["partial"] === true || result["truncated"] === true || result["error"] || result["bytes_written"] !== Buffer.byteLength(source2, "utf8")) {
     return void 0;
@@ -33630,7 +35276,7 @@ function projectToolMedia(call, cx) {
   if (call.name !== "read_file" || call.outcome.kind !== "done") {
     return void 0;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   if (result?.["content_returned"] === false || result?.["success"] === false || result?.["error"] || result?.["partial"] === true || result?.["truncated"] === true) {
     return void 0;
   }
@@ -33702,7 +35348,7 @@ function imageCard(call, d, look2, src, media2) {
     ...look2,
     body: [
       ...src ? [imageNode(call, d, src, media2)] : [],
-      ...said ? [/* @__PURE__ */ jsx("text", { lines: 6, spans: [{ s: "muted", t: clip2(said, { mark: "line", max: 2e3 }) }], wrap: "word" }, "said")] : []
+      ...said ? [/* @__PURE__ */ jsx("text", { lines: 6, spans: [{ s: "muted", t: clip3(said, { mark: "line", max: 2e3 }) }], wrap: "word" }, "said")] : []
     ],
     folded: false,
     target: d.prompt ?? d.question ?? (call.context || void 0),
@@ -33721,12 +35367,12 @@ function imageNode(call, d, src, media2) {
     if (!path2 || host !== "gateway" && host !== "frontend") {
       return /* @__PURE__ */ jsx("text", { role: "omp.media.notice", text: "Screenshot is not host-local; preview is unavailable." }, "image");
     }
-    return imagePreviewNode({ host, id: String(call.id), kind: "path", path: path2, toolCallId: String(call.id) }, media2, clip2(alt, { mark: "line", max: 200 }), "image");
+    return imagePreviewNode({ host, id: String(call.id), kind: "path", path: path2, toolCallId: String(call.id) }, media2, clip3(alt, { mark: "line", max: 200 }), "image");
   }
   if (source2) {
-    return /* @__PURE__ */ jsx("image", { alt: clip2(alt, { mark: "line", max: 200 }), role: "hermes.tool.image", ...source2 }, "image");
+    return /* @__PURE__ */ jsx("image", { alt: clip3(alt, { mark: "line", max: 200 }), role: "hermes.tool.image", ...source2 }, "image");
   }
-  const link3 = /^https?:\/\//i.test(src) ? [{ href: src, t: clip2(src, { mark: "line", max: 120 }) }] : [];
+  const link3 = /^https?:\/\//i.test(src) ? [{ href: src, t: clip3(src, { mark: "line", max: 120 }) }] : [];
   return /* @__PURE__ */ jsx(
     "text",
     {
@@ -33815,7 +35461,7 @@ function genericBody(call) {
     return [];
   }
   return [
-    /* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(text18) ? "json" : "text", text: clip2(text18, { mark: "line", max: 4e3 }) }, "out"),
+    /* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(text18) ? "json" : "text", text: clip3(text18, { mark: "line", max: 4e3 }) }, "out"),
     ...retainedGenericText(call) ? [/* @__PURE__ */ jsx("text", { role: "hermes.tool.retained-hint", text: "/tool-results inspects the 80 most recent long generic results.", wrap: "word" }, "more")] : []
   ];
 }
@@ -33833,7 +35479,7 @@ function errorOf(call) {
   return errorIn(call, resultOf(call));
 }
 function plainErrorOf(call) {
-  return errorIn(call, record2(call.result));
+  return errorIn(call, record(call.result));
 }
 function errorIn(call, result) {
   return nonEmpty(result?.["error"]) ?? nonEmpty(call.outcome.kind === "running" ? void 0 : call.outcome.summary) ?? (typeof call.result === "string" && !result ? call.result : void 0);
@@ -33873,11 +35519,11 @@ function batchCard(call, batch) {
   };
 }
 function appBody(call) {
-  const facts2 = Object.entries(call.args).filter(([k, v]) => k !== "connector_alias" && v !== void 0 && v !== null && v !== "").slice(0, 12).map(([k, v]) => ({ k: [{ t: k.replace(/_/g, " ") }], v: clip2(typeof v === "string" ? v : JSON.stringify(v), { mark: "line", max: 300 }) }));
+  const facts2 = Object.entries(call.args).filter(([k, v]) => k !== "connector_alias" && v !== void 0 && v !== null && v !== "").slice(0, 12).map(([k, v]) => ({ k: [{ t: k.replace(/_/g, " ") }], v: clip3(typeof v === "string" ? v : JSON.stringify(v), { mark: "line", max: 300 }) }));
   const error = call.outcome.kind === "error" ? errorOf(call) : void 0;
   return [
     ...facts2.length ? [/* @__PURE__ */ jsx("kv", { items: facts2 }, "args")] : [],
-    ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip2(error, { mark: "line", max: 1200 }) }], wrap: "word" }, "error")] : genericBody(call)
+    ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip3(error, { mark: "line", max: 1200 }) }], wrap: "word" }, "error")] : genericBody(call)
   ];
 }
 function batchBody(call, batch) {
@@ -33891,7 +35537,7 @@ function batchBody(call, batch) {
         /* @__PURE__ */ jsx("icon", { name: outcome2.kind === "error" ? "x" : outcome2.kind === "running" ? "clock" : "check", tone: tone2 }, "i"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: [{ t: app2 ? `${app2.app} \xB7 ${app2.action}` : humanize(name) }], truncate: "end", wrap: "none" }, "t")
       ] }, `e${i}`),
-      ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip2(error, { mark: "line", max: 600 }) }], wrap: "word" }, `r${i}`)] : answer && call.outcome.kind !== "running" ? [/* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(answer) ? "json" : "text", max: { h: "8lines" }, text: clip2(answer, { mark: "line", max: 2e3 }), wrap: true }, `r${i}`)] : []
+      ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip3(error, { mark: "line", max: 600 }) }], wrap: "word" }, `r${i}`)] : answer && call.outcome.kind !== "running" ? [/* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(answer) ? "json" : "text", max: { h: "8lines" }, text: clip3(answer, { mark: "line", max: 2e3 }), wrap: true }, `r${i}`)] : []
     ];
   });
 }
@@ -33937,7 +35583,7 @@ function answerRow(key3, text18, picked) {
 // src/connections/live.ts
 var num4 = (v) => typeof v === "number" && Number.isFinite(v) ? v : void 0;
 function liveCard(payload, session2) {
-  const r = record2(payload);
+  const r = record(payload);
   const id = typeof r?.["op_id"] === "string" ? r["op_id"] : "";
   const seq = num4(r?.["seq"]);
   const deadlineAt = num4(r?.["deadline_at"]);
@@ -33950,7 +35596,7 @@ function liveCard(payload, session2) {
   return { callId, card: { op, opened: [], settled: settleReason(r), targets } };
 }
 function applyFrame(card, frame) {
-  const r = record2(frame);
+  const r = record(frame);
   const op = card.op;
   const seq = num4(r?.["seq"]);
   if (!r || !op || card.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
@@ -33998,7 +35644,7 @@ var connectView = {
   step: namedStep
 };
 var look = (icon, tone2, word) => ({ mark: { icon, tone: tone2 }, tone: tone2, word });
-var NEEDS = look("pending", "muted", "needs authorizing");
+var NEEDS2 = look("pending", "muted", "needs authorizing");
 var BROWSER = { mark: "spinner", tone: "pending", word: "waiting for your browser\u2026" };
 var SETTING_UP = { mark: "spinner", tone: "pending", word: "setting up\u2026" };
 var NOT_CONNECTED = look("minus", "muted", "not connected");
@@ -34018,7 +35664,7 @@ function lookOf(card, t) {
     if (!t.url) {
       return t.state === "initiated" ? SETTING_UP : NOT_CONNECTED;
     }
-    return card.opened.includes(t.name) ? BROWSER : NEEDS;
+    return card.opened.includes(t.name) ? BROWSER : NEEDS2;
   }
   return STATE[t.state] ?? NOT_CONNECTED;
 }
@@ -34805,7 +36451,7 @@ var STAGED_KEYS = /* @__PURE__ */ new Set(["success", "staged", "pending_id", "m
 function memoryStagingReported(call) {
   if (call.name !== "memory" || call.outcome.kind !== "done") return false;
   try {
-    const result = record2(call.result);
+    const result = record(call.result);
     if (!result || Object.keys(result).some((key3) => !STAGED_KEYS.has(key3))) return false;
     return Object.hasOwn(result, "success") && result["success"] === true && Object.hasOwn(result, "staged") && result["staged"] === true && Object.hasOwn(result, "pending_id") && typeof result["pending_id"] === "string" && /^[0-9a-f]{8}$/.test(result["pending_id"]) && Object.hasOwn(result, "message") && typeof result["message"] === "string" && (!Object.hasOwn(result, "proposal_staged") || result["proposal_staged"] === true);
   } catch {
@@ -34941,7 +36587,7 @@ function skillCard(call, d) {
     };
   }
   return {
-    body: d.content ? [/* @__PURE__ */ jsx("md", { children: clip2(d.content, { mark: "line", max: 6e3 }) }, "body")] : [],
+    body: d.content ? [/* @__PURE__ */ jsx("md", { children: clip3(d.content, { mark: "line", max: 6e3 }) }, "body")] : [],
     folded: true,
     frame: "inline",
     name: "skill",
@@ -34976,7 +36622,7 @@ function planStep(before2, after2) {
 function readConflictCount(call) {
   if (call.name !== "read_file" || call.outcome.kind !== "done") return void 0;
   try {
-    const result = record2(call.result);
+    const result = record(call.result);
     if (!result || !Object.hasOwn(result, "conflict_blocks") || !Object.hasOwn(result, "content")) return void 0;
     const count5 = result["conflict_blocks"];
     const content5 = result["content"];
@@ -35474,7 +37120,7 @@ function promptSources(sources) {
           continue;
         }
         shapes.set(shape2, repeats + 1);
-        const sample = clip2(line, { max: MAX_SAMPLE_LINE_CHARS });
+        const sample = clip3(line, { max: MAX_SAMPLE_LINE_CHARS });
         if (used + byteLength(sample) > limit) {
           break;
         }
@@ -35501,7 +37147,7 @@ function renderPrompt(request) {
   const fence = (body) => `\`\`\`
 ${body}
 \`\`\``;
-  const out = ["<job>", "Background process. Command:", fence(clip2(request.command.trim(), { max: MAX_BRIEF_CHARS })), "</job>", "", "<sources>"];
+  const out = ["<job>", "Background process. Command:", fence(clip3(request.command.trim(), { max: MAX_BRIEF_CHARS })), "</job>", "", "<sources>"];
   for (const s2 of promptSources(request.sources)) {
     const omitted = s2.omitted ? ` ${s2.omitted} not shown: the middle, and repeats of a line that differ only in numbers.` : "";
     const tail = s2.tail.length ? [...s2.omitted ? ["[\u2026]"] : [], ...s2.tail] : [];
@@ -35519,7 +37165,7 @@ ${body}
     out.push(
       "",
       "Your previous answer was rejected:",
-      ...request.rejected.answer ? [fence(clip2(request.rejected.answer, { max: 4e3 }))] : [],
+      ...request.rejected.answer ? [fence(clip3(request.rejected.answer, { max: 4e3 }))] : [],
       "Problems:",
       ...request.rejected.errors.map((e) => `- ${e}`),
       "Fix every problem and answer again."
@@ -35584,15 +37230,15 @@ function gatewayAuthor(gw2, sid) {
 
 // src/processes/widgets/files.ts
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { homedir as homedir6 } from "node:os";
-import { isAbsolute as isAbsolute5, join as join5, normalize } from "node:path";
+import { homedir as homedir8 } from "node:os";
+import { isAbsolute as isAbsolute5, join as join7, normalize } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 var TARGET = /(?:^|[\s;&|(])(?:1|&)?>>?\s*([^\s;&|)<>]+)|\btee\s+(?:-a\s+)?([^\s;&|)<>-][^\s;&|)<>]*)/g;
 var CD = /^\s*cd\s+([^\s;&|]+)\s*(?:&&|;)/;
 var SKIP = /^\/dev\/|^&/;
 var unquote = (s2) => s2.replace(/^(['"])(.*)\1$/, "$2");
 function expand(path2, env2) {
-  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir6()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
+  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir8()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
   return out.includes("$") ? void 0 : out;
 }
 function outputFiles(command2, env2 = process.env) {
@@ -35605,7 +37251,7 @@ function outputFiles(command2, env2 = process.env) {
       continue;
     }
     const path2 = expand(raw2, env2);
-    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join5(base3, path2) : void 0);
+    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join7(base3, path2) : void 0);
     if (full && !files.includes(normalize(full))) {
       files.push(normalize(full));
     }
@@ -35770,7 +37416,7 @@ import { setFlagsFromString } from "node:v8";
 // src/processes/widgets/check.ts
 var FIELD_NAME = /^[a-z][a-z0-9_]{0,23}$/;
 var cut = (text18, max) => text18.length > max ? `${text18.slice(0, max - 1)}\u2026` : text18;
-function list2(value, where, errors, min, max) {
+function list3(value, where, errors, min, max) {
   if (!Array.isArray(value)) {
     errors.push(`${where}: expected an array`);
     return void 0;
@@ -35781,7 +37427,7 @@ function list2(value, where, errors, min, max) {
   }
   return value;
 }
-function str4(value, where, errors, o = {}) {
+function str5(value, where, errors, o = {}) {
   if (value === void 0 || value === null) {
     if (o.required) {
       errors.push(`${where}: required`);
@@ -35820,7 +37466,7 @@ function num5(value, where, errors) {
   return value;
 }
 function fieldName(value, where, errors) {
-  const name = str4(value, where, errors, { required: true });
+  const name = str5(value, where, errors, { required: true });
   if (name !== void 0 && !FIELD_NAME.test(name)) {
     errors.push(`${where}: "${name}" must match ${FIELD_NAME.source}`);
     return void 0;
@@ -36155,13 +37801,13 @@ function parseSpec(value, errors) {
     errors.push("spec: expected an object");
     return void 0;
   }
-  const title = str4(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
-  const rules = list2(value["rules"], "rules", errors, 1, MAX_RULES)?.map((r, i) => parseRule(r, `rules[${i}]`, errors));
-  const blocks2 = list2(value["blocks"], "blocks", errors, 1, MAX_BLOCKS)?.map((b, i) => parseBlock(b, `blocks[${i}]`, errors));
+  const title = str5(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
+  const rules = list3(value["rules"], "rules", errors, 1, MAX_RULES)?.map((r, i) => parseRule(r, `rules[${i}]`, errors));
+  const blocks2 = list3(value["blocks"], "blocks", errors, 1, MAX_BLOCKS)?.map((b, i) => parseBlock(b, `blocks[${i}]`, errors));
   let headline;
   if (value["headline"] !== void 0) {
     const ref = parseValueRef(value["headline"], "headline", errors);
-    const label = isRecord(value["headline"]) ? str4(value["headline"]["label"], "headline.label", errors, { cut: MAX_LABEL_CHARS }) : void 0;
+    const label = isRecord(value["headline"]) ? str5(value["headline"]["label"], "headline.label", errors, { cut: MAX_LABEL_CHARS }) : void 0;
     if (ref) {
       headline = label ? { ...ref, label } : ref;
     }
@@ -36177,13 +37823,13 @@ function parseRule(value, where, errors) {
     errors.push(`${where}: expected an object`);
     return void 0;
   }
-  const from = str4(value["from"], `${where}.from`, errors, { required: true });
+  const from = str5(value["from"], `${where}.from`, errors, { required: true });
   if (from !== void 0 && !SOURCE_ID.test(from)) {
     errors.push(`${where}.from: invalid source id "${from}"`);
   }
-  const match = str4(value["match"], `${where}.match`, errors, { max: MAX_PATTERN_CHARS, required: true });
+  const match = str5(value["match"], `${where}.match`, errors, { max: MAX_PATTERN_CHARS, required: true });
   const group = (name) => {
-    const raw2 = str4(value[name], `${where}.${name}`, errors);
+    const raw2 = str5(value[name], `${where}.${name}`, errors);
     if (raw2 !== void 0 && !GROUP_NAME.test(raw2)) {
       errors.push(`${where}.${name}: invalid group name "${raw2}"`);
     }
@@ -36215,9 +37861,9 @@ function parseValueRef(value, where, errors) {
     return void 0;
   }
   const field = fieldName(value["field"], `${where}.field`, errors);
-  const key3 = str4(value["key"], `${where}.key`, errors, { max: 120 });
+  const key3 = str5(value["key"], `${where}.key`, errors, { max: 120 });
   const agg = choice(value["agg"], AGGS, `${where}.agg`, errors);
-  const unit = str4(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
+  const unit = str5(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
   const digits = num5(value["digits"], `${where}.digits`, errors);
   if (digits !== void 0 && (!Number.isInteger(digits) || digits < 0 || digits > 4)) {
     errors.push(`${where}.digits: expected an integer 0\u20134`);
@@ -36241,8 +37887,8 @@ function parseBlock(value, where, errors) {
     return void 0;
   }
   const before2 = errors.length;
-  const label = () => str4(value["label"], `${where}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) ?? "";
-  const unit = () => str4(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
+  const label = () => str5(value["label"], `${where}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) ?? "";
+  const unit = () => str5(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
   const field = () => fieldName(value["field"], `${where}.field`, errors) ?? "";
   const optional3 = (entry, name) => entry === void 0 ? {} : { [name]: entry };
   let block;
@@ -36252,11 +37898,11 @@ function parseBlock(value, where, errors) {
         field: field(),
         kind: "spark",
         label: label(),
-        ...optional3(str4(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
+        ...optional3(str5(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
         ...optional3(unit(), "unit"),
         ...optional3(betterValue(value["better"], `${where}.better`, errors), "better"),
         ...optional3(num5(value["target"], `${where}.target`, errors), "target"),
-        ...optional3(str4(value["targetLabel"], `${where}.targetLabel`, errors, { cut: MAX_LABEL_CHARS }), "targetLabel"),
+        ...optional3(str5(value["targetLabel"], `${where}.targetLabel`, errors, { cut: MAX_LABEL_CHARS }), "targetLabel"),
         ...optional3(num5(value["min"], `${where}.min`, errors), "min"),
         ...optional3(num5(value["max"], `${where}.max`, errors), "max")
       };
@@ -36295,16 +37941,16 @@ function parseBlock(value, where, errors) {
         kind: "meter",
         label: label(),
         total: total ?? 1,
-        ...optional3(str4(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
+        ...optional3(str5(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
         ...optional3(unit(), "unit")
       };
       break;
     }
     case "stat": {
-      const items = list2(value["items"], `${where}.items`, errors, 1, MAX_STAT_ITEMS)?.map((item3, i) => {
+      const items = list3(value["items"], `${where}.items`, errors, 1, MAX_STAT_ITEMS)?.map((item3, i) => {
         const at2 = `${where}.items[${i}]`;
         const ref = parseValueRef(item3, at2, errors);
-        const itemLabel = isRecord(item3) ? str4(item3["label"], `${at2}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) : void 0;
+        const itemLabel = isRecord(item3) ? str5(item3["label"], `${at2}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) : void 0;
         return ref && itemLabel !== void 0 ? { ...ref, label: itemLabel } : void 0;
       }) ?? [];
       block = { items: items.filter((i) => i !== void 0), kind: "stat" };
@@ -37262,7 +38908,7 @@ function processVerdict(p3) {
 }
 var strings2 = (v) => Array.isArray(v) ? v.filter((x) => typeof x === "string" && x !== "") : [];
 function watchersOf(call) {
-  const r = record2(call.result);
+  const r = record(call.result);
   if (typeof r?.["session_id"] === "string") {
     return {
       heartbeat: typeof r["heartbeat_seconds"] === "number" ? r["heartbeat_seconds"] : 0,
@@ -37285,7 +38931,7 @@ function watchersOf(call) {
   return { heartbeat: beat, notify, patterns: notify ? [] : patterns };
 }
 function processIdOf(call) {
-  const id = record2(call.result)?.["session_id"];
+  const id = record(call.result)?.["session_id"];
   return typeof id === "string" && id ? id : void 0;
 }
 var Processes = class {
@@ -38691,7 +40337,7 @@ function backgroundCard(call, d, now) {
     badges: [
       { text: "background" },
       ...w.notify ? [{ text: "notify on exit" }] : [],
-      ...w.patterns.map((p3) => ({ text: `watch: ${clip2(p3, { mark: "line", max: 32 })}` })),
+      ...w.patterns.map((p3) => ({ text: `watch: ${clip3(p3, { mark: "line", max: 32 })}` })),
       ...w.heartbeat ? [{ text: `every ${w.heartbeat}s` }] : []
     ],
     folded: line ? false : card.folded
@@ -38774,7 +40420,7 @@ function fetchCard(call, d) {
     if (p3.title || p3.url || !p3.error) body.push(sourceRow(`s${i}`, p3.title ?? p3.url ?? "", p3.url));
     const content5 = p3.content;
     if (content5) {
-      body.push(/* @__PURE__ */ jsx("md", { children: clip2(content5, { mark: "line", max: 4e3 }) }, `b${i}`));
+      body.push(/* @__PURE__ */ jsx("md", { children: clip3(content5, { mark: "line", max: 4e3 }) }, `b${i}`));
     }
     if (p3.error) body.push(...failure(`error-${i}`, p3.error, "Extraction failed: "));
   }
@@ -38952,7 +40598,7 @@ function countSummary(items, tallies) {
 }
 
 // src/overlays/agents.tsx
-var KEY = "agents";
+var KEY2 = "agents";
 var TICK_MS = 1e3;
 var RECENT = 6;
 function openAgents(host, focus) {
@@ -39018,7 +40664,7 @@ function openAgents(host, focus) {
     Object.entries(HUB_CLICKS).map(([id, action]) => [id, (ev) => click(action(ev))])
   );
   const overlay2 = {
-    key: KEY,
+    key: KEY2,
     modal: true,
     cancel: close,
     // Ends with the sheet, however it closed (Esc, a session switch replacing the overlays).
@@ -39203,7 +40849,7 @@ function hubPreview(a2, now, brief) {
     ] : [],
     ...recent.length ? [
       /* @__PURE__ */ jsx("section", { head: "Recent activity", role: "omp.hub.activity", children: recent.map((e, i) => /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.hub.activity.row", children: [
-        /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock(e.at) }], wrap: "none" }, "at"),
+        /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock2(e.at) }], wrap: "none" }, "at"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: stepSpans(e), truncate: "end", wrap: "none" }, "what")
       ] }, `r${i}`)) }, "recent")
     ] : []
@@ -39214,7 +40860,7 @@ function stepItem(e, id, a2) {
     return {
       detail: e.args,
       ...optional2("dot", e.running && isRunning(a2) ? "accent" : void 0),
-      facts: { at: clock(e.at) },
+      facts: { at: clock2(e.at) },
       icon: hubIconOf(e.name),
       id,
       label: e.name,
@@ -39223,7 +40869,7 @@ function stepItem(e, id, a2) {
     };
   }
   return {
-    facts: { at: clock(e.at) },
+    facts: { at: clock2(e.at) },
     id,
     label: e.kind === "kickoff" ? `Task: ${e.text}` : e.kind === "think" ? `Thinking: ${e.text}` : e.text,
     node: e.kind === "kickoff" ? "user" : "assistant",
@@ -39240,7 +40886,7 @@ function stepPreview(e, a2, brief) {
 ${brief}` : a2.goal : e.text;
     return [
       /* @__PURE__ */ jsx("text", { role: "omp.hub.title", text: head2 }, "title"),
-      /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock(e.at) }] }, "at"),
+      /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock2(e.at) }] }, "at"),
       /* @__PURE__ */ jsx("md", { text: text18, ...optional2("tone", e.kind === "think" ? "muted" : void 0) }, "body")
     ];
   }
@@ -39251,7 +40897,7 @@ ${brief}` : a2.goal : e.text;
       {
         items: facts([
           ["Status", [{ s: e.running ? "accent" : "success", t: e.running ? "running" : "done" }]],
-          [e.running ? "Started" : "Returned", clock(e.at)]
+          [e.running ? "Started" : "Returned", clock2(e.at)]
         ]),
         role: "omp.hub.kv"
       },
@@ -39278,7 +40924,7 @@ function stepSpans(e) {
       return [{ t: oneLine2(e.text) }];
   }
 }
-function clock(at2) {
+function clock2(at2) {
   return at2 === void 0 ? "" : new Date(at2).toTimeString().slice(0, 8);
 }
 function oneLine2(text18) {
@@ -39333,8 +40979,8 @@ function jobTone(job) {
 function ownJobs(calls) {
   const ids = /* @__PURE__ */ new Set();
   for (const c of calls) {
-    const r = record2(c.result);
-    const job = record2(r?.["job"]);
+    const r = record(c.result);
+    const job = record(r?.["job"]);
     const id = r?.["job_id"] ?? job?.["job_id"] ?? job?.["id"];
     if (c.name === "cronjob_manage" && typeof id === "string" && id) {
       ids.add(id);
@@ -39565,7 +41211,7 @@ var SHEET_CLICKS = {
 };
 
 // src/overlays/background.tsx
-var KEY2 = "background";
+var KEY3 = "background";
 var TICK_MS2 = 1e3;
 function openBackground(host, at2) {
   const procs = () => host.processes.all();
@@ -39637,7 +41283,7 @@ function openBackground(host, at2) {
     Object.entries(SHEET_CLICKS).map(([id, action]) => [id, (ev) => click(action(ev))])
   );
   const overlay2 = {
-    key: KEY2,
+    key: KEY3,
     modal: true,
     cancel: close,
     // Ends with the sheet, however it closed (Esc, a session switch replacing the overlays).
@@ -39907,7 +41553,7 @@ function watcherFacts(w) {
 }
 
 // src/overlays/browser.tsx
-var KEY3 = "browser-blocks";
+var KEY4 = "browser-blocks";
 function openBrowserBlocks(host) {
   const sessionRef = host.session.ref;
   const sid = sessionRef.live;
@@ -40014,7 +41660,7 @@ function openBrowserBlocks(host) {
     host.changed();
   };
   const overlay2 = {
-    key: KEY3,
+    key: KEY4,
     modal: true,
     focus: (id) => editing && present(editing) ? `${id}.body.block-${editing.target_id}.frame-form.frame-path` : null,
     node: () => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Tern browser blocks", modal: true, role: "omp.overlay.browser", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
@@ -40085,7 +41731,7 @@ function openBrowserBlocks(host) {
         { key: "refresh", label: loading ? "Loading\u2026" : "Refresh", hint: "shift+r", onClick: () => void refresh() },
         { key: "close", label: "Close", hint: "escape", onClick: () => host.close(overlay2) }
       ])
-    ] }, "body") }, KEY3),
+    ] }, "body") }, KEY4),
     onKey: (key3) => {
       if (editing && !present(editing)) {
         editing = void 0;
@@ -40126,9 +41772,9 @@ function openBrowserBlocks(host) {
 }
 
 // src/git/status.ts
-import { execFile as execFile5 } from "node:child_process";
-import { promisify as promisify4 } from "node:util";
-var run4 = promisify4(execFile5);
+import { execFile as execFile6 } from "node:child_process";
+import { promisify as promisify5 } from "node:util";
+var run4 = promisify5(execFile6);
 async function git(cwd, ...args) {
   const { stdout } = await run4("git", ["-C", cwd, ...args], { maxBuffer: 16 * 1024 * 1024, timeout: 1e4 });
   return stdout;
@@ -40429,7 +42075,7 @@ function openCodeReview(host, source2, focus) {
 }
 
 // src/overlays/changes.tsx
-var KEY4 = "changes";
+var KEY5 = "changes";
 var TONE = {
   added: "success",
   conflicted: "error",
@@ -40469,7 +42115,7 @@ function openChanges(host, focus) {
     }
   };
   const overlay2 = {
-    key: KEY4,
+    key: KEY5,
     modal: true,
     node: (id) => sheetNode(id),
     onKey: (k) => {
@@ -40678,7 +42324,7 @@ function withEffort(info, effort2, wire) {
 }
 
 // src/overlays/effort.tsx
-var KEY5 = "effort";
+var KEY6 = "effort";
 function openEffortPicker(host, global2 = false) {
   const current = host.session.info?.reasoning_effort || DEFAULT_EFFORT;
   let levels = levelsFor(capsOf(host.session.info));
@@ -40699,7 +42345,7 @@ function openEffortPicker(host, global2 = false) {
     await host.setEffort(id, saveDefault ? "global" : "session");
   };
   const overlay2 = {
-    key: KEY5,
+    key: KEY6,
     modal: true,
     node: (id) => /* @__PURE__ */ jsx(
       "picker",
@@ -40887,7 +42533,7 @@ async function fastCommand(host, arg) {
 }
 
 // src/overlays/models.tsx
-var KEY6 = "models";
+var KEY7 = "models";
 var ALL2 = "all";
 var confirmTokens = /* @__PURE__ */ new Map();
 async function mutateModel(host, value, confirmed2) {
@@ -41041,7 +42687,7 @@ function openModelPicker(host) {
     return { hits, order: order2 };
   };
   const overlay2 = {
-    key: KEY6,
+    key: KEY7,
     modal: true,
     node: (id) => {
       const { hits, order: order2 } = view();
@@ -41483,7 +43129,7 @@ function latestPlan(entries2) {
 import { spawnSync as spawnSync2 } from "node:child_process";
 import { mkdtemp as mkdtemp2, readFile as readFile3, rm as rm3, writeFile as writeFile3 } from "node:fs/promises";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join6 } from "node:path";
+import { join as join8 } from "node:path";
 var openPlanFile = (path2) => {
   const inTern = Boolean(process.env["TERN_WINDOW_KEY"]);
   const command2 = (process.env["VISUAL"] || process.env["EDITOR"] || "vi").trim().split(/\s+/);
@@ -41507,9 +43153,9 @@ var openPlanFile = (path2) => {
   }
 };
 async function editPlanExternal(initial, opener = openPlanFile) {
-  const dir2 = await mkdtemp2(join6(tmpdir2(), "hermes-plan-"));
+  const dir2 = await mkdtemp2(join8(tmpdir2(), "hermes-plan-"));
   try {
-    const path2 = join6(dir2, "plan.md");
+    const path2 = join8(dir2, "plan.md");
     await writeFile3(path2, initial, { mode: 384 });
     await opener(path2);
     return await readFile3(path2, "utf8");
@@ -41931,7 +43577,7 @@ function openPlanReview(host) {
 }
 
 // src/overlays/pullRequests.tsx
-import { execFile as execFile6 } from "node:child_process";
+import { execFile as execFile7 } from "node:child_process";
 
 // src/github/pullRequest.ts
 var CHECK_FIELDS = `
@@ -41965,7 +43611,7 @@ function batchQuery(refs3) {
   });
   return { query: `query(${decls.join(", ")}) { ${parts3.join("\n")} }`, variables };
 }
-var batchAnswers = _catch(record(string2(), unknown()), {});
+var batchAnswers = _catch(record2(string2(), unknown()), {});
 var text4 = _catch(string2(), "");
 var count2 = _catch(number2(), 0);
 var flag = _catch(boolean2(), false);
@@ -42715,7 +44361,7 @@ function empty(value) {
 }
 
 // node_modules/unist-util-is/lib/index.js
-var convert = (
+var convert2 = (
   // Note: overloads in JSDoc can’t yet use different `@template`s.
   /**
    * @type {(
@@ -42757,7 +44403,7 @@ function anyFactory2(tests) {
   const checks2 = [];
   let index2 = -1;
   while (++index2 < tests.length) {
-    checks2[index2] = convert(tests[index2]);
+    checks2[index2] = convert2(tests[index2]);
   }
   return castFactory2(any);
   function any(...parameters) {
@@ -42966,7 +44612,7 @@ var skippable = [
 
 // node_modules/hast-util-minify-whitespace/lib/index.js
 var emptyOptions = {};
-var ignorableNode = convert(["comment", "doctype"]);
+var ignorableNode = convert2(["comment", "doctype"]);
 function minifyWhitespace(tree, options) {
   const settings2 = options || emptyOptions;
   minify(tree, {
@@ -43153,7 +44799,7 @@ function visitParents(tree, test, visitor, reverse) {
   } else {
     check2 = test;
   }
-  const is5 = convert(check2);
+  const is5 = convert2(check2);
   const step = reverse ? -1 : 1;
   factory(tree, void 0, [])();
   function factory(node3, index2, parents) {
@@ -43318,7 +44964,7 @@ var findAfter = (
    * @returns {UnistNode | undefined}
    */
   (function(parent, index2, test) {
-    const is5 = convert(test);
+    const is5 = convert2(test);
     if (!parent || !parent.type || !parent.children) {
       throw new Error("Expected parent node");
     }
@@ -44021,7 +45667,7 @@ function hasProperty(node3, name) {
 }
 
 // node_modules/hast-util-is-body-ok-link/lib/index.js
-var list3 = /* @__PURE__ */ new Set(["pingback", "prefetch", "stylesheet"]);
+var list4 = /* @__PURE__ */ new Set(["pingback", "prefetch", "stylesheet"]);
 function isBodyOkLink(node3) {
   if (node3.type !== "element" || node3.tagName !== "link") {
     return false;
@@ -44035,7 +45681,7 @@ function isBodyOkLink(node3) {
     return false;
   }
   while (++index2 < value.length) {
-    if (!list3.has(String(value[index2]))) {
+    if (!list4.has(String(value[index2]))) {
       return false;
     }
   }
@@ -44141,7 +45787,7 @@ function extractLeadingCheckbox(node3) {
 }
 
 // node_modules/hast-util-to-mdast/lib/handlers/list.js
-function list4(state, node3) {
+function list5(state, node3) {
   const ordered2 = node3.tagName === "ol";
   const children3 = state.toSpecificContent(state.all(node3), create2);
   let start = null;
@@ -44202,7 +45848,7 @@ function node2(value) {
 // node_modules/mdast-util-phrasing/lib/index.js
 var phrasing2 = (
   /** @type {(node?: unknown) => node is Exclude<PhrasingContent, Html>} */
-  convert([
+  convert2([
     "break",
     "delete",
     "emphasis",
@@ -44717,7 +46363,7 @@ var handlers = {
   blockquote,
   br,
   code: inlineCode,
-  dir: list4,
+  dir: list5,
   dl,
   dt: li,
   dd: li,
@@ -44739,7 +46385,7 @@ var handlers = {
   li,
   listing: code,
   mark: em,
-  ol: list4,
+  ol: list5,
   p: p2,
   plaintext: code,
   pre: code,
@@ -44757,7 +46403,7 @@ var handlers = {
   tr: tableRow,
   tt: inlineCode,
   u: em,
-  ul: list4,
+  ul: list5,
   var: inlineCode,
   video: media,
   wbr,
@@ -44953,7 +46599,7 @@ function escapeStringRegexp(string5) {
 // node_modules/mdast-util-find-and-replace/lib/index.js
 function findAndReplace(tree, list10, options) {
   const settings2 = options || {};
-  const ignored = convert(settings2.ignore || []);
+  const ignored = convert2(settings2.ignore || []);
   const pairs = toPairs(list10);
   let pairIndex = -1;
   while (++pairIndex < pairs.length) {
@@ -45616,11 +47262,11 @@ function configure(base3, extension3) {
         }
         /* c8 ignore next 4 */
         case "unsafe": {
-          list5(base3[key3], extension3[key3]);
+          list6(base3[key3], extension3[key3]);
           break;
         }
         case "join": {
-          list5(base3[key3], extension3[key3]);
+          list6(base3[key3], extension3[key3]);
           break;
         }
         case "handlers": {
@@ -45635,7 +47281,7 @@ function configure(base3, extension3) {
   }
   return base3;
 }
-function list5(left, right) {
+function list6(left, right) {
   if (right) {
     left.push(...right);
   }
@@ -46281,7 +47927,7 @@ function checkRule(state) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/handle/list.js
-function list6(node3, parent, state, info) {
+function list7(node3, parent, state, info) {
   const exit3 = state.enter("list");
   const bulletCurrent = state.bulletCurrent;
   let bullet = node3.ordered ? checkBulletOrdered(state) : checkBullet(state);
@@ -46457,7 +48103,7 @@ var handle2 = {
   inlineCode: inlineCode2,
   link,
   linkReference,
-  list: list6,
+  list: list7,
   listItem,
   paragraph,
   root: root2,
@@ -46561,7 +48207,7 @@ function htmlKind(value) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/join.js
-var join7 = [joinDefaults];
+var join9 = [joinDefaults];
 function joinDefaults(left, right, parent, state) {
   if (right.type === "code" && formatCodeAsIndented(right, state) && (left.type === "list" || left.type === right.type && formatCodeAsIndented(left, state))) {
     return false;
@@ -49538,7 +51184,7 @@ function toMarkdown(tree, options) {
     handle: void 0,
     indentLines,
     indexStack: [],
-    join: [...join7],
+    join: [...join9],
     options: {},
     safe: safeBound,
     stack: [],
@@ -52513,7 +54159,7 @@ var html_exports = {};
 __export(html_exports, {
   ATTRS: () => ATTRS,
   DOCUMENT_MODE: () => DOCUMENT_MODE,
-  NS: () => NS,
+  NS: () => NS2,
   NUMBERED_HEADERS: () => NUMBERED_HEADERS,
   SPECIAL_ELEMENTS: () => SPECIAL_ELEMENTS,
   TAG_ID: () => TAG_ID,
@@ -52521,7 +54167,7 @@ __export(html_exports, {
   getTagID: () => getTagID,
   hasUnescapedText: () => hasUnescapedText
 });
-var NS;
+var NS2;
 (function(NS3) {
   NS3["HTML"] = "http://www.w3.org/1999/xhtml";
   NS3["MATHML"] = "http://www.w3.org/1998/Math/MathML";
@@ -52529,7 +54175,7 @@ var NS;
   NS3["XLINK"] = "http://www.w3.org/1999/xlink";
   NS3["XML"] = "http://www.w3.org/XML/1998/namespace";
   NS3["XMLNS"] = "http://www.w3.org/2000/xmlns/";
-})(NS || (NS = {}));
+})(NS2 || (NS2 = {}));
 var ATTRS;
 (function(ATTRS2) {
   ATTRS2["TYPE"] = "type";
@@ -52931,7 +54577,7 @@ function getTagID(tagName19) {
 }
 var $2 = TAG_ID;
 var SPECIAL_ELEMENTS = {
-  [NS.HTML]: /* @__PURE__ */ new Set([
+  [NS2.HTML]: /* @__PURE__ */ new Set([
     $2.ADDRESS,
     $2.APPLET,
     $2.AREA,
@@ -53014,11 +54660,11 @@ var SPECIAL_ELEMENTS = {
     $2.WBR,
     $2.XMP
   ]),
-  [NS.MATHML]: /* @__PURE__ */ new Set([$2.MI, $2.MO, $2.MN, $2.MS, $2.MTEXT, $2.ANNOTATION_XML]),
-  [NS.SVG]: /* @__PURE__ */ new Set([$2.TITLE, $2.FOREIGN_OBJECT, $2.DESC]),
-  [NS.XLINK]: /* @__PURE__ */ new Set(),
-  [NS.XML]: /* @__PURE__ */ new Set(),
-  [NS.XMLNS]: /* @__PURE__ */ new Set()
+  [NS2.MATHML]: /* @__PURE__ */ new Set([$2.MI, $2.MO, $2.MN, $2.MS, $2.MTEXT, $2.ANNOTATION_XML]),
+  [NS2.SVG]: /* @__PURE__ */ new Set([$2.TITLE, $2.FOREIGN_OBJECT, $2.DESC]),
+  [NS2.XLINK]: /* @__PURE__ */ new Set(),
+  [NS2.XML]: /* @__PURE__ */ new Set(),
+  [NS2.XMLNS]: /* @__PURE__ */ new Set()
 };
 var NUMBERED_HEADERS = /* @__PURE__ */ new Set([$2.H1, $2.H2, $2.H3, $2.H4, $2.H5, $2.H6]);
 var UNESCAPED_TEXT = /* @__PURE__ */ new Set([
@@ -55702,7 +57348,7 @@ var OpenElementStack = class {
   }
   //Update current element
   _isInTemplate() {
-    return this.currentTagId === TAG_ID.TEMPLATE && this.treeAdapter.getNamespaceURI(this.current) === NS.HTML;
+    return this.currentTagId === TAG_ID.TEMPLATE && this.treeAdapter.getNamespaceURI(this.current) === NS2.HTML;
   }
   _updateCurrentElement() {
     this.current = this.items[this.stackTop];
@@ -55752,7 +57398,7 @@ var OpenElementStack = class {
     let targetIdx = this.stackTop + 1;
     do {
       targetIdx = this.tagIDs.lastIndexOf(tagName19, targetIdx - 1);
-    } while (targetIdx > 0 && this.treeAdapter.getNamespaceURI(this.items[targetIdx]) !== NS.HTML);
+    } while (targetIdx > 0 && this.treeAdapter.getNamespaceURI(this.items[targetIdx]) !== NS2.HTML);
     this.shortenToLength(Math.max(targetIdx, 0));
   }
   shortenToLength(idx) {
@@ -55775,10 +57421,10 @@ var OpenElementStack = class {
     this.shortenToLength(Math.max(idx, 0));
   }
   popUntilNumberedHeaderPopped() {
-    this.popUntilPopped(NUMBERED_HEADERS, NS.HTML);
+    this.popUntilPopped(NUMBERED_HEADERS, NS2.HTML);
   }
   popUntilTableCellPopped() {
-    this.popUntilPopped(TABLE_CELLS, NS.HTML);
+    this.popUntilPopped(TABLE_CELLS, NS2.HTML);
   }
   popAllUpToHtmlElement() {
     this.tmplCount = 0;
@@ -55797,13 +57443,13 @@ var OpenElementStack = class {
     this.shortenToLength(idx + 1);
   }
   clearBackToTableContext() {
-    this.clearBackTo(TABLE_CONTEXT, NS.HTML);
+    this.clearBackTo(TABLE_CONTEXT, NS2.HTML);
   }
   clearBackToTableBodyContext() {
-    this.clearBackTo(TABLE_BODY_CONTEXT, NS.HTML);
+    this.clearBackTo(TABLE_BODY_CONTEXT, NS2.HTML);
   }
   clearBackToTableRowContext() {
-    this.clearBackTo(TABLE_ROW_CONTEXT, NS.HTML);
+    this.clearBackTo(TABLE_ROW_CONTEXT, NS2.HTML);
   }
   remove(element6) {
     const idx = this._indexOf(element6);
@@ -55838,19 +57484,19 @@ var OpenElementStack = class {
     for (let i = this.stackTop; i >= 0; i--) {
       const tn = this.tagIDs[i];
       switch (this.treeAdapter.getNamespaceURI(this.items[i])) {
-        case NS.HTML: {
+        case NS2.HTML: {
           if (tn === tagName19)
             return true;
           if (htmlScope.has(tn))
             return false;
           break;
         }
-        case NS.SVG: {
+        case NS2.SVG: {
           if (SCOPING_ELEMENTS_SVG.has(tn))
             return false;
           break;
         }
-        case NS.MATHML: {
+        case NS2.MATHML: {
           if (SCOPING_ELEMENTS_MATHML.has(tn))
             return false;
           break;
@@ -55872,19 +57518,19 @@ var OpenElementStack = class {
     for (let i = this.stackTop; i >= 0; i--) {
       const tn = this.tagIDs[i];
       switch (this.treeAdapter.getNamespaceURI(this.items[i])) {
-        case NS.HTML: {
+        case NS2.HTML: {
           if (NUMBERED_HEADERS.has(tn))
             return true;
           if (SCOPING_ELEMENTS_HTML.has(tn))
             return false;
           break;
         }
-        case NS.SVG: {
+        case NS2.SVG: {
           if (SCOPING_ELEMENTS_SVG.has(tn))
             return false;
           break;
         }
-        case NS.MATHML: {
+        case NS2.MATHML: {
           if (SCOPING_ELEMENTS_MATHML.has(tn))
             return false;
           break;
@@ -55895,7 +57541,7 @@ var OpenElementStack = class {
   }
   hasInTableScope(tagName19) {
     for (let i = this.stackTop; i >= 0; i--) {
-      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS.HTML) {
+      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS2.HTML) {
         continue;
       }
       switch (this.tagIDs[i]) {
@@ -55912,7 +57558,7 @@ var OpenElementStack = class {
   }
   hasTableBodyContextInTableScope() {
     for (let i = this.stackTop; i >= 0; i--) {
-      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS.HTML) {
+      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS2.HTML) {
         continue;
       }
       switch (this.tagIDs[i]) {
@@ -55931,7 +57577,7 @@ var OpenElementStack = class {
   }
   hasInSelectScope(tagName19) {
     for (let i = this.stackTop; i >= 0; i--) {
-      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS.HTML) {
+      if (this.treeAdapter.getNamespaceURI(this.items[i]) !== NS2.HTML) {
         continue;
       }
       switch (this.tagIDs[i]) {
@@ -56421,17 +58067,17 @@ var SVG_ATTRS_ADJUSTMENT_MAP = new Map([
   "zoomAndPan"
 ].map((attr) => [attr.toLowerCase(), attr]));
 var XML_ATTRS_ADJUSTMENT_MAP = /* @__PURE__ */ new Map([
-  ["xlink:actuate", { prefix: "xlink", name: "actuate", namespace: NS.XLINK }],
-  ["xlink:arcrole", { prefix: "xlink", name: "arcrole", namespace: NS.XLINK }],
-  ["xlink:href", { prefix: "xlink", name: "href", namespace: NS.XLINK }],
-  ["xlink:role", { prefix: "xlink", name: "role", namespace: NS.XLINK }],
-  ["xlink:show", { prefix: "xlink", name: "show", namespace: NS.XLINK }],
-  ["xlink:title", { prefix: "xlink", name: "title", namespace: NS.XLINK }],
-  ["xlink:type", { prefix: "xlink", name: "type", namespace: NS.XLINK }],
-  ["xml:lang", { prefix: "xml", name: "lang", namespace: NS.XML }],
-  ["xml:space", { prefix: "xml", name: "space", namespace: NS.XML }],
-  ["xmlns", { prefix: "", name: "xmlns", namespace: NS.XMLNS }],
-  ["xmlns:xlink", { prefix: "xmlns", name: "xlink", namespace: NS.XMLNS }]
+  ["xlink:actuate", { prefix: "xlink", name: "actuate", namespace: NS2.XLINK }],
+  ["xlink:arcrole", { prefix: "xlink", name: "arcrole", namespace: NS2.XLINK }],
+  ["xlink:href", { prefix: "xlink", name: "href", namespace: NS2.XLINK }],
+  ["xlink:role", { prefix: "xlink", name: "role", namespace: NS2.XLINK }],
+  ["xlink:show", { prefix: "xlink", name: "show", namespace: NS2.XLINK }],
+  ["xlink:title", { prefix: "xlink", name: "title", namespace: NS2.XLINK }],
+  ["xlink:type", { prefix: "xlink", name: "type", namespace: NS2.XLINK }],
+  ["xml:lang", { prefix: "xml", name: "lang", namespace: NS2.XML }],
+  ["xml:space", { prefix: "xml", name: "space", namespace: NS2.XML }],
+  ["xmlns", { prefix: "", name: "xmlns", namespace: NS2.XMLNS }],
+  ["xmlns:xlink", { prefix: "xmlns", name: "xlink", namespace: NS2.XMLNS }]
 ]);
 var SVG_TAG_NAMES_ADJUSTMENT_MAP = new Map([
   "altGlyph",
@@ -56556,10 +58202,10 @@ function adjustTokenSVGTagName(token) {
   }
 }
 function isMathMLTextIntegrationPoint(tn, ns) {
-  return ns === NS.MATHML && (tn === TAG_ID.MI || tn === TAG_ID.MO || tn === TAG_ID.MN || tn === TAG_ID.MS || tn === TAG_ID.MTEXT);
+  return ns === NS2.MATHML && (tn === TAG_ID.MI || tn === TAG_ID.MO || tn === TAG_ID.MN || tn === TAG_ID.MS || tn === TAG_ID.MTEXT);
 }
 function isHtmlIntegrationPoint(tn, ns, attrs) {
-  if (ns === NS.MATHML && tn === TAG_ID.ANNOTATION_XML) {
+  if (ns === NS2.MATHML && tn === TAG_ID.ANNOTATION_XML) {
     for (let i = 0; i < attrs.length; i++) {
       if (attrs[i].name === ATTRS.ENCODING) {
         const value = attrs[i].value.toLowerCase();
@@ -56567,10 +58213,10 @@ function isHtmlIntegrationPoint(tn, ns, attrs) {
       }
     }
   }
-  return ns === NS.SVG && (tn === TAG_ID.FOREIGN_OBJECT || tn === TAG_ID.DESC || tn === TAG_ID.TITLE);
+  return ns === NS2.SVG && (tn === TAG_ID.FOREIGN_OBJECT || tn === TAG_ID.DESC || tn === TAG_ID.TITLE);
 }
 function isIntegrationPoint(tn, ns, attrs, foreignNS) {
-  return (!foreignNS || foreignNS === NS.HTML) && isHtmlIntegrationPoint(tn, ns, attrs) || (!foreignNS || foreignNS === NS.MATHML) && isMathMLTextIntegrationPoint(tn, ns);
+  return (!foreignNS || foreignNS === NS2.HTML) && isHtmlIntegrationPoint(tn, ns, attrs) || (!foreignNS || foreignNS === NS2.MATHML) && isMathMLTextIntegrationPoint(tn, ns);
 }
 
 // node_modules/parse5/dist/parser/index.js
@@ -56662,8 +58308,8 @@ var Parser = class {
       ...defaultParserOptions,
       ...options
     };
-    fragmentContext !== null && fragmentContext !== void 0 ? fragmentContext : fragmentContext = opts.treeAdapter.createElement(TAG_NAMES.TEMPLATE, NS.HTML, []);
-    const documentMock = opts.treeAdapter.createElement("documentmock", NS.HTML, []);
+    fragmentContext !== null && fragmentContext !== void 0 ? fragmentContext : fragmentContext = opts.treeAdapter.createElement(TAG_NAMES.TEMPLATE, NS2.HTML, []);
+    const documentMock = opts.treeAdapter.createElement("documentmock", NS2.HTML, []);
     const parser = new this(opts, documentMock, fragmentContext);
     if (parser.fragmentContextID === TAG_ID.TEMPLATE) {
       parser.tmplInsertionModeStack.unshift(InsertionMode.IN_TEMPLATE);
@@ -56726,13 +58372,13 @@ var Parser = class {
     }
   }
   _setContextModes(current, tid) {
-    const isHTML = current === this.document || current && this.treeAdapter.getNamespaceURI(current) === NS.HTML;
+    const isHTML = current === this.document || current && this.treeAdapter.getNamespaceURI(current) === NS2.HTML;
     this.currentNotInHTML = !isHTML;
     this.tokenizer.inForeignNode = !isHTML && current !== void 0 && tid !== void 0 && !this._isIntegrationPoint(tid, current);
   }
   /** @protected */
   _switchToTextParsing(currentToken, nextTokenizerState) {
-    this._insertElement(currentToken, NS.HTML);
+    this._insertElement(currentToken, NS2.HTML);
     this.tokenizer.state = nextTokenizerState;
     this.originalInsertionMode = this.insertionMode;
     this.insertionMode = InsertionMode.TEXT;
@@ -56759,7 +58405,7 @@ var Parser = class {
     }
   }
   _initTokenizerForFragmentParsing() {
-    if (!this.fragmentContext || this.treeAdapter.getNamespaceURI(this.fragmentContext) !== NS.HTML) {
+    if (!this.fragmentContext || this.treeAdapter.getNamespaceURI(this.fragmentContext) !== NS2.HTML) {
       return;
     }
     switch (this.fragmentContextID) {
@@ -56836,13 +58482,13 @@ var Parser = class {
   }
   /** @protected */
   _insertFakeElement(tagName19, tagID) {
-    const element6 = this.treeAdapter.createElement(tagName19, NS.HTML, []);
+    const element6 = this.treeAdapter.createElement(tagName19, NS2.HTML, []);
     this._attachElementToTree(element6, null);
     this.openElements.push(element6, tagID);
   }
   /** @protected */
   _insertTemplate(token) {
-    const tmpl = this.treeAdapter.createElement(token.tagName, NS.HTML, token.attrs);
+    const tmpl = this.treeAdapter.createElement(token.tagName, NS2.HTML, token.attrs);
     const content5 = this.treeAdapter.createDocumentFragment();
     this.treeAdapter.setTemplateContent(tmpl, content5);
     this._attachElementToTree(tmpl, token.location);
@@ -56852,7 +58498,7 @@ var Parser = class {
   }
   /** @protected */
   _insertFakeRootElement() {
-    const element6 = this.treeAdapter.createElement(TAG_NAMES.HTML, NS.HTML, []);
+    const element6 = this.treeAdapter.createElement(TAG_NAMES.HTML, NS2.HTML, []);
     if (this.options.sourceCodeLocationInfo)
       this.treeAdapter.setNodeSourceCodeLocation(element6, null);
     this.treeAdapter.appendChild(this.openElements.current, element6);
@@ -56935,14 +58581,14 @@ var Parser = class {
     } else {
       ({ current, currentTagId } = this.openElements);
     }
-    if (token.tagID === TAG_ID.SVG && this.treeAdapter.getTagName(current) === TAG_NAMES.ANNOTATION_XML && this.treeAdapter.getNamespaceURI(current) === NS.MATHML) {
+    if (token.tagID === TAG_ID.SVG && this.treeAdapter.getTagName(current) === TAG_NAMES.ANNOTATION_XML && this.treeAdapter.getNamespaceURI(current) === NS2.MATHML) {
       return false;
     }
     return (
       // Check that `current` is not an integration point for HTML or MathML elements.
       this.tokenizer.inForeignNode || // If it _is_ an integration point, then we might have to check that it is not an HTML
       // integration point.
-      (token.tagID === TAG_ID.MGLYPH || token.tagID === TAG_ID.MALIGNMARK) && currentTagId !== void 0 && !this._isIntegrationPoint(currentTagId, current, NS.HTML)
+      (token.tagID === TAG_ID.MGLYPH || token.tagID === TAG_ID.MALIGNMARK) && currentTagId !== void 0 && !this._isIntegrationPoint(currentTagId, current, NS2.HTML)
     );
   }
   /** @protected */
@@ -57112,7 +58758,7 @@ var Parser = class {
       const openElement = this.openElements.items[i];
       switch (this.openElements.tagIDs[i]) {
         case TAG_ID.TEMPLATE: {
-          if (this.treeAdapter.getNamespaceURI(openElement) === NS.HTML) {
+          if (this.treeAdapter.getNamespaceURI(openElement) === NS2.HTML) {
             return { parent: this.treeAdapter.getTemplateContent(openElement), beforeElement: null };
           }
           break;
@@ -57748,7 +59394,7 @@ function aaInsertLastNodeInCommonAncestor(p3, commonAncestor, lastElement) {
     p3._fosterParentElement(lastElement);
   } else {
     const ns = p3.treeAdapter.getNamespaceURI(commonAncestor);
-    if (tid === TAG_ID.TEMPLATE && ns === NS.HTML) {
+    if (tid === TAG_ID.TEMPLATE && ns === NS2.HTML) {
       commonAncestor = p3.treeAdapter.getTemplateContent(commonAncestor);
     }
     p3.treeAdapter.appendChild(commonAncestor, lastElement);
@@ -57833,7 +59479,7 @@ function tokenInInitialMode(p3, token) {
 }
 function startTagBeforeHtml(p3, token) {
   if (token.tagID === TAG_ID.HTML) {
-    p3._insertElement(token, NS.HTML);
+    p3._insertElement(token, NS2.HTML);
     p3.insertionMode = InsertionMode.BEFORE_HEAD;
   } else {
     tokenBeforeHtml(p3, token);
@@ -57857,7 +59503,7 @@ function startTagBeforeHead(p3, token) {
       break;
     }
     case TAG_ID.HEAD: {
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       p3.headElement = p3.openElements.current;
       p3.insertionMode = InsertionMode.IN_HEAD;
       break;
@@ -57892,7 +59538,7 @@ function startTagInHead(p3, token) {
     case TAG_ID.BGSOUND:
     case TAG_ID.LINK:
     case TAG_ID.META: {
-      p3._appendElement(token, NS.HTML);
+      p3._appendElement(token, NS2.HTML);
       token.ackSelfClosing = true;
       break;
     }
@@ -57904,7 +59550,7 @@ function startTagInHead(p3, token) {
       if (p3.options.scriptingEnabled) {
         p3._switchToTextParsing(token, TokenizerMode.RAWTEXT);
       } else {
-        p3._insertElement(token, NS.HTML);
+        p3._insertElement(token, NS2.HTML);
         p3.insertionMode = InsertionMode.IN_HEAD_NO_SCRIPT;
       }
       break;
@@ -58031,13 +59677,13 @@ function startTagAfterHead(p3, token) {
       break;
     }
     case TAG_ID.BODY: {
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       p3.framesetOk = false;
       p3.insertionMode = InsertionMode.IN_BODY;
       break;
     }
     case TAG_ID.FRAMESET: {
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       p3.insertionMode = InsertionMode.IN_FRAMESET;
       break;
     }
@@ -58143,7 +59789,7 @@ function framesetStartTagInBody(p3, token) {
   if (p3.framesetOk && bodyElement) {
     p3.treeAdapter.detachNode(bodyElement);
     p3.openElements.popAllUpToHtmlElement();
-    p3._insertElement(token, NS.HTML);
+    p3._insertElement(token, NS2.HTML);
     p3.insertionMode = InsertionMode.IN_FRAMESET;
   }
 }
@@ -58151,7 +59797,7 @@ function addressStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function numberedHeaderStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
@@ -58160,13 +59806,13 @@ function numberedHeaderStartTagInBody(p3, token) {
   if (p3.openElements.currentTagId !== void 0 && NUMBERED_HEADERS.has(p3.openElements.currentTagId)) {
     p3.openElements.pop();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function preStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.skipNextNewLine = true;
   p3.framesetOk = false;
 }
@@ -58176,7 +59822,7 @@ function formStartTagInBody(p3, token) {
     if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
       p3._closePElement();
     }
-    p3._insertElement(token, NS.HTML);
+    p3._insertElement(token, NS2.HTML);
     if (!inTemplate) {
       p3.formElement = p3.openElements.current;
     }
@@ -58199,13 +59845,13 @@ function listItemStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function plaintextStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.tokenizer.state = TokenizerMode.PLAINTEXT;
 }
 function buttonStartTagInBody(p3, token) {
@@ -58214,7 +59860,7 @@ function buttonStartTagInBody(p3, token) {
     p3.openElements.popUntilTagNamePopped(TAG_ID.BUTTON);
   }
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.framesetOk = false;
 }
 function aStartTagInBody(p3, token) {
@@ -58225,12 +59871,12 @@ function aStartTagInBody(p3, token) {
     p3.activeFormattingElements.removeEntry(activeElementEntry);
   }
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.activeFormattingElements.pushElement(p3.openElements.current, token);
 }
 function bStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.activeFormattingElements.pushElement(p3.openElements.current, token);
 }
 function nobrStartTagInBody(p3, token) {
@@ -58239,12 +59885,12 @@ function nobrStartTagInBody(p3, token) {
     callAdoptionAgency(p3, token);
     p3._reconstructActiveFormattingElements();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.activeFormattingElements.pushElement(p3.openElements.current, token);
 }
 function appletStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.activeFormattingElements.insertMarker();
   p3.framesetOk = false;
 }
@@ -58252,13 +59898,13 @@ function tableStartTagInBody(p3, token) {
   if (p3.treeAdapter.getDocumentMode(p3.document) !== DOCUMENT_MODE.QUIRKS && p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.framesetOk = false;
   p3.insertionMode = InsertionMode.IN_TABLE;
 }
 function areaStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._appendElement(token, NS.HTML);
+  p3._appendElement(token, NS2.HTML);
   p3.framesetOk = false;
   token.ackSelfClosing = true;
 }
@@ -58268,21 +59914,21 @@ function isHiddenInput(token) {
 }
 function inputStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._appendElement(token, NS.HTML);
+  p3._appendElement(token, NS2.HTML);
   if (!isHiddenInput(token)) {
     p3.framesetOk = false;
   }
   token.ackSelfClosing = true;
 }
 function paramStartTagInBody(p3, token) {
-  p3._appendElement(token, NS.HTML);
+  p3._appendElement(token, NS2.HTML);
   token.ackSelfClosing = true;
 }
 function hrStartTagInBody(p3, token) {
   if (p3.openElements.hasInButtonScope(TAG_ID.P)) {
     p3._closePElement();
   }
-  p3._appendElement(token, NS.HTML);
+  p3._appendElement(token, NS2.HTML);
   p3.framesetOk = false;
   token.ackSelfClosing = true;
 }
@@ -58292,7 +59938,7 @@ function imageStartTagInBody(p3, token) {
   areaStartTagInBody(p3, token);
 }
 function textareaStartTagInBody(p3, token) {
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.skipNextNewLine = true;
   p3.tokenizer.state = TokenizerMode.RCDATA;
   p3.originalInsertionMode = p3.insertionMode;
@@ -58316,7 +59962,7 @@ function rawTextStartTagInBody(p3, token) {
 }
 function selectStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.framesetOk = false;
   p3.insertionMode = p3.insertionMode === InsertionMode.IN_TABLE || p3.insertionMode === InsertionMode.IN_CAPTION || p3.insertionMode === InsertionMode.IN_TABLE_BODY || p3.insertionMode === InsertionMode.IN_ROW || p3.insertionMode === InsertionMode.IN_CELL ? InsertionMode.IN_SELECT_IN_TABLE : InsertionMode.IN_SELECT;
 }
@@ -58325,28 +59971,28 @@ function optgroupStartTagInBody(p3, token) {
     p3.openElements.pop();
   }
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function rbStartTagInBody(p3, token) {
   if (p3.openElements.hasInScope(TAG_ID.RUBY)) {
     p3.openElements.generateImpliedEndTags();
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function rtStartTagInBody(p3, token) {
   if (p3.openElements.hasInScope(TAG_ID.RUBY)) {
     p3.openElements.generateImpliedEndTagsWithExclusion(TAG_ID.RTC);
   }
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function mathStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
   adjustTokenMathMLAttrs(token);
   adjustTokenXMLAttrs(token);
   if (token.selfClosing) {
-    p3._appendElement(token, NS.MATHML);
+    p3._appendElement(token, NS2.MATHML);
   } else {
-    p3._insertElement(token, NS.MATHML);
+    p3._insertElement(token, NS2.MATHML);
   }
   token.ackSelfClosing = true;
 }
@@ -58355,15 +60001,15 @@ function svgStartTagInBody(p3, token) {
   adjustTokenSVGAttrs(token);
   adjustTokenXMLAttrs(token);
   if (token.selfClosing) {
-    p3._appendElement(token, NS.SVG);
+    p3._appendElement(token, NS2.SVG);
   } else {
-    p3._insertElement(token, NS.SVG);
+    p3._insertElement(token, NS2.SVG);
   }
   token.ackSelfClosing = true;
 }
 function genericStartTagInBody(p3, token) {
   p3._reconstructActiveFormattingElements();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
 }
 function startTagInBody(p3, token) {
   switch (token.tagID) {
@@ -58822,12 +60468,12 @@ function characterInTable(p3, token) {
 function captionStartTagInTable(p3, token) {
   p3.openElements.clearBackToTableContext();
   p3.activeFormattingElements.insertMarker();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.insertionMode = InsertionMode.IN_CAPTION;
 }
 function colgroupStartTagInTable(p3, token) {
   p3.openElements.clearBackToTableContext();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.insertionMode = InsertionMode.IN_COLUMN_GROUP;
 }
 function colStartTagInTable(p3, token) {
@@ -58838,7 +60484,7 @@ function colStartTagInTable(p3, token) {
 }
 function tbodyStartTagInTable(p3, token) {
   p3.openElements.clearBackToTableContext();
-  p3._insertElement(token, NS.HTML);
+  p3._insertElement(token, NS2.HTML);
   p3.insertionMode = InsertionMode.IN_TABLE_BODY;
 }
 function tdStartTagInTable(p3, token) {
@@ -58856,7 +60502,7 @@ function tableStartTagInTable(p3, token) {
 }
 function inputStartTagInTable(p3, token) {
   if (isHiddenInput(token)) {
-    p3._appendElement(token, NS.HTML);
+    p3._appendElement(token, NS2.HTML);
   } else {
     tokenInTable(p3, token);
   }
@@ -58864,7 +60510,7 @@ function inputStartTagInTable(p3, token) {
 }
 function formStartTagInTable(p3, token) {
   if (!p3.formElement && p3.openElements.tmplCount === 0) {
-    p3._insertElement(token, NS.HTML);
+    p3._insertElement(token, NS2.HTML);
     p3.formElement = p3.openElements.current;
     p3.openElements.pop();
   }
@@ -59031,7 +60677,7 @@ function startTagInColumnGroup(p3, token) {
       break;
     }
     case TAG_ID.COL: {
-      p3._appendElement(token, NS.HTML);
+      p3._appendElement(token, NS2.HTML);
       token.ackSelfClosing = true;
       break;
     }
@@ -59076,7 +60722,7 @@ function startTagInTableBody(p3, token) {
   switch (token.tagID) {
     case TAG_ID.TR: {
       p3.openElements.clearBackToTableBodyContext();
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       p3.insertionMode = InsertionMode.IN_ROW;
       break;
     }
@@ -59149,7 +60795,7 @@ function startTagInRow(p3, token) {
     case TAG_ID.TH:
     case TAG_ID.TD: {
       p3.openElements.clearBackToTableRowContext();
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       p3.insertionMode = InsertionMode.IN_CELL;
       p3.activeFormattingElements.insertMarker();
       break;
@@ -59275,7 +60921,7 @@ function startTagInSelect(p3, token) {
       if (p3.openElements.currentTagId === TAG_ID.OPTION) {
         p3.openElements.pop();
       }
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       break;
     }
     case TAG_ID.OPTGROUP: {
@@ -59285,7 +60931,7 @@ function startTagInSelect(p3, token) {
       if (p3.openElements.currentTagId === TAG_ID.OPTGROUP) {
         p3.openElements.pop();
       }
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       break;
     }
     case TAG_ID.HR: {
@@ -59295,7 +60941,7 @@ function startTagInSelect(p3, token) {
       if (p3.openElements.currentTagId === TAG_ID.OPTGROUP) {
         p3.openElements.pop();
       }
-      p3._appendElement(token, NS.HTML);
+      p3._appendElement(token, NS2.HTML);
       token.ackSelfClosing = true;
       break;
     }
@@ -59477,11 +61123,11 @@ function startTagInFrameset(p3, token) {
       break;
     }
     case TAG_ID.FRAMESET: {
-      p3._insertElement(token, NS.HTML);
+      p3._insertElement(token, NS2.HTML);
       break;
     }
     case TAG_ID.FRAME: {
-      p3._appendElement(token, NS.HTML);
+      p3._appendElement(token, NS2.HTML);
       token.ackSelfClosing = true;
       break;
     }
@@ -59551,7 +61197,7 @@ function characterInForeignContent(p3, token) {
   p3.framesetOk = false;
 }
 function popUntilHtmlOrIntegrationPoint(p3) {
-  while (p3.treeAdapter.getNamespaceURI(p3.openElements.current) !== NS.HTML && p3.openElements.currentTagId !== void 0 && !p3._isIntegrationPoint(p3.openElements.currentTagId, p3.openElements.current)) {
+  while (p3.treeAdapter.getNamespaceURI(p3.openElements.current) !== NS2.HTML && p3.openElements.currentTagId !== void 0 && !p3._isIntegrationPoint(p3.openElements.currentTagId, p3.openElements.current)) {
     p3.openElements.pop();
   }
 }
@@ -59562,9 +61208,9 @@ function startTagInForeignContent(p3, token) {
   } else {
     const current = p3._getAdjustedCurrentElement();
     const currentNs = p3.treeAdapter.getNamespaceURI(current);
-    if (currentNs === NS.MATHML) {
+    if (currentNs === NS2.MATHML) {
       adjustTokenMathMLAttrs(token);
-    } else if (currentNs === NS.SVG) {
+    } else if (currentNs === NS2.SVG) {
       adjustTokenSVGTagName(token);
       adjustTokenSVGAttrs(token);
     }
@@ -59585,7 +61231,7 @@ function endTagInForeignContent(p3, token) {
   }
   for (let i = p3.openElements.stackTop; i > 0; i--) {
     const element6 = p3.openElements.items[i];
-    if (p3.treeAdapter.getNamespaceURI(element6) === NS.HTML) {
+    if (p3.treeAdapter.getNamespaceURI(element6) === NS2.HTML) {
       p3._endTagOutsideForeignContent(token);
       break;
     }
@@ -63512,7 +65158,7 @@ function tokenizeThematicBreak(effects, ok3, nok) {
 }
 
 // node_modules/micromark-core-commonmark/lib/list.js
-var list7 = {
+var list8 = {
   continuation: {
     tokenize: tokenizeListContinuation
   },
@@ -63618,7 +65264,7 @@ function tokenizeListContinuation(effects, ok3, nok) {
   function notInCurrentItem(code7) {
     self2.containerState._closeFlow = true;
     self2.interrupt = void 0;
-    return factorySpace(effects, effects.attempt(list7, ok3, nok), "linePrefix", self2.parser.constructs.disable.null.includes("codeIndented") ? void 0 : 4)(code7);
+    return factorySpace(effects, effects.attempt(list8, ok3, nok), "linePrefix", self2.parser.constructs.disable.null.includes("codeIndented") ? void 0 : 4)(code7);
   }
 }
 function tokenizeIndent(effects, ok3, nok) {
@@ -65246,19 +66892,19 @@ __export(constructs_exports, {
   text: () => text12
 });
 var document2 = {
-  [42]: list7,
-  [43]: list7,
-  [45]: list7,
-  [48]: list7,
-  [49]: list7,
-  [50]: list7,
-  [51]: list7,
-  [52]: list7,
-  [53]: list7,
-  [54]: list7,
-  [55]: list7,
-  [56]: list7,
-  [57]: list7,
+  [42]: list8,
+  [43]: list8,
+  [45]: list8,
+  [48]: list8,
+  [49]: list8,
+  [50]: list8,
+  [51]: list8,
+  [52]: list8,
+  [53]: list8,
+  [54]: list8,
+  [55]: list8,
+  [56]: list8,
+  [57]: list8,
   [62]: blockQuote
 };
 var contentInitial = {
@@ -66860,7 +68506,7 @@ function listItemLoose(node3) {
 }
 
 // node_modules/mdast-util-to-hast/lib/handlers/list.js
-function list8(state, node3) {
+function list9(state, node3) {
   const properties2 = {};
   const results = state.all(node3);
   let index2 = -1;
@@ -67074,7 +68720,7 @@ var handlers2 = {
   linkReference: linkReference2,
   link: link2,
   listItem: listItem2,
-  list: list8,
+  list: list9,
   paragraph: paragraph2,
   // @ts-expect-error: root is different, but hard to type.
   root: root6,
@@ -69218,7 +70864,7 @@ var PrView = class {
         ...optional2("active", this.#selected),
         items: entries2.map((e) => ({
           id: prKey(e.ref),
-          label: [{ s: prTone(e), t: "\u25CF " }, { t: `#${e.ref.number}` }, ...e.pr && !compact3 ? [{ s: "muted", t: ` ${clip2(e.pr.title, { max: 28 })}` }] : []]
+          label: [{ s: prTone(e), t: "\u25CF " }, { t: `#${e.ref.number}` }, ...e.pr && !compact3 ? [{ s: "muted", t: ` ${clip3(e.pr.title, { max: 28 })}` }] : []]
         })),
         onSelect: (ev) => {
           const key3 = ev.item ? this.#host.prs.keyOf(ev.item) : void 0;
@@ -69442,7 +71088,7 @@ var SHEET = "pull-requests";
 var MENU = "pull-requests-menu";
 var TICK_MS3 = 3e4;
 function openUrl(url) {
-  execFile6(process.platform === "darwin" ? "open" : "xdg-open", [url], () => {
+  execFile7(process.platform === "darwin" ? "open" : "xdg-open", [url], () => {
   });
 }
 function prsCommand(host, arg) {
@@ -69650,7 +71296,7 @@ function retryTurnRewind(snapshot4) {
 }
 
 // src/overlays/rewind.tsx
-var KEY7 = "rewind";
+var KEY8 = "rewind";
 var idOf = (p3) => String(p3.row);
 function blocked(session2) {
   if (session2.busy || session2.queued) {
@@ -69764,7 +71410,7 @@ function openRewind(host) {
     confirming = Boolean(picked());
   };
   const overlay2 = {
-    key: KEY7,
+    key: KEY8,
     modal: true,
     node: () => {
       const p3 = picked();
@@ -69825,7 +71471,7 @@ function openRewind(host) {
           total: prompts.length,
           children: p3 ? promptPreview(p3, prompts.indexOf(p3)) : null
         },
-        KEY7
+        KEY8
       );
     },
     onKey: (k) => {
@@ -70067,12 +71713,12 @@ function openSessionInfo(host) {
 }
 
 // src/overlays/sessions.tsx
-import { basename as basename3 } from "node:path";
+import { basename as basename4 } from "node:path";
 
 // src/hermes/sessionList.ts
-import { execFile as execFile7 } from "node:child_process";
-import { promisify as promisify5 } from "node:util";
-var run5 = promisify5(execFile7);
+import { execFile as execFile8 } from "node:child_process";
+import { promisify as promisify6 } from "node:util";
+var run5 = promisify6(execFile8);
 var LIMIT = 200;
 var listRow = object({
   session_id: string2(),
@@ -70159,7 +71805,7 @@ function webExtractNeedsAttention(call) {
   const entries2 = resultOf(call)?.["results"];
   if (!Array.isArray(entries2)) return false;
   return entries2.some((entry) => {
-    const error = record2(entry)?.["error"];
+    const error = record(entry)?.["error"];
     return typeof error === "string" && /\S/.test(error);
   });
 }
@@ -70617,12 +72263,12 @@ function thoughtTitle(item3) {
 }
 
 // src/overlays/sessions/rows.ts
-import { basename as basename2 } from "node:path";
+import { basename as basename3 } from "node:path";
 var DAY = 864e5;
 var SNIPPET = 160;
 function snippet(text18, max = SNIPPET) {
   const flat2 = text18.replace(/```[\s\S]*?(```|$)/g, " [code] ").replace(/^@image:\S+/gm, "").replace(/\[The user attached [^\]]*\]/g, "").replace(/\[([^\]\n]+)\]\((?:[^)\s]+)\)/g, "$1").replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/gm, "").replace(/`([^`\n]+)`/g, "$1").replace(/(\*\*|__)(.+?)\1/g, "$2").replace(/\s+/g, " ").trim();
-  return clip2(flat2, { max });
+  return clip3(flat2, { max });
 }
 function rowDetail(s2) {
   if (s2.title) {
@@ -70638,7 +72284,7 @@ function itemOf3(s2, now, elsewhere) {
       ...s2.running ? [{ text: "running", tone: "accent" }] : [],
       ...s2.pinned ? [{ text: "pinned" }] : [],
       ...s2.branch ? [{ text: s2.branch, title: `Branch ${s2.branch}` }] : [],
-      ...elsewhere && s2.cwd ? [{ text: basename2(s2.cwd), title: s2.cwd }] : []
+      ...elsewhere && s2.cwd ? [{ text: basename3(s2.cwd), title: s2.cwd }] : []
     ],
     ...optional2("detail", detail || void 0),
     facts: { size: plural(s2.messages, "msg"), when: ageShort(now - s2.lastActive) },
@@ -70760,12 +72406,12 @@ function rowNode2(row2) {
     case "user":
       return [
         /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: "You" }, ...row2.steer ? [{ s: "dim", t: " \xB7 steer" }] : []] }, "who"),
-        /* @__PURE__ */ jsx("md", { role: "hermes.sessions.user", text: clip2(row2.text, { mark: "line", max: MESSAGE_MAX }), tone: "user" }, "text")
+        /* @__PURE__ */ jsx("md", { role: "hermes.sessions.user", text: clip3(row2.text, { mark: "line", max: MESSAGE_MAX }), tone: "user" }, "text")
       ];
     case "assistant":
       return [
         /* @__PURE__ */ jsx("text", { spans: [{ s: "strong accent", t: "Hermes" }] }, "who"),
-        /* @__PURE__ */ jsx("md", { role: "hermes.sessions.reply", text: clip2(row2.text, { mark: "line", max: MESSAGE_MAX }) }, "text")
+        /* @__PURE__ */ jsx("md", { role: "hermes.sessions.reply", text: clip3(row2.text, { mark: "line", max: MESSAGE_MAX }) }, "text")
       ];
     case "tool":
       return [
@@ -70886,7 +72532,7 @@ var PreviewLoader = class {
 };
 
 // src/overlays/sessions.tsx
-var KEY8 = "sessions";
+var KEY9 = "sessions";
 var NEAR_END = 3;
 function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
   let state = "loading";
@@ -71028,7 +72674,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const groups = /* @__PURE__ */ new Map();
       const add2 = (label, id) => groups.set(label, [...groups.get(label) ?? [], id]);
       for (const s2 of list10) {
-        add2(s2.pinned ? "Pinned" : tab2 === "all" && here(s2) && workspace ? `In ${basename3(workspace)}` : dayOf(s2.lastActive, now), s2.id);
+        add2(s2.pinned ? "Pinned" : tab2 === "all" && here(s2) && workspace ? `In ${basename4(workspace)}` : dayOf(s2.lastActive, now), s2.id);
       }
       for (const [label, ids] of groups) {
         order2.push({ count: ids.length, group: label, label }, ...ids);
@@ -71052,7 +72698,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
     return { hits, order: order2 };
   };
   const overlay2 = {
-    key: KEY8,
+    key: KEY9,
     modal: true,
     node: (id) => {
       nodeId = id;
@@ -71060,7 +72706,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const { hits, order: order2 } = view(now);
       const s2 = sessions.find((x) => x.id === selected);
       const hereCount = sessions.filter(here).length;
-      const project = workspace ? basename3(workspace) : "This folder";
+      const project = workspace ? basename4(workspace) : "This folder";
       const pane = s2 ? sessionDetail({
         copied: copied.value === s2.id,
         focus: (key3) => focusBlock2(key3),
@@ -71665,7 +73311,7 @@ Confirmed profile value: ${row2.value}`,
     }
     if (this.#confirmation) {
       const bare = !key3.ctrl && !key3.alt && !key3.shift && !key3.meta;
-      if (key3.name === "escape" || matches(key3, KEYS.cancel)) {
+      if (key3.name === "escape" || matches(key3, KEYS2.cancel)) {
         this.#confirmation = void 0;
       } else if (bare && (key3.name === "left" || key3.name === "right")) {
         this.#confirmSelected = key3.name === "right";
@@ -71909,7 +73555,7 @@ function openToolResults(host) {
 }
 
 // src/overlays/theme.tsx
-var KEY9 = "theme";
+var KEY10 = "theme";
 var MODES = [
   { detail: "Your Tern theme, light and dark, with no colors of its own", icon: "palette", id: "tern", label: "Tern" },
   { detail: "Bone ink and quiet grays; gold only for the moments that earn it", icon: "sparkle", id: "nous", label: "Nous" },
@@ -71930,7 +73576,7 @@ function openThemePicker(host) {
     }
   };
   const overlay2 = {
-    key: KEY9,
+    key: KEY10,
     modal: true,
     // As Esc: the theme being previewed goes back.
     cancel: () => {
@@ -71983,7 +73629,7 @@ function openThemePicker(host) {
 }
 
 // src/overlays/visualPicker.tsx
-import { basename as basename6 } from "node:path";
+import { basename as basename7 } from "node:path";
 
 // src/visual-discovery.ts
 import { isAbsolute as isAbsolute6 } from "node:path";
@@ -71998,7 +73644,7 @@ function parseVisualCandidate(output, scope2, callId) {
   if (output.length > VISUAL_DISCOVERY_LIMITS.outputChars) {
     return void 0;
   }
-  const value = record2(parseJson(output));
+  const value = record(parseJson(output));
   if (!value || Object.keys(value).sort().join(",") !== "id,kind,path,scope,version" || value["kind"] !== "hermes.visual.candidate" || value["version"] !== 1 || typeof value["id"] !== "string" || !/^[a-f0-9]{64}$/.test(value["id"]) || typeof value["scope"] !== "string" || !scope2 || scope2.length > 256 || value["scope"] !== scope2 || typeof value["path"] !== "string" || value["path"].length > 4096 || !isAbsolute6(value["path"]) || !value["path"].endsWith(".hvisual.json") || /[\p{Cc}\u202a-\u202e\u2066-\u2069]/u.test(value["path"])) {
     return void 0;
   }
@@ -72016,7 +73662,7 @@ function completedOutput(call, budget) {
     budget.chars -= raw2.length;
     raw2 = parseJson(raw2);
   }
-  const result = record2(raw2);
+  const result = record(raw2);
   if (!result || result["exit_code"] !== 0 || result["error"] || result["isError"] || typeof result["output"] !== "string") {
     return void 0;
   }
@@ -72075,19 +73721,19 @@ import { isAbsolute as isAbsolute7 } from "node:path";
 import { pathToFileURL as pathToFileURL5 } from "node:url";
 
 // src/wire/card.ts
-import { basename as basename4, dirname as dirname2, join as join8, resolve as resolve6 } from "node:path";
+import { basename as basename5, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL3 } from "node:url";
 function isCardContract(value) {
-  const module = record2(value);
+  const module = record(value);
   return Boolean(
     module && typeof module["validateCardDocument"] === "function" && typeof module["validatePreparedCard"] === "function"
   );
 }
 function packagedCardUrl() {
-  const here = dirname2(fileURLToPath5(import.meta.url));
-  const source2 = basename4(here) === "wire" && basename4(dirname2(here)) === "src";
+  const here = dirname4(fileURLToPath5(import.meta.url));
+  const source2 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
   const frontend = source2 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL3(join8(frontend, "openui/card.mjs")).href;
+  return pathToFileURL3(join10(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -72106,19 +73752,19 @@ async function openCardContract() {
 }
 
 // src/wire/openui.ts
-import { basename as basename5, dirname as dirname3, join as join9, resolve as resolve7 } from "node:path";
+import { basename as basename6, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 function isOpenUiContract(value) {
-  const module = record2(value);
+  const module = record(value);
   return Boolean(
     module && module["MAX_BYTES"] === 8 * 1024 * 1024 && typeof module["validateBundle"] === "function" && typeof module["fingerprints"] === "function" && typeof module["assertCurrent"] === "function"
   );
 }
 function packagedValidatorUrl() {
-  const here = dirname3(fileURLToPath6(import.meta.url));
-  const source2 = basename5(here) === "wire" && basename5(dirname3(here)) === "src";
+  const here = dirname5(fileURLToPath6(import.meta.url));
+  const source2 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
   const frontend = source2 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL4(join9(frontend, "openui/openui-preview/src/bundle.mjs")).href;
+  return pathToFileURL4(join11(frontend, "openui/openui-preview/src/bundle.mjs")).href;
 }
 async function openUiContract() {
   let loaded;
@@ -72288,7 +73934,7 @@ async function readVisualFile(path2, maxBytes, signal) {
 async function readPreparedVisual(path2, scope2, signal) {
   signal?.throwIfAborted();
   const loaded = await readVisualFile(path2, 8 * 1024 * 1024, signal);
-  if (record2(loaded.input)?.["kind"] === "hermes.visual.card") {
+  if (record(loaded.input)?.["kind"] === "hermes.visual.card") {
     const validator = await openCardContract();
     signal?.throwIfAborted();
     const prepared = validator.validatePreparedCard(loaded.input, scope2);
@@ -72457,7 +74103,7 @@ async function openVisualPicker(host, path2, load2 = readPreparedVisual) {
         candidates2.map(
           (candidate, index2) => button({
             key: `candidate-${index2}`,
-            label: `${index2 === selected ? "\u203A " : ""}${basename6(candidate.path)} \xB7 ${candidate.id.slice(0, 12)}`,
+            label: `${index2 === selected ? "\u203A " : ""}${basename7(candidate.path)} \xB7 ${candidate.id.slice(0, 12)}`,
             hint: candidate.path,
             onClick: () => void choose(candidate)
           })
@@ -72535,7 +74181,7 @@ function treeRows(nodes) {
 }
 
 // src/overlays/tree.tsx
-var KEY10 = "tree";
+var KEY11 = "tree";
 async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) {
   const ref = host.session.ref;
   const ticket = host.session.ownerTicket?.();
@@ -72561,7 +74207,7 @@ async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) 
     }
   };
   const overlay2 = {
-    key: KEY10,
+    key: KEY11,
     modal: true,
     node: (id) => {
       const now = Date.now();
@@ -72687,605 +74333,12 @@ function dateOf2(at2) {
   return new Date(at2).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 }
 
-// src/eui/ternCss.js
-var TERN_DROP = /* @__PURE__ */ new Set([
-  "aspect-ratio",
-  "text-anchor",
-  "vector-effect",
-  "-webkit-appearance",
-  "appearance",
-  "-webkit-touch-callout",
-  "scroll-margin-top",
-  "grid-template-areas",
-  "grid-area",
-  "resize",
-  "offset-rotate",
-  "offset-anchor",
-  "text-underline-offset",
-  "text-decoration-thickness"
-]);
-var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
-var TERN_ATTR = "data-eui-a-";
-function ternDecl(decl) {
-  const at2 = decl.indexOf(":");
-  if (at2 < 0) {
-    return decl;
-  }
-  const prop2 = decl.slice(0, at2).trim().toLowerCase();
-  let value = decl.slice(at2 + 1).trim();
-  if (prop2.startsWith("--")) {
-    return decl;
-  }
-  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
-    return void 0;
-  }
-  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
-  if (prop2 === "position" && value === "fixed") {
-    return `${decl.slice(0, at2)}:absolute`;
-  }
-  if (prop2 === "border-block") {
-    return `border-top:${value};border-bottom:${value}`;
-  }
-  if (prop2 === "border-inline-start") {
-    return `border-left:${value}`;
-  }
-  return `${decl.slice(0, at2)}:${value}`;
-}
-function ternBody(body) {
-  const out = [];
-  let depth = 0;
-  let quote2 = "";
-  let start = 0;
-  for (let i = 0; i <= body.length; i++) {
-    const ch = body[i];
-    if (quote2) {
-      if (ch === quote2 && body[i - 1] !== "\\") {
-        quote2 = "";
-      }
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote2 = ch;
-    } else if (ch === "(") {
-      depth++;
-    } else if (ch === ")") {
-      depth--;
-    } else if (ch === ";" && depth === 0 || i === body.length) {
-      const decl = body.slice(start, i).trim();
-      const kept = decl ? ternDecl(decl) : void 0;
-      if (kept) {
-        out.push(kept);
-      }
-      start = i + 1;
-    }
-  }
-  return out.join(";");
-}
-
-// src/view/euiCard.tsx
-var TAGS = new Set(EL_TAGS);
-var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
-var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
-function isTag(tag3) {
-  return TAGS.has(tag3);
-}
-function ternTag(tag3, attrs) {
-  if (tag3 === "input") {
-    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
-  }
-  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
-}
-function convert2(n3, key3, eui, activate) {
-  if (n3.t === "text") {
-    return n3.text;
-  }
-  if (n3.t === "svg") {
-    const blob2 = eui.svg(n3.svg);
-    const attrs2 = { "data-eui-svg": "" };
-    if (n3.style) {
-      attrs2["data-eui-s"] = eui.style(n3.style);
-    }
-    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
-  }
-  const tag3 = ternTag(n3.tag, n3.attrs);
-  const attrs = {};
-  for (const [k, v] of Object.entries(n3.attrs)) {
-    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
-      attrs[k] = v;
-    }
-    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
-      attrs[`${TERN_ATTR}${k}`] = v;
-    }
-  }
-  if (tag3 !== n3.tag) {
-    attrs["data-eui-tag"] = n3.tag;
-  }
-  if (n3.style) {
-    attrs["data-eui-s"] = eui.style(n3.style);
-  }
-  const kids = n3.kids.map((k, i) => convert2(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
-  if (n3.tag === "input" && tag3 === "span") {
-    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
-  }
-  return ui.el({
-    key: key3,
-    tag: tag3,
-    attrs,
-    class: n3.cls,
-    ...n3.attrs["hidden"] ? { hidden: true } : {},
-    ...n3.attrs["disabled"] ? { disabled: true } : {},
-    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
-    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
-    ...n3.click ? { onClick: () => {
-      activate(n3.id);
-    } } : {}
-  }, kids);
-}
-function euiCardNode(card, view, eui, popup = false) {
-  if (view.error !== void 0 || !view.node) {
-    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
-  }
-  const root7 = view.node;
-  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
-  const activate = view.activate ?? ((id) => {
-    eui.click(card, id);
-  });
-  return html.div(
-    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
-    root7.t === "el" ? root7.kids.map((k, i) => convert2(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
-  );
-}
-function euiPopupNode(key3, head2, view, eui) {
-  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
-}
-
-// ../glide/frontend/council.ts
-var MINERAL = {
-  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
-  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
-  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
-  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
-  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
-  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
-  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
-  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
-};
-var FAMILY = {
-  anthropic: ["citrine", "rose", "smoky"],
-  openai: ["labradorite", "moonstone", "lapis"],
-  google: ["malachite"],
-  free: ["clear"]
-};
-var NIGHT = {
-  canvas: "#0c0c0a",
-  text: "#ECE8DF",
-  text2: "#B4AFA3",
-  text3: "#837F74",
-  faint: "#5e5b52",
-  action: "#d7b986",
-  strong: "#eccd8c",
-  muted: "#99835c",
-  danger: "#e37f65",
-  agree: "#98cf8b",
-  border: "rgba(236,232,223,0.10)",
-  borderStrong: "rgba(236,232,223,0.16)"
-};
-var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
-var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
-var COUNCIL_SCHEMA = "glide.council-run/v1";
-var MINERALS = new Set(Object.keys(MINERAL));
-var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
-var KEYS3 = {
-  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
-  seat: ["id", "name", "family", "mineral", "crew"],
-  turn: ["type", "seat", "round", "cites"],
-  spawn: ["type", "seat"],
-  verdict: ["seat", "stance", "text"]
-};
-var Bad = class extends Error {
-};
-var fail = (where, what) => {
-  throw new Bad(`${where}: ${what}`);
-};
-function obj2(v, where, keys3) {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
-  const extra = Object.keys(v).find((k) => !keys3.includes(k));
-  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
-}
-function str5(v, where, max) {
-  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
-}
-function int2(v, where, min, max) {
-  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
-}
-function list9(v, where, min, max) {
-  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
-}
-function mineral(v, where) {
-  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
-}
-function parseCouncilRun(raw2) {
-  try {
-    return readRun(raw2);
-  } catch (e) {
-    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
-    throw e;
-  }
-}
-function readRun(raw2) {
-  const d = obj2(raw2, "run", KEYS3.run);
-  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
-  const rounds = int2(d["rounds"], "rounds", 1, 8);
-  const used = /* @__PURE__ */ new Map();
-  const index2 = /* @__PURE__ */ new Map();
-  const seats = list9(d["seats"], "seats", 2, 6).map((v, i) => {
-    const s2 = obj2(v, `seats.${i}`, KEYS3.seat);
-    const id = str5(s2["id"], `seats.${i}.id`, 40);
-    if (!SEAT_ID.test(id)) fail(`seats.${i}.id`, "expected a lowercase id");
-    if (index2.has(id)) fail(`seats.${i}.id`, "two seats share an id");
-    index2.set(id, i);
-    const family = str5(s2["family"], `seats.${i}.family`, 24);
-    const key3 = family.trim().toLowerCase();
-    const pool = FAMILY[key3] ?? ["clear"];
-    const n3 = used.get(key3) ?? 0;
-    used.set(key3, n3 + 1);
-    return Object.freeze({
-      id,
-      family,
-      name: str5(s2["name"], `seats.${i}.name`, 24),
-      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
-      crew: Object.freeze(s2["crew"] === void 0 ? [] : list9(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
-    });
-  });
-  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
-  const events = list9(d["events"], "events", 0, 400).map((v, i) => {
-    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
-    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS3.spawn)["seat"], `events.${i}.seat`) });
-    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
-    const e = obj2(v, `events.${i}`, KEYS3.turn);
-    const cites = e["cites"] === void 0 ? [] : list9(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
-    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int2(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
-  });
-  const heard = /* @__PURE__ */ new Set();
-  const verdicts = list9(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
-    const e = obj2(v, `verdicts.${i}`, KEYS3.verdict);
-    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
-    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
-    heard.add(s2);
-    const stance = e["stance"];
-    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
-    return Object.freeze({ seat: s2, stance, text: str5(e["text"], `verdicts.${i}.text`, 240) });
-  });
-  return Object.freeze({
-    brief: str5(d["brief"], "brief", 280),
-    rounds,
-    seats: Object.freeze(seats),
-    events: Object.freeze(events),
-    verdicts: Object.freeze(verdicts),
-    ...d["outcome"] === void 0 ? {} : { outcome: str5(d["outcome"], "outcome", 160) }
-  });
-}
-function demoRun() {
-  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
-  const seats = [
-    { id: "argon", name: "Argon", family: "Google", crew: CREW },
-    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
-    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
-    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
-  ];
-  const ids = seats.map((s2) => s2.id);
-  const events = [];
-  for (const id of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id });
-  for (let round = 1; round <= 4; round++) {
-    ids.forEach((id, i) => {
-      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id });
-      const peers = ids.filter((p3) => p3 !== id);
-      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
-      events.push({ type: "turn", seat: id, round, cites });
-    });
-  }
-  for (const id of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id });
-  const run8 = parseCouncilRun({
-    schema: COUNCIL_SCHEMA,
-    brief: "Should a small team ship a plugin before its launcher?",
-    rounds: 4,
-    seats,
-    events,
-    verdicts: [
-      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
-      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
-      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
-      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
-    ],
-    outcome: "Ship the plugin first"
-  });
-  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
-  return run8;
-}
-var TURN_MS = 520;
-var SPAWN_MS = 90;
-var FLY_MS = 220;
-var THREAD_MS = 360;
-var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
-function schedule(run8) {
-  const at2 = [];
-  let t = 0;
-  for (const e of run8.events) {
-    at2.push(t);
-    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
-  }
-  return { at: at2, total: t };
-}
-function moment(run8, frame) {
-  const { at: at2, total } = schedule(run8);
-  const t = frame.t;
-  const done = t !== null && t >= total;
-  let idx = -1;
-  if (t !== null) {
-    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
-  }
-  const running2 = t !== null && !done;
-  const lit2 = run8.seats.map(() => 0);
-  const born = /* @__PURE__ */ new Map();
-  const lastTurn = run8.seats.map(() => -1);
-  run8.events.forEach((e, i) => {
-    if (e.type === "turn") lastTurn[e.seat] = i;
-  });
-  let round = 0;
-  for (let i = 0; i <= idx; i++) {
-    const e = run8.events[i];
-    if (!e) continue;
-    if (e.type === "spawn") {
-      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
-      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
-    } else round = e.round;
-  }
-  const cur = idx >= 0 ? run8.events[idx] : void 0;
-  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
-  const closed = /* @__PURE__ */ new Set();
-  run8.seats.forEach((_2, s2) => {
-    const last = lastTurn[s2] ?? -1;
-    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
-  });
-  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
-}
-function narration(run8, frame) {
-  const m = moment(run8, frame);
-  const nm = (i) => run8.seats[i]?.name ?? "?";
-  const helpers = run8.events.filter((e) => e.type === "spawn").length;
-  if (frame.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
-  if (m.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
-  const cur = run8.events[m.idx];
-  if (!cur) return "The council takes its seats";
-  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
-  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
-  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
-  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
-}
-function closedSeats(run8, frame) {
-  return moment(run8, frame).closed;
-}
-var n2 = (v) => (Math.round(v * 10) / 10).toString();
-var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-function tag2(name, attrs, kids = "") {
-  let a2 = "";
-  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n2(v) : esc2(v)}"`;
-  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
-}
-var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
-var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
-var toHex = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
-var mix = (a2, b, t) => {
-  const x = hex(a2), y = hex(b);
-  return toHex(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
-};
-var D = Math.PI / 180;
-var KEY11 = 225 * D;
-function lit(phi, tilt, az) {
-  const el = 52 * D;
-  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
-}
-var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
-var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
-var pts = (p3) => p3.map(([x, y]) => `${n2(x)},${n2(y)}`).join(" ");
-function brilliant(cx, cy, r) {
-  const f = [];
-  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
-  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
-  const g = (deg) => at(cx, cy, r, deg * D);
-  f.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
-  for (let k = 0; k < 8; k++) {
-    const a2 = 22.5 + 45 * k;
-    f.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
-    f.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
-    f.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
-    f.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
-  }
-  return f;
-}
-function gem(id, kind, cx, cy, r, opts = {}) {
-  const m = MINERAL[kind];
-  const glint = opts.glint ?? null;
-  const g = glint ?? 0.5;
-  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
-  const az = KEY11 + (g - 0.5) * 70 * D;
-  const hl = at(cx, cy, r * 0.42, az);
-  const far = at(cx, cy, r * 0.38, az + Math.PI);
-  const op = opts.dim ? 0.55 : void 0;
-  if (opts.low) {
-    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m.base, "fill-opacity": 0.16, stroke: m.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
-    return tag2(
-      "g",
-      { opacity: op },
-      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m.light) + stop(0.45, m.base) + stop(1, m.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
-    );
-  }
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m.glow, 0.75 + 0.2 * shine) + stop(1, m.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m.light) + stop(0.42, m.base) + stop(1, m.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
-  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
-  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
-  let body = tag2("circle", { cx, cy, r, fill: m.base });
-  if (m.cut === "brilliant") {
-    body += brilliant(cx, cy, r).map((f, k) => {
-      const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
-      let fill = mix(m.deep, m.base, b * 1.35);
-      if (b > 0.72) fill = mix(fill, m.light, (b - 0.72) * 3 + shine * 0.25);
-      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
-    }).join("");
-    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
-    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n2(cx + r * 0.18)} ${n2(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
-    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
-    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
-  } else {
-    body += tag2("circle", { cx, cy, r, fill: `url(#${id}d)` });
-    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
-      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
-      const distance = Math.hypot(bx - cx, by - cy);
-      const angle = Math.atan2(cy - by, cx - bx);
-      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
-      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
-      return tag2("path", {
-        d: `M ${pts([start])} A ${n2(radius)} ${n2(radius)} 0 0 1 ${pts([end])}`,
-        fill: "none",
-        stroke: k % 2 ? "#0c3a26" : "#5cc893",
-        "stroke-opacity": k % 2 ? 0.75 : 0.45,
-        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
-      });
-    }).join("");
-    if (kind === "labradorite") body += tag2("ellipse", {
-      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
-      cy: cy + r * 0.05,
-      rx: r * 0.95,
-      ry: r * 0.42,
-      transform: `rotate(${n2(-32 + (g - 0.5) * 50)} ${n2(cx)} ${n2(cy)})`,
-      fill: `url(#${id}f)`,
-      "fill-opacity": 0.5 + 0.45 * shine
-    });
-    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id}a)`, "fill-opacity": 0.55 + 0.4 * shine });
-    if (kind === "lapis") {
-      body += tag2("path", { d: `M ${n2(cx - r)} ${n2(cy + r * 0.35)} Q ${n2(cx - r * 0.1)} ${n2(cy + r * 0.05)} ${n2(cx + r)} ${n2(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
-      for (let k = 0; k < 14; k++) {
-        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
-        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
-      }
-    }
-  }
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
-  const [hx, hy] = hl;
-  body += m.cut === "brilliant" ? tag2("path", {
-    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n2(hx + r * dx)} ${n2(hy + r * dy)}`).join(" ") + " Z",
-    fill: "#ffffff",
-    "fill-opacity": 0.55 + 0.45 * shine
-  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n2(az / D + 90)} ${n2(hx)} ${n2(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
-  return tag2(
-    "g",
-    { opacity: op },
-    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id}c)` }, body)
-  );
-}
-function swatchSvg(kind, size) {
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
-}
-var STARS = (() => {
-  let seed = 11;
-  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
-})();
-function instrumentSvg(run8, frame, size = 480) {
-  const m = moment(run8, frame);
-  const c = size / 2;
-  const orbit = size * 0.335;
-  const R = Math.max(18, size * 0.064);
-  const table3 = orbit + R + size * 0.06;
-  const ringMin = size * 0.085;
-  const ringMax = orbit - R * 0.35;
-  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
-  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
-  const n3 = run8.seats.length;
-  const pos = run8.seats.map((_2, i) => {
-    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
-    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
-  });
-  const t = frame.t ?? 0;
-  const cur = m.idx >= 0 ? run8.events[m.idx] : void 0;
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let s2 = tag2(
-    "defs",
-    {},
-    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
-  );
-  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
-  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
-  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
-  for (let i = 0; i < 72; i++) {
-    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
-    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
-  }
-  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
-  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
-  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
-  for (let i = 0; i < run8.rounds; i++) {
-    const r = ringR(i);
-    const now = m.running && m.round === i + 1;
-    const past = frame.t !== null && (m.round > i + 1 || m.done);
-    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
-    if (ringGap >= 12 || i % 2 === 1 || now) {
-      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
-      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
-    }
-  }
-  if (m.speaking >= 0 && cur?.type === "turn") {
-    const p3 = pos[m.speaking];
-    const k = ease(m.since / THREAD_MS);
-    const targets = cur.cites.filter((j) => j !== m.speaking);
-    if (p3 && !targets.length) {
-      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
-    }
-    for (const j of targets) {
-      const q2 = pos[j];
-      if (!p3 || !q2) continue;
-      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
-      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
-      s2 += tag2("path", { d: `M ${n2(p3.x)} ${n2(p3.y)} Q ${n2(mx)} ${n2(my)} ${n2(q2.x)} ${n2(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n2(len)} ${n2(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
-      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
-    }
-  }
-  if (m.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
-  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
-  run8.seats.forEach((seat, i) => {
-    const p3 = pos[i];
-    if (!p3) return;
-    const talk = m.speaking === i;
-    const crew = seat.crew;
-    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
-    crew.forEach((stone, k) => {
-      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
-      const on = frame.t === null || k < (m.lit[i] ?? 0);
-      const born = m.running ? m.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
-      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
-      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
-    });
-    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
-    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m.since / TURN_MS) : null, dim: m.running && !talk });
-    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
-    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
-  });
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
-}
-
 // ../glide/frontend/councilPopup.ts
 var COUNCIL_URL_ENV = "GLIDE_COUNCIL_URL";
-var APP = "glide";
+var APP3 = "glide";
 var TICK_MS4 = 110;
 var CONVENE_ID = 1;
-var CLOSE_ID = 2;
+var CLOSE_ID2 = 2;
 var realClock = {
   now: () => performance.now(),
   every: (tick2, ms2) => {
@@ -73388,7 +74441,7 @@ function councilCard(src, frame, size = 480) {
       el("div", "flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0", [
         el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame))]),
         verdictBox,
-        el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID, "Close", false)]),
+        el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID2, "Close", false)]),
         seats
       ])
     ]),
@@ -73425,14 +74478,14 @@ function openCouncilPopup(host, src, clock4 = realClock) {
     node: (id) => {
       const f = frame();
       const view = {
-        spec: { kind: "council", app: APP },
-        app: APP,
+        spec: { kind: "council", app: APP3 },
+        app: APP3,
         label: "Socratic council",
         identity: "council",
         node: councilCard(src, f, 320),
         activate: (n3) => {
           if (n3 === CONVENE_ID && !stop3) convene();
-          else if (n3 === CLOSE_ID) host.close(overlay2);
+          else if (n3 === CLOSE_ID2) host.close(overlay2);
         }
       };
       return euiPopupNode(nativeOverlayKey(id), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui);
@@ -73456,7 +74509,7 @@ function publishCouncilCard(host, src, clock4) {
   const { run: run8 } = src;
   const data = {
     kind: "approve",
-    app: APP,
+    app: APP3,
     title: src.live ? "Socratic council" : "Socratic council \xB7 demo",
     summary: run8.brief,
     rows: [
@@ -73695,957 +74748,6 @@ async function factoryCommand(host, arg) {
       host.transcript.notice(`/factory: ${error instanceof Error ? error.message : String(error)}`, "error");
     }
   }
-}
-
-// ../glide/frontend/wal.ts
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, watch, writeFileSync } from "node:fs";
-import { homedir as homedir7 } from "node:os";
-import { basename as basename7, dirname as dirname4, join as join10 } from "node:path";
-
-// node_modules/@hermes/shared/src/color.ts
-var HEX6_RE = /^#?([0-9a-f]{6})$/i;
-var HEX3_RE = /^#?([0-9a-f]{3})$/i;
-var RGB_FN_RE = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i;
-var clampChannel = (v) => Math.max(0, Math.min(255, Math.round(v)));
-function parseColor(input2) {
-  const value = input2.trim();
-  let m = HEX6_RE.exec(value);
-  if (m) {
-    const n3 = parseInt(m[1], 16);
-    return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255];
-  }
-  m = HEX3_RE.exec(value);
-  if (m) {
-    const [r, g, b] = m[1];
-    return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
-  }
-  m = RGB_FN_RE.exec(value);
-  if (m) {
-    return [clampChannel(Number(m[1])), clampChannel(Number(m[2])), clampChannel(Number(m[3]))];
-  }
-  return null;
-}
-var toHex2 = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
-function mix2(a2, b, t) {
-  const pa = parseColor(a2);
-  const pb = parseColor(b);
-  if (!pa || !pb) {
-    return a2;
-  }
-  return toHex2([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
-}
-function channelLuminance(value) {
-  const normalized = value / 255;
-  return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-}
-function relativeLuminance(color2) {
-  const rgb = parseColor(color2);
-  return rgb ? 0.2126 * channelLuminance(rgb[0]) + 0.7152 * channelLuminance(rgb[1]) + 0.0722 * channelLuminance(rgb[2]) : null;
-}
-function contrastRatio(a2, b) {
-  const la = relativeLuminance(a2);
-  const lb = relativeLuminance(b);
-  if (la === null || lb === null) {
-    return null;
-  }
-  const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
-  return (hi + 0.05) / (lo + 0.05);
-}
-var DEFAULT_INKS = ["#000000", "#ffffff"];
-function readableOn(bg, inks = DEFAULT_INKS) {
-  let best = inks[inks.length - 1];
-  let bestRatio = -1;
-  for (const ink2 of inks) {
-    const ratio = contrastRatio(bg, ink2);
-    if (ratio !== null && ratio >= bestRatio) {
-      best = ink2;
-      bestRatio = ratio;
-    }
-  }
-  return best;
-}
-function ensureContrast(color2, bg, min, step = 0.2) {
-  const bgLuminance = relativeLuminance(bg);
-  if (bgLuminance === null || parseColor(color2) === null) {
-    return color2;
-  }
-  const ratio = contrastRatio(color2, bg);
-  if (ratio === null || ratio >= min) {
-    return color2;
-  }
-  const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
-  let best = color2;
-  const rung = Number.isFinite(step) && step >= 1e-3 ? Math.min(step, 1) : 0.2;
-  for (let amount = rung; amount <= 1.0001; amount += rung) {
-    best = mix2(color2, pole, Math.min(amount, 1));
-    const stepRatio = contrastRatio(best, bg);
-    if (stepRatio !== null && stepRatio >= min) {
-      return best;
-    }
-  }
-  return best;
-}
-
-// src/hermes/theme.ts
-var SEEDS = {
-  dark: { accent: "#FFBF00", bg: "#101014", error: "#ef5350", ok: "#4caf50", warn: "#ffa726" },
-  light: { accent: "#956E00", bg: "#ffffff", error: "#C14240", ok: "#367E39", warn: "#956115" }
-};
-var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
-var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
-function background(raw2) {
-  const value = (raw2 ?? "").trim();
-  const hex2 = value.startsWith("#") ? value : `#${value}`;
-  return value && relativeLuminance(hex2) !== null ? hex2 : void 0;
-}
-function skinColors(colors, polarity) {
-  const seeds = SEEDS[polarity];
-  const bg = background(colors["background"]) ?? seeds.bg;
-  const lift = (color2, floor) => ensureContrast(color2, bg, floor);
-  return {
-    accent: lift(colors["ui_accent"] ?? colors["banner_accent"] ?? seeds.accent, ACCENT_FLOOR[polarity]),
-    error: lift(colors["ui_error"] ?? seeds.error, STATUS_FLOOR[polarity]),
-    ok: lift(colors["ui_ok"] ?? seeds.ok, STATUS_FLOOR[polarity]),
-    warn: lift(colors["ui_warn"] ?? seeds.warn, STATUS_FLOOR[polarity])
-  };
-}
-
-// ../glide/frontend/wal.ts
-var TEXT_FLOOR = 4.5;
-var WAL_SHEET = "glide-auto-theme";
-var HEX = /^#[0-9a-f]{6}$/i;
-function walFile(env2 = process.env) {
-  return env2["GLIDE_WAL_COLORS"] || join10(env2["XDG_CACHE_HOME"] || join10(homedir7(), ".cache"), "wal", "colors.json");
-}
-function exportFile(env2 = process.env) {
-  return env2["GLIDE_THEME_EXPORT"] || join10(env2["XDG_CACHE_HOME"] || join10(homedir7(), ".cache"), "glide", "theme.json");
-}
-function readWal(file2) {
-  let text18;
-  try {
-    text18 = readFileSync4(file2, "utf8");
-  } catch {
-    return void 0;
-  }
-  const raw2 = record2(parseJson(text18));
-  const special = record2(raw2?.["special"]);
-  const palette = record2(raw2?.["colors"]);
-  const background2 = special?.["background"];
-  const foreground = special?.["foreground"];
-  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX.test(background2) || !HEX.test(foreground) || !palette) {
-    return void 0;
-  }
-  const colors = {};
-  for (const [k, v] of Object.entries(palette)) {
-    if (typeof v === "string") colors[k] = v;
-  }
-  return { special: { background: background2, foreground }, colors };
-}
-function saturation(hex2) {
-  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
-  const [r, g, b] = [channel(1), channel(3), channel(5)];
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
-}
-function pickAccent(wal) {
-  let best = wal.special.foreground;
-  let top = -1;
-  for (let i = 1; i <= 6; i++) {
-    const c = wal.colors[`color${i}`] ?? "";
-    if (HEX.test(c) && saturation(c) > top) {
-      best = c;
-      top = saturation(c);
-    }
-  }
-  return best;
-}
-function walPalette(wal, source2 = "") {
-  const bg = wal.special.background;
-  const text18 = (c, fallback) => {
-    const lifted = ensureContrast(c && HEX.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
-    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
-  };
-  const fg = text18(wal.special.foreground, wal.special.foreground);
-  const accent = text18(pickAccent(wal), fg);
-  return {
-    source: source2,
-    dark: (relativeLuminance(bg) ?? 0) < 0.5,
-    bg,
-    fg,
-    accent,
-    accentInk: readableOn(accent),
-    muted: text18(wal.colors["color7"], fg),
-    dim: text18(wal.colors["color8"], fg),
-    error: text18(wal.colors["color1"], fg),
-    success: text18(wal.colors["color2"], fg),
-    warning: text18(wal.colors["color3"], fg),
-    selectedBg: mix2(bg, accent, 0.18),
-    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)]
-  };
-}
-function walTernPalette(p3) {
-  const tokens2 = {
-    accent: p3.accent,
-    borderAccent: p3.accent,
-    dim: p3.dim,
-    error: p3.error,
-    mdLink: p3.accent,
-    mdListBullet: p3.accent,
-    muted: p3.muted,
-    selectedBg: p3.selectedBg,
-    statusLineModel: p3.accent,
-    statusLinePath: p3.muted,
-    success: p3.success,
-    text: p3.fg,
-    warning: p3.warning
-  };
-  return { dark: tokens2, light: tokens2, name: { dark: "auto", light: "auto" } };
-}
-function walCss(p3) {
-  const [l1, l2, l3] = p3.layers;
-  const vars = [
-    `--accent: ${p3.accent}`,
-    `--sf-p-accent: ${p3.accent}`,
-    `--accent-ink: ${p3.accentInk}`,
-    `--text: ${p3.fg}`,
-    `--muted: ${p3.muted}`,
-    `--t1: ${p3.fg}`,
-    `--t2: ${p3.muted}`,
-    `--t3: ${p3.dim}`,
-    `--l1: ${l1}`,
-    `--l2: ${l2}`,
-    `--l3: ${l3}`,
-    `--card: ${l1}`,
-    `--panel: ${p3.bg}`,
-    `--sf-c-error: ${p3.error}`
-  ];
-  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
-[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
-`;
-}
-function exportPalette(p3, file2 = exportFile()) {
-  mkdirSync2(dirname4(file2), { recursive: true });
-  writeFileSync(file2, `${JSON.stringify(p3, null, 2)}
-`);
-  return file2;
-}
-function watchWal(file2, changed, debounceMs = 50) {
-  let timer;
-  let watcher;
-  try {
-    watcher = watch(dirname4(file2), (_event, name) => {
-      if (name && name.toString() !== basename7(file2)) return;
-      clearTimeout(timer);
-      timer = setTimeout(changed, debounceMs);
-    });
-    watcher.on("error", () => watcher?.close());
-  } catch {
-    watcher = void 0;
-  }
-  return () => {
-    clearTimeout(timer);
-    watcher?.close();
-  };
-}
-
-// ../glide/frontend/taste.ts
-import { execFile as execFile8 } from "node:child_process";
-import { promisify as promisify6 } from "node:util";
-function tasteBoard(raw2) {
-  const value = record2(raw2);
-  const url = value?.["url"];
-  const title = value?.["title"];
-  if (typeof url !== "string" || typeof title !== "string") {
-    throw new Error("Invalid Taste Atlas board reply");
-  }
-  const parsed2 = new URL(url);
-  if (parsed2.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsed2.hostname) || parsed2.username || parsed2.password || parsed2.search || parsed2.hash || !/^\/(?:boards|s\/[a-z0-9-]{4,40}\/)$/.test(parsed2.pathname)) {
-    throw new Error("Taste Atlas requires a loopback board URL");
-  }
-  return { url, title };
-}
-async function openTastePane(board) {
-  const owner2 = process.env["TERN_PANE"] ?? "";
-  if (!/^[1-9][0-9]*$/.test(owner2) || !Number.isSafeInteger(Number(owner2))) {
-    throw new Error("Taste pane needs a local Tern pane. Open the board URL in your browser instead.");
-  }
-  const { stdout } = await promisify6(execFile8)("tern", ["browser", JSON.stringify({
-    op: "open",
-    owner: Number(owner2),
-    url: board.url,
-    how: "beside"
-  }), "--timeout", "15"], { timeout: 2e4, shell: false });
-  const result = record2(record2(stdout)?.["ok"]);
-  const block = result?.["block"];
-  if (typeof block !== "number" || !Number.isSafeInteger(block) || block <= 0) {
-    throw new Error("Tern did not confirm opening the Taste pane");
-  }
-  return block;
-}
-
-// ../glide/frontend/lanesPopup.ts
-import { mkdirSync as mkdirSync3, readFileSync as readFileSync5, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir as homedir8 } from "node:os";
-import { dirname as dirname5, join as join11 } from "node:path";
-var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
-var MODELS_ENV = "GLIDE_LANE_MODELS";
-var CLOSE_ID2 = 2;
-var PICK_BASE = 100;
-var PICK_STRIDE = 32;
-var APP2 = "glide";
-var ROLE_ORDER2 = ["fast", "small", "large", "council"];
-function fileBindings(path2 = process.env[BINDINGS_ENV] || join11(homedir8(), ".config/glide/lane-bindings.json")) {
-  const get = () => {
-    try {
-      const v = JSON.parse(readFileSync5(path2, "utf8"));
-      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
-      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
-    } catch {
-      return {};
-    }
-  };
-  return {
-    where: path2,
-    get,
-    set: (role, model) => {
-      mkdirSync3(dirname5(path2), { recursive: true });
-      writeFileSync2(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
-    }
-  };
-}
-var DOT = {
-  idle: NIGHT.text3,
-  thinking: NIGHT.strong,
-  answered: NIGHT.action,
-  verified: NIGHT.agree,
-  corrected: NIGHT.muted,
-  dead: NIGHT.danger
-};
-var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
-function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
-  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
-  return [...new Set(all8)].slice(0, PICK_STRIDE);
-}
-var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
-var clip3 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
-function lanesCard(src, bound2, where, extra) {
-  let next2 = 10;
-  const text18 = (value) => ({ t: "text", text: value });
-  const el = (tag3, style2, kids, opts = {}) => ({
-    t: "el",
-    tag: tag3,
-    id: opts.id ?? next2++,
-    cls: "",
-    style: style2,
-    attrs: opts.attrs ?? {},
-    click: opts.id !== void 0,
-    kids
-  });
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
-  const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
-  const choices = modelChoices(lanes2, bound2, extra);
-  const dead = lanes2.filter((l) => l.state === "dead").length;
-  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
-    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text18("VOICE LANES \xB7 GLIDE")]),
-      el(
-        "span",
-        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (lanes2.length ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-        [text18(lanes2.length ? `LIVE \xB7 ${(src.call?.revision || "CALL").toUpperCase()}` : "NO CALL")],
-        { attrs: { "data-lanes-source": lanes2.length ? "live" : "none" } }
-      )
-    ]),
-    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
-    el("span", `font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(lanes2.length ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : src.error || "no open lane call (the lane broker runs the Hermes app Live path)")])
-  ]);
-  const rows = lanes2.map((lane, i) => {
-    const binding = bound2[lane.role];
-    const isDead = lane.state === "dead";
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : lane.model;
-    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip3(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip3(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip3(lane.researching, 100)}` : "no blackboard entry yet";
-    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
-      el("div", "display:flex;align-items:center;gap:8px", [
-        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${DOT[lane.state]}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
-        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
-        el("span", `${micro};font-size:9px`, [text18(model.toUpperCase())]),
-        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
-        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text18(lane.state.toUpperCase())])
-      ]),
-      el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } }),
-      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
-        const on = (binding ?? lane.model) === m;
-        return el(
-          "button",
-          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
-          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text2}`, [text18(m)])],
-          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
-        );
-      }))
-    ]);
-  });
-  const close = el(
-    "button",
-    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
-    { id: CLOSE_ID2, attrs: { "data-eui-action": "close" } }
-  );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
-    header,
-    el("div", "display:flex;flex-direction:column", rows),
-    el("div", "display:flex;justify-content:flex-end", [close]),
-    el(
-      "span",
-      `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`,
-      [text18(`state read from the lane broker \xB7 bindings saved locally to ${where.split("/").pop() ?? where} (the broker has no binding endpoint)`)]
-    )
-  ])]);
-}
-function openLanesPopup(host, feed, bindings = fileBindings()) {
-  const eui = host.eui;
-  if (!eui) {
-    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
-    return void 0;
-  }
-  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "no lane broker token (set GLIDE_LANES_TOKEN_FILE)" };
-  const overlay2 = {
-    key: "glide-lanes",
-    modal: true,
-    focus: () => null,
-    node: (id) => {
-      const src = source2();
-      const bound2 = bindings.get();
-      const lanes2 = src.call?.open ? sortLanes(src.call.lanes) : [];
-      const choices = modelChoices(lanes2, bound2);
-      const view = {
-        spec: { kind: "lanes", app: APP2 },
-        app: APP2,
-        label: "Voice lanes",
-        identity: "lanes",
-        node: lanesCard(src, bound2, bindings.where),
-        activate: (n3) => {
-          if (n3 === CLOSE_ID2) return host.close(overlay2);
-          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
-          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
-          if (n3 < PICK_BASE || !lane || !model) return;
-          try {
-            bindings.set(lane.role, model);
-          } catch (e) {
-            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
-          }
-          host.changed();
-        }
-      };
-      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
-    },
-    onKey: (key3) => {
-      if (key3.name === "escape") host.close(overlay2);
-      return true;
-    }
-  };
-  host.open(overlay2);
-  return overlay2;
-}
-
-// src/commands/glide.ts
-function glideLanes(host) {
-  openLanesPopup(host, host.laneFeed);
-}
-function glideTheme(host, sub) {
-  if (sub === "auto" || sub === "default") {
-    host.setTheme?.(sub === "auto" ? "auto" : "tern");
-    host.transcript.notice(sub === "auto" ? `Glide theme follows the wallpaper: ${walFile()}` : "Glide theme is back to the default");
-    return;
-  }
-  if (sub === "export") {
-    const wal = readWal(walFile());
-    if (!wal) {
-      host.transcript.notice(`/glide theme export: no pywal colors at ${walFile()} (run wal, or set GLIDE_WAL_COLORS)`, "warning");
-      return;
-    }
-    const palette = walPalette(wal, walFile());
-    host.transcript.notice(`Glide palette written to ${exportPalette(palette)}
-${JSON.stringify(palette)}`);
-    return;
-  }
-  host.transcript.notice("Usage: /glide theme auto|default|export", "warning");
-}
-var glideMemory = object({
-  sessions: number2(),
-  corrections: number2(),
-  complete: boolean2(),
-  on: boolean2(),
-  scanned: optional(number2())
-});
-var glideDetect = object({
-  os: string2(),
-  cpus: number2(),
-  ram_gib: nullable(number2()),
-  gpus: array(string2()),
-  runtimes: array(string2()),
-  z0int: object({
-    installed: boolean2(),
-    ok: optional(boolean2()),
-    failed: optional(array(string2())),
-    hint: optional(string2()),
-    unchecked: optional(boolean2())
-  }),
-  memory: glideMemory
-});
-var glideRecall = object({ hits: array(object({ text: string2(), score: number2() })) });
-var glideRouter = object({
-  installed: boolean2(),
-  fresh: boolean2(),
-  categories: number2(),
-  skills: number2(),
-  top: array(object({ category: string2(), rule: string2(), skills: array(string2()) }))
-});
-var glideClimb = object({
-  target: string2(),
-  metric: string2(),
-  baseline: nullable(object({ mean: number2() })),
-  candidate: nullable(object({ mean: number2() })),
-  delta: nullable(number2()),
-  noise: nullable(number2()),
-  verdict: nullable(string2()),
-  reason: nullable(string2())
-});
-var glideSavings = object({
-  local_models: array(string2()),
-  tasks: number2(),
-  tokens_offloaded: number2(),
-  est_cost_saved_usd: number2(),
-  assumptions: array(string2())
-});
-var glideFocus = object({
-  phase: string2(),
-  phase_source: string2(),
-  flow: nullable(object({ flow: number2(), confidence: number2() })),
-  next_window: nullable(string2()),
-  bedtime: nullable(string2()),
-  block: nullable(object({ until: string2(), minutes_left: number2() })),
-  guarded: boolean2(),
-  queued: number2(),
-  learned: object({
-    days: number2(),
-    source: string2(),
-    stop: nullable(number2()),
-    windows: array(object({ start: number2(), end: number2(), days: number2() }))
-  }),
-  digest: optional(array(object({ title: string2(), cls: string2() }))),
-  wind_down: optional(object({
-    nudge: boolean2(),
-    resume: optional(object({ title: optional(string2()), last_asks: optional(array(string2())) }))
-  }))
-});
-var NS2 = "glide";
-var APP3 = "glide";
-var SESSIONS = 100;
-var memoryRows = (m) => [
-  { label: "Sessions read", value: m.sessions },
-  { label: "Corrections kept", value: m.corrections },
-  { label: "Quoted into turns", value: m.on ? "on" : "off" }
-];
-async function glideCommand(host, arg) {
-  const [first, second] = arg.trim().split(/\s+/);
-  if (first === "theme") {
-    glideTheme(host, second);
-    return;
-  }
-  const ref = host.session.ref;
-  const sid = ref.live;
-  const cards = host.eui?.host;
-  if (!sid || !cards) {
-    host.transcript.notice("/glide needs an attached session with ephemeral-ui cards", "warning");
-    return;
-  }
-  const call = async (verb2, params = {}) => {
-    try {
-      return await host.gw.request(`${NS2}.${verb2}`, { session_id: sid, ...params });
-    } catch (error) {
-      if (!/unknown method/i.test(error instanceof Error ? error.message : String(error))) throw error;
-    }
-    const { output } = await host.gw.request("command.dispatch", {
-      name: "glide",
-      arg: `json ${verb2} ${JSON.stringify(params)}`,
-      session_id: sid
-    });
-    return commandReply(output);
-  };
-  const fail2 = (error) => {
-    host.transcript.notice(`/glide: ${error instanceof Error ? error.message : String(error)}`, "error");
-  };
-  const [verb, ...rest] = arg.trim().split(/\s+/);
-  try {
-    if (verb === "taste") {
-      const board = tasteBoard(await call("taste"));
-      if (host.session.ref !== ref || host.session.ref.live !== sid) return;
-      const block = await openTastePane(board);
-      if (host.session.ref !== ref || host.session.ref.live !== sid) return;
-      cards.publish({
-        kind: "receipt",
-        app: APP3,
-        title: board.title,
-        rows: [
-          { label: "Taste pane", value: block },
-          { label: "Board", value: board.url },
-          { label: "Close", value: "Close the browser pane to return to chat" }
-        ]
-      });
-      return;
-    }
-    if (verb === "focus") {
-      await focusCommand(cards, async (params) => {
-        const f = glideFocus.parse(await call("focus", params));
-        focusBlock.note(f);
-        return f;
-      }, rest[0] ?? "", fail2);
-      return;
-    }
-    if (verb === "intent") {
-      const ask = rest.join(" ");
-      if (!ask) host.transcript.notice("Usage: /glide intent <ask>", "warning");
-      else intentCommand(cards, ask, host.laneFeed?.call?.lanes);
-      return;
-    }
-    if (verb === "off") {
-      const m = glideMemory.parse(await call("enable", { on: false }));
-      cards.publish({ kind: "receipt", app: APP3, title: "Glide memory is off", rows: memoryRows(m) });
-      return;
-    }
-    if (verb === "recall") {
-      const query2 = rest.join(" ");
-      if (!query2) {
-        host.transcript.notice("Usage: /glide recall <words>", "warning");
-        return;
-      }
-      const { hits } = glideRecall.parse(await call("recall", { query: query2 }));
-      cards.publish({
-        kind: "search",
-        app: APP3,
-        title: `Your corrections about \u201C${query2.slice(0, 80)}\u201D`,
-        rows: hits.length ? hits.map((h2) => ({ label: `score ${h2.score}`, value: h2.text })) : [{ label: "No match", value: "nothing quoted" }]
-      });
-      return;
-    }
-    const guarded3 = (run8) => async (ctx) => {
-      try {
-        await run8(ctx);
-      } catch (error) {
-        fail2(error);
-      }
-    };
-    const fmt = (n3) => n3 === null || n3 === void 0 ? "\u2014" : Number(n3.toFixed(2));
-    const savings = () => cards.publish({
-      kind: "approve",
-      app: APP3,
-      title: "Offload a small task to a local model",
-      rows: [{ label: "Task", value: "a two-sentence summary" }, { label: "Runs on", value: "your smallest local model" }],
-      approval: { label: "Offload it", description: "Sends one sample task to a local model through ollama, then shows the frontier tokens it kept out of your paid context." }
-    }, guarded3(async ({ signal }) => {
-      const r = glideSavings.parse(await call("offload", { run: true }));
-      if (signal.aborted) return;
-      cards.publish({
-        kind: "intel-value",
-        app: APP3,
-        title: "Offload savings",
-        summary: r.assumptions.join(" "),
-        rows: [
-          { label: "Local model", value: r.local_models[0] ?? "none found" },
-          { label: "Tasks offloaded", value: r.tasks },
-          { label: "Tokens kept local", value: r.tokens_offloaded },
-          { label: "Est. saved", value: `$${r.est_cost_saved_usd.toFixed(4)}` }
-        ]
-      });
-    }));
-    const climb = () => cards.publish({
-      kind: "approve",
-      app: APP3,
-      title: "Run your first hill climb",
-      rows: [{ label: "Target", value: "CPU benchmark" }, { label: "Referee", value: "paired samples, noise floor" }],
-      approval: { label: "Run one round", description: "Benchmarks a baseline and one candidate on this machine and keeps the candidate only if it beats the noise floor." }
-    }, guarded3(async ({ signal }) => {
-      const r = glideClimb.parse(await call("hill_climb", { run: true }));
-      if (signal.aborted) return;
-      cards.publish({
-        kind: "metric",
-        app: APP3,
-        title: r.verdict ? `Hill climb: ${r.verdict}` : "Hill climb",
-        summary: r.reason ?? "",
-        rows: [
-          { label: "Baseline", value: fmt(r.baseline?.mean) },
-          { label: "Candidate", value: fmt(r.candidate?.mean) },
-          { label: "Delta", value: fmt(r.delta) },
-          { label: "Noise floor", value: fmt(r.noise) },
-          { label: "Verdict", value: r.verdict ?? "no round yet" }
-        ]
-      });
-      savings();
-    }));
-    const router = () => cards.publish({
-      kind: "approve",
-      app: APP3,
-      title: "Install the skill router",
-      rows: [{ label: "Picks", value: "skills by task category" }, { label: "Writes", value: "your profile's glide folder" }],
-      approval: { label: "Install", description: "Installs a small category -> skills catalog so each turn loads the skills that fit the task." }
-    }, guarded3(async ({ signal }) => {
-      const r = glideRouter.parse(await call("skill_router"));
-      if (signal.aborted) return;
-      cards.publish({
-        kind: "receipt",
-        app: APP3,
-        title: r.fresh ? "Skill router installed" : "Skill router is installed",
-        rows: [
-          { label: "Categories", value: r.categories },
-          { label: "Skills", value: r.skills },
-          ...r.top.slice(0, 3).map((c) => ({ label: c.category, value: c.skills.slice(0, 3).join(", ") || c.rule }))
-        ]
-      });
-      climb();
-    }));
-    const steps = { router, climb, savings };
-    const step = verb ? steps[verb] : void 0;
-    if (step) {
-      step();
-      return;
-    }
-    const found = glideDetect.parse(await call("detect"));
-    cards.publish({
-      kind: "infra-models",
-      app: APP3,
-      title: "This machine",
-      rows: [
-        { label: "System", value: found.os },
-        { label: "CPU threads", value: found.cpus },
-        { label: "RAM", value: found.ram_gib === null ? "unknown" : `${found.ram_gib} GiB` },
-        { label: "GPU", value: found.gpus.join(", ") || "none found" },
-        { label: "Local runtimes", value: found.runtimes.join(", ") || "none on PATH" }
-      ]
-    });
-    const z0 = found.z0int;
-    cards.publish({
-      kind: "intel-health",
-      app: APP3,
-      title: "z0intelligence",
-      summary: !z0.installed ? "Optional. Adds local training loops, hill climbs and model management." : z0.ok ? "Ready for training loops and hill climbs." : z0.unchecked || !z0.failed?.length ? "Installed. Run `z0int doctor` for details." : `Needs: ${z0.failed.join(", ")}`,
-      rows: z0.installed ? [{ label: "doctor", value: z0.ok ? "ok" : z0.unchecked ? "not checked" : "attention" }] : [{ label: "Install", value: z0.hint ?? "pip install z0intelligence" }]
-    });
-    const enable = () => cards.publish({
-      kind: "approve",
-      app: APP3,
-      title: "Quote them into matching turns",
-      rows: [{ label: "Per turn", value: "top 3 matching corrections" }, { label: "Turn off", value: "/glide off" }],
-      approval: {
-        label: "Turn on",
-        description: "Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win."
-      }
-    }, async ({ signal }) => {
-      const m = glideMemory.parse(await call("enable", { on: true }));
-      if (signal.aborted) return;
-      cards.publish({ kind: "receipt", app: APP3, title: "Glide memory is on", rows: memoryRows(m) });
-      router();
-    });
-    cards.publish({
-      kind: "approve",
-      app: APP3,
-      title: found.memory.complete ? "Refresh your local memory" : "Build your local memory",
-      rows: memoryRows(found.memory),
-      approval: {
-        label: found.memory.complete ? "Refresh" : "Build memory",
-        description: `Reads your last ${SESSIONS} local Hermes sessions on this machine and keeps the corrections you gave ("no, \u2026", "actually, \u2026", "correction: \u2026") under your profile's glide folder. Nothing leaves this machine.`
-      }
-    }, async ({ signal }) => {
-      try {
-        const m = glideMemory.parse(await call("sync", { limit: SESSIONS }));
-        if (signal.aborted) return;
-        cards.publish({ kind: "intent-proof", app: APP3, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
-        if (m.on) router();
-        else enable();
-      } catch (error) {
-        fail2(error);
-      }
-    });
-  } catch (error) {
-    fail2(error);
-  }
-}
-function askClauses(ask) {
-  const acceptance = ask.split(/,|\band\b|\bby\b/)[0]?.trim().slice(0, 80);
-  const scope2 = /\bin (?:the |my )?([\w-]+)/i.exec(ask)?.[1];
-  const deadline = /\bby ([\w-]+)/i.exec(ask)?.[1];
-  return [
-    ...acceptance ? [{ label: "acceptance", value: acceptance }] : [],
-    ...scope2 ? [{ label: "scope", value: scope2 }] : [],
-    ...deadline ? [{ label: "deadline", value: deadline }] : []
-  ];
-}
-var NEEDS2 = {
-  acceptance: "needs a real-turn recording that shows it",
-  scope: "needs a build + install receipt",
-  deadline: "needs the merge to land before then",
-  proof: "needs a receipt hash from a real turn"
-};
-var PLAN = [
-  { role: "fast", job: "triage", model: "haiku", host: "MBP" },
-  { role: "small", job: "T2, T3", model: "kimi", host: "k3s" },
-  { role: "large", job: "T1", model: "opus", host: "groot" },
-  { role: "council", job: "review", model: "4 seats", host: "groot" }
-];
-var SAMPLE_HOSTS = [
-  { name: "groot", value: "online \xB7 large, council" },
-  { name: "MBP", value: "online \xB7 fast lane" },
-  { name: "phone", value: "idle \xB7 voice in" },
-  { name: "k3s", value: "3/3 ready \xB7 small, CI" }
-];
-function intentCommand(cards, ask, live) {
-  const clauses = askClauses(ask);
-  cards.publish({ kind: "intent-declare", app: "ripple", title: "One ask. Exact words.", summary: ask.slice(0, 2048), rows: clauses });
-  const lane = (p3) => {
-    const l = live?.find((x) => x.role === p3.role);
-    return { label: `lane: ${p3.role}`, value: `${p3.job} \xB7 ${l ? l.resolved ?? l.model : p3.model} \xB7 ${l ? l.state : "standby"}` };
-  };
-  cards.publish({
-    kind: "intent-contract",
-    app: "aodl",
-    title: "Review before execution",
-    summary: "Nothing counts until a real turn leaves its receipt.",
-    rows: [
-      ...[...clauses, { label: "proof", value: "real-turn receipt" }].map((c) => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: `missing \xB7 ${NEEDS2[c.label] ?? "needs a receipt"}` })),
-      { label: "pattern", value: "fan-out \u2192 council review" },
-      ...PLAN.map(lane),
-      ...SAMPLE_HOSTS.map((h2) => ({ label: `host: ${h2.name}`, value: h2.value })),
-      { label: "gate", value: "council review \xB7 3 of 4 seats must pass" },
-      { label: "budget", value: "\u2264 40k tokens \xB7 61% of weekly quota left" },
-      { label: "sample", value: live?.length ? "hosts, budget" : "lanes, hosts, budget" }
-    ],
-    approval: { label: "Hold to approve", description: "Approve this contract revision for execution. Nothing runs until approved." }
-  }, async ({ signal }) => {
-    if (signal.aborted) return;
-    cards.publish({
-      kind: "intent-work",
-      app: "aodl",
-      title: "Implementation is not acceptance",
-      summary: "Sample work rail (synthetic): no agent has been dispatched.",
-      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? "running" : "queued"} \xB7 ${c.label}` }))
-    });
-  });
-}
-var PHASE = {
-  PEAK: "Peak",
-  DIP: "Afternoon dip",
-  SECOND: "Second wind",
-  WIND_DOWN: "Wind-down",
-  PRE_SLEEP: "Before sleep",
-  SLEEP: "Sleep",
-  WAKE: "Awake",
-  TROUGH: "Trough"
-};
-var phaseName = (p3) => PHASE[p3] ?? p3.replace(/_/g, " ").toLowerCase();
-var clock2 = (t) => t ? /T(\d\d:\d\d)/.exec(t)?.[1] ?? t : "unknown";
-var hours = (f) => f.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
-async function focusCommand(cards, call, sub, fail2) {
-  const guarded3 = (run8) => async (ctx) => {
-    try {
-      await run8(ctx);
-    } catch (error) {
-      fail2(error);
-    }
-  };
-  const stopCard = () => cards.publish({
-    kind: "approve",
-    app: APP3,
-    title: "End the deep-work block",
-    rows: [{ label: "Then", value: "everything held arrives as one digest" }],
-    approval: { label: "End block", description: "Ends the block and shows the asks Glide held while you worked." }
-  }, guarded3(async ({ signal }) => {
-    const f2 = await call({ action: "stop" });
-    if (signal.aborted) return;
-    const held = f2.digest ?? [];
-    cards.publish({
-      kind: "receipt",
-      app: APP3,
-      title: held.length ? `While you were in deep work: ${held.length} held` : "Block ended, nothing held",
-      rows: held.length ? held.map((i) => ({ label: i.cls, value: i.title })) : [{ label: "Held", value: "nothing" }]
-    });
-  }));
-  const blockOn = (f2) => {
-    cards.publish({
-      kind: "receipt",
-      app: APP3,
-      title: `Deep-work block on until ${f2.block?.until ?? "\u2014"}`,
-      rows: [
-        { label: "Agent asks", value: "held until the block ends" },
-        { label: "Critical", value: "still passes" },
-        { label: "Held so far", value: f2.queued }
-      ]
-    });
-    stopCard();
-  };
-  const startCard = () => cards.publish({
-    kind: "approve",
-    app: APP3,
-    title: "Start a deep-work block",
-    rows: [{ label: "Length", value: "50 min" }, { label: "Holds", value: "non-critical agent asks" }],
-    approval: { label: "Start block", description: "For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass." }
-  }, guarded3(async ({ signal }) => {
-    const on = await call({ action: "start", minutes: 50 });
-    if (signal.aborted) return;
-    blockOn(on);
-  }));
-  if (sub === "stop") {
-    stopCard();
-    return;
-  }
-  if (sub === "wind-down") {
-    const f2 = await call({ action: "wind_down" });
-    const asks = f2.wind_down?.resume?.last_asks ?? [];
-    cards.publish({
-      kind: "receipt",
-      app: APP3,
-      title: "Time to wrap: here's where you left off",
-      rows: [
-        { label: "Bedtime", value: clock2(f2.bedtime) },
-        { label: "Left off", value: asks.join(" \xB7 ") || "nothing yet" },
-        { label: "Tomorrow", value: "your first turn starts from this note" }
-      ]
-    });
-    return;
-  }
-  const f = await call(sub === "start" ? { action: "start" } : {});
-  if (sub === "hours") {
-    cards.publish({
-      kind: "metric",
-      app: APP3,
-      title: "Your best deep-work hours",
-      summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
-      rows: [
-        ...hours(f).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
-        { label: "Usual stop", value: f.learned.stop === null ? "unknown" : `${String(f.learned.stop).padStart(2, "0")}:00` }
-      ]
-    });
-    return;
-  }
-  if (sub === "start") {
-    blockOn(f);
-    return;
-  }
-  cards.publish({
-    kind: "metric",
-    app: APP3,
-    title: "Your attention",
-    summary: f.phase_source === "circadian" ? "From your circadian schedule." : `From ${f.learned.source}.`,
-    rows: [
-      { label: "Phase", value: phaseName(f.phase) },
-      { label: "Flow likelihood", value: f.flow ? `${Math.round(f.flow.flow * 100)}% (estimate)` : "no wearable signal" },
-      { label: "Next deep work", value: f.next_window ?? "not learned yet" },
-      { label: "Bedtime", value: clock2(f.bedtime) },
-      { label: "Deep-work block", value: f.block ? `on until ${f.block.until}` : "off" },
-      { label: "Held for later", value: f.queued }
-    ]
-  });
-  if (f.block) stopCard();
-  else startCard();
 }
 
 // src/commands/refused.ts
@@ -75509,7 +75611,7 @@ function fixedChord(chord) {
   const parts3 = chord.split("+");
   const name = parts3.pop() ?? "";
   const key3 = { name, ctrl: parts3.includes("ctrl"), alt: parts3.includes("alt"), shift: parts3.includes("shift"), meta: parts3.includes("meta") };
-  return [KEYS.browser, KEYS.plan, KEYS.fork, KEYS.copyDraft].some((match) => matches(key3, match)) || isTalkToggleKey(key3) || isVoiceToggleKey(key3) || isHoldInfoKey(key3) || key3.ctrl && name === "home";
+  return [KEYS2.browser, KEYS2.plan, KEYS2.fork, KEYS2.copyDraft].some((match) => matches(key3, match)) || isTalkToggleKey(key3) || isVoiceToggleKey(key3) || isHoldInfoKey(key3) || key3.ctrl && name === "home";
 }
 function editorChord(chord) {
   const parts3 = chord.split("+");
@@ -75655,16 +75757,16 @@ var HOTKEYS = [
     group: "Control",
     rows: [
       [["escape"], "Close the completion"],
-      [[KEYS.clearOrStop.label], "Clear the draft into the history (Up brings it back) / stop the agent"],
-      [[KEYS.browser.label], "Tern browser blocks: inspect, hand over, focus, release, select frame"],
-      [[KEYS.plan.label], "Review latest plan (/plan; /plan <task> generates via Hermes)"],
-      [[KEYS.fork.label], "Fork this session into a new Tern pane (/fork [durable-message-id])"],
-      [[KEYS.clipboardImage.label], "Attach the clipboard image (also \u2318V of an image, a dropped image file, /paste)"],
+      [[KEYS2.clearOrStop.label], "Clear the draft into the history (Up brings it back) / stop the agent"],
+      [[KEYS2.browser.label], "Tern browser blocks: inspect, hand over, focus, release, select frame"],
+      [[KEYS2.plan.label], "Review latest plan (/plan; /plan <task> generates via Hermes)"],
+      [[KEYS2.fork.label], "Fork this session into a new Tern pane (/fork [durable-message-id])"],
+      [[KEYS2.clipboardImage.label], "Attach the clipboard image (also \u2318V of an image, a dropped image file, /paste)"],
       [["alt+v"], "After /voice on: dictate into the composer, then end the capture (voice.record_key picks another key; esc cancels)"],
-      [[KEYS.copyDraft.label, "alt+shift+c"], "Copy draft / current line (OSC 52; no submission)"],
+      [[KEYS2.copyDraft.label, "alt+shift+c"], "Copy draft / current line (OSC 52; no submission)"],
       [["down"], "Focus the agents / shells / PR pills (empty prompt); \u2190 \u2192 switch, Enter opens, Esc returns"],
-      [[KEYS.cancel.label], "Answer no to the open sheet / clear the draft and images / interrupt / exit (twice)"],
-      [[KEYS.quit.label], "Delete forward / exit (empty prompt)"]
+      [[KEYS2.cancel.label], "Answer no to the open sheet / clear the draft and images / interrupt / exit (twice)"],
+      [[KEYS2.quit.label], "Delete forward / exit (empty prompt)"]
     ]
   }
 ];
@@ -75858,10 +75960,10 @@ function decodePastedImage(data) {
   return { bytes, ...format };
 }
 function pastedImageEvent(value) {
-  const outer = record2(value);
-  const event = outer?.["ev"] === "unknown" ? record2(outer["raw"]) : outer;
+  const outer = record(value);
+  const event = outer?.["ev"] === "unknown" ? record(outer["raw"]) : outer;
   if (event?.["ev"] !== "paste" && event?.["ev"] !== "drop") return void 0;
-  const raw2 = record2(event["raw"]) ?? event;
+  const raw2 = record(event["raw"]) ?? event;
   const candidate = raw2["name"];
   const name = typeof candidate === "string" && candidate.length <= 120 && !Array.from(candidate).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127) && candidate.trim() ? candidate : "Pasted image";
   const path2 = raw2["path"];
@@ -88505,7 +88607,7 @@ function displayNotice(kind, metadata) {
   if (kind !== "async_delegation_complete" && kind !== "process_complete") {
     return void 0;
   }
-  const meta3 = record2(metadata);
+  const meta3 = record(metadata);
   const shown3 = typeof meta3?.["display_text"] === "string" ? meta3["display_text"].trim() : "";
   if (shown3) {
     return shown3;
@@ -88554,7 +88656,7 @@ function continuation(prev) {
     return void 0;
   }
   const background2 = prev.blocks.some(
-    (b) => b.kind === "tool" && b.call.name === "delegate_task" && record2(b.call.result)?.["mode"] === "background"
+    (b) => b.kind === "tool" && b.call.name === "delegate_task" && record(b.call.result)?.["mode"] === "background"
   );
   if (background2) {
     return "Subagents finished";
@@ -88926,7 +89028,7 @@ var modelMimes = {
   usdz: ["model/vnd.usdz+zip", "application/x-usdz"]
 };
 function confirmedWriteArtifact2(call, cwd, hostLocal) {
-  const result = record2(call.result);
+  const result = record(call.result);
   const source2 = typeof call.args["content"] === "string" ? call.args["content"] : call.args["contents"];
   if (call.name !== "write_file" || call.outcome.kind !== "done" || !result || result["error"] || result["success"] === false || result["verified"] !== true || result["partial"] === true || result["truncated"] === true || typeof source2 !== "string" || !source2 || result["bytes_written"] !== Buffer.byteLength(source2, "utf8")) {
     return void 0;
@@ -88970,7 +89072,7 @@ function artifactCard(call, card, context) {
   if (!fileTools.has(call.name) || staleWriteMarker(call) || patchContextWarning(call) || writeContextWarning(call)) {
     return card;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   const resolved = result?.["resolved_path"];
   const specified = call.args["path"] ?? call.args["file_path"];
   const path2 = typeof resolved === "string" ? resolved : typeof specified === "string" ? specified : card.target;
@@ -93825,7 +93927,7 @@ function drawFrame(cx, now = Date.now()) {
   const voice = cx.liveVoice.node();
   const lanes2 = cx.lanes?.node() ?? null;
   const chrome = {
-    dock: [...voice ? [voice] : [], ...lanes2 ? [lanes2] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb ? { orb: cx.orb.props() } : {} }, cx.actions)],
+    dock: [...voice ? [voice] : [], ...lanes2 ? [lanes2] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
     layer: [
       ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
@@ -93904,7 +94006,7 @@ function euiHostPort(host, active2) {
 
 // src/agents/ownership.ts
 function resultId(call) {
-  const value = record2(call.result)?.["delegation_id"];
+  const value = record(call.result)?.["delegation_id"];
   return typeof value === "string" && value ? value : void 0;
 }
 function agentsWith(calls, id) {
@@ -95565,7 +95667,7 @@ var ConnectWatcher = class {
   }
   /** `connection.request`: the gateway opened an operation for session `session`; its card goes on the call that opened it. */
   request(payload, session2) {
-    const drawn = this.#byOp(record2(payload)?.["op_id"]);
+    const drawn = this.#byOp(record(payload)?.["op_id"]);
     if (drawn) {
       this.#apply(drawn, payload);
       return;
@@ -95586,7 +95688,7 @@ var ConnectWatcher = class {
   }
   /** `connection.update`: a row moved or the operation settled. */
   update(payload, session2) {
-    const op = record2(payload)?.["op_id"];
+    const op = record(payload)?.["op_id"];
     const call = this.#byOp(op);
     if (call) {
       this.#apply(call, payload);
@@ -95726,7 +95828,7 @@ var ConnectWatcher = class {
   }
   /** A request the pane cannot draw: it says so, and answers Continue so the tool does not wait out its deadline. */
   #undrawable(payload, sid) {
-    const op = record2(payload)?.["op_id"];
+    const op = record(payload)?.["op_id"];
     const answered2 = typeof op === "string" && op && sid;
     this.#host.transcript.notice(
       answered2 ? "Hermes asked for a connection card this pane cannot draw, so the pane answered Continue: the tool carries on without it. Connect apps in Hermes Desktop or the Nous Portal." : "Hermes asked for a connection card this pane cannot read. Its tool waits until the card times out; press Esc twice to stop it.",
@@ -95756,7 +95858,7 @@ var ConnectWatcher = class {
     const card = call.connect;
     const final = this.#finals.has(call) ? void 0 : resultCard(call);
     this.#finals.add(call);
-    if (card && final && record2(call.result)?.["op_id"] === op.id) {
+    if (card && final && record(call.result)?.["op_id"] === op.id) {
       const before2 = new Map(card.targets.map((t) => [t.name, t]));
       const targets = final.targets.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url }));
       this.#host.transcript.mutateCall(call, (c) => c.connect = { ...card, settled: final.settled, targets });
@@ -99164,13 +99266,13 @@ function history({ kept, messages, id }) {
       turn2.end = { ...end, endedAt: Math.max(end.endedAt ?? at2, at2) };
     }
     if (m.role === "assistant") {
-      const meta3 = record2(m.display_metadata);
+      const meta3 = record(m.display_metadata);
       const thought = storedThought(m);
       if (thought.trim()) {
         turn2.blocks.push({ endedAt: at2, id: id("k"), kind: "thinking", startedAt: at2, text: thought });
       }
       if (m.display_kind === "failed_turn") {
-        const surface = record2(meta3?.["error_surface"]);
+        const surface = record(meta3?.["error_surface"]);
         const error = str8(meta3?.["error"]) ?? str8(surface?.["message"]);
         const card = error ? failure3(error, surface?.["code"]) : turn2.end.status === "error" ? turn2.end : {};
         endTurn(turn2, { ...card, hint: text18.trim() || void 0, status: "error" });
@@ -99191,7 +99293,7 @@ function history({ kept, messages, id }) {
     } else if (m.role === "tool") {
       const callId = toolCallId(m.tool_call_id ?? id("c"));
       const result = typeof m.content === "string" && m.content ? m.content : void 0;
-      const diff2 = str8(record2(record2(m.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
+      const diff2 = str8(record(record(m.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
       const existing = calls.get(callId);
       if (existing) {
         existing.result = result ?? existing.result;
@@ -99215,7 +99317,7 @@ function history({ kept, messages, id }) {
         startedAt: at2,
         via: u.via
       };
-      call.outcome = { duration: 0, kind: settleBridge(call) ?? Boolean(record2(call.result)?.["error"]) ? "error" : "done" };
+      call.outcome = { duration: 0, kind: settleBridge(call) ?? Boolean(record(call.result)?.["error"]) ? "error" : "done" };
       if (isTodoName(call.name)) {
         call.todosBefore = todos2;
       }
@@ -99294,11 +99396,11 @@ function detailsText(details) {
   }
   const out = [];
   for (const block of Array.isArray(blocks2) ? blocks2 : [blocks2]) {
-    const r = typeof block === "string" ? { text: block } : record2(block);
+    const r = typeof block === "string" ? { text: block } : record(block);
     if (!r || r["type"] === "reasoning.encrypted") {
       continue;
     }
-    const summary4 = Array.isArray(r["summary"]) ? r["summary"].map((s2) => typeof s2 === "string" ? s2 : str8(record2(s2)?.["text"]) ?? "").join("\n\n") : r["summary"];
+    const summary4 = Array.isArray(r["summary"]) ? r["summary"].map((s2) => typeof s2 === "string" ? s2 : str8(record(s2)?.["text"]) ?? "").join("\n\n") : r["summary"];
     const text18 = [summary4, r["thinking"], r["content"], r["text"]].map(str8).find(Boolean)?.trim();
     if (text18 && !out.includes(text18)) {
       out.push(text18);
@@ -99609,7 +99711,7 @@ var Transcript = class {
       return;
     }
     const { call, turn: turn2 } = found;
-    const output = record2(p3.result)?.["output"];
+    const output = record(p3.result)?.["output"];
     const interrupted = p3.name === "terminal" && typeof output === "string" && /\[Command interrupted\]\s*$/.test(output);
     const duration3 = typeof p3.duration_s === "number" ? Math.round(p3.duration_s * 1e3) : at2 - call.startedAt;
     const summary4 = p3.summary ?? void 0;
@@ -100482,9 +100584,9 @@ var LiveVoice = class {
 import { EventEmitter } from "node:events";
 var PHASES2 = /* @__PURE__ */ new Set(["idle", "starting", "listening", "thinking", "speaking", "stopping", "error"]);
 function snapshot3(value, id) {
-  const result = record2(value);
+  const result = record(value);
   if (!result || typeof result["output"] !== "string") throw new Error("Hermes Talk returned no control receipt");
-  const p3 = record2(result["output"]);
+  const p3 = record(result["output"]);
   if (!p3 || p3["live_id"] !== id || typeof p3["phase"] !== "string" || !PHASES2.has(p3["phase"]) || typeof p3["active"] !== "boolean" || typeof p3["error"] !== "string") throw new Error("Invalid Hermes Talk call identity or state");
   return { live_id: id, phase: p3["phase"], active: p3["active"], error: p3["error"] };
 }
@@ -100834,6 +100936,7 @@ var App = class {
   #orb;
   #lanes;
   #orbSid = null;
+  #wasLive = false;
   #visible = true;
   #editingExternal = false;
   #retention;
@@ -101036,13 +101139,18 @@ var App = class {
       this.#orbSid = sid;
       this.#orbActivity.reset(Boolean(this.busy));
     }
+    const live = this.liveVoice.blocked && this.liveVoice.phase !== "consent";
+    if (live && !this.#wasLive && sid && this.#lanes) {
+      void refreshFocusBlock(this.#gw, sid).then(() => this.#renders.request(), () => void 0);
+    }
+    this.#wasLive = live;
     if (!this.#visible) {
       return;
     }
-    const live = this.liveVoice.blocked && this.liveVoice.phase !== "consent";
     const orbState = live ? this.liveVoice.phase === "speaking" ? "speaking" : this.liveVoice.phase === "thinking" || this.liveVoice.phase === "starting" ? "thinking" : this.liveVoice.phase === "error" ? "error" : "listening" : this.#orbActivity.state(this.overlays.some((o) => o.key.startsWith("prompt:")));
-    this.#orb?.update(orbState, this.overlays.at(-1)?.modal === true);
-    this.#lanes?.update(live, this.overlays.at(-1)?.modal === true, orbState, focusBlock.active());
+    const modal2 = this.overlays.at(-1)?.modal === true;
+    this.#lanes?.update(live, modal2, orbState, focusBlock.active());
+    this.#orb?.update(orbState, modal2 || this.#lanes?.orbiting === true);
     if (!this.#view || this.#surface.closed) {
       return;
     }
