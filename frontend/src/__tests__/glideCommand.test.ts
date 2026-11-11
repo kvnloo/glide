@@ -75,11 +75,13 @@ describe('/glide intent', () => {
     expect(titles()).toEqual(['One ask. Exact words.', 'Review before execution'])
     const declare = JSON.stringify(view(0))
     for (const clause of ['acceptance · Make the voice orb feel alive', 'scope · plugin', 'deadline · Friday']) expect(declare).toContain(clause)
-    expect(JSON.stringify(view(1))).toContain('0/4 criteria evidenced')
+    expect(JSON.stringify(view(1))).toContain('0/4 evidenced · 4 missing')
     must(view(1).activate)(HOST_APPROVE_ID)
     await settle()
     expect(titles()).toEqual(['One ask. Exact words.', 'Review before execution', 'Implementation is not acceptance'])
     expect(JSON.stringify(view(2))).toContain('Sample work rail (synthetic)')
+    expect(JSON.stringify(view(1))).toContain('Approved — awaiting receipts')
+    expect(JSON.stringify(view(1))).not.toContain('Completed')
   })
 
   it('asks for the ask when it is missing', async () => {

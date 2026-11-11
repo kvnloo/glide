@@ -62,16 +62,97 @@ function declare(d: EuiHostCardData, el: El): EuiNode {
 }
 
 const met = (v: string | number | boolean) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str(v))
+/** A criterion's value as its state and receipt: "observed · 9f3c2a7" -> ['observed', '9f3c2a7']. */
+const evidence = (v: string | number | boolean): [string, string] => {
+  const [state = '', receipt = ''] = str(v).split('·').map(s => s.trim())
+  return [state, receipt]
+}
+
+/** A criterion label as its clause kind and phrase: "scope: plugin" -> ['scope', 'plugin']. */
+export function criterion(label: string): { kind: string; phrase: string } {
+  const at = label.indexOf(': ')
+  return at > 0 ? { kind: label.slice(0, at), phrase: label.slice(at + 2) } : { kind: 'criterion', phrase: label }
+}
+
+// The contract is typed rows: "<kind>: <phrase>" criteria ("missing · needs <evidence>" or
+// "observed · <receipt>"), "pattern", "lane: <role>" ("<job> · <model> · <state>"), "host: <name>"
+// ("<status> · <runs>"), "gate", "budget" and "sample" (which panels hold synthetic data).
+const TYPED = /^(pattern|gate|budget|sample|lane: .+|host: .+)$/
+export const isCriterion = (label: string) => !TYPED.test(label)
+const rowsOf = (d: EuiHostCardData, prefix: string) => d.rows.filter(r => r.label.startsWith(prefix))
+  .map(r => ({ name: r.label.slice(prefix.length), parts: str(r.value).split('·').map(s => s.trim()) }))
+const one = (d: EuiHostCardData, label: string) => str(d.rows.find(r => r.label === label)?.value ?? '')
+const tone = (state: string) => /^(online|ready|running|working|thinking|answered|verified|\d+\/\d+ ready)/i.test(state) ? 'ok'
+  : /^(idle|queued|standby|corrected)/i.test(state) ? 'idle' : /^(blocked|dead|offline|down)/i.test(state) ? 'bad' : 'idle'
 
 function contract(d: EuiHostCardData, el: El): EuiNode {
-  const ok = d.rows.filter(r => met(r.value)).length
+  const crit = d.rows.filter(r => isCriterion(r.label))
+  const ok = crit.filter(r => met(evidence(r.value)[0])).length
+  const sample = one(d, 'sample')
+  const synthetic = (panel: string) => sample.split(',').map(s => s.trim()).includes(panel)
+  const head = (title: string, note: string, panel?: string) => el('div', [
+    el('b', [text(title)], 'ih-h'), el('span', [text(note)], 'ih-hnote'),
+    ...(panel && synthetic(panel) ? [el('span', [text('sample data')], 'ih-sample')] : [])
+  ], 'ih-head')
+  const reqs = el('div', crit.map(r => {
+    const { kind, phrase } = criterion(r.label)
+    const [state, more] = evidence(r.value)
+    const good = met(state)
+    return el('div', [
+      el('small', [text(kind)], 'ih-kind'),
+      el('div', [el('span', [text(`“${phrase}”`)], 'ih-phrase'),
+        el('span', [text(good ? `evidence · ${more || state}` : more || 'needs a real-turn receipt')], 'ih-needs')], 'ih-req-text'),
+      good ? el('span', [el('b', [text('✓')], 'ih-tick'), text(' evidenced')], 'ih-mark')
+        : el('span', [el('i', [], 'ih-dot'), text(' missing')], 'ih-mark')
+    ], good ? 'ih-slot ih-met' : 'ih-slot ih-missing', { 'data-state': good ? 'met' : 'missing' })
+  }), 'ih-slots')
+  const lanes = rowsOf(d, 'lane: ')
+  const node = (l: { name: string; parts: string[] }) => {
+    const [job = '', model = '', state = 'idle'] = l.parts
+    return el('div', [el('div', [el('i', [], `ih-led ih-${tone(state)}`), el('b', [text(l.name)])], 'ih-lrole'),
+      el('small', [text(model || job)], 'ih-lmodel'), el('small', [text(job)], 'ih-ljob')],
+    `ih-lane ih-l-${l.name.replace(/[^a-z]/g, '')}`, { 'data-state': state })
+  }
+  const link = () => el('i', [], 'ih-flowlink')
+  const fan = /fan-out/i.test(one(d, 'pattern'))
+  const mid = lanes.filter(l => fan && (l.name === 'small' || l.name === 'large'))
+  const flow: EuiNode[] = [el('span', [text('ask')], 'ih-term')]
+  for (const l of lanes) {
+    if (mid.includes(l)) {
+      if (l === mid[0]) flow.push(link(), el('div', mid.map(m => el('div', [el('i', [], 'ih-stub'), node(m), el('i', [], 'ih-stub')], 'ih-branch')), 'ih-fan'))
+      continue
+    }
+    flow.push(link(), node(l))
+  }
+  flow.push(el('i', [], 'ih-flowlink ih-gated'), el('span', [text('receipt')], 'ih-term ih-due'))
+  const hosts = rowsOf(d, 'host: ')
+  const gate = one(d, 'gate').split('·').map(s => s.trim())
+  const votes = Number(/(\d+) of (\d+)/.exec(gate[1] ?? '')?.[2] ?? 0)
+  const budget = one(d, 'budget').split('·').map(s => s.trim())
+  const left = Math.max(0, Math.min(100, Number(/(\d+)%/.exec(budget[1] ?? '')?.[1] ?? 0)))
   return el('div', [
-    el('div', d.rows.map(r => el('div', [
-      el('i', [], 'ih-barfill'),
-      el('small', [text(r.label)])
-    ], met(r.value) ? 'ih-bar ih-met' : 'ih-bar ih-missing', { 'data-state': met(r.value) ? 'met' : 'missing' })), 'ih-gatebars'),
-    el('p', [text(`${ok}/${d.rows.length} criteria evidenced · ${d.rows.length - ok} missing`)], 'ih-cap')
+    head('Requirements', `${ok}/${crit.length} evidenced · ${crit.length - ok} missing`),
+    reqs,
+    ...(lanes.length ? [head('Orchestration', one(d, 'pattern'), 'lanes'), el('div', flow, 'ih-flow')] : []),
+    ...(hosts.length ? [head('Hosts', 'where each slice runs', 'hosts'), el('div', hosts.map(h => el('div', [
+      el('div', [el('i', [], `ih-led ih-${tone(h.parts[0] ?? '')}`), el('b', [text(h.name)])], 'ih-lrole'),
+      el('small', [text(h.parts[0] ?? '')], 'ih-hstate'), el('small', [text(h.parts[1] ?? '')], 'ih-ljob')
+    ], 'ih-host', { 'data-state': h.parts[0] ?? '' })), 'ih-hosts')] : []),
+    ...(gate[0] || budget[0] ? [el('div', [
+      el('div', [el('div', [el('small', [text('gate')], 'ih-kind')], 'ih-head'), el('b', [text(gate[0] ?? '')], 'ih-gname'),
+        el('div', [...Array.from({ length: votes }, () => el('i', [], 'ih-pip')), el('small', [text(`0/${votes} seats voted`)], 'ih-ljob')], 'ih-pips'),
+        el('small', [text(gate[1] ?? '')], 'ih-ljob')], 'ih-gate'),
+      el('div', [el('div', [el('small', [text(synthetic('budget') ? 'budget · sample' : 'budget')], 'ih-kind ih-wide')], 'ih-head'),
+        el('b', [text(budget[0] ?? '')], 'ih-gname'),
+        el('div', [el('i', [], `ih-meterfill ih-w${Math.round(left / 10)}`)], 'ih-meter'), el('small', [text(budget[1] ?? '')], 'ih-ljob')], 'ih-budget')
+    ], 'ih-gaterow')] : [])
   ], 'ih-hero ih-contract')
+}
+
+/** The approve button's label once approved: a contract is approved, not complete, until every receipt lands. */
+export function intentDoneLabel(d: EuiHostCardData): string | undefined {
+  if (d.kind !== 'intent-contract') return undefined
+  return d.rows.filter(r => isCriterion(r.label)).every(r => met(evidence(r.value)[0])) ? 'Approved · all criteria evidenced' : 'Approved — awaiting receipts'
 }
 
 function work(d: EuiHostCardData, el: El): EuiNode {
@@ -121,14 +202,70 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-c-deadline { border-color: var(--ih-due); color: var(--ih-due); }
 [data-eui='card'] .ih-keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 [data-eui='card'] .ih-key { font: 11px/1.4 var(--h-mono); padding: 2px 8px; border: 1px solid; border-radius: 999px; border-bottom-width: 1px; }
-[data-eui='card'] .ih-gatebars { display: flex; gap: 8px; align-items: flex-end; height: 120px; padding: 0 6px; border-bottom: 2px solid var(--h-border); }
-[data-eui='card'] .ih-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; gap: 6px; }
-[data-eui='card'] .ih-barfill { display: block; height: 78%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--h-primary), rgba(255,255,255,.04)); }
-[data-eui='card'] .ih-missing .ih-barfill { background: transparent; border: 1px dashed var(--ih-due); height: 78%; animation: ih-pulse 1.4s ease-in-out infinite; }
-[data-eui='card'] .ih-bar small { font: 10px/1.3 var(--h-mono); color: var(--h-mutedFg); text-align: center; }
+[data-eui='card'] .ih-tick { font-weight: 700; }
+[data-eui='card'] .ih-contract { padding: 12px; }
+[data-eui='card'] .ih-head { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 6px; white-space: nowrap; }
+[data-eui='card'] .ih-contract > .ih-head:first-child { margin-top: 0; }
+[data-eui='card'] .ih-h { font: 700 11px/1.2 var(--h-mono); color: var(--h-fg); text-transform: uppercase; letter-spacing: .1em; }
+[data-eui='card'] .ih-hnote { flex: 1; min-width: 0; font: 11px/1.2 var(--h-mono); color: var(--h-fg); opacity: .7; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-sample { flex: none; font: 700 9px/1 var(--h-mono); padding: 3px 6px; border: 1px solid var(--h-fg); border-radius: 999px; color: var(--h-fg); background: var(--h-bg); opacity: .75; text-transform: uppercase; letter-spacing: .08em; }
+[data-eui='card'] .ih-slots { display: flex; flex-direction: column; gap: 6px; }
+[data-eui='card'] .ih-slot { display: flex; align-items: center; gap: 10px; height: 46px; box-sizing: border-box; padding: 0 10px; border: 1px dashed var(--ih-due); border-radius: 8px; overflow: hidden; }
+[data-eui='card'] .ih-slot.ih-met { border: 1px solid var(--ih-acc); background: rgba(127,209,160,.08); }
+[data-eui='card'] .ih-kind { flex: none; width: 76px; font: 700 10px/1.2 var(--h-mono); color: var(--h-fg); opacity: .7; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-kind.ih-wide { width: auto; }
+[data-eui='card'] .ih-req-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+[data-eui='card'] .ih-phrase { font-size: 13px; line-height: 1.3; font-weight: 600; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-needs { font: 11px/1.3 var(--h-mono); color: var(--h-fg); opacity: .7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-mark { flex: none; width: 84px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
+[data-eui='card'] .ih-met .ih-mark { color: var(--ih-acc); }
+[data-eui='card'] .ih-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ih-due); animation: ih-pulse 1.4s ease-in-out infinite; }
+[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
+[data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-mutedFg); text-transform: uppercase; letter-spacing: .06em; }
+[data-eui='card'] .ih-flowlink { flex: 1; min-width: 8px; height: 2px; background: var(--h-mutedFg); }
+[data-eui='card'] .ih-flowlink.ih-gated { min-width: 18px; background: #a855d6; }
+[data-eui='card'] .ih-term.ih-due { border: 1.5px dashed var(--ih-due); color: var(--h-fg); }
+[data-eui='card'] .ih-fan { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-left: 2px solid var(--h-mutedFg); border-right: 2px solid var(--h-mutedFg); border-radius: 4px; }
+[data-eui='card'] .ih-branch { display: flex; align-items: center; }
+[data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
+[data-eui='card'] .ih-lane { flex: none; width: 96px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
+[data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
+[data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
+[data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
+[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .8; }
+[data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #9ca39a; }
+[data-eui='card'] .ih-led.ih-ok { background: #7ee3a0; box-shadow: 0 0 6px rgba(126,227,160,.6); }
+[data-eui='card'] .ih-led.ih-bad { background: #e8513a; }
+[data-eui='card'] .ih-hosts { display: flex; gap: 6px; }
+[data-eui='card'] .ih-host { flex: 1 1 0; min-width: 0; padding: 7px 8px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-hstate { color: var(--h-fg); opacity: .8; }
+[data-eui='card'] .ih-gaterow { display: flex; gap: 6px; margin-top: 12px; }
+[data-eui='card'] .ih-gate, [data-eui='card'] .ih-budget { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-gate { border-color: #a855d6; }
+[data-eui='card'] .ih-gaterow .ih-head { margin: 0; height: 15px; align-items: center; }
+[data-eui='card'] .ih-gname { font-size: 12px; line-height: 1.3; font-weight: 600; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-pips { display: flex; align-items: center; gap: 4px; height: 13px; }
+[data-eui='card'] .ih-gate .ih-pips .ih-ljob, [data-eui='card'] .ih-gate > .ih-ljob { color: var(--h-fg); opacity: .75; }
+[data-eui='card'] .ih-pip { flex: none; display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid #a855d6; box-sizing: border-box; }
+[data-eui='card'] .ih-pips .ih-ljob { margin-left: 4px; }
+[data-eui='card'] .ih-meter { position: relative; height: 6px; margin: 3px 0 4px; border-radius: 3px; background: var(--h-border); overflow: hidden; }
+[data-eui='card'] .ih-meterfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--h-primary); }
+[data-eui='card'] .ih-w0 { width: 0%; }
+[data-eui='card'] .ih-w1 { width: 10%; }
+[data-eui='card'] .ih-w2 { width: 20%; }
+[data-eui='card'] .ih-w3 { width: 30%; }
+[data-eui='card'] .ih-w4 { width: 40%; }
+[data-eui='card'] .ih-w5 { width: 50%; }
+[data-eui='card'] .ih-w6 { width: 60%; }
+[data-eui='card'] .ih-w7 { width: 70%; }
+[data-eui='card'] .ih-w8 { width: 80%; }
+[data-eui='card'] .ih-w9 { width: 90%; }
+[data-eui='card'] .ih-w10 { width: 100%; }
 [data-eui='card'] .ih-cap { margin: 8px 0 0; font: 11px/1.4 var(--h-mono); color: var(--h-mutedFg); }
-[data-eui='card'] .ih-hold { position: relative; overflow: hidden; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--h-primary); background: transparent; color: var(--h-fg); font-weight: 600; }
-[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-primary); opacity: .35; transition: width .15s ease-out; }
+[data-eui='card'] .ih-hold { position: relative; overflow: hidden; width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--h-primary); background: var(--h-card, var(--h-bg)); color: var(--h-fg); font-weight: 700; }
+[data-eui='card'] .ih-hold[disabled] { background: var(--h-muted); color: var(--h-fg); }
+[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-primary); opacity: .4; transition: width .15s ease-out; }
 [data-eui='card'] .ih-hold:active .ih-holdfill { width: 100%; transition: width 1s linear; }
 [data-eui='card'] .ih-rail { display: flex; align-items: center; gap: 0; }
 [data-eui='card'] .ih-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; }
@@ -147,7 +284,7 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }
 [data-eui='card'] .ih-stamp { margin-top: 10px; padding: 4px 12px; font: 600 13px var(--h-mono); color: var(--h-primary); border: 2px solid var(--h-primary); border-radius: 6px; transform: rotate(-6deg); animation: ih-slam 1.35s cubic-bezier(.2,1.6,.4,1); }
 [data-eui='card'] .ih-stamp.ih-none { color: var(--h-mutedFg); border-color: var(--h-border); border-style: dashed; transform: none; opacity: 1; animation: none; }
-@keyframes ih-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+@keyframes ih-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .5 } }
 @keyframes ih-out { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-100%); opacity: 0 } }
 @keyframes ih-in { 0%, 44% { transform: translateY(100%) } 100% { transform: translateY(0) } }
 @keyframes ih-slam { 0%, 74% { opacity: 0; transform: rotate(-6deg) scale(2.6) } 100% { opacity: 1; transform: rotate(-6deg) scale(1) } }

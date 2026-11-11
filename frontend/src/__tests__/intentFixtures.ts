@@ -8,7 +8,7 @@ export const intentCards = {
   },
   contract: {
     kind: 'intent-contract', app: 'aodl', title: 'Review before execution',
-    rows: [{ label: 'orb reacts to voice', value: 'observed' }, { label: 'ships in plugin', value: 'observed' }, { label: 'real-turn receipt', value: 'missing' }],
+    rows: [{ label: 'orb reacts to voice', value: 'observed · 4e1b09c2' }, { label: 'ships in plugin', value: 'observed' }, { label: 'real-turn receipt', value: 'missing' }],
     approval: { label: 'Hold to approve', description: 'Approve this contract revision for execution. Nothing runs until approved.' }
   },
   work: {
