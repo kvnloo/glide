@@ -71,6 +71,10 @@ The inherited base chat is shown below, not a Glide onboarding capture.
 
 ![Native Tern chat and pull request view](docs/images/hero-dark.png)
 
+## Check a fresh install yourself
+
+`bash scripts/e2e-fresh-install.sh` installs `kvnloo/glide` from GitHub into a throwaway `HERMES_HOME`, validates it, and runs every `/glide` command against synthetic sessions through Hermes' real plugin loader. It never touches your real profile. [Details](glide/docs/fresh-install.md)
+
 ## What runs beyond a prompt
 
 - [Python memory backend](glide/memory.py), [source reader](glide/source.py), and [atomic storage](glide/storage.py) resolve eligible message generations and build a bounded local BM25 index.
