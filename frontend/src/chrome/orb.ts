@@ -151,6 +151,9 @@ const FRAMES = 144
 export class ThinkingOrb {
   readonly #tern: Session
   readonly #surface: Surface
+  readonly #node: string
+  readonly #size: number
+  readonly #label: string
   readonly #frames = new Map<string, string>()
   #state: OrbState = 'idle'
   #frame = 0
@@ -161,9 +164,13 @@ export class ThinkingOrb {
   #closed = false
   #timer: NodeJS.Timeout | undefined
 
-  constructor(tern: Session, surface: Surface) {
+  /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
+  constructor(tern: Session, surface: Surface, options: { node?: string; size?: number; label?: string } = {}) {
     this.#tern = tern
     this.#surface = surface
+    this.#node = options.node ?? NODE_ID
+    this.#size = options.size ?? 34
+    this.#label = options.label ?? 'Hermes agent'
     this.#dark = Boolean(tern.caps.dark)
     this.#reduce = Boolean(tern.caps.reduceMotion)
   }
@@ -199,7 +206,7 @@ export class ThinkingOrb {
   }
 
   props(): ImageProps {
-    return { blob: this.#blob(), alt: `Hermes agent: ${this.#state}`, w: 34, h: 34 }
+    return { blob: this.#blob(), alt: `${this.#label}: ${this.#state}`, w: this.#size, h: this.#size }
   }
 
   close() {
@@ -238,7 +245,7 @@ export class ThinkingOrb {
         }
 
         this.#frame = (this.#frame + 1) % FRAMES
-        this.#surface.send([['set', NODE_ID, { blob: this.#blob() }]])
+        this.#surface.send([['set', this.#node, { blob: this.#blob() }]])
       }, 1000 / FPS)
       this.#timer.unref()
     }

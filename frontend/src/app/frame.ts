@@ -9,6 +9,7 @@ import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
 import type { ThinkingOrb } from '../chrome/orb.js'
+import type { LaneStrip } from '../voice/lanes.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import type { MediaDelivery } from '../media-delivery.js'
 import type { Completion } from '../overlays/completion.js'
@@ -62,6 +63,8 @@ export interface FrameCx extends DockSources {
   readonly browser: BrowserFocusHost
   /** Optional SDK image on the composer line, updated by its own lifecycle-safe animator. */
   readonly orb?: Pick<ThinkingOrb, 'props'>
+  /** The live call's helper lanes, drawn under the live controls. */
+  readonly lanes?: Pick<LaneStrip, 'node'>
 }
 
 /** Draws one frame at `now`; nothing once the surface closed. */
@@ -82,8 +85,9 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   }
 
   const voice = cx.liveVoice.node()
+  const lanes = cx.lanes?.node() ?? null
   const chrome = {
-    dock: [...(voice ? [voice] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb ? { orb: cx.orb.props() } : {}) }, cx.actions)],
+    dock: [...(voice ? [voice] : []), ...(lanes ? [lanes] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb ? { orb: cx.orb.props() } : {}) }, cx.actions)],
     layer: [
       ...(cx.aside()
         ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)
