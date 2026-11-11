@@ -39,6 +39,7 @@ during the command flow. No model is called. No chat, browser, phone UI or gatew
 is launched, stopped or restarted. This is a command-boundary test, not a visual
 Tern/phone test or an evaluation of model judgment.
 
-The temp directory stays available for inspection. Remove it when its test
-artifacts are no longer needed. Failed commands print their exit code and stop
+The temp directory holds a full Hermes checkout (over 1 GB), so the runner
+removes it on exit, pass or fail. Set `GLIDE_E2E_KEEP=1` to keep it for
+inspection. Failed commands print their exit code and stop
 the runner. A complete run ends with `PASS fresh-install exit=0`.
