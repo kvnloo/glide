@@ -31,11 +31,12 @@ Install and send the first message. Install the plugin, launch it in Tern, and s
 1. `install-plugin`
 2. `tern-launch`
 3. `glide-launch`
-4. `glide-onboard-cli`
-5. `frontend-channels`
+4. `chat-send`
+5. `slash-completion`
 6. `pane-auto-resume`
-7. `chat-send`
-8. `slash-completion`
+7. `connection-surface-recovery`
+8. `glide-onboard-cli`
+9. `frontend-channels`
 
 ## memory
 
@@ -44,9 +45,9 @@ Build corrections memory and try local offload. Inspect this machine. Approve ea
 1. `glide-detect`
 2. `memory-build`
 3. `memory-enable`
-4. `memory-recall`
-5. `memory-disable`
-6. `memory-hook`
+4. `memory-hook`
+5. `memory-recall`
+6. `memory-disable`
 7. `glide-setup`
 8. `glide-json-fallback`
 9. `router-card`
@@ -69,11 +70,11 @@ Build corrections memory and try local offload. Inspect this machine. Approve ea
 Protect a focus block and talk beside helper lanes. Start a block, hold a non-critical ask, let a critical ask through, then end the block and read the digest. Save a wind-down note. Dictate into an unsent draft before trying a consented live call and its helper lanes.
 
 1. `focus-status`
-2. `focus-start`
-3. `focus-stop`
-4. `focus-wind-down`
-5. `focus-hours`
-6. `focus-route`
+2. `focus-hours`
+3. `focus-start`
+4. `focus-route`
+5. `focus-stop`
+6. `focus-wind-down`
 7. `focus-morning-resume`
 8. `voice-dictation`
 9. `live-voice-toggle`
@@ -154,6 +155,7 @@ Review a pull request and continue another session. Start a named conversation, 
 16. `rollback-checkpoint`
 17. `context-snapshot`
 18. `session-info`
+19. `transcript-history-pages`
 
 ## control
 
@@ -177,6 +179,7 @@ Supervise work while keeping the main draft. Inspect subagents and background jo
 16. `tools-inventory`
 17. `mcp-reports`
 18. `ssh-report`
+19. `background-live-charts`
 
 ## settings
 

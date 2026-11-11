@@ -106,7 +106,7 @@
       "id": "glide-detect",
       "title": "Inspect this machine before onboarding",
       "surface": "slash",
-      "entry": "/glide; gateway glide.detect",
+      "entry": "/glide; gateway glide.detect; text-plugin /glide help, -h, or --help shows usage",
       "journey": "memory",
       "expect": "Hardware, optional runtimes, z0 health, and memory status appear without installation",
       "tests": [
@@ -308,9 +308,7 @@
       "entry": "In a text Hermes frontend, /glide hill-climb stop or /glide hill-climb resume",
       "journey": "memory",
       "expect": "The explicit STOP file is created or removed; no hidden loop starts",
-      "tests": [
-        "glide/tests/test_hill_climb.py"
-      ],
+      "tests": [],
       "army": []
     },
     {
@@ -369,9 +367,7 @@
       "entry": "In a text Hermes frontend, /glide offload reset",
       "journey": "memory",
       "expect": "The profile's offload counters reset explicitly",
-      "tests": [
-        "glide/tests/test_offload.py"
-      ],
+      "tests": [],
       "army": []
     },
     {
@@ -870,7 +866,7 @@
       "id": "image-attachments",
       "title": "Attach images to the owning draft",
       "surface": "slash",
-      "entry": "/image PATH, /paste, Ctrl+V, native paste/drop, or launcher --image; media.attach_bytes stages native bytes",
+      "entry": "/image PATH, /paste, Ctrl+V, native paste/drop, or launcher --image; hermes-tern.media.attach_bytes stages native bytes",
       "journey": "cards",
       "expect": "Gateway-owned images remain bound to the exact draft owner, with 8-image and 40-MiB limits",
       "tests": [
@@ -1497,7 +1493,7 @@
       "id": "reasoning-effort",
       "title": "Change or save reasoning effort",
       "surface": "slash",
-      "entry": "/effort [LEVEL] [--global], /reasoning LEVEL [--global], Shift+Tab, or the effort chip",
+      "entry": "/effort [LEVEL] [--global], /reasoning LEVEL [--global], Shift+Tab, or the effort chip; other /reasoning forms dispatch to Hermes",
       "journey": "settings",
       "expect": "The live effort changes, or an explicit global choice saves a default",
       "tests": [
@@ -1841,6 +1837,47 @@
       "tests": [
         "tests/test_media_backend.py",
         "frontend/src/__tests__/media-delivery.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "transcript-history-pages",
+      "title": "Restore older settled transcript pages",
+      "surface": "shortcut",
+      "entry": "Choose Load older history or press Ctrl+Home after Tern settles older turns",
+      "journey": "sessions",
+      "expect": "Up to 40 evicted entries return in order; running, failed, interrupted, and warned work stays available",
+      "tests": [
+        "frontend/src/__tests__/retention.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "connection-surface-recovery",
+      "title": "Recover a lost gateway or native surface without losing the draft",
+      "surface": "pane",
+      "entry": "Reconnect the attached gateway or restore visibility after an explicit native surface gone event",
+      "journey": "install",
+      "expect": "The redial notice reflects gateway state; bounded surface replacement preserves the conversation and unsent draft, and exhausted recovery reports failure",
+      "tests": [
+        "frontend/src/__tests__/chrome.test.ts",
+        "frontend/src/__tests__/surfaceRecovery.test.ts",
+        "frontend/src/__tests__/watchRecovery.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "background-live-charts",
+      "title": "Inspect a background process's live output chart",
+      "surface": "pane",
+      "entry": "Open a long-running process with output in the background hub; plugin.hermes-tern.charts.author uses the tern_charts auxiliary task",
+      "journey": "control",
+      "expect": "Validated chart rules visualize actual process output; unavailable or rejected model rules never execute arbitrary code",
+      "tests": [
+        "frontend/src/__tests__/jobCharts.test.ts",
+        "frontend/src/__tests__/chartAuthor.test.ts",
+        "frontend/src/__tests__/widgetCheck.test.ts",
+        "tests/test_charts.py"
       ],
       "army": []
     },

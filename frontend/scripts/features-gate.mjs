@@ -36,7 +36,7 @@ function parseInventory(raw, label) {
     strings(row.tests, `${row.id}.tests`)
     requireThat(Array.isArray(row.army), `${row.id}.army must be an array`)
   }
-  const removed = raw.removed ?? []
+  const removed = raw.removed === undefined ? [] : raw.removed
   requireThat(Array.isArray(removed), `${label}: removed must be an array`)
   const reasons = new Map()
   for (const row of removed) {

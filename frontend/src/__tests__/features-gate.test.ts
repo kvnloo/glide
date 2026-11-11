@@ -72,6 +72,7 @@ describe('feature gate CLI', () => {
     { features: [{ ...feature(), tests: [42] }] },
     { features: [{ ...feature(), tests: ['test_chat_reply', 'test_chat_reply'] }] },
     { features: [feature(), feature()] },
+    { features: [feature()], removed: null },
     { features: [feature()], removed: [{ id: 'old', reason: '' }] }
   ])('rejects malformed inventory %#', data => {
     write('frontend/e2e/features.json', JSON.stringify(data))
@@ -176,6 +177,19 @@ describe('feature gate CLI', () => {
     const result = run('--strict', '--receipts', join(root, 'receipts'))
     expect(result.exit, result.output).toBe(0)
     expect(result.output).toContain('1 | 1 | 1')
+  })
+
+  it('requires a pass for every feature and invalidates receipts after a new commit', () => {
+    inventory([feature(), feature('second')])
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `second`\n')
+    const sha = base()
+    const first = { feature: 'chat', sha, verdict: 'pass' }
+    write('receipts/results.json', JSON.stringify([first]))
+    expect(run('--strict', '--receipts', join(root, 'receipts')).output).toContain('missing army pass: second')
+    write('receipts/results.json', JSON.stringify([first, { feature: 'second', sha, verdict: 'pass' }]))
+    expect(run('--strict', '--receipts', join(root, 'receipts')).exit).toBe(0)
+    base()
+    expect(run('--strict', '--receipts', join(root, 'receipts')).output).toContain('missing army pass: chat, second')
   })
 
   it.each([['--receipts'], ['--base-ref'], ['--root'], ['--typo'], ['--strict=maybe']])('rejects invalid option %s', arg => {
