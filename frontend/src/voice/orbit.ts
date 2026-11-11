@@ -7,8 +7,8 @@ import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'think
 import { LIBRARY_STATE, type OrbState } from '../chrome/orb.js'
 
 /** Orbit radius per role (viewBox units): fast inner, council outer. */
-const ORBIT_R: Readonly<Record<string, number>> = { fast: 54, small: 70, large: 86, council: 102 }
-const FALLBACK_R = 78
+const ORBIT_R: Readonly<Record<string, number>> = { fast: 60, small: 74, large: 88, council: 102 }
+const FALLBACK_R = 81
 
 /** Each role's planet tint (council keeps its lapis seat colour); a parked lane drops to grey. */
 export const ROLE_TINT: Readonly<Record<string, string>> = {
@@ -22,16 +22,18 @@ export const ROLE_TINT: Readonly<Record<string, string>> = {
 // never close: lanes with different periods drift into a bunch on one side and overlap where rings meet.
 export const PERIOD = 9.6
 // The orbit plane stands vertical, seen nearly edge-on: planets pass above and below the voice orb, sweeping
-// a narrow ellipse sideways. TILT is that sweep; the inner ring's half-width still clears the orb.
-export const TILT = 0.42
-export const SCENE = 112 // the outer ring's sweep plus a near planet's halo
+// a narrow ellipse sideways. TILT is that sweep, wide enough that a near planet's halo on the inner ring clears the orb.
+export const TILT = 0.46
+export const SCENE = 116 // the outer ring's sweep plus a near planet's halo
 export const SCENE_H = 228 // the outer orbit plus a planet's halo above and below
 export const PLANET = 5 // body radius before depth scaling
-export const HALO = 9
+export const HALO = 8
 const CX = SCENE / 2
 const CY = SCENE_H / 2
 const SOURCE = 64 // the engine's avatar preset
-const CORE = 40 // the voice orb as drawn here
+const CORE = 36 // the voice orb as drawn here, near the composer orb's 34px
+/** The voice orb's drawn radius: the engine's dots reach 28.4 of its 64-unit preset. */
+export const ORB_R = (CORE * 28.4) / SOURCE
 
 export const orbitRadius = (role: string) => ORBIT_R[role] ?? FALLBACK_R
 
@@ -112,7 +114,14 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   const radii = [...new Set(lanes.map(l => orbitRadius(l.role)))]
   const rings = radii.map(r => {
     const dead = lanes.every(l => orbitRadius(l.role) !== r || l.state === 'dead')
-    return `<ellipse cx="${CX}" cy="${CY}" rx="${n(r * TILT)}" ry="${r}" fill="none" stroke="${ink}" stroke-opacity="0.24" stroke-width="0.8"${dead ? ' stroke-dasharray="2 3"' : ''}/>`
+    // Stippled from circles, matching the orb's own dots: Tern's native SVG renderer draws circles, not
+    // <ellipse> or <polyline>. A dead orbit's ring is sparser and fainter.
+    const dots = dead ? 28 : 56
+    const ring = Array.from({ length: dots }, (_, i) => {
+      const a = (i * 2 * Math.PI) / dots
+      return `<circle cx="${n(CX + r * TILT * Math.sin(a))}" cy="${n(CY + r * Math.cos(a))}" r="0.7" fill="${ink}"/>`
+    }).join('')
+    return `<g data-ring="${r}" fill-opacity="${dead ? 0.18 : 0.32}">${ring}</g>`
   }).join('')
   const core = `<g transform="translate(${CX - CORE / 2} ${CY - CORE / 2}) scale(${CORE / SOURCE})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SCENE}" height="${SCENE_H}" viewBox="0 0 ${SCENE} ${SCENE_H}">${rings}${back}${core}${front}</svg>`

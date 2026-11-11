@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { focusBlock, HALO, orbitLayout, orbitRadius, orbitSvg, PERIOD, PLANET, SCENE, SCENE_H, TILT } from '../voice/orbit.js'
+import { focusBlock, HALO, ORB_R, orbitLayout, orbitRadius, orbitSvg, PERIOD, PLANET, SCENE, SCENE_H, TILT } from '../voice/orbit.js'
 
 const LANES = [
   { role: 'fast', state: 'thinking' },
@@ -48,7 +48,16 @@ describe('focus lane orbit', () => {
     expect(Math.min(...ys)).toBeLessThan(CY - orbitRadius('fast') + 1)
     expect(Math.max(...ys)).toBeGreaterThan(CY + orbitRadius('fast') - 1)
     const svg = orbitSvg('listening', LANES, 0, false)
-    for (const m of svg.matchAll(/<ellipse [^>]*rx="([\d.]+)" ry="([\d.]+)"/g)) expect(Number(m[2])).toBeGreaterThan(Number(m[1]) * 2)
+    const rings = [...svg.matchAll(/<g data-ring="[\d.]+"[^>]*>((?:<circle [^>]*\/>)+)<\/g>/g)]
+    expect(rings).toHaveLength(4)
+    for (const m of rings) {
+      const pts = [...(m[1] ?? '').matchAll(/cx="([\d.-]+)" cy="([\d.-]+)"/g)].map(p => [Number(p[1]), Number(p[2])] as const)
+      const w = Math.max(...pts.map(p => p[0])) - Math.min(...pts.map(p => p[0]))
+      const h = Math.max(...pts.map(p => p[1])) - Math.min(...pts.map(p => p[1]))
+      expect(h).toBeGreaterThan(w * 2) // tall, narrow rings
+    }
+    // Only elements Tern's native SVG renderer draws.
+    expect(new Set([...svg.matchAll(/<(\w+)[ >]/g)].map(m => m[1]))).toEqual(new Set(['svg', 'g', 'circle']))
     expect(svg).toContain(`viewBox="0 0 ${SCENE} ${SCENE_H}"`)
   })
 
@@ -76,22 +85,24 @@ describe('focus lane orbit', () => {
     }
   })
 
-  it('never bunches: in every lane mix and frame, planets keep clear of each other and inside the scene', () => {
+  it('never bunches: in every lane mix and frame, planets keep clear of each other and the orb, inside the scene', () => {
+    const bad: string[] = []
     for (const lanes of mixes()) {
       for (const t of FRAMES) {
         const sats = orbitLayout(lanes, t)
         for (const [i, a] of sats.entries()) {
           const halo = HALO * a.scale
-          expect(a.x - halo).toBeGreaterThanOrEqual(0)
-          expect(a.x + halo).toBeLessThanOrEqual(SCENE)
-          expect(a.y - halo).toBeGreaterThanOrEqual(0)
-          expect(a.y + halo).toBeLessThanOrEqual(SCENE_H)
+          const at = `${lanes.map(l => `${l.role}=${l.state}`).join(',')} t=${t}`
+          if (a.x - halo < 0 || a.x + halo > SCENE || a.y - halo < 0 || a.y + halo > SCENE_H) bad.push(`${a.role} clipped, ${at}`)
+          // Planets pass above, below and beside the voice orb, never across it.
+          if (Math.hypot(a.x - SCENE / 2, a.y - SCENE_H / 2) <= ORB_R + halo + 1) bad.push(`${a.role} on the orb, ${at}`)
           for (const b of sats.slice(i + 1)) {
-            expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(PLANET * (a.scale + b.scale) + 2)
+            if (Math.hypot(a.x - b.x, a.y - b.y) <= PLANET * (a.scale + b.scale) + 2) bad.push(`${a.role}/${b.role} overlap, ${at}`)
           }
         }
       }
     }
+    expect(bad.slice(0, 5)).toEqual([])
   })
 
   it('reduced motion draws static seats spread down the front half', () => {
@@ -120,7 +131,7 @@ describe('focus lane orbit', () => {
     expect(onRing(a ?? { x: 0, y: 0 }, 'council')).toBeCloseTo(1, 6)
     const svg = orbitSvg('listening', lanes, 0.4, true)
     expect(svg).toContain('data-lane="council"')
-    expect(svg).toContain('stroke-dasharray') // its orbit holds only a dead lane
+    expect(svg).toMatch(/<g data-ring="[\d.]+" fill-opacity="0.18">/) // its orbit holds only a dead lane: a sparse, faint ring
   })
 
   it('is off outside a focus block', () => {
