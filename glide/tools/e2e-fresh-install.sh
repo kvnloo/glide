@@ -8,8 +8,14 @@ uv=$(command -v uv) || { echo 'FAIL prerequisites: install uv first' >&2; exit 1
 work=$(mktemp -d /tmp/glide-e2e.XXXXXXXXXX)
 mkdir "$work/user"
 touch "$work/.glide-e2e"
-printf 'Isolated HERMES_HOME=%s\nArtifacts remain here for inspection.\n' "$work"
-exec env -i HOME="$work/user" HERMES_HOME="$work" PATH=/usr/bin:/bin \
+# Each run checks out Hermes core (over 1 GB), so remove it on exit unless GLIDE_E2E_KEEP=1.
+if [[ ${GLIDE_E2E_KEEP:-} == 1 ]]; then
+    printf 'Isolated HERMES_HOME=%s\nGLIDE_E2E_KEEP=1: artifacts remain here for inspection.\n' "$work"
+else
+    trap 'rm -rf -- "$work"' EXIT
+    printf 'Isolated HERMES_HOME=%s\nRemoved on exit; set GLIDE_E2E_KEEP=1 to keep it.\n' "$work"
+fi
+env -i HOME="$work/user" HERMES_HOME="$work" PATH=/usr/bin:/bin \
     PYTHONNOUSERSITE=1 PYTHONUNBUFFERED=1 GIT_TERMINAL_PROMPT=0 TERM=dumb \
     UV_CONCURRENT_BUILDS=2 bash -euo pipefail -c '
 repo=$1
