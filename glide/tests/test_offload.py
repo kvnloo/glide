@@ -73,3 +73,15 @@ def test_offload_savings_card_by_type(home):
     assert card["empty"] is False
     assert "summarize" in card["by_type"]
     assert "classify" in card["by_type"]
+
+def test_offload_command_passes_task_type_and_whole_prompt(home, monkeypatch):
+    calls = []
+
+    def fake(home_, task_type, prompt):
+        calls.append((task_type, prompt))
+        return {"ok": False, "error": "stub"}
+
+    monkeypatch.setattr(offload, "offload_task", fake)
+    assert offload.command(home, "summarize hello world") == "Offload failed: stub"
+    assert calls == [("summarize", "hello world")]
+    assert "Usage" in offload.command(home, "summarize")

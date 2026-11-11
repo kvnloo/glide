@@ -348,9 +348,7 @@ def command(home: Path, args: str) -> str:
         return result["message"]
 
     # Offload a task: /glide offload <task_type> <prompt>
-    if not rest:
-        return USAGE
-    task_type, prompt = rest.split(maxsplit=1) if " " in rest else (rest, "")
+    task_type, prompt = verb, rest
     if not prompt:
         return "Usage: /glide offload <task_type> <prompt>"
 
