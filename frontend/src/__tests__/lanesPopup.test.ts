@@ -98,6 +98,7 @@ describe('voice lanes popup', () => {
     expect(changed).toHaveBeenCalled()
     expect(draw()).toContain('"data-lane-pick":"fast=sample-large","data-lane-bound":"true"')
     expect(draw()).not.toContain('"data-lane-pick":"fast=sample-fast","data-lane-bound":"true"')
+    expect(draw()).toContain('BOUND LOCALLY → SAMPLE-LARGE')
   })
 })
 

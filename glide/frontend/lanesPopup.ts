@@ -112,6 +112,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
           (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
         el('span', `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
         el('span', `${micro};font-size:9px`, [text(model.toUpperCase())]),
+        ...(binding && binding !== lane.model ? [el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text(`BOUND LOCALLY → ${binding.toUpperCase()}`)], { attrs: { 'data-lane-rebound': lane.role } })] : []),
         el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${DOT[lane.state]}`, [text(lane.state.toUpperCase())])
       ]),
       el('span', `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } }),
