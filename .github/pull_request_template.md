@@ -1,17 +1,12 @@
-## What
+<!-- Pick a type: add ?template=ui-feature.md | bugfix.md | infra-cleanup.md | docs.md to the compare URL,
+     or `gh pr create --template <name>`. UI-visible change with no media = not ready for review.
+     First line = what Kevin sees differently; media right under it (`pr-media <owner/repo> <pr> <file...>`). -->
+**You now see:** 
 
-<!-- One feature or fix. What does a user see differently? -->
+<!-- pr-media:start -->
+<!-- pr-media:end -->
 
-## Why
+**Why:** Closes #
 
-<!-- The issue it addresses: Closes #N -->
-
-## Demo
-
-<!-- A short video or screenshot of the change in a real Tern pane or `tern serve`. Say which. -->
-
-## Tested
-
-- [ ] `cd frontend && bun run check`
-- [ ] Python tests in the pinned Hermes environment
-- [ ] A real turn in Tern (or `tern serve`, labeled as such)
+**Checked:** `cd frontend && bun run check`; glide suite in the pinned Hermes env; a real turn in Tern (or `tern serve`, labeled)
+**Not checked:** 
