@@ -149,8 +149,10 @@ export function walCss(p: WalPalette): string {
     `--text: ${p.fg}`, `--muted: ${p.muted}`, `--t1: ${p.fg}`, `--t2: ${p.muted}`, `--t3: ${p.dim}`,
     `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`
   ]
+  // Only plugin blocks carry [data-surface]; a program pane (hermes tern) is a bare .sf-region, and
+  // Tern binds these variables on :root, so the region (and each card) must rebind them itself.
   // The kit's primary buttons read --h-primary-ink, which its host binding leaves unset.
-  return `[data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { --h-primary-ink: ${p.accentInk}; }\n`
+  return `.sf-region, [data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { ${vars.join('; ')}; --h-primary-ink: ${p.accentInk}; }\n`
 }
 
 /** Writes the resolved palette JSON for other tools (the fframes film); returns the path. */
