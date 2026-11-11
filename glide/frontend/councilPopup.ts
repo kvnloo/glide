@@ -183,7 +183,7 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
       const f = frame()
       const view = {
         spec: { kind: 'council', app: APP }, app: APP, label: 'Socratic council', identity: 'council',
-        node: councilCard(src, f),
+        node: councilCard(src, f, 320),
         activate: (n: number) => { if (n === CONVENE_ID && !stop) convene(); else if (n === CLOSE_ID) host.close(overlay) }
       }
       return euiPopupNode(nativeOverlayKey(id), src.live ? 'Council · live' : 'Council · demo', view, eui)
