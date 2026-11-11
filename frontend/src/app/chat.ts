@@ -15,7 +15,7 @@ import { ternSharesFrontendHost } from '../artifacts/links.js'
 import type { BtwThreads } from '../btw.js'
 import type { Agents } from '../agents/store.js'
 import { OrbActivity, ThinkingOrb } from '../chrome/orb.js'
-import { LaneStrip } from '../voice/lanes.js'
+import { type LaneFeed, LaneStrip } from '../voice/lanes.js'
 import { noticeReport } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import { sessionHost } from '../commands/host.js'
@@ -74,6 +74,7 @@ export class App implements ChatPorts {
   readonly tableCharts: TableCharts
   readonly eui: EuiCards
   readonly liveVoice: LiveVoice
+  laneFeed: LaneFeed | null = null
   readonly agents: Agents
   readonly processes: Processes
   readonly cron: Cron
@@ -205,6 +206,7 @@ export class App implements ChatPorts {
     }
     this.#surface.guardHandlers(Boolean(this.#retention))
     this.#guardOverlayHandlers()
+    this.laneFeed = s.laneFeed
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
       if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion)

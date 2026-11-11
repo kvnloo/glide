@@ -91,6 +91,8 @@ import {
 } from './actions-ui.js'
 import type { ChatPorts } from './ports.js'
 
+import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+
 /** The stores the actions act on, and the app's ports for the sheets they open. */
 export interface ActionsCx {
   readonly chat: ChatPorts
@@ -244,6 +246,7 @@ export class AppActions {
       modal: () => isModal(chat.overlays),
       openAgent: id => void this.openAgent(id),
       openAgents: () => openAgents(chat),
+      openLanes: () => void openLanesPopup(chat, chat.laneFeed),
       openProcess: id => openBackground(chat, id),
       openUrl
     }

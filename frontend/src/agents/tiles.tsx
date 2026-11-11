@@ -104,6 +104,10 @@ export function agentWaitNode(agents: readonly Subagent[], now: number, key = 'a
           <text key="face" role="omp.jobs.hovercard.more" spans={[{ s: 'dim', t: `+${rest} more agents · /agents` }]} wrap="none" />
         )
       ) : null}
+      {pressable(
+        { action: 'open-lanes=all', key: 'lanes', name: 'Voice lanes: open the lanes popup' },
+        <text key="face" role="hermes.agents.lanes" spans={[{ s: 'dim', t: 'voice lanes · models and live state' }]} wrap="none" />
+      )}
     </col>
   )
   cache.set(key, { node, signature })
