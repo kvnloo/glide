@@ -408,6 +408,8 @@ gateway_operations.py
 .github/pull_request_template.md
 .github/workflows/bundle-candidate.yml
 .github/workflows/fettl.yml
+frontend/src/__tests__/lanes.test.ts  # vitest only collects frontend/src
+frontend/src/voice/lanes.tsx  # esbuild and tsc resolve @stencil-hq/tern only from frontend/
 media_backend.py
 plan_gateway.py
 scripts/bundle_provenance.py
