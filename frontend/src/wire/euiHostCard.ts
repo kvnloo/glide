@@ -32,7 +32,7 @@ export function decodeEuiHostCard(value: unknown, kinds: readonly string[]): Eui
   if (!parsed.success) throw new TypeError('Invalid host card data')
   const data = parsed.data
   if (!kinds.includes(data.kind)) throw new TypeError('Unknown host card kind')
-  if (data.approval && data.kind !== 'approve') throw new TypeError('Only approve cards accept an operation')
+  if (data.approval && data.kind !== 'approve' && data.kind !== 'intent-contract') throw new TypeError('Only approve and intent-contract cards accept an operation')
   if (!data.title.trim() || data.rows.some(row => !row.label.trim()) ||
     (data.approval && (!data.approval.label.trim() || !data.approval.description.trim()))) {
     throw new TypeError('Host card labels and operation descriptions must not be blank')

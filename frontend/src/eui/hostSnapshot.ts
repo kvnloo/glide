@@ -1,4 +1,5 @@
 // Host data uses the existing EuiNode -> Tern renderer; the demo kit never sees an operation.
+import { intentHero } from '../../../glide/frontend/intentCards.js'
 import type { EuiHostCardData } from '../wire/euiHostCard.js'
 
 import type { EuiNode } from './sandbox.js'
@@ -13,8 +14,11 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   const el = (tag: string, kids: readonly EuiNode[], cls = '', attrs: Record<string, string> = {}): EuiNode => ({
     t: 'el', tag, id: next++, cls, style: '', attrs, click: false, kids
   })
+  const hero = intentHero(data, el)
+  const hold = data.kind === 'intent-contract'
   const kids: EuiNode[] = [
     el('h3', [text(data.title)], 'eui-host-title'),
+    ...(hero ? [hero] : []),
     ...(data.summary === undefined ? [] : [el('p', [text(data.summary)])]),
     el('dl', data.rows.flatMap(row => [
       el('dt', [text(row.label)]),
@@ -24,10 +28,10 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   if (data.approval) {
     kids.push(el('p', [text(data.approval.description)], 'eui-host-operation'))
     kids.push({
-      t: 'el', tag: 'button', id: HOST_APPROVE_ID, cls: 'eu-btn eui-host-approve', style: '',
+      t: 'el', tag: 'button', id: HOST_APPROVE_ID, cls: hold ? 'eu-btn eui-host-approve ih-hold' : 'eu-btn eui-host-approve', style: '',
       attrs: { 'data-eui-action': 'approve', ...(status === 'pending' ? {} : { disabled: 'true' }) },
       click: status === 'pending',
-      kids: [text(status === 'pending' ? data.approval.label
+      kids: [...(hold ? [el('i', [], 'ih-holdfill')] : []), text(status === 'pending' ? data.approval.label
         : status === 'running' ? 'Running…'
           : status === 'done' ? 'Completed' : 'Failed · approval used')]
     })
