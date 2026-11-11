@@ -8,7 +8,7 @@ Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backe
 
 Use a current Hermes Agent with standalone-plugin and gateway support, Tern, and Node.js. The plugin manifest requires Hermes ≥0.23.0. [Manifest](plugin.yaml) · [Launcher](launcher.py)
 
-Hermes scans community plugins and can block this install with a security warning. Review the findings before proceeding. This guide does not bypass that check. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+Hermes scans community plugins before installing them. It rates this one **CAUTION**, the same verdict it gives [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern) itself. The HIGH findings are text matches in the Tern frontend: the sudo-password prompt UI and the Markdown code-span parser. Review them, then answer `y` at the prompt (or pass `--force` in a non-interactive shell). This guide does not bypass the check. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
 
 ```sh
 hermes plugins install kvnloo/glide
@@ -57,8 +57,11 @@ Memory extraction and BM25 ranking make no model calls. If an existing z0intelli
 
 ## Real Tern screenshots
 
-These existing synthetic demo captures are already on main. They show the router approval, router receipt, benchmark verdict, and offload estimate. They were not regenerated for this documentation change. [Fork feature guide](FORK.md)
+Captured from a fresh `HERMES_HOME` after `hermes plugins install kvnloo/glide`, with six synthetic sessions seeded by [demo/seed.py](glide/demo/seed.py). No personal history appears.
 
+![Detect: hardware, local runtimes, and the memory-build approval](glide/docs/media/glide-fresh-1-detect.png)
+![Memory built from five synthetic sessions, with the turn-on approval](glide/docs/media/glide-fresh-2-memory-built.png)
+![/glide recall returns the matching correction](glide/docs/media/glide-fresh-7-recall-hit.png)
 ![Skill router approval](glide/docs/media/glide-s4-ask.png)
 ![Skill router receipt and benchmark approval](glide/docs/media/glide-s4-router.png)
 ![Benchmark verdict and offload approval](glide/docs/media/glide-s5-hillclimb.png)
@@ -67,10 +70,6 @@ These existing synthetic demo captures are already on main. They show the router
 The inherited base chat is shown below, not a Glide onboarding capture.
 
 ![Native Tern chat and pull request view](docs/images/hero-dark.png)
-
-<!-- Glide capture slot: detection and memory-build approval, using synthetic sessions only. -->
-<!-- Glide capture slot: memory proof and recall, using synthetic sessions only. -->
-<!-- Glide capture slot: benchmark verdict and offload estimate, with no private evaluation results. -->
 
 ## What runs beyond a prompt
 

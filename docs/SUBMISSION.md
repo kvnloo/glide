@@ -23,7 +23,7 @@ The [existing synthetic tests](../glide/tests/) cover memory, onboarding, routin
 
 Use a current Hermes Agent, Tern, and Node.js. The root manifest requires Hermes 0.23.0 or later. [Manifest](../plugin.yaml) · [Launcher](../launcher.py)
 
-Hermes scans community plugins and can block this command. Review any security findings before proceeding. A blocked install is not a completed setup, and this guide does not override the scan. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+Hermes scans community plugins and rates this one CAUTION, the same verdict as upstream alt-glitch/hermes-tern: text matches in the Tern frontend's sudo-password prompt and Markdown parser. Review the findings and answer `y` (or pass `--force` non-interactively); this guide does not override the scan. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
 
 ```sh
 hermes plugins install kvnloo/glide
@@ -69,5 +69,5 @@ These instructions follow the [merged card flow](../frontend/src/commands/glide.
 - [Root MIT license](../LICENSE) and [Glide MIT license](../glide/LICENSE)
 - [Fork feature guide](../FORK.md)
 - [Memory design and limitations](../glide/docs/memory.md)
-- [Existing Glide demo screenshots and capture slots](../README.md#real-tern-screenshots). These synthetic captures are already on main, not fresh native verification for this document.
+- [Real Tern screenshots](../README.md#real-tern-screenshots) from a fresh `HERMES_HOME` install with synthetic sessions.
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent) and [Tern](https://stencil.so/tern)
