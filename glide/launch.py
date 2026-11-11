@@ -12,7 +12,8 @@ def start(args) -> int:
     if tern:
         handler = tern["handler_fn"]
         channels = sys.modules[handler.__module__].channels
-        args.tui_args = ["--channel", "glide"] if "glide" in channels.load() else []
+        if "glide" in channels.load():
+            args.channel = "glide"  # launcher.run reads args.channel
         return handler(args)
 
     from hermes_cli.main import main
