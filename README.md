@@ -100,6 +100,8 @@ The inherited base chat is shown below, not a Glide onboarding capture.
 - The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) validate parameters and serve the cards.
 - The [TypeScript flow](frontend/src/commands/glide.ts) renders native cards and handles approval actions. [Router](glide/skill_router.py), [benchmark](glide/hill_climb.py), and [Ollama offload](glide/offload.py) modules persist their own results.
 
+- Opt-in live voice (`/live` or Alt+Shift+V) shows helper lanes beside the thinking orb. They read real state from a local lane broker on `127.0.0.1:8791` and stay off without its token file. Live voice needs a Hermes gateway with the `voice.live` methods; the pinned Hermes may lack them, which shows a visible activation failure. [Voice and lanes](frontend/docs/voice.md)
+
 Optional z0intelligence health detection does not install or configure z0intelligence. The optional Taste pane needs a separately running Taste Atlas app and is not part of the basic memory flow. Fresh native-pane proof is pending for this documentation change. [Core](glide/core.py) · [Taste requirements](glide/docs/taste.md)
 
 See [the upstream project](https://github.com/alt-glitch/hermes-tern) for the base frontend and [frontend development](frontend/README.md) for build instructions.
