@@ -52,8 +52,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
-      - run: npm ci --ignore-scripts --workspace ui-tui --no-audit --no-fund
-        working-directory: .hermes-agent
+      # The pin supplies apps/shared, linked and installed by the frontend below.
+      # It no longer has the legacy ui-tui npm workspace.
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - run: node scripts/hermes-src.mjs && bun install --frozen-lockfile
         working-directory: frontend
