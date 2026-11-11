@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import type { NodeJson } from '@stencil-hq/tern'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { entryId, toolCallId } from '../core/ids.js'
 import type { Block, ToolCall, TurnEntry } from '../model.js'
@@ -24,10 +24,22 @@ const cx: TranscriptContext = { copy: () => undefined, now: 1000, welcome: { ver
 const nodes = (root: NodeJson): NodeJson[] => [root, ...(root.c ?? []).flatMap(nodes)]
 const make = (result: unknown, more: Partial<ToolCall> = {}) => call('terminal', { command: 'true' }, { result, ...more })
 
-function producer(): { flagged: Record<string, unknown>; clean: Record<string, unknown>; failed: Record<string, unknown>; cancelled: Record<string, unknown> } {
-  const raw = execFileSync('python3', [resolve('src/__tests__/fixtures/terminal-recreated-core.py')], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src') }
+// Cache stdout, not parsed objects: every caller gets independent fixture data.
+const outputs = new Map<string, string>()
+function produce(args: string[]): string {
+  const key = JSON.stringify(args)
+  const cached = outputs.get(key)
+  if (cached !== undefined) return cached
+  const raw = execFileSync('python3', args, {
+    cwd: resolve('.hermes-src'), encoding: 'utf8', timeout: 30_000,
+    env: { ...process.env, PYTHONPATH: resolve('.hermes-src'), PYTHONDONTWRITEBYTECODE: '1' }
   })
+  outputs.set(key, raw)
+  return raw
+}
+
+function producer(): { flagged: Record<string, unknown>; clean: Record<string, unknown>; failed: Record<string, unknown>; cancelled: Record<string, unknown> } {
+  const raw = produce([resolve('src/__tests__/fixtures/terminal-recreated-core.py')])
   const data = parseJson(raw)
   if (!Array.isArray(data)) throw new Error('expected producer results')
   const flagged = record(data[0])
@@ -44,15 +56,13 @@ from tools.file_operations_common import WriteResult
 import json
 lint = LintMixin()._check_lint_delta('x.py','x = 1\\n','def broken(:\\n    pass\\n').to_dict()
 print(json.dumps(WriteResult(bytes_written=23,verified=True,lint=lint).to_dict()))`
-  const result = record(execFileSync('python3', ['-c', script], { cwd: resolve('.hermes-src'), encoding: 'utf8' }))
+  const result = record(produce(['-c', script]))
   if (!result) throw new Error('expected write object')
   return result
 }
 
 function patchProducer(): Record<string, unknown> {
-  const raw = execFileSync('python3', [resolve('src/__tests__/fixtures/patch-lint-core.py')], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src') }
-  })
+  const raw = produce([resolve('src/__tests__/fixtures/patch-lint-core.py')])
   const data = parseJson(raw)
   if (!Array.isArray(data)) throw new Error('expected replace producer results')
   const result = record(data[0])
@@ -61,32 +71,35 @@ function patchProducer(): Record<string, unknown> {
 }
 
 function v4aProducer(): Record<string, unknown>[] {
-  const raw = execFileSync('python3', [resolve('src/__tests__/fixtures/v4a-lint-core.py')], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src') }
-  })
+  const raw = produce([resolve('src/__tests__/fixtures/v4a-lint-core.py')])
   const data = parseJson(raw)
   if (!Array.isArray(data)) throw new Error('expected V4A producer results')
   return data.map(value => { const result = record(value); if (!result) throw new Error('invalid V4A result'); return result })
 }
 
 function noLintGateway(): Record<string, unknown>[] {
-  const raw = execFileSync('python3', [resolve('src/__tests__/fixtures/v4a-failure-no-lint.py')], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src') }
-  })
+  const raw = produce([resolve('src/__tests__/fixtures/v4a-failure-no-lint.py')])
   const data = parseJson(raw)
   if (!Array.isArray(data)) throw new Error('expected gateway payloads')
   return data.map(value => { const result = record(value); if (!result) throw new Error('invalid gateway payload'); return result })
 }
 
 function fixture(name: string): unknown {
-  return parseJson(execFileSync('python3', [resolve(`src/__tests__/fixtures/${name}`)], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src'), PYTHONDONTWRITEBYTECODE: '1' }
-  }))
+  return parseJson(produce([resolve(`src/__tests__/fixtures/${name}`)]))
 }
 
 describe('retained terminal recreation attention', () => {
-  // Five isolated pinned Python producers can exceed Vitest's 5s default under CI load.
-  // Synchronous subprocesses cannot be interrupted by this timer; CI bounds the whole job.
+  // Nine isolated Python producers belong to setup, not the per-test assertion budget.
+  // Each process has a hard timeout; reuse stdout without sharing mutable results.
+  beforeAll(() => {
+    producer()
+    writeProducer()
+    patchProducer()
+    v4aProducer()
+    noLintGateway()
+    for (const name of ['write-refusal-core.py', 'memory-staged-core.py', 'terminal-masked-core.py', 'skill-stub-core.py']) fixture(name)
+  }, 300_000)
+
   it('keeps actual write refusal, terminal advisories and staged memory beside existing attention', () => {
     const refusalPayload = record(fixture('write-refusal-core.py'))
     const memories = fixture('memory-staged-core.py')
@@ -130,7 +143,7 @@ describe('retained terminal recreation attention', () => {
     expect(rendered.split('NOT created or modified')).toHaveLength(2)
     expect(rendered).toContain('Lint reported an error for x.py')
     expect(partial.call.outcome.kind).toBe('error')
-  }, 20_000)
+  })
   it('shows the real finalizer warning on an unfolded card before the answer without changing the result', () => {
     const { flagged } = producer()
     const warned = tool('warned', make(flagged))
