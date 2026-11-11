@@ -11,6 +11,8 @@ import type { PanelEntry } from '../model.js'
 import { decodeEuiCard, EUI_FENCE, type EuiCardSpec } from '../wire/euiCard.js'
 import { parseJson } from '../wire/json.js'
 
+import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
+
 import { EuiHostCards, type EuiHostPort } from './host.js'
 import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
 import { ternBody } from './ternCss.js'
@@ -71,6 +73,7 @@ export function euiStyles(): string {
 [data-eui='card'] .eui-host-rows dt { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
+${INTENT_CSS}
 [data-role='eui.error'] { color: var(--sf-c-error, var(--t2)); font: 12px/1.4 var(--mono); }
 `
 
