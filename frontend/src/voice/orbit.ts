@@ -7,29 +7,34 @@ import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'think
 import { LIBRARY_STATE, type OrbState } from '../chrome/orb.js'
 
 /** Orbit radius per role (viewBox units): fast inner, council outer, one track per lane. */
-const ORBIT_R: Readonly<Record<string, number>> = { fast: 46, small: 60, large: 74, council: 88 }
-const FALLBACK_R = 67
+const ORBIT_R: Readonly<Record<string, number>> = { fast: 46, small: 62, large: 78, council: 94 }
+const FALLBACK_R = 70
 
 /** Each role's planet and track tint (council keeps its lapis seat colour), deeper on a light theme for contrast. */
+// One warm-to-cool ramp, read inside out: fast is a hot amber spark, small a cool teal, large a deep violet
+// and council the lapis seat colour. Same lightness band, so no planet shouts over another.
 export const ROLE_TINT: Readonly<Record<string, string>> = {
-  fast: '#e8b04a',
-  small: '#5aa9e6',
-  large: '#d08ad8',
-  council: '#5b8cff'
+  fast: '#f2b24c',
+  small: '#3fc8b4',
+  large: '#a98bf5',
+  council: '#5aa7ff'
 }
 const ROLE_TINT_LIGHT: Readonly<Record<string, string>> = {
-  fast: '#b5730f',
-  small: '#1f6fb2',
-  large: '#a03c9c',
-  council: '#2a4fb8'
+  fast: '#c47a12',
+  small: '#0f8a7a',
+  large: '#6a4fc4',
+  council: '#1f6fd6'
 }
 export const tint = (role: string, dark: boolean) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? '#aaaaaa' : '#555555')
 /** A dead lane's mark: a red hollow ring struck through. */
 export const deadTint = (dark: boolean) => (dark ? '#ff6b6b' : '#c62828')
 
-// Every lane shares one angular velocity, one turn per 9.6 s cached cycle, so the gaps set at the start
-// never close: lanes with different periods drift into a bunch on one side and overlap where rings meet.
+// The cached cycle is 9.6 s. Each lane's period divides it, so the loop stays seamless, and its speed says
+// what the lane is: fast laps the orb four times a cycle, small twice, large and council once. Every lane
+// has its own track, so differing speeds never make two planets collide.
 export const PERIOD = 9.6
+const ROLE_PERIOD: Readonly<Record<string, number>> = { fast: 2.4, small: 4.8, large: 9.6, council: 9.6 }
+export const lanePeriod = (role: string) => ROLE_PERIOD[role] ?? PERIOD
 // The orbit is seen face-on: every track is a true circle around the voice orb (owner ask: circular, not oval).
 // TILT stays as the horizontal sweep factor so the layout math keeps one shape; 1 means a circle.
 export const TILT = 1
@@ -44,7 +49,7 @@ export const ORB_R = (CORE * 28.4) / SOURCE
 export const orbitRadius = (role: string) => ORBIT_R[role] ?? FALLBACK_R
 
 export interface OrbitLane { role: string; state: string }
-export interface Satellite { role: string; x: number; y: number; z: number; scale: number; alpha: number; parked: boolean }
+export interface Satellite { role: string; x: number; y: number; z: number; scale: number; alpha: number; parked: boolean; theta: number; r: number }
 
 /** The scene's size: just the outermost track in use plus a planet's halo, so the picture is no taller than its rings. */
 export function orbitScene(lanes: readonly OrbitLane[]): { w: number; h: number } {
@@ -69,7 +74,7 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
       theta = Math.PI + j * 0.45
     } else {
       // Moving lanes are evenly spaced around the orbit and turn together; reduced motion seats them down the front half.
-      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + (2 * Math.PI * k) / moving + (2 * Math.PI * seconds) / PERIOD
+      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + (2 * Math.PI * k) / moving + (2 * Math.PI * seconds) / lanePeriod(lane.role)
       k++
     }
     const z = parked ? 0 : Math.sin(theta)
@@ -82,7 +87,9 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
       // Face-on there is no near or far: every planet is drawn at one size and strength.
       scale: TILT < 1 ? 0.9 + 0.4 * depth : 1.1,
       alpha: parked ? 0.9 : TILT < 1 ? 0.75 + 0.25 * depth : 1,
-      parked
+      parked,
+      theta,
+      r
     }
   })
 }
@@ -152,12 +159,20 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
   const planet = (s: Satellite, lane: OrbitLane) => {
     const r = PLANET * s.scale
     const c = tint(lane.role, dark)
+    // A comet tail as long as the lane is quick: the same 0.35 s of travel is a long streak on fast, a stub on large.
+    const tail = s.parked || reduce ? '' : Array.from({ length: 6 }, (_, i) => {
+      const lag = ((i + 1) / 6) * ((2 * Math.PI * 0.35) / lanePeriod(lane.role))
+      const th = s.theta - lag
+      const k = 1 - (i + 1) / 7
+      return `<circle cx="${n(CX + s.r * TILT * Math.sin(th))}" cy="${n(CY + s.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`
+    }).join('')
+    const trail = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : ''
     const body = s.parked
       ? deadMark(s.x, s.y, r, dark)
       : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${c}" fill-opacity="0.2"/>` : '') +
         `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/>` +
         `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`
-    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}">${body}</g>`
+    return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}">${trail}${body}</g>`
   }
   const order = sats.flatMap((s, i) => (lanes[i] ? [{ s, lane: lanes[i] }] : [])).sort((a, b) => a.s.z - b.s.z)
   const back = order.filter(o => o.s.z < 0).map(o => planet(o.s, o.lane)).join('')
@@ -170,14 +185,14 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
     const on = lanes.filter(l => orbitRadius(l.role) === r)
     const dead = on.every(l => l.state === 'dead')
     const dots = stipple(CX, CY, r * TILT, r, 2)
-    const dot = ([x, y]: [number, number]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.85"/>`
+    const dot = ([x, y]: [number, number]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.7"/>`
     if (dead) {
       const dash = dots.filter((_, i) => i % 4 < 2).map(dot).join('')
       return `<g data-ring="${r}" fill="${dark ? '#9a9a9a' : '#6a6a6a'}" fill-opacity="0.6">${dash}</g>`
     }
     const near = dots.filter(([x]) => x >= CX).map(dot).join('')
     const far = dots.filter(([x]) => x < CX).map(dot).join('')
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? '', dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.85}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.85}">${near}</g></g>`
+    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? '', dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.38}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.38}">${near}</g></g>`
   }).join('')
   const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rings}${back}${core}${front}</svg>`
