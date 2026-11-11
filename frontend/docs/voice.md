@@ -31,10 +31,24 @@ voice.live events. The Hermes source pinned by this plugin may lack those
 methods; an unsupported RPC yields a visible activation failure, not
 working live voice. No extra paid speech provider is installed.
 
+## Helper lanes
+
+During a live call, a strip beside the thinking orb shows each helper lane
+(fast, small, large, council): its role, bound model, state (idle, thinking,
+answered, verified, corrected, dead), what it is researching and its newest
+blackboard entry. Every value comes from a local lane broker's
+`GET /v1/lanes/status`; nothing is inferred, and a dead lane renders as dead.
+The broker (z0live) is a separate local service and is not installed by this
+plugin. The strip polls only `GLIDE_LANES_URL` (default `http://127.0.0.1:8791`)
+with the bearer token in `GLIDE_LANES_TOKEN_FILE` (default
+`~/.config/z0live/hermes-mobile-relay.token`). Without that token file there is
+no strip and no request. Malformed status or unknown states are refused, not
+guessed. [Lanes](../src/voice/lanes.tsx) · [Tests](../src/__tests__/lanes.test.ts)
+
 ## OMP verification (from frontend)
 
     bun run check
-    bun x vitest run src/__tests__/liveVoice.test.ts src/__tests__/holdVoice.test.ts
+    bun x vitest run src/__tests__/liveVoice.test.ts src/__tests__/holdVoice.test.ts src/__tests__/lanes.test.ts
     bun run bundle
 
 After PR #71 lands, integrate its dictation-busy state with liveVoice's

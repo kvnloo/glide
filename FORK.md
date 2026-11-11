@@ -58,7 +58,7 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | | Shortcut preferences, command palette, model cycling | [SHORTCUTS](frontend/SHORTCUTS.md) | #10 |
 | | Busy input: queue or steer while a turn runs | [below](#behavior-that-differs-from-upstream) | #14 |
 | | Thinking orb on the composer | | #14, #194 |
-| | Opt-in live voice and push-to-talk | [voice](frontend/docs/voice.md) | #15 |
+| | Opt-in live voice and push-to-talk, with helper lanes beside the orb | [voice](frontend/docs/voice.md) | #15, #243 |
 | Planning | Plan review and the session todo HUD | [PLAN-REVIEW](frontend/PLAN-REVIEW.md) | #12, #25 |
 | | Native `/btw` side questions and read-only MCP/SSH report sheets | [btw-operational-sheets](frontend/docs/btw-operational-sheets.md) | #13, #26 |
 | Agents and panes | Optional `/glide taste` brainstorm browser pane, off until requested. Native-pane proof pending | [glide-taste](glide/docs/taste.md) | #219 |
