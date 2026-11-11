@@ -18,8 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).with_name("layout-baseline.txt")
-# Paths GitHub only reads from fixed places; they are downstream by nature.
-FIXED = {".github/README.md", ".github/workflows/glide.yml"}
+# Fixed external entry points; downstream implementations still live in glide/.
+FIXED = {".github/README.md", ".github/workflows/glide.yml", "scripts/e2e-fresh-install.sh"}
 FIXED_DIRS = (".github/ISSUE_TEMPLATE/", ".github/PULL_REQUEST_TEMPLATE/")
 
 

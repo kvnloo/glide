@@ -102,6 +102,10 @@ times out or matches nothing.
 
 ## Development
 
+For the isolated install, validation and non-interactive `/glide` flow, run
+`bash scripts/e2e-fresh-install.sh` from the repository root.
+See [the fresh-install check](docs/fresh-install.md) for requirements, boundary stubs and safety limits.
+
 From `glide/`, with a Hermes checkout on `PYTHONPATH`:
 
 ```sh

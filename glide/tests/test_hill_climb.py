@@ -91,13 +91,23 @@ def test_hill_climb_referee_keept_revert_logic():
     print(f"  decision: {v['decision']}")
     assert v["decision"] in ("INCONCLUSIVE", "REVERT"), f"Expected INCONCLUSIVE or REVERT, got {v['decision']}"
 
-def test_gateway_card_runs_one_round_when_asked(home):
+@pytest.mark.parametrize("candidate_scores,decision", [
+    ([110, 112, 108, 111, 109], "KEEP"),
+    ([101] * 5, "REVERT"),
+    ([100, 140, 110, 100, 110], "INCONCLUSIVE"),
+])
+def test_gateway_card_runs_one_round_when_asked(home, monkeypatch, candidate_scores, decision):
     from glide_plugin import gateway
 
+    # Wall-clock A/A scores vary with host load. Exercise all legitimate referee
+    # outcomes with fixed scores, keeping the real round, ledger and card path.
+    scores = iter([100] * 5 + candidate_scores)
+    monkeypatch.setattr(hill_climb, "run_benchmark_command",
+                        lambda *args, **kwargs: {"ok": True, "score": next(scores)})
     idle = gateway.call(home, "hill_climb", {"session_id": "s1"})
     assert idle["verdict"] is None
     card = gateway.call(home, "hill_climb", {"session_id": "s1", "run": True})
-    assert card["verdict"] in ("KEEP", "REVERT", "INCONCLUSIVE")
+    assert card["verdict"] == decision
     assert card["baseline"]["mean"] > 0 and card["candidate"]["mean"] > 0
     with pytest.raises(Exception):
         gateway.call(home, "hill_climb", {"session_id": "s1", "bogus": 1})
