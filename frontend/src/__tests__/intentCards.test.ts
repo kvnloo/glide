@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { clauseRuns, INTENT_CSS, waveform } from '../../../glide/frontend/intentCards.js'
+import { clauseRuns, criterion, INTENT_CSS, waveform } from '../../../glide/frontend/intentCards.js'
 import { euiHostPort } from '../app/eui-host.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards, euiStyles } from '../eui/cards.js'
@@ -10,11 +10,25 @@ import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 import { decodeEuiHostCard } from '../wire/euiHostCard.js'
 
+import { intentCommand } from '../commands/glide.js'
+import type { Lane } from '../voice/lanes.js'
+
 import { must, ofKind } from './fakes.js'
 import { DEMO_ASK, intentCards } from './intentFixtures.js'
 
 const KINDS = ['approve', 'intent-declare', 'intent-contract', 'intent-work', 'intent-proof']
 const snap = (raw: unknown, status: 'pending' | 'running' | 'done' | 'failed' = 'pending') => hostSnapshot(decodeEuiHostCard(raw, KINDS), status)
+
+/** The contract card /glide intent publishes for an ask, read off the real host registry. */
+function contractOf(ask: string, lanes?: readonly Lane[]): unknown {
+  const session = new SessionState(() => undefined)
+  session.ref = { live: liveSessionId('fixture-session'), stored: null }
+  const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session, transcript: new Transcript() }, () => true))
+  const publish = vi.spyOn(eui.host, 'publish')
+  intentCommand(eui.host, ask, lanes)
+  eui.close()
+  return publish.mock.calls.map(c => c[0]).find(d => typeof d === 'object' && d !== null && 'kind' in d && d.kind === 'intent-contract')
+}
 
 function find(n: EuiNode, cls: string): EuiNode[] {
   if (n.t !== 'el') return []
@@ -41,15 +55,65 @@ describe('intent-declare hero', () => {
 })
 
 describe('intent-contract hero', () => {
-  it('draws one bar per criterion, pulses missing evidence and makes the approve button a hold gate', () => {
-    const node = snap(intentCards.contract)
-    expect(find(node, 'ih-bar')).toHaveLength(3)
-    expect(find(node, 'ih-missing').map(words)).toEqual(['real-turn receipt'])
+  it('lists every requirement with its kind, source phrase, the evidence it needs and its state', () => {
+    const node = snap(contractOf(DEMO_ASK))
+    expect(find(node, 'ih-kind').slice(0, 4).map(words)).toEqual(['acceptance', 'scope', 'deadline', 'proof'])
+    expect(find(node, 'ih-phrase').map(words)).toEqual(['“Make the voice orb feel alive”', '“plugin”', '“Friday”', '“real-turn receipt”'])
+    expect(find(node, 'ih-needs').map(words)[0]).toBe('needs a real-turn recording that shows it')
+    expect(find(node, 'ih-mark').map(words)).toEqual(Array(4).fill(' missing'))
+    expect(find(node, 'ih-missing').every(s => find(s, 'ih-dot').length === 1)).toBe(true)
+    expect(words(node)).toContain('0/4 evidenced · 4 missing')
+    expect(find(node, 'eui-host-rows')).toHaveLength(0)
     const gate = must(find(node, 'ih-hold')[0])
     expect(gate.t === 'el' && gate.id).toBe(HOST_APPROVE_ID)
     expect(find(gate, 'ih-holdfill')).toHaveLength(1)
     expect(INTENT_CSS).toMatch(/\.ih-hold:active \.ih-holdfill \{ width: 100%; transition: width 1s linear/)
-    expect(words(snap(intentCards.contract, 'done'))).toContain('Completed')
+    const mixed = snap(intentCards.contract)
+    expect(find(mixed, 'ih-mark').map(words)).toEqual(['✓ evidenced', '✓ evidenced', ' missing'])
+    expect(find(mixed, 'ih-needs').map(words)[0]).toBe('evidence · 4e1b09c2')
+    expect(find(mixed, 'ih-met').flatMap(s => find(s, 'ih-dot'))).toHaveLength(0)
+  })
+
+  it('keeps every requirement one height, with phrase and need on one ellipsised line each', () => {
+    expect(criterion('acceptance: Make the voice orb feel alive')).toEqual({ kind: 'acceptance', phrase: 'Make the voice orb feel alive' })
+    expect(criterion('real-turn receipt')).toEqual({ kind: 'criterion', phrase: 'real-turn receipt' })
+    expect(INTENT_CSS).toMatch(/\.ih-slot \{[^}]*height: 46px/)
+    for (const c of ['ih-phrase', 'ih-needs']) expect(INTENT_CSS).toMatch(new RegExp(`\\.${c} \\{[^}]*white-space: nowrap; overflow: hidden; text-overflow: ellipsis`))
+    expect(INTENT_CSS).toMatch(/\.ih-dot \{[^}]*animation: ih-pulse/)
+  })
+
+  it('draws the orchestration as fast -> fan-out(small, large) -> council, with live lane state when the broker has a call', () => {
+    const node = snap(contractOf(DEMO_ASK))
+    const flow = must(find(node, 'ih-flow')[0])
+    const order = flow.t === 'el' ? flow.kids.map(k => k.t === 'el' ? k.cls.split(' ')[0] : '').filter(c => c !== 'ih-flowlink') : []
+    expect(order).toEqual(['ih-term', 'ih-lane', 'ih-fan', 'ih-lane', 'ih-term'])
+    expect(find(must(find(node, 'ih-fan')[0]), 'ih-lane').map(l => l.t === 'el' ? l.cls : '')).toEqual(['ih-lane ih-l-small', 'ih-lane ih-l-large'])
+    expect(find(node, 'ih-sample')).toHaveLength(2)
+    expect(words(must(find(node, 'ih-budget')[0]))).toContain('budget · sample')
+    const lanes = [{ role: 'large', model: 'opus', resolved: 'claude-opus', state: 'thinking', researching: null, error: null, entry: null }] as const
+    const live = snap(contractOf(DEMO_ASK, lanes))
+    const large = must(find(live, 'ih-l-large')[0])
+    expect(large.t === 'el' && large.attrs['data-state']).toBe('thinking')
+    expect(words(large)).toContain('claude-opus')
+    expect(find(live, 'ih-sample')).toHaveLength(1)
+  })
+
+  it('shows where each slice runs with a status dot, plus the council gate and the budget', () => {
+    const node = snap(contractOf(DEMO_ASK))
+    const hosts = find(node, 'ih-host')
+    expect(hosts.map(h => words(find(h, 'ih-lrole')[0] ?? h))).toEqual(['groot', 'MBP', 'phone', 'k3s'])
+    expect(hosts.map(h => find(h, 'ih-led').map(l => l.t === 'el' ? l.cls : '')[0])).toEqual(['ih-led ih-ok', 'ih-led ih-ok', 'ih-led ih-idle', 'ih-led ih-ok'])
+    expect(find(must(find(node, 'ih-gate')[0]), 'ih-pip')).toHaveLength(4)
+    expect(words(must(find(node, 'ih-budget')[0]))).toContain('61% of weekly quota left')
+    expect(find(node, 'ih-w6')).toHaveLength(1)
+  })
+
+  it('reads approved, not completed, while any receipt is missing', () => {
+    expect(words(snap(intentCards.contract, 'done'))).toContain('Approved — awaiting receipts')
+    expect(words(snap(intentCards.contract, 'done'))).not.toContain('Completed')
+    const all = { ...intentCards.contract, rows: intentCards.contract.rows.slice(0, 2) }
+    expect(words(snap(all, 'done'))).toContain('Approved · all criteria evidenced')
+    expect(words(snap({ kind: 'approve', app: 'x', title: 't', rows: [], approval: intentCards.contract.approval }, 'done'))).toContain('Completed')
   })
 
   it('emits the existing host approve exactly once however often the gate fires', () => {

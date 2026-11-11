@@ -14,7 +14,7 @@ import type { ThemeMode } from '../settings.js'
 import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
-import type { LaneFeed } from '../voice/lanes.js'
+import type { Lane, LaneFeed } from '../voice/lanes.js'
 import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
 
@@ -28,6 +28,8 @@ export interface GlideHost {
   readonly session: Pick<SessionView, 'ref'>
   readonly transcript: Pick<Transcript, 'notice'>
   readonly eui?: Pick<EuiCards, 'host'> | undefined
+  /** The lane broker feed, when voice lanes are configured: the contract shows their live state. */
+  readonly laneFeed?: Pick<LaneFeed, 'call'> | null | undefined
   /** `/glide theme auto|default`: the same switch as `/theme`. */
   setTheme?(mode: ThemeMode): void
 }
@@ -165,7 +167,7 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
     if (verb === 'intent') {
       const ask = rest.join(' ')
       if (!ask) host.transcript.notice('Usage: /glide intent <ask>', 'warning')
-      else intentCommand(cards, ask)
+      else intentCommand(cards, ask, host.laneFeed?.call?.lanes)
       return
     }
     if (verb === 'off') {
@@ -327,15 +329,51 @@ export function askClauses(ask: string): { label: string; value: string }[] {
   ]
 }
 
+// What each clause needs before it counts: the receipt a real turn must produce.
+const NEEDS: Record<string, string> = {
+  acceptance: 'needs a real-turn recording that shows it',
+  scope: 'needs a build + install receipt',
+  deadline: 'needs the merge to land before then',
+  proof: 'needs a receipt hash from a real turn'
+}
+// The plan's lanes in the order they run (Glide's lane broker roles): fast triages, small and large
+// fan out, the council reviews. Without a live broker call these are labelled sample data.
+const PLAN: readonly { role: string; job: string; model: string; host: string }[] = [
+  { role: 'fast', job: 'triage', model: 'haiku', host: 'MBP' },
+  { role: 'small', job: 'T2, T3', model: 'kimi', host: 'k3s' },
+  { role: 'large', job: 'T1', model: 'opus', host: 'groot' },
+  { role: 'council', job: 'review', model: '4 seats', host: 'groot' }
+]
+const SAMPLE_HOSTS = [
+  { name: 'groot', value: 'online · large, council' },
+  { name: 'MBP', value: 'online · fast lane' },
+  { name: 'phone', value: 'idle · voice in' },
+  { name: 'k3s', value: '3/3 ready · small, CI' }
+]
+
 // /glide intent <ask>: the AODL loop on host cards. Declare quotes the ask; the contract drafts one
-// criterion per clause, none evidenced yet; holding approve advances to a sample work rail. Nothing runs.
-export function intentCommand(cards: Cards, ask: string): void {
+// criterion per clause (none evidenced yet) plus the orchestration, hosts, gate and budget that would
+// run it; holding approve advances to a sample work rail. Nothing runs. Live lane state is used when
+// the lane broker has a call; hosts and budget are sample data until Glide reads them.
+export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] | null): void {
   const clauses = askClauses(ask)
   cards.publish({ kind: 'intent-declare', app: 'ripple', title: 'One ask. Exact words.', summary: ask.slice(0, 2048), rows: clauses })
+  const lane = (p: typeof PLAN[number]) => {
+    const l = live?.find(x => x.role === p.role)
+    return { label: `lane: ${p.role}`, value: `${p.job} · ${l ? (l.resolved ?? l.model) : p.model} · ${l ? l.state : 'standby'}` }
+  }
   cards.publish({
     kind: 'intent-contract', app: 'aodl', title: 'Review before execution',
-    summary: 'Criteria drafted from your ask. None is evidenced until a real turn produces a receipt.',
-    rows: [...clauses.map(c => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: 'missing' })), { label: 'real-turn receipt', value: 'missing' }],
+    summary: 'Nothing counts until a real turn leaves its receipt.',
+    rows: [
+      ...[...clauses, { label: 'proof', value: 'real-turn receipt' }].map(c => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: `missing · ${NEEDS[c.label] ?? 'needs a receipt'}` })),
+      { label: 'pattern', value: 'fan-out → council review' },
+      ...PLAN.map(lane),
+      ...SAMPLE_HOSTS.map(h => ({ label: `host: ${h.name}`, value: h.value })),
+      { label: 'gate', value: 'council review · 3 of 4 seats must pass' },
+      { label: 'budget', value: '≤ 40k tokens · 61% of weekly quota left' },
+      { label: 'sample', value: live?.length ? 'hosts, budget' : 'lanes, hosts, budget' }
+    ],
     approval: { label: 'Hold to approve', description: 'Approve this contract revision for execution. Nothing runs until approved.' }
   }, async ({ signal }) => {
     if (signal.aborted) return

@@ -1,5 +1,5 @@
 // Host data uses the existing EuiNode -> Tern renderer; the demo kit never sees an operation.
-import { intentHero } from '../../../glide/frontend/intentCards.js'
+import { intentDoneLabel, intentHero } from '../../../glide/frontend/intentCards.js'
 import type { EuiHostCardData } from '../wire/euiHostCard.js'
 
 import type { EuiNode } from './sandbox.js'
@@ -20,10 +20,11 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
     el('h3', [text(data.title)], 'eui-host-title'),
     ...(hero ? [hero] : []),
     ...(data.summary === undefined ? [] : [el('p', [text(data.summary)])]),
-    el('dl', data.rows.flatMap(row => [
+    // The contract hero draws every row (criteria, lanes, hosts, gate, budget); a list would repeat it.
+    ...(hold && hero ? [] : [el('dl', data.rows.flatMap(row => [
       el('dt', [text(row.label)]),
       el('dd', [text(String(row.value))])
-    ]), 'eui-host-rows')
+    ]), 'eui-host-rows')])
   ]
   if (data.approval) {
     kids.push(el('p', [text(data.approval.description)], 'eui-host-operation'))
@@ -33,7 +34,7 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
       click: status === 'pending',
       kids: [...(hold ? [el('i', [], 'ih-holdfill')] : []), text(status === 'pending' ? data.approval.label
         : status === 'running' ? 'Running…'
-          : status === 'done' ? 'Completed' : 'Failed · approval used')]
+          : status === 'done' ? intentDoneLabel(data) ?? 'Completed' : 'Failed · approval used')]
     })
   }
   return el('div', [el('section', kids, 'eu-card eui-host')])

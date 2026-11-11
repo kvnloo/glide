@@ -10996,9 +10996,9 @@ var require_pluralizer = __commonJS({
         this.plural = plural2;
       }
       pluralize(count5) {
-        const one5 = count5 === 1;
-        const keys3 = one5 ? singulars : plurals;
-        const noun = one5 ? this.singular : this.plural;
+        const one6 = count5 === 1;
+        const keys3 = one6 ? singulars : plurals;
+        const noun = one6 ? this.singular : this.plural;
         return { ...keys3, count: count5, noun };
       }
     };
@@ -24322,8 +24322,8 @@ function sessionHost(cx, literal3 = false) {
     // A steer that fell back to the queue: steering carries no images.
     enqueue: (text18) => cx.router.behind({ images: [], kind: "app", text: text18 }),
     gw: cx.gw,
-    notice: (text18, tone) => {
-      cx.transcript.notice(text18, tone);
+    notice: (text18, tone2) => {
+      cx.transcript.notice(text18, tone2);
       cx.changed();
     },
     // The shared gateway (the one /branch runs on) answers a resume with one id for both kinds.
@@ -29175,8 +29175,8 @@ function lineTokens(text18) {
   if (pair3) {
     return { after: num6(pair3["after"] ?? ""), before: num6(pair3["before"] ?? "") };
   }
-  const one5 = /~(?<before>[\d,]+)\s*tok/.exec(text18)?.groups;
-  return one5 ? { before: num6(one5["before"] ?? "") } : {};
+  const one6 = /~(?<before>[\d,]+)\s*tok/.exec(text18)?.groups;
+  return one6 ? { before: num6(one6["before"] ?? "") } : {};
 }
 
 // src/status.ts
@@ -31693,8 +31693,8 @@ function agentTile(a2, now) {
 }
 
 // src/core/text.ts
-function plural(n3, one5, many = `${one5}s`) {
-  return `${n3} ${n3 === 1 ? one5 : many}`;
+function plural(n3, one6, many = `${one6}s`) {
+  return `${n3} ${n3 === 1 ? one6 : many}`;
 }
 function clip2(text18, o) {
   if (text18.length <= o.max) {
@@ -31782,11 +31782,11 @@ function diagnosticsOf(value) {
     const group = files.get(path2) ?? { path: path2, diagnostics: [], omitted: 0 };
     for (const candidateRow of file2["diagnostics"]) {
       const row2 = record2(candidateRow);
-      const tone = severity(row2?.["severity"]);
+      const tone2 = severity(row2?.["severity"]);
       const line = row2?.["line"];
       const col = row2?.["col"];
       const message = row2?.["message"];
-      if (!tone || !positive2(line) || !positive2(col) || typeof message !== "string") {
+      if (!tone2 || !positive2(line) || !positive2(col) || typeof message !== "string") {
         return void 0;
       }
       const endLine = row2?.["end_line"];
@@ -31800,7 +31800,7 @@ function diagnosticsOf(value) {
         col,
         line,
         message,
-        severity: tone,
+        severity: tone2,
         ...hasEnd && positive2(endLine) && positive2(endCol) ? { end: { col: endCol, line: endLine } } : {},
         ...typeof source2 === "string" && source2 ? { source: source2 } : {}
       });
@@ -32603,8 +32603,8 @@ var PROCESS_LOOK = {
 var MINI_SPARK_POINTS = 16;
 var TILE_BARS = 3;
 var DEFAULT_TONE = "accent";
-function toneStyle(tone) {
-  switch (tone) {
+function toneStyle(tone2) {
+  switch (tone2) {
     case "accent":
     case "info":
     case "user":
@@ -32612,7 +32612,7 @@ function toneStyle(tone) {
     case "success":
     case "error":
     case "muted":
-      return tone;
+      return tone2;
     case "warning":
     case "pending":
       return "warning";
@@ -32727,8 +32727,8 @@ function tile({ process: p3, view }) {
     trailing: /* @__PURE__ */ jsx("text", { role: "omp.job.tile.id", spans: [sp(p3.id, "dim")], wrap: "none" }, "id")
   });
 }
-function tileMeter(value, tone = DEFAULT_TONE, key3 = "meter") {
-  return /* @__PURE__ */ jsx("meter", { grow: 1, role: "omp.job.tile.meter", size: "sm", tone, value: fraction(value, 1) }, key3);
+function tileMeter(value, tone2 = DEFAULT_TONE, key3 = "meter") {
+  return /* @__PURE__ */ jsx("meter", { grow: 1, role: "omp.job.tile.meter", size: "sm", tone: tone2, value: fraction(value, 1) }, key3);
 }
 function tileVisual(b) {
   switch (b?.kind) {
@@ -33883,12 +33883,12 @@ function appBody(call) {
 function batchBody(call, batch) {
   return batch.flatMap(({ args, name, outcome: outcome2 }, i) => {
     const app2 = appOf(name, args);
-    const tone = outcome2.kind === "error" ? "error" : outcome2.kind === "running" ? "pending" : "success";
+    const tone2 = outcome2.kind === "error" ? "error" : outcome2.kind === "running" ? "pending" : "success";
     const error = outcome2.kind === "error" ? outcome2.error : void 0;
     const answer = error ?? (outcome2.kind !== "done" || outcome2.result === void 0 ? void 0 : pretty(outcome2.result));
     return [
       /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", children: [
-        /* @__PURE__ */ jsx("icon", { name: outcome2.kind === "error" ? "x" : outcome2.kind === "running" ? "clock" : "check", tone }, "i"),
+        /* @__PURE__ */ jsx("icon", { name: outcome2.kind === "error" ? "x" : outcome2.kind === "running" ? "clock" : "check", tone: tone2 }, "i"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: [{ t: app2 ? `${app2.app} \xB7 ${app2.action}` : humanize(name) }], truncate: "end", wrap: "none" }, "t")
       ] }, `e${i}`),
       ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip2(error, { mark: "line", max: 600 }) }], wrap: "word" }, `r${i}`)] : answer && call.outcome.kind !== "running" ? [/* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(answer) ? "json" : "text", max: { h: "8lines" }, text: clip2(answer, { mark: "line", max: 2e3 }), wrap: true }, `r${i}`)] : []
@@ -33997,7 +33997,7 @@ var connectView = {
   },
   step: namedStep
 };
-var look = (icon, tone, word) => ({ mark: { icon, tone }, tone, word });
+var look = (icon, tone2, word) => ({ mark: { icon, tone: tone2 }, tone: tone2, word });
 var NEEDS = look("pending", "muted", "needs authorizing");
 var BROWSER = { mark: "spinner", tone: "pending", word: "waiting for your browser\u2026" };
 var SETTING_UP = { mark: "spinner", tone: "pending", word: "setting up\u2026" };
@@ -34323,11 +34323,11 @@ function safePath(path2) {
     return code7 < 32 || code7 >= 127 && code7 <= 159 || code7 >= 8234 && code7 <= 8238 || code7 >= 8294 && code7 <= 8297;
   });
 }
-function lspLinkContext(evidence) {
-  const cwd = typeof evidence.cwd === "string" && isAbsolute4(evidence.cwd) && safePath(evidence.cwd) ? evidence.cwd : "";
+function lspLinkContext(evidence2) {
+  const cwd = typeof evidence2.cwd === "string" && isAbsolute4(evidence2.cwd) && safePath(evidence2.cwd) ? evidence2.cwd : "";
   return {
     cwd,
-    hostLocal: Boolean(cwd && evidence.sessionLive && evidence.terminalBackend === "local" && evidence.gatewayAttached === false && !evidence.ssh)
+    hostLocal: Boolean(cwd && evidence2.sessionLive && evidence2.terminalBackend === "local" && evidence2.gatewayAttached === false && !evidence2.ssh)
   };
 }
 function lspFileHref(path2, context, range2) {
@@ -35103,8 +35103,8 @@ function countCard(call, d, pattern) {
     title: "Grep"
   };
 }
-function count(n3, lower, one5, many) {
-  return `${lower ? "At least " : ""}${plural(n3, one5, many)}`;
+function count(n3, lower, one6, many) {
+  return `${lower ? "At least " : ""}${plural(n3, one6, many)}`;
 }
 function disclosures(labels) {
   return labels.map((label, i) => /* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: label }] }, `search-notice-${i}`));
@@ -35746,15 +35746,15 @@ function formatTrend(first, last, better, unit) {
     return void 0;
   }
   const arrow = delta > 0 ? "\u25B2" : "\u25BC";
-  const tone = delta > 0 === (better === "higher") ? "success" : "error";
+  const tone2 = delta > 0 === (better === "higher") ? "success" : "error";
   if (first === 0) {
-    return { text: `${arrow} ${formatNumber(Math.abs(delta), unit)}`, tone };
+    return { text: `${arrow} ${formatNumber(Math.abs(delta), unit)}`, tone: tone2 };
   }
   const percent = Math.abs(delta / first) * 100;
   if (percent >= 1e3) {
-    return { text: `${arrow} ${formatNumber(Math.abs(last / first))}\xD7`, tone };
+    return { text: `${arrow} ${formatNumber(Math.abs(last / first))}\xD7`, tone: tone2 };
   }
-  return { text: `${arrow} ${percent.toFixed(percent >= 10 ? 0 : 1)}%`, tone };
+  return { text: `${arrow} ${percent.toFixed(percent >= 10 ? 0 : 1)}%`, tone: tone2 };
 }
 function formatRatio(value, total, unit) {
   const scaled = unitStep(total, unit);
@@ -36316,13 +36316,13 @@ function parseBlock(value, where, errors) {
         errors.push(`${where}.tones: expected an object of status substring \u2192 tone`);
       } else {
         let n3 = 0;
-        for (const [status, tone] of Object.entries(value["tones"])) {
+        for (const [status, tone2] of Object.entries(value["tones"])) {
           if (++n3 > MAX_GRID_TONES) {
             errors.push(`${where}.tones: at most ${MAX_GRID_TONES} entries`);
             break;
           }
-          if (typeof tone === "string" && TONES.includes(tone)) {
-            tones[status] = tone;
+          if (typeof tone2 === "string" && TONES.includes(tone2)) {
+            tones[status] = tone2;
           } else {
             errors.push(`${where}.tones.${status}: expected one of ${TONES.join(", ")}`);
           }
@@ -36827,11 +36827,11 @@ var ChartRuntime = class {
     const values = points.map((p3) => p3.v);
     const marks2 = block.target === void 0 ? void 0 : [{ label: block.targetLabel ?? `target ${formatNumber(block.target, block.unit)}`, tone: "muted", value: block.target }];
     const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m) => m.value)], block.min, block.max);
-    let tone;
+    let tone2;
     if (block.better && block.target !== void 0 && series.values) {
       const reached = block.better === "higher" ? series.last >= block.target : series.last <= block.target;
       if (reached) {
-        tone = "success";
+        tone2 = "success";
       }
     }
     return {
@@ -36843,7 +36843,7 @@ var ChartRuntime = class {
       tips: points.map((p3) => `${new Date(p3.t).toTimeString().slice(0, 8)} \xB7 ${formatNumber(p3.v, block.unit)}`),
       values,
       ...marks2 ? { marks: marks2 } : {},
-      ...tone ? { tone } : {}
+      ...tone2 ? { tone: tone2 } : {}
     };
   }
 };
@@ -36884,9 +36884,9 @@ function keyLabels(keys3) {
 }
 function gridTone(tones, text18) {
   const lower = text18.toLowerCase();
-  for (const [status, tone] of Object.entries(tones)) {
+  for (const [status, tone2] of Object.entries(tones)) {
     if (lower.includes(status.toLowerCase())) {
-      return tone;
+      return tone2;
     }
   }
   return "neutral";
@@ -38700,12 +38700,12 @@ function backgroundCard(call, d, now) {
 function processLine(call, id, now) {
   const p3 = call.process;
   const live = !p3 || isRunning2(p3);
-  const tone = p3 ? processTone(p3.state.status) : "muted";
+  const tone2 = p3 ? processTone(p3.state.status) : "muted";
   return pressable(
     { action: `open-process=${id}`, key: "process", menu: [`open-process=${id}`], name: `Process ${p3 ? processVerdict(p3) : "starting"}: open in the Background sheet` },
     /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "omp.tool.process", title: "Open in the Background sheet  \u2325J", children: [
-      p3 && live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "state-icon") : /* @__PURE__ */ jsx("icon", { name: p3 ? PROCESS_LOOK[p3.state.status].icon : "pending", tone }, "state-icon"),
-      /* @__PURE__ */ jsx("text", { spans: [{ s: tone, t: p3 ? processVerdict(p3) : "starting" }], wrap: "none" }, "state"),
+      p3 && live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "state-icon") : /* @__PURE__ */ jsx("icon", { name: p3 ? PROCESS_LOOK[p3.state.status].icon : "pending", tone: tone2 }, "state-icon"),
+      /* @__PURE__ */ jsx("text", { spans: [{ s: tone2, t: p3 ? processVerdict(p3) : "starting" }], wrap: "none" }, "state"),
       p3 ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: "\xB7" }], wrap: "none" }, "sep1") : null,
       p3 && live ? /* @__PURE__ */ jsx("elapsed", { age: age(p3, p3.startedAt, now), format: "short" }, "time") : null,
       p3 && !live ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: duration2(processElapsed(p3, now)) }], wrap: "none" }, "took") : null,
@@ -45581,21 +45581,21 @@ function toAlignment(value) {
 var own4 = {}.hasOwnProperty;
 function zwitch(key3, options) {
   const settings2 = options || {};
-  function one5(value, ...parameters) {
-    let fn = one5.invalid;
-    const handlers3 = one5.handlers;
+  function one6(value, ...parameters) {
+    let fn = one6.invalid;
+    const handlers3 = one6.handlers;
     if (value && own4.call(value, key3)) {
       const id = String(value[key3]);
-      fn = own4.call(handlers3, id) ? handlers3[id] : one5.unknown;
+      fn = own4.call(handlers3, id) ? handlers3[id] : one6.unknown;
     }
     if (fn) {
       return fn.call(this, value, ...parameters);
     }
   }
-  one5.handlers = settings2.handlers || {};
-  one5.invalid = settings2.invalid;
-  one5.unknown = settings2.unknown;
-  return one5;
+  one6.handlers = settings2.handlers || {};
+  one6.invalid = settings2.invalid;
+  one6.unknown = settings2.unknown;
+  return one6;
 }
 
 // node_modules/mdast-util-to-markdown/lib/configure.js
@@ -49365,14 +49365,14 @@ function indentLines(value, map4) {
   let line = 0;
   let match;
   while (match = eol.exec(value)) {
-    one5(value.slice(start, match.index));
+    one6(value.slice(start, match.index));
     result.push(match[0]);
     start = match.index + match[0].length;
     line++;
   }
-  one5(value.slice(start));
+  one6(value.slice(start));
   return result.join("");
-  function one5(value2) {
+  function one6(value2) {
     result.push(map4(value2, line, !value2));
   }
 }
@@ -59641,19 +59641,19 @@ var knownMdxNames = /* @__PURE__ */ new Set([
 var parseOptions = { sourceCodeLocationInfo: true, scriptingEnabled: false };
 function raw(tree, options) {
   const document3 = documentMode(tree);
-  const one5 = zwitch("type", {
+  const one6 = zwitch("type", {
     handlers: { root: root4, element: element4, text: text8, comment: comment3, doctype: doctype2, raw: handleRaw },
     unknown: unknown3
   });
   const state = {
     parser: document3 ? new Parser(parseOptions) : Parser.getFragmentParser(void 0, parseOptions),
     handle(node3) {
-      one5(node3, state);
+      one6(node3, state);
     },
     stitches: false,
     options: options || {}
   };
-  one5(tree, state);
+  one6(tree, state);
   resetTokenizer(state, pointStart());
   const p5 = document3 ? state.parser.document : state.parser.getFragment();
   const result = fromParse5(p5, {
@@ -67220,7 +67220,7 @@ function createState2(tree, options) {
     footnoteCounts,
     footnoteOrder: [],
     handlers: handlers3,
-    one: one5,
+    one: one6,
     options: settings2,
     patch: patch5,
     wrap: wrap2
@@ -67235,7 +67235,7 @@ function createState2(tree, options) {
     }
   });
   return state;
-  function one5(node3, parent) {
+  function one6(node3, parent) {
     const type = node3.type;
     const handle3 = state.handlers[type];
     if (own12.call(state.handlers, type) && handle3) {
@@ -68876,17 +68876,17 @@ function conversation(e, pr, now) {
     }
     flush();
     if (a2.kind === "review") {
-      const [verb, tone] = REVIEW[a2.state ?? "COMMENTED"] ?? COMMENTED;
+      const [verb, tone2] = REVIEW[a2.state ?? "COMMENTED"] ?? COMMENTED;
       if (!a2.body.trim()) {
         out.push(
           /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "hermes.pr.event", children: [
-            /* @__PURE__ */ jsx("icon", { name: a2.state === "APPROVED" ? "check" : a2.state === "CHANGES_REQUESTED" ? "warn" : "message", tone }, "i"),
-            /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: a2.author }, { s: tone === "muted" ? "muted" : tone, t: ` ${verb}` }, { s: "dim", t: ` \xB7 ${relative(a2.at, now)}` }] }, "t")
+            /* @__PURE__ */ jsx("icon", { name: a2.state === "APPROVED" ? "check" : a2.state === "CHANGES_REQUESTED" ? "warn" : "message", tone: tone2 }, "i"),
+            /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: a2.author }, { s: tone2 === "muted" ? "muted" : tone2, t: ` ${verb}` }, { s: "dim", t: ` \xB7 ${relative(a2.at, now)}` }] }, "t")
           ] }, `a${i}`)
         );
         return;
       }
-      out.push(comment5(`a${i}`, [{ s: "strong", t: a2.author }, { s: tone === "muted" ? "muted" : tone, t: ` ${verb}` }], a2.at, now, a2.body, a2.url, links));
+      out.push(comment5(`a${i}`, [{ s: "strong", t: a2.author }, { s: tone2 === "muted" ? "muted" : tone2, t: ` ${verb}` }], a2.at, now, a2.body, a2.url, links));
     } else if (a2.kind === "thread") {
       out.push(thread(a2, `a${i}`, now, links));
     } else {
@@ -69462,7 +69462,7 @@ function openPrSheet(host, focus) {
   const view = new PrView(
     {
       changed: () => host.changed(),
-      notice: (text18, tone) => host.notice(text18, tone),
+      notice: (text18, tone2) => host.notice(text18, tone2),
       open: openUrl,
       prs: host.prs,
       reveal: (id) => host.reveal(id),
@@ -70661,7 +70661,7 @@ var MORE = "more";
 function sessionDetail(d) {
   const { session: s2, preview: preview5 } = d;
   const blocks2 = [];
-  const block = (key3, children3, tone) => {
+  const block = (key3, children3, tone2) => {
     blocks2.push(key3);
     return /* @__PURE__ */ jsx(
       "col",
@@ -70669,7 +70669,7 @@ function sessionDetail(d) {
         gap: "xs",
         onClick: () => d.focus(key3),
         role: d.focused === key3 ? "omp.picker.block.focused" : "omp.picker.block",
-        ...optional2("tone", tone),
+        ...optional2("tone", tone2),
         children: children3
       },
       key3
@@ -74306,7 +74306,7 @@ async function glideCommand(host, arg) {
     if (verb === "intent") {
       const ask = rest.join(" ");
       if (!ask) host.transcript.notice("Usage: /glide intent <ask>", "warning");
-      else intentCommand(cards, ask);
+      else intentCommand(cards, ask, host.laneFeed?.call?.lanes);
       return;
     }
     if (verb === "off") {
@@ -74480,15 +74480,45 @@ function askClauses(ask) {
     ...deadline ? [{ label: "deadline", value: deadline }] : []
   ];
 }
-function intentCommand(cards, ask) {
+var NEEDS2 = {
+  acceptance: "needs a real-turn recording that shows it",
+  scope: "needs a build + install receipt",
+  deadline: "needs the merge to land before then",
+  proof: "needs a receipt hash from a real turn"
+};
+var PLAN = [
+  { role: "fast", job: "triage", model: "haiku", host: "MBP" },
+  { role: "small", job: "T2, T3", model: "kimi", host: "k3s" },
+  { role: "large", job: "T1", model: "opus", host: "groot" },
+  { role: "council", job: "review", model: "4 seats", host: "groot" }
+];
+var SAMPLE_HOSTS = [
+  { name: "groot", value: "online \xB7 large, council" },
+  { name: "MBP", value: "online \xB7 fast lane" },
+  { name: "phone", value: "idle \xB7 voice in" },
+  { name: "k3s", value: "3/3 ready \xB7 small, CI" }
+];
+function intentCommand(cards, ask, live) {
   const clauses = askClauses(ask);
   cards.publish({ kind: "intent-declare", app: "ripple", title: "One ask. Exact words.", summary: ask.slice(0, 2048), rows: clauses });
+  const lane = (p3) => {
+    const l = live?.find((x) => x.role === p3.role);
+    return { label: `lane: ${p3.role}`, value: `${p3.job} \xB7 ${l ? l.resolved ?? l.model : p3.model} \xB7 ${l ? l.state : "standby"}` };
+  };
   cards.publish({
     kind: "intent-contract",
     app: "aodl",
     title: "Review before execution",
-    summary: "Criteria drafted from your ask. None is evidenced until a real turn produces a receipt.",
-    rows: [...clauses.map((c) => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: "missing" })), { label: "real-turn receipt", value: "missing" }],
+    summary: "Nothing counts until a real turn leaves its receipt.",
+    rows: [
+      ...[...clauses, { label: "proof", value: "real-turn receipt" }].map((c) => ({ label: `${c.label}: ${c.value}`.slice(0, 80), value: `missing \xB7 ${NEEDS2[c.label] ?? "needs a receipt"}` })),
+      { label: "pattern", value: "fan-out \u2192 council review" },
+      ...PLAN.map(lane),
+      ...SAMPLE_HOSTS.map((h2) => ({ label: `host: ${h2.name}`, value: h2.value })),
+      { label: "gate", value: "council review \xB7 3 of 4 seats must pass" },
+      { label: "budget", value: "\u2264 40k tokens \xB7 61% of weekly quota left" },
+      { label: "sample", value: live?.length ? "hosts, budget" : "lanes, hosts, budget" }
+    ],
     approval: { label: "Hold to approve", description: "Approve this contract revision for execution. Nothing runs until approved." }
   }, async ({ signal }) => {
     if (signal.aborted) return;
@@ -74634,7 +74664,7 @@ var isBrowserAction = oneOf(["connect", "disconnect", "status"]);
 async function browser(host, arg) {
   const [first = "status", ...rest] = words2(arg);
   const action = first.toLowerCase();
-  const note = (text18, tone) => host.transcript.notice(text18, tone);
+  const note = (text18, tone2) => host.transcript.notice(text18, tone2);
   if (!isBrowserAction(action)) {
     return note("Usage: /browser [status|connect [url]|disconnect]", "warning");
   }
@@ -76137,15 +76167,101 @@ function declare(d, el) {
   ], "ih-hero ih-declare");
 }
 var met = (v) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str6(v));
+var evidence = (v) => {
+  const [state = "", receipt = ""] = str6(v).split("\xB7").map((s2) => s2.trim());
+  return [state, receipt];
+};
+function criterion(label) {
+  const at2 = label.indexOf(": ");
+  return at2 > 0 ? { kind: label.slice(0, at2), phrase: label.slice(at2 + 2) } : { kind: "criterion", phrase: label };
+}
+var TYPED = /^(pattern|gate|budget|sample|lane: .+|host: .+)$/;
+var isCriterion = (label) => !TYPED.test(label);
+var rowsOf3 = (d, prefix2) => d.rows.filter((r) => r.label.startsWith(prefix2)).map((r) => ({ name: r.label.slice(prefix2.length), parts: str6(r.value).split("\xB7").map((s2) => s2.trim()) }));
+var one5 = (d, label) => str6(d.rows.find((r) => r.label === label)?.value ?? "");
+var tone = (state) => /^(online|ready|running|working|thinking|answered|verified|\d+\/\d+ ready)/i.test(state) ? "ok" : /^(idle|queued|standby|corrected)/i.test(state) ? "idle" : /^(blocked|dead|offline|down)/i.test(state) ? "bad" : "idle";
 function contract(d, el) {
-  const ok3 = d.rows.filter((r) => met(r.value)).length;
+  const crit = d.rows.filter((r) => isCriterion(r.label));
+  const ok3 = crit.filter((r) => met(evidence(r.value)[0])).length;
+  const sample = one5(d, "sample");
+  const synthetic = (panel) => sample.split(",").map((s2) => s2.trim()).includes(panel);
+  const head2 = (title, note, panel) => el("div", [
+    el("b", [text14(title)], "ih-h"),
+    el("span", [text14(note)], "ih-hnote"),
+    ...panel && synthetic(panel) ? [el("span", [text14("sample data")], "ih-sample")] : []
+  ], "ih-head");
+  const reqs = el("div", crit.map((r) => {
+    const { kind, phrase } = criterion(r.label);
+    const [state, more] = evidence(r.value);
+    const good = met(state);
+    return el("div", [
+      el("small", [text14(kind)], "ih-kind"),
+      el("div", [
+        el("span", [text14(`\u201C${phrase}\u201D`)], "ih-phrase"),
+        el("span", [text14(good ? `evidence \xB7 ${more || state}` : more || "needs a real-turn receipt")], "ih-needs")
+      ], "ih-req-text"),
+      good ? el("span", [el("b", [text14("\u2713")], "ih-tick"), text14(" evidenced")], "ih-mark") : el("span", [el("i", [], "ih-dot"), text14(" missing")], "ih-mark")
+    ], good ? "ih-slot ih-met" : "ih-slot ih-missing", { "data-state": good ? "met" : "missing" });
+  }), "ih-slots");
+  const lanes2 = rowsOf3(d, "lane: ");
+  const node3 = (l) => {
+    const [job = "", model = "", state = "idle"] = l.parts;
+    return el(
+      "div",
+      [
+        el("div", [el("i", [], `ih-led ih-${tone(state)}`), el("b", [text14(l.name)])], "ih-lrole"),
+        el("small", [text14(model || job)], "ih-lmodel"),
+        el("small", [text14(job)], "ih-ljob")
+      ],
+      `ih-lane ih-l-${l.name.replace(/[^a-z]/g, "")}`,
+      { "data-state": state }
+    );
+  };
+  const link3 = () => el("i", [], "ih-flowlink");
+  const fan = /fan-out/i.test(one5(d, "pattern"));
+  const mid = lanes2.filter((l) => fan && (l.name === "small" || l.name === "large"));
+  const flow4 = [el("span", [text14("ask")], "ih-term")];
+  for (const l of lanes2) {
+    if (mid.includes(l)) {
+      if (l === mid[0]) flow4.push(link3(), el("div", mid.map((m) => el("div", [el("i", [], "ih-stub"), node3(m), el("i", [], "ih-stub")], "ih-branch")), "ih-fan"));
+      continue;
+    }
+    flow4.push(link3(), node3(l));
+  }
+  flow4.push(el("i", [], "ih-flowlink ih-gated"), el("span", [text14("receipt")], "ih-term ih-due"));
+  const hosts = rowsOf3(d, "host: ");
+  const gate = one5(d, "gate").split("\xB7").map((s2) => s2.trim());
+  const votes = Number(/(\d+) of (\d+)/.exec(gate[1] ?? "")?.[2] ?? 0);
+  const budget = one5(d, "budget").split("\xB7").map((s2) => s2.trim());
+  const left = Math.max(0, Math.min(100, Number(/(\d+)%/.exec(budget[1] ?? "")?.[1] ?? 0)));
   return el("div", [
-    el("div", d.rows.map((r) => el("div", [
-      el("i", [], "ih-barfill"),
-      el("small", [text14(r.label)])
-    ], met(r.value) ? "ih-bar ih-met" : "ih-bar ih-missing", { "data-state": met(r.value) ? "met" : "missing" })), "ih-gatebars"),
-    el("p", [text14(`${ok3}/${d.rows.length} criteria evidenced \xB7 ${d.rows.length - ok3} missing`)], "ih-cap")
+    head2("Requirements", `${ok3}/${crit.length} evidenced \xB7 ${crit.length - ok3} missing`),
+    reqs,
+    ...lanes2.length ? [head2("Orchestration", one5(d, "pattern"), "lanes"), el("div", flow4, "ih-flow")] : [],
+    ...hosts.length ? [head2("Hosts", "where each slice runs", "hosts"), el("div", hosts.map((h2) => el("div", [
+      el("div", [el("i", [], `ih-led ih-${tone(h2.parts[0] ?? "")}`), el("b", [text14(h2.name)])], "ih-lrole"),
+      el("small", [text14(h2.parts[0] ?? "")], "ih-hstate"),
+      el("small", [text14(h2.parts[1] ?? "")], "ih-ljob")
+    ], "ih-host", { "data-state": h2.parts[0] ?? "" })), "ih-hosts")] : [],
+    ...gate[0] || budget[0] ? [el("div", [
+      el("div", [
+        el("div", [el("small", [text14("gate")], "ih-kind")], "ih-head"),
+        el("b", [text14(gate[0] ?? "")], "ih-gname"),
+        el("div", [...Array.from({ length: votes }, () => el("i", [], "ih-pip")), el("small", [text14(`0/${votes} seats voted`)], "ih-ljob")], "ih-pips"),
+        el("small", [text14(gate[1] ?? "")], "ih-ljob")
+      ], "ih-gate"),
+      el("div", [
+        el("div", [el("small", [text14(synthetic("budget") ? "budget \xB7 sample" : "budget")], "ih-kind ih-wide")], "ih-head"),
+        el("b", [text14(budget[0] ?? "")], "ih-gname"),
+        el("div", [el("i", [], `ih-meterfill ih-w${Math.round(left / 10)}`)], "ih-meter"),
+        el("small", [text14(budget[1] ?? "")], "ih-ljob")
+      ], "ih-budget")
+    ], "ih-gaterow")] : []
   ], "ih-hero ih-contract");
+}
+function intentDoneLabel(d) {
+  if (d.kind !== "intent-contract") return void 0;
+  return d.rows.filter((r) => isCriterion(r.label)).every((r) => met(evidence(r.value)[0])) ? "Approved \xB7 all criteria evidenced" : "Approved \u2014 awaiting receipts";
 }
 function work(d, el) {
   const kids = [];
@@ -76188,14 +76304,70 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-c-deadline { border-color: var(--ih-due); color: var(--ih-due); }
 [data-eui='card'] .ih-keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 [data-eui='card'] .ih-key { font: 11px/1.4 var(--h-mono); padding: 2px 8px; border: 1px solid; border-radius: 999px; border-bottom-width: 1px; }
-[data-eui='card'] .ih-gatebars { display: flex; gap: 8px; align-items: flex-end; height: 120px; padding: 0 6px; border-bottom: 2px solid var(--h-border); }
-[data-eui='card'] .ih-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; gap: 6px; }
-[data-eui='card'] .ih-barfill { display: block; height: 78%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--h-primary), rgba(255,255,255,.04)); }
-[data-eui='card'] .ih-missing .ih-barfill { background: transparent; border: 1px dashed var(--ih-due); height: 78%; animation: ih-pulse 1.4s ease-in-out infinite; }
-[data-eui='card'] .ih-bar small { font: 10px/1.3 var(--h-mono); color: var(--h-mutedFg); text-align: center; }
+[data-eui='card'] .ih-tick { font-weight: 700; }
+[data-eui='card'] .ih-contract { padding: 12px; }
+[data-eui='card'] .ih-head { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 6px; white-space: nowrap; }
+[data-eui='card'] .ih-contract > .ih-head:first-child { margin-top: 0; }
+[data-eui='card'] .ih-h { font: 700 11px/1.2 var(--h-mono); color: var(--h-fg); text-transform: uppercase; letter-spacing: .1em; }
+[data-eui='card'] .ih-hnote { flex: 1; min-width: 0; font: 11px/1.2 var(--h-mono); color: var(--h-fg); opacity: .7; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-sample { flex: none; font: 700 9px/1 var(--h-mono); padding: 3px 6px; border: 1px solid var(--h-fg); border-radius: 999px; color: var(--h-fg); background: var(--h-bg); opacity: .75; text-transform: uppercase; letter-spacing: .08em; }
+[data-eui='card'] .ih-slots { display: flex; flex-direction: column; gap: 6px; }
+[data-eui='card'] .ih-slot { display: flex; align-items: center; gap: 10px; height: 46px; box-sizing: border-box; padding: 0 10px; border: 1px dashed var(--ih-due); border-radius: 8px; overflow: hidden; }
+[data-eui='card'] .ih-slot.ih-met { border: 1px solid var(--ih-acc); background: rgba(127,209,160,.08); }
+[data-eui='card'] .ih-kind { flex: none; width: 76px; font: 700 10px/1.2 var(--h-mono); color: var(--h-fg); opacity: .7; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-kind.ih-wide { width: auto; }
+[data-eui='card'] .ih-req-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+[data-eui='card'] .ih-phrase { font-size: 13px; line-height: 1.3; font-weight: 600; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-needs { font: 11px/1.3 var(--h-mono); color: var(--h-fg); opacity: .7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-mark { flex: none; width: 84px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
+[data-eui='card'] .ih-met .ih-mark { color: var(--ih-acc); }
+[data-eui='card'] .ih-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ih-due); animation: ih-pulse 1.4s ease-in-out infinite; }
+[data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
+[data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-mutedFg); text-transform: uppercase; letter-spacing: .06em; }
+[data-eui='card'] .ih-flowlink { flex: 1; min-width: 8px; height: 2px; background: var(--h-mutedFg); }
+[data-eui='card'] .ih-flowlink.ih-gated { min-width: 18px; background: #a855d6; }
+[data-eui='card'] .ih-term.ih-due { border: 1.5px dashed var(--ih-due); color: var(--h-fg); }
+[data-eui='card'] .ih-fan { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-left: 2px solid var(--h-mutedFg); border-right: 2px solid var(--h-mutedFg); border-radius: 4px; }
+[data-eui='card'] .ih-branch { display: flex; align-items: center; }
+[data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
+[data-eui='card'] .ih-lane { flex: none; width: 96px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
+[data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
+[data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
+[data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
+[data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .8; }
+[data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #9ca39a; }
+[data-eui='card'] .ih-led.ih-ok { background: #7ee3a0; box-shadow: 0 0 6px rgba(126,227,160,.6); }
+[data-eui='card'] .ih-led.ih-bad { background: #e8513a; }
+[data-eui='card'] .ih-hosts { display: flex; gap: 6px; }
+[data-eui='card'] .ih-host { flex: 1 1 0; min-width: 0; padding: 7px 8px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-hstate { color: var(--h-fg); opacity: .8; }
+[data-eui='card'] .ih-gaterow { display: flex; gap: 6px; margin-top: 12px; }
+[data-eui='card'] .ih-gate, [data-eui='card'] .ih-budget { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-gate { border-color: #a855d6; }
+[data-eui='card'] .ih-gaterow .ih-head { margin: 0; height: 15px; align-items: center; }
+[data-eui='card'] .ih-gname { font-size: 12px; line-height: 1.3; font-weight: 600; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-eui='card'] .ih-pips { display: flex; align-items: center; gap: 4px; height: 13px; }
+[data-eui='card'] .ih-gate .ih-pips .ih-ljob, [data-eui='card'] .ih-gate > .ih-ljob { color: var(--h-fg); opacity: .75; }
+[data-eui='card'] .ih-pip { flex: none; display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid #a855d6; box-sizing: border-box; }
+[data-eui='card'] .ih-pips .ih-ljob { margin-left: 4px; }
+[data-eui='card'] .ih-meter { position: relative; height: 6px; margin: 3px 0 4px; border-radius: 3px; background: var(--h-border); overflow: hidden; }
+[data-eui='card'] .ih-meterfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--h-primary); }
+[data-eui='card'] .ih-w0 { width: 0%; }
+[data-eui='card'] .ih-w1 { width: 10%; }
+[data-eui='card'] .ih-w2 { width: 20%; }
+[data-eui='card'] .ih-w3 { width: 30%; }
+[data-eui='card'] .ih-w4 { width: 40%; }
+[data-eui='card'] .ih-w5 { width: 50%; }
+[data-eui='card'] .ih-w6 { width: 60%; }
+[data-eui='card'] .ih-w7 { width: 70%; }
+[data-eui='card'] .ih-w8 { width: 80%; }
+[data-eui='card'] .ih-w9 { width: 90%; }
+[data-eui='card'] .ih-w10 { width: 100%; }
 [data-eui='card'] .ih-cap { margin: 8px 0 0; font: 11px/1.4 var(--h-mono); color: var(--h-mutedFg); }
-[data-eui='card'] .ih-hold { position: relative; overflow: hidden; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--h-primary); background: transparent; color: var(--h-fg); font-weight: 600; }
-[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-primary); opacity: .35; transition: width .15s ease-out; }
+[data-eui='card'] .ih-hold { position: relative; overflow: hidden; width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--h-primary); background: var(--h-card, var(--h-bg)); color: var(--h-fg); font-weight: 700; }
+[data-eui='card'] .ih-hold[disabled] { background: var(--h-muted); color: var(--h-fg); }
+[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-primary); opacity: .4; transition: width .15s ease-out; }
 [data-eui='card'] .ih-hold:active .ih-holdfill { width: 100%; transition: width 1s linear; }
 [data-eui='card'] .ih-rail { display: flex; align-items: center; gap: 0; }
 [data-eui='card'] .ih-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; }
@@ -76214,7 +76386,7 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }
 [data-eui='card'] .ih-stamp { margin-top: 10px; padding: 4px 12px; font: 600 13px var(--h-mono); color: var(--h-primary); border: 2px solid var(--h-primary); border-radius: 6px; transform: rotate(-6deg); animation: ih-slam 1.35s cubic-bezier(.2,1.6,.4,1); }
 [data-eui='card'] .ih-stamp.ih-none { color: var(--h-mutedFg); border-color: var(--h-border); border-style: dashed; transform: none; opacity: 1; animation: none; }
-@keyframes ih-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+@keyframes ih-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .5 } }
 @keyframes ih-out { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-100%); opacity: 0 } }
 @keyframes ih-in { 0%, 44% { transform: translateY(100%) } 100% { transform: translateY(0) } }
 @keyframes ih-slam { 0%, 74% { opacity: 0; transform: rotate(-6deg) scale(2.6) } 100% { opacity: 1; transform: rotate(-6deg) scale(1) } }
@@ -76281,10 +76453,11 @@ function hostSnapshot(data, status) {
     el("h3", [text18(data.title)], "eui-host-title"),
     ...hero ? [hero] : [],
     ...data.summary === void 0 ? [] : [el("p", [text18(data.summary)])],
-    el("dl", data.rows.flatMap((row2) => [
+    // The contract hero draws every row (criteria, lanes, hosts, gate, budget); a list would repeat it.
+    ...hold && hero ? [] : [el("dl", data.rows.flatMap((row2) => [
       el("dt", [text18(row2.label)]),
       el("dd", [text18(String(row2.value))])
-    ]), "eui-host-rows")
+    ]), "eui-host-rows")]
   ];
   if (data.approval) {
     kids.push(el("p", [text18(data.approval.description)], "eui-host-operation"));
@@ -76296,7 +76469,7 @@ function hostSnapshot(data, status) {
       style: "",
       attrs: { "data-eui-action": "approve", ...status === "pending" ? {} : { disabled: "true" } },
       click: status === "pending",
-      kids: [...hold ? [el("i", [], "ih-holdfill")] : [], text18(status === "pending" ? data.approval.label : status === "running" ? "Running\u2026" : status === "done" ? "Completed" : "Failed \xB7 approval used")]
+      kids: [...hold ? [el("i", [], "ih-holdfill")] : [], text18(status === "pending" ? data.approval.label : status === "running" ? "Running\u2026" : status === "done" ? intentDoneLabel(data) ?? "Completed" : "Failed \xB7 approval used")]
     });
   }
   return el("div", [el("section", kids, "eu-card eui-host")]);
@@ -89347,8 +89520,8 @@ function compactionNode(c, key3, id, now) {
   });
 }
 function noticeNode(e) {
-  const tone = e.tone === "info" ? "muted" : e.tone;
-  return /* @__PURE__ */ jsx("text", { role: `omp.notice.${e.tone}`, spans: [{ s: tone, t: e.text }], wrap: "word" }, e.id);
+  const tone2 = e.tone === "info" ? "muted" : e.tone;
+  return /* @__PURE__ */ jsx("text", { role: `omp.notice.${e.tone}`, spans: [{ s: tone2, t: e.text }], wrap: "word" }, e.id);
 }
 function euiAnswerNode(id, parts3, eui) {
   return /* @__PURE__ */ jsx("col", { role: "eui.answer", children: parts3.map((p3, i) => p3.kind === "card" ? euiCardNode(p3.key, eui.view(p3.key, p3.spec), eui) : p3.kind === "bad" ? /* @__PURE__ */ jsxs("col", { role: "eui.card.invalid", children: [
@@ -99297,8 +99470,8 @@ var Transcript = class {
     }
     this.user({ at: at2, attachments, text: text18 });
   }
-  notice(text18, tone = "info") {
-    this.push({ id: this.id("n"), kind: "notice", text: text18, tone });
+  notice(text18, tone2 = "info") {
+    this.push({ id: this.id("n"), kind: "notice", text: text18, tone: tone2 });
   }
   panel(title, text18) {
     this.push({ id: this.id("p"), kind: "panel", text: text18, title });
@@ -100451,14 +100624,14 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const prAside = new PrAside({
     changed,
-    notice: (text18, tone) => chat.notice(text18, tone),
+    notice: (text18, tone2) => chat.notice(text18, tone2),
     open: openUrl,
     prs,
     reveal: (id) => chat.reveal(id),
     scroll: (id, to) => chat.scroll(id, to)
   });
   const composer2 = new Composer();
-  const dictation2 = new Dictation({ changed, composer: composer2, note: (text18, tone) => transcript.notice(text18, tone) }, recorder);
+  const dictation2 = new Dictation({ changed, composer: composer2, note: (text18, tone2) => transcript.notice(text18, tone2) }, recorder);
   const vimPreference = new VimPreference({ gw: gw2, composer: composer2, sid: () => session2.ref.live, changed });
   const btw = new BtwThreads(chat);
   const operations = new OperationalSheets(chat);
@@ -100490,7 +100663,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       cwd: () => session2.info?.cwd || launch3.cwd,
       gw: gw2,
       launchCwd: launch3.cwd,
-      note: (text18, tone) => transcript.notice(text18, tone),
+      note: (text18, tone2) => transcript.notice(text18, tone2),
       owner: () => session2.ref
     },
     { clipboard: (use) => withClipboardImage(use, launch3.hermes), startup: launch3.image }
@@ -100579,7 +100752,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       readVimPreference: () => void vimPreference.refresh(),
       reportCwd: () => act().reportCwd(),
       restoreCompactions: () => void act().restoreCompactions(),
-      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text18, tone) => chat.notice(text18, tone), settings: settings2 }, sid)
+      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text18, tone2) => chat.notice(text18, tone2), settings: settings2 }, sid)
     })
   );
   const talkGateway = new TalkGateway(gw2);
@@ -100977,8 +101150,8 @@ var App = class {
     this.#renders.request();
   }
   /** A notice in the transcript, rendered now. */
-  notice(text18, tone) {
-    this.transcript.notice(text18, tone);
+  notice(text18, tone2) {
+    this.transcript.notice(text18, tone2);
     this.changed();
   }
   /** An error nothing caught (a rejected promise no caller awaited): shown, so the pane lives on. */
@@ -101027,7 +101200,7 @@ var App = class {
         composer: this.stores.composer,
         sid: () => this.session.ref.live,
         changed: () => this.changed(),
-        notice: (text18, tone) => this.notice(text18, tone),
+        notice: (text18, tone2) => this.notice(text18, tone2),
         panel: (title, text18) => this.transcript.panel(title, text18)
       });
     } finally {
