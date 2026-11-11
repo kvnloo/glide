@@ -1,13 +1,22 @@
 # Glide
 
-Glide gives [Hermes Agent](https://github.com/NousResearch/hermes-agent) a native
-[Tern](https://stencil.so/tern) UI and a `/glide` flow for local corrections memory,
-a skill catalog, a CPU hill climb, and local-model offload. Approve cards let you
-review each action before it runs. The optional Taste pane opens a local brainstorm board.
+Glide is Kevin Rajan's frontend for [Hermes Agent](https://github.com/NousResearch/hermes-agent)
+in [Tern](https://stencil.so/tern). One install gives two things:
 
-Derived from [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern), MIT licensed.
-The native transcript, tool cards, approvals, subagents, and pull requests come from that lineage.
-See [FORK.md](FORK.md) for the fork's changes.
+- **`hermes tern`**: Hermes drawn as native Tern UI. On top of the original plugin it adds charts
+  from Markdown tables, OpenUI and ephemeral-ui answer cards, 3D artifacts beside the chat, browser
+  blocks, LSP diagnostics cards, plan review with a todo HUD, `/btw` side questions, live subagent
+  wait tiles, fork-a-session panes, `/rewind`, `/undo` and `/tree`, native `/settings` and a
+  `/models` hub, a Vim composer, a command palette, queue-or-steer while a turn runs, opt-in live
+  voice, a work dock, a thinking-orbs indicator, frontend channels, and tool cards that show
+  refusals and partial failures instead of hiding them.
+- **`/glide`**: a chain of approve cards that sets Hermes up to learn from you and run more work
+  locally: machine detect, a corrections memory, a skill router, a measured hill climb, local-model
+  offload, and an optional Taste board beside the chat.
+
+Built on [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern) (MIT), which supplies
+the native transcript, tool cards, approvals, subagents and pull request view. The full list of
+what glide adds, with docs and PR numbers, is in [FORK.md](FORK.md).
 
 ## Install
 
