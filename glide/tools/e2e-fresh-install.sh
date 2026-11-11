@@ -4,8 +4,8 @@
 set -euo pipefail
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 uv=$(command -v uv) || { echo 'FAIL prerequisites: install uv first' >&2; exit 1; }
-# Ignore an inherited HERMES_HOME, even if it names a real profile.
-work=$(mktemp -d)
+# Ignore inherited HERMES_HOME and TMPDIR, even if either names a real profile.
+work=$(mktemp -d /tmp/glide-e2e.XXXXXXXXXX)
 mkdir "$work/user"
 touch "$work/.glide-e2e"
 printf 'Isolated HERMES_HOME=%s\nArtifacts remain here for inspection.\n' "$work"

@@ -8,7 +8,7 @@ nice -n 10 bash scripts/e2e-fresh-install.sh
 
 Requirements: Bash, Git, uv, Python 3.14, and public GitHub/package-registry access.
 The runner creates its own `HERMES_HOME` with `mktemp -d`, even if the caller
-already set one. It replaces `HOME` and clears inherited environment variables,
+already set one. It ignores inherited `TMPDIR`, replaces `HOME`, and clears environment variables,
 including provider credentials. It never uses a real Hermes profile.
 
 The runner fetches the exact Hermes revision in `frontend/hermes-src.lock` and

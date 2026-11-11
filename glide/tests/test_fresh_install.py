@@ -56,7 +56,7 @@ def test_the_runner_replaces_inherited_home_and_does_not_inherit_credentials(tmp
     fake_uv.chmod(0o755)
     import os
     env = {**os.environ, "PATH": f"{tmp_path}:/usr/bin:/bin", "E2E_SECRET_CANARY": "synthetic",
-           "E2E_ORIGINAL_HOME": str(tmp_path), "HERMES_HOME": str(tmp_path)}
+           "E2E_ORIGINAL_HOME": str(tmp_path), "HERMES_HOME": str(tmp_path), "TMPDIR": str(tmp_path)}
     before = set(tmp_path.iterdir())
     run = subprocess.run(["bash", str(ROOT / "scripts" / "e2e-fresh-install.sh")],
                          env=env, capture_output=True, text=True, timeout=15)
