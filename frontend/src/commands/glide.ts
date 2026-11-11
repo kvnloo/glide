@@ -14,6 +14,14 @@ import type { ThemeMode } from '../settings.js'
 import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
+import type { LaneFeed } from '../voice/lanes.js'
+import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
+import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+
+/** `/glide lanes`: the voice lanes popup, the same call as the subagents card's open-lanes action. */
+export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFeed, 'call' | 'error'> | null | undefined }): void {
+  openLanesPopup(host, host.laneFeed)
+}
 
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>

@@ -36,7 +36,7 @@ import { councilCommand } from '../../../glide/frontend/councilPopup.js'
 
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
-import { glideCommand } from './glide.js'
+import { glideCommand, glideLanes } from './glide.js'
 import { REFUSED_COMMANDS, type RefusedHost } from './refused.js'
 import { SESSION_COMMANDS } from './session.js'
 import { voiceCommand, type VoiceHost } from './voice.js'
@@ -53,6 +53,7 @@ export type CommandHost = Pick<
   | 'operations'
   | 'control'
   | 'gw'
+  | 'laneFeed'
   | 'liveVoice'
   | 'editExternal'
   | 'newSession'
@@ -375,9 +376,9 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | theme auto|default|export]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export]',
     name: 'glide',
-    run: (host, arg) => glideCommand(host, arg)
+    run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },
   {
     help: 'Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
