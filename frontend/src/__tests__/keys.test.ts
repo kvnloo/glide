@@ -464,6 +464,7 @@ describe('the Tern actions', () => {
       modal: () => modal,
       openAgent: id => void log.push(`agent ${id}`),
       openAgents: () => void log.push('agents'),
+      openLanes: () => void log.push('lanes'),
       openProcess: id => void log.push(`process ${id}`),
       openUrl: url => void log.push(`url ${url}`)
     }
@@ -477,6 +478,7 @@ describe('the Tern actions', () => {
 
     onTernEvent(action('open-agent', 'a1'), cx)
     onTernEvent(action('open-agents', 'all'), cx)
+    onTernEvent(action('open-lanes', 'all'), cx)
     onTernEvent(action('open-process', 'p1'), cx)
     onTernEvent(action('open-url', 'https://x.test'), cx)
     onTernEvent(action('connect-continue', 'card-1'), cx)
@@ -487,6 +489,7 @@ describe('the Tern actions', () => {
     expect(log).toEqual([
       'agent a1',
       'agents',
+      'lanes',
       'process p1',
       'url https://x.test',
       'continue card-1',
@@ -503,6 +506,7 @@ describe('the Tern actions', () => {
       'connect-skip',
       'open-agent',
       'open-agents',
+      'open-lanes',
       'open-process',
       'open-url'
     ])

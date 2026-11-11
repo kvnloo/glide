@@ -1305,6 +1305,34 @@
                 ]
                }
               ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
+               }
+              ]
              }
             ]
            },
@@ -1879,6 +1907,34 @@
               ]
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -2218,6 +2274,34 @@
                   ]
                  }
                 ]
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
                }
               ]
              }
@@ -2823,6 +2907,34 @@
               ]
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -3259,6 +3371,34 @@
                   ]
                  }
                 ]
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
                }
               ]
              }
@@ -3961,6 +4101,34 @@
               ]
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -4494,6 +4662,34 @@
                   ]
                  }
                 ]
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
                }
               ]
              }
@@ -5293,6 +5489,34 @@
               ]
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -5975,6 +6199,34 @@
                   {
                    "s": "dim",
                    "t": "+2 more agents · /agents"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
                   }
                  ],
                  "wrap": "none",
@@ -6933,6 +7185,34 @@
               }
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -7586,6 +7866,34 @@
                   {
                    "s": "dim",
                    "t": "+1 more agents · /agents"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
                   }
                  ],
                  "wrap": "none",
@@ -8518,6 +8826,34 @@
               }
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -9119,6 +9455,34 @@
                   ]
                  }
                 ]
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
                }
               ]
              }
@@ -9989,6 +10353,34 @@
               ]
              }
             ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
+             }
+            ]
            }
           ]
          }
@@ -10493,6 +10885,34 @@
                   ]
                  }
                 ]
+               }
+              ]
+             },
+             {
+              "k": "el",
+              "p": {
+               "tag": "button",
+               "aria": "Voice lanes: open the lanes popup",
+               "class": "hermes-press",
+               "actions": {
+                "click": "open-lanes=all"
+               },
+               "key": "lanes"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "hermes.agents.lanes",
+                 "spans": [
+                  {
+                   "s": "dim",
+                   "t": "voice lanes · models and live state"
+                  }
+                 ],
+                 "wrap": "none",
+                 "key": "face"
+                }
                }
               ]
              }
@@ -11264,6 +11684,34 @@
                 ]
                }
               ]
+             }
+            ]
+           },
+           {
+            "k": "el",
+            "p": {
+             "tag": "button",
+             "aria": "Voice lanes: open the lanes popup",
+             "class": "hermes-press",
+             "actions": {
+              "click": "open-lanes=all"
+             },
+             "key": "lanes"
+            },
+            "c": [
+             {
+              "k": "text",
+              "p": {
+               "role": "hermes.agents.lanes",
+               "spans": [
+                {
+                 "s": "dim",
+                 "t": "voice lanes · models and live state"
+                }
+               ],
+               "wrap": "none",
+               "key": "face"
+              }
              }
             ]
            }
