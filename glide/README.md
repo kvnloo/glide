@@ -81,7 +81,7 @@ The webapp can load the external reference images already saved on a board.
 - **Reads outside its data:** Hermes' session database, read-only.
 - **Commands:** `/glide` (the overview only) runs `nvidia-smi` and, if installed, `z0int doctor --json`,
   each with a 20 s timeout, to describe the machine. Recall (and each turn, once on) runs
-  `python -m z0int.orientation --corrections --raw` with a 5 s timeout when z0int is installed.
+  z0int's `orientation.py --corrections --raw` reader with a 5 s timeout when z0int is installed.
   Nothing is installed.
 - **Writes:** only under `<profile>/glide/`.
 - **Background processes:** none.
@@ -92,8 +92,10 @@ If [z0intelligence](https://github.com/kvnloo/z0intelligence) is installed, `/gl
 health, and recall uses z0int's unified owner corrections: the same reader its Claude Code, Hermes and
 omp hooks run (`z0int.orientation --corrections`, store `~/.local/state/z0int/CORRECTIONS.jsonl` or
 `$Z0INT_CORRECTIONS`). Those come from every harness z0int reads, not only this profile, so `/glide on`
-works without `/glide build`. `/glide recall` labels them `(z0int)`. z0int counts as installed when
-this Python can import it or a `z0int` script on `PATH` names its Python.
+works without `/glide build`. `/glide recall` labels them `(z0int)`. Glide finds z0int's reader where z0int
+puts it: `$Z0INT_ORIENTATION`, the deployed reader its hooks run
+(`~/.local/lib/z0-state-packet/current/src/z0int/orientation.py`, stdlib only), an importable
+`z0int.orientation`, or the Python named by a `z0int` script on `PATH`.
 
 Glide works without it: the local store above is the fallback, and also answers when z0int errors,
 times out or matches nothing.
