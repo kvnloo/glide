@@ -112,10 +112,11 @@ export class FactoryPane {
         ? { control: { act: 'render', k: 'action' as const, label: 'Run approved intent' } }
         : { disabled: suggestion.status === 'pending' ? 'AODL review unavailable' : suggestion.review.reason })
     }))
+    const count = snapshot?.running_count ?? 0
     const sections = [
       { id: 'attention', title: 'Needs your attention', rows: rows.length ? rows : [{ id: 'quiet', label: snapshot ? 'No runs need your attention' : 'Reading factory…' }] },
       { id: 'suggestions', title: 'AODL suggestions', rows: suggestions.length ? suggestions : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : 'No suggestions' }] },
-      { id: 'running', title: 'In progress', rows: [{ id: 'running-count', label: `${snapshot?.running_count ?? 0} jobs running` }] },
+      { id: 'running', title: 'In progress', rows: [{ id: 'running-count', label: `${count} ${count === 1 ? 'job' : 'jobs'} running` }] },
       ...(this.#error ? [{ id: 'error', title: 'Factory unavailable', rows: [{ id: 'failure', label: this.#error }] }] : [])
     ]
     return <prefs key="factory" title="Factory" lead="Only decisions. /factory closes this pane." page="factory"

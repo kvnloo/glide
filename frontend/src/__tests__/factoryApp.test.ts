@@ -161,7 +161,7 @@ describe('App Factory composition', () => {
     expect(view).toContain('AODL review unavailable')
     expect(view).toContain('failed-shot')
     expect(view).toContain('Awaiting review')
-    expect(view).toContain('1 jobs running')
+    expect(view).toContain('1 job running')
     expect(view).not.toContain('working-shot')
     expect(view).not.toContain('"control"')
     expect(factoryNode(h).handlers?.onAction?.['approve']).toBeUndefined()
