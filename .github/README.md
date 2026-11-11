@@ -1,7 +1,9 @@
 # Glide
 
 **Stop repeating yourself to Hermes.** Glide keeps the corrections you give your agent and quotes the
-matching ones back into each new turn, locally, with no model calls and no network.
+matching ones back into each new turn, locally, with no model calls and no network. With
+[z0intelligence](https://github.com/kvnloo/z0intelligence) installed it quotes z0int's unified corrections
+from all your harnesses; without it, its own store of your Hermes sessions.
 
 Glide is two things in one repo:
 
