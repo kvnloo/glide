@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import type { JSX, Session, Surface } from '@stencil-hq/tern'
 
 import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
+import { orbitSvg, SCENE, SCENE_H } from './orbit.js'
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -162,6 +163,7 @@ export class LaneStrip {
   #orbs: ThinkingOrb[] = []
   #env: { dark?: boolean; reduce?: boolean; visible?: boolean } = {}
   #live = false
+  #orbit: ThinkingOrb | undefined
 
   constructor(feed: LaneFeed, tern: Session, surface: Surface) {
     this.#feed = feed
@@ -178,11 +180,19 @@ export class LaneStrip {
   environment(options: { dark?: boolean; reduce?: boolean; visible?: boolean }) {
     this.#env = { ...this.#env, ...options }
     for (const orb of this.#orbs) orb.environment(options)
+    this.#orbit?.environment(options)
   }
 
   close() {
     for (const orb of this.#orbs) orb.close()
     this.#orbs = []
+    this.#orbit?.close()
+    this.#orbit = undefined
+  }
+
+  /** True while the lanes orbit the voice orb (focus block + live voice + a lane), not the strip. */
+  get orbiting(): boolean {
+    return this.#orbit !== undefined
   }
 
   lanes(): Lane[] {
@@ -190,11 +200,29 @@ export class LaneStrip {
     return [...lanes].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role))
   }
 
-  /** Per frame: lane orb states follow the newest status. */
-  update(liveVoice: boolean, paused = false) {
+  /** Per frame: lane orb states follow the newest status. In a focus block with live voice, one scene orbits them around `main`. */
+  update(liveVoice: boolean, paused = false, main: OrbState = 'idle', focus = false) {
     this.#live = liveVoice
     this.#feed.active = liveVoice
     const lanes = this.lanes()
+    if (focus && liveVoice && lanes.length) {
+      for (const orb of this.#orbs) orb.close()
+      this.#orbs = []
+      if (!this.#orbit) {
+        this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
+          node: 'dock.live-lanes.orbit', label: 'Voice and lanes', scene: {
+            w: SCENE, h: SCENE_H,
+            key: () => this.lanes().map(l => `${l.role}=${l.state}`).join(','),
+            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
+          }
+        })
+        this.#orbit.environment(this.#env)
+      }
+      this.#orbit.update(main, paused)
+      return
+    }
+    this.#orbit?.close()
+    this.#orbit = undefined
     for (const orb of this.#orbs.splice(lanes.length)) orb.close()
     while (this.#orbs.length < lanes.length) {
       const i = this.#orbs.length
@@ -218,6 +246,7 @@ export class LaneStrip {
     return (
       <col key="live-lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
+        {this.#orbit ? <image key="orbit" role="omp.live.lanes.orbit" {...this.#orbit.props()} /> : null}
         {lanes.map((lane, i) => (
           <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
             {this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}

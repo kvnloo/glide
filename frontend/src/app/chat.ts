@@ -14,8 +14,9 @@ import logo from '../../assets/logo.png'
 import { ternSharesFrontendHost } from '../artifacts/links.js'
 import type { BtwThreads } from '../btw.js'
 import type { Agents } from '../agents/store.js'
-import { OrbActivity, ThinkingOrb } from '../chrome/orb.js'
+import { OrbActivity, type OrbState, ThinkingOrb } from '../chrome/orb.js'
 import { type LaneFeed, LaneStrip } from '../voice/lanes.js'
+import { focusBlock } from '../voice/orbit.js'
 import { noticeReport } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import { sessionHost } from '../commands/host.js'
@@ -337,15 +338,14 @@ export class App implements ChatPorts {
       return
     }
 
-    this.#orb?.update(
-      this.liveVoice.blocked && this.liveVoice.phase !== 'consent'
-        ? this.liveVoice.phase === 'speaking' ? 'speaking'
-          : this.liveVoice.phase === 'thinking' || this.liveVoice.phase === 'starting' ? 'thinking'
-            : this.liveVoice.phase === 'error' ? 'error' : 'listening'
-        : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:'))),
-      this.overlays.at(-1)?.modal === true
-    )
-    this.#lanes?.update(this.liveVoice.blocked && this.liveVoice.phase !== 'consent', this.overlays.at(-1)?.modal === true)
+    const live = this.liveVoice.blocked && this.liveVoice.phase !== 'consent'
+    const orbState: OrbState = live
+      ? this.liveVoice.phase === 'speaking' ? 'speaking'
+        : this.liveVoice.phase === 'thinking' || this.liveVoice.phase === 'starting' ? 'thinking'
+          : this.liveVoice.phase === 'error' ? 'error' : 'listening'
+      : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:')))
+    this.#orb?.update(orbState, this.overlays.at(-1)?.modal === true)
+    this.#lanes?.update(live, this.overlays.at(-1)?.modal === true, orbState, focusBlock.active())
     if (!this.#view || this.#surface.closed) {
       return
     }

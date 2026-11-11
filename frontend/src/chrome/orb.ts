@@ -142,6 +142,14 @@ export class OrbActivity {
   }
 }
 
+/** A whole picture drawn around the orb state (the focus lane orbit); it moves even while the orb is still. */
+export interface OrbScene {
+  readonly w: number
+  readonly h: number
+  key(): string
+  svg(state: OrbState, seconds: number, dark: boolean, reduce: boolean): string
+}
+
 const NODE_ID = 'dock.composer.line.orb'
 const FPS = 15
 // 9.6 s of frames, then the cached cycle repeats: bounded blobs per state and theme.
@@ -163,14 +171,16 @@ export class ThinkingOrb {
   #paused = false
   #closed = false
   #timer: NodeJS.Timeout | undefined
+  readonly #scene: OrbScene | undefined
 
   /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
-  constructor(tern: Session, surface: Surface, options: { node?: string; size?: number; label?: string } = {}) {
+  constructor(tern: Session, surface: Surface, options: { node?: string; size?: number; label?: string; scene?: OrbScene } = {}) {
     this.#tern = tern
     this.#surface = surface
     this.#node = options.node ?? NODE_ID
     this.#size = options.size ?? 34
     this.#label = options.label ?? 'Hermes agent'
+    this.#scene = options.scene
     this.#dark = Boolean(tern.caps.dark)
     this.#reduce = Boolean(tern.caps.reduceMotion)
   }
@@ -206,7 +216,7 @@ export class ThinkingOrb {
   }
 
   props(): ImageProps {
-    return { blob: this.#blob(), alt: `${this.#label}: ${this.#state}`, w: this.#size, h: this.#size }
+    return { blob: this.#blob(), alt: `${this.#label}: ${this.#state}`, w: this.#scene?.w ?? this.#size, h: this.#scene?.h ?? this.#size }
   }
 
   close() {
@@ -224,9 +234,7 @@ export class ThinkingOrb {
       this.#visible &&
       !this.#reduce &&
       !this.#paused &&
-      this.#state !== 'idle' &&
-      this.#state !== 'waiting' &&
-      this.#state !== 'error' &&
+      (this.#scene !== undefined || (this.#state !== 'idle' && this.#state !== 'waiting' && this.#state !== 'error')) &&
       !this.#surface.closed
 
     if (!run) {
@@ -252,12 +260,12 @@ export class ThinkingOrb {
   }
 
   #blob(): string {
-    const key = `${this.#dark}:${this.#state}:${this.#frame}`
+    const key = `${this.#dark}:${this.#state}:${this.#frame}:${this.#scene?.key() ?? ''}:${this.#scene && this.#reduce}`
     let blob = this.#frames.get(key)
 
     if (!blob) {
       blob = this.#tern.blob(
-        Buffer.from(orbSvg(this.#state, this.#frame / FPS, this.#dark)),
+        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / FPS, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / FPS, this.#dark)),
         'image/svg+xml'
       )
       this.#frames.set(key, blob)
