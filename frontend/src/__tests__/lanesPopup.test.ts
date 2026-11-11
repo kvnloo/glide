@@ -19,6 +19,7 @@ import { record } from '../wire/json.js'
 import { must, tree } from './fakes.js'
 
 import { fileBindings, openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+import { glideLanes } from '../commands/glide.js'
 
 // Synthetic lane call: the broker's /v1/lanes/status shape with sample models.
 const status = {
@@ -65,6 +66,15 @@ describe('voice lanes popup', () => {
     expect(out).toContain('eui.popup')
     expect(out).toContain('Helper lanes')
     expect(out).toContain('the meeting moved to Friday')
+  })
+
+  it('opens from /glide lanes, the same popup as the card action', () => {
+    const { host, overlays, feed, draw } = setup()
+    glideLanes({ ...host, laneFeed: feed })
+    expect(overlays).toHaveLength(1)
+    expect(must(overlays[0]).modal).toBe(true)
+    expect(draw()).toContain('eui.popup')
+    expect(draw()).toContain('Helper lanes')
   })
 
   it('renders every lane in role order, and a dead lane as dead', () => {
