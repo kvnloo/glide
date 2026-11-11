@@ -33,11 +33,11 @@ function walk(n: EuiNode | null, f: (n: EuiNode) => void) {
 }
 
 describe('ephemeral-ui fences', () => {
-  it('pins the 50 kinds of card.v0.json at 63e06b29', () => {
+  it('pins the 53 kinds of card.v0.json at c3b7b275', () => {
     const pin = readFileSync(join(euiDir(), 'PIN.json'), 'utf8')
 
-    expect(pin).toContain('63e06b29ffb0d7c5b9d482abebc0312335897321')
-    expect(KINDS).toHaveLength(50)
+    expect(pin).toContain('c3b7b275521e125fc303b683fe5c752eabdfd5e2')
+    expect(KINDS).toHaveLength(53)
     expect(KINDS).toContain('merge')
     expect(KINDS).toContain('infra-models')
   })
