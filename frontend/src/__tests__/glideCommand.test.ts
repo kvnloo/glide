@@ -11,7 +11,12 @@ import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
-import { must, ofKind, stub } from './fakes.js'
+import { closedSeats, COUNCIL_SCHEMA, demoRun, instrumentSvg, narration, parseCouncilRun, schedule } from '../../../glide/frontend/council.js'
+import { councilCard, councilCommand, type CouncilSource, loadCouncil } from '../../../glide/frontend/councilPopup.js'
+import type { EuiNode } from '../eui/sandbox.js'
+import type { Overlay } from '../overlays/overlay.js'
+
+import { key, must, ofKind, stub } from './fakes.js'
 
 import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
 
@@ -159,6 +164,198 @@ describe('/glide', () => {
     await glideCommand(host, 'recall staging')
     expect(panels()).toEqual([])
     expect(JSON.stringify(transcript.entries)).toContain('Build your memory first')
+  })
+})
+
+describe('/council', () => {
+  const clock = () => {
+    let now = 0
+    let tick: (() => void) | undefined
+    return {
+      now: () => now,
+      every: (fn: () => void) => { tick = fn; return () => { tick = undefined } },
+      advance(ms: number) { for (let t = 0; t < ms; t += 110) { now += 110; tick?.() } },
+      get running() { return tick !== undefined }
+    }
+  }
+  function council() {
+    const { host, transcript, eui, panels, view } = setup()
+    const blobs: string[] = []
+    eui.attach({ blob: bytes => { blobs.push(new TextDecoder().decode(bytes)); return `b${blobs.length}` }, stylesheet: vi.fn() }, true)
+    const overlays: Overlay[] = []
+    const changed = vi.fn()
+    const popup = { ...host, open: (o: Overlay) => { overlays.push(o) }, close: (o: Overlay) => { overlays.splice(overlays.indexOf(o), 1); o.onClose?.() }, changed }
+    const draw = () => JSON.stringify(must(overlays.at(-1)).node('layer.overlay-1'))
+    const card = () => councilCard({ run: demoRun(), live: false, from: 'test' }, { t: null })
+    return { popup, overlays, changed, transcript, panels, view, blobs, draw, card }
+  }
+  const demo = (): CouncilSource => ({ run: demoRun(), live: false, from: 'synthetic seats and brief' })
+  const press = (o: Overlay | undefined, name: string) => must(o).onKey(key(name))
+
+  it('is a listed local command', () => {
+    expect(localCommand('council')?.help).toContain('Socratic council')
+  })
+
+  it('parses a council run and refuses one that names a seat it does not seat', () => {
+    const run = demoRun()
+    expect(run.seats.map(s => [s.name, s.mineral])).toEqual([['Argon', 'malachite'], ['Astra', 'labradorite'], ['Fable', 'rose'], ['Opus', 'citrine']])
+    expect(run.events.filter(e => e.type === 'turn')).toHaveLength(16)
+    const raw = {
+      schema: COUNCIL_SCHEMA, brief: 'b', rounds: 2,
+      seats: [{ id: 'a', name: 'A', family: 'OpenAI' }, { id: 'b', name: 'B', family: 'OpenAI' }, { id: 'c', name: 'C', family: 'mystery' }],
+      events: [{ type: 'turn', seat: 'a', round: 1 }, { type: 'spawn', seat: 'b' }, { type: 'turn', seat: 'b', round: 2, cites: ['a'] }],
+      verdicts: [{ seat: 'a', stance: 'dissent', text: 'no' }]
+    }
+    const ok = parseCouncilRun(raw)
+    expect('error' in ok ? ok.error : ok.seats.map(s => s.mineral)).toEqual(['labradorite', 'moonstone', 'clear'])
+    expect('error' in ok ? [] : ok.events[2]).toEqual({ type: 'turn', seat: 1, round: 2, cites: [0] })
+    for (const [bad, why] of [
+      [{ ...raw, schema: 'other' }, 'schema'],
+      [{ ...raw, extra: 1 }, 'unknown field "extra"'],
+      [{ ...raw, events: [{ type: 'turn', seat: 'z', round: 1 }] }, 'unknown seat'],
+      [{ ...raw, events: [{ type: 'turn', seat: 'a', round: 3 }] }, 'events.0.round'],
+      [{ ...raw, verdicts: [{ seat: 'a', stance: 'maybe', text: 'x' }] }, 'stance'],
+      [{ ...raw, seats: [raw.seats[0], raw.seats[0]] }, 'share an id'],
+      [{ ...raw, seats: [{ id: 'a', name: 'A', family: 'x', mineral: 'ruby' }, raw.seats[1]] }, 'mineral'],
+      [null, 'expected an object']
+    ] as const) {
+      const r = parseCouncilRun(bad)
+      expect('error' in r ? r.error : 'parsed').toContain(why)
+    }
+  })
+
+  it('moves only while a run plays: idle, mid-run and complete draw differently and verdicts open seat by seat', () => {
+    const run = demoRun()
+    const { at, total } = schedule(run)
+    const lastTurn = run.events.map(e => e.type).lastIndexOf('turn')
+    const idle = instrumentSvg(run, { t: null })
+    expect(idle).not.toContain('url(#wm)')
+    expect(instrumentSvg(run, { t: null })).toBe(idle)
+    const mid = instrumentSvg(run, { t: total / 2 })
+    expect(mid).toContain('url(#wm)')
+    expect(narration(run, { t: total / 2 })).toMatch(/^Round \d · \w+/)
+    expect(closedSeats(run, { t: null }).size).toBe(0)
+    expect(closedSeats(run, { t: must(at[lastTurn]) + 10 }).size).toBe(3)
+    expect([...closedSeats(run, { t: total })]).toEqual([0, 1, 2, 3])
+    expect(instrumentSvg(run, { t: total })).not.toContain('url(#wm)')
+    expect(narration(run, { t: total })).toBe('Council complete · 4 rounds · 36 helpers')
+  })
+
+  it('reads a configured live endpoint, and falls back to the tagged demo when it cannot', async () => {
+    const live = { schema: COUNCIL_SCHEMA, brief: 'live brief', rounds: 1, seats: [{ id: 'a', name: 'A', family: 'Google' }, { id: 'b', name: 'B', family: 'free' }], events: [], verdicts: [] }
+    const answer = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }))
+    expect(await loadCouncil(undefined)).toMatchObject({ live: false })
+    expect((await loadCouncil(undefined)).note).toBeUndefined()
+    const got = await loadCouncil('http://council.test/run', answer(live))
+    expect(got).toMatchObject({ live: true, from: 'council.test' })
+    expect(got.run.brief).toBe('live brief')
+    for (const [url, get, why] of [
+      ['http://council.test/run', answer({ ...live, rounds: 0 }), 'rounds'],
+      ['http://council.test/run', answer({}, 503), 'HTTP 503'],
+      ['http://council.test/run', vi.fn(async () => { throw new Error('refused') }), 'refused'],
+      ['file:///etc/passwd', answer(live), 'http(s)']
+    ] as const) {
+      const r = await loadCouncil(url, get)
+      expect(r.live).toBe(false)
+      expect(r.run.brief).toBe(demoRun().brief)
+      expect(r.note).toContain(why)
+    }
+  })
+
+  it('opens as a popup card tagged demo, plays on Enter with a clock that stops at the end, and closes on Escape', async () => {
+    const { popup, overlays, changed, blobs, draw } = council()
+    const c = clock()
+    await councilCommand(popup, '', async () => demo(), c)
+    expect(overlays).toHaveLength(1)
+    expect(must(overlays[0]).modal).toBe(true)
+    const idle = draw()
+    expect(idle).toContain('eui.popup')
+    expect(idle).toContain('"data-council-source":"demo"')
+    expect(idle).toContain('Convene council')
+    expect(idle).not.toContain('data-council-stance')
+    await settle()
+    expect(blobs.some(b => b.includes('url(#tb)'))).toBe(true)
+    expect(c.running).toBe(false)
+
+    press(overlays[0], 'enter')
+    expect(c.running).toBe(true)
+    c.advance(schedule(demoRun()).total / 2)
+    expect(draw()).toContain('Convening…')
+    expect(changed.mock.calls.length).toBeGreaterThan(10)
+    c.advance(schedule(demoRun()).total)
+    expect(c.running).toBe(false)
+    const done = draw()
+    expect(done).toContain('"data-council-stance":"dissent"')
+    expect(done.match(/data-council-stance/g)).toHaveLength(4)
+    expect(done).toContain('Convene again')
+
+    press(overlays[0], 'enter')
+    expect(c.running).toBe(true)
+    press(overlays[0], 'escape')
+    expect(overlays).toHaveLength(0)
+    expect(c.running).toBe(false)
+  })
+
+  it('says so instead of opening in a pane without cards, and rejects unknown arguments', async () => {
+    const { popup, overlays, transcript } = council()
+    await councilCommand({ ...popup, eui: undefined }, '', async () => demo())
+    await councilCommand(popup, 'bogus', async () => demo())
+    expect(overlays).toHaveLength(0)
+    expect(JSON.stringify(transcript.entries)).toContain('ephemeral-ui cards')
+    expect(JSON.stringify(transcript.entries)).toContain('Usage: /council [card]')
+  })
+
+  it('warns when a configured endpoint failed and still shows the demo, never a live tag', async () => {
+    const { popup, overlays, transcript, draw } = council()
+    await councilCommand(popup, '', async () => ({ ...demo(), note: 'the council at x could not be read (HTTP 500); showing the demo run' }))
+    expect(JSON.stringify(transcript.entries)).toContain('HTTP 500')
+    expect(overlays).toHaveLength(1)
+    expect(draw()).toContain('"data-council-source":"demo"')
+    expect(draw()).not.toContain('LIVE')
+  })
+
+  it('posts a council card whose button opens the popup, and re-arms for the next tap', async () => {
+    const { popup, overlays, panels, view } = council()
+    await councilCommand(popup, 'card', async () => demo())
+    expect(panels().map(p => p.title)).toEqual(['Socratic council · demo'])
+    expect(JSON.stringify(view(0).node)).toContain('Open the council')
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(overlays).toHaveLength(1)
+    expect(JSON.stringify(view(0).node)).toContain('Open the council')
+    must(view(0).activate)(HOST_APPROVE_ID)
+    expect(overlays).toHaveLength(2)
+  })
+
+  it('counts abstentions separately instead of reporting them as agreement', () => {
+    const run = demoRun()
+    const verdicts = run.verdicts.map((v, i) => i === 0 ? { ...v, stance: 'abstain' as const } : v)
+    const mixed = { ...run, verdicts }
+    const done = JSON.stringify(councilCard({ ...demo(), run: mixed }, { t: schedule(mixed).total }))
+    expect(done).toContain('2 of 4 agree · 1 dissent · 1 abstain')
+    expect(done).not.toContain('3 of 4 agree')
+  })
+
+  it('rejects two verdicts from the same seat', () => {
+    const raw = {
+      schema: COUNCIL_SCHEMA, brief: 'A synthetic review', rounds: 1,
+      seats: [{ id: 'a', name: 'A', family: 'free' }, { id: 'b', name: 'B', family: 'free' }],
+      events: [], verdicts: [
+        { seat: 'a', stance: 'agree', text: 'Yes' },
+        { seat: 'a', stance: 'dissent', text: 'No' }
+      ]
+    }
+    const run = parseCouncilRun(raw)
+    expect('error' in run ? run.error : 'parsed').toContain('already has a verdict')
+  })
+
+  it('draws the card from node data only: the instrument and every seat stone are SVG images', () => {
+    const { card } = council()
+    const svgs: string[] = []
+    const walk = (n: EuiNode) => { if (n.t === 'svg') svgs.push(n.svg); else if (n.t === 'el') n.kids.forEach(walk) }
+    walk(card())
+    expect(svgs).toHaveLength(5)
+    expect(svgs.slice(1).map(s => /<g clip-path/.test(s))).toEqual([true, true, true, true])
   })
 })
 

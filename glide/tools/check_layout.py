@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).with_name("layout-baseline.txt")
 # Paths GitHub only reads from fixed places; they are downstream by nature.
 FIXED = {".github/README.md", ".github/workflows/glide.yml"}
+FIXED_DIRS = (".github/ISSUE_TEMPLATE/", ".github/PULL_REQUEST_TEMPLATE/")
 
 
 def git(*args: str) -> str:
@@ -32,7 +33,7 @@ def main() -> int:
     ref = ap.parse_args().upstream
     base = git("merge-base", ref, "HEAD").strip()
     added = set(git("diff", "--diff-filter=A", "--name-only", base, "HEAD").split())
-    outside = {p for p in added if not p.startswith("glide/") and p not in FIXED}
+    outside = {p for p in added if not p.startswith("glide/") and p not in FIXED and not p.startswith(FIXED_DIRS)}
     allowed = {line.split("#", 1)[0].strip() for line in BASELINE.read_text().splitlines()} - {""}
     new = sorted(outside - allowed)
     stale = sorted(allowed - outside)

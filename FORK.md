@@ -46,6 +46,7 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | | Charts drawn from settled Markdown tables | [table-charts](frontend/docs/table-charts.md) | #3 |
 | | OpenUI visual previews | [openui](frontend/docs/openui.md) | #4 |
 | | Native ephemeral-ui intent boards (`ephemeral-intent/v1`) | [openui](frontend/docs/openui.md#intent-boards-ephemeral-intentv1) | parity wave 2026-11-04 |
+| | `/council`: the Socratic council instrument as an ephemeral-ui popup (`glide.council-run/v1`; demo run unless `GLIDE_COUNCIL_URL` is set) | [councilPopup.ts](glide/frontend/councilPopup.ts) | |
 | | Written artifacts, session links and pasted attachments | [artifacts-links](frontend/docs/artifacts-links.md) | #6 |
 | | 3D tool artifacts beside the chat | | #28 |
 | | Settled-turn retention and manual history paging | [retention](frontend/docs/retention.md) | #9 |

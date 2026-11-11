@@ -48,8 +48,8 @@ export interface SessionView {
 export interface ChatPorts extends OverlayHost {
   readonly session: SessionView
   readonly gw: GatewayClient
-  /** Host-owned ephemeral-ui cards (/glide); absent in panes without the pinned kit. */
-  readonly eui?: Pick<EuiCards, 'host'>
+  /** Host-owned ephemeral-ui cards (/glide, /council); absent in panes without the pinned kit. */
+  readonly eui?: Pick<EuiCards, 'click' | 'host' | 'style' | 'svg'>
   /** The running turn, null when idle. */
   readonly busy: Busy | null
   readonly transcript: Transcript
@@ -91,6 +91,8 @@ export interface ChatPorts extends OverlayHost {
   openNotices(): void
   /** Docks PR `key` at the pane's right edge, in place of the session sidebar. */
   openPrAside(key: PrKey | undefined): void
+  /** Shows or hides Factory; false when Tern has no aside, so the command can show text. */
+  toggleFactory(): boolean
   /** Shows or hides the session sidebar. */
   toggleSidebar(): void
   /** Starts a new session, named `title` when given. */
