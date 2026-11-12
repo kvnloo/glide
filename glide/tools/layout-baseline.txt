@@ -97,6 +97,10 @@ frontend/src/__tests__/fleetActions.test.ts  # upstream: kvnloo/glide#265; brief
 frontend/src/__tests__/fleetCommand.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
 frontend/src/__tests__/fleetSandbox.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
 frontend/src/commands/fleet.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend dependency resolution
+frontend/e2e/features.intel.json  # upstream: intel.v0 brief-required frontend feature inventory
+frontend/src/__tests__/intel.test.ts  # upstream: intel.v0 brief-required Vitest discovery
+frontend/src/commands/intel.ts  # upstream: intel.v0 brief-required slash-command integration
+frontend/src/wire/intel.ts  # upstream: intel.v0 brief-required command boundary decoder
 frontend/src/eui/kitSnapshot.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, existing inline renderer
 frontend/src/wire/euiKit.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend zod resolution
 frontend/src/wire/fleet.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend zod resolution

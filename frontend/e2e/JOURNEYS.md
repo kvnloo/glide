@@ -1,8 +1,8 @@
 # Owner journeys
 
-This is the army's test map for `features.json`. Each numbered item is a feature ID in execution order. A shared setup may be reused, but each receipt names one feature and the exact tested commit. Existing test references are not army passes or proof of native Tern behavior.
+This is the army's test map for the merged `features.json` and `features.*.json` inventories. Each numbered item is a feature ID in execution order. A shared setup may be reused, but each receipt names one feature and the exact tested commit. Existing test references are not army passes or proof of native Tern behavior.
 
-The eleven journeys cover the shipped checkout. Native GUI checks require an owned isolated headless display. A blocked integration passes only when its refusal is visible and no unauthorized action occurs.
+The journeys cover the shipped checkout. Native GUI checks require an owned isolated headless display. A blocked integration passes only when its refusal is visible and no unauthorized action occurs.
 
 Run the inventory check from the repository root:
 
@@ -10,7 +10,7 @@ Run the inventory check from the repository root:
 node frontend/scripts/features-gate.mjs
 ```
 
-The default comparison is `origin/main`. Fetch that ref first. `--base-ref REF` selects another existing base. Only an absent inventory skips the comparison. Removing a feature or one of its test references requires `removed: [{"id":"feature-id","reason":"specific reason"}]` in the inventory. A reason never permits the number of features with no tests to increase. A retained feature ID can carry a removal reason when replacing a test reference.
+The default comparison is `origin/main`. Fetch that ref first. `--base-ref REF` selects another existing base. The comparison merges all matching inventories at the base ref, including extension files deleted from the current checkout. Only the absence of all base inventories skips the comparison. Feature IDs and removal IDs must each be unique across the merged inventories. Removing a feature or one of its test references requires `removed: [{"id":"feature-id","reason":"specific reason"}]` in any current inventory. A reason never permits the number of features with no tests to increase. A retained feature ID can carry a removal reason when replacing a test reference.
 
 Before promotion, supply external JSON receipts, one object per file or an array of objects. Subdirectories are read recursively:
 
@@ -234,3 +234,15 @@ See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` a
 4. `fleet-portfolio`
 5. `fleet-factory`
 6. `fleet-authority`
+
+## intel
+
+Run `/intel` through stock `command.dispatch`. Switch all five tabs, refresh without changing the selected tab, and open read-only climb, skill, and failure details. Check invalid actions and stale ownership. If the pinned kit lacks the kind, verify the visible missing-kind fallback without substituting demo data.
+
+1. `intel-stock-command`
+2. `intel-tabs-refresh`
+3. `intel-climb-detail`
+4. `intel-skill-detail`
+5. `intel-failure-detail`
+6. `intel-boundaries-ownership`
+7. `intel-pinned-kit-status`

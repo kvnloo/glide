@@ -4,7 +4,9 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const inventoryPath = 'frontend/e2e/features.json'
+const inventoryDirectory = 'frontend/e2e'
+const inventoryPath = `${inventoryDirectory}/features.json`
+const inventoryFile = name => name === 'features.json' || /^features\..+\.json$/.test(name)
 const journeyPath = 'frontend/e2e/JOURNEYS.md'
 const surfaces = new Set(['slash', 'shortcut', 'pane', 'card', 'voice', 'cli', 'gateway'])
 const identifier = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
@@ -45,6 +47,32 @@ function parseInventory(raw, label) {
     reasons.set(row.id, row.reason)
   }
   return { features: raw.features, reasons }
+}
+
+function mergeInventories(entries) {
+  const features = []
+  const ids = new Set()
+  const reasons = new Map()
+  for (const [label, raw] of entries) {
+    const inventory = parseInventory(raw, label)
+    for (const row of inventory.features) {
+      requireThat(!ids.has(row.id), `${label}: duplicate feature id: ${row.id}`)
+      ids.add(row.id)
+      features.push(row)
+    }
+    for (const [id, reason] of inventory.reasons) {
+      requireThat(!reasons.has(id), `${label}: duplicate removed id: ${id}`)
+      reasons.set(id, reason)
+    }
+  }
+  return { features, reasons }
+}
+
+function currentInventory(root) {
+  const extensions = readdirSync(join(root, inventoryDirectory))
+    .filter(name => name !== 'features.json' && inventoryFile(name)).sort()
+  const paths = [inventoryPath, ...extensions.map(name => `${inventoryDirectory}/${name}`)]
+  return mergeInventories(paths.map(path => [path, json(join(root, path))]))
 }
 
 function json(file) {
@@ -125,10 +153,12 @@ function compareBase(root, baseRef, current) {
   } catch {
     throw new Error(`cannot resolve base ref: ${baseRef}; fetch it before running the gate`)
   }
-  if (!git(root, 'ls-tree', baseRef, '--', inventoryPath)) return
+  const paths = git(root, 'ls-tree', '-r', '--name-only', '-z', baseRef, '--', inventoryDirectory)
+    .split('\0').filter(path => path.startsWith(`${inventoryDirectory}/`) && inventoryFile(path.slice(inventoryDirectory.length + 1))).sort()
+  if (!paths.length) return
   let base
   try {
-    base = parseInventory(JSON.parse(git(root, 'show', `${baseRef}:${inventoryPath}`)), 'base inventory')
+    base = mergeInventories(paths.map(path => [path, JSON.parse(git(root, 'show', `${baseRef}:${path}`))]))
   } catch (error) {
     throw new Error(`base inventory: ${error.message}`)
   }
@@ -191,7 +221,7 @@ function options(args) {
 
 try {
   const { root, strict, baseRef, receipts } = options(process.argv.slice(2))
-  const inventory = parseInventory(json(join(root, inventoryPath)), 'inventory')
+  const inventory = currentInventory(root)
   journeys(readFileSync(join(root, journeyPath), 'utf8'), inventory.features)
   const references = testReferences(root)
   for (const row of inventory.features) {

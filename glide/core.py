@@ -384,3 +384,7 @@ def register(ctx) -> None:
     gateway.register(ctx)  # Optional fast path; /fleet works on stock Hermes.
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
                          args_hint="[focus|build|on|off|recall <words>|taste]")
+    from . import intel
+
+    ctx.register_command("intel", intel.command, description="Read-only local intelligence, source notes and safe details",
+                         args_hint="[--json] [hill|skills|memory|failures|trace|climb <id>|skill <name>|failure <sig>]")
