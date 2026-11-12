@@ -162,7 +162,9 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
           : agents.some(a => a.state === 'working') ? 'running' : 'idle'
       const canResume = chosen?.harness.toLowerCase() === 'hermes' && !chosen.id.startsWith('process:') && !/^\d+$/.test(chosen.id)
       const intent: FleetIntent = host.online && chosen
-        ? { action: blocked || !canResume ? 'nudge' : 'open-chat', entities: { host: host.id, agent: chosen.id } }
+        ? blocked || !canResume
+          ? { action: 'nudge', entities: { host: host.id, agent: chosen.id } }
+          : { action: 'open-chat', entities: { host: host.id, agent: chosen.id } }
         : { action: 'check-host', entities: { host: host.id } }
       const action = !host.online || !chosen ? 'Check host' : blocked ? 'Answer' : canResume ? 'Open chat' : 'Follow up'
       const fact = agents.length ? plural(agents.length, 'agent')
@@ -171,8 +173,10 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
         action, intent, recommended: false }
     })
     const next = [...rows].sort((a, b) => severity(b.state) - severity(a.state))[0]
+    const visibleState = next?.state === 'failed' ? 'offline' : next?.state === 'held' ? 'needs attention'
+      : next?.state === 'running' ? 'working' : 'ready'
     return {
-      view, hero: plural(rows.length, 'host') + ' · ' + (next?.state ?? 'idle') + ' · ' +
+      view, hero: plural(rows.length, 'host') + ' · ' + visibleState + ' · ' +
         (next ? next.action + ' on ' + next.name : 'No hosts to review'),
       verdict: next?.state === 'failed' ? 'A host is offline' : next?.state === 'held'
         ? 'A host needs attention' : 'Host status at a glance',
@@ -185,24 +189,27 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
     const byRepo = new Map<string, FleetDesignRow>()
     for (const board of Object.values(parsed.data.portfolios))
       for (const product of board.products) for (const feature of product.features) {
-        if (!feature.tasks.length && feature.label.startsWith('Also in ')) continue
-        const name = friendly(feature.label, product.label)
+        if (feature.id.includes(':also:') || (!feature.id.includes(':') && !feature.tasks.length)) continue
+        const repoKey = feature.label
+        const name = friendly(repoKey.split('/').at(-1) ?? '', product.label)
         const priority = (s: string) => s === 'blocked' ? 4 : s === 'next' ? 3 : s === 'active' ? 2 : 1
         const best = [...feature.tasks].sort((a,b) => priority(b.status) - priority(a.status))[0]
         const state: FleetTone = best?.status === 'blocked' ? 'held' : best?.status === 'active'
           ? 'running' : best?.status === 'done' ? 'done' : 'idle'
-        const intent: FleetIntent | null = best ? { action: best.url && best.status !== 'next' ? 'open-task' : 'set-next',
-          entities: { product: product.id, feature: feature.id, task: best.id } } : null
+        const entities = { product: product.id, feature: feature.id, task: best?.id ?? '' }
+        const intent: FleetIntent | null = !best ? null : best.url && best.status !== 'next'
+          ? { action: 'open-task', entities }
+          : { action: 'set-next', entities }
         const row: FleetDesignRow = { key: feature.id, name, state,
           ...(best ? { fact: plural(feature.tasks.length, 'task') } : {}),
           action: !best ? 'No open tasks' : best.status === 'next' ? 'Set next' : best.url ? 'Open task' : 'Set next',
           intent, recommended: false }
-        const previous = byRepo.get(name)
-        if (!previous || severity(row.state) > severity(previous.state)) byRepo.set(name, row)
+        const previous = byRepo.get(repoKey)
+        if (!previous || severity(row.state) > severity(previous.state)) byRepo.set(repoKey, row)
       }
     const rows = [...byRepo.values()]
     const next = [...rows].filter(r => r.intent).sort((a,b) => severity(b.state)-severity(a.state))[0]
-    return { view, hero: plural(rows.length, 'repository') + ' · ' + (next?.state ?? 'idle') + ' · ' +
+    return { view, hero: plural(rows.length, 'repository') + ' · ' + (next?.state === 'held' ? 'needs attention' : next?.state === 'running' ? 'working' : 'ready') + ' · ' +
       (next ? next.action + ' in ' + next.name : 'No next action'),
       verdict: next ? 'One next step per repository' : 'No open tasks',
       rows: rows.map(r => ({...r, recommended: r === next})), tiles: [], edges: [] }
@@ -219,7 +226,7 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
       intent: { action: 'queue-fix', entities: { node: node.id } }, recommended: false }
   })
   const next = [...nodes].sort((a,b) => severity(b.state)-severity(a.state))[0]
-  return { view, hero: plural(nodes.length, 'node') + ' · ' + (next?.state ?? 'idle') + ' · ' +
+  return { view, hero: plural(nodes.length, 'node') + ' · ' + (next?.state === 'held' ? 'needs attention' : next?.state === 'failed' ? 'failed' : 'ready') + ' · ' +
     (next ? next.action + ' for ' + next.name : 'No next action'),
     verdict: next?.state === 'failed' ? 'A factory step failed' : next?.state === 'held' ? 'A step needs attention' : 'Factory flow',
     rows: [], tiles: nodes.map(n => ({...n, recommended: n.key === next?.key})),
