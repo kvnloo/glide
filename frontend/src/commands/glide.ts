@@ -456,7 +456,7 @@ const BLOCK = 50
 
 const focusRows = (f: GlideFocus) => [
   { label: 'phase', value: phaseName(f.phase) },
-  { label: 'flow', value: f.flow ? `${Math.round(f.flow.flow * 100)}% est.` : 'not measured yet' },
+  { label: 'flow', value: f.flow ? `${Math.round(f.flow.flow * 100)}% est.` : 'not yet' },
   { label: 'next', value: f.next_window ?? '' },
   { label: 'bedtime', value: clock(f.bedtime) },
   { label: 'block', value: f.block ? 'on' : 'off' },
