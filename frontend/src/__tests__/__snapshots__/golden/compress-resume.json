@@ -12,37 +12,6 @@
       },
       "c": [
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -160,60 +129,6 @@
         ]
        }
       ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
-       }
-      ]
      }
     ],
     "layer": [],
@@ -289,37 +204,6 @@
        "key": "composer"
       },
       "c": [
-       {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
        {
         "k": "row",
         "p": {
@@ -438,60 +322,6 @@
         ]
        }
       ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
-       }
-      ]
      }
     ],
     "layer": [],
@@ -567,37 +397,6 @@
        "key": "composer"
       },
       "c": [
-       {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
        {
         "k": "row",
         "p": {
@@ -716,60 +515,6 @@
         ]
        }
       ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
-       }
-      ]
      }
     ],
     "layer": [],
@@ -845,37 +590,6 @@
        "key": "composer"
       },
       "c": [
-       {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
        {
         "k": "row",
         "p": {
@@ -992,60 +706,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -1252,37 +912,6 @@
         }
        },
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -1397,75 +1026,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "role": "omp.composer.hint",
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "Enter queue · alt+enter steer"
-          }
-         ],
-         "key": "busyhint"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Stop",
-         "priority": 10,
-         "role": "hermes.statusline.stop",
-         "side": "right",
-         "spans": [
-          {
-           "t": "esc esc stop"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -1736,37 +1296,6 @@
         }
        },
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -1881,75 +1410,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "role": "omp.composer.hint",
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "Enter queue · alt+enter steer"
-          }
-         ],
-         "key": "busyhint"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Stop",
-         "priority": 10,
-         "role": "hermes.statusline.stop",
-         "side": "right",
-         "spans": [
-          {
-           "t": "esc esc stop"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -2344,37 +1804,6 @@
         }
        },
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -2489,75 +1918,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "role": "omp.composer.hint",
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "Enter queue · alt+enter steer"
-          }
-         ],
-         "key": "busyhint"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Stop",
-         "priority": 10,
-         "role": "hermes.statusline.stop",
-         "side": "right",
-         "spans": [
-          {
-           "t": "esc esc stop"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -2833,37 +2193,6 @@
       },
       "c": [
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -2979,60 +2308,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -3280,37 +2555,6 @@
       },
       "c": [
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -3426,60 +2670,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -3727,37 +2917,6 @@
       },
       "c": [
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -3873,73 +3032,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 3,
-         "spans": [
-          {
-           "t": "Old chat"
-          }
-         ],
-         "title": "Old chat",
-         "key": "title"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }
@@ -4098,37 +3190,6 @@
       },
       "c": [
        {
-        "k": "el",
-        "p": {
-         "aria": "Show context window: Context unknown",
-         "attrs": {
-          "aria-haspopup": "dialog"
-         },
-         "role": "omp.composer.context.action",
-         "tag": "button",
-         "title": "Context usage is not available · Show context window",
-         "key": "context",
-         "actions": {
-          "click": "click"
-         }
-        },
-        "c": [
-         {
-          "k": "meter",
-          "p": {
-           "label": "?",
-           "role": "omp.composer.context",
-           "style": "bar",
-           "thresholds": {
-            "bad": 0.85,
-            "warn": 0.6
-           },
-           "key": "meter"
-          }
-         }
-        ]
-       },
-       {
         "k": "row",
         "p": {
          "gap": "sm",
@@ -4244,73 +3305,6 @@
           ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "k": "status",
-      "p": {
-       "role": "hermes.statusline",
-       "key": "statusline"
-      },
-      "c": [
-       {
-        "k": "seg",
-        "p": {
-         "priority": 9,
-         "role": "hermes.statusline.brand",
-         "spans": [
-          {
-           "t": "☤ hermes"
-          }
-         ],
-         "key": "brand"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 3,
-         "spans": [
-          {
-           "t": "Old chat"
-          }
-         ],
-         "title": "Old chat",
-         "key": "title"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "priority": 1,
-         "side": "right",
-         "spans": [
-          {
-           "s": "muted",
-           "t": "⇧⏎ newline"
-          }
-         ],
-         "key": "newline"
-        }
-       },
-       {
-        "k": "seg",
-        "p": {
-         "aria": "Send",
-         "priority": 10,
-         "role": "hermes.statusline.send",
-         "side": "right",
-         "spans": [
-          {
-           "t": "⏎ send"
-          }
-         ],
-         "key": "action",
-         "actions": {
-          "click": "click"
-         }
-        }
        }
       ]
      }

@@ -249,7 +249,6 @@ export function dockNodes(cx: DockContext, on: DockActions): JSX.Element[] {
   }
 
   nodes.push(composerNode(cx, on))
-  nodes.push(statusLine(cx, on))
 
   return nodes
 }
@@ -297,77 +296,6 @@ function todosPillNode(t: TodosPill, onToggle: () => void, focused: boolean): JS
     seg: 'hermes.todos.pill',
     title: t.open ? 'Hide the todo list' : 'Show the todo list'
   })
-}
-
-/**
- * The flat strip under everything (hermes-for-tern's console bar): the brand, the session's title
- * and branch on the left; tokens, context, cache, speed, cost and the send or stop key on the right.
- */
-function statusLine(cx: DockContext, on: DockActions): JSX.Element {
-  const s = cx.status
-  const context = s.context && s.context.max > 0 ? s.context.used / s.context.max : undefined
-
-  return (
-    <status key="statusline" role="hermes.statusline">
-      <seg key="brand" priority={9} role="hermes.statusline.brand" spans={[{ t: '☤ hermes' }]} />
-      {s.title ? <seg key="title" priority={3} spans={[{ t: s.title }]} title={s.title} /> : null}
-      {statusNotices(s, on.onNotices)}
-      {s.branch ? (
-        <seg icon="git-branch" key="git" priority={4} spans={[{ s: 'statusLineGitClean', t: s.branch }]} title={`Branch ${s.branch}`} />
-      ) : null}
-      {s.tokens ? <seg key="tokens" priority={2} side="right" spans={[{ t: `${s.tokens.toLocaleString()} tokens` }]} /> : null}
-      {context !== undefined ? (
-        <seg
-          key="context"
-          priority={5}
-          {...optional('role', context >= 0.85 ? 'hermes.statusline.bad' : context >= 0.6 ? 'hermes.statusline.warn' : undefined)}
-          side="right"
-          spans={[{ t: `${Math.round(context * 100)}% context` }]}
-          title="/usage shows the breakdown"
-        />
-      ) : null}
-      {s.compressions ? (
-        <seg
-          key="compressions"
-          priority={2}
-          {...optional('role', s.compressions >= 10 ? 'hermes.statusline.bad' : s.compressions >= 5 ? 'hermes.statusline.warn' : undefined)}
-          side="right"
-          spans={[{ t: `cmp ${s.compressions}` }]}
-          title="Times the context was compressed this session"
-        />
-      ) : null}
-      {s.rates?.cache !== undefined ? (
-        <seg
-          icon="cache"
-          key="cache"
-          priority={1}
-          side="right"
-          spans={[{ t: `${Math.round(s.rates.cache)}%` }]}
-          title="Prompt tokens served from the provider's cache, this session"
-        />
-      ) : null}
-      {s.rates?.tps ? (
-        <seg
-          icon="fast"
-          key="tps"
-          priority={1}
-          side="right"
-          spans={[{ t: `${Math.round(s.rates.tps)} t/s` }]}
-          title="Output tokens per second over the recent model calls"
-        />
-      ) : null}
-      {s.cost ? <seg key="cost" priority={3} side="right" spans={[{ t: `$${s.cost.toFixed(2)}` }]} title="Session cost" /> : null}
-      {cx.activity.kind === 'turn' ? (
-        <seg key="busyhint" priority={1} role="omp.composer.hint" side="right" spans={[{ s: 'muted', t: cx.queue.hint }]} />
-      ) : null}
-      <seg key="newline" priority={1} side="right" spans={[{ s: 'muted', t: '⇧⏎ newline' }]} />
-      {cx.activity.kind === 'turn' ? (
-        <seg aria="Stop" key="action" onClick={on.onInterrupt} priority={10} role="hermes.statusline.stop" side="right" spans={[{ t: 'esc esc stop' }]} />
-      ) : (
-        <seg aria="Send" key="action" onClick={on.onSubmit} priority={10} role="hermes.statusline.send" side="right" spans={[{ t: '⏎ send' }]} />
-      )}
-    </status>
-  )
 }
 
 /**
@@ -564,9 +492,14 @@ function composerNode(cx: DockContext, on: DockActions): JSX.Element {
         {draft.vim.enabled ? (
           <text key="vim" role="omp.composer.vim" spans={[{ s: 'muted', t: `${draft.vim.mode.toUpperCase()}${draft.vim.pending ? ` ${draft.vim.pending}` : ''}` }]} />
         ) : null}
-        {/* Tern puts its folder chip right before the composer's status node: an empty one keeps
-            the chip there and the send key at the end. */}
-        <status grow={1} key="extras" role="omp.composer.extras" transparent />
+        {/* omp's composer bar, with no strip under it: Tern puts its folder chip right before this
+            status node, so the branch follows the folder as in omp, and notices ride beside it. */}
+        <status grow={1} key="extras" role="omp.composer.extras" transparent>
+          {cx.status.branch ? (
+            <seg icon="git-branch" key="git" priority={4} role="hermes.composer.branch" spans={[{ s: 'statusLineGitClean', t: cx.status.branch }]} title={`Branch ${cx.status.branch}`} />
+          ) : null}
+          {statusNotices(cx.status, on.onNotices)}
+        </status>
         {busy
           ? pressable({ key: 'stop', name: 'Stop', onClick: on.onInterrupt, role: 'omp.composer.stop' }, <text key="face" text="Stop" title="Stop  esc esc" tone="error" />)
           : pressable({ key: 'send', name: 'Send', onClick: on.onSubmit, role: 'omp.composer.send' }, <kbd key="face" keys={['enter']} title="Send  ⏎" />)}

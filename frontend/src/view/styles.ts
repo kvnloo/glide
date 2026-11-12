@@ -186,29 +186,7 @@ export const STYLES = minifyCss(css`
     opacity: 0.85;
   }
 
-  /* The status strip under everything (hermes-for-tern's console bar): one quiet mono line, the
-     brand in the accent, the send or stop key the strongest thing on it. */
-  [data-role='hermes.statusline'] {
-    margin-top: 6px !important;
-    font: 400 11.5px/20px var(--mono) !important;
-    color: var(--t3) !important;
-  }
-
-  [data-role='hermes.statusline.brand'] {
-    color: var(--sf-p-accent, var(--sf-c-accent)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-role='hermes.statusline.send'],
-  [data-role='hermes.statusline.stop'] {
-    color: var(--t1) !important;
-    cursor: pointer;
-  }
-
-  [data-role='hermes.statusline.stop'] {
-    color: var(--sf-c-error, var(--t1)) !important;
-  }
-
+  /* Notice tones in the composer bar. */
   [data-role='hermes.statusline.warn'] {
     color: var(--sf-c-warning, var(--t2)) !important;
   }
