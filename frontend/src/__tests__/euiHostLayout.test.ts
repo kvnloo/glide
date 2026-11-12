@@ -13,7 +13,7 @@ const els = (n: EuiNode): Extract<EuiNode, { t: 'el' }>[] => n.t === 'el' ? [n, 
 describe('host card layout', () => {
   it('puts the title in a head row above the box, not inside it', () => {
     const root = hostSnapshot(card, 'pending') as Extract<EuiNode, { t: 'el' }>
-    const [head, box] = root.kids as Extract<EuiNode, { t: 'el' }>[]
+    const [head, box] = root.kids as [Extract<EuiNode, { t: 'el' }>, Extract<EuiNode, { t: 'el' }>]
     expect(head.cls).toBe('eui-host-head')
     expect(JSON.stringify(head)).toContain('Deep-work block on until 10:32')
     expect(box.cls).toBe('eu-card eui-host')

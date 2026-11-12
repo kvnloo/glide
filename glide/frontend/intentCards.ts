@@ -5,6 +5,8 @@
 import type { EuiNode } from '../../frontend/src/eui/sandbox.js'
 import type { EuiHostCardData } from '../../frontend/src/wire/euiHostCard.js'
 
+import { COUNCIL_HUE, STATUS } from './tokens.js'
+
 export type IntentKind = 'intent-declare' | 'intent-contract' | 'intent-work' | 'intent-proof'
 export const INTENT_KINDS: readonly IntentKind[] = ['intent-declare', 'intent-contract', 'intent-work', 'intent-proof']
 export const isIntentKind = (kind: string): kind is IntentKind => (INTENT_KINDS as readonly string[]).includes(kind)
@@ -193,7 +195,7 @@ export function intentHero(d: EuiHostCardData, el: El): EuiNode | undefined {
 }
 
 export const INTENT_CSS = `
-[data-eui='card'] .ih-hero { --ih-acc: var(--h-success, #7fd1a0); --ih-scope: var(--h-primary); --ih-due: var(--h-warning, #e8b04a); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
+[data-eui='card'] .ih-hero { --ih-acc: var(--h-success, ${STATUS.ok}); --ih-scope: var(--h-primary); --ih-due: var(--h-warning, ${STATUS.warn}); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
 [data-eui='card'] .ih-wavebox { position: relative; }
 [data-eui='card'] .ih-wave { display: block; width: 100%; height: 40px; margin-bottom: 8px; opacity: .45; }
 [data-eui='card'] .ih-ask { position: relative; margin: 0; padding: 14px 4px; font-size: 20px; line-height: 1.5; font-weight: 600; color: var(--h-fg); letter-spacing: -.01em; }
@@ -207,9 +209,9 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-contract { padding: 12px; }
 [data-eui='card'] .ih-head { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 6px; white-space: nowrap; }
 [data-eui='card'] .ih-contract > .ih-head:first-child { margin-top: 0; }
-[data-eui='card'] .ih-h { font: 700 11px/1.2 var(--h-mono); color: var(--h-fg); text-transform: uppercase; letter-spacing: .1em; }
+[data-eui='card'] .ih-h { font: 700 11px/1.2 var(--h-mono); color: var(--h-fg); text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-hnote { flex: 1; min-width: 0; font: 11px/1.2 var(--h-mono); color: var(--h-fg); opacity: .9; overflow: hidden; text-overflow: ellipsis; }
-[data-eui='card'] .ih-sample { flex: none; font: 700 9px/1 var(--h-mono); padding: 3px 6px; border: 1px solid var(--h-fg); border-radius: 999px; color: var(--h-fg); background: var(--h-bg); opacity: .9; text-transform: uppercase; letter-spacing: .08em; }
+[data-eui='card'] .ih-sample { flex: none; font: 700 10px/1 var(--h-mono); padding: 3px 6px; border: 1px solid var(--h-fg); border-radius: 999px; color: var(--h-fg); background: var(--h-bg); opacity: .9; text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-slots { display: flex; flex-direction: column; gap: 6px; }
 [data-eui='card'] .ih-slot { display: flex; align-items: center; gap: 10px; height: 46px; box-sizing: border-box; padding: 0 10px; border: 1px dashed var(--ih-due); border-radius: 8px; overflow: hidden; }
 [data-eui='card'] .ih-slot.ih-met { border: 1px solid var(--ih-acc); background: rgba(127,209,160,.08); }
@@ -222,35 +224,35 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-met .ih-mark { color: var(--ih-acc); }
 [data-eui='card'] .ih-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ih-due); animation: ih-pulse 1.4s ease-in-out infinite; }
 [data-eui='card'] .ih-flow { display: flex; align-items: center; padding: 10px 8px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); }
-[data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-fg); text-transform: uppercase; letter-spacing: .06em; }
+[data-eui='card'] .ih-term { flex: none; font: 600 10px/1 var(--h-mono); padding: 8px 8px; border-radius: 999px; border: 1px solid var(--h-border); color: var(--h-fg); text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-flowlink { flex: 1; min-width: 8px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-flowlink.ih-gated { min-width: 14px; background: #a855d6; }
+[data-eui='card'] .ih-flowlink.ih-gated { min-width: 14px; background: ${COUNCIL_HUE}; }
 [data-eui='card'] .ih-term.ih-due { border: 1.5px dashed var(--ih-due); color: var(--h-fg); }
 [data-eui='card'] .ih-fan { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-left: 2px solid var(--h-mutedFg); border-right: 2px solid var(--h-mutedFg); border-radius: 4px; }
 [data-eui='card'] .ih-branch { display: flex; align-items: center; }
 [data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
-[data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
-[data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
+[data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-muted); overflow: hidden; }
+[data-eui='card'] .ih-l-council { border-color: ${COUNCIL_HUE}; box-shadow: 0 0 0 1px rgba(168,85,214,.3); }
 [data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
 [data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .9; }
-[data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #9ca39a; }
-[data-eui='card'] .ih-led.ih-ok { background: #7ee3a0; box-shadow: 0 0 6px rgba(126,227,160,.6); }
-[data-eui='card'] .ih-led.ih-bad { background: #e8513a; }
+[data-eui='card'] .ih-led { flex: none; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--h-mutedFg); }
+[data-eui='card'] .ih-led.ih-ok { background: var(--h-success, ${STATUS.ok}); box-shadow: 0 0 6px var(--h-success, ${STATUS.ok}); }
+[data-eui='card'] .ih-led.ih-bad { background: var(--h-danger, ${STATUS.bad}); }
 [data-eui='card'] .ih-hosts { display: flex; gap: 6px; }
-[data-eui='card'] .ih-host { flex: 1 1 0; min-width: 0; padding: 7px 8px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-host { flex: 1 1 0; min-width: 0; padding: 7px 8px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); overflow: hidden; }
 [data-eui='card'] .ih-hstate { color: var(--h-fg); opacity: .9; }
 [data-eui='card'] .ih-gaterow { display: flex; gap: 6px; margin-top: 12px; }
-[data-eui='card'] .ih-gate, [data-eui='card'] .ih-budget { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
-[data-eui='card'] .ih-gate { border-color: #a855d6; }
+[data-eui='card'] .ih-gate, [data-eui='card'] .ih-budget { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); overflow: hidden; }
+[data-eui='card'] .ih-gate { border-color: ${COUNCIL_HUE}; }
 [data-eui='card'] .ih-gaterow .ih-head { margin: 0; height: 15px; align-items: center; }
 [data-eui='card'] .ih-gname { font-size: 12px; line-height: 1.3; font-weight: 600; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-pips { display: flex; align-items: center; gap: 4px; height: 13px; }
 [data-eui='card'] .ih-gate .ih-pips .ih-ljob, [data-eui='card'] .ih-gate > .ih-ljob { color: var(--h-fg); opacity: .9; }
-[data-eui='card'] .ih-pip { flex: none; display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid #a855d6; box-sizing: border-box; }
+[data-eui='card'] .ih-pip { flex: none; display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid ${COUNCIL_HUE}; box-sizing: border-box; }
 [data-eui='card'] .ih-pips .ih-ljob { margin-left: 4px; }
-[data-eui='card'] .ih-meter { position: relative; height: 6px; margin: 3px 0 4px; border-radius: 3px; background: var(--h-border); overflow: hidden; }
-[data-eui='card'] .ih-meterfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--h-primary); }
+[data-eui='card'] .ih-meter { position: relative; height: 6px; margin: 3px 0 4px; border-radius: 4px; background: var(--h-border); overflow: hidden; }
+[data-eui='card'] .ih-meterfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--h-primary); }
 [data-eui='card'] .ih-w0 { width: 0%; }
 [data-eui='card'] .ih-w1 { width: 10%; }
 [data-eui='card'] .ih-w2 { width: 20%; }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { glideGlass } from '../commands/glide.js'
 import { contrastRatio, mix, relativeLuminance } from '../hermes/theme.js'
-import { NIGHT_INKS } from '../../../glide/frontend/council.js'
+import { NIGHT_INKS } from '../../../glide/frontend/tokens.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
 import {
   GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, hueAt, pickGlow, PLAY_SECONDS, playInks, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
@@ -226,6 +226,16 @@ describe('glassCss', () => {
     }
     // The note keeps its accent edge: only its fill turns to glass, never its border.
     expect(css).toContain('.ah-note { background: rgba(13,26,23,0.24); }')
+  })
+
+  it("puts each card's head row on a tab of the resting glass, so its title reads over a fully clear window", () => {
+    // The head row sits above the card's box, on Tern's window glass; at zero window opacity that is bare wallpaper.
+    const head = decl(css, '[data-eu][data-eui=card] .eui-host-head')
+    expect(head).toContain(`background: ${rgba(p.bg)}${restTint(p) / 100})`)
+    expect(head).toMatch(/backdrop-filter: blur/)
+    expect(head).toContain('width: fit-content')
+    const clear = css.slice(css.indexOf('@media (prefers-reduced-transparency: reduce)'))
+    expect(clear).toContain('.eui-host-head')
   })
 
   it('rides on the auto theme sheet', () => {

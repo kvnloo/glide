@@ -19,7 +19,7 @@ import { record } from '../wire/json.js'
 import { must, tree } from './fakes.js'
 
 import { fileBindings, LANES_GLASS, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
-import { NIGHT_INKS } from '../../../glide/frontend/council.js'
+import { NIGHT_INKS } from '../../../glide/frontend/tokens.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import { contrastRatio, mix } from '../hermes/theme.js'
 import { PROVIDERS, ROLE_MODELS } from '../voice/catalog.js'

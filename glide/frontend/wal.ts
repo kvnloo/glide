@@ -11,7 +11,7 @@ import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } fro
 import { minifyCss } from './css.js'
 import { parseJson, record } from '../../frontend/src/wire/json.js'
 
-import { NIGHT_INKS } from './council.js'
+import { DASH, NIGHT_INKS } from './tokens.js'
 import { glassCss, pickGlow, tintFloor, wallSamples } from './glass.js'
 
 /** Tern's program palette (`t`), as @stencil-hq/tern's Palette. */
@@ -131,15 +131,17 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
   const text = (c: string | undefined, fallback: string) => lift(c, fallback, [bg, layers[2]])
   const fg = text(base, base)
   const accent = text(pickAccent(wal), fg)
+  // A hueless wallpaper (pywal's greys from a black-and-white scene) keeps Dash's status hues, so an error still reads red.
+  const hue = (c: string | undefined, dash: string) => c && HEX.test(c) && saturation(c) >= 0.2 ? c : dash
   const inks = {
     fg,
     accent,
     glow: text(pickGlow(wal, accent), accent),
     muted: text(wal.colors['color7'], fg),
     dim: text(wal.colors['color8'], fg),
-    error: text(wal.colors['color1'], fg),
-    success: text(wal.colors['color2'], fg),
-    warning: text(wal.colors['color3'], fg)
+    error: text(hue(wal.colors['color1'], DASH.error), fg),
+    success: text(hue(wal.colors['color2'], DASH.success), fg),
+    warning: text(hue(wal.colors['color3'], DASH.gold), fg)
   }
   const samples = wallSamples(wal)
   return {

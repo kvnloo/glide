@@ -13,7 +13,7 @@
 // GLASS_FORBIDDEN lists them and the tests hold the sheet to it.
 
 import { contrastRatio, mix, relativeLuminance } from '../../frontend/src/hermes/theme.js'
-import { NIGHT_INKS } from './council.js'
+import { NIGHT_INKS } from './tokens.js'
 import { minifyCss } from './css.js'
 
 import type { WalColors, WalPalette } from './wal.js'
@@ -117,6 +117,8 @@ const NATIVE = '.sf.sf-card'
 // they take the floor tint as a strip of glass (padding offset by margin: no reflow). Text inside a pane already
 // on the tint stays bare.
 const TEXT = '.sf.sf-text, .sf.sf-card.nohead'
+// A card's head row sits above its box on the same window glass, so it takes the floor tint as a tab.
+const HEAD = `${K} .eui-host-head`
 const INNER = ".sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text"
 const RIMMED = [CARD, EDITOR, POPUP, LANES]
 /** Each Glide view and the selector its glass rides on. */
@@ -164,7 +166,7 @@ ${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background:
 ${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: 0; }
 ${CARD}, ${EDITOR}, ${POPUP}, ${LANES} { background: ${tint}; ${frost}; box-shadow: ${halo}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${CARD} { border-color: transparent; border-radius: 16px; }
-${LANES} { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 14px; }
+${LANES} { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 16px; }
 ${STATUS} { background: ${tint}; ${frost}; box-shadow: inset 0 1px 0 ${hi(10)}, 0 -1px 0 ${a(22)}; }
 ${NATIVE} { ${frost}; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${POPUP} { box-shadow: ${halo}, 0 0 0 1px ${a(18)}; }
@@ -173,8 +175,9 @@ ${after(RIMMED)} { content: ''; position: absolute; inset: 0; border-radius: inh
 ${EDITOR}::after { opacity: 1; }
 .sf-place-dir, .sf-place-sep, .sf-t-dim { color: var(--t3); }
 .sf-t-muted { color: var(--t2); }
-${TEXT} { background: ${tint}; ${frost}; padding: 6px 10px; margin: -6px -10px; border-radius: 10px; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
+${TEXT} { background: ${tint}; ${frost}; padding: 6px 10px; margin: -6px -10px; border-radius: 12px; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${INNER} { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }
+${HEAD} { width: fit-content; max-width: 100%; padding: 0 10px; border-radius: 12px; background: ${tint}; ${frost}; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${CARD}:hover { transform: translateY(-1px); box-shadow: ${haloHot}; }
 ${EDITOR}:hover { box-shadow: ${haloHot}; }
 ${CARD}:hover::after, ${EDITOR}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
@@ -201,7 +204,7 @@ ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration
 }
 @media (prefers-reduced-transparency: reduce) {
   .sf, [data-eui='card'], .sf-overlay { --sf-card-bg: var(--card); --pop-bg: var(--card); --modal-bg: var(--card); }
-  ${CARD}, ${EDITOR}, ${POPUP}, ${LANES}, ${STATUS}, ${NATIVE}, ${TEXT} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  ${CARD}, ${EDITOR}, ${POPUP}, ${LANES}, ${STATUS}, ${NATIVE}, ${TEXT}, ${HEAD} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
   ${INNER} { background: none; }
 }
 `

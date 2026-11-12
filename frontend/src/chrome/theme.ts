@@ -51,7 +51,7 @@ export class Theme {
 
   /** The wallpaper palette in the auto mode; undefined in the others or without a readable colors.json. */
   get wal(): WalPalette | undefined {
-    if (this.#mode === 'dash') return dashPalette()
+    if (this.#mode === 'dash') return this.#dash()
     return this.#mode === 'auto' ? this.#wal : undefined
   }
 
@@ -63,7 +63,7 @@ export class Theme {
     }
     this.#leaveWal()
     if (this.#mode === 'dash') {
-      const dash = dashPalette()
+      const dash = this.#dash()
       this.#host.palette(dashTernPalette(dash))
       this.#host.stylesheet?.(WAL_SHEET, walCss(dash))
       this.#sheet = true
@@ -135,6 +135,11 @@ export class Theme {
     this.#wal = walPalette(wal, file)
     this.#host.palette(walTernPalette(this.#wal))
     this.#host.stylesheet?.(WAL_SHEET, walCss(this.#wal))
+  }
+
+  /** Dash's palette, its glass floor taken over the wallpaper when its colors.json reads. */
+  #dash() {
+    return dashPalette(readWal(this.#host.walFile ?? walFile()))
   }
 
   #leaveWal() {
