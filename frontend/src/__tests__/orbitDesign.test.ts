@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { ROLE_TINT, ORBIT_MARK, roleTint } from '../../../glide/frontend/orbitTokens.js'
+import { ROLE_RAMP, ROLE_TINT, ORBIT_MARK, roleTint } from '../../../glide/frontend/orbitTokens.js'
 import { STATUS } from '../../../glide/frontend/tokens.js'
 import { deadMark, deadTint, orbitLayout, orbitSvg } from '../voice/orbit.js'
 import { HIT, JIGGLE_S, orbitCss, orbitSeats, planetSvg } from '../voice/orbitTargets.js'
@@ -26,15 +26,16 @@ describe('FOCUS orbit design', () => {
   }
 
   it('has one named, balanced role ramp for both themes and a neutral fallback', () => {
-    expect(Object.keys(ROLE_TINT)).toEqual(['fast', 'small', 'large', 'council'])
-    for (const role of Object.keys(ROLE_TINT)) {
+    expect(Object.keys(ROLE_RAMP)).toEqual(['fast', 'small', 'large', 'council'])
+    for (const role of Object.keys(ROLE_RAMP)) {
       for (const dark of [true, false]) {
         const ink = roleTint(role, dark)
         expect(ink).toMatch(/^#[0-9a-fA-F]{6}$/)
-        expect(ink).toBe(dark ? ROLE_TINT[role as keyof typeof ROLE_TINT].dark : ROLE_TINT[role as keyof typeof ROLE_TINT].light)
+        expect(ink).toBe(dark ? ROLE_RAMP[role as keyof typeof ROLE_RAMP].dark : ROLE_RAMP[role as keyof typeof ROLE_RAMP].light)
       }
     }
-    expect(new Set(Object.values(ROLE_TINT).map(c => c.dark)).size).toBe(4)
+    expect(new Set(Object.values(ROLE_RAMP).map(c => c.dark)).size).toBe(4)
+    expect(ROLE_TINT.fast).toBe(ROLE_RAMP.fast.dark) // stable export shape
   })
 
   it('uses host danger ink on every dead mark, with tokenized SVG fallbacks', () => {
