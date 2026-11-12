@@ -85,6 +85,10 @@ frontend/openui/schema/card.v0.json
 frontend/PLAN-REVIEW.md
 frontend/scripts/vendor-ephemeral-ui.mjs
 frontend/SHORTCUTS.md
+frontend/e2e/JOURNEYS.md
+frontend/e2e/REPORT.md
+frontend/e2e/features.json
+frontend/scripts/features-gate.mjs
 frontend/src/__tests__/factoryApp.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/factoryCommand.test.ts  # same
 frontend/src/__tests__/factoryPane.test.ts  # same
@@ -312,6 +316,7 @@ frontend/src/__tests__/compactCommand.test.ts
 frontend/src/__tests__/glideTheme.test.ts
 frontend/src/__tests__/intentCards.test.ts
 frontend/src/__tests__/intentFixtures.ts
+frontend/src/__tests__/features-gate.test.ts
 frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
