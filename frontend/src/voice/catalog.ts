@@ -6,6 +6,7 @@
 import { readFileSync } from 'node:fs'
 import { homedir, userInfo } from 'node:os'
 import { join } from 'node:path'
+import { record } from '../wire/json.js'
 
 export const PROVIDERS = {
   local: { label: 'Local', hue: '#b3bfd4' },
@@ -87,8 +88,12 @@ export function voicePlanRoles(env = process.env, now = Date.now()): Record<stri
   let roles: Record<string, string> = {}
   for (const file of files) {
     try {
-      const v = JSON.parse(readFileSync(file, 'utf8')) as { roles?: Record<string, { model?: unknown }> }
-      roles = Object.fromEntries(Object.entries(v.roles ?? {}).flatMap(([k, r]) => (typeof r?.model === 'string' ? [[k, r.model]] : [])))
+      const v = record(readFileSync(file, 'utf8'))
+      if (!v) continue
+      roles = Object.fromEntries(Object.entries(record(v['roles']) ?? {}).flatMap(([k, r]) => {
+        const model = record(r)?.['model']
+        return typeof model === 'string' ? [[k, model]] : []
+      }))
       break
     } catch { /* next */ }
   }

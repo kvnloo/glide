@@ -101,9 +101,8 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
   const lanes = sortLanes(src.call?.lanes ?? [])
   const live = Boolean(src.call?.open && lanes.length)
   const dead = lanes.filter(l => l.state === 'dead').length
-  const revision = (src.call?.revision || 'call').toUpperCase()
-  // The preset id is the broker's, not the reader's: it rides in the badge's tooltip until a call is live.
-  const status = live ? `LIVE · ${revision}` : lanes.length ? 'NO CALL OPEN' : 'NOT CONNECTED'
+  // The preset id is the broker's, not the reader's: it only ever rides in the badge's tooltip.
+  const status = live ? 'LIVE CALL' : lanes.length ? 'NO CALL OPEN' : 'NOT CONNECTED'
   const ready = lanes.length - dead
   const summary = lanes.length
     ? live
@@ -116,7 +115,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
       el('span', `${micro};letter-spacing:2px`, [text('LANE BROKER')]),
       el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` +
         (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
-      [text(status)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {}) } })
+      [text(status)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {}) } })
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text('Helper lanes')]),
     el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
@@ -140,7 +139,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
       badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` }),
       badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' }),
       badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` }),
-      ...(info.via ? [badge([text(`VIA ${info.via.toUpperCase()} ROLE`)], NIGHT.text2, NIGHT.border)] : []),
+      ...(info.via ? [badge([text('VOICE PLAN')], NIGHT.text2, NIGHT.border)] : []),
       ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba('#eccd8c', 0.4), { 'data-lane-rebound': lane.role })] : [])
     ]
     return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : ''), [
@@ -160,9 +159,11 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
         ...laneChoices(lane, bound).map((m, j) => {
           const on = current === m
           const c = laneModel(m, null, roles)
-          // The dot already names the vendor, so a chip drops it: "Haiku 4.5 · smol", "Sonnet 5", "Sol".
+          // The dot already names the vendor, so a chip drops it: "Haiku 4.5", "Sonnet 5", "Sol".
           const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, '')
-          const label = c.via ? `${short} · ${c.via}` : short
+          // A role alias shows its model (the alias rides in the tooltip); "plan" only tells it from the same model bound directly.
+          const twin = c.via && laneChoices(lane, bound).some(o => o !== m && laneModel(o, null, roles).label === c.label)
+          const label = twin ? `${short} · plan` : short
           return el('button', `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? 'rgba(236,232,223,0.62)' : NIGHT.borderStrong};background-color:${on ? 'rgba(236,232,223,0.16)' : 'transparent'}`,
             [dot(PROVIDERS[c.provider].hue, 6), el('span', `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text(label)]),
               el('span', `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text(BILL_SHORT[c.billing])])],

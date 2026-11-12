@@ -159,6 +159,29 @@ export const LANE_ORB: Readonly<Record<LaneState, OrbState>> = {
 
 const ROLE_ORDER = ['fast', 'small', 'large', 'council']
 
+/** The dock column holding the live-voice lines and the lanes, keyed without a role. */
+const LIVE_DOCK = 'dock.live'
+/** The lanes' node id inside it; the animators address their images under it. */
+export const LANES_ID = `${LIVE_DOCK}.lanes`
+
+/** The head's human summary, `3 fast · 2 small · 1 large`: the broker's revision id is never shown. */
+export function laneCounts(lanes: readonly { role: string }[]): string {
+  const n = new Map<string, number>()
+  for (const l of lanes) n.set(l.role, (n.get(l.role) ?? 0) + 1)
+  const order = [...ROLE_ORDER, ...[...n.keys()].filter(r => !ROLE_ORDER.includes(r))]
+  return order.flatMap(r => (n.get(r) ? [`${n.get(r)} ${r}`] : [])).join(' · ')
+}
+
+/**
+ * The live-voice lines and the lanes as one role-less dock column. Tern's chat reader centres a role-less
+ * dock column's children on the composer's own track (\`.sf-dock > .sf-col:not([data-role]) > *\`: centred,
+ * 100% - 32px, at most 720px), so they share the composer's left edge and width without any pixel numbers here.
+ */
+export function liveDock(voice: JSX.Element | null, lanes: JSX.Element | null): JSX.Element | null {
+  if (!voice && !lanes) return null
+  return <col gap="sm" key={LIVE_DOCK.slice('dock.'.length)}>{voice}{lanes}</col>
+}
+
 /** A lane as the orbit draws it: its planet wears its provider's hue. */
 export const orbitLane = (lane: Lane, dark: boolean): OrbitLane => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) })
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
@@ -226,7 +249,7 @@ export class LaneStrip {
       if (!this.#orbit) {
         const current = () => this.lanes()
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: 'dock.live-lanes.orbit', label: 'Voice and lanes', scene: {
+          node: `${LANES_ID}.orbit.scene`, label: 'Voice and lanes', scene: {
             get w() { return orbitScene(current()).w },
             get h() { return orbitScene(current()).h },
             key: () => this.lanes().map(l => `${l.role}=${l.model}=${l.state}`).join(','),
@@ -243,7 +266,7 @@ export class LaneStrip {
     for (const orb of this.#orbs.splice(lanes.length)) orb.close()
     while (this.#orbs.length < lanes.length) {
       const i = this.#orbs.length
-      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `dock.live-lanes.l${i}.orb`, size: 14, label: 'Lane' })
+      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `${LANES_ID}.l${i}.orb`, size: 14, label: 'Lane' })
       orb.environment(this.#env)
       this.#orbs.push(orb)
     }
@@ -268,7 +291,7 @@ export class LaneStrip {
     const lanes = this.lanes()
     if (!lanes.length && !this.#live) return null
     const head = lanes.length
-      ? `Lanes · ${call?.revision ?? ''}${call?.open ? '' : ' · no open call'}`
+      ? `Lanes · ${laneCounts(lanes)}${call?.open ? '' : ' · no open call'}`
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
         : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
@@ -293,16 +316,15 @@ export class LaneStrip {
       </row>
     ))
     return (
-      <col gap={this.#orbit ? 'sm' : 'none'} key="live-lanes" role="omp.live.lanes">
+      <col gap={this.#orbit ? 'sm' : 'none'} key="lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
         {this.#orbit
-          // The orbit stands beside the lane list, which spreads to its height: top and bottom aligned, then a gap above the composer.
-          ? <row key="orbit" align="stretch" gap="md" role="omp.live.lanes.orbit">
+          // The orbit stands beside the lane list, centred on it: rows packed together, never spread to the orbit's height.
+          ? <row key="orbit" align="center" gap="sm" role="omp.live.lanes.orbit">
             <image key="scene" {...this.#orbit.props()} />
-            <col grow={1} justify="between" key="rows" min={{ w: 0 }}>{rows}</col>
+            <col gap="xs" grow={1} key="rows" min={{ w: 0 }}>{rows}</col>
           </row>
           : rows}
-        {this.#orbit ? <spacer key="gap" size="lg" /> : null}
       </col>
     )
   }

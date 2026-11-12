@@ -141,11 +141,12 @@ describe('voice lanes popup', () => {
     for (const role of ['fast', 'small', 'large']) expect(picks(role)).toEqual(must(ROLE_MODELS[role]).map(x => x.id))
     expect(picks('fast')).not.toContain('slow')
     expect(picks('large')).not.toContain('qwen3-0.6b-q8')
-    // Role aliases are named by the model they resolve to; the alias and id ride in the tooltip and a VIA badge.
+    // Role aliases are named by the model they resolve to; the alias and id ride only in tooltips, never as text.
     expect(out).toContain('"text":"Claude Haiku 4.5"')
     expect(out).toContain('"text":"Claude Opus 5.5"')
     expect(out).toContain('"title":"smol → claude-haiku-4-5"')
-    expect(out).toContain('VIA SLOW ROLE')
+    expect(out).toContain('"text":"VOICE PLAN"')
+    expect(out).not.toMatch(/"text":"[^"]*\b(smol|slow)\b/)
     expect(out).toContain('"title":"qwen3-0.6b-q8"')
     // Every row is badged: provider, billing, effort, route.
     expect(out).toContain('"data-lane-provider":"fast=local"')
@@ -155,7 +156,15 @@ describe('voice lanes popup', () => {
     expect(out).toContain('"data-lane-route":"fast=local"')
     expect(out).toContain('"text":"ON DEVICE"')
     expect(out).toContain('"text":"CLOUD"')
-    expect(out).toContain('"text":"Haiku 4.5 · smol"')
+    expect(out).toContain('"text":"Haiku 4.5"')
+  })
+
+  it('never shows the broker revision id as text, only in the status tooltip', () => {
+    const { feed, bindings } = setup()
+    const out = JSON.stringify(lanesCard(feed, {}, bindings.where, {}))
+    expect(out).toContain('"text":"LIVE CALL"')
+    expect(out).not.toMatch(/"text":"[^"]*\br7\b/i)
+    expect(out).toContain('broker preset r7')
   })
 
   it('shows a legend: provider hues, effort pips and what the orbit means', () => {

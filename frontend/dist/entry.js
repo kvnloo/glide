@@ -17031,19 +17031,19 @@ var require_connection = __commonJS({
         ws[kReadyState] = states.CLOSING;
       } else if (ws[kSentClose] === sentCloseFrameState.NOT_SENT) {
         ws[kSentClose] = sentCloseFrameState.PROCESSING;
-        const frame = new WebsocketFrameSend();
+        const frame2 = new WebsocketFrameSend();
         if (code7 !== void 0 && reason2 === void 0) {
-          frame.frameData = Buffer.allocUnsafe(2);
-          frame.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData = Buffer.allocUnsafe(2);
+          frame2.frameData.writeUInt16BE(code7, 0);
         } else if (code7 !== void 0 && reason2 !== void 0) {
-          frame.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
-          frame.frameData.writeUInt16BE(code7, 0);
-          frame.frameData.write(reason2, 2, "utf-8");
+          frame2.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
+          frame2.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData.write(reason2, 2, "utf-8");
         } else {
-          frame.frameData = emptyBuffer;
+          frame2.frameData = emptyBuffer;
         }
         const socket = ws[kResponse].socket;
-        socket.write(frame.createFrame(opcodes.CLOSE));
+        socket.write(frame2.createFrame(opcodes.CLOSE));
         ws[kSentClose] = sentCloseFrameState.SENT;
         ws[kReadyState] = states.CLOSING;
       } else {
@@ -17527,8 +17527,8 @@ var require_receiver = __commonJS({
           return false;
         } else if (opcode === opcodes.PING) {
           if (!this.ws[kReceivedClose]) {
-            const frame = new WebsocketFrameSend(body);
-            this.ws[kResponse].socket.write(frame.createFrame(opcodes.PONG));
+            const frame2 = new WebsocketFrameSend(body);
+            this.ws[kResponse].socket.write(frame2.createFrame(opcodes.PONG));
             if (channels.ping.hasSubscribers) {
               channels.ping.publish({
                 payload: body
@@ -17578,14 +17578,14 @@ var require_sender = __commonJS({
       }
       add(item3, cb, hint) {
         if (hint !== sendHints.blob) {
-          const frame = createFrame(item3, hint);
+          const frame2 = createFrame(item3, hint);
           if (!this.#running) {
-            this.#socket.write(frame, cb);
+            this.#socket.write(frame2, cb);
           } else {
             const node4 = {
               promise: null,
               callback: cb,
-              frame
+              frame: frame2
             };
             this.#queue.push(node4);
           }
@@ -23656,7 +23656,8 @@ var OrbActivity = class {
 };
 var NODE_ID = "dock.composer.line.orb";
 var FPS = 15;
-var FRAMES = 144;
+var CYCLE_S = 9.6;
+var SCENE_FPS = 30;
 var ThinkingOrb = class {
   #tern;
   #surface;
@@ -23673,6 +23674,7 @@ var ThinkingOrb = class {
   #closed = false;
   #timer;
   #scene;
+  #fps;
   /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
   constructor(tern, surface, options = {}) {
     this.#tern = tern;
@@ -23681,6 +23683,7 @@ var ThinkingOrb = class {
     this.#size = options.size ?? 34;
     this.#label = options.label ?? "Hermes agent";
     this.#scene = options.scene;
+    this.#fps = options.scene ? SCENE_FPS : FPS;
     this.#dark = Boolean(tern.caps.dark);
     this.#reduce = Boolean(tern.caps.reduceMotion);
   }
@@ -23733,9 +23736,9 @@ var ThinkingOrb = class {
         if (this.#surface.blocked) {
           return;
         }
-        this.#frame = (this.#frame + 1) % FRAMES;
+        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps);
         this.#surface.send([["set", this.#node, { blob: this.#blob() }]]);
-      }, 1e3 / FPS);
+      }, 1e3 / this.#fps);
       this.#timer.unref();
     }
   }
@@ -23744,7 +23747,7 @@ var ThinkingOrb = class {
     let blob2 = this.#frames.get(key3);
     if (!blob2) {
       blob2 = this.#tern.blob(
-        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / FPS, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / FPS, this.#dark)),
+        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / this.#fps, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / this.#fps, this.#dark)),
         "image/svg+xml"
       );
       this.#frames.set(key3, blob2);
@@ -23772,7 +23775,7 @@ var STILL = 0.6;
 function orbSvg(state, seconds, dark) {
   const preset = Lt(LIBRARY_STATE[state], SOURCE);
   const animated = state !== "idle" && state !== "waiting" && state !== "error";
-  const frame = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, white));
     const level = Math.round((dark ? 1 - ink2 : ink2) * 255);
@@ -23780,10 +23783,10 @@ function orbSvg(state, seconds, dark) {
   };
   const n3 = (v) => v.toFixed(1);
   const alpha = (v) => (v ?? 1).toFixed(2);
-  const marks2 = frame.lines.map(
+  const marks2 = frame2.lines.map(
     (l) => `<line x1="${n3(l.x1)}" y1="${n3(l.y1)}" x2="${n3(l.x2)}" y2="${n3(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n3(l.w)}" stroke-opacity="${alpha(l.a)}"/>`
   );
-  for (const d of frame.dots) {
+  for (const d of frame2.dots) {
     marks2.push(`<circle cx="${n3(d.x)}" cy="${n3(d.y)}" r="${n3(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks2.join("")}</svg>`;
@@ -23798,6 +23801,36 @@ import { join as join2 } from "node:path";
 import { readFileSync } from "node:fs";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
+
+// src/wire/json.ts
+function record(v) {
+  if (typeof v === "string") {
+    try {
+      return record(JSON.parse(v));
+    } catch {
+      return void 0;
+    }
+  }
+  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
+}
+function parseJson(text18) {
+  try {
+    return JSON.parse(text18);
+  } catch {
+    return void 0;
+  }
+}
+function decodeJson(text18) {
+  return JSON.parse(text18);
+}
+function commandReply(output) {
+  const reply2 = record(output);
+  if (!reply2) throw new Error("the command did not answer with JSON");
+  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
+  return reply2;
+}
+
+// src/voice/catalog.ts
 var PROVIDERS = {
   local: { label: "Local", hue: "#b3bfd4" },
   anthropic: { label: "Anthropic", hue: "#e6b86f" },
@@ -23857,8 +23890,12 @@ function voicePlanRoles(env2 = process.env, now = Date.now()) {
   let roles = {};
   for (const file2 of files) {
     try {
-      const v = JSON.parse(readFileSync(file2, "utf8"));
-      roles = Object.fromEntries(Object.entries(v.roles ?? {}).flatMap(([k, r]) => typeof r?.model === "string" ? [[k, r.model]] : []));
+      const v = record(readFileSync(file2, "utf8"));
+      if (!v) continue;
+      roles = Object.fromEntries(Object.entries(record(v["roles"]) ?? {}).flatMap(([k, r]) => {
+        const model = record(r)?.["model"];
+        return typeof model === "string" ? [[k, model]] : [];
+      }));
       break;
     } catch {
     }
@@ -23910,12 +23947,17 @@ var SOURCE2 = 64;
 var CORE = 60;
 var ORB_R = CORE * 28.4 / SOURCE2;
 var orbitRadius = (role) => ORBIT_R[role] ?? FALLBACK_R;
-function orbitScene(lanes2) {
+var ORBIT_SCALE = 1.3;
+function orbitUnits(lanes2) {
   const r = Math.max(orbitRadius("fast"), ...lanes2.map((l) => orbitRadius(l.role)));
   return { w: Math.ceil(2 * (r * TILT + PAD)), h: Math.ceil(2 * (r + PAD)) };
 }
+function orbitScene(lanes2) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return { w: Math.round(w * ORBIT_SCALE), h: Math.round(h2 * ORBIT_SCALE) };
+}
 function orbitLayout(lanes2, seconds, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
+  const { w, h: h2 } = orbitUnits(lanes2);
   const moving = /* @__PURE__ */ new Map();
   for (const l of lanes2) if (l.state !== "dead") moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1);
   const total = [...moving.values()].reduce((a2, b) => a2 + b, 0);
@@ -23955,38 +23997,17 @@ function orbitLayout(lanes2, seconds, reduce = false) {
 var n = (v) => v.toFixed(1);
 function marks(state, seconds, animated, dark) {
   const preset = Lt(state, SOURCE2);
-  const frame = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink2 : ink2) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   };
   const a2 = (v) => (v ?? 1).toFixed(2);
-  const out = frame.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
-  for (const d of frame.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
+  const out = frame2.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
+  for (const d of frame2.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
   return out.join("");
 }
 var still = (s2) => s2 === "idle" || s2 === "waiting" || s2 === "error";
-function stipple(cx, cy, a2, b, step) {
-  const N = 720;
-  const pts2 = [];
-  for (let i = 0; i <= N; i++) {
-    const t = i * 2 * Math.PI / N;
-    pts2.push([cx + a2 * Math.sin(t), cy + b * Math.cos(t)]);
-  }
-  const len = [0];
-  for (let i = 1; i <= N; i++) len.push((len[i - 1] ?? 0) + Math.hypot((pts2[i]?.[0] ?? 0) - (pts2[i - 1]?.[0] ?? 0), (pts2[i]?.[1] ?? 0) - (pts2[i - 1]?.[1] ?? 0)));
-  const total = len[N] ?? 0;
-  const count5 = Math.round(total / step);
-  const out = [];
-  let j = 0;
-  for (let k = 0; k < count5; k++) {
-    const s2 = k * total / count5;
-    while ((len[j + 1] ?? total) < s2) j++;
-    const f = (s2 - (len[j] ?? 0)) / ((len[j + 1] ?? total) - (len[j] ?? 0) || 1);
-    out.push([(pts2[j]?.[0] ?? 0) + f * ((pts2[j + 1]?.[0] ?? 0) - (pts2[j]?.[0] ?? 0)), (pts2[j]?.[1] ?? 0) + f * ((pts2[j + 1]?.[1] ?? 0) - (pts2[j]?.[1] ?? 0))]);
-  }
-  return out;
-}
 function deadMark(x, y, r, dark) {
   const red = deadTint(dark);
   const strike = [];
@@ -23996,45 +24017,45 @@ function deadMark(x, y, r, dark) {
   }
   return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join("")}</g>`;
 }
-function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
-  const CX = w / 2;
-  const CY = h2 / 2;
-  const sats = orbitLayout(lanes2, seconds, reduce);
-  const t = reduce ? 0 : seconds;
+var frame = (lanes2, body) => {
+  const u = orbitUnits(lanes2);
+  const px = orbitScene(lanes2);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px.w}" height="${px.h}" viewBox="0 0 ${u.w} ${u.h}">${body}</svg>`;
+};
+function planet(s2, lane, CX, CY, dark, reduce) {
+  const r = PLANET * s2.scale;
+  const c = lane.hue ?? tint(lane.role, dark);
+  const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
+    const th = s2.theta - (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
+    const k = 1 - (i + 1) / 7;
+    return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
+  }).join("");
+  const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
   const edge = dark ? "#000000" : "#ffffff";
-  const planet = (s2, lane) => {
-    const r = PLANET * s2.scale;
-    const c = lane.hue ?? tint(lane.role, dark);
-    const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
-      const lag = (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
-      const th = s2.theta - lag;
-      const k = 1 - (i + 1) / 7;
-      return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
-    }).join("");
-    const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
-    const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
-  };
-  const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
-  const back = order2.filter((o) => o.s.z < 0).map((o) => planet(o.s, o.lane)).join("");
-  const front = order2.filter((o) => o.s.z >= 0).map((o) => planet(o.s, o.lane)).join("");
-  const radii = [...new Set(lanes2.map((l) => orbitRadius(l.role)))];
-  const rings = radii.map((r) => {
+  const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
+  return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
+}
+function planets(lanes2, seconds, dark, reduce, pick2) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  const sats = orbitLayout(lanes2, seconds, reduce);
+  return sats.flatMap((s2, i) => lanes2[i] && pick2(lanes2[i], s2) ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z).map((o) => planet(o.s, o.lane, w / 2, h2 / 2, dark, reduce)).join("");
+}
+function tracks(lanes2, dark) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return [...new Set(lanes2.map((l) => orbitRadius(l.role)))].map((r) => {
     const on = lanes2.filter((l) => orbitRadius(l.role) === r);
     const dead = on.every((l) => l.state === "dead");
-    const dots = stipple(CX, CY, r * TILT, r, 2);
-    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.7"/>`;
-    if (dead) {
-      const dash2 = dots.filter((_2, i) => i % 4 < 2).map(dot).join("");
-      return `<g data-ring="${r}" fill="${dark ? "#9a9a9a" : "#6a6a6a"}" fill-opacity="0.6">${dash2}</g>`;
-    }
-    const near = dots.filter(([x]) => x >= CX).map(dot).join("");
-    const far = dots.filter(([x]) => x < CX).map(dot).join("");
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.38}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.38}">${near}</g></g>`;
+    const stroke = dead ? dark ? "#9a9a9a" : "#6a6a6a" : tint(on[0]?.role ?? "", dark);
+    const alpha = dead ? 0.6 : dark ? 0.72 : 0.78;
+    return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h2 / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ""}/>`;
   }).join("");
-  const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
+}
+function core(main, lanes2, seconds, dark, reduce) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
+}
+function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z < 0) + core(main, lanes2, seconds, dark, reduce) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z >= 0));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
@@ -24162,6 +24183,21 @@ var LANE_ORB = {
   dead: "error"
 };
 var ROLE_ORDER = ["fast", "small", "large", "council"];
+var LIVE_DOCK = "dock.live";
+var LANES_ID = `${LIVE_DOCK}.lanes`;
+function laneCounts(lanes2) {
+  const n3 = /* @__PURE__ */ new Map();
+  for (const l of lanes2) n3.set(l.role, (n3.get(l.role) ?? 0) + 1);
+  const order2 = [...ROLE_ORDER, ...[...n3.keys()].filter((r) => !ROLE_ORDER.includes(r))];
+  return order2.flatMap((r) => n3.get(r) ? [`${n3.get(r)} ${r}`] : []).join(" \xB7 ");
+}
+function liveDock(voice, lanes2) {
+  if (!voice && !lanes2) return null;
+  return /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
+    voice,
+    lanes2
+  ] }, LIVE_DOCK.slice("dock.".length));
+}
 var orbitLane = (lane, dark) => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) });
 var clip = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
 function entryLine(e) {
@@ -24218,7 +24254,7 @@ var LaneStrip = class {
       if (!this.#orbit) {
         const current = () => this.lanes();
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: "dock.live-lanes.orbit",
+          node: `${LANES_ID}.orbit.scene`,
           label: "Voice and lanes",
           scene: {
             get w() {
@@ -24241,7 +24277,7 @@ var LaneStrip = class {
     for (const orb of this.#orbs.splice(lanes2.length)) orb.close();
     while (this.#orbs.length < lanes2.length) {
       const i = this.#orbs.length;
-      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `dock.live-lanes.l${i}.orb`, size: 14, label: "Lane" });
+      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `${LANES_ID}.l${i}.orb`, size: 14, label: "Lane" });
       orb.environment(this.#env);
       this.#orbs.push(orb);
     }
@@ -24263,7 +24299,7 @@ var LaneStrip = class {
     const call = this.#feed.call;
     const lanes2 = this.lanes();
     if (!lanes2.length && !this.#live) return null;
-    const head2 = lanes2.length ? `Lanes \xB7 ${call?.revision ?? ""}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
+    const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
     const rows = lanes2.map((lane, i) => /* @__PURE__ */ jsxs("row", { align: "start", gap: "sm", role: "omp.live.lane", children: [
       this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
       /* @__PURE__ */ jsxs("col", { children: [
@@ -24278,42 +24314,13 @@ var LaneStrip = class {
     ] }, `l${i}`));
     return /* @__PURE__ */ jsxs("col", { gap: this.#orbit ? "sm" : "none", role: "omp.live.lanes", children: [
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
-      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "stretch", gap: "md", role: "omp.live.lanes.orbit", children: [
+      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
         /* @__PURE__ */ jsx("image", { ...this.#orbit.props() }, "scene"),
-        /* @__PURE__ */ jsx("col", { grow: 1, justify: "between", min: { w: 0 }, children: rows }, "rows")
-      ] }, "orbit") : rows,
-      this.#orbit ? /* @__PURE__ */ jsx("spacer", { size: "lg" }, "gap") : null
-    ] }, "live-lanes");
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows }, "rows")
+      ] }, "orbit") : rows
+    ] }, "lanes");
   }
 };
-
-// src/wire/json.ts
-function record(v) {
-  if (typeof v === "string") {
-    try {
-      return record(JSON.parse(v));
-    } catch {
-      return void 0;
-    }
-  }
-  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
-}
-function parseJson(text18) {
-  try {
-    return JSON.parse(text18);
-  } catch {
-    return void 0;
-  }
-}
-function decodeJson(text18) {
-  return JSON.parse(text18);
-}
-function commandReply(output) {
-  const reply2 = record(output);
-  if (!reply2) throw new Error("the command did not answer with JSON");
-  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
-  return reply2;
-}
 
 // ../glide/frontend/wal.ts
 import { mkdirSync, readFileSync as readFileSync3, watch, writeFileSync } from "node:fs";
@@ -26696,9 +26703,9 @@ function schedule(run8) {
   }
   return { at: at2, total: t };
 }
-function moment(run8, frame) {
+function moment(run8, frame2) {
   const { at: at2, total } = schedule(run8);
-  const t = frame.t;
+  const t = frame2.t;
   const done = t !== null && t >= total;
   let idx = -1;
   if (t !== null) {
@@ -26729,11 +26736,11 @@ function moment(run8, frame) {
   });
   return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
 }
-function narration(run8, frame) {
-  const m2 = moment(run8, frame);
+function narration(run8, frame2) {
+  const m2 = moment(run8, frame2);
   const nm = (i) => run8.seats[i]?.name ?? "?";
   const helpers = run8.events.filter((e) => e.type === "spawn").length;
-  if (frame.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
+  if (frame2.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
   if (m2.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
   const cur = run8.events[m2.idx];
   if (!cur) return "The council takes its seats";
@@ -26742,8 +26749,8 @@ function narration(run8, frame) {
   if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
   return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
 }
-function closedSeats(run8, frame) {
-  return moment(run8, frame).closed;
+function closedSeats(run8, frame2) {
+  return moment(run8, frame2).closed;
 }
 var n2 = (v) => (Math.round(v * 10) / 10).toString();
 var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -26872,8 +26879,8 @@ var STARS = (() => {
   const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
   return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
 })();
-function instrumentSvg(run8, frame, size = 480) {
-  const m2 = moment(run8, frame);
+function instrumentSvg(run8, frame2, size = 480) {
+  const m2 = moment(run8, frame2);
   const c = size / 2;
   const orbit = size * 0.335;
   const R = Math.max(18, size * 0.064);
@@ -26887,7 +26894,7 @@ function instrumentSvg(run8, frame, size = 480) {
     const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
     return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
   });
-  const t = frame.t ?? 0;
+  const t = frame2.t ?? 0;
   const cur = m2.idx >= 0 ? run8.events[m2.idx] : void 0;
   const user = { gradientUnits: "userSpaceOnUse" };
   let s2 = tag2(
@@ -26908,7 +26915,7 @@ function instrumentSvg(run8, frame, size = 480) {
   for (let i = 0; i < run8.rounds; i++) {
     const r = ringR(i);
     const now = m2.running && m2.round === i + 1;
-    const past = frame.t !== null && (m2.round > i + 1 || m2.done);
+    const past = frame2.t !== null && (m2.round > i + 1 || m2.done);
     s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
     if (ringGap >= 12 || i % 2 === 1 || now) {
       s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
@@ -26944,7 +26951,7 @@ function instrumentSvg(run8, frame, size = 480) {
     const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
     crew.forEach((stone, k) => {
       const ang = p3.a + (k - (crew.length - 1) / 2) * step;
-      const on = frame.t === null || k < (m2.lit[i] ?? 0);
+      const on = frame2.t === null || k < (m2.lit[i] ?? 0);
       const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
       const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
       const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
@@ -27025,8 +27032,7 @@ function lanesCard(src, bound2, where, roles) {
   const lanes2 = sortLanes(src.call?.lanes ?? []);
   const live = Boolean(src.call?.open && lanes2.length);
   const dead = lanes2.filter((l) => l.state === "dead").length;
-  const revision = (src.call?.revision || "call").toUpperCase();
-  const status = live ? `LIVE \xB7 ${revision}` : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
+  const status = live ? "LIVE CALL" : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
   const ready = lanes2.length - dead;
   const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
   const header = el("div", "display:flex;flex-direction:column;gap:4px", [
@@ -27036,7 +27042,7 @@ function lanesCard(src, bound2, where, roles) {
         "span",
         `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
         [text18(status)],
-        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {} } }
+        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {} } }
       )
     ]),
     el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
@@ -27061,11 +27067,11 @@ function lanesCard(src, bound2, where, roles) {
       badge([dot(hue, 6), text18(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` }),
       badge([text18(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` }),
       badge([pips(info.effort), text18(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { "data-lane-effort": `${lane.role}=${info.effort}`, title: "effort: orbit pips, as in the zerOS agent-core key" }),
-      badge([text18(info.route.toUpperCase())], NIGHT.text3, NIGHT.border),
-      ...info.via ? [badge([text18(`VIA ${info.via.toUpperCase()} ROLE`)], NIGHT.text3, NIGHT.border)] : [],
+      badge([text18(info.route === "local" ? "ON DEVICE" : "CLOUD")], NIGHT.text2, NIGHT.border, { "data-lane-route": `${lane.role}=${info.route}` }),
+      ...info.via ? [badge([text18("VOICE PLAN")], NIGHT.text2, NIGHT.border)] : [],
       ...binding && binding !== lane.model ? [badge([text18("BOUND LOCALLY")], NIGHT.strong, rgba("#eccd8c", 0.4), { "data-lane-rebound": lane.role })] : []
     ];
-    return el("div", `display:flex;flex-direction:column;gap:7px;padding:11px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
       el("div", "display:flex;align-items:center;gap:9px", [
         swatch(lane.role, hue),
         el("span", `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
@@ -27078,14 +27084,16 @@ function lanesCard(src, bound2, where, roles) {
       el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:23px", badges),
       ...line ? [el("span", `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
       el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px", [
-        el("span", `${micro};font-size:8.5px;color:${NIGHT.text3}`, [text18("REBIND")]),
+        el("span", `${micro};font-size:8.5px`, [text18("REBIND")]),
         ...laneChoices(lane, bound2).map((m2, j) => {
           const on = current === m2;
           const c = laneModel(m2, null, roles);
-          const label = c.via ? `${c.label} \xB7 ${c.via}` : c.label;
+          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
+          const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
+          const label = twin ? `${short} \xB7 plan` : short;
           return el(
             "button",
-            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.42)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.12)" : "transparent"}`,
+            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
             [
               dot(PROVIDERS[c.provider].hue, 6),
               el("span", `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text18(label)]),
@@ -27097,26 +27105,21 @@ function lanesCard(src, bound2, where, roles) {
       ])
     ]);
   });
-  const keyCol = (title, items) => el("div", "display:flex;flex-direction:column;gap:6px;flex:1 1 150px;min-width:0", [
-    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;color:${NIGHT.text3}`, [text18(title)]),
+  const keyRow = (title, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
+    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text18(title)]),
     ...items
   ]);
-  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:7px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
-  const ringMark = (role) => el("span", `width:12px;height:12px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
-  const legend = el("div", `display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
+  const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
+  const legend = el("div", `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
     el("div", "display:flex;align-items:center;justify-content:space-between", [
       el("span", `${micro};letter-spacing:2px`, [text18("KEY")]),
-      el("span", `font-size:11px;color:${NIGHT.text3}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
+      el("span", `font-size:11px;color:${NIGHT.text2}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
     ]),
-    el("div", "display:flex;flex-wrap:wrap;gap:14px 18px", [
-      keyCol("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
-      keyCol("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
-      keyCol("ORBIT", [
-        ...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ring \xB7 lap ${lanePeriod(r)} s`)),
-        item3(dot(NIGHT.text2, 7), "one dot per lane"),
-        item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier \xB7 SUB = subscription")
-      ])
-    ])
+    keyRow("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
+    keyRow("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
+    keyRow("ORBIT", [...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ${lanePeriod(r)} s`)), item3(dot(NIGHT.text2, 7), "one dot per lane")]),
+    keyRow("BILLING", [item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text18("SUB")]), "subscription"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text18("PAID")]), "metered")])
   ], { attrs: { "data-lanes-legend": "true" } });
   const close = el(
     "button",
@@ -27124,7 +27127,7 @@ function lanesCard(src, bound2, where, roles) {
     [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
     { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
   );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-direction:column", rows),
     legend,
@@ -32696,7 +32699,7 @@ function hitRuns(positions, limit) {
 }
 
 // node_modules/@hermes/shared/src/json-rpc-channel.ts
-var isServerRequestFrame = (frame) => typeof frame.id === "string" && typeof frame.method === "string" && frame.method !== "event";
+var isServerRequestFrame = (frame2) => typeof frame2.id === "string" && typeof frame2.method === "string" && frame2.method !== "event";
 var JsonRpcGatewayError = class extends Error {
   code;
   data;
@@ -32880,13 +32883,13 @@ var JsonRpcRequestChannel = class {
    */
   deliverRequest(id, method, params, replayed = false) {
     let settled2 = false;
-    const send2 = (frame) => {
+    const send2 = (frame2) => {
       if (settled2) {
         return;
       }
       settled2 = true;
       try {
-        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id, ...frame }));
+        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id, ...frame2 }));
       } catch {
       }
     };
@@ -32937,7 +32940,7 @@ var JsonRpcRequestChannel = class {
     }
   }
   /** Settle the ping or pending call this response answers; an unknown id is ignored. */
-  settleResponse(id, frame) {
+  settleResponse(id, frame2) {
     if (typeof id === "string" && this.outstandingPings.delete(id)) {
       this.lastLivenessAt = Date.now();
       return;
@@ -32948,12 +32951,12 @@ var JsonRpcRequestChannel = class {
     }
     this.lastLivenessAt = Date.now();
     this.clearPending(id);
-    if (frame.error) {
-      call.reject(jsonRpcErrorFromFrame(frame.error));
+    if (frame2.error) {
+      call.reject(jsonRpcErrorFromFrame(frame2.error));
       return;
     }
-    this.deliverOpenRequests(frame.result);
-    call.resolve(frame.result);
+    this.deliverOpenRequests(frame2.result);
+    call.resolve(frame2.result);
   }
   /**
    * Route one inbound frame: a response settles its pending call, an error
@@ -32964,38 +32967,38 @@ var JsonRpcRequestChannel = class {
    * JSON or not a JSON object (`null`, a scalar).
    */
   handleFrame(text18) {
-    let frame;
+    let frame2;
     try {
-      frame = JSON.parse(text18);
+      frame2 = JSON.parse(text18);
     } catch {
       return null;
     }
-    if (!frame || typeof frame !== "object") {
+    if (!frame2 || typeof frame2 !== "object") {
       return null;
     }
     if (this.options.heartbeatLiveness === "any-inbound") {
       this.lastLivenessAt = Date.now();
     }
-    if (isServerRequestFrame(frame)) {
-      const params = frame.params && typeof frame.params === "object" ? frame.params : {};
-      this.deliverRequest(frame.id, frame.method, params);
-      return frame;
+    if (isServerRequestFrame(frame2)) {
+      const params = frame2.params && typeof frame2.params === "object" ? frame2.params : {};
+      this.deliverRequest(frame2.id, frame2.method, params);
+      return frame2;
     }
-    if (frame.id !== void 0 && frame.id !== null) {
-      this.settleResponse(frame.id, frame);
-      return frame;
+    if (frame2.id !== void 0 && frame2.id !== null) {
+      this.settleResponse(frame2.id, frame2);
+      return frame2;
     }
-    if (frame.error) {
-      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame.error));
-      return frame;
+    if (frame2.error) {
+      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame2.error));
+      return frame2;
     }
-    if (frame.method === "event" && frame.params && typeof frame.params.type === "string") {
-      if (frame.params.type === "gateway.ready") {
+    if (frame2.method === "event" && frame2.params && typeof frame2.params.type === "string") {
+      if (frame2.params.type === "gateway.ready") {
         this.advertiseCapabilities();
       }
-      this.options.onEvent?.(frame.params);
+      this.options.onEvent?.(frame2.params);
     }
-    return frame;
+    return frame2;
   }
   /**
    * Tell the backend, once per connection generation, that this client answers
@@ -35144,8 +35147,8 @@ function browserCaller(session2) {
 function validBrowserId(id) {
   return /^[1-9][0-9]*$/.test(id);
 }
-function validBrowserFrame(frame) {
-  return frame === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame);
+function validBrowserFrame(frame2) {
+  return frame2 === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame2);
 }
 function requireCaller(caller) {
   if (!caller || !caller.current() || !caller.sessionId || !PROFILE.test(caller.profile)) {
@@ -35205,18 +35208,18 @@ async function listBrowserBlocks(gw2, caller) {
     ...typeof reason2 === "string" ? { reason: reason2 } : {}
   };
 }
-async function browserTarget(gw2, action, caller, targetId, frame) {
+async function browserTarget(gw2, action, caller, targetId, frame2) {
   if (!validBrowserId(targetId)) {
     throw new Error("Invalid Tern browser block id");
   }
-  if (action === "hermes-tern.browser.frame" && (!frame || !validBrowserFrame(frame))) {
+  if (action === "hermes-tern.browser.frame" && (!frame2 || !validBrowserFrame(frame2))) {
     throw new Error("Use main or an exact frame index path (for example 0 or 1.0)");
   }
   await ensureMethod(gw2, caller, action);
   const raw2 = await gw2.request(action, {
     session_id: caller.sessionId,
     target_id: targetId,
-    ...action === "hermes-tern.browser.frame" ? { frame } : {}
+    ...action === "hermes-tern.browser.frame" ? { frame: frame2 } : {}
   });
   requireCaller(caller);
   const data = record(raw2);
@@ -35260,15 +35263,15 @@ function ternTargetOf(call) {
   const id = target2?.["target_id"];
   const title = target2?.["title"];
   const url = target2?.["url"];
-  const frame = target2?.["frame"];
-  if (target2?.["in_tern"] !== true || typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || frame !== void 0 && frame !== null && typeof frame !== "string") {
+  const frame2 = target2?.["frame"];
+  if (target2?.["in_tern"] !== true || typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || frame2 !== void 0 && frame2 !== null && typeof frame2 !== "string") {
     return void 0;
   }
   return {
     target_id: id,
     title,
     url,
-    ...typeof frame === "string" ? { frame } : {}
+    ...typeof frame2 === "string" ? { frame: frame2 } : {}
   };
 }
 
@@ -35776,8 +35779,8 @@ function liveCard(payload, session2) {
   const op = { deadlineAt, id, seq, session: session2 };
   return { callId, card: { op, opened: [], settled: settleReason(r), targets } };
 }
-function applyFrame(card, frame) {
-  const r = record(frame);
+function applyFrame(card, frame2) {
+  const r = record(frame2);
   const op = card.op;
   const seq = num4(r?.["seq"]);
   if (!r || !op || card.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
@@ -41780,8 +41783,8 @@ function openBrowserBlocks(host) {
   let message = caller ? "Loading Tern browser blocks\u2026" : "Native browser unavailable: verified canonical profile identity is missing from this session.";
   let selected;
   let editing;
-  const frame = new Composer();
-  frame.set("main");
+  const frame2 = new Composer();
+  frame2.set("main");
   const live = () => host.session.ref === sessionRef && host.session.ref.live === sid && host.overlays.at(-1) === overlay2;
   const refresh = async () => {
     if (!live() || working || loading) {
@@ -41839,7 +41842,7 @@ function openBrowserBlocks(host) {
           await refresh();
         }
       } else if (intent2 === "frame") {
-        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame.text.trim());
+        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame2.text.trim());
         if (live()) {
           message = `Block ${result.target_id} \xB7 evaluation frame ${result.frame ?? "main"}`;
           if (editing === block) {
@@ -41868,7 +41871,7 @@ function openBrowserBlocks(host) {
       return;
     }
     editing = block;
-    frame.set("main");
+    frame2.set("main");
     host.changed();
   };
   const overlay2 = {
@@ -41916,15 +41919,15 @@ function openBrowserBlocks(host) {
             "input",
             {
               aria: "Evaluation frame path",
-              cursor: frame.cursor,
+              cursor: frame2.cursor,
               onEdit: (ev) => {
                 if (live() && present(block) && editing === block && !working) {
-                  frame.edit(ev);
+                  frame2.edit(ev);
                   host.changed();
                 }
               },
               role: "omp.ask.input",
-              text: frame.text
+              text: frame2.text
             },
             "frame-path"
           ),
@@ -41953,7 +41956,7 @@ function openBrowserBlocks(host) {
           editing = void 0;
         } else if (key3.name === "up" || key3.name === "down") {
           selected = moveSelection(key3, blocks2.map((block) => block.target_id), selected) ?? selected;
-        } else if (frame.key(key3) === "submit") {
+        } else if (frame2.key(key3) === "submit") {
           void choose(editing, "frame");
         }
         host.changed();
@@ -74581,7 +74584,7 @@ async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get = fetch) {
   }
 }
 var STANCE = { agree: { label: "AGREE", color: NIGHT.agree }, dissent: { label: "DISSENT", color: NIGHT.danger }, abstain: { label: "ABSTAIN", color: NIGHT.text3 } };
-function councilCard(src, frame, size = 480) {
+function councilCard(src, frame2, size = 480) {
   let next2 = 10;
   const text18 = (value) => ({ t: "text", text: value });
   const el = (tag3, style2, kids, opts = {}) => ({
@@ -74597,9 +74600,9 @@ function councilCard(src, frame, size = 480) {
   const svg3 = (markup, w, style2 = "") => ({ t: "svg", svg: markup, w, h: w, cls: "", style: style2 });
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
   const { run: run8 } = src;
-  const done = frame.t !== null && frame.t >= schedule(run8).total;
-  const playing = frame.t !== null && !done;
-  const shown3 = closedSeats(run8, frame);
+  const done = frame2.t !== null && frame2.t >= schedule(run8).total;
+  const playing = frame2.t !== null && !done;
+  const shown3 = closedSeats(run8, frame2);
   const agree = run8.verdicts.filter((v) => v.stance === "agree").length;
   const dissent = run8.verdicts.filter((v) => v.stance === "dissent").length;
   const abstain = run8.verdicts.filter((v) => v.stance === "abstain").length;
@@ -74620,7 +74623,7 @@ function councilCard(src, frame, size = 480) {
   const verdictBox = el("div", `padding:10px 14px;border-radius:14px;border:1px solid ${dissent && done ? "rgba(227,127,101,0.45)" : "rgba(152,207,139,0.22)"};background-color:rgba(28,28,24,0.55)`, [
     el("div", "display:flex;align-items:center;gap:8px", [
       el("span", `width:7px;height:7px;border-radius:4px;background-color:${done ? dissent ? NIGHT.danger : NIGHT.agree : NIGHT.muted}`, []),
-      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text18(done ? run8.outcome ?? "The council has spoken" : frame.t === null ? "The council is seated" : "The council is sitting")])
+      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text18(done ? run8.outcome ?? "The council has spoken" : frame2.t === null ? "The council is seated" : "The council is sitting")])
     ]),
     el("span", `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(done ? `${agree} of ${run8.verdicts.length} agree \xB7 ${dissent} dissent${abstain ? ` \xB7 ${abstain} abstain` : ""}` : `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 verdicts appear as each seat closes`)])
   ]);
@@ -74645,13 +74648,13 @@ function councilCard(src, frame, size = 480) {
     [el("span", gold ? `color:#1d160b;font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text18(label)])],
     { id, attrs: { "data-eui-action": id === CONVENE_ID ? "convene" : "close" } }
   );
-  const convene = playing ? "Convening\u2026" : frame.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
+  const convene = playing ? "Convening\u2026" : frame2.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start", [
-      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg3(instrumentSvg(run8, frame, size), size, "max-width:100%;height:auto")]),
+      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg3(instrumentSvg(run8, frame2, size), size, "max-width:100%;height:auto")]),
       el("div", "flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0", [
-        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame))]),
+        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame2))]),
         verdictBox,
         el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID2, "Close", false)]),
         seats
@@ -74669,7 +74672,7 @@ function openCouncilPopup(host, src, clock4 = realClock) {
   const total = schedule(src.run).total;
   let start = null;
   let stop3;
-  const frame = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
+  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
   const halt = () => {
     stop3?.();
     stop3 = void 0;
@@ -74688,7 +74691,7 @@ function openCouncilPopup(host, src, clock4 = realClock) {
     modal: true,
     focus: () => null,
     node: (id) => {
-      const f = frame();
+      const f = frame2();
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
@@ -94137,10 +94140,9 @@ function drawFrame(cx, now = Date.now()) {
   if (!modal2) {
     cx.completion.update(cx.composer);
   }
-  const voice = cx.liveVoice.node();
-  const lanes2 = cx.lanes?.node() ?? null;
+  const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null);
   const chrome = {
-    dock: [...voice ? [voice] : [], ...lanes2 ? [lanes2] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
+    dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
     layer: [
       ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
@@ -96010,9 +96012,9 @@ var ConnectWatcher = class {
     }
     const op = card.op;
     rpc(this.#host.gw, "connectors.operation.status", opParams(op)).then(
-      (frame) => {
+      (frame2) => {
         if (ticket.isCurrent()) {
-          this.#apply(call, frame);
+          this.#apply(call, frame2);
         }
       },
       (error) => {
@@ -96058,9 +96060,9 @@ var ConnectWatcher = class {
     }
   }
   /** Applies a frame of its operation to `call`'s card, when it moves something. */
-  #apply(call, frame) {
+  #apply(call, frame2) {
     const card = call.connect;
-    const next2 = card && applyFrame(card, frame);
+    const next2 = card && applyFrame(card, frame2);
     if (next2) {
       this.#host.transcript.mutateCall(call, (c) => c.connect = next2);
       this.#host.changed();
@@ -102126,8 +102128,8 @@ var GatewayClient = class extends EventEmitter2 {
     }
   }
   publishLocalEvent(ev) {
-    const frame = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
-    this.mirrorEventToSidecar(frame);
+    const frame2 = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
+    this.mirrorEventToSidecar(frame2);
     this.publish(ev);
   }
   handleWebSocketFrame(raw2) {
@@ -102135,12 +102137,12 @@ var GatewayClient = class extends EventEmitter2 {
     if (!text18) {
       return;
     }
-    const frame = this.channel.handleFrame(text18);
-    if (!frame) {
+    const frame2 = this.channel.handleFrame(text18);
+    if (!frame2) {
       this.protocolError("malformed websocket frame", text18, "(empty frame)");
       return;
     }
-    if (frame.method === "event") {
+    if (frame2.method === "event") {
       this.mirrorEventToSidecar(text18);
     }
   }

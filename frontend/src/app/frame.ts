@@ -9,7 +9,7 @@ import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
 import type { ThinkingOrb } from '../chrome/orb.js'
-import type { LaneStrip } from '../voice/lanes.js'
+import { liveDock, type LaneStrip } from '../voice/lanes.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import type { MediaDelivery } from '../media-delivery.js'
 import type { Completion } from '../overlays/completion.js'
@@ -84,10 +84,9 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
     cx.completion.update(cx.composer)
   }
 
-  const voice = cx.liveVoice.node()
-  const lanes = cx.lanes?.node() ?? null
+  const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null)
   const chrome = {
-    dock: [...(voice ? [voice] : []), ...(lanes ? [lanes] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions)],
+    dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions)],
     layer: [
       ...(cx.aside()
         ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)
