@@ -30,6 +30,11 @@ export function noticeReport(items: readonly Notice[]): string {
     ...lines.flatMap(line => line.split(/\r\n|\r|\n/).map(part => `    ${part}`))].join('\n')
 }
 
+/** Flatten gateway text for the single-line notice strip without turning it into markup. */
+export function noticeLine(text: string): string {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
 /** One projection for notices, backed by the bounded Hermes attention reducer. */
 export class Notices {
   readonly #items = new Dispatches()
@@ -56,7 +61,7 @@ export class Notices {
   active(now = Date.now()): Notice[] {
     return this.#items.active(now).map(item => ({
       key: item.key,
-      text: item.text,
+      text: noticeLine(item.text),
       tone: item.level === 'warn' ? 'warning' : item.level,
       ...(item.expiresAt !== null ? { expires: item.expiresAt } : {})
     }))
