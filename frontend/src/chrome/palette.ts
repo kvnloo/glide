@@ -60,17 +60,23 @@ export function paletteFor(mode: ThemeMode, skin: HermesSkin | undefined): Palet
 }
 
 /** A skin's polarity-specific colors override its base colors. */
-function resolve(skin: HermesSkin, polarity: 'dark' | 'light'): SkinSemantics {
-  return skinColors({ ...skin.colors, ...(polarity === 'light' ? skin.light_colors : skin.dark_colors) }, polarity)
+function resolve(skin: HermesSkin, polarity: 'dark' | 'light'): SkinSemantics & { bg: string } {
+  const colors = { ...skin.colors, ...(polarity === 'light' ? skin.light_colors : skin.dark_colors) }
+  const raw = colors['background']
+  const bg = typeof raw === 'string' && /^#[0-9a-f]{6}$/i.test(raw)
+    ? raw : polarity === 'dark' ? DASH.bg : DASH.fg
+  return { ...skinColors(colors, polarity), bg }
 }
 
-function semantic(c: SkinSemantics): Tokens {
+function semantic(c: SkinSemantics & { bg: string }): Tokens {
+  const ink = (color: string) => ensureContrast(color, c.bg, 4.5)
+  const accent = ink(c.accent)
   const out: Tokens = {
-    accent: c.accent,
-    borderAccent: c.accent,
-    error: c.error,
-    success: c.ok,
-    warning: c.warn
+    accent,
+    borderAccent: accent,
+    error: ink(c.error),
+    success: ink(c.ok),
+    warning: ink(c.warn)
   }
 
   // Never assign the accent to secondary text, paths, bullets or model labels.
