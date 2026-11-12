@@ -6,8 +6,7 @@ import type { HermesSkin } from '@hermes/shared/skin'
 import type { Palette } from '@stencil-hq/tern'
 
 import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
-import { ensureContrast, mix } from '../hermes/theme.js'
-import { skinColors, type SkinSemantics } from '../hermes/theme.js'
+import { ensureContrast, mix, skinColors, type SkinSemantics } from '../hermes/theme.js'
 import type { ThemeMode } from '../settings.js'
 
 type Tokens = Record<string, string>
