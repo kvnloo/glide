@@ -1,6 +1,6 @@
 {
   "repo": "kvnloo/ephemeral-ui",
-  "sha": "63e06b29ffb0d7c5b9d482abebc0312335897321",
+  "sha": "c3b7b275521e125fc303b683fe5c752eabdfd5e2",
   "kinds": [
     "inbox",
     "thread",
@@ -51,6 +51,9 @@
     "infra-architecture",
     "infra-cluster",
     "infra-iac",
-    "infra-models"
+    "infra-models",
+    "fleet-hosts",
+    "fleet-portfolio",
+    "fleet-factory"
   ]
 }

@@ -34,10 +34,14 @@ describe('offline ephemeral-ui rendering', () => {
         cards.set(kind, sb.mount(kind, app, () => undefined))
       }
       await vi.advanceTimersByTimeAsync(200)
-      expect(cards.size).toBe(50)
+      expect(cards.size).toBe(53)
       expect(network).not.toHaveBeenCalled()
       expect(content(cards.get('trace')?.snapshot() ?? null)).toContain('Trace data unavailable')
       expect(content(cards.get('intent-contract')?.snapshot() ?? null)).toContain('Source unavailable. No result inferred.')
+      // Fleet cards never fall back to synthetic hosts, products or agents without local data.
+      for (const kind of ['fleet-hosts', 'fleet-portfolio', 'fleet-factory']) {
+        expect(content(cards.get(kind)?.snapshot() ?? null)).toContain('Fleet data unavailable')
+      }
       // Snapshot-backed ops kinds are not part of card.v0; any registered one follows the same offline facade.
       const ops = must(sb.kinds.find(kind => kind.startsWith('ops-')))
       const app = sb.apps().find(a => a.kinds.includes(ops))?.id ?? 'github'
