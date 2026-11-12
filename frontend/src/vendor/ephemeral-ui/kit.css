@@ -1648,7 +1648,7 @@
 [data-eui='card'] .fh-title{font-size:30px}
 [data-eui='card'] .fh-l0 .fh-mm{display:none}
 [data-eui='card'] .fh-kids{margin-left:6px}
-[data-eui='card'] .fh-row{gap:7px;padding-inline:4px}
+[data-eui='card'] .fh-row{gap:7px;padding-left:4px;padding-right:4px}
 [data-eui='card'] .fh-harness{font:500 12px var(--fl-mono);color:var(--fl-ink3);margin:12px 8px 4px}
 [data-eui='card'] .fh-agentwrap[data-eui-a-open] .fh-line,[data-eui='card'] .fh-sub{white-space:normal;overflow-wrap:anywhere}
 [data-eui='card'] .fh-host-group{min-width:0}

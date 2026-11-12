@@ -35,6 +35,10 @@ export function ternDecl(decl) {
   if (prop === 'position' && value === 'fixed') { return `${decl.slice(0, at)}:absolute` }
   if (prop === 'border-block') { return `border-top:${value};border-bottom:${value}` }
   if (prop === 'border-inline-start') { return `border-left:${value}` }
+  if (prop === 'padding-inline') {
+    if (/\s/.test(value)) { return undefined }
+    return `padding-left:${value};padding-right:${value}`
+  }
   return `${decl.slice(0, at)}:${value}`
 }
 
