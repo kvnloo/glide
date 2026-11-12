@@ -1,5 +1,5 @@
 // Liquid glass for the `auto` theme, as the hackathon film draws Glide: frosted translucent cards
-// over the wallpaper, a thin accent→glow gradient rim with a soft halo, dust motes drifting round
+// over the wallpaper, lit from one source: a top-lit hairline rim and a neutral drop shadow, faint dust motes round
 // the live cards, and 150-250ms hover lifts. Every Glide view wears it: the kit's cards (intent,
 // council, focus, digest, hosts, fleet, intel), Tern's popups and modals, the composer, the live
 // lanes dock, the status row and the transcript's own lines. Every color is the wallpaper palette (wal.ts), bound once as --g-*
@@ -140,11 +140,12 @@ export function glassCss(p: WalPalette): string {
   const hi = (pct: number) => rgba(p.fg, pct)
   const tint = glass(restTint(p))
   const frost = '-webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%)'
-  const halo = `0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a(55)}, inset 0 1px 0 ${hi(8)}`
-  const haloHot = `0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a(75)}, inset 0 1px 0 ${hi(10)}`
-  // Gold on top fading to cyan below, as the film's cards are rimmed. Tern sizes a gradient to its
-  // box whatever background-size says, so the hover shimmer breathes the rim rather than sliding it.
-  const rim = `linear-gradient(180deg, ${p.accent}, ${a(70)} 30%, ${b(70)} 62%, ${p.glow})`
+  // One light source, from above: a neutral shadow that sets the pane on the wallpaper and a hairline
+  // rim brightest on top. No colored outer halo: a gold and a cyan bloom read as neon, not glass.
+  const halo = `0 1px 2px ${shadow(40)}, 0 18px 40px -18px ${shadow(85)}, inset 0 1px 0 ${hi(8)}`
+  const haloHot = `0 2px 4px ${shadow(45)}, 0 24px 48px -18px ${shadow(92)}, inset 0 1px 0 ${hi(12)}`
+  // Tern sizes a gradient to its box whatever background-size says, so the hover breathes the rim rather than sliding it.
+  const rim = `linear-gradient(180deg, ${hi(30)}, ${hi(10)} 18%, ${hi(5)} 60%, ${a(16)})`
   const mask = '-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude'
   const mote = (size: number, x: number, y: number, c: string) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`
   const motes = [
@@ -152,8 +153,6 @@ export function glassCss(p: WalPalette): string {
     mote(2.5, 6, 92, a(80)), mote(3, 94, 88, b(85)), mote(2, 12, 34, a(70)), mote(2.5, 89, 26, b(75)),
     mote(2, 9, 74, b(70)), mote(2, 91, 66, a(70))
   ].join(', ')
-  // Sparks sit on the rim line (the layer reaches 6px past the card), clear of the content padding.
-  const sparks = [mote(2.5, 28, 2, p.accent), mote(2, 74, 2, p.accent), mote(2.5, 99, 46, p.glow), mote(2, 62, 98, p.glow), mote(1.5, 1, 64, p.glow)].join(', ')
   const k = K
   // The kit's and the intent cards' sheets land after this one, so each rule outranks theirs. The intent
   // cards rim the council in a fixed violet; under glass it takes the palette's glow. Its label stays --h-fg
@@ -162,9 +161,7 @@ export function glassCss(p: WalPalette): string {
   return `
 .sf, [data-eui='card'], .sf-overlay { ${vars}; --sf-card-bg: ${tint}; --pop-bg: ${tint}; --modal-bg: ${tint}; --glass-hi: ${hi(10)}; }
 ${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
-${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .85; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
-@keyframes glide-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -26px); } }
-@keyframes glide-twinkle { from { opacity: .45; } to { opacity: .95; } }
+${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: 0; }
 ${CARD}, ${EDITOR}, ${POPUP}, ${LANES} { background: ${tint}; ${frost}; box-shadow: ${halo}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${CARD} { border-color: transparent; border-radius: 16px; }
 ${LANES} { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 14px; }
@@ -172,34 +169,32 @@ ${STATUS} { background: ${tint}; ${frost}; box-shadow: inset 0 1px 0 ${hi(10)}, 
 ${NATIVE} { ${frost}; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${POPUP} { box-shadow: ${halo}, 0 0 0 1px ${a(18)}; }
 .sf-overlay .sf-ov-dim { background: ${shadow(40)}; }
-${after(RIMMED)} { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .7; transition: opacity .2s var(--g-ease); }
-${EDITOR}::after { opacity: .9; }
+${after(RIMMED)} { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .9; transition: opacity .2s var(--g-ease); }
+${EDITOR}::after { opacity: 1; }
 .sf-place-dir, .sf-place-sep, .sf-t-dim { color: var(--t3); }
 .sf-t-muted { color: var(--t2); }
 ${TEXT} { background: ${tint}; ${frost}; padding: 6px 10px; margin: -6px -10px; border-radius: 10px; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${INNER} { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }
-${CARD}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
 ${CARD}:hover { transform: translateY(-1px); box-shadow: ${haloHot}; }
-${EDITOR}:hover { box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 38px -10px ${b(75)}, 0 0 20px -8px ${a(60)}, inset 0 1px 0 ${hi(10)}; }
+${EDITOR}:hover { box-shadow: ${haloHot}; }
 ${CARD}:hover::after, ${EDITOR}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
-${CARD}:hover::before { opacity: 1; transform: translateY(0); }
-@keyframes glide-shimmer { from { opacity: .85; } to { opacity: 1; } }
+@keyframes glide-shimmer { from { opacity: .9; } to { opacity: 1; } }
 ${k} .ih-hero, ${k} .ah-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
-${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
+${k} .ih-hero:hover { border-color: ${a(40)}; box-shadow: inset 0 1px 0 ${hi(12)}; }
 ${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget, ${k} .ih-repo, ${k} .ih-stamp, ${k} .ah-fact, ${k} .ah-ask { background: ${glass(24)}; border-color: ${a(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
 ${k} .ah-tile, ${k} .ah-note { background: ${glass(24)}; }
 ${k} .ih-sample { background: ${glass(45)}; border-color: ${a(45)}; color: ${p.accent}; }
-${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a(60)}; box-shadow: 0 0 14px -6px ${a(60)}; }
+${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a(60)}; box-shadow: 0 6px 14px -8px ${shadow(80)}; }
 ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
-${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a(55)}; }
+${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a(14)}; transform: translateY(-1px); box-shadow: 0 6px 12px -8px ${shadow(80)}; }
 ${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: ${p.glow}; }
-${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
+${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(30)}; }
 ${k} .ih-flowlink.ih-gated { background: ${p.glow}; }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a(30)}; }
-${k} .eu-btn:hover { border-color: ${a(70)}; box-shadow: 0 0 16px -6px ${a(70)}; transform: translateY(-1px); }
+${k} .eu-btn:hover { border-color: ${a(70)}; box-shadow: 0 6px 14px -8px ${shadow(80)}; transform: translateY(-1px); }
 ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
 .hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }
-.hermes-press:hover { background-color: ${a(16)}; box-shadow: 0 0 14px -6px ${a(70)}; }
+.hermes-press:hover { background-color: ${a(16)}; box-shadow: 0 6px 14px -8px ${shadow(80)}; }
 @media (prefers-reduced-motion: reduce) {
   ${MOTES}, ${CARD}:hover::after, ${EDITOR}:hover::after { animation: none; }
   ${CARD}:hover, ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover, ${k} .ih-key:hover, ${k} .eu-chip:hover, ${k} .eu-btn:hover { transform: none; }

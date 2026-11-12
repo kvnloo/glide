@@ -135,7 +135,7 @@ describe('glassCss', () => {
   const css = glassCss(p)
   const tint = (() => { const [r, g, b] = [1, 3, 5].map(i => parseInt(p.bg.slice(i, i + 2), 16)); return `rgba(${r},${g},${b},${restTint(p) / 100})` })()
 
-  it("pairs the film's gold accent with its cyan for the rims and halos", () => {
+  it("picks the film's gold accent and its cyan glow from the palette", () => {
     expect(p.accent).toBe('#d9c27e')
     expect(p.glow).toBe('#5cc3c9')
     // With nothing else colored, the glow is the accent itself.
@@ -186,7 +186,17 @@ describe('glassCss', () => {
     expect(decl(css, GLASS_VIEWS.cards)).toMatch(/backdrop-filter: blur\(/)
     expect(decl(css, GLASS_VIEWS.composer)).toMatch(/backdrop-filter: blur\(/)
     expect(css).not.toContain('!important')
-    expect(decl(css, `${GLASS_VIEWS.cards}::after`)).toMatch(new RegExp(`linear-gradient\\(180deg, ${p.accent}[^;]*${p.glow}\\)`))
+    // One light source: the rim is the text ink, brightest on top; no colored blur halo at rest or on hover.
+    const fg = (() => { const [r, g, b] = [1, 3, 5].map(i => parseInt(p.fg.slice(i, i + 2), 16)); return `rgba(${r},${g},${b},` })()
+    expect(decl(css, `${GLASS_VIEWS.cards}::after`)).toContain(`linear-gradient(180deg, ${fg}0.3)`)
+    const glowRgb = [1, 3, 5].map(i => parseInt(p.glow.slice(i, i + 2), 16)).join(',')
+    const accRgb = [1, 3, 5].map(i => parseInt(p.accent.slice(i, i + 2), 16)).join(',')
+    for (const m of css.matchAll(/box-shadow:([^;}]*)/g)) {
+      for (const sh of (m[1] ?? '').split(/,(?![^(]*\))/)) {
+        if (/^\s*inset|^\s*-?[\d.]+(px)? -?[\d.]+(px)? 0 /.test(sh)) continue // insets and unblurred hairlines are edges, not glow
+        expect(sh, 'colored blur halo').not.toMatch(new RegExp(`rgba\\((${glowRgb}|${accRgb}),`))
+      }
+    }
     for (const sel of ['.eu-card', '.ih-lane', '.ih-key', '.eu-chip', '.eu-btn']) {
       expect(css).toMatch(new RegExp(`${sel.replace('.', '\\.')}:hover[^{]*\\{[^}]*translateY\\(-1px\\)`))
     }
@@ -196,9 +206,12 @@ describe('glassCss', () => {
     for (const d of durations) expect(d).toBeLessThanOrEqual(0.25)
   })
 
-  it('drifts dust motes behind the cards and stills them for reduced motion', () => {
-    expect(css).toMatch(/:not\(\[data-eui-popup\]\)::before \{[^}]*radial-gradient[^}]*animation: glide-drift/)
-    expect(css).toContain('@keyframes glide-drift')
+  it('shows no dust motes or sparks at rest or on hover, and stills motion when asked', () => {
+    // Kevin read the drifting gold/cyan dots around the window as random particles. Only the /glide glass demo shows them.
+    expect(css).toMatch(/:not\(\[data-eui-popup\]\)::before \{[^}]*radial-gradient[^}]*opacity: 0; \}/)
+    expect(css).not.toContain('glide-drift')
+    expect(css).not.toMatch(/:hover::before/)
+    expect(glassPlayCss(p)).toContain('@keyframes glide-play-motes')
     const still = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'))
     expect(still).toMatch(/::before[^{]*\{ animation: none; \}/)
     expect(still).toMatch(/:hover[^{]*\{ transform: none; \}/)
