@@ -266,3 +266,42 @@ def test_lane_token_file_is_opt_in_through_the_plugin_setting(launched, monkeypa
     monkeypatch.setattr(launcher.pull_requests, "setting", lambda key: token if key == "lanes_token_file" else None)
     _, [(_, env)] = launched(parse([]))
     assert env["GLIDE_LANES_TOKEN_FILE"] == token
+
+
+def _luminance(hex_: str) -> float:
+    def ch(v: int) -> float:
+        c = v / 255
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (int(hex_[i:i + 2], 16) for i in (1, 3, 5))
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b)
+
+
+def _contrast(a: str, b: str) -> float:
+    hi, lo = sorted((_luminance(a), _luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def test_dash_theme_is_black_and_gold_with_readable_text():
+    theme = json.loads((launcher.THEMES / "dash.json").read_text())
+    vars_, colors = theme["vars"], theme["colors"]
+    assert theme["name"] == "dash"
+    assert vars_["background"] == "#0c0c0a" and vars_["primary"] == "#d7b986"
+    # Every token names a var (or is a color itself), as omp's schema requires.
+    for key, ref in colors.items():
+        assert ref in vars_ or ref.startswith("#"), key
+    # One gold: the accent and the model name wear it; text, muted and dim stay readable on the night.
+    assert colors["accent"] == colors["statusLineModel"] == "primary"
+    for key in ("text", "muted", "dim", "accent", "error", "success", "warning"):
+        assert _contrast(vars_[colors[key]], vars_["background"]) >= 4.5, key
+
+
+def test_install_themes_copies_once_into_omps_theme_folder(tmp_path):
+    env = {"PI_CODING_AGENT_DIR": str(tmp_path / "agent")}
+    target = tmp_path / "agent" / "themes" / "dash.json"
+
+    assert launcher.install_themes(env) == [target]
+    assert target.read_bytes() == (launcher.THEMES / "dash.json").read_bytes()
+    assert launcher.install_themes(env) == []
+
+    target.write_text("{}")
+    assert launcher.install_themes(env) == [target]
