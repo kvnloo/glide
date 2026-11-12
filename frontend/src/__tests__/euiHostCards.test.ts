@@ -46,7 +46,7 @@ describe('host-owned card data', () => {
     expect(drawn).toContain('three reviewed local files')
     expect(drawn).not.toContain('Changed after publication')
     expect(drawn).not.toContain('900')
-    expect(drawn).toContain('false')
+    expect(drawn).toContain('"text":"no"') // a boolean row reads as a word, never the raw false
     eui.theme(true)
     euiCardNode('host', view(), eui)
     eui.click('host', HOST_APPROVE_ID)
@@ -62,12 +62,12 @@ describe('host-owned card data', () => {
 
   it('renders literal text, zero and false without interpreting markup or model grants', () => {
     const { eui, view, entry } = setup()
-    const data = { kind: 'intent-proof', app: 'glide', title: '<script>fetch("remote")</script>',
+    const data = { kind: 'approve', app: 'glide', title: '<script>fetch("remote")</script>',
       rows: [{ label: 'Count', value: 0 }, { label: 'Enabled', value: false }] }
     eui.host.publish(data)
     expect(JSON.stringify(view().node)).toContain('<script>')
     expect(JSON.stringify(view().node)).toContain('"text":"0"')
-    expect(JSON.stringify(view().node)).toContain('"text":"false"')
+    expect(JSON.stringify(view().node)).toContain('"text":"no"')
     expect(JSON.stringify(view().node)).not.toContain('"tag":"script"')
     expect(decodeEuiCard(JSON.stringify({ ...approvalCard(), callback: 'run', host: 1 }), eui.kinds))
       .toEqual({ kind: 'approve', app: 'glide', title: 'Prepare local workspace' })
