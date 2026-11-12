@@ -170,7 +170,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
     text = sections["hermes-tern.ephemeral-ui"]
     kinds = ephemeral_cards.kinds()
-    assert len(kinds) == 53
+    assert len(kinds) == 54
     assert len(text) < 4000
     assert all(f"{k}(" in text for k in kinds)
     assert "synthetic demo content" in text
@@ -183,6 +183,14 @@ def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
     assert "glide.fleet" in text
     assert "never invent" in text.lower()
     assert "host-owned" in text
+
+
+def test_intel_prompt_requires_stock_command_data_not_invented_examples(ctx):
+    sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
+    text = sections["hermes-tern.ephemeral-ui"]
+    assert "intel-suite/glide" in text and "/intel" in text
+    assert "stock intel plugin command, never invented" in text
+    assert "Assistant fences cannot grant intel actions" in text
 
 
 def test_the_chart_task_has_a_plugin_namespaced_key(ctx):

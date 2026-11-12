@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { type JSX, Node, type Session, type Surface, Tree } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, parseLaneStatus } from '../voice/lanes.js'
+import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, parseLaneStatus, speech } from '../voice/lanes.js'
 
 import { stub } from './fakes.js'
 
@@ -121,10 +121,10 @@ describe('live lane strip', () => {
       'Lanes · 1 fast · 1 small · 1 large', // a human summary: the broker's revision id never shows
       'fast · Qwen3 1.7B · dead (URLError)',
       'small · Claude Haiku 4.5 · answered',
-      'last: answer: what is 17 times 23',
+      'last: what is 17 times 23',
       'draft 0.90 · “17 times 23 is 391”',
       'large · Claude Opus 5.5 · thinking',
-      'researching: answer: what is 17 times 23'
+      'researching: what is 17 times 23'
     ])
     expect(lines[1]?.styles).toContain('error')
   })
@@ -157,5 +157,19 @@ describe('live lane strip', () => {
     s.update(true)
     expect(texts(s.node()).map(t => t.text)[0]).toBe('Lanes · 1 fast · 1 small · 1 large · no open call')
     s.close()
+  })
+})
+
+describe('lane text reads as speech', () => {
+  it('drops a leading answer label and trailing router tags', () => {
+    expect(speech('answer: What color do you get mixing blue and yellow paint? [kind=simple]')).toBe('What color do you get mixing blue and yellow paint?')
+    expect(speech('Intent: book a table [kind=plan] [conf=0.8]')).toBe('book a table')
+    expect(speech('You get green.')).toBe('You get green.')
+    expect(speech(null)).toBeNull()
+  })
+  it('cleans broker entries and research lines on parse', () => {
+    const c = parseLaneStatus({ session_id: 's', open: true, lanes: [{ role: 'fast', model: 'm', state: 'answered', researching: 'answer: x [kind=simple]', entry: { text: 'answer: green [kind=simple]', status: 'verified' } }] })
+    expect(c?.lanes[0]?.entry?.text).toBe('green')
+    expect(c?.lanes[0]?.researching).toBe('x')
   })
 })

@@ -148,6 +148,104 @@ describe('feature gate CLI', () => {
     expect(run().output).toContain('base inventory')
   })
 
+  it('merges generic extension inventories into counts and journeys', () => {
+    inventory()
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), journey: 'intel' }] }))
+    write('frontend/e2e/features.other.json', JSON.stringify({ features: [feature('other')] }))
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `other`\n\n## intel\n1. `intel`\n')
+    expect(run()).toEqual({ exit: 0, output: expect.stringContaining('3 | 3 | 0') })
+  })
+
+  it.each(['features.json', 'features.other.json'])('rejects duplicate feature ids across an extension and %s', name => {
+    write(`frontend/e2e/${name}`, JSON.stringify({ features: [feature()] }))
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature()] }))
+    expect(run().output).toContain('duplicate feature id: chat')
+  })
+
+  it('rejects duplicate removal reasons across inventories', () => {
+    inventory([feature()], [{ id: 'old', reason: 'Removed old entry.' }])
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature('intel')], removed: [{ id: 'old', reason: 'Duplicate reason.' }] }))
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `intel`\n')
+    expect(run().output).toContain('duplicate removed id: old')
+  })
+
+  it.each([
+    null,
+    { features: [] },
+    { features: [feature('intel')], removed: [{ id: 'old', reason: '' }] }
+  ])('validates every extension inventory %#', value => {
+    write('frontend/e2e/features.intel.json', JSON.stringify(value))
+    expect(run().exit).toBe(1)
+  })
+
+  it('validates extension journeys and test references in the merged inventory', () => {
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), journey: 'intel' }] }))
+    expect(run().output).toContain('unknown journey: intel')
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n\n## intel\n1. `intel`\n')
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), journey: 'intel', tests: ['missing test title'] }] }))
+    expect(run().output).toContain('intel: test reference not found')
+  })
+
+  it('requires a reason for deletion of an entire extension that exists only in the base', () => {
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature('intel')] }))
+    base()
+    rmSync(join(root, 'frontend/e2e/features.intel.json'))
+    expect(run().output).toContain('feature removed without reason: intel')
+    inventory([feature()], [{ id: 'intel', reason: 'Removed the old extension.' }])
+    expect(run().exit).toBe(0)
+  })
+
+  it('compares extension test references to the base without weakening the zero-test count', () => {
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), tests: ['test_chat_reply', 'renders a chat reply'] }] }))
+    base()
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `intel`\n')
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), tests: ['test_chat_reply'] }] }))
+    expect(run().output).toContain('test reference removed without reason: intel')
+    inventory([feature()], [{ id: 'intel', reason: 'Use the remaining integration coverage.' }])
+    expect(run().exit).toBe(0)
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [{ ...feature('intel'), tests: [] }] }))
+    expect(run().output).toContain('features with zero tests increased: 0 -> 1')
+  })
+
+  it('allows a covered feature to move between inventories without being counted as removed', () => {
+    inventory([feature(), feature('intel')])
+    base()
+    inventory()
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature('intel')] }))
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `intel`\n')
+    expect(run()).toEqual({ exit: 0, output: expect.stringContaining('2 | 2 | 0') })
+  })
+
+  it('compares a base extension even when the base has no primary inventory', () => {
+    rmSync(join(root, 'frontend/e2e/features.json'))
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature('intel')] }))
+    base()
+    rmSync(join(root, 'frontend/e2e/features.intel.json'))
+    inventory()
+    expect(run().output).toContain('feature removed without reason: intel')
+  })
+
+  it('rejects malformed and duplicate inventories in the base extensions', () => {
+    write('frontend/e2e/features.intel.json', '{broken')
+    base()
+    rmSync(join(root, 'frontend/e2e/features.intel.json'))
+    expect(run().output).toContain('base inventory')
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature()] }))
+    base()
+    rmSync(join(root, 'frontend/e2e/features.intel.json'))
+    expect(run().output).toContain('duplicate feature id: chat')
+  })
+
+  it('requires strict receipts for extension features as well as primary features', () => {
+    write('frontend/e2e/features.intel.json', JSON.stringify({ features: [feature('intel')] }))
+    write('frontend/e2e/JOURNEYS.md', '## first-chat\n1. `chat`\n2. `intel`\n')
+    const sha = base()
+    write('receipts/results.json', JSON.stringify([{ feature: 'chat', sha, verdict: 'pass' }]))
+    expect(run('--strict', '--receipts', join(root, 'receipts')).output).toContain('missing army pass: intel')
+    write('receipts/results.json', JSON.stringify([{ feature: 'chat', sha, verdict: 'pass' }, { feature: 'intel', sha, verdict: 'pass' }]))
+    expect(run('--strict', '--receipts', join(root, 'receipts'))).toEqual({ exit: 0, output: expect.stringContaining('2 | 2 | 2') })
+  })
+
   it('requires a receipts directory in strict mode and rejects empty or malformed evidence', () => {
     base()
     expect(run('--strict').exit).toBe(1)

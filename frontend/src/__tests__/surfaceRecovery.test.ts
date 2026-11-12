@@ -20,7 +20,6 @@ import { Peer } from './surfacePeer.js'
 
 vi.mock('../../assets/logo.png', () => ({ default: new Uint8Array([137, 80, 78, 71]) }))
 
-
 const turn = () => new Promise<void>(resolve => setImmediate(resolve))
 async function painted() {
   for (let i = 0; i < 8; i++) {
@@ -72,16 +71,18 @@ async function withApp(
 
   try {
     expect(await hello).toBe(true)
-    const gw = new FakeGateway({
-      replies: {
-        'setup.status': () => ({ provider_configured: true }),
-        'session.create': () => ({ session_id: 's1', subscription_id: 'sub1' })
-      }
-    })
+    const gw = new FakeGateway({ replies: {
+      'setup.status': () => ({ provider_configured: true }),
+      'session.create': () => ({ session_id: 's1', subscription_id: 'sub1' })
+    } })
     app = new App(tern, gw.client, 'test', { launch: readLaunchEnv({ HOME: home, HERMES_HOME: home }, home) })
     running = app.run()
     gw.event({ type: 'gateway.ready', payload: {} })
     await painted()
+    const send = async (events: Record<string, unknown>[]) => {
+      input.emit('data', events.map(body => '\x1b_tsp;e;' + JSON.stringify(body) + '\x1b\\').join(''))
+      await painted()
+    }
     const harness: Harness = {
       app, gw, tern, peer,
       surface: () => {
@@ -91,18 +92,9 @@ async function withApp(
         }
         return surface
       },
-      batch: async events => {
-        input.emit('data', events.map(body => '\x1b_tsp;e;' + JSON.stringify(body) + '\x1b\\').join(''))
-        await painted()
-      },
-      event: async body => {
-        input.emit('data', '\x1b_tsp;e;' + JSON.stringify(body) + '\x1b\\')
-        await painted()
-      },
-      ack: async (sf, s) => {
-        input.emit('data', '\x1b_tsp;e;' + JSON.stringify({ ev: 'ack', sf, s }) + '\x1b\\')
-        await painted()
-      }
+      batch: send,
+      event: body => send([body]),
+      ack: (sf, s) => send([{ ev: 'ack', sf, s }])
     }
     await check(harness)
   } finally {

@@ -28,6 +28,7 @@ describe('App: an ephemeral-ui card in an ordinary answer', () => {
     await settle()
     const drawn = JSON.stringify(frame())
     expect(drawn).toContain('"data-eui-kind":"merge"')
+    expect(drawn).toContain('"data-eu":""') // the root mark the compacted kit sheet is scoped by
     expect(drawn).toContain('Done.')
     expect(drawn).not.toContain('```ephemeral-ui')
 

@@ -8,11 +8,11 @@ export function kitSnapshot(node: EuiNode | null, notes: readonly string[], refr
     t: 'el', tag, id: id--, cls: '', style: '', attrs, click: false, kids
   })
   return el('div', [
-    ...(node ? [node] : [el('p', [text(error ? 'Fleet card unavailable' : 'Loading fleet card…')], { role: 'status' })]),
+    ...(node ? [node] : [el('p', [text(error ? 'Card unavailable' : 'Loading card…')], { role: 'status' })]),
     ...notes.map(note => el('p', [text(note)], { 'data-fleet-note': '' })),
     ...(error ? [el('p', [text(error)], { role: 'status' })] : []),
     ...(refresh ? [{ t: 'el', tag: 'button', id: -1, cls: 'eu-btn', style: '',
-      attrs: { title: 'Reload this fleet snapshot', ...(refreshing ? { disabled: 'true' } : {}) },
+      attrs: { title: 'Reload this snapshot', ...(refreshing ? { disabled: 'true' } : {}) },
       click: !refreshing, kids: [text(refreshing ? 'Refreshing…' : 'Refresh')] } satisfies EuiNode] : [])
   ])
 }

@@ -12,9 +12,9 @@ import { build } from 'esbuild'
 import { TERN_BAD_MEDIA, TERN_BAD_SELECTOR, ternBody, ternSelector } from '../src/eui/ternCss.js'
 import { root } from './ratchet.mjs'
 
-export const PIN = 'da2bbcc9de10ec2bb0be8fad16c8f51281ee8fc9'
-const REGISTRIES = ['a', 'b', 'c', 'e', 'f', 't', 'i', 'infra', 'ops', 'fleet']
-const CSS = ['styles.css', 'trace.css', 'intent.css', 'stats.css', 'ops.css', 'infra.css', 'flow.css', 'fleet.css', 'fleet-hosts.css', 'fleet-pm.css', 'fleet-factory.css']
+export const PIN = '2ee7aa0c9d8d808d412dc76bc4827bc2fc288e11'
+const REGISTRIES = ['a', 'b', 'c', 'e', 'f', 't', 'i', 'infra', 'ops', 'fleet', 'intel']
+const CSS = ['styles.css', 'trace.css', 'intent.css', 'stats.css', 'ops.css', 'infra.css', 'flow.css', 'fleet.css', 'fleet-hosts.css', 'fleet-pm.css', 'fleet-factory.css', 'intel.css']
 // Public catalog data only. Trace, ops and intent captures are neither republished nor fetched
 // at runtime. Without local data the kit displays its explicit unavailable states.
 const DATA = ['apps.json', 'themes.json']

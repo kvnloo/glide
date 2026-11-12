@@ -46,14 +46,20 @@ export function parseLaneStatus(v: unknown): LaneCall | null {
       model: String(l['model']),
       resolved: str(l['resolved']),
       state,
-      researching: str(l['researching']),
+      researching: speech(str(l['researching'])),
       error: str(l['error']),
       entry: obj(e) && str(e['text'])
-        ? { text: String(e['text']), confidence: Number(e['confidence']) || 0, status: String(e['status'] ?? 'draft'), kind: String(e['kind'] ?? '') }
+        ? { text: speech(String(e['text'])) ?? '', confidence: Number(e['confidence']) || 0, status: String(e['status'] ?? 'draft'), kind: String(e['kind'] ?? '') }
         : null
     })
   }
   return { sessionId: String(v['session_id']), open: v['open'] === true, revision: str(v['revision']) ?? '', lanes }
+}
+
+/** Lane text as a person reads it: drops a model's leading 'answer:' style label and trailing [key=value] router tags. */
+export function speech(s: string | null): string | null {
+  if (s === null) return null
+  return s.replace(/\s*\[[a-z_]+=[^\]]*\]/gi, '').replace(/^\s*(answer|intent|reply|draft)\s*:\s*/i, '').trim()
 }
 
 type Fetch = (url: string, init: { headers: Record<string, string>; signal: AbortSignal }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>

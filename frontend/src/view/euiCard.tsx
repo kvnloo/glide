@@ -99,7 +99,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
   const key = view.identity === undefined ? card : `${card}.${view.identity}`
   const activate = view.activate ?? ((id: number) => { eui.click(card, id) })
 
-  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: root.t === 'el' ? root.cls : '', role: 'eui.card' },
+  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eu': '', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: root.t === 'el' ? root.cls : '', role: 'eui.card' },
     root.t === 'el' ? root.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `t${i}`, eui, activate)) : [])
 }
 
