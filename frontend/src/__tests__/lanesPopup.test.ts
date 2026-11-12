@@ -18,7 +18,7 @@ import { record } from '../wire/json.js'
 
 import { must, tree } from './fakes.js'
 
-import { fileBindings, lanesCard, openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+import { fileBindings, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
 import { PROVIDERS, ROLE_MODELS } from '../voice/catalog.js'
 import { glideLanes } from '../commands/glide.js'
 
@@ -165,6 +165,18 @@ describe('voice lanes popup', () => {
     expect(out).toContain('"text":"LIVE CALL"')
     expect(out).not.toMatch(/"text":"[^"]*\br7\b/i)
     expect(out).toContain('broker preset r7')
+  })
+
+  it('marks the lane picked on the orbit, and only that one', () => {
+    const { host, feed, bindings, draw } = setup()
+    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}))).not.toContain('data-lane-focus')
+    const role = sortLanes(feed.call?.lanes ?? [])[1]?.role ?? 'none'
+    openLanesPopup(host, feed, bindings, 1)
+    const out = draw()
+    expect(out.match(/data-lane-focus/g)).toHaveLength(1)
+    expect(out).toContain(`"data-lane-focus":"${role}"`)
+    expect(out).toContain('"text":"SELECTED"')
+    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}, 1)).match(/order:-1/g)).toHaveLength(1) // it leads the list, so it opens in view
   })
 
   it('shows a legend: provider hues, effort pips and what the orbit means', () => {
