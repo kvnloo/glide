@@ -37,6 +37,7 @@ import { councilCommand } from '../../../glide/frontend/councilPopup.js'
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
 import { fleetCommand } from './fleet.js'
+import { intelCommand } from './intel.js'
 import { glideCommand, glideLanes } from './glide.js'
 import { REFUSED_COMMANDS, type RefusedHost } from './refused.js'
 import { SESSION_COMMANDS } from './session.js'
@@ -386,6 +387,11 @@ const COMMANDS: readonly LocalCommand[] = [
     help: 'Content factory: toggle the optional pane [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
     run: (host, arg) => arg.trim() === 'graph' ? fleetCommand(host, 'factory') : factoryCommand(host, arg)
+  },
+  {
+    name: 'intel',
+    help: 'Local intelligence [hill|skills|memory|failures|trace]',
+    run: (host, arg) => intelCommand(host, arg)
   },
   {
     name: 'hosts',

@@ -44,13 +44,14 @@ function walk(n: EuiNode | null, f: (n: EuiNode) => void) {
 }
 
 describe('ephemeral-ui fences', () => {
-  it('pins the 53 kinds of card.v0.json at da2bbcc9', () => {
+  it('pins the 54 kinds of card.v0.json at 2ee7aa0c', () => {
     const pin = readFileSync(join(euiDir(), 'PIN.json'), 'utf8')
 
-    expect(pin).toContain('da2bbcc9de10ec2bb0be8fad16c8f51281ee8fc9')
-    expect(KINDS).toHaveLength(53)
+    expect(pin).toContain('2ee7aa0c9d8d808d412dc76bc4827bc2fc288e11')
+    expect(KINDS).toHaveLength(54)
     expect(KINDS).toContain('merge')
     expect(KINDS).toContain('infra-models')
+    expect(KINDS).toContain('intel-suite')
   })
 
   it('splits closed fences out of the Markdown around them, in order', () => {
@@ -278,4 +279,10 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(drawn).toContain('"data-eui-a-aria-checked":"false"')
     eui.close()
   }, 20_000)
+
+  // A viewBox-only chart (intel hill climb, 640 wide) overlapped its side column in real Tern.
+  it('caps kit SVG images at their column width', () => {
+    expect(euiStyles()).toMatch(/\[data-eui-svg\]\s*\{[^}]*max-width:\s*100%;\s*min-width:\s*0/)
+    expect(euiStyles()).toMatch(/\[data-eui-svg\] \.sf-img-svg\s*\{\s*max-width:\s*100%;\s*height:\s*auto/)
+  })
 })
