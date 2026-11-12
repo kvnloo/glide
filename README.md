@@ -23,14 +23,14 @@ Hermes' plugin scanner rates Glide **CAUTION**, the same verdict it gives [alt-g
 
 | | |
 |---|---|
-| **Declare an intent.** `/glide intent <ask>` turns an ask into declaration, contract and approval cards, then a work rail. The rail is a labelled sample: no agent is dispatched. | ![Intent work rail](docs/media/features/intent-work-rail.png) |
+| **Declare an intent.** `/glide intent <ask>` turns an ask into declaration, contract and approval cards, then a work rail. The rail is a labelled sample: no agent is dispatched. | ![Intent declaration](docs/media/features/intent.png) |
 | **Convene a council.** `/council` opens a Socratic review where model seats vote on a hard call. Without `GLIDE_COUNCIL_URL` the run is a labelled **DEMO**. | ![Council](docs/media/features/council.png) |
 | **Watch the lanes.** `/glide lanes` shows each live model lane's state and words as it works. Without a lane broker it says **NOT CONNECTED** instead of drawing one. | ![Voice lanes](docs/media/features/lanes.png) |
 | **Hold a deep-work block.** `/glide focus` shows your phase, bedtime and next deep-work window. Start a 50-minute block and non-critical agent asks wait; critical ones still pass. | ![Focus block](docs/media/features/focus.png) |
 | **Get one digest.** `/glide focus stop` ends the block and hands back every held ask once. | ![Digest](docs/media/features/digest.png) |
 | **Know your hours.** `/glide focus hours` draws the two-hour windows you worked in most over 30 days, learned from your own local sessions. | ![Best hours](docs/media/features/hours.png) |
 | **Wind down.** `/glide focus wind-down` saves where you left off; tomorrow's first turn starts there. | ![Wind-down](docs/media/features/wind-down.png) |
-| **Wear the wallpaper.** `/glide theme auto` themes Tern from your pywal colors (or `GLIDE_WAL_COLORS`) with liquid-glass cards; `default` reverts, `export` writes the palette. | ![Glass strengths (film still)](docs/media/features/glass-film.jpg) |
+| **Wear the wallpaper.** `/glide theme auto` themes Tern from your pywal colors (or `GLIDE_WAL_COLORS`) with liquid-glass cards; `default` reverts, `export` writes the palette. | ![Wallpaper-themed contract cards](docs/media/features/theme-cards.png) |
 
 Also: `/hosts`, `/portfolio` and `/factory graph` render validated fleet and factory cards from local sources (missing sources never become fictional hosts), and `/glide taste` opens a separately running [Taste Atlas](glide/docs/taste.md) board in a pane. Live voice (`/live`, Alt+Shift+V) needs a Hermes gateway with `voice.live` methods and a local lane broker. [Voice and lanes](frontend/docs/voice.md)
 
