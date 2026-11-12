@@ -43,7 +43,7 @@ const graphDoc = () => decodeEuiKit({ kind: 'fleet-factory', app: 'aodl', data: 
 describe('Fleet compact presentation', () => {
   it('answers the host question in one hero, then one bounded row and action per host', () => {
     const model = fleetDesign(hostDoc(), 'hosts')
-    expect(model.hero).toContain('3 hosts · failed · Check host on Spare')
+    expect(model.hero).toContain('3 hosts · offline · Check host on Spare')
     expect(model.rows).toHaveLength(3)
     expect(model.rows.filter(row => row.recommended)).toHaveLength(1)
     expect(model.rows.map(row => row.action)).toEqual(['Answer', 'Check host', 'Check host'])
