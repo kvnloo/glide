@@ -186,7 +186,7 @@ describe('native plan review', () => {
     openPlanReview(f.host)
     await paint()
 
-    expect(f.gw.sent('hermes-tern.plan.status')).toEqual([{ session_id: 'runtime-a' }])
+    expect(f.gw.sent('glide.plan.status')).toEqual([{ session_id: 'runtime-a' }])
     expect(f.element('authority')?.props['text']).toContain('Plan authority unavailable')
     expect(f.element('markdown')?.props['text']).toContain('# Assistant plan')
     expect(f.element('approve')?.props['aria']).toBe('Continue (ordinary prompt)')
@@ -217,13 +217,13 @@ describe('native plan review', () => {
     expect(f.send).toHaveBeenCalledWith('Approved — proceed with the plan.')
     expect(f.enqueue).not.toHaveBeenCalled()
     expect(f.overlays).toHaveLength(0)
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.gw.sent('prompt.submit')).toEqual([])
     expect([f.draft.text, f.draft.cursor, [...f.draft.pasted]]).toEqual(draftBefore)
   })
 
   it('sends ordinary refinement text via the prompt port, not plan.decide; empty and duplicate submissions do nothing', async () => {
-    const f = fixture({ 'hermes-tern.plan.status': () => ({ enabled: false, generating: false, plan: null }) })
+    const f = fixture({ 'glide.plan.status': () => ({ enabled: false, generating: false, plan: null }) })
     openPlanReview(f.host)
     await paint()
 
@@ -243,7 +243,7 @@ describe('native plan review', () => {
     expect(f.send).toHaveBeenCalledTimes(1)
 
     expect(f.send).toHaveBeenCalledWith('Refine the plan: Add rollback checks')
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.enqueue).not.toHaveBeenCalled()
     expect(f.draft.text).toBe('Keep this draft and caret')
     expect(f.draft.cursor).toBe(7)
@@ -259,7 +259,7 @@ describe('native plan review', () => {
     expect(f.enqueue).toHaveBeenCalledTimes(1)
     expect(f.enqueue).toHaveBeenCalledWith('Approved — proceed with the plan.')
     expect(f.send).not.toHaveBeenCalled()
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.draft.text).toBe('Keep this draft and caret')
   })
 
@@ -281,13 +281,13 @@ describe('native plan review', () => {
   it('does not offer ordinary approval in enabled planning mode, or while status is loading', async () => {
     let respond!: (value: unknown) => void
     const f = fixture({
-      'hermes-tern.plan.status': () => new Promise(resolve => { respond = resolve })
+      'glide.plan.status': () => new Promise(resolve => { respond = resolve })
     })
     openPlanReview(f.host)
     expect(f.element('approve')).toBeUndefined()
     // Discovery is an asynchronous, session-scoped capability RPC.
     await paint()
-    expect(f.gw.sent('hermes-tern.plan.status')).toEqual([{ session_id: 'runtime-a' }])
+    expect(f.gw.sent('glide.plan.status')).toEqual([{ session_id: 'runtime-a' }])
     respond({ enabled: true, generating: false, plan: null })
     await paint()
     expect(f.element('approve')).toBeUndefined()
@@ -296,7 +296,7 @@ describe('native plan review', () => {
   })
 
   it('rejects captured mode, edit and approve actions after an idle modal preempts the plan sheet', async () => {
-    const f = fixture({ 'hermes-tern.plan.status': initial, 'hermes-tern.plan.mode': initial })
+    const f = fixture({ 'glide.plan.status': initial, 'glide.plan.mode': initial })
     openPlanReview(f.host)
     await paint()
 
@@ -313,9 +313,9 @@ describe('native plan review', () => {
     refine()
     planSheet.onKey(key('a', { alt: true }))
     planSheet.onKey(key('text', { text: 'ignored' }))
-    expect(f.gw.sent('hermes-tern.plan.mode')).toEqual([])
-    expect(f.gw.sent('hermes-tern.plan.edit')).toEqual([])
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.mode')).toEqual([])
+    expect(f.gw.sent('glide.plan.edit')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.send).not.toHaveBeenCalled()
     expect(f.overlays).toHaveLength(2)
     f.host.close(must(f.overlays.at(-1)))
@@ -323,7 +323,7 @@ describe('native plan review', () => {
   })
 
   it('drops captured native editor events and keyboard input under preemption', async () => {
-    const f = fixture({ 'hermes-tern.plan.status': initial })
+    const f = fixture({ 'glide.plan.status': initial })
     openPlanReview(f.host)
     await paint()
     f.click('refine')
@@ -339,14 +339,14 @@ describe('native plan review', () => {
     f.host.close(must(f.overlays.at(-1)))
 
     expect(f.element('note')?.props['text']).toBe('')
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.send).not.toHaveBeenCalled()
   })
 
   it('rejects late external-editor completion after a modal preemption without any RPC', async () => {
     let finish!: (text: string) => void
     vi.mocked(editPlanExternal).mockImplementationOnce(() => new Promise<string>(resolve => { finish = resolve }))
-    const f = fixture({ 'hermes-tern.plan.status': initial })
+    const f = fixture({ 'glide.plan.status': initial })
     openPlanReview(f.host)
     await paint()
     f.click('external-editor')
@@ -356,8 +356,8 @@ describe('native plan review', () => {
     finish('# Late edit from $EDITOR')
     await paint()
 
-    expect(f.gw.sent('hermes-tern.plan.edit')).toEqual([])
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.edit')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     expect(f.send).not.toHaveBeenCalled()
   })
 
@@ -392,8 +392,8 @@ describe('native plan review', () => {
   it('invalidates a captured mode toggle when a fresh backend revision arrives', async () => {
     let status = initial()
     const f = fixture({
-      'hermes-tern.plan.status': () => structuredClone(status),
-      'hermes-tern.plan.mode': () => {
+      'glide.plan.status': () => structuredClone(status),
+      'glide.plan.mode': () => {
         status = { ...status, enabled: false }
         return structuredClone(status)
       }
@@ -405,15 +405,15 @@ describe('native plan review', () => {
     await paint()
     oldMode()
 
-    expect(f.gw.sent('hermes-tern.plan.mode')).toEqual([{ enabled: false, session_id: 'runtime-a' }])
+    expect(f.gw.sent('glide.plan.mode')).toEqual([{ enabled: false, session_id: 'runtime-a' }])
     expect(f.send).not.toHaveBeenCalled()
   })
 
   it('renders authoritative status and sends a single exact-revision approval, not a prompt', async () => {
     const status = initial()
     const f = fixture({
-      'hermes-tern.plan.status': () => structuredClone(status),
-      'hermes-tern.plan.decide': params => ({ ...status, plan: { ...status.plan, decision: params['intent'] === 'approve' ? 'approved' : 'refined' } })
+      'glide.plan.status': () => structuredClone(status),
+      'glide.plan.decide': params => ({ ...status, plan: { ...status.plan, decision: params['intent'] === 'approve' ? 'approved' : 'refined' } })
     })
     openPlanReview(f.host)
     await paint()
@@ -425,7 +425,7 @@ describe('native plan review', () => {
     first()
     await paint()
 
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([{
+    expect(f.gw.sent('glide.plan.decide')).toEqual([{
       feedback: '', intent: 'approve', plan_id: 'plan-1', revision: 3, session_id: 'runtime-a'
     }])
     expect(f.gw.sent('prompt.submit')).toEqual([])
@@ -440,8 +440,8 @@ describe('native plan review', () => {
       }
     }
     const f = fixture({
-      'hermes-tern.plan.status': () => structuredClone(status),
-      'hermes-tern.plan.annotate': params => {
+      'glide.plan.status': () => structuredClone(status),
+      'glide.plan.annotate': params => {
         check(params)
         status = { ...status, plan: {
           ...status.plan, annotations: [{ section: Number(params['section']), text: String(params['text']) }],
@@ -450,7 +450,7 @@ describe('native plan review', () => {
 
         return structuredClone(status)
       },
-      'hermes-tern.plan.edit': params => {
+      'glide.plan.edit': params => {
         check(params)
         status = { ...status, plan: {
           ...status.plan, annotations: [], revision: status.plan.revision + 1, text: String(params['text'])
@@ -458,7 +458,7 @@ describe('native plan review', () => {
 
         return structuredClone(status)
       },
-      'hermes-tern.plan.decide': () => { throw new Error('Stale approval should never reach gateway') }
+      'glide.plan.decide': () => { throw new Error('Stale approval should never reach gateway') }
     })
 
     openPlanReview(f.host)
@@ -470,13 +470,13 @@ describe('native plan review', () => {
     f.click('save')
     await paint()
 
-    expect(f.gw.sent('hermes-tern.plan.annotate')).toEqual([{
+    expect(f.gw.sent('glide.plan.annotate')).toEqual([{
       plan_id: 'plan-1', revision: 3, section: 1, session_id: 'runtime-a', text: 'Add rollback test'
     }])
     expect(f.element('authority')?.props['text']).toContain('revision 4')
     expect(f.nodes().some(node => node.props['role'] === 'omp.plan.annotation')).toBe(true)
     stale()
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
 
     f.click('edit-plan')
     // The dedicated editor starts with the plan; replace it without touching the prompt draft.
@@ -486,7 +486,7 @@ describe('native plan review', () => {
     f.overlays.at(-1)?.onKey(key('text', { text: '# Smaller\nOnly one change' }))
     f.click('save')
     await paint()
-    expect(f.gw.sent('hermes-tern.plan.edit')[0]).toEqual({
+    expect(f.gw.sent('glide.plan.edit')[0]).toEqual({
       plan_id: 'plan-1', revision: 4, session_id: 'runtime-a', text: '# Smaller\nOnly one change'
     })
     expect(f.element('authority')?.props['text']).toContain('revision 5')
@@ -494,7 +494,7 @@ describe('native plan review', () => {
   })
 
   it('drops replaced or changed-session decisions, and never displaces an active prompt', async () => {
-    const f = fixture({ 'hermes-tern.plan.status': initial, 'hermes-tern.plan.decide': initial })
+    const f = fixture({ 'glide.plan.status': initial, 'glide.plan.decide': initial })
 
     openPlanReview(f.host)
     await paint()
@@ -502,11 +502,11 @@ describe('native plan review', () => {
     openPlanReview(f.host)
     await paint()
     stale()
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
     const afterReplacement = f.capture('approve')
     f.session.ref.live = liveSessionId('runtime-b')
     afterReplacement()
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
 
     const active = f.overlays.at(0)
 
@@ -521,11 +521,11 @@ describe('native plan review', () => {
   })
 
   it('preserves /plan with arguments as gateway generation and opens only bare /plan locally', async () => {
-    const f = fixture({ 'hermes-tern.plan.status': initial })
+    const f = fixture({ 'glide.plan.status': initial })
     const cmd = must(localCommand('plan'))
 
     expect(await cmd.run(stub<CommandHost>(f.host), 'build the change')).toBe(false)
-    expect(f.gw.sent('hermes-tern.plan.status')).toEqual([])
+    expect(f.gw.sent('glide.plan.status')).toEqual([])
     await cmd.run(stub<CommandHost>(f.host), '')
     await paint()
     expect(f.element('authority')?.props['text']).toContain('revision 3')
@@ -545,16 +545,16 @@ describe('plan gateway capability and refusal', () => {
     await paint()
 
     expect(f.gw.sent('gateway.capabilities')).toEqual([{ session_id: 'runtime-a' }])
-    expect(f.gw.sent('hermes-tern.plan.status')).toEqual([])
+    expect(f.gw.sent('glide.plan.status')).toEqual([])
     expect(f.element('error')?.props['text']).toContain(PLAN_GATEWAY_REQUIRED)
     expect(f.element('mode')).toBeUndefined()
     expect(f.element('approve')?.props['aria']).toBe('Continue (ordinary prompt)')
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
   })
 
   it('does not mistake a fail-closed registered status for a completed plan', async () => {
     const f = fixture({
-      'hermes-tern.plan.status': () => ({
+      'glide.plan.status': () => ({
         supported: false,
         reason: 'Planning-only core turn authority is unavailable.'
       })
@@ -567,7 +567,7 @@ describe('plan gateway capability and refusal', () => {
     expect(f.element('mode')).toBeUndefined()
     expect(f.element('edit-plan')).toBeUndefined()
     expect(f.element('approve')?.props['aria']).toBe('Continue (ordinary prompt)')
-    expect(f.gw.sent('hermes-tern.plan.mode')).toEqual([])
-    expect(f.gw.sent('hermes-tern.plan.decide')).toEqual([])
+    expect(f.gw.sent('glide.plan.mode')).toEqual([])
+    expect(f.gw.sent('glide.plan.decide')).toEqual([])
   })
 })

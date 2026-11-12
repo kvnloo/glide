@@ -13,8 +13,8 @@ import type { PrRef } from './pullRequest.js'
 export const LINK_TOOLS = new Set(['link_pull_request', 'list_pull_requests', 'unlink_pull_request'])
 
 /** The plugin RPC method that answers a conversation's links, and the session event that says they changed (pull_requests.py). */
-export const LINKED_METHOD = 'plugin.hermes-tern.pull_requests.linked'
-export const LINKS_CHANGED = 'plugin.hermes-tern.pull_requests.changed'
+export const LINKED_METHOD = 'plugin.glide.pull_requests.linked'
+export const LINKS_CHANGED = 'plugin.glide.pull_requests.changed'
 
 function refOf(v: unknown): PrRef | undefined {
   const r = record(v)

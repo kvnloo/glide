@@ -21,8 +21,8 @@ from .table_chart_planner import DEADLINE_SECONDS, TablePlanningUnsupported, _si
 if TYPE_CHECKING:
     from hermes_cli.plugins import PluginContext
 
-POLICY_METHOD = "hermes-tern.table.policy"
-PLAN_METHOD = "hermes-tern.table.plan"
+POLICY_METHOD = "glide.table.policy"
+PLAN_METHOD = "glide.table.plan"
 
 
 class PolicyParams(BaseModel):
@@ -40,7 +40,7 @@ def _owner_mode() -> str:
     Canonical and legacy plugin dispatch establish their profile runtime scope.
     Never interpret a client-supplied profile, policy, or settings path.
     """
-    file = Path(get_hermes_home()) / "hermes-tern" / "settings.json"
+    file = Path(get_hermes_home()) / "glide" / "settings.json"
     try:
         with file.open("rb") as source:
             raw = source.read(16385)

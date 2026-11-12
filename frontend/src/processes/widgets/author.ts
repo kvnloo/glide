@@ -1,7 +1,7 @@
 // The cheap-model side of job charts: one request to Hermes' auxiliary model (task `tern_charts`,
 // so `auxiliary.tern_charts` in config.yaml picks its model) for one JSON answer in the shape the
 // system prompt documents, fed the command and samples of its output. The plugin's Python half runs the
-// request (charts.py, the plugin RPC method `plugin.hermes-tern.charts.author`) and redacts
+// request (charts.py, the plugin RPC method `plugin.glide.charts.author`) and redacts
 // secrets before anything leaves; its reply comes back as a session event.
 // Ported from omp (packages/coding-agent/src/job-widgets/author.ts and its two prompts).
 
@@ -200,8 +200,8 @@ export function renderPrompt(request: AuthorRequest): string {
 }
 
 /** The plugin RPC method that starts a request, and the session event that answers it (charts.py). */
-export const AUTHOR_METHOD = 'plugin.hermes-tern.charts.author'
-export const AUTHOR_EVENT = 'plugin.hermes-tern.charts.authored'
+export const AUTHOR_METHOD = 'plugin.glide.charts.author'
+export const AUTHOR_EVENT = 'plugin.glide.charts.authored'
 
 /** What the author reaches of the gateway client: its requests, and its events for the reply. */
 export interface AuthorGateway {
@@ -214,7 +214,7 @@ const unknownMethod = (error: unknown) => typeof error === 'object' && error !==
 
 /**
  * An {@link Author} that asks the plugin's Python half over `gw`: the call starts the request and
- * answers at once, and the reply arrives as the `plugin.hermes-tern.charts.authored` event of the
+ * answers at once, and the reply arrives as the `plugin.glide.charts.authored` event of the
  * session `sid()` names. It resolves undefined when the gateway does not serve the method.
  */
 export function gatewayAuthor(gw: AuthorGateway, sid: () => null | string): Author {

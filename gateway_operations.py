@@ -109,4 +109,4 @@ def report(request, params: dict) -> dict:
 
 
 def register(ctx) -> None:
-    ctx.register_gateway_method("hermes-tern.operations.report", report, schema=ReportParams)
+    ctx.register_gateway_method("glide.operations.report", report, schema=ReportParams)

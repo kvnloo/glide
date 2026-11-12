@@ -107,10 +107,10 @@ def green(tmp_path, monkeypatch):
     ))
 
     manager = plugins.get_plugin_manager()
-    ctx = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    ctx = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     backend.register(ctx)
     yield server, manager, plugins, home
-    manager.unload("hermes-tern")
+    manager.unload("glide")
     plugins._reset_plugin_managers_for_tests()
     native._DRIVERS.clear()
 
@@ -123,18 +123,18 @@ def test_real_registered_plugin_names_and_live_transport(green):
     attach(server, "s2", foreign)
     names = rpc(server, attached, "gateway.capabilities", session_id="s1")["result"]["plugin_methods"]
     assert names == sorted([
-        "hermes-tern.browser.blocks", "hermes-tern.browser.adopt",
-        "hermes-tern.browser.focus", "hermes-tern.browser.release",
-        "hermes-tern.browser.frame",
+        "glide.browser.blocks", "glide.browser.adopt",
+        "glide.browser.focus", "glide.browser.release",
+        "glide.browser.frame",
     ])
 
-    found = rpc(server, attached, "hermes-tern.browser.blocks", session_id="s1")
+    found = rpc(server, attached, "glide.browser.blocks", session_id="s1")
     assert found["result"]["available"] is False  # no operator tool override grant
     assert found["result"]["blocks"][0]["target_id"] == "7"
     assert ReadOnlyCLI.calls == 1
-    assert rpc(server, foreign, "hermes-tern.browser.blocks", session_id="s1")["error"]["code"] == 4001
+    assert rpc(server, foreign, "glide.browser.blocks", session_id="s1")["error"]["code"] == 4001
     assert rpc(server, attached, "gateway.capabilities", session_id="s2")["error"]["code"] == 4001
-    assert rpc(server, attached, "hermes-tern.browser.adopt", session_id="s1",
+    assert rpc(server, attached, "glide.browser.adopt", session_id="s1",
                target_id="7")["error"]["code"] in {4001, -32000}
     assert ReadOnlyCLI.calls == 1  # refusal had NO native adoption
 
@@ -143,14 +143,14 @@ def test_real_registered_plugin_refuses_client_profile_and_detach(green):
     server, manager, _, _ = green
     peer = Peer()
     attach(server, "s1", peer)
-    for method in ("gateway.capabilities", "hermes-tern.browser.blocks"):
+    for method in ("gateway.capabilities", "glide.browser.blocks"):
         reply = rpc(server, peer, method, session_id="s1", profile="other")
         assert reply["error"]["code"] == 4001
     old = server._sessions.pop("s1")
-    assert rpc(server, peer, "hermes-tern.browser.blocks",
+    assert rpc(server, peer, "glide.browser.blocks",
                session_id="s1")["error"]["code"] == 4001
     attach(server, "s1", Peer())
-    assert rpc(server, peer, "hermes-tern.browser.blocks",
+    assert rpc(server, peer, "glide.browser.blocks",
                session_id="s1")["error"]["code"] == 4001
     assert ReadOnlyCLI.calls == 0
 
@@ -166,13 +166,13 @@ def test_real_registered_plugin_isolated_second_profile(green):
     attach(server, "work-owned", two, str(profile_home))
     names = rpc(server, one, "gateway.capabilities",
                 session_id="default-owned")["result"]["plugin_methods"]
-    assert "hermes-tern.browser.blocks" in names
+    assert "glide.browser.blocks" in names
     foreign_methods = rpc(server, two, "gateway.capabilities",
                           session_id="work-owned")["result"]["plugin_methods"]
-    assert "hermes-tern.browser.blocks" not in foreign_methods
-    assert rpc(server, two, "hermes-tern.browser.blocks",
+    assert "glide.browser.blocks" not in foreign_methods
+    assert rpc(server, two, "glide.browser.blocks",
                session_id="work-owned")["error"]["code"] == -32601
-    assert rpc(server, one, "hermes-tern.browser.blocks",
+    assert rpc(server, one, "glide.browser.blocks",
                session_id="work-owned")["error"]["code"] == 4001
 
 
@@ -182,10 +182,10 @@ def test_real_gateway_unload_revokes_registration(green):
     attach(server, "s1", peer)
     assert rpc(server, peer, "gateway.capabilities",
                session_id="s1")["result"]["plugin_methods"]
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     assert rpc(server, peer, "gateway.capabilities",
                session_id="s1")["result"]["plugin_methods"] == []
-    assert rpc(server, peer, "hermes-tern.browser.blocks",
+    assert rpc(server, peer, "glide.browser.blocks",
                session_id="s1")["error"]["code"] == -32601
 
 
@@ -228,7 +228,7 @@ def _consent(home, enabled: bool):
 
     assert home.is_dir()
     save_config({"plugins": {"entries": {
-        "hermes-tern": {"allow_tool_override": enabled},
+        "glide": {"allow_tool_override": enabled},
     }}}, strip_defaults=False)
 
 
@@ -237,10 +237,10 @@ def _reload_granted(manager, plugins, home, monkeypatch):
 
     importlib.import_module("tools.browser_tool")
     _consent(home, True)
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     ActiveCLI.instances.clear()
     monkeypatch.setattr(backend, "TernBrowserCLI", ActiveCLI)
-    ctx = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    ctx = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     assert ctx.has_capability("tools.override") is True
     backend.register(ctx)
     for name in backend._TOOL_NAMES:
@@ -281,7 +281,7 @@ def test_real_unload_cleanup_before_native_registry_disposal(
     monkeypatch.setattr(backend, "TernBrowserCLI", ObservedCLI)
     peer = Peer()
     attach(server, "s1", peer)
-    assert rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")[
+    assert rpc(server, peer, "glide.browser.blocks", session_id="s1")[
         "result"
     ]["available"]
     driver = native.get_driver("default", "s1")
@@ -295,11 +295,11 @@ def test_real_unload_cleanup_before_native_registry_disposal(
         assert response["success"], response
         assert driver.target.block == 10 and driver.target.adopted is False
     else:
-        adopted = rpc(server, peer, "hermes-tern.browser.adopt", session_id="s1", target_id="7")
+        adopted = rpc(server, peer, "glide.browser.adopt", session_id="s1", target_id="7")
         assert adopted["result"]["target_id"] == "7", adopted
         assert driver.target.block == 7 and driver.target.adopted is True
     before = list(cli.calls)
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     assert cli.calls == before + [{"op": operation, "block": block}]
     assert native.get_driver("default", "s1") is None
     assert driver.retired is False
@@ -333,7 +333,7 @@ def test_real_native_navigate_redacts_and_truncates_page_snapshot(green, monkeyp
     monkeypatch.setattr(backend, "TernBrowserCLI", SecretCLI)
     peer = Peer()
     attach(server, "s1", peer)
-    assert rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")[
+    assert rpc(server, peer, "glide.browser.blocks", session_id="s1")[
         "result"
     ]["available"]
     navigate = registry.get_entry("browser_navigate").handler
@@ -363,10 +363,10 @@ def test_real_unload_refuses_cleanup_after_authority_loss(green, monkeypatch, tr
     ctx = _reload_granted(manager, plugins, home, monkeypatch)
     peer = Peer()
     attach(server, "s1", peer)
-    assert rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")[
+    assert rpc(server, peer, "glide.browser.blocks", session_id="s1")[
         "result"
     ]["available"]
-    adopted = rpc(server, peer, "hermes-tern.browser.adopt", session_id="s1", target_id="7")
+    adopted = rpc(server, peer, "glide.browser.adopt", session_id="s1", target_id="7")
     assert adopted["result"]["target_id"] == "7", adopted
     driver = native.get_driver("default", "s1")
     assert driver is not None
@@ -386,7 +386,7 @@ def test_real_unload_refuses_cleanup_after_authority_loss(green, monkeypatch, tr
             raise AssertionError("replacement must not be called")
         from hermes_cli.config import save_config
         save_config({"plugins": {"entries": {
-            "hermes-tern": {"allow_tool_override": True},
+            "glide": {"allow_tool_override": True},
             "other-browser": {"allow_tool_override": True},
         }}}, strip_defaults=False)
         other = plugins.PluginContext(plugins.PluginManifest(name="other-browser"), manager)
@@ -400,7 +400,7 @@ def test_real_unload_refuses_cleanup_after_authority_loss(green, monkeypatch, tr
         assert handle is not None
         assert registry.get_entry("browser_snapshot").handler is replacement
 
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     assert cli.calls == before
     assert driver.retired and driver.target.block == 7 and driver.target.adopted
     assert native.get_driver("default", "s1") is driver
@@ -413,8 +413,8 @@ def test_real_unload_refuses_cleanup_after_authority_loss(green, monkeypatch, tr
         monkeypatch.delenv("BROWSER_CDP_URL")
     else:
         assert manager.unload("other-browser")
-    backend.register(plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager))
-    listing = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+    backend.register(plugins.PluginContext(plugins.PluginManifest(name="glide"), manager))
+    listing = rpc(server, peer, "glide.browser.blocks", session_id="s1")
     assert listing["result"] == {
         "available": False, "blocks": [], "reason": "permanently_quarantined",
     }
@@ -431,33 +431,33 @@ def test_public_context_consent_grant_revoke_reload_and_registry_identity(green,
     original = {name: registry.get_entry(name).handler for name in backend._TOOL_NAMES}
     peer = Peer()
     attach(server, "s1", peer)
-    absent = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    absent = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     assert absent.has_capability("tools.override") is False
     _consent(home, True)
     assert absent.has_capability("tools.override") is True
     assert all(registry.get_entry(name).handler is old for name, old in original.items())
-    still_missing = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+    still_missing = rpc(server, peer, "glide.browser.blocks", session_id="s1")
     assert still_missing["result"]["reason"] == "needs_plugin_reload"
     assert still_missing["result"]["available"] is False
     assert still_missing["result"]["blocks"][0]["target_id"] == "7"
     assert native.get_driver("default", "s1") is None
-    denied = rpc(server, peer, "hermes-tern.browser.adopt", session_id="s1", target_id="7")
+    denied = rpc(server, peer, "glide.browser.adopt", session_id="s1", target_id="7")
     assert denied["error"]["code"] == -32000
     assert all(registry.get_entry(name).handler is old for name, old in original.items())
 
     ctx = _reload_granted(manager, plugins, home, monkeypatch)
-    assert rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")["result"]["available"] is True
+    assert rpc(server, peer, "glide.browser.blocks", session_id="s1")["result"]["available"] is True
     driver = native.get_driver("default", "s1")
     assert driver is not None and driver.scope.lease is not None
     assert ActiveCLI.instances[0].calls == [{"op": "blocks"}]
-    adopted = rpc(server, peer, "hermes-tern.browser.adopt", session_id="s1", target_id="7")
+    adopted = rpc(server, peer, "glide.browser.adopt", session_id="s1", target_id="7")
     assert adopted["result"]["target_id"] == "7"
     assert driver.scope.cli is ActiveCLI.instances[0]
     initial = list(driver.scope.cli.calls)
 
     _consent(home, False)
     assert ctx.has_capability("tools.override") is False
-    refused = rpc(server, peer, "hermes-tern.browser.focus", session_id="s1", target_id="7")
+    refused = rpc(server, peer, "glide.browser.focus", session_id="s1", target_id="7")
     assert refused["error"]["code"] == -32000
     selected = registry.get_entry("browser_click")
     assert selected is not None and selected.handler is backend._NATIVE_HANDLERS["default"]["browser_click"]
@@ -465,11 +465,11 @@ def test_public_context_consent_grant_revoke_reload_and_registry_identity(green,
     assert tool["error_kind"] == "unsupported"
     assert driver.scope.cli.calls == initial  # not a native focus or wrong-backend effect
 
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     assert all(registry.get_entry(name).handler is old for name, old in original.items())
     assert "default" not in backend._NATIVE_HANDLERS
     reloaded_without_grant = plugins.PluginContext(
-        plugins.PluginManifest(name="hermes-tern"), manager)
+        plugins.PluginManifest(name="glide"), manager)
     backend.register(reloaded_without_grant)
     assert all(registry.get_entry(name).handler is old for name, old in original.items())
 
@@ -483,7 +483,7 @@ def test_real_legacy_original_caller_survives_mirror_denial_then_detach(green, m
     a, b = Peer(), Peer()
     fanout = FanoutTransport(a, b)
     attach(server, "s1", fanout)
-    assert rpc(server, a, "hermes-tern.browser.blocks", session_id="s1")["result"]["available"] is True
+    assert rpc(server, a, "glide.browser.blocks", session_id="s1")["result"]["available"] is True
     driver = native.get_driver("default", "s1")
     lease = driver.scope.lease
     calls = list(driver.scope.cli.calls)
@@ -495,28 +495,28 @@ def test_real_legacy_original_caller_survives_mirror_denial_then_detach(green, m
         ("release", {"target_id": "7"}),
         ("frame", {"target_id": "7", "frame": "main"}),
     ):
-        result = rpc(server, b, f"hermes-tern.browser.{action}", session_id="s1", **parameters)
+        result = rpc(server, b, f"glide.browser.{action}", session_id="s1", **parameters)
         assert result["error"]["code"] == -32000, result
     assert driver.scope.cli.calls == calls
     assert native.get_driver("default", "s1").scope.lease is lease
-    assert rpc(server, a, "hermes-tern.browser.adopt",
+    assert rpc(server, a, "glide.browser.adopt",
                session_id="s1", target_id="7")["result"]["target_id"] == "7"
     assert native.get_driver("default", "s1").scope.lease is lease
-    assert rpc(server, a, "hermes-tern.browser.focus",
+    assert rpc(server, a, "glide.browser.focus",
                session_id="s1", target_id="7")["result"]["in_tern"] is True
     assert {"focus": ["focus", "7", "--json"]} in driver.scope.cli.calls
 
     assert fanout.detach(a)
     assert fanout.attach(a)
     calls = list(driver.scope.cli.calls)
-    assert rpc(server, a, "hermes-tern.browser.release",
+    assert rpc(server, a, "glide.browser.release",
                session_id="s1", target_id="7")["error"]["code"] == -32000
     assert driver.scope.cli.calls == calls
 
     # The legacy session record is no longer active. Neither a stale peer
     # nor another viewer may issue an RPC effect after the slot disappears.
     server._sessions.pop("s1")
-    assert rpc(server, b, "hermes-tern.browser.focus",
+    assert rpc(server, b, "glide.browser.focus",
                session_id="s1", target_id="7")["error"]["code"] == 4001
     assert driver.scope.cli.calls == calls
 
@@ -574,7 +574,7 @@ async def test_real_canonical_no_task_accessor_even_after_generation_change(
     try:
         for peer in (a, b):
             assert "result" in await call(peer, "session.resume", session_id="canon")
-        initial = await call(a, "hermes-tern.browser.blocks", session_id="canon")
+        initial = await call(a, "glide.browser.blocks", session_id="canon")
         assert initial["result"] == {
             "available": False, "blocks": [], "reason": "task_authority_unavailable",
         }
@@ -583,7 +583,7 @@ async def test_real_canonical_no_task_accessor_even_after_generation_change(
             ("adopt", {"target_id": "7"}), ("focus", {"target_id": "7"}),
             ("release", {"target_id": "7"}), ("frame", {"target_id": "7", "frame": "main"}),
         ):
-            result = await call(a, f"hermes-tern.browser.{action}", session_id="canon", **params)
+            result = await call(a, f"glide.browser.{action}", session_id="canon", **params)
             assert "error" in result, result
         assert not ActiveCLI.instances
 
@@ -608,7 +608,7 @@ async def test_real_canonical_no_task_accessor_even_after_generation_change(
             assert rewind["result"]["execution_generation"] == (
                 snapshot["runtime_generation"] + 1
             )
-        stale = await call(a, "hermes-tern.browser.blocks", session_id="canon")
+        stale = await call(a, "glide.browser.blocks", session_id="canon")
         assert "error" in stale or stale["result"]["available"] is False
         assert not ActiveCLI.instances and not native._DRIVERS
     finally:
@@ -674,13 +674,13 @@ def test_native_registry_availability_without_external_browser(green, monkeypatc
     # Separate false-original witness also covers the three plain probes,
     # independent of dependencies possibly installed on OMP's test host.
     native_only = backend._native_availability(
-        plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager),
+        plugins.PluginContext(plugins.PluginManifest(name="glide"), manager),
         lambda: False,
     )
     assert native_only() is False
     assert not ActiveCLI.instances
 
-    found = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+    found = rpc(server, peer, "glide.browser.blocks", session_id="s1")
     assert found["result"]["available"], found
     driver = native.get_driver("default", "s1")
     assert driver is not None
@@ -703,7 +703,7 @@ def test_native_registry_availability_without_external_browser(green, monkeypatc
         assert {schema["function"]["name"] for schema in schemas} == set(backend._TOOL_NAMES)
     assert driver.scope.cli.calls == baseline  # schema assembly causes zero CLI effects
 
-    assert rpc(server, peer, "hermes-tern.browser.adopt",
+    assert rpc(server, peer, "glide.browser.adopt",
                session_id="s1", target_id="7")["result"]["target_id"] == "7"
     before = list(driver.scope.cli.calls)
     _consent(home, False)
@@ -744,7 +744,7 @@ def test_real_model_tool_fences_each_native_effect_and_retains_claim(
     monkeypatch.setattr(backend, "TernBrowserCLI", InterleavedOpenCLI)
     peer = Peer()
     attach(server, "s1", peer)
-    found = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+    found = rpc(server, peer, "glide.browser.blocks", session_id="s1")
     assert found["result"]["available"] is True
     driver = native.get_driver("default", "s1")
     assert driver is not None
@@ -809,19 +809,19 @@ def test_real_model_tool_fences_each_native_effect_and_retains_claim(
 
     if transition == "revoke":
         # Once the original registration unloads its lease never comes back.
-        assert manager.unload("hermes-tern")
+        assert manager.unload("glide")
         assert cli.calls == [{"op": "blocks"}, opened]
         assert native.get_driver("default", "s1") is driver
         assert driver.retired and driver.scope.lease is lease
         assert driver.target.block == 10
         _consent(home, True)
-        ctx2 = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+        ctx2 = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
         backend.register(ctx2)
-        listing = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+        listing = rpc(server, peer, "glide.browser.blocks", session_id="s1")
         assert listing["result"] == {
             "available": False, "blocks": [], "reason": "permanently_quarantined",
         }
-        denied = rpc(server, peer, "hermes-tern.browser.release",
+        denied = rpc(server, peer, "glide.browser.release",
                      session_id="s1", target_id="10")
         assert denied["error"]["code"] == -32000
         assert cli.calls == [{"op": "blocks"}, opened]
@@ -835,7 +835,7 @@ def test_real_model_tool_fences_each_native_effect_and_retains_claim(
             assert backend._cdp_selected() is False
         # No unload here: original selection restored while original lease live.
         released = rpc(
-            server, peer, "hermes-tern.browser.release",
+            server, peer, "glide.browser.release",
             session_id="s1", target_id="10",
         )
         assert released["result"] == {"target_id": "10", "released": True}
@@ -876,7 +876,7 @@ def test_real_revoked_unload_keeps_late_open_and_unknown_quarantine(
     monkeypatch.setattr(backend, "TernBrowserCLI", PendingOpenCLI)
     peer = Peer()
     attach(server, "s1", peer)
-    assert rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")[
+    assert rpc(server, peer, "glide.browser.blocks", session_id="s1")[
         "result"
     ]["available"] is True
     driver = native.get_driver("default", "s1")
@@ -893,17 +893,17 @@ def test_real_revoked_unload_keeps_late_open_and_unknown_quarantine(
     assert driver.pending_open and driver.target is None
 
     _consent(home, False)
-    assert manager.unload("hermes-tern")
+    assert manager.unload("glide")
     assert driver.pending_open and driver.scope.lease is lease
     assert native.get_driver("default", "s1") is driver
     assert cli.reconcile_attempts == 0  # denied before reading the late reply
     assert cli.calls == [{"op": "blocks"}, opened]  # never force cleanup
 
     _consent(home, True)
-    restored = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    restored = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     backend.register(restored)
     cli.late_reply = late_reply
-    listing = rpc(server, peer, "hermes-tern.browser.blocks", session_id="s1")
+    listing = rpc(server, peer, "glide.browser.blocks", session_id="s1")
     assert listing["result"] == {
         "available": False, "blocks": [], "reason": "permanently_quarantined",
     }
@@ -918,7 +918,7 @@ def test_real_revoked_unload_keeps_late_open_and_unknown_quarantine(
     attach(server, "s2", replacement)
     server._sessions["s2"]["session_key"] = "durable-s1"
     before = list(cli.calls)
-    no_takeover = rpc(server, replacement, "hermes-tern.browser.blocks", session_id="s2")
+    no_takeover = rpc(server, replacement, "glide.browser.blocks", session_id="s2")
     assert no_takeover["result"] == {
         "available": False, "blocks": [], "reason": "permanently_quarantined",
     }
@@ -977,7 +977,7 @@ def test_real_create_resume_viewer_and_model_tool_original_driver(green, monkeyp
     assert server._session_transport_contains(server._sessions[sid], first)
     assert server._session_transport_contains(server._sessions[sid], second)
 
-    listing = rpc(server, second, "hermes-tern.browser.blocks", rid=403, session_id=sid)
+    listing = rpc(server, second, "glide.browser.blocks", rid=403, session_id=sid)
     assert listing["result"]["available"], listing
     driver = native.get_driver("default", sid)
     assert driver is not None and driver.scope.lease is not None
@@ -991,17 +991,17 @@ def test_real_create_resume_viewer_and_model_tool_original_driver(green, monkeyp
     for action, opts in (
         ("blocks", {}), ("adopt", {"target_id": "7"}), ("focus", {"target_id": "7"}),
     ):
-        result = rpc(server, first, f"hermes-tern.browser.{action}",
+        result = rpc(server, first, f"glide.browser.{action}",
                      rid=404, session_id=sid, **opts)
         assert "error" in result, result
         assert result["error"]["code"] == -32000, result
     assert driver.scope.cli.calls == before
     assert driver.scope.lease is lease
 
-    adopted = rpc(server, second, "hermes-tern.browser.adopt",
+    adopted = rpc(server, second, "glide.browser.adopt",
                   rid=405, session_id=sid, target_id="7")
     assert adopted["result"]["target_id"] == "7", adopted
-    focused = rpc(server, second, "hermes-tern.browser.focus",
+    focused = rpc(server, second, "glide.browser.focus",
                   rid=406, session_id=sid, target_id="7")
     assert focused["result"]["target_id"] == "7", focused
     from tools.registry import registry
@@ -1018,7 +1018,7 @@ def test_real_create_resume_viewer_and_model_tool_original_driver(green, monkeyp
     assert viewers.clear_viewer({"pid": os.getpid()}, session_id=durable) == {"ids": [durable]}
     assert viewers.viewer_of([durable]) is None
     assert tern_env.pane_env(durable) == {}
-    denied = rpc(server, second, "hermes-tern.browser.focus",
+    denied = rpc(server, second, "glide.browser.focus",
                  rid=407, session_id=sid, target_id="7")
     assert denied["error"]["code"] == -32000, denied
     assert driver.scope.cli.calls == before

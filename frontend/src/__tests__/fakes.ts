@@ -61,7 +61,7 @@ export class FakeGateway extends EventEmitter {
       // by its test, never implicit permission to use old or foreign RPCs.
       if (method === 'gateway.capabilities' && !handler) {
         return Promise.resolve({
-          plugin_methods: [...this.handlers.keys()].filter(name => name.startsWith('hermes-tern.'))
+          plugin_methods: [...this.handlers.keys()].filter(name => name.startsWith('glide.'))
         })
       }
 

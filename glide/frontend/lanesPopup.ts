@@ -216,7 +216,7 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
   }
   const source = (): LaneSource => feed
     ? { call: feed.call, error: feed.error }
-    : { call: null, error: 'Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token.' }
+    : { call: null, error: 'Lane broker not connected: set the plugin setting lanes_token_file (or GLIDE_LANES_TOKEN_FILE) to the relay token file; GLIDE_LANES_URL must be loopback.' }
   const overlay: Overlay = {
     key: 'glide-lanes',
     modal: true,

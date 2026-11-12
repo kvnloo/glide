@@ -93,7 +93,7 @@ describe('voice lanes popup', () => {
   it('says how to connect without a broker token', () => {
     const { host, bindings, draw } = setup()
     openLanesPopup(host, null, bindings)
-    expect(draw()).toContain('Lane broker not connected: point GLIDE_LANES_TOKEN_FILE')
+    expect(draw()).toContain('Lane broker not connected: set the plugin setting lanes_token_file')
     expect(draw()).toContain('NOT CONNECTED')
     expect(draw()).toContain('"data-lanes-source":"none"')
   })

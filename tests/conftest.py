@@ -59,5 +59,5 @@ class _RepoRootIsNotATestPackage:
 
 
 def pytest_configure(config):
-    if not config.pluginmanager.has_plugin("hermes-tern-repo-root"):
-        config.pluginmanager.register(_RepoRootIsNotATestPackage(), "hermes-tern-repo-root")
+    if not config.pluginmanager.has_plugin("glide-repo-root"):
+        config.pluginmanager.register(_RepoRootIsNotATestPackage(), "glide-repo-root")

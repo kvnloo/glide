@@ -144,7 +144,7 @@ class TalkController:
                 self.call = call
                 context = contextvars.copy_context()
                 threading.Thread(target=lambda: context.run(self._worker, call),
-                                 daemon=True, name="hermes-tern-talk").start()
+                                 daemon=True, name="glide-talk").start()
             elif call is None or (call.owner, call.id) != (owner, live_id):
                 return json.dumps({"live_id": live_id, "phase": "idle", "active": False, "error": ""})
             if action == "stop" and not call.done.is_set():

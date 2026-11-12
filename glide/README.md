@@ -13,9 +13,9 @@ For memory without Tern, install `kvnloo/glide#glide` instead. Do not install bo
 The [main README](../README.md#walk-through-glide) covers the guided cards, skill router,
 hill climb, local offload, and optional Taste pane.
 
-`hermes glide` or `hermes --tui glide` opens Tern when `hermes-tern` is enabled in the same profile.
+`hermes glide` or `hermes --tui glide` opens Tern when the full `glide` plugin (the repo root, which includes Tern) is enabled in the same profile.
 It selects the `glide` frontend channel when registered, otherwise the default Tern frontend.
-Without `hermes-tern`, Glide opens the regular TUI. `hermes glide onboard` still runs memory onboarding.
+Without the Tern frontend, Glide opens the regular TUI. `hermes glide onboard` still runs memory onboarding.
 
 If your Tern channel registry has `"alias": "glide"`, remove that alias from `channels.json`.
 Keep the channel itself. Glide now owns the CLI command, so the alias would collide with it.

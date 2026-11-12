@@ -12,14 +12,14 @@ Open **Tern browser blocks** with `Alt+Shift+B` or `/browser-blocks`.
 The sheet lists the native block id, title, URL, and owner. Select a block
 with Up/Down or click its row. Enter (or its action) means:
 
-- **Hand over to agent** on an available, undriven block: request `hermes-tern.browser.adopt`.
-- **Focus** on an already owned block: request `hermes-tern.browser.focus`.
+- **Hand over to agent** on an available, undriven block: request `glide.browser.adopt`.
+- **Focus** on an already owned block: request `glide.browser.focus`.
 
 For an owned block, **Release / close owned block** requests
-`hermes-tern.browser.release`: adopted pages remain open, agent-created pages close, and
+`glide.browser.release`: adopted pages remain open, agent-created pages close, and
 the sheet reloads only after the server confirms release. A failed cleanup is
 reported, not presented as success. **Evaluation frame…** requests
-`hermes-tern.browser.frame` with `main` or an exact native index path such as `0`
+`glide.browser.frame` with `main` or an exact native index path such as `0`
 or `1.0`; Hermes must verify the frame. Child-frame snapshot, input,
 navigation and capture are not available. Console buffering, recording and
 annotated capture are not emulated.
@@ -37,7 +37,7 @@ as authority.
 The generic seam is green on the Hermes downstream
 `kvnloo/hermes-agent#650` head
 `0ac4e9df39eecf3ce69a3ea3c80a6dc70dd7dcd5`.
-This plugin registers its own five `hermes-tern.browser.*` methods
+This plugin registers its own five `glide.browser.*` methods
 through `PluginContext.register_gateway_method`. No core Python methods,
 runtime pin or JSON-RPC router are altered. `gateway.capabilities`
 must advertise those exact registrations for a live `session_id`;
@@ -50,7 +50,7 @@ server-supplied `session.info.profile_name` and its original `session.ref`.
 It issues the existing profile-qualified *core* request
 `config.get({key:'profile',session_id,profile})` (KEY head b93ca91).
 It then queries `gateway.capabilities({session_id})` and calls
-`hermes-tern.browser.*({session_id,...})` without a `profile` field:
+`glide.browser.*({session_id,...})` without a `profile` field:
 the green seam rejects such a client-selected field. Missing or changed
 profile identity refuses rather than guessing `default` or falling back
 to a session-id-only pin.
@@ -83,7 +83,7 @@ duplicate task claim, resumed/replaced viewer, or generation change
 fails closed; no second driver or browser fallback gains ownership.
 
 Drive requires **explicit operator consent** via the per-profile
-`plugins.entries.hermes-tern.allow_tool_override: true` or
+`plugins.entries.glide.allow_tool_override: true` or
 `tools.override` capability. This plugin never grants consent or mutates
 a user profile. Without it, discovery may list pages but cannot drive.
 With it, browser tools are overridden only through the public

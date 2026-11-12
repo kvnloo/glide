@@ -51,7 +51,7 @@ def main() -> None:
         tern = package("verify_tern", ROOT)
         glide = package("verify_glide", source)
         manager = get_plugin_manager()
-        tern_context = PluginContext(PluginManifest(name="hermes-tern", path=str(ROOT)), manager)
+        tern_context = PluginContext(PluginManifest(name="glide", path=str(ROOT)), manager)
         tern.register(tern_context)
         glide.register(PluginContext(PluginManifest(name="glide", path=str(source)), manager))
         assert manager._cli_commands["glide"]["plugin"] == "glide"

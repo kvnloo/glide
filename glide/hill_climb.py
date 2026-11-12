@@ -20,6 +20,11 @@ import os
 import subprocess
 import sys
 import time
+
+try:
+    from .child_env import child_env
+except ImportError:  # imported by path, as a benchmark target does
+    from child_env import child_env
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -75,7 +80,7 @@ def run_benchmark_command(cmd: list[str], env: dict[str, str] | None = None, tim
             capture_output=True,
             text=True,
             timeout=timeout,
-            env={**os.environ, **(env or {})},
+            env=child_env(extra=env),  # never the parent's provider keys
             check=False,
         )
         if result.returncode != 0:

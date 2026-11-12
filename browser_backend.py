@@ -24,7 +24,7 @@ from .browser_native import (
 )
 
 logger = logging.getLogger(__name__)
-PLUGIN = "hermes-tern"
+PLUGIN = "glide"
 METHODS = ("blocks", "adopt", "focus", "release", "frame")
 _TOOL_NAMES = (
     "browser_navigate", "browser_snapshot", "browser_click", "browser_type",

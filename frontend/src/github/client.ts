@@ -123,7 +123,7 @@ export function github(token = tokens(), hosts: GitHubHosts = githubHosts()): Gi
     const headers = {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${await token(trusted.host)}`,
-      'User-Agent': 'hermes-tern',
+      'User-Agent': 'glide',
       'X-GitHub-Api-Version': '2022-11-28',
       ...(init.body ? { 'Content-Type': 'application/json' } : {})
     }

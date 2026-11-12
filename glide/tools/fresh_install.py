@@ -51,7 +51,7 @@ def forbidden(*args, **kwargs):
 
 def main() -> None:
     home = isolated_home()  # Check before importing any Hermes module.
-    installed = home / "plugins" / "hermes-tern"
+    installed = home / "plugins" / "glide"
     from hermes_cli.plugins import get_plugin_command_handler, get_plugin_manager
     from hermes_state import SessionDB
 

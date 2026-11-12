@@ -13,6 +13,8 @@ import subprocess
 import sys
 import time
 
+from .child_env import child_env
+
 SOURCE_TIMEOUT = 5
 CACHE_SECONDS = 60
 MAX_BYTES = 1024 * 1024
@@ -42,7 +44,7 @@ def _source_process(name: str, home: Path, config: dict) -> dict:
     result = subprocess.run(
         [sys.executable, str(Path(__file__).with_name("intel_sources.py").absolute()),
          name, str(home.absolute()), json.dumps(config)],
-        capture_output=True, text=True, timeout=SOURCE_TIMEOUT, check=True,
+        capture_output=True, text=True, timeout=SOURCE_TIMEOUT, check=True, env=child_env(),
     )
     if len(result.stdout.encode("utf-8")) > MAX_BYTES:
         raise ValueError("source output exceeds limit")

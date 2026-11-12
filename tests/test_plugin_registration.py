@@ -11,8 +11,10 @@ from pathlib import Path
 import pytest
 
 import hermes_tern_plugin
+from hermes_tern_plugin import browser_backend, plugin_data, pull_requests, table_chart_gateway
 
-MANIFEST = (Path(__file__).resolve().parents[1] / "plugin.yaml").read_text()
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = (ROOT / "plugin.yaml").read_text()
 
 
 class RecordingCtx:
@@ -66,9 +68,9 @@ def test_one_install_also_registers_glide(ctx):
 
 
 def test_native_browser_registration_is_namespaced_and_read_only_without_consent(ctx):
-    entries = [(args, kwargs) for args, kwargs in ctx.of('register_gateway_method') if args[0].startswith('hermes-tern.browser.')]
+    entries = [(args, kwargs) for args, kwargs in ctx.of('register_gateway_method') if args[0].startswith('glide.browser.')]
     assert [args[0] for args, _ in entries] == [
-        f'hermes-tern.browser.{action}' for action in ('blocks', 'adopt', 'focus', 'release', 'frame')
+        f'glide.browser.{action}' for action in ('blocks', 'adopt', 'focus', 'release', 'frame')
     ]
     assert all('schema' in kwargs for _, kwargs in entries)
     assert [kwargs['name'] for _, kwargs in ctx.of('register_tool')] == [
@@ -98,8 +100,8 @@ def test_chart_tasks_keep_their_explicit_plugin_keys(ctx):
 
 def test_only_real_safe_report_is_registered_until_btw_owner_seam(ctx):
     ((args, kwargs),) = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method")
-                        if args[0] == "hermes-tern.operations.report"]
-    assert args[0] == "hermes-tern.operations.report"
+                        if args[0] == "glide.operations.report"]
+    assert args[0] == "glide.operations.report"
     assert callable(args[1]) and kwargs["schema"].model_config["extra"] == "forbid"
 
 
@@ -119,10 +121,10 @@ def test_an_old_runtime_still_registers_its_normal_plugin_commands():
 def test_plan_methods_use_only_owned_public_gateway_registration(ctx):
     methods = [(args[0], args[1], kwargs["schema"])
                for args, kwargs in ctx.of("register_gateway_method")
-               if args[0].startswith("hermes-tern.plan.")]
+               if args[0].startswith("glide.plan.")]
     assert [name for name, _, _ in methods] == [
-        "hermes-tern.plan.status", "hermes-tern.plan.mode", "hermes-tern.plan.edit",
-        "hermes-tern.plan.annotate", "hermes-tern.plan.decide",
+        "glide.plan.status", "glide.plan.mode", "glide.plan.edit",
+        "glide.plan.annotate", "glide.plan.decide",
     ]
     assert all(callable(handler) and schema is not None
                for _, handler, schema in methods)
@@ -143,9 +145,9 @@ def test_older_plugin_context_does_not_advertise_plan_authority():
 def test_registered_media_gateway_methods_are_strict_and_owned(ctx):
     from hermes_tern_plugin import media_backend
 
-    methods = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method") if args[0].startswith("hermes-tern.media.")]
+    methods = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method") if args[0].startswith("glide.media.")]
     assert [args[0] for args, _ in methods] == [
-        "hermes-tern.media.image", "hermes-tern.media.attach_bytes"
+        "glide.media.image", "glide.media.attach_bytes"
     ]
     assert [args[1] for args, _ in methods] == [
         media_backend.read_image, media_backend.attach_bytes
@@ -168,7 +170,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
     from hermes_tern_plugin import ephemeral_cards
 
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     kinds = ephemeral_cards.kinds()
     assert len(kinds) == 54
     assert len(text) < 4000
@@ -178,7 +180,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
 
 def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     assert all(kind in text for kind in ("fleet-hosts", "fleet-portfolio", "fleet-factory"))
     assert "glide.fleet" in text
     assert "never invent" in text.lower()
@@ -187,7 +189,7 @@ def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
 
 def test_intel_prompt_requires_stock_command_data_not_invented_examples(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     assert "intel-suite/glide" in text and "/intel" in text
     assert "stock intel plugin command, never invented" in text
     assert "Assistant fences cannot grant intel actions" in text
@@ -231,3 +233,64 @@ def test_talk_command_and_owned_unload_are_preserved(ctx):
     assert kwargs["handler"] == talk_backend._controller.command
     assert kwargs["args_hint"] == "start|status|stop CALL_ID"
     assert any(args == (talk_backend._controller.close,) for args, _ in ctx.of("on_unload"))
+
+
+# The plugin installs as ``glide``: manifest, data folders, config keys and namespaces agree, and a
+# profile that ran the old ``hermes-tern`` name keeps its data after the rename.
+def test_manifest_and_constants_use_glide():
+    manifest = (ROOT / "plugin.yaml").read_text()
+    assert re.search(r"^name: glide$", manifest, re.M)
+    assert plugin_data.PLUGIN == browser_backend.PLUGIN == pull_requests.PLUGIN == "glide"
+    assert pull_requests.TOOLSET == "glide"
+    assert pull_requests.CONFIG_PATH == "plugins.entries.glide.settings.enterprise_hosts"
+
+
+def test_table_policy_reads_glide_settings(tmp_path, monkeypatch):
+    home = tmp_path / "hermes"
+    (home / "glide").mkdir(parents=True)
+    (home / "glide" / "settings.json").write_text(json.dumps({"tableCharts": "smart"}))
+    import hermes_constants
+    monkeypatch.setattr(hermes_constants, "get_hermes_home", lambda: home, raising=False)
+    monkeypatch.setattr(table_chart_gateway, "get_hermes_home", lambda: home)
+    assert table_chart_gateway._owner_mode() == "smart"
+
+
+def test_legacy_data_moves_once(tmp_path):
+    home = tmp_path / "hermes"
+    legacy = home / "plugin-data" / "hermes-tern" / "panes"
+    legacy.mkdir(parents=True)
+    (legacy / "a.json").write_text("{}")
+    (home / "hermes-tern").mkdir()
+    (home / "hermes-tern" / "settings.json").write_text('{"theme": "x"}')
+
+    plugin_data.migrate_legacy(home)
+
+    assert (home / "plugin-data" / "glide" / "panes" / "a.json").read_text() == "{}"
+    assert not (home / "plugin-data" / "hermes-tern").exists()
+    assert (home / "glide" / "settings.json").read_text() == '{"theme": "x"}'
+
+    # A second run, or a profile that already has new data, never overwrites it.
+    (home / "plugin-data" / "hermes-tern").mkdir()
+    (home / "plugin-data" / "hermes-tern" / "stale.json").write_text("old")
+    plugin_data.migrate_legacy(home)
+    assert not (home / "plugin-data" / "glide" / "stale.json").exists()
+    assert (home / "glide" / "settings.json").read_text() == '{"theme": "x"}'
+
+
+def test_no_hermes_tern_names_outside_attribution():
+    """Every remaining ``hermes-tern`` in Python sources is upstream attribution."""
+    allowed = ("alt-glitch/hermes-tern", "kvnloo/hermes-tern", "hermes-tern-version-launches",
+               "LEGACY")
+    for path in ROOT.glob("*.py"):
+        for line in path.read_text().splitlines():
+            if "hermes-tern" in line:
+                assert any(a in line for a in allowed), f"{path.name}: {line}"
+
+
+def test_docs_say_gateway_method_features_are_inactive_on_released_hermes():
+    # Released Hermes has no ctx.register_gateway_method, so the docs must not advertise those
+    # methods as working: every line that mentions them also says they are inactive for now.
+    for doc in ("README.md", "docs/SUBMISSION.md", "docs/MEDIA-DELIVERY.md", "plugin.yaml"):
+        for line in (ROOT / doc).read_text(encoding="utf-8").splitlines():
+            if "gateway method" in line.lower() or "session-bound" in line.lower():
+                assert "inactive" in line.lower(), f"{doc}: {line}"

@@ -12,7 +12,7 @@ import { FakeGateway, must, stub } from './fakes.js'
 import { nativeBrowserSurface } from './browserSdk.js'
 
 const scope: BrowserCaller = { sessionId: 's1', profile: 'work', current: () => true }
-const METHODS = ['blocks', 'adopt', 'focus', 'release', 'frame'].map(action => 'hermes-tern.browser.' + action)
+const METHODS = ['blocks', 'adopt', 'focus', 'release', 'frame'].map(action => 'glide.browser.' + action)
 const browserGateway = (options: ConstructorParameters<typeof FakeGateway>[0] = {}) => new FakeGateway({
   ...options,
   replies: {
@@ -38,57 +38,57 @@ const call = (name: string, result: unknown): ToolCall => ({
 
 describe('browser block gateway boundary', () => {
   it('lists only, preserving live ownership fields and the exact session scope', async () => {
-    const gateway = browserGateway({ replies: { 'hermes-tern.browser.blocks': () => ({ available: true, blocks: [block] }) } })
+    const gateway = browserGateway({ replies: { 'glide.browser.blocks': () => ({ available: true, blocks: [block] }) } })
     await expect(listBrowserBlocks(gateway.client, scope)).resolves.toEqual({ available: true, blocks: [block] })
-    expect(gateway.calls.filter(c => c.method.startsWith('hermes-tern.browser.'))).toEqual([{ method: 'hermes-tern.browser.blocks', params: { session_id: 's1' } }])
+    expect(gateway.calls.filter(c => c.method.startsWith('glide.browser.'))).toEqual([{ method: 'glide.browser.blocks', params: { session_id: 's1' } }])
   })
 
   it('rejects malformed listing identities and owner flags', async () => {
-    const gateway = browserGateway({ replies: { 'hermes-tern.browser.blocks': () => ({ available: true, blocks: [{ ...block, target_id: '0' }] }) } })
+    const gateway = browserGateway({ replies: { 'glide.browser.blocks': () => ({ available: true, blocks: [{ ...block, target_id: '0' }] }) } })
     await expect(listBrowserBlocks(gateway.client, scope)).rejects.toThrow('Invalid native browser blocks')
-    gateway.handlers.set('hermes-tern.browser.blocks', () => ({ available: true, blocks: [{ ...block, owner: 'someone' }] }))
+    gateway.handlers.set('glide.browser.blocks', () => ({ available: true, blocks: [{ ...block, owner: 'someone' }] }))
     await expect(listBrowserBlocks(gateway.client, scope)).rejects.toThrow('Invalid native browser blocks')
-    gateway.handlers.set('hermes-tern.browser.blocks', () => ({ blocks: [] }))
+    gateway.handlers.set('glide.browser.blocks', () => ({ blocks: [] }))
     await expect(listBrowserBlocks(gateway.client, scope)).rejects.toThrow('Invalid native browser blocks')
   })
 
   it('uses distinct focus, handover, frame and release intents; requires backend confirmation', async () => {
     const gateway = browserGateway({ replies: {
-      'hermes-tern.browser.focus': () => target,
-      'hermes-tern.browser.adopt': () => target,
-      'hermes-tern.browser.frame': () => target,
-      'hermes-tern.browser.release': () => ({ target_id: '7', released: true })
+      'glide.browser.focus': () => target,
+      'glide.browser.adopt': () => target,
+      'glide.browser.frame': () => target,
+      'glide.browser.release': () => ({ target_id: '7', released: true })
     } })
-    await browserTarget(gateway.client, 'hermes-tern.browser.focus', scope, '7')
-    await browserTarget(gateway.client, 'hermes-tern.browser.adopt', scope, '7')
-    await browserTarget(gateway.client, 'hermes-tern.browser.frame', scope, '7', 'main')
+    await browserTarget(gateway.client, 'glide.browser.focus', scope, '7')
+    await browserTarget(gateway.client, 'glide.browser.adopt', scope, '7')
+    await browserTarget(gateway.client, 'glide.browser.frame', scope, '7', 'main')
     await releaseBrowserBlock(gateway.client, scope, '7')
-    expect(gateway.calls.filter(c => c.method.startsWith('hermes-tern.browser.'))).toEqual([
-      { method: 'hermes-tern.browser.focus', params: { session_id: 's1', target_id: '7' } },
-      { method: 'hermes-tern.browser.adopt', params: { session_id: 's1', target_id: '7' } },
-      { method: 'hermes-tern.browser.frame', params: { session_id: 's1', target_id: '7', frame: 'main' } },
-      { method: 'hermes-tern.browser.release', params: { session_id: 's1', target_id: '7' } }
+    expect(gateway.calls.filter(c => c.method.startsWith('glide.browser.'))).toEqual([
+      { method: 'glide.browser.focus', params: { session_id: 's1', target_id: '7' } },
+      { method: 'glide.browser.adopt', params: { session_id: 's1', target_id: '7' } },
+      { method: 'glide.browser.frame', params: { session_id: 's1', target_id: '7', frame: 'main' } },
+      { method: 'glide.browser.release', params: { session_id: 's1', target_id: '7' } }
     ])
-    gateway.handlers.set('hermes-tern.browser.release', () => ({ target_id: '7', released: false }))
+    gateway.handlers.set('glide.browser.release', () => ({ target_id: '7', released: false }))
     await expect(releaseBrowserBlock(gateway.client, scope, '7')).rejects.toThrow('did not confirm')
-    gateway.handlers.set('hermes-tern.browser.focus', () => ({ ...target, target_id: '8' }))
-    await expect(browserTarget(gateway.client, 'hermes-tern.browser.focus', scope, '7')).rejects.toThrow('Invalid native browser target')
+    gateway.handlers.set('glide.browser.focus', () => ({ ...target, target_id: '8' }))
+    await expect(browserTarget(gateway.client, 'glide.browser.focus', scope, '7')).rejects.toThrow('Invalid native browser target')
   })
 
   it('refuses unchecked identifiers and frame paths without contacting the gateway', async () => {
     const gateway = browserGateway()
     expect(['main', '0', '1.0', '0.12.3'].every(validBrowserFrame)).toBe(true)
     expect(['', 'top', '0.foo', '1..0', '-1', '01', 'window.open(1)'].some(validBrowserFrame)).toBe(false)
-    await expect(browserTarget(gateway.client, 'hermes-tern.browser.focus', scope, '@focused')).rejects.toThrow('Invalid Tern')
-    await expect(browserTarget(gateway.client, 'hermes-tern.browser.frame', scope, '7', 'window.open(1)')).rejects.toThrow('exact frame')
+    await expect(browserTarget(gateway.client, 'glide.browser.focus', scope, '@focused')).rejects.toThrow('Invalid Tern')
+    await expect(browserTarget(gateway.client, 'glide.browser.frame', scope, '7', 'window.open(1)')).rejects.toThrow('exact frame')
     await expect(releaseBrowserBlock(gateway.client, scope, '0')).rejects.toThrow('Invalid Tern')
-    expect(gateway.calls.filter(c => c.method.startsWith('hermes-tern.browser.'))).toEqual([])
+    expect(gateway.calls.filter(c => c.method.startsWith('glide.browser.'))).toEqual([])
   })
 
   it('leaves a gateway without these methods unsupported, never changing browser mode', async () => {
     const gateway = browserGateway({ replies: { 'gateway.capabilities': () => ({ plugin_methods: [] }) } })
     await expect(listBrowserBlocks(gateway.client, scope)).rejects.toThrow('plugin gateway methods')
-    expect(gateway.calls.filter(c => c.method.startsWith('hermes-tern.browser.')).map(c => c.method)).toEqual([])
+    expect(gateway.calls.filter(c => c.method.startsWith('glide.browser.')).map(c => c.method)).toEqual([])
   })
 })
 
@@ -139,7 +139,7 @@ describe('browser Focus in the actual SDK tool renderer', () => {
   }
 
   it('renders a real native SDK Focus action and sends only exact result target and session', async () => {
-    const gateway = browserGateway({ replies: { 'hermes-tern.browser.focus': () => target } })
+    const gateway = browserGateway({ replies: { 'glide.browser.focus': () => target } })
     const c = call('browser_navigate', JSON.stringify({ success: true, tern_target: target }))
     const h = focusHost(gateway, c)
     const focus = must(bindBrowserFocus(h.host, h.ref))
@@ -149,9 +149,9 @@ describe('browser Focus in the actual SDK tool renderer', () => {
       const view = sdk.render('main', toolNode(c, 0, undefined, focus))
       const click = sdk.capture(view, 'main', 'browser-focus')
       await click()
-      await vi.waitFor(() => expect(gateway.sent('hermes-tern.browser.focus')).toEqual([{ session_id: 's1', target_id: '7' }]))
-      expect(gateway.methods('hermes-tern.browser.blocks')).toEqual([])
-      expect(gateway.methods('hermes-tern.browser.adopt')).toEqual([])
+      await vi.waitFor(() => expect(gateway.sent('glide.browser.focus')).toEqual([{ session_id: 's1', target_id: '7' }]))
+      expect(gateway.methods('glide.browser.blocks')).toEqual([])
+      expect(gateway.methods('glide.browser.adopt')).toEqual([])
       expect(JSON.stringify(toolDetail(c, 0, undefined, focus))).toContain('Focus Tern block 7')
     } finally {
       await sdk.close()
@@ -159,7 +159,7 @@ describe('browser Focus in the actual SDK tool renderer', () => {
   })
 
   it('rejects replayed SDK callbacks after transcript removal, replacement or changed target metadata', async () => {
-    const gateway = browserGateway({ replies: { 'hermes-tern.browser.focus': () => target } })
+    const gateway = browserGateway({ replies: { 'glide.browser.focus': () => target } })
     const c = call('browser_navigate', { tern_target: target })
     const h = focusHost(gateway, c)
     const focus = must(bindBrowserFocus(h.host, h.ref))
@@ -169,7 +169,7 @@ describe('browser Focus in the actual SDK tool renderer', () => {
       const click = sdk.capture(sdk.render('main', toolNode(c, 0, undefined, focus)), 'main', 'browser-focus')
       h.entries.splice(0)
       await click()
-      expect(gateway.methods('hermes-tern.browser.focus')).toHaveLength(0)
+      expect(gateway.methods('glide.browser.focus')).toHaveLength(0)
 
       h.entries.push({
         id: entryId('t1'),
@@ -181,12 +181,12 @@ describe('browser Focus in the actual SDK tool renderer', () => {
       })
       c.result = { tern_target: { ...target, target_id: '9' } }
       await click()
-      expect(gateway.methods('hermes-tern.browser.focus')).toHaveLength(0)
+      expect(gateway.methods('glide.browser.focus')).toHaveLength(0)
 
       c.result = { tern_target: target }
       h.session.ref = { live: liveSessionId('s1'), stored: null }
       await click()
-      expect(gateway.methods('hermes-tern.browser.focus')).toHaveLength(0)
+      expect(gateway.methods('glide.browser.focus')).toHaveLength(0)
     } finally {
       await sdk.close()
     }
@@ -194,7 +194,7 @@ describe('browser Focus in the actual SDK tool renderer', () => {
 
   it('does not offer Focus for unconfirmed or running results, and reports gateway ownership refusal', async () => {
     const c = call('browser_navigate', { tern_target: { ...target, in_tern: false } })
-    const gateway = browserGateway({ replies: { 'hermes-tern.browser.focus': () => { throw new Error('Not owned by this session') } } })
+    const gateway = browserGateway({ replies: { 'glide.browser.focus': () => { throw new Error('Not owned by this session') } } })
     const h = focusHost(gateway, c)
     const focus = must(bindBrowserFocus(h.host, h.ref))
     expect(JSON.stringify(toolNode(c, 0, undefined, focus))).not.toContain('browser-focus')
@@ -210,8 +210,8 @@ describe('browser Focus in the actual SDK tool renderer', () => {
       const click = sdk.capture(sdk.render('main', toolNode(c, 0, undefined, focus)), 'main', 'browser-focus')
       await click()
       await vi.waitFor(() => expect(h.notice).toHaveBeenCalledWith('Not owned by this session', 'warning'))
-      expect(gateway.sent('hermes-tern.browser.focus')).toEqual([{ session_id: 's1', target_id: '7' }])
-      expect(gateway.methods('hermes-tern.browser.adopt')).toEqual([])
+      expect(gateway.sent('glide.browser.focus')).toEqual([{ session_id: 's1', target_id: '7' }])
+      expect(gateway.methods('glide.browser.adopt')).toEqual([])
     } finally {
       await sdk.close()
     }

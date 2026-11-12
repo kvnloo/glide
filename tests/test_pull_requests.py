@@ -128,7 +128,7 @@ def test_a_change_tells_the_panes_of_the_conversation_once(prs, monkeypatch):
 
 # ── Which hosts a link may name (the enterprise token goes only to a host the user listed) ─────
 
-KEY = "plugins.entries.hermes-tern.settings.enterprise_hosts"
+KEY = "plugins.entries.glide.settings.enterprise_hosts"
 
 
 def configure(prs, monkeypatch, **settings):

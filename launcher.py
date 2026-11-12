@@ -291,6 +291,10 @@ def frontend_env(args: argparse.Namespace, resume: Optional[str], restored: Opti
     })
     if _local_terminal():
         env["HERMES_TERN_SESSION_CWD"] = cwd
+    # The lane strip's relay token is opt-in: read only from the file the user names in the plugin
+    # setting lanes_token_file (or an explicit GLIDE_LANES_TOKEN_FILE in the shell).
+    if isinstance(lanes := pull_requests.setting("lanes_token_file"), str) and lanes.strip():
+        env["GLIDE_LANES_TOKEN_FILE"] = os.path.expanduser(lanes.strip())
     for key, value in (("HERMES_TERN_RESUME", resume), ("HERMES_TERN_QUERY", _opt(args, "query")),
                        ("HERMES_TERN_IMAGE", _opt(args, "image")), (panes.RESTORED_ENV, restored),
                        ("HERMES_TERN_TOOL_PROGRESS",

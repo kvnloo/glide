@@ -2,7 +2,7 @@
 
 Source: the existing Hermes TSP frontend in kvnloo/hermes-agent,
 preview/tern-frontend (ui-tsp/PLAN-REVIEW.md, src/plan.ts,
-src/todo-hud.ts and their tests). Adapted to hermes-tern's existing
+src/todo-hud.ts and their tests). Adapted to glide's existing
 frontend/src/ command, overlay, gateway and dock architecture.
 
 ## Plan review
@@ -13,7 +13,7 @@ results, fenced code and incomplete turns cannot establish a plan. A
 backend plan without headings is still reviewable.
 
 The frontend first checks session-attached `gateway.capabilities.plugin_methods` for every
-`hermes-tern.plan.*` method, then calls `hermes-tern.plan.status`. Neither
+`glide.plan.*` method, then calls `glide.plan.status`. Neither
 an older unnamespaced `plan.status` nor an absent method confers authority.
 Older gateways explicitly show “Needs Hermes plugin gateway methods for plan review.” A completed
 heading-structured assistant candidate offers **Continue (ordinary prompt)**
@@ -65,7 +65,7 @@ planning mode while that prerequisite is absent.
 
 The Python plugin registers five **owned, strict-schema** RPCs on Hermes cores
 supporting `PluginContext.register_gateway_method`:
-`hermes-tern.plan.status/mode/edit/annotate/decide`. Their
+`glide.plan.status/mode/edit/annotate/decide`. Their
 `gateway.capabilities.plugin_methods` inventory is session-attached, not
 sessionless. This release returns **supported=false** on status; every mutation
 is refused with code 4094. This is deliberate, not a completed plan backend.

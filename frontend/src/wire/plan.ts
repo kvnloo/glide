@@ -3,11 +3,11 @@
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 export const PLAN_METHODS = {
-  status: 'hermes-tern.plan.status',
-  mode: 'hermes-tern.plan.mode',
-  edit: 'hermes-tern.plan.edit',
-  annotate: 'hermes-tern.plan.annotate',
-  decide: 'hermes-tern.plan.decide'
+  status: 'glide.plan.status',
+  mode: 'glide.plan.mode',
+  edit: 'glide.plan.edit',
+  annotate: 'glide.plan.annotate',
+  decide: 'glide.plan.decide'
 } as const
 
 export type PlanMethod = keyof typeof PLAN_METHODS

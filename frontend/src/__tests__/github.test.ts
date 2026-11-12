@@ -1,4 +1,11 @@
+import { ChildProcess, execFile } from 'node:child_process'
+
 import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('node:child_process', async importOriginal => {
+  const real = await importOriginal<typeof import('node:child_process')>()
+  return { ...real, execFile: vi.fn(real.execFile) }
+})
 
 import { liveSessionId, prKey, toolCallId } from '../core/ids.js'
 import { type BranchTarget, parseRemote, parseStacks } from '../github/branch.js'
@@ -17,6 +24,7 @@ import {
 } from '../github/pullRequest.js'
 import { shown } from '../github/remote.js'
 import { PullRequests } from '../github/store.js'
+import { browsableUrl, openUrl } from '../overlays/pullRequests.js'
 import type { ToolCall } from '../model.js'
 
 import { FakeGateway, must } from './fakes.js'
@@ -206,12 +214,12 @@ describe('PullRequests', () => {
   })
 
   it('asks the plugin for the links of the session it names, and reads a malformed answer as none', async () => {
-    const gw = new FakeGateway({ replies: { 'plugin.hermes-tern.pull_requests.linked': () => ({ linked: [ref(3), { host: 'github.com' }] }) } })
+    const gw = new FakeGateway({ replies: { 'plugin.glide.pull_requests.linked': () => ({ linked: [ref(3), { host: 'github.com' }] }) } })
 
     expect((await linkedPullRequests(gw.client, 's1')).map(r => r.number)).toEqual([3])
-    expect(gw.sent('plugin.hermes-tern.pull_requests.linked')).toEqual([{ session_id: 's1' }])
+    expect(gw.sent('plugin.glide.pull_requests.linked')).toEqual([{ session_id: 's1' }])
 
-    gw.handlers.set('plugin.hermes-tern.pull_requests.linked', () => ({}))
+    gw.handlers.set('plugin.glide.pull_requests.linked', () => ({}))
     expect(await linkedPullRequests(gw.client, 's1')).toEqual([])
   })
   it('says once why nothing could be read', async () => {
@@ -351,7 +359,7 @@ describe('branch and stacks', () => {
     store.adopt()
     await vi.waitFor(() => expect(store.entries()[1]?.pr?.title).toBe('Fix it'))
     expect(new Set([...graphql.mock.calls, ...rest.mock.calls].map(c => c[0]))).toEqual(new Set(['github.com']))
-    expect(store.entries()[0]?.error).toContain('plugins.entries.hermes-tern.settings.enterprise_hosts')
+    expect(store.entries()[0]?.error).toContain('plugins.entries.glide.settings.enterprise_hosts')
     expect(store.error).toBeUndefined()
     store.dispose()
   })
@@ -456,5 +464,23 @@ describe('branch and stacks', () => {
     expect(store.get(key)).not.toHaveProperty('source')
     expect(store.entries()[0]).not.toBe(store.entries()[0])
     store.dispose()
+  })
+})
+
+describe('openUrl', () => {
+  it('hands only http(s) URLs to the system opener', () => {
+    const spawn = vi.mocked(execFile)
+    spawn.mockClear()
+    for (const url of ['file:///etc/passwd', 'javascript:alert(1)', 'smb://host/share', 'ssh://h', '-n https://x', '/tmp/a', 'not a url']) {
+      expect(browsableUrl(url), url).toBeUndefined()
+      openUrl(url)
+    }
+    expect(spawn).not.toHaveBeenCalled()
+
+    // Never launch a real browser from the test.
+    spawn.mockImplementationOnce(() => new ChildProcess())
+    expect(browsableUrl('https://github.com/o/r/pull/1')).toBe('https://github.com/o/r/pull/1')
+    openUrl('https://github.com/o/r/pull/1')
+    expect(spawn).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/^(open|xdg-open)$/), ['https://github.com/o/r/pull/1'], expect.any(Function))
   })
 })

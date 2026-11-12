@@ -24,7 +24,7 @@ PNG = base64.b64decode(
 
 def install():
     manager = plugins.get_plugin_manager()
-    ctx = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    ctx = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     media.register(ctx)
     return manager
 
@@ -380,7 +380,7 @@ async def test_canonical_stale_source_after_read_unload_and_strict_params(native
         monkeypatch.setattr(media, "_read_regular", disappear)
         assert (await preview(viewer, path))["error"]["code"] == 4016
         monkeypatch.setattr(media, "_read_regular", original)
-        assert native.manager.unload("hermes-tern")
+        assert native.manager.unload("glide")
         assert (await preview(viewer, path))["error"]["code"] == -32601
     finally:
         await viewer.close()

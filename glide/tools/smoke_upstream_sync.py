@@ -17,7 +17,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="tern-sync-smoke-") as temporary:
         home = Path(temporary)
         profile = home / "profile"
-        plugin = profile / "plugins/hermes-tern"
+        plugin = profile / "plugins/glide"
         plugin.mkdir(parents=True)
         for source in ROOT.glob("*.py"):
             shutil.copy2(source, plugin / source.name)
@@ -25,7 +25,7 @@ def main() -> None:
         (plugin / "frontend/dist").mkdir(parents=True)
         shutil.copy2(ROOT / "frontend/dist/entry.js", plugin / "frontend/dist/entry.js")
         shutil.copy2(ROOT / "frontend/package.json", plugin / "frontend/package.json")
-        (profile / "config.yaml").write_text("plugins:\n  enabled: [hermes-tern]\n")
+        (profile / "config.yaml").write_text("plugins:\n  enabled: [glide]\n")
         registry = home / "channels.json"
         registry.write_text(json.dumps({"version": 1, "channels": {"smoke": {"dir": str(plugin), "alias": "tern-smoke"}}}))
         environment = {

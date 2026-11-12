@@ -8,7 +8,7 @@ import { storedSessionId } from '../core/ids.js'
 
 import { FakeGateway, fakeTern, stubOverlay } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-slash-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-slash-'))
 
 const { App } = await import('../app/chat.js')
 

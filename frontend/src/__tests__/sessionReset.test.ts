@@ -14,7 +14,7 @@ import type { TurnEntry } from '../model.js'
 
 import { FakeGateway, fakeTern, must, settle } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-session-reset-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-session-reset-'))
 
 vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load: () => [] }))
 

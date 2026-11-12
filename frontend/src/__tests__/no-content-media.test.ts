@@ -47,7 +47,7 @@ describe('read media without returned content', () => {
         expect(JSON.stringify(card)).not.toContain('Load image preview')
         expect(projectToolMedia(read, delivery.context())).toBeUndefined()
       }
-      expect(gw.sent('hermes-tern.media.image')).toEqual([])
+      expect(gw.sent('glide.media.image')).toEqual([])
       expect(blob).not.toHaveBeenCalled()
     }
   })
@@ -67,7 +67,7 @@ describe('read media without returned content', () => {
         expect(nodes(tree(toolNode(read, 0, undefined, undefined, delivery))).some(n =>
           n.k === 'media' || n.k === 'image' || n.p?.['role'] === 'omp.media.notice')).toBe(false)
       }
-      expect(gw.sent('hermes-tern.media.image')).toEqual([])
+      expect(gw.sent('glide.media.image')).toEqual([])
       expect(blob).not.toHaveBeenCalled()
     }
   })

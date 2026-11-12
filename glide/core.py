@@ -18,6 +18,7 @@ from importlib.util import find_spec
 from pathlib import Path
 
 from . import source
+from .child_env import child_env
 from .memory import GlideMemory, MemoryNotReady
 from .skill_router import command as skill_router_command, command_install, command_list, command_rank, USAGE as skill_router_USAGE
 from .hill_climb import command as hill_climb_command, scaffold, run_round, status, create_stop, remove_stop, USAGE as hill_climb_USAGE
@@ -50,7 +51,8 @@ def enabled(home: Path | None = None) -> bool:
 
 def _run(argv: list[str], stdin: str | None = None, timeout: float = _TIMEOUT) -> str | None:
     try:
-        done = subprocess.run(argv, input=stdin, capture_output=True, text=True, timeout=timeout, check=False)
+        done = subprocess.run(argv, input=stdin, capture_output=True, text=True, timeout=timeout, check=False,
+                              env=child_env())
     except (OSError, subprocess.SubprocessError):
         return None
     return done.stdout if done.returncode == 0 else None

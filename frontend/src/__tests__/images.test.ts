@@ -25,7 +25,7 @@ import { FakeGateway, must, tree } from './fakes.js'
 const all = (n: NodeJson): NodeJson[] => [n, ...(n.c ?? []).flatMap(all)]
 const images = (n: NodeJson) => all(n).filter(x => x.k === 'image')
 
-const dir = mkdtempSync(join(tmpdir(), 'hermes-tern-images-'))
+const dir = mkdtempSync(join(tmpdir(), 'glide-images-'))
 const PNG = Buffer.concat([
   Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13]),
   Buffer.from('IHDR'),
@@ -359,14 +359,14 @@ describe('Attachments: the draft\'s images', () => {
   it('uses the namespaced staged-bytes path only when the canonical gateway advertises it', async () => {
     const { a, gw } = attachments()
     gw.handlers.set('gateway.capabilities', () => ({
-      plugin_methods: ['hermes-tern.media.attach_bytes']
+      plugin_methods: ['glide.media.attach_bytes']
     }))
-    gw.handlers.set('hermes-tern.media.attach_bytes', () => ({
+    gw.handlers.set('glide.media.attach_bytes', () => ({
       path: '/uploads/attested.png'
     }))
     await a.fromPath(shot)
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 's1' }])
-    expect(gw.sent('hermes-tern.media.attach_bytes')).toEqual([
+    expect(gw.sent('glide.media.attach_bytes')).toEqual([
       expect.objectContaining({ filename: 'image.png', session_id: 's1' })
     ])
     expect(gw.sent('image.attach_bytes')).toEqual([])
@@ -380,13 +380,13 @@ describe('Attachments: the draft\'s images', () => {
     })
     await older.a.fromPath(shot)
     expect(older.gw.sent('image.attach_bytes')).toHaveLength(1)
-    expect(older.gw.sent('hermes-tern.media.attach_bytes')).toEqual([])
+    expect(older.gw.sent('glide.media.attach_bytes')).toEqual([])
 
     const unadvertised = attachments()
     await unadvertised.a.fromPath(shot)
     expect(unadvertised.gw.sent('gateway.capabilities')).toEqual([{ session_id: 's1' }])
     expect(unadvertised.gw.sent('image.attach_bytes')).toHaveLength(1)
-    expect(unadvertised.gw.sent('hermes-tern.media.attach_bytes')).toEqual([])
+    expect(unadvertised.gw.sent('glide.media.attach_bytes')).toEqual([])
   })
 
   it('an empty paste reads the clipboard\'s image and uploads it, with its size and thumbnail', async () => {
@@ -538,5 +538,31 @@ describe('Attachments: the launcher\'s startup image', () => {
 
     expect(notes).toEqual([{ text: expect.stringMatching(/^Could not attach .*gone\.png: ENOENT/), tone: 'warning' }])
     expect(a.awaitingStartup).toBe(false)
+  })
+})
+
+describe('Media image fetches', () => {
+  const shown = (image: string): ToolCall => call('image_generate', {}, { result: { image, success: true } })
+  const turn = (c: ToolCall): TurnEntry => ({ blocks: [{ call: c, id: entryId('b'), kind: 'tool' }], end: { endedAt: 9, status: 'done' }, id: entryId('t'), kind: 'turn', rev: 0, startedAt: 0 })
+
+  it('uses the guarded fetch by default: a metadata URL never loads', async () => {
+    const media = new Media({ blob: () => 'b' })
+    await expect(media.load('http://169.254.169.254/latest/meta-data/x.png')).resolves.toBeNull()
+    expect(localSource('http://169.254.169.254/x.png')).toBeUndefined()
+  })
+
+  it('does not fetch remote images while replaying history', async () => {
+    const fetcher = vi.fn(() => Promise.resolve(new Response(PNG)))
+    const media = new Media({ blob: () => 'b' }, fetcher)
+    const replayed = shown('https://cdn.test/cat.png')
+    const done = vi.fn()
+    media.showAll([turn(replayed)], done)
+    await Promise.resolve()
+    expect(fetcher).not.toHaveBeenCalled()
+    expect(done).not.toHaveBeenCalled()
+    // A data URL carries its own bytes: replay still shows it.
+    const inline = shown(`data:image/png;base64,${PNG.toString('base64')}`)
+    media.showAll([turn(inline)], done)
+    await vi.waitFor(() => expect(inline.image).toEqual({ blob: 'b' }))
   })
 })

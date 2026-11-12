@@ -253,3 +253,16 @@ def test_interrupt_exits_without_consuming_a_switch_request(launched, monkeypatc
     with pytest.raises(SystemExit) as done:
         launcher.run(parse([]))
     assert done.value.code == 130
+
+
+def test_lane_token_file_is_opt_in_through_the_plugin_setting(launched, monkeypatch, tmp_path):
+    # No setting, no shell variable: the frontend reads no relay token file.
+    monkeypatch.delenv("GLIDE_LANES_TOKEN_FILE", raising=False)
+    monkeypatch.setattr(launcher.pull_requests, "setting", lambda key: None, raising=False)
+    _, [(_, env)] = launched(parse([]))
+    assert "GLIDE_LANES_TOKEN_FILE" not in env
+    # The user names the file in plugins.entries.glide.settings.lanes_token_file.
+    token = str(tmp_path / "relay.token")
+    monkeypatch.setattr(launcher.pull_requests, "setting", lambda key: token if key == "lanes_token_file" else None)
+    _, [(_, env)] = launched(parse([]))
+    assert env["GLIDE_LANES_TOKEN_FILE"] == token

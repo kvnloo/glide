@@ -22,11 +22,11 @@ vi.mock('node:child_process', () => ({
 vi.mock('../clipboard.js', () => ({ copyToClipboard: () => undefined }))
 
 const oldHome = process.env['HERMES_HOME']
-const home = mkdtempSync(join(tmpdir(), 'hermes-tern-postmerge-'))
+const home = mkdtempSync(join(tmpdir(), 'glide-postmerge-'))
 process.env['HERMES_HOME'] = home
 const { App } = await import('../app/chat.js')
 
-const browserMethods = ['blocks', 'adopt', 'focus', 'release', 'frame'].map(method => 'hermes-tern.browser.' + method)
+const browserMethods = ['blocks', 'adopt', 'focus', 'release', 'frame'].map(method => 'glide.browser.' + method)
 const target = { target_id: '7', title: 'Sample page', url: 'about:blank', in_tern: true, frame: 'main' }
 
 function descendants(n: Node): Node[] {
@@ -92,12 +92,12 @@ describe('post-merge App smoke', () => {
         session_id: 's1', subscription_id: 'sub1'
       }),
       'config.get': p => p['key'] === 'profile' ? { profile_name: 'work' } : { config: { display: {} } },
-      'gateway.capabilities': () => ({ plugin_methods: [...browserMethods, 'hermes-tern.media.image'] }),
-      'hermes-tern.browser.blocks': () => ({
+      'gateway.capabilities': () => ({ plugin_methods: [...browserMethods, 'glide.media.image'] }),
+      'glide.browser.blocks': () => ({
         available: true,
         blocks: [{ target_id: '7', title: target.title, url: target.url, owner: null, owned: false, available: true }]
       }),
-      'hermes-tern.browser.focus': () => target
+      'glide.browser.focus': () => target
     } })
     const tern = fakeTern({ draws: true, features: ['blobs'] })
     Object.assign(tern.session.caps, { reduceMotion: true })
@@ -123,12 +123,12 @@ describe('post-merge App smoke', () => {
     const blocks = await listBrowserBlocks(gw.client, must(browserCaller(app.session)))
     expect(blocks.blocks).toHaveLength(1)
     expect(gw.sent('config.get')).toContainEqual({ key: 'profile', profile: 'work', session_id: 's1' })
-    expect(gw.sent('hermes-tern.browser.blocks')).toEqual([{ session_id: 's1' }])
+    expect(gw.sent('glide.browser.blocks')).toEqual([{ session_id: 's1' }])
     focus.handlers?.onClick?.({ act: 'click', ev: 'action', id: 'browser-focus', raw: {}, sf: 'hermes' })
-    await vi.waitFor(() => expect(gw.sent('hermes-tern.browser.focus')).toEqual([
+    await vi.waitFor(() => expect(gw.sent('glide.browser.focus')).toEqual([
       { session_id: 's1', target_id: '7' }
     ]))
-    expect(gw.sent('hermes-tern.browser.adopt')).toEqual([])
+    expect(gw.sent('glide.browser.adopt')).toEqual([])
 
     // A completed tool ID cannot prove gateway ownership. Even an advertised method
     // must not offer Load or ask the gateway for bytes without that proof.
@@ -138,12 +138,12 @@ describe('post-merge App smoke', () => {
     expect(mainNodes(tern).some(n => n.props['text'] ===
       'Tool image preview unavailable: no authenticated completed-tool evidence.')).toBe(true)
     expect(mainNodes(tern).some(n => ['Load image preview', 'Retry image preview'].includes(String(n.props['title'])))).toBe(false)
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     await app.stores.mediaDelivery.load({
       kind: 'path', host: 'gateway', id: 'image-1', path: imagePath,
       mime: 'image/png', toolCallId: 'image-1'
     })
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob.mock.calls.filter(([, mime]) => mime === 'image/png')).toEqual([])
 
     // A query-bearing file URL reaches the live artifact fanout; .glb.html never qualifies.

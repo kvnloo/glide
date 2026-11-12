@@ -89,7 +89,7 @@ WORK = [
     ("The spec lists milestones. Let me check the frontend tests and run a slower step.",
      None,
      [("terminal", {"command": "sleep 3 && ls frontend/src | head -20"}),
-      ("write_file", {"path": "/tmp/hermes-tern-lab-note-{n}.md", "content": "lab note\n"})]),
+      ("write_file", {"path": "/tmp/glide-lab-note-{n}.md", "content": "lab note\n"})]),
     ("**Summarizing**\n\nI have enough to answer now: the plugin, the lab and the spec.",
      """Here is what I found.
 
@@ -109,7 +109,7 @@ committed bundle.
      []),
 ]
 
-SCRIPT = """cat > /tmp/hermes-tern-lab.sh <<'EOF'
+SCRIPT = """cat > /tmp/glide-lab.sh <<'EOF'
 echo "== disk usage =="
 df -h / | tail -1
 echo "== biggest folders =="
@@ -117,7 +117,7 @@ ls -1 /usr | head -5
 echo "== numbers =="
 seq 1 120
 EOF
-sh /tmp/hermes-tern-lab.sh 2>&1 | cut -c1-120"""
+sh /tmp/glide-lab.sh 2>&1 | cut -c1-120"""
 
 TICKS = "for i in $(seq 1 {n}); do echo tick $i; sleep 1; done"
 
@@ -552,7 +552,7 @@ def write_home(home: Path, base_url: str) -> Path:
     home.mkdir(parents=True, exist_ok=True)
     plugins = home / "plugins"
     plugins.mkdir(exist_ok=True)
-    link = plugins / "hermes-tern"
+    link = plugins / "glide"
     if not link.exists():
         link.symlink_to(PLUGIN, target_is_directory=True)
     # JSON is YAML: no PyYAML needed here.
@@ -560,7 +560,7 @@ def write_home(home: Path, base_url: str) -> Path:
         "model": {"provider": "custom", "default": "fake-model", "base_url": base_url},
         "approvals": {"mode": "manual", "timeout": 300},
         "auxiliary": {"title_generation": {"enabled": False}},
-        "plugins": {"enabled": ["hermes-tern"], "disabled": []},
+        "plugins": {"enabled": ["glide"], "disabled": []},
         "telemetry": {"shared_metrics": {"enabled": False, "send": False, "offer_version": 2}},
         # A short tail, so /compress has something to summarize after a few turns.
         "compression": {"protect_last_n": 2, "protect_first_n": 0},

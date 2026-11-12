@@ -12,7 +12,7 @@ import { FakeGateway, fakeTern, given, key, must, type Reply } from './fakes.js'
 
 vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load: () => [] }))
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-status-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-status-'))
 
 const { App } = await import('../app/chat.js')
 const { localCommand } = await import('../commands/local.js')

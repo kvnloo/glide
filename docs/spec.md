@@ -16,7 +16,7 @@ prove it.
   the gateway's JSON-RPC methods and events and opens none of Hermes' files. The Python half uses
   the plugin context and the imports on Hermes' published plugin list. Data the gateway does not
   serve is a gap to report to Hermes, not a file to read. No `HERMES_*` variables for settings: the plugin keeps its own in
-  `<home>/hermes-tern/settings.json`.
+  `<home>/glide/settings.json`.
 - **Tern draws.** Prefer Tern's elements and roles (omp's vocabulary) over hand-drawn layout, so
   Tern's chat styles, themes and motion apply.
 - **Ship small.** One feature per branch in `~/github/hermes-tern-subagents`; PR to `main`,

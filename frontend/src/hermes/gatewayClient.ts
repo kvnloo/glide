@@ -11,7 +11,7 @@ import { AttachError, attachGateway, terminalAttachFailure } from './connect.js'
 export { GatewayClient }
 
 /** How this client names itself on `session.create`: the gateway keeps it with the session (`session.info.client`). */
-export const CLIENT = { name: 'hermes-tern', version: pkg.version }
+export const CLIENT = { name: 'glide', version: pkg.version }
 
 /** A client for `launch`'s Hermes, pinning the launch's tool-progress mode on each new session. */
 export function createGatewayClient(launch: Pick<LaunchEnv, 'hermes' | 'toolProgress'>): GatewayClient {

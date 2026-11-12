@@ -201,3 +201,46 @@ def test_z0int_reader_is_found_where_z0int_lives(z0int, tmp_path, monkeypatch):
     assert gateway._z0int_reader() is None
     monkeypatch.setenv("Z0INT_ORIENTATION", str(package / "other.py"))
     assert gateway._z0int_reader()[-1] == str(package / "other.py")
+
+
+# ---- Child processes get a minimal environment, never the provider keys -------------------------
+
+_ENV_DUMP = ["{exe}", "-c", "import json, os; print(json.dumps(sorted(os.environ)))"]
+
+
+def _dump(exe):
+    return [part.format(exe=exe) for part in _ENV_DUMP]
+
+
+@pytest.fixture
+def secret_env(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-secret")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-secret")
+    monkeypatch.setenv("GH_TOKEN", "gh-secret")
+    monkeypatch.setenv("LANG", "C.UTF-8")
+
+
+def test_core_run_passes_only_a_minimal_env(secret_env):
+    import sys
+    names = set(json.loads(gateway._run(_dump(sys.executable))))
+    assert {"PATH", "HOME", "LANG"} <= names
+    assert not names & {"OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GH_TOKEN"}
+
+
+def test_hill_climb_benchmark_env_is_minimal_plus_explicit(secret_env):
+    import sys
+    from glide_plugin import hill_climb
+    cmd = [sys.executable, "-c", "import json, os; print(json.dumps({'names': sorted(os.environ)}))"]
+    names = set(hill_climb.run_benchmark_command(cmd, env={"BENCH_N": "3"})["names"])
+    assert {"PATH", "HOME", "LANG", "BENCH_N"} <= names
+    assert not names & {"OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GH_TOKEN"}
+
+
+def test_fleet_commands_get_only_their_tool_env(secret_env, monkeypatch):
+    import sys
+    from glide_plugin import fleet
+    monkeypatch.setattr(fleet, "_DEADLINE", None)
+    names = set(json.loads(fleet._command(_dump(sys.executable))))
+    assert "PATH" in names and not names & {"OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GH_TOKEN"}
+    assert fleet._tool_env(["gh", "pr", "list"])["GH_TOKEN"] == "gh-secret"
+    assert "OPENAI_API_KEY" not in fleet._tool_env(["gh", "pr", "list"])

@@ -16,7 +16,7 @@ installs its frozen dependencies. It then runs the real commands:
 
 ```sh
 hermes plugins install kvnloo/glide --force --enable --yes-deps
-hermes plugins validate "$HERMES_HOME/plugins/hermes-tern"
+hermes plugins validate "$HERMES_HOME/plugins/glide"
 ```
 
 This tests public main, not an unpublished plugin patch. Both installed SHAs

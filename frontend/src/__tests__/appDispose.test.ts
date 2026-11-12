@@ -13,7 +13,7 @@ import type { Settings, SettingsSource } from '../settings.js'
 
 import { face, FakeGateway, fakeTern } from './fakes.js'
 
-const home = mkdtempSync(join(tmpdir(), 'hermes-tern-dispose-'))
+const home = mkdtempSync(join(tmpdir(), 'glide-dispose-'))
 process.env['HERMES_HOME'] = home
 
 vi.mock('../clipboard.js', () => ({ copyToClipboard: () => undefined }))
@@ -137,7 +137,7 @@ describe('App.dispose', () => {
     gw.event({ payload: { kind: 'compacted', text: 'Compacted ~182,000 → ~31,000 tokens' }, session_id: 's1', type: 'status.update' })
     gw.event({ payload: { text: 'Done.' }, session_id: 's1', type: 'message.complete' })
     // A connect card the plugin's watcher still writes.
-    const cards = join(home, 'plugin-data', 'hermes-tern', 'connections')
+    const cards = join(home, 'plugin-data', 'glide', 'connections')
     mkdirSync(cards, { recursive: true })
     writeFileSync(
       join(cards, 'call_c.op1.json'),
@@ -177,12 +177,12 @@ describe('quitting', () => {
     const { app, done, gw, tern } = await started()
     const dispose = vi.spyOn(app, 'dispose')
     const close = vi.spyOn(tern.session, 'close')
-    expect(gw.sent('plugin.hermes-tern.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 's1' }])
+    expect(gw.sent('plugin.glide.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 's1' }])
 
     app.quit(3)
 
     await expect(done).resolves.toBe(3)
-    expect(gw.sent('plugin.hermes-tern.viewer.clear')).toEqual([{ pid: process.pid, session_id: 's1' }])
+    expect(gw.sent('plugin.glide.viewer.clear')).toEqual([{ pid: process.pid, session_id: 's1' }])
     expect(gw.sent('session.detach')).toEqual([{ end_reason: 'tui_shutdown', session_id: 's1', subscription_id: 'sub1' }])
     expect(dispose).toHaveBeenCalledTimes(1)
     expect(close).toHaveBeenCalledTimes(1)
@@ -191,7 +191,7 @@ describe('quitting', () => {
 
   it('quits even when the plugin never answers viewer.clear', async () => {
     const { app, done, gw } = await started()
-    gw.handlers.set('plugin.hermes-tern.viewer.clear', () => new Promise(() => undefined))
+    gw.handlers.set('plugin.glide.viewer.clear', () => new Promise(() => undefined))
 
     app.quit()
 

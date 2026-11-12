@@ -4495,7 +4495,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.viewer.set",
+   "method": "plugin.glide.viewer.set",
    "params": {
     "session_id": "s1",
     "pid": "<PID>",
@@ -4509,7 +4509,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.pull_requests.linked",
+   "method": "plugin.glide.pull_requests.linked",
    "params": {
     "session_id": "s1"
    }
@@ -4574,7 +4574,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.viewer.set",
+   "method": "plugin.glide.viewer.set",
    "params": {
     "session_id": "s1",
     "pid": "<PID>",
@@ -4638,14 +4638,14 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.viewer.clear",
+   "method": "plugin.glide.viewer.clear",
    "params": {
     "session_id": "s1",
     "pid": "<PID>"
    }
   },
   {
-   "method": "plugin.hermes-tern.viewer.set",
+   "method": "plugin.glide.viewer.set",
    "params": {
     "session_id": "old",
     "pid": "<PID>",
@@ -4668,7 +4668,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.pull_requests.linked",
+   "method": "plugin.glide.pull_requests.linked",
    "params": {
     "session_id": "old"
    }

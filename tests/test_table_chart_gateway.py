@@ -49,10 +49,10 @@ def native(tmp_path, monkeypatch):
     monkeypatch.setattr(plugins, "get_bundled_plugins_dir", lambda: tmp_path / "empty")
     monkeypatch.setattr(plugins.PluginManager, "_scan_entry_points", lambda self: [])
 
-    plugin = home / "plugins" / "hermes-tern"
+    plugin = home / "plugins" / "glide"
     plugin.mkdir(parents=True)
     (plugin / "plugin.yaml").write_text(
-        "name: hermes-tern\nversion: 1.0.0\ndescription: Table gateway fixture\n",
+        "name: glide\nversion: 1.0.0\ndescription: Table gateway fixture\n",
         encoding="utf-8",
     )
     (plugin / "__init__.py").write_text(
@@ -60,14 +60,14 @@ def native(tmp_path, monkeypatch):
         encoding="utf-8",
     )
     (home / "config.yaml").write_text(
-        'plugins:\n  enabled: [hermes-tern]\n', encoding="utf-8",
+        'plugins:\n  enabled: [glide]\n', encoding="utf-8",
     )
-    settings = home / "hermes-tern" / "settings.json"
+    settings = home / "glide" / "settings.json"
     settings.parent.mkdir()
     settings.write_text('{"tableCharts":"smart"}\n', encoding="utf-8")
     manager = plugins.get_plugin_manager()
     manager.discover_and_load()
-    assert manager._plugins["hermes-tern"].enabled
+    assert manager._plugins["glide"].enabled
     assert sorted(manager._gateway_methods) == [charts.PLAN_METHOD, charts.POLICY_METHOD]
 
     db = SessionDB(db_path=home / "state.db")
@@ -330,7 +330,7 @@ async def test_unload_disposes_real_registry_and_rejects_old_results(native, net
             "session_id": "owned", "source": TABLE,
         }))
         await entered(mark)
-        assert native.manager.unload("hermes-tern")
+        assert native.manager.unload("glide")
         assert (await rpc(viewer, "gateway.capabilities", {
             "session_id": "owned",
         }))["result"]["plugin_methods"] == []

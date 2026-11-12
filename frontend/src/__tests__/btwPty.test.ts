@@ -206,17 +206,17 @@ function nativeKeys(input: string): Key[] {
 describe('BTW and main draft PTY-to-App isolation (Linux/macOS)', () => {
   it('routes split UTF-8, bracketed paste and Enter without cross-submitting', async () => {
     const previousHome = process.env['HERMES_HOME']
-    const home = mkdtempSync(join(tmpdir(), 'hermes-tern-btw-pty-'))
+    const home = mkdtempSync(join(tmpdir(), 'glide-btw-pty-'))
     process.env['HERMES_HOME'] = home
     const gw = new FakeGateway({
       replies: {
-        'hermes-tern.btw.list': () => ({
+        'glide.btw.list': () => ({
           threads: [{
             id: 'prior', revision: 1,
             turns: [{ id: 't1', question: 'Old', answer: 'Old answer', state: 'answered' }]
           }]
         }),
-        'hermes-tern.btw.submit': () => ({
+        'glide.btw.submit': () => ({
           thread: {
             id: 'prior', revision: 2,
             turns: [{ id: 't2', question: 'New', answer: 'Answered', state: 'answered' }]
@@ -250,7 +250,7 @@ describe('BTW and main draft PTY-to-App isolation (Linux/macOS)', () => {
       }
 
       await settle(gw)
-      expect(gw.sent('hermes-tern.btw.submit')).toEqual([{
+      expect(gw.sent('glide.btw.submit')).toEqual([{
         session_id: 's1', thread_id: 'prior', text: '🦉粘\n💡'
       }])
       expect(gw.sent('prompt.submit')).toEqual([])
@@ -267,7 +267,7 @@ describe('BTW and main draft PTY-to-App isolation (Linux/macOS)', () => {
       }
 
       await settle(gw)
-      expect(gw.sent('hermes-tern.btw.submit')).toHaveLength(1)
+      expect(gw.sent('glide.btw.submit')).toHaveLength(1)
       expect(gw.sent('prompt.submit')).toEqual([
         expect.objectContaining({ session_id: 's1', text: 'Main draft🦊x\n📎' })
       ])

@@ -230,7 +230,7 @@ describe('Dictation', () => {
 })
 
 describe('hermesRecorder: dictation.py in its own process', () => {
-  const root = mkdtempSync(join(tmpdir(), 'hermes-tern-dictation-'))
+  const root = mkdtempSync(join(tmpdir(), 'glide-dictation-'))
   const interpreter = join(root, 'python')
   // A stand-in for the helper: the same lines and commands, no microphone.
   writeFileSync(

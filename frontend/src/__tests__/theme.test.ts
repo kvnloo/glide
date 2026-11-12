@@ -93,7 +93,7 @@ describe('STYLES', () => {
 
 describe('settings', () => {
   it('reads defaults from a missing file and keeps what it saved', async () => {
-    const file = join(await mkdtemp(join(tmpdir(), 'hermes-tern-settings-')), 'x', 'settings.json')
+    const file = join(await mkdtemp(join(tmpdir(), 'glide-settings-')), 'x', 'settings.json')
 
     expect(loadSettings(file)).toEqual({})
     saveSettings({ theme: 'nous' }, file)

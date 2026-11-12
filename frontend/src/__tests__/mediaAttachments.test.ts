@@ -37,7 +37,7 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     expect(JSON.stringify(draw(delivery))).not.toMatch(/Load image preview|Retry preview/)
     await delivery.load(source)
     expect(gw.sent('gateway.capabilities')).toEqual([])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob).not.toHaveBeenCalled()
 
     // Reattaching permits an explicit load; disconnecting revokes its blob.
@@ -50,11 +50,11 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     expect(delivery.preview(source).status).toBe('unsupported')
     expect(JSON.stringify(draw(delivery))).not.toMatch(/Load image preview|Retry preview/)
     await delivery.load(source)
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(1)
+    expect(gw.sent('glide.media.image')).toHaveLength(1)
     gw.attached = true
     expect(delivery.preview(source).status).toBe('available')
     await delivery.load(source)
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(2)
+    expect(gw.sent('glide.media.image')).toHaveLength(2)
     expect(blob).toHaveBeenCalledTimes(2)
   })
 
@@ -71,11 +71,11 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     await delivery.load(source)
 
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 'session-1' }])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(delivery.preview(source)).toMatchObject({
       status: 'failed', error: mode === 'discovery error'
         ? 'gateway capability discovery failed'
-        : 'Image preview requires Hermes plugin gateway methods; upgrade Hermes and enable hermes-tern.'
+        : 'Image preview requires Hermes plugin gateway methods; upgrade Hermes and enable glide.'
     })
     expect(blob).not.toHaveBeenCalled()
     expect(nodes(draw(delivery)).some(n => n.k === 'image' && n.p?.['blob'])).toBe(false)
@@ -89,20 +89,20 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     expect(delivery.preview(source).status).toBe('ready')
     expect(blob).toHaveBeenCalledOnce()
     session('not-owner')
-    gw.handlers.set('hermes-tern.media.image', () => { throw new Error('attachment_not_owned') })
+    gw.handlers.set('glide.media.image', () => { throw new Error('attachment_not_owned') })
     expect(delivery.preview(source).status).toBe('available')
     await delivery.load(source)
 
-    expect(gw.sent('hermes-tern.media.image').at(-1)).toEqual({ session_id: 'not-owner', path: attachedImage })
+    expect(gw.sent('glide.media.image').at(-1)).toEqual({ session_id: 'not-owner', path: attachedImage })
     expect(delivery.preview(source)).toMatchObject({ status: 'failed', error: 'attachment_not_owned' })
     expect(blob).toHaveBeenCalledOnce()
     expect(nodes(draw(delivery)).some(n => n.k === 'image' && n.p?.['blob'])).toBe(false)
     session('session-1')
-    gw.handlers.set('hermes-tern.media.image', response)
+    gw.handlers.set('glide.media.image', response)
     expect(delivery.preview(source).status).toBe('available')
     await delivery.load(source)
     expect(blob).toHaveBeenCalledTimes(2)
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(3)
+    expect(gw.sent('glide.media.image')).toHaveLength(3)
   })
 
   it('routes only canonical committed native-input paths to the explicit backend proof', async () => {
@@ -116,7 +116,7 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     expect(delivery.preview(source).status).toBe('available')
     expect(gw.sent('gateway.capabilities')).toEqual([])
     await delivery.load(source)
-    expect(gw.sent('hermes-tern.media.image')).toEqual([{ session_id: 'session-1', path: committed }])
+    expect(gw.sent('glide.media.image')).toEqual([{ session_id: 'session-1', path: committed }])
     expect(blob).toHaveBeenCalledWith(png, 'image/png')
 
     // A gateway-side negative receipt is a refusal, not a fallback path read.
@@ -124,7 +124,7 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     if (!bad) {
       throw new Error('missing negative-control attachment route')
     }
-    gw.handlers.set('hermes-tern.media.image', () => { throw new Error('Image is not an owned completed canonical attachment') })
+    gw.handlers.set('glide.media.image', () => { throw new Error('Image is not an owned completed canonical attachment') })
     await delivery.load(bad)
     expect(delivery.preview(bad)).toMatchObject({
       status: 'failed', error: 'Image is not an owned completed canonical attachment'
@@ -142,10 +142,10 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     }
     expect(JSON.stringify(draw(delivery))).toContain('Load image preview')
     expect(gw.sent('gateway.capabilities')).toEqual([])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     await delivery.load(source) // same explicit action the visible Load control wires
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 'session-1' }])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([
+    expect(gw.sent('glide.media.image')).toEqual([
       { session_id: 'session-1', path: attachedImage }
     ])
     expect(blob).toHaveBeenCalledOnce()
@@ -176,7 +176,7 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
     session('a-second-session')
     expect(delivery.preview(source).status).toBe('available')
     await delivery.load(source)
-    expect(gw.sent('hermes-tern.media.image').at(-1)).toEqual({
+    expect(gw.sent('glide.media.image').at(-1)).toEqual({
       session_id: 'a-second-session', path: attachedImage
     })
     delivery.clear()
@@ -191,20 +191,20 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
       throw new Error('missing gateway upload source')
     }
     const wait = Promise.withResolvers<unknown>()
-    gw.handlers.set('hermes-tern.media.image', () => wait.promise)
+    gw.handlers.set('glide.media.image', () => wait.promise)
     const pending = delivery.load(source)
-    await vi.waitFor(() => expect(gw.sent('hermes-tern.media.image')).toHaveLength(1))
+    await vi.waitFor(() => expect(gw.sent('glide.media.image')).toHaveLength(1))
     backend('docker')
     expect(delivery.preview(source).status).toBe('busy')
     session('another-session')
     wait.resolve(response())
     await pending
     expect(blob).not.toHaveBeenCalled()
-    gw.handlers.set('hermes-tern.media.image', () => { throw new Error('No committed proof') })
+    gw.handlers.set('glide.media.image', () => { throw new Error('No committed proof') })
     await delivery.load(source)
     expect(delivery.preview(source)).toMatchObject({ status: 'failed', error: 'No committed proof' })
     expect(blob).not.toHaveBeenCalled()
-    gw.handlers.set('hermes-tern.media.image', response)
+    gw.handlers.set('glide.media.image', response)
     await delivery.load(source)
     expect(delivery.preview(source).status).toBe('ready')
     expect(blob).toHaveBeenCalledOnce()
@@ -217,15 +217,15 @@ describe('gateway-owned prompt attachments with absent terminal_backend', () => 
       throw new Error('missing attachment route')
     }
     expect(delivery.preview(source).status).toBe('available')
-    gw.handlers.set('hermes-tern.media.image', () => { throw new Error('Image is not an authorized, current attachment') })
+    gw.handlers.set('glide.media.image', () => { throw new Error('Image is not an authorized, current attachment') })
     await delivery.load(source)
-    expect(gw.sent('hermes-tern.media.image')).toEqual([
+    expect(gw.sent('glide.media.image')).toEqual([
       { session_id: 'session-1', path: '/gateway/typed-marker.png' }
     ])
     expect(delivery.preview(source).status).toBe('failed')
     expect(blob).not.toHaveBeenCalled()
     const tool: MediaPath = { ...source, id: 'tool', toolCallId: 'typed-only', scope: 'attachment' }
     expect(delivery.preview(tool).status).toBe('unsupported')
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(1)
+    expect(gw.sent('glide.media.image')).toHaveLength(1)
   })
 })

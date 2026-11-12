@@ -23,7 +23,7 @@ import { tree } from './fakes.js'
 import { png, response, setup } from './mediaDeliveryFixtures.js'
 import { call } from './toolFixtures.js'
 
-const home = mkdtempSync(join(tmpdir(), 'hermes-tern-media-'))
+const home = mkdtempSync(join(tmpdir(), 'glide-media-'))
 const image = (id = '1', host: MediaPath['host'] = 'gateway'): MediaPath => ({
   host, id, kind: 'path', mime: 'image/png', path: '/gateway/' + id + '.png',
   ...(host === 'gateway' ? { scope: 'attachment' as const } : {})
@@ -103,7 +103,7 @@ describe('cross-host previews', () => {
       }
       expect(delivery.preview(toolImage('same', attached ? 'gateway' : 'frontend')).status).toBe('unsupported')
       await delivery.load(toolImage('same', attached ? 'gateway' : 'frontend'))
-      expect(gw.sent('hermes-tern.media.image')).toEqual([])
+      expect(gw.sent('glide.media.image')).toEqual([])
       expect(blob).not.toHaveBeenCalled()
     }
   })
@@ -165,14 +165,14 @@ describe('cross-host previews', () => {
     expect(nodes(render()).some(n => n.k === 'media' || (n.k === 'image' && n.p?.['blob']))).toBe(false)
     expect(delivery.preview(plan.source).status).toBe('unsupported')
     expect(gw.sent('gateway.capabilities')).toEqual([])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob).not.toHaveBeenCalled()
   })
 
   it('drops a pending gateway upload when backend authority disappears and later returns', async () => {
     const { delivery, gw, blob, backend } = setup({ attached: true })
     const waiting = Promise.withResolvers<unknown>()
-    gw.handlers.set('hermes-tern.media.image', () => waiting.promise)
+    gw.handlers.set('glide.media.image', () => waiting.promise)
 
     const source = image('pending')
     const pending = delivery.load(source)
@@ -204,7 +204,7 @@ describe('cross-host previews', () => {
     // Spoofing an attachment scope must not turn a tool ID into a user upload.
     await delivery.load({ ...plan.source, scope: 'attachment' })
     expect(gw.sent('gateway.capabilities')).toEqual([])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob).not.toHaveBeenCalled()
   })
 
@@ -220,7 +220,7 @@ describe('cross-host previews', () => {
     })
 
     expect(JSON.stringify(tree(entryNode(entry, 'main.u1', view())))).toContain('Load image preview')
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(0)
+    expect(gw.sent('glide.media.image')).toHaveLength(0)
 
     const path = attachmentImagePath('/gateway/archive.png', delivery)
 
@@ -229,7 +229,7 @@ describe('cross-host previews', () => {
     }
 
     await delivery.load(path)
-    expect(gw.sent('hermes-tern.media.image')).toEqual([{ session_id: 'session-1', path: '/gateway/archive.png' }])
+    expect(gw.sent('glide.media.image')).toEqual([{ session_id: 'session-1', path: '/gateway/archive.png' }])
     expect(nodes(tree(entryNode(entry, 'main.u1', view()))).some(n => n.k === 'image' && n.p?.['blob'] === 'tern-blob')).toBe(true)
   })
 
@@ -243,7 +243,7 @@ describe('cross-host previews', () => {
     const claimed = toolImage(String(tool.id))
     await delivery.load({ ...claimed, path: '/gateway/screenshot.png' })
     expect(gw.sent('gateway.capabilities')).toEqual([])
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob).not.toHaveBeenCalled()
   })
 
@@ -253,14 +253,14 @@ describe('cross-host previews', () => {
     const shown = JSON.stringify(tree(toolNode(tool, 0, undefined, undefined, delivery)))
 
     expect(shown).toContain('cannot authorize its file path')
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(0)
+    expect(gw.sent('glide.media.image')).toHaveLength(0)
   })
 
   it('does not offer remote previews without blob negotiation, source host, or session', async () => {
     const none = setup({ blobs: false })
     expect(none.delivery.preview(image()).status).toBe('unsupported')
     await none.delivery.load(image())
-    expect(none.gw.sent('hermes-tern.media.image')).toHaveLength(0)
+    expect(none.gw.sent('glide.media.image')).toHaveLength(0)
 
     const { delivery, session, blob } = setup()
     expect(delivery.preview(image('x', 'compute')).status).toBe('unsupported')
@@ -295,7 +295,7 @@ describe('cross-host previews', () => {
     }
 
     expect(blob).toHaveBeenCalledWith(png, 'image/png')
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(0)
+    expect(gw.sent('glide.media.image')).toHaveLength(0)
     expect(nodes(tree(toolNode(tool, 0, undefined, undefined, delivery))).some(n => n.k === 'media')).toBe(false)
   })
 
@@ -306,20 +306,20 @@ describe('cross-host previews', () => {
     expect(delivery.context().local).toBe(true)
     expect(nodes(tree(toolNode(tool, 0, undefined, undefined, delivery))).some(n => n.k === 'image' && n.p?.['path'] === '/gateway/a.png')).toBe(true)
     expect(blob).not.toHaveBeenCalled()
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(0)
+    expect(gw.sent('glide.media.image')).toHaveLength(0)
   })
 
   it('reports MIME mismatch, invalid base64 and gateway failures without uploading', async () => {
     const { delivery, gw, blob } = setup()
-    gw.handlers.set('hermes-tern.media.image', () => ({ ...response(), mime: 'image/jpeg' }))
+    gw.handlers.set('glide.media.image', () => ({ ...response(), mime: 'image/jpeg' }))
     await delivery.load(image())
     expect(delivery.preview(image())).toMatchObject({ status: 'failed', error: expect.stringContaining('mismatch') })
 
-    gw.handlers.set('hermes-tern.media.image', () => ({ ...response(), content_base64: 'not;base64' }))
+    gw.handlers.set('glide.media.image', () => ({ ...response(), content_base64: 'not;base64' }))
     await delivery.load(image())
     expect(delivery.preview(image())).toMatchObject({ status: 'failed', error: expect.stringContaining('Invalid') })
 
-    gw.handlers.set('hermes-tern.media.image', () => { throw new Error('access denied') })
+    gw.handlers.set('glide.media.image', () => { throw new Error('access denied') })
     await delivery.load(image())
     expect(delivery.preview(image())).toMatchObject({ status: 'failed', error: 'access denied' })
     expect(blob).not.toHaveBeenCalled()
@@ -328,14 +328,14 @@ describe('cross-host previews', () => {
   it('does not auto-retry, but retries only when requested again', async () => {
     let attempts = 0
     const { delivery, gw, blob } = setup()
-    gw.handlers.set('hermes-tern.media.image', () => (++attempts === 1 ? { ...response(), bytes: 0 } : response()))
+    gw.handlers.set('glide.media.image', () => (++attempts === 1 ? { ...response(), bytes: 0 } : response()))
 
     await delivery.load(image())
     expect(delivery.preview(image()).status).toBe('failed')
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(1)
+    expect(gw.sent('glide.media.image')).toHaveLength(1)
 
     await delivery.load(image())
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(2)
+    expect(gw.sent('glide.media.image')).toHaveLength(2)
     expect(blob).toHaveBeenCalledOnce()
   })
 
@@ -364,7 +364,7 @@ describe('cross-host previews', () => {
     for (const action of ['remove', 'session', 'close']) {
       const gate = Promise.withResolvers<unknown>()
       const { delivery, blob, gw, session } = setup()
-      gw.handlers.set('hermes-tern.media.image', () => gate.promise)
+      gw.handlers.set('glide.media.image', () => gate.promise)
       const ref = image('pending')
       const pending = delivery.load(ref)
       await Promise.resolve()
@@ -392,7 +392,7 @@ describe('cross-host previews', () => {
       status: 'failed',
       error: expect.stringContaining('requires Hermes plugin gateway methods')
     })
-    expect(gw.sent('hermes-tern.media.image')).toEqual([])
+    expect(gw.sent('glide.media.image')).toEqual([])
     expect(blob).not.toHaveBeenCalled()
   })
 
@@ -403,7 +403,7 @@ describe('cross-host previews', () => {
     expect(gw.sent('gateway.capabilities')).toEqual([])
     await delivery.load(image())
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 'session-1' }])
-    expect(gw.sent('hermes-tern.media.image')).toHaveLength(1)
+    expect(gw.sent('glide.media.image')).toHaveLength(1)
   })
 
   it('invalidates a gateway attachment blob when the compute backend changes', async () => {

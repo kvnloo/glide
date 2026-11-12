@@ -45,7 +45,7 @@ def run(app_path: str, mode: str) -> dict:
         raise InterruptedError("PTY runner terminated by signal " + str(signum))
 
     signal.signal(signal.SIGTERM, interrupted)
-    with tempfile.TemporaryDirectory(prefix="hermes-tern-real-pty-") as home:
+    with tempfile.TemporaryDirectory(prefix="glide-real-pty-") as home:
         report = Path(home) / "gateway.json"
         master, slave = pty.openpty()
         tty.setraw(slave)

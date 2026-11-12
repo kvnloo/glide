@@ -30,8 +30,8 @@ export interface BrowserTarget {
   frame?: string
 }
 
-export type BrowserAction = 'hermes-tern.browser.adopt' | 'hermes-tern.browser.focus' | 'hermes-tern.browser.frame'
-export type BrowserMethod = BrowserAction | 'hermes-tern.browser.blocks' | 'hermes-tern.browser.release'
+export type BrowserAction = 'glide.browser.adopt' | 'glide.browser.focus' | 'glide.browser.frame'
+export type BrowserMethod = BrowserAction | 'glide.browser.blocks' | 'glide.browser.release'
 
 type Requester = Pick<GatewayClient, 'request'>
 
@@ -43,7 +43,7 @@ export interface BrowserCaller {
 }
 
 const PROFILE = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/
-const PREFIX = 'hermes-tern.browser.'
+const PREFIX = 'glide.browser.'
 const ALL = ['blocks', 'adopt', 'focus', 'release', 'frame'].map(method => PREFIX + method)
 
 /** Canonical identity comes from this attached session's server-supplied info,
@@ -131,8 +131,8 @@ function blockOf(input: unknown): BrowserBlock {
 
 /** Read-only discovery cannot grant native drive. */
 export async function listBrowserBlocks(gw: Requester, caller: BrowserCaller): Promise<BrowserBlocks> {
-  await ensureMethod(gw, caller, 'hermes-tern.browser.blocks')
-  const raw: unknown = await gw.request('hermes-tern.browser.blocks', { session_id: caller.sessionId })
+  await ensureMethod(gw, caller, 'glide.browser.blocks')
+  const raw: unknown = await gw.request('glide.browser.blocks', { session_id: caller.sessionId })
   requireCaller(caller)
   const data = record(raw)
 
@@ -160,7 +160,7 @@ export async function browserTarget(
     throw new Error('Invalid Tern browser block id')
   }
 
-  if (action === 'hermes-tern.browser.frame' && (!frame || !validBrowserFrame(frame))) {
+  if (action === 'glide.browser.frame' && (!frame || !validBrowserFrame(frame))) {
     throw new Error('Use main or an exact frame index path (for example 0 or 1.0)')
   }
 
@@ -168,7 +168,7 @@ export async function browserTarget(
   const raw: unknown = await gw.request(action, {
     session_id: caller.sessionId,
     target_id: targetId,
-    ...(action === 'hermes-tern.browser.frame' ? { frame } : {})
+    ...(action === 'glide.browser.frame' ? { frame } : {})
   })
   requireCaller(caller)
   const data = record(raw)
@@ -196,8 +196,8 @@ export async function releaseBrowserBlock(gw: Requester, caller: BrowserCaller, 
   if (!validBrowserId(targetId)) {
     throw new Error('Invalid Tern browser block id')
   }
-  await ensureMethod(gw, caller, 'hermes-tern.browser.release')
-  const raw: unknown = await gw.request('hermes-tern.browser.release', {
+  await ensureMethod(gw, caller, 'glide.browser.release')
+  const raw: unknown = await gw.request('glide.browser.release', {
     session_id: caller.sessionId, target_id: targetId
   })
   requireCaller(caller)

@@ -48,7 +48,7 @@ export async function openUiContract(): Promise<OpenUiContract> {
   try {
     loaded = await import(/* @vite-ignore */ packagedValidatorUrl())
   } catch {
-    throw new Error('Packaged OpenUI preview validator or a required source asset is missing; reinstall the hermes-tern plugin.')
+    throw new Error('Packaged OpenUI preview validator or a required source asset is missing; reinstall the glide plugin.')
   }
 
   if (!isOpenUiContract(loaded)) {

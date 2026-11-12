@@ -44,7 +44,7 @@ describe('remote model download', () => {
     fetchMock.mockResolvedValueOnce(response([new Uint8Array([1, 2]), 'not bytes']))
     await expect(openArtifact('https://models.example.com/robot.glb')).rejects.toThrow('non-byte chunk')
     expect(execFile).not.toHaveBeenCalled()
-    const root = join(cache, 'hermes-tern', 'artifacts')
+    const root = join(cache, 'glide', 'artifacts')
     for (const dir of readdirSync(root)) {
       expect(readdirSync(join(root, dir))).toEqual([])
     }
@@ -54,7 +54,7 @@ describe('remote model download', () => {
     vi.stubEnv('TERN_PANE', '123')
     fetchMock.mockResolvedValueOnce(response([new Uint8Array([1, 2]), new Uint8Array([3])]))
     const path = await openArtifact('https://models.example.com/ok.glb')
-    expect(path.startsWith(join(cache, 'hermes-tern', 'artifacts'))).toBe(true)
+    expect(path.startsWith(join(cache, 'glide', 'artifacts'))).toBe(true)
     expect(execFile).toHaveBeenCalledWith('tern', ['open', '--split', 'right', path], { timeout: 15_000 }, expect.any(Function))
   })
 })

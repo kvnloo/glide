@@ -3,7 +3,7 @@
 Tern's session daemon restarts only omp after a crash (omp reports its session file in the
 ``omp_session_file`` user variable and Tern relaunches ``omp --restore``); every other pane comes
 back as a shell with its scrollback. So the pane remembers its conversation itself: the frontend
-writes ``plugin-data/hermes-tern/panes/<TERN_PANE>.json`` (``{session_id, cwd, updated_at, pid}``,
+writes ``plugin-data/glide/panes/<TERN_PANE>.json`` (``{session_id, cwd, updated_at, pid}``,
 frontend/src/session/pane.ts) each time it adopts a session, and removes it when the user quits.
 
 When ``hermes tern`` starts again in that pane with no session flag (``-r``, ``-c`` or ``--new``),
@@ -130,6 +130,6 @@ def plan(*, fresh: bool = False, explicit: bool = False, env: Optional[Mapping[s
                 _write(folder / "claims" / f"{root}.json", {"pid": os.getpid(), "pane": pane, "updated_at": time.time()})
             _prune(folder, time.time())
     except Exception:  # noqa: BLE001 - a broken pane file must never stop the launch
-        logger.debug("hermes-tern: no pane restore for %s", pane, exc_info=True)
+        logger.debug("glide: no pane restore for %s", pane, exc_info=True)
         return None
     return root

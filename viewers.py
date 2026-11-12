@@ -2,10 +2,10 @@
 
 The frontend tells the plugin over its gateway connection (plugin RPC methods):
 
-- ``plugin.hermes-tern.viewer.set`` ``{session_id, stored?, pid, tern}`` when it shows a session (a new
+- ``plugin.glide.viewer.set`` ``{session_id, stored?, pid, tern}`` when it shows a session (a new
   one, a resume, a reattach after a reconnect). ``tern`` is the pane's Tern variables (``TERN_PANE``…).
-- ``plugin.hermes-tern.viewer.clear`` ``{session_id, stored?, pid}`` when it stops showing it (a switch, quit).
-- ``plugin.hermes-tern.viewer.shown`` ``{ids}``: whether a live pane shows one of those conversations
+- ``plugin.glide.viewer.clear`` ``{session_id, stored?, pid}`` when it stops showing it (a switch, quit).
+- ``plugin.glide.viewer.shown`` ``{ids}``: whether a live pane shows one of those conversations
   (a restarted pane asks before it resumes its last one).
 
 A gateway restart forgets everything; each pane sets its session again when it reattaches. A pane whose

@@ -46,7 +46,7 @@ vi.mock('../gateway/dispatch.js', async importOriginal => {
   }
 })
 vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load: () => [] }))
-const home = mkdtempSync(join(tmpdir(), 'hermes-tern-dispatch-'))
+const home = mkdtempSync(join(tmpdir(), 'glide-dispatch-'))
 process.env['HERMES_HOME'] = home
 
 const { App } = await import('../app/chat.js')

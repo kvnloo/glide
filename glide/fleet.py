@@ -23,6 +23,11 @@ import subprocess
 import sys
 import time
 
+try:
+    from .child_env import child_env
+except ImportError:  # run as a script (_source_process)
+    from child_env import child_env
+
 SOURCE_TIMEOUT = 5
 MAX_BYTES = 2 * 1024 * 1024
 MAX_ENTRIES = 2048
@@ -44,21 +49,35 @@ _POD = re.compile(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?\Z")
 _REPO = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,99}/[A-Za-z0-9][A-Za-z0-9_.-]{0,99}\Z")
 
 
+# Each fleet tool's own credentials and config; everything else stays in this process.
+TOOL_ENV = {
+    "gh": ("GH_TOKEN", "GITHUB_TOKEN", "GH_HOST", "GH_CONFIG_DIR", "GH_ENTERPRISE_TOKEN"),
+    "kubectl": ("KUBECONFIG",),
+}
+SOURCE_ENV = ("GLIDE_FLEET_FIXTURE", "GLIDE_TASTE_WORK_CONFIG", "GLIDE_FACTORY_OPS")
+
+
 def _command(argv: list[str]) -> str:
     timeout = min(4, _DEADLINE - time.monotonic()) if _DEADLINE is not None else 4
     if timeout <= 0:
         raise subprocess.TimeoutExpired(argv, SOURCE_TIMEOUT)
-    result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=True,
-                            env={**os.environ, "GH_PROMPT_DISABLED": "1", "GIT_TERMINAL_PROMPT": "0"})
+    result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=True, env=_tool_env(argv))
     if len(result.stdout) > MAX_BYTES:
         raise ValueError("command output exceeds size limit")
     return result.stdout
 
 
+def _tool_env(argv: list[str]) -> dict[str, str]:
+    """A minimal child env plus the credentials of that one tool (gh, kubectl), never provider keys."""
+    return child_env(TOOL_ENV.get(Path(argv[0]).name, ()), {"GH_PROMPT_DISABLED": "1", "GIT_TERMINAL_PROMPT": "0"})
+
+
 def _source_process(name: str, home: Path, *args):
+    # The source child runs _command itself, so it gets the union of the tools' names.
+    names = {n for group in TOOL_ENV.values() for n in group} | set(SOURCE_ENV)
     result = subprocess.run([sys.executable, str(Path(__file__).absolute()), name, str(home),
                              *map(str, args)], capture_output=True, text=True,
-                            timeout=SOURCE_TIMEOUT, check=True)
+                            timeout=SOURCE_TIMEOUT, check=True, env=child_env(sorted(names)))
     if len(result.stdout) > MAX_BYTES:
         raise ValueError("source output exceeds size limit")
     value = json.loads(result.stdout)

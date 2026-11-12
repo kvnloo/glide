@@ -10,6 +10,10 @@ import json
 import os
 import subprocess
 import time
+
+from .child_env import child_env
+
+OLLAMA_ENV = ("OLLAMA_HOST", "OLLAMA_MODELS")
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -22,6 +26,7 @@ def detect_local_models() -> list[dict[str, Any]]:
     try:
         result = subprocess.run(
             ["ollama", "list"],
+            env=child_env(OLLAMA_ENV),
             capture_output=True,
             text=True,
             timeout=10,
@@ -179,6 +184,7 @@ def run_local_model(model: str, prompt: str, *, temperature: float = 0.1, max_to
     try:
         result = subprocess.run(
             ["ollama", "run", model, prompt],
+            env=child_env(OLLAMA_ENV),
             capture_output=True,
             text=True,
             timeout=60,

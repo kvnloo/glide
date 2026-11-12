@@ -252,7 +252,7 @@ describe('Composer: the pastes a draft holds', () => {
   })
 
   it('a `!cmd` typed after Ctrl+C cleared a pasted one runs: the old paste is not the new draft', async () => {
-    process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-composer-'))
+    process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-composer-'))
     const gw = new FakeGateway({ replies: { 'shell.exec': () => ({ code: 0, stderr: '', stdout: 'hi' }) } })
     const tern = fakeTern()
     const app = new App(tern.session, gw.client, '')
@@ -279,7 +279,7 @@ describe('Composer: the pastes a draft holds', () => {
   })
 
   it('a pasted `!cmd` that Ctrl+C cleared and Ctrl+Z brought back still goes as written, not to the shell', async () => {
-    process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-composer-'))
+    process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-composer-'))
     const gw = new FakeGateway({ replies: { 'shell.exec': () => ({ code: 0, stderr: '', stdout: 'hi' }) } })
     const tern = fakeTern()
     const app = new App(tern.session, gw.client, '')

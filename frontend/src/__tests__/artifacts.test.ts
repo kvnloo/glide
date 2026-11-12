@@ -8,7 +8,7 @@ vi.mock('node:child_process', () => ({
 }))
 
 import { execFile } from 'node:child_process'
-import { Artifacts, modelSources, openArtifact } from '../artifacts.js'
+import { Artifacts, fetchPublic, modelSources, openArtifact, publicAddress } from '../artifacts.js'
 import { toolCallId } from '../core/ids.js'
 import type { ToolCall } from '../model.js'
 
@@ -76,5 +76,43 @@ describe('native artifact opening', () => {
     artifacts.show(call, dir, notice)
     await vi.waitFor(() => expect(execFile).toHaveBeenCalledTimes(1))
     expect(notice).not.toHaveBeenCalled()
+  })
+})
+
+const PNG = Buffer.from('png')
+const hosts: Record<string, string> = { 'cdn.test': '93.184.216.34', 'meta.test': '169.254.169.254', 'lan.test': '192.168.1.9' }
+const lookup = (host: string) => Promise.resolve(hosts[host] ? [{ address: hosts[host], family: 4 }] : [])
+const redirect = (location: string) => Promise.resolve(new Response(null, { status: 302, headers: { location } }))
+
+describe('fetchPublic', () => {
+  it('classifies loopback, private, link-local and metadata addresses as non-public', () => {
+    for (const a of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1', '192.168.0.1', '100.64.0.1', '0.0.0.0', '::1', 'fe80::1', 'fd00::1', '::ffff:127.0.0.1']) { // CGNAT range, not a real host: privacy: ok
+      expect(publicAddress(a), a).toBe(false)
+    }
+    expect(publicAddress('93.184.216.34')).toBe(true)
+    expect(publicAddress('2606:2800:220:1::1')).toBe(true)
+  })
+
+  it('refuses a private or metadata address before any request', async () => {
+    const fetcher = vi.fn(() => Promise.resolve(new Response(PNG)))
+    for (const url of ['http://169.254.169.254/latest/meta-data', 'http://127.0.0.1/a.png', 'http://meta.test/a.png', 'http://[::1]/a.png', 'ftp://cdn.test/a.png']) {
+      await expect(fetchPublic(url, {}, { fetch: fetcher, lookup }), url).rejects.toThrow()
+    }
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
+  it('checks every redirect hop and never follows one into a private address', async () => {
+    const fetcher = vi.fn((url: string, _init?: RequestInit) => url.startsWith('http://cdn.test/') ? redirect('http://meta.test/latest') : Promise.resolve(new Response(PNG)))
+    await expect(fetchPublic('http://cdn.test/a.png', {}, { fetch: fetcher, lookup })).rejects.toThrow('public network')
+    expect(fetcher.mock.calls.map(c => c[0])).toEqual(['http://cdn.test/a.png'])
+    expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ redirect: 'manual' })
+
+    const hops = vi.fn((url: string) => url.endsWith('/a.png') ? redirect('/b.png') : Promise.resolve(new Response(PNG)))
+    const r = await fetchPublic('https://cdn.test/a.png', {}, { fetch: hops, lookup })
+    expect(r.ok).toBe(true)
+    expect(hops.mock.calls.map(c => c[0])).toEqual(['https://cdn.test/a.png', 'https://cdn.test/b.png'])
+
+    const loop = vi.fn(() => redirect('https://cdn.test/a.png'))
+    await expect(fetchPublic('https://cdn.test/a.png', {}, { fetch: loop, lookup })).rejects.toThrow('redirects')
   })
 })

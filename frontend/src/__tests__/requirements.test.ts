@@ -10,7 +10,7 @@ import { REQUIRED_CAPABILITIES } from '../hermes/requirements.js'
 
 import { FakeGateway, fakeTern } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-requirements-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-requirements-'))
 // The tab's title is not this test's; it would print to the runner's terminal.
 vi.mock('../surface/osc.js', () => ({ reportCwd: () => undefined, setTabTitle: () => undefined }))
 
