@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import { FLEET_DESIGN_CSS, fleetCardHtml } from '../commands/fleet.js'
 import { decodeEuiKit } from '../wire/euiKit.js'
-import { decodeFleetIntent, fleetDesign, fleetHost } from '../wire/fleet.js'
+import { decodeFleetIntent, fleetDesign, fleetHost, fleetVisibleDoc } from '../wire/fleet.js'
 
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
@@ -94,6 +94,18 @@ describe('Fleet compact presentation', () => {
     expect(html).toContain('&lt;script&gt;')
     expect(fleetDesign(decodeEuiKit({ kind: 'fleet-hosts', app: 'k3s', data: {} }), 'hosts').hero)
       .toContain('Refresh to retry')
+  })
+
+  it('does not publish provider error text or machine diagnostics', () => {
+    const original = decodeEuiKit({ kind: 'fleet-factory', app: 'aodl', data: {
+      notes: ['provider timed out after 30s'],
+      nodes: [{ id: 'sample', label: 'Verification', col: 0, state: 'failing',
+        reason: 'Traceback: provider failed with credentials', action: 'Prepare fix' }]
+    } })
+    const cleaned = fleetVisibleDoc(original)
+    expect(JSON.stringify(cleaned)).not.toMatch(/provider|Traceback|credentials/i)
+    expect(cleaned.data['notes']).toEqual(['A fleet source could not respond. Refresh to retry.'])
+    expect(original.data['notes']).toEqual(['provider timed out after 30s'])
   })
 
   // Explicit per-file drift gate opt-ins: do not edit the shared token gate.
