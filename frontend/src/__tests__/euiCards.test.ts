@@ -238,7 +238,7 @@ describe('ephemeral-ui kit stylesheet', () => {
     const css = euiStyles()
     expect(css).not.toMatch(/[{;](-webkit-)?appearance:|aspect-ratio:|text-underline-offset:|border-block:|border-inline-start:/)
     expect(css).not.toMatch(/:has\(|::-webkit-|\(\s*(pointer|hover)\s*:|\d+dvh|env\(|conic-gradient/)
-    expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:/)
+    expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:|\bpadding-inline\s*:/)
     expect(css).toContain('.eu-btn')
     expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
   })
@@ -248,6 +248,7 @@ describe('ephemeral-ui kit stylesheet', () => {
       'border-top:1px solid red;border-bottom:1px solid red')
     expect(ternBody("height:100dvh;padding:env(safe-area-inset-top);content:'a;b'")).toBe("height:100vh;padding:0px;content:'a;b'")
     expect(ternBody('container-type:inline-size;paint-order:stroke;transform-box:fill-box;color:red')).toBe('color:red')
+    expect(ternBody('padding-inline:4px')).toBe('padding-left:4px;padding-right:4px')
   })
 
   // Tern 0.9.9 matches [data-*] only (probed live), so a switch never showed aria-checked="true".
