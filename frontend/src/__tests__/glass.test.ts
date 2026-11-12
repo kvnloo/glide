@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { glideGlass } from '../commands/glide.js'
 import { contrastRatio, mix } from '../hermes/theme.js'
+import { NIGHT_INKS } from '../../../glide/frontend/council.js'
 import {
   GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, pickGlow, PLAY_SECONDS, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
 } from '../../../glide/frontend/glass.js'
@@ -21,12 +22,13 @@ const GREY: WalColors = {
 
 /** The body of every top-level rule naming `sel` in its selector list (keyframes and media blocks left out). */
 function decl(css: string, sel: string): string {
-  return [...css.matchAll(/^(?![\s@])([^{\n]+)\{([^}]*)\}/gm)].filter(m => m[1]!.split(',').map(s => s.trim()).includes(sel)).map(m => m[2]).join(';')
+  return [...css.matchAll(/^(?![\s@])([^{\n]+)\{([^}]*)\}/gm)].filter(m => (m[1] ?? '').split(',').map(s => s.trim()).includes(sel)).map(m => m[2]).join(';')
 }
 
 describe('tintFloor', () => {
   const p = walPalette(FILM)
-  const inks = [p.fg, p.muted, p.dim, p.accent, p.glow, p.error, p.success, p.warning]
+  // The council and lanes popups' night inks sit on the same glass.
+  const inks = [p.fg, p.muted, p.dim, p.accent, p.glow, p.error, p.success, p.warning, ...NIGHT_INKS]
 
   it('samples the wallpaper from pywal color0..6, not the greys it derives', () => {
     expect(wallSamples(FILM)).toEqual(['#0d1a17', '#7db84a', '#d9b98a', '#d9c27e', '#5cc3c9', '#2f8f9a'])
@@ -36,8 +38,8 @@ describe('tintFloor', () => {
   it('pushes colours through saturate() as the backdrop filter does', () => {
     expect(saturateHex('#7db84a', 1)).toBe('#7db84a')
     expect(saturateHex('#808080', 1.8)).toBe('#808080')
-    const [r, g] = [1, 3].map(i => parseInt(saturateHex('#7db84a', 1.8).slice(i, i + 2), 16)) as [number, number]
-    expect(g - r).toBeGreaterThan(0xb8 - 0x7d)
+    const byte = (i: number) => parseInt(saturateHex('#7db84a', 1.8).slice(i, i + 2), 16)
+    expect(byte(3) - byte(1)).toBeGreaterThan(0xb8 - 0x7d)
   })
 
   it('is the least tint from which every text token keeps 4.5:1 over every wallpaper pixel, saturated or not', () => {
@@ -75,13 +77,17 @@ describe('glassPlayCss', () => {
     expect(stops[0]).toEqual({ ...stops.at(-1), at: 0 })
     expect(play).toContain(`${PLAY_SECONDS}s`)
     expect(play).toMatch(/ 1; \}/) // one cycle, no fill: the resting glass takes over again
+    // The rest stops are left to the resting sheet, so the cycle starts and ends exactly on it.
+    expect(play).not.toMatch(/\b(0|100)% \{/)
+    expect(stops[0]).toMatchObject({ tint: restTint(p), blur: 22, saturate: 140 })
+    expect(glassCss(p)).toContain('backdrop-filter: blur(22px) saturate(140%)')
   })
 
   it('never lays text on a tint under the floor, at any keyframe or between them', () => {
     for (const s of stops) expect(s.tint).toBeGreaterThanOrEqual(p.floor)
     // Linear between stops, each above the floor, so every frame is too.
-    const bgs = [...play.matchAll(/background-color: rgba\(\d+, \d+, \d+, ([\d.]+)\)/g)].map(m => Number(m[1]))
-    expect(bgs.length).toBe(stops.length * 2)
+    const bgs = [...play.matchAll(/background-color: rgba\(\d+,\d+,\d+,([\d.]+)\)/g)].map(m => Number(m[1]))
+    expect(bgs.length).toBe((stops.length - 2) * 2)
     for (const alpha of bgs) expect(alpha).toBeGreaterThanOrEqual(p.floor / 100)
   })
 
@@ -109,6 +115,7 @@ describe('glassPlayCss', () => {
 describe('glassCss', () => {
   const p = walPalette(FILM)
   const css = glassCss(p)
+  const tint = (() => { const [r, g, b] = [1, 3, 5].map(i => parseInt(p.bg.slice(i, i + 2), 16)); return `rgba(${r},${g},${b},${restTint(p) / 100})` })()
 
   it("pairs the film's gold accent with its cyan for the rims and halos", () => {
     expect(p.accent).toBe('#d9c27e')
@@ -123,12 +130,13 @@ describe('glassCss', () => {
   })
 
   it('takes every color from the wallpaper palette', () => {
-    const hexes = new Set(css.match(/#[0-9a-f]{6}\b/gi))
-    expect([...hexes].sort()).toEqual([p.accent, p.glow, p.bg, mix(p.bg, '#000000', 0.7)].sort())
+    const hex = (rgb: string) => '#' + rgb.split(',').map(v => Number(v).toString(16).padStart(2, '0')).join('')
+    const used = new Set([...css.match(/#[0-9a-f]{6}\b/gi) ?? [], ...[...css.matchAll(/rgba\((\d+,\d+,\d+),/g)].map(m => hex(m[1] ?? ''))])
+    expect([...used].sort()).toEqual([p.accent, p.glow, p.bg, p.fg, mix(p.bg, '#000000', 0.7)].sort())
   })
 
   it('rims the council in the glow but leaves its 11px label on the theme text colour', () => {
-    expect(css).toMatch(/\.ih-l-council, [^{]*\{ border-color: var\(--g-b\); \}/)
+    expect(css).toContain(`.ih-pip { border-color: ${p.glow}; }`)
     expect(css).not.toMatch(/\.ih-lrole b \{ color/)
   })
 
@@ -139,26 +147,28 @@ describe('glassCss', () => {
       expect(body, view).toMatch(/inset 0 1px 0 /)
       const rim = decl(css, `${sel}::after`)
       expect(rim || body, view).toMatch(/padding: 1px|inset 0 0 0 1px|0 -1px 0 /)
-      for (const m of body.matchAll(/var\(--g-glass\) (\d+)%/g)) expect(Number(m[1]), view).toBeGreaterThanOrEqual(p.floor)
+      for (const m of body.matchAll(new RegExp(`background: ${tint.slice(0, tint.lastIndexOf(',')).replace('(', '\\(')},([\\d.]+)\\)`, 'g'))) {
+        expect(Number(m[1]) * 100, view).toBeGreaterThanOrEqual(p.floor)
+      }
     }
     // Tern's own cards and popups take the tint through its variables.
-    expect(decl(css, '.sf-overlay')).toContain(`--pop-bg: color-mix(in srgb, var(--g-glass) ${restTint(p)}%, transparent)`)
-    expect(decl(css, '.sf')).toContain(`--sf-card-bg: color-mix(in srgb, var(--g-glass) ${restTint(p)}%, transparent)`)
+    expect(decl(css, '.sf-overlay')).toContain(`--pop-bg: ${tint}`)
+    expect(decl(css, '.sf')).toContain(`--sf-card-bg: ${tint}`)
     // Tern's fixed greys (the composer's path, transcript notices) fall to 3.6:1 on glass; they take the palette inks the floor covers.
     expect(decl(css, '.sf-place-dir')).toBe(' color: var(--t3); ')
     expect(decl(css, '.sf-t-muted')).toBe(' color: var(--t2); ')
   })
 
   it('stays well under the surface sheet cap', () => {
-    expect(Buffer.byteLength(walCss(p))).toBeLessThan(24 * 1024)
-    expect(Buffer.byteLength(glassPlayCss(p))).toBeLessThan(8 * 1024)
+    expect(Buffer.byteLength(walCss(p))).toBeLessThan(12 * 1024)
+    expect(Buffer.byteLength(glassPlayCss(p))).toBeLessThan(4 * 1024)
   })
 
   it('frosts cards and the composer, rims them, and lifts them on hover within 250ms', () => {
     expect(decl(css, GLASS_VIEWS.cards)).toMatch(/backdrop-filter: blur\(/)
     expect(decl(css, GLASS_VIEWS.composer)).toMatch(/backdrop-filter: blur\(/)
     expect(css).not.toContain('!important')
-    expect(decl(css, `${GLASS_VIEWS.cards}::after`)).toMatch(/linear-gradient\(180deg, var\(--g-a\)[^;]*var\(--g-b\)\)/)
+    expect(decl(css, `${GLASS_VIEWS.cards}::after`)).toMatch(new RegExp(`linear-gradient\\(180deg, ${p.accent}[^;]*${p.glow}\\)`))
     for (const sel of ['.eu-card', '.ih-lane', '.ih-key', '.eu-chip', '.eu-btn']) {
       expect(css).toMatch(new RegExp(`${sel.replace('.', '\\.')}:hover[^{]*\\{[^}]*translateY\\(-1px\\)`))
     }

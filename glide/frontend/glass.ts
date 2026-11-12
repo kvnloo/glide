@@ -101,7 +101,8 @@ export function pickGlow(wal: WalColors, accent: string): string {
 export const restTint = (p: WalPalette): number => Math.max(62, p.floor)
 
 // The selectors each view answers to. Tern scopes the sheet inside the region, so each starts at a descendant.
-const K = "[data-eui][data-eui='card']"
+// Two attributes outrank the kit's `[data-eu] .eu-card`; both sit on the card root (euiCard.tsx).
+const K = '[data-eu][data-eui=card]'
 const CARD = `${K} .eu-card`
 const MOTES = `${K}:not([data-eui-popup])::before`
 // Doubled class: outranks Tern's [data-theme='dark'] composer rules without !important, so the playground can animate it.
@@ -120,32 +121,37 @@ const RIMMED = [CARD, EDITOR, POPUP, LANES]
 export const GLASS_VIEWS = { cards: CARD, composer: EDITOR, popups: POPUP, lanes: LANES, status: STATUS, native: NATIVE, transcript: '.sf.sf-text' } as const
 const after = (sel: readonly string[]) => sel.map(s => `${s}::after`).join(', ')
 
+/** `#rrggbb` at `pct` percent opacity, resolved: a sheet of color-mix() calls would not fit Tern's per-surface cap. */
+const rgba = (hex: string, pct: number) => {
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number]
+  return `rgba(${r},${g},${b},${Math.round(Math.min(100, pct)) / 100})`
+}
+
 /** The glass stylesheet for a wallpaper palette; appended to the auto theme's sheet. */
 export function glassCss(p: WalPalette): string {
   const shade = mix(p.bg, '#000000', 0.7)
-  const vars = `--g-a: ${p.accent}; --g-b: ${p.glow}; --g-shade: ${shade}; --g-glass: ${p.bg}; --g-ease: cubic-bezier(.2, .7, .2, 1)`
-  const a = (pct: number) => `color-mix(in srgb, var(--g-a) ${pct}%, transparent)`
-  const b = (pct: number) => `color-mix(in srgb, var(--g-b) ${pct}%, transparent)`
-  const glass = (pct: number) => `color-mix(in srgb, var(--g-glass) ${pct}%, transparent)`
-  const shadow = (pct: number) => `color-mix(in srgb, var(--g-shade) ${pct}%, transparent)`
-  const hi = (pct: number) => `color-mix(in srgb, var(--t1) ${pct}%, transparent)`
+  const vars = '--g-ease: cubic-bezier(.2, .7, .2, 1)'
+  const a = (pct: number) => rgba(p.accent, pct)
+  const b = (pct: number) => rgba(p.glow, pct)
+  const glass = (pct: number) => rgba(p.bg, pct)
+  const shadow = (pct: number) => rgba(shade, pct)
+  const hi = (pct: number) => rgba(p.fg, pct)
   const tint = glass(restTint(p))
   const frost = '-webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%)'
   const halo = `0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a(55)}, inset 0 1px 0 ${hi(8)}`
   const haloHot = `0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a(75)}, inset 0 1px 0 ${hi(10)}`
   // Gold on top fading to cyan below, as the film's cards are rimmed. Tern sizes a gradient to its
   // box whatever background-size says, so the hover shimmer breathes the rim rather than sliding it.
-  const rim = `linear-gradient(180deg, var(--g-a), ${a(70)} 30%, ${b(70)} 62%, var(--g-b))`
+  const rim = `linear-gradient(180deg, ${p.accent}, ${a(70)} 30%, ${b(70)} 62%, ${p.glow})`
   const mask = '-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude'
   const mote = (size: number, x: number, y: number, c: string) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`
   const motes = [
-    mote(3, 4, 12, 'var(--g-a)'), mote(2.5, 96, 8, 'var(--g-b)'), mote(3.5, 2, 58, b(80)), mote(3, 98, 46, a(90)),
+    mote(3, 4, 12, p.accent), mote(2.5, 96, 8, p.glow), mote(3.5, 2, 58, b(80)), mote(3, 98, 46, a(90)),
     mote(2.5, 6, 92, a(80)), mote(3, 94, 88, b(85)), mote(2, 12, 34, a(70)), mote(2.5, 89, 26, b(75)),
-    mote(2, 9, 74, b(70)), mote(2, 91, 66, a(70)), mote(1.5, 7, 4, b(60)), mote(1.5, 93, 97, a(60)),
-    mote(2, 3, 40, a(55)), mote(2, 97, 30, b(55))
+    mote(2, 9, 74, b(70)), mote(2, 91, 66, a(70))
   ].join(', ')
   // Sparks sit on the rim line (the layer reaches 6px past the card), clear of the content padding.
-  const sparks = [mote(2.5, 28, 2, 'var(--g-a)'), mote(2, 74, 2, 'var(--g-a)'), mote(2.5, 99, 46, 'var(--g-b)'), mote(2, 62, 98, 'var(--g-b)'), mote(1.5, 1, 64, 'var(--g-b)')].join(', ')
+  const sparks = [mote(2.5, 28, 2, p.accent), mote(2, 74, 2, p.accent), mote(2.5, 99, 46, p.glow), mote(2, 62, 98, p.glow), mote(1.5, 1, 64, p.glow)].join(', ')
   const k = K
   // The kit's and the intent cards' sheets land after this one, so each rule outranks theirs. The intent
   // cards rim the council in a fixed violet; under glass it takes the palette's glow. Its label stays --h-fg
@@ -179,13 +185,13 @@ ${CARD}:hover::before { opacity: 1; transform: translateY(0); }
 ${k} .ih-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
 ${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget { background: ${glass(24)}; border-color: ${a(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
-${k} .ih-sample { background: ${glass(45)}; border-color: ${a(45)}; color: var(--g-a); }
+${k} .ih-sample { background: ${glass(45)}; border-color: ${a(45)}; color: ${p.accent}; }
 ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a(60)}; box-shadow: 0 0 14px -6px ${a(60)}; }
 ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
 ${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a(55)}; }
-${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
+${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: ${p.glow}; }
 ${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
-${k} .ih-flowlink.ih-gated { background: var(--g-b); }
+${k} .ih-flowlink.ih-gated { background: ${p.glow}; }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a(30)}; }
 ${k} .eu-btn:hover { border-color: ${a(70)}; box-shadow: 0 0 16px -6px ${a(70)}; transform: translateY(-1px); }
 ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
@@ -230,13 +236,10 @@ export function playStops(p: WalPalette): PlayStop[] {
  * reduced transparency keeps it opaque.
  */
 export function glassPlayCss(p: WalPalette, seconds = PLAY_SECONDS): string {
-  const rgba = (hex: string, pct: number) => {
-    const [r, g, bl] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number]
-    return `rgba(${r}, ${g}, ${bl}, ${Math.round(Math.min(100, pct)) / 100})`
-  }
   const shade = mix(p.bg, '#000000', 0.7)
   const stops = playStops(p)
-  const frame = (sel: (s: PlayStop) => string) => stops.map(s => `${s.at}% { ${sel(s)} }`).join(' ')
+  // The first and last stops are the resting glass: left out, each keyframe set starts and ends on the sheet's own values.
+  const frame = (sel: (s: PlayStop) => string) => stops.slice(1, -1).map(s => `${s.at}% { ${sel(s)} }`).join(' ')
   const glass = (s: PlayStop) => `background-color: ${rgba(p.bg, s.tint)}; -webkit-backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%); backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%)`
   const halo = (s: PlayStop) => `box-shadow: 0 22px 48px -26px ${rgba(shade, 90)}, 0 0 ${Math.round(34 * s.glow)}px -12px ${rgba(p.glow, 60 * s.glow)}, 0 0 ${Math.round(64 * s.glow)}px -28px ${rgba(p.accent, 55 * s.glow)}, inset 0 1px 0 ${rgba(p.fg, 8 * s.glow)}`
   const run = (name: string) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`

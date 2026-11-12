@@ -27517,7 +27517,7 @@ function pickGlow(wal, accent) {
   return best;
 }
 var restTint = (p3) => Math.max(62, p3.floor);
-var K = "[data-eui][data-eui='card']";
+var K = "[data-eu][data-eui=card]";
 var CARD = `${K} .eu-card`;
 var MOTES = `${K}:not([data-eui-popup])::before`;
 var EDITOR = ".sf.sf-col.sf-col[data-role^='omp.editor']";
@@ -27529,24 +27529,28 @@ var TEXT = ".sf.sf-text, .sf.sf-card.nohead";
 var INNER = ".sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text";
 var RIMMED = [CARD, EDITOR, POPUP, LANES];
 var after = (sel) => sel.map((s2) => `${s2}::after`).join(", ");
+var rgba2 = (hex2, pct2) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+  return `rgba(${r},${g},${b},${Math.round(Math.min(100, pct2)) / 100})`;
+};
 function glassCss(p3) {
   const shade = mix2(p3.bg, "#000000", 0.7);
-  const vars = `--g-a: ${p3.accent}; --g-b: ${p3.glow}; --g-shade: ${shade}; --g-glass: ${p3.bg}; --g-ease: cubic-bezier(.2, .7, .2, 1)`;
-  const a2 = (pct2) => `color-mix(in srgb, var(--g-a) ${pct2}%, transparent)`;
-  const b = (pct2) => `color-mix(in srgb, var(--g-b) ${pct2}%, transparent)`;
-  const glass = (pct2) => `color-mix(in srgb, var(--g-glass) ${pct2}%, transparent)`;
-  const shadow = (pct2) => `color-mix(in srgb, var(--g-shade) ${pct2}%, transparent)`;
-  const hi = (pct2) => `color-mix(in srgb, var(--t1) ${pct2}%, transparent)`;
+  const vars = "--g-ease: cubic-bezier(.2, .7, .2, 1)";
+  const a2 = (pct2) => rgba2(p3.accent, pct2);
+  const b = (pct2) => rgba2(p3.glow, pct2);
+  const glass = (pct2) => rgba2(p3.bg, pct2);
+  const shadow = (pct2) => rgba2(shade, pct2);
+  const hi = (pct2) => rgba2(p3.fg, pct2);
   const tint2 = glass(restTint(p3));
   const frost = "-webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%)";
   const halo = `0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a2(55)}, inset 0 1px 0 ${hi(8)}`;
   const haloHot = `0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a2(75)}, inset 0 1px 0 ${hi(10)}`;
-  const rim = `linear-gradient(180deg, var(--g-a), ${a2(70)} 30%, ${b(70)} 62%, var(--g-b))`;
+  const rim = `linear-gradient(180deg, ${p3.accent}, ${a2(70)} 30%, ${b(70)} 62%, ${p3.glow})`;
   const mask = "-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude";
   const mote = (size, x, y, c) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`;
   const motes = [
-    mote(3, 4, 12, "var(--g-a)"),
-    mote(2.5, 96, 8, "var(--g-b)"),
+    mote(3, 4, 12, p3.accent),
+    mote(2.5, 96, 8, p3.glow),
     mote(3.5, 2, 58, b(80)),
     mote(3, 98, 46, a2(90)),
     mote(2.5, 6, 92, a2(80)),
@@ -27554,13 +27558,9 @@ function glassCss(p3) {
     mote(2, 12, 34, a2(70)),
     mote(2.5, 89, 26, b(75)),
     mote(2, 9, 74, b(70)),
-    mote(2, 91, 66, a2(70)),
-    mote(1.5, 7, 4, b(60)),
-    mote(1.5, 93, 97, a2(60)),
-    mote(2, 3, 40, a2(55)),
-    mote(2, 97, 30, b(55))
+    mote(2, 91, 66, a2(70))
   ].join(", ");
-  const sparks = [mote(2.5, 28, 2, "var(--g-a)"), mote(2, 74, 2, "var(--g-a)"), mote(2.5, 99, 46, "var(--g-b)"), mote(2, 62, 98, "var(--g-b)"), mote(1.5, 1, 64, "var(--g-b)")].join(", ");
+  const sparks = [mote(2.5, 28, 2, p3.accent), mote(2, 74, 2, p3.accent), mote(2.5, 99, 46, p3.glow), mote(2, 62, 98, p3.glow), mote(1.5, 1, 64, p3.glow)].join(", ");
   const k = K;
   return `
 .sf, [data-eui='card'], .sf-overlay { ${vars}; --sf-card-bg: ${tint2}; --pop-bg: ${tint2}; --modal-bg: ${tint2}; --glass-hi: ${hi(10)}; }
@@ -27590,13 +27590,13 @@ ${CARD}:hover::before { opacity: 1; transform: translateY(0); }
 ${k} .ih-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a2(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
 ${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget { background: ${glass(24)}; border-color: ${a2(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
-${k} .ih-sample { background: ${glass(45)}; border-color: ${a2(45)}; color: var(--g-a); }
+${k} .ih-sample { background: ${glass(45)}; border-color: ${a2(45)}; color: ${p3.accent}; }
 ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a2(60)}; box-shadow: 0 0 14px -6px ${a2(60)}; }
 ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
 ${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a2(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a2(55)}; }
-${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
+${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: ${p3.glow}; }
 ${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
-${k} .ih-flowlink.ih-gated { background: var(--g-b); }
+${k} .ih-flowlink.ih-gated { background: ${p3.glow}; }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a2(30)}; }
 ${k} .eu-btn:hover { border-color: ${a2(70)}; box-shadow: 0 0 16px -6px ${a2(70)}; transform: translateY(-1px); }
 ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
@@ -27627,15 +27627,11 @@ function playStops(p3) {
   ];
 }
 function glassPlayCss(p3, seconds = PLAY_SECONDS) {
-  const rgba3 = (hex2, pct2) => {
-    const [r, g, bl] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
-    return `rgba(${r}, ${g}, ${bl}, ${Math.round(Math.min(100, pct2)) / 100})`;
-  };
   const shade = mix2(p3.bg, "#000000", 0.7);
   const stops = playStops(p3);
-  const frame2 = (sel) => stops.map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
-  const glass = (s2) => `background-color: ${rgba3(p3.bg, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
-  const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba3(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba3(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba3(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba3(p3.fg, 8 * s2.glow)}`;
+  const frame2 = (sel) => stops.slice(1, -1).map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
+  const glass = (s2) => `background-color: ${rgba2(p3.bg, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
+  const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba2(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba2(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba2(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba2(p3.fg, 8 * s2.glow)}`;
   const run8 = (name) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`;
   const lit2 = [CARD, EDITOR, POPUP, LANES].join(", ");
   const all8 = [lit2, STATUS, NATIVE, TEXT, after(RIMMED), MOTES].join(", ");
@@ -27707,11 +27703,15 @@ function pickAccent(wal) {
 }
 function walPalette(wal, source3 = "") {
   const bg = wal.special.background;
-  const text19 = (c, fallback) => {
-    const lifted = ensureContrast(c && HEX2.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
-    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
+  const lift = (c, fallback, under) => {
+    let ink2 = c && HEX2.test(c) ? c : fallback;
+    for (const u of under) ink2 = ensureContrast(ink2, u, TEXT_FLOOR, 0.05);
+    return under.every((u) => (contrastRatio(ink2, u) ?? 0) >= TEXT_FLOOR) ? ink2 : readableOn(bg);
   };
-  const fg = text19(wal.special.foreground, wal.special.foreground);
+  const base3 = lift(wal.special.foreground, wal.special.foreground, [bg]);
+  const layers = [mix2(bg, base3, 0.06), mix2(bg, base3, 0.12), mix2(bg, base3, 0.2)];
+  const text19 = (c, fallback) => lift(c, fallback, [bg, layers[2]]);
+  const fg = text19(base3, base3);
   const accent = text19(pickAccent(wal), fg);
   const inks = {
     fg,
@@ -27731,7 +27731,7 @@ function walPalette(wal, source3 = "") {
     ...inks,
     accentInk: readableOn(accent),
     selectedBg: mix2(bg, accent, 0.18),
-    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)],
+    layers,
     samples,
     // The council and lanes popups paint their own night inks on the same glass.
     floor: tintFloor([...Object.values(inks), ...NIGHT_INKS], bg, samples)
@@ -27772,11 +27772,13 @@ function walCss(p3) {
     `--card: ${l1}`,
     `--raise: ${l1}`,
     `--panel: ${p3.bg}`,
-    `--sf-c-error: ${p3.error}`
+    `--sf-c-error: ${p3.error}`,
+    `--sf-c-warning: ${p3.warning}`,
+    `--sf-c-success: ${p3.success}`
   ];
-  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
-.sf { ${vars.join("; ")}; }
-[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
+  return `.sf-region, [data-surface], .sf, [data-eui='card'] { ${vars.join("; ")}; }
+.sf-region, [data-surface] { background: ${p3.bg}; color: ${p3.fg}; }
+[data-eui='card'] { --h-primary-ink: ${p3.accentInk}; }
 ${glassCss(p3)}`;
 }
 function exportPalette(p3, file2 = exportFile()) {
@@ -88593,7 +88595,7 @@ function resolveValue(value, lookup2, depth = 0) {
   v = v.replace(/hsla?\(\s*([\d.]+)(?:deg)?\s+([\d.]+%)\s+([\d.]+%)\s*\)/g, (_2, h2, s2, l) => `hsl(${h2},${s2},${l})`);
   return v;
 }
-function rgba2(c) {
+function rgba3(c) {
   c = c.trim();
   if (c === "transparent") return [0, 0, 0, 0];
   let m2 = /^#([0-9a-f]{3,8})$/i.exec(c);
@@ -88609,7 +88611,7 @@ function rgba2(c) {
   return void 0;
 }
 function mix3(a2, p3, b) {
-  const x = rgba2(a2), y = rgba2(b);
+  const x = rgba3(a2), y = rgba3(b);
   if (!x || !y) return void 0;
   const al = x[3] * p3 + y[3] * (1 - p3);
   const ch = (i) => al === 0 ? 0 : Math.round((x[i] * x[3] * p3 + y[i] * y[3] * (1 - p3)) / al);
@@ -102186,6 +102188,7 @@ var App = class {
   overlays;
   /** Every store, the ports' among them: entry.ts and the tests reach the rest here, a module through its ports. */
   stores;
+  glassDemo = () => this.stores.theme.playGlass();
   #renders = new RenderScheduler(() => this.#frame());
   #done = Promise.withResolvers();
   #tern;
@@ -102254,7 +102257,6 @@ var App = class {
   get dictation() {
     return this.stores.dictation;
   }
-  /** Whose colors the surface wears (`/theme`). */
   get theme() {
     return this.stores.theme.mode;
   }
@@ -102608,9 +102610,6 @@ var App = class {
   setTheme(mode) {
     this.stores.theme.set(mode);
     this.changed();
-  }
-  glassDemo() {
-    return this.stores.theme.playGlass();
   }
   setEffort(value, scope2) {
     return applyEffort(this, value, scope2);
