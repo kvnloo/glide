@@ -122,7 +122,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
           el('span', `${micro};font-size:8.5px`, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
           ...(open ? [el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : [])
         ]),
-        el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.faint}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
+        el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
       ])
     ])
   }))
@@ -146,7 +146,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
         seats
       ])
     ]),
-    el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`, [text(src.live
+    el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text(src.live
       ? `live run read from ${src.from} · this card draws it and computes nothing`
       : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])
   ])])

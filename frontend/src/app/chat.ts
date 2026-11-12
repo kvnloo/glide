@@ -593,6 +593,10 @@ export class App implements ChatPorts {
     this.changed()
   }
 
+  glassDemo(): number | null {
+    return this.stores.theme.playGlass()
+  }
+
   setEffort(value: string, scope: 'global' | 'session'): Promise<void> {
     return applyEffort(this, value, scope)
   }

@@ -21010,12 +21010,12 @@ var InputParser = class {
         this.#finish(out);
         return j + 1;
       }
-      const after2 = bytes[j + 1];
-      if (after2 === void 0) {
+      const after3 = bytes[j + 1];
+      if (after3 === void 0) {
         msg.esc = true;
         return j + 1;
       }
-      if (after2 === 92) {
+      if (after3 === 92) {
         this.#finish(out);
         return j + 2;
       }
@@ -21316,10 +21316,10 @@ var KeyDecoder = class {
       return this.#sequence(bytes, i, i, out, false, final);
     }
     if (next2 === ESC2) {
-      const after2 = bytes[i + 2];
-      if (after2 === void 0 && !final)
+      const after3 = bytes[i + 2];
+      if (after3 === void 0 && !final)
         return 0;
-      if (after2 === 91 || after2 === 79) {
+      if (after3 === 91 || after3 === 79) {
         const used2 = this.#sequence(bytes, i + 1, i, out, true, final);
         return used2;
       }
@@ -22041,13 +22041,13 @@ function diff(old, now, ops) {
     ops.push(["set", now.id, set]);
   if (text18) {
     const before2 = old.props["text"];
-    const after2 = now.props["text"];
-    if (!jsonEqual(before2, after2)) {
-      if (typeof after2 === "string") {
-        if (typeof before2 === "string" && before2 !== "" && after2.startsWith(before2)) {
-          ops.push(["text", now.id, "append", after2.slice(before2.length)]);
+    const after3 = now.props["text"];
+    if (!jsonEqual(before2, after3)) {
+      if (typeof after3 === "string") {
+        if (typeof before2 === "string" && before2 !== "" && after3.startsWith(before2)) {
+          ops.push(["text", now.id, "append", after3.slice(before2.length)]);
         } else {
-          ops.push(["text", now.id, "replace", after2]);
+          ops.push(["text", now.id, "replace", after3]);
         }
       } else {
         ops.push(["set", now.id, { text: null }]);
@@ -23302,14 +23302,14 @@ var Z = (n3, s2, t) => {
   for (let z = 0; z < N; z++) {
     const O = (z - (N - 1) / 2) * 0.075, B = Math.abs(z - (N - 1) / 2) / Math.max(1, (N - 1) / 2);
     for (let I = 0; I < k; I++) {
-      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
+      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K2 = (X / o + 1) / 2;
       D2.push({
         x: ct,
         y: at2,
         z: X,
-        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K) * (1 - 0.25 * B) * m2,
-        white: 0.52 - 0.44 * K + 0.18 * B,
-        a: 0.4 + 0.6 * K
+        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K2) * (1 - 0.25 * B) * m2,
+        white: 0.52 - 0.44 * K2 + 0.18 * B,
+        a: 0.4 + 0.6 * K2
       });
     }
   }
@@ -24682,16 +24682,17 @@ var NIGHT = {
   canvas: "#0c0c0a",
   text: "#ECE8DF",
   text2: "#B4AFA3",
-  text3: "#837F74",
+  text3: "#A39F94",
   faint: "#5e5b52",
   action: "#d7b986",
   strong: "#eccd8c",
-  muted: "#99835c",
+  muted: "#AF9D7E",
   danger: "#e37f65",
   agree: "#98cf8b",
   border: "rgba(236,232,223,0.10)",
   borderStrong: "rgba(236,232,223,0.16)"
 };
+var NIGHT_INKS = [NIGHT.text, NIGHT.text2, NIGHT.text3, NIGHT.action, NIGHT.strong, NIGHT.muted, NIGHT.danger, NIGHT.agree];
 var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
 var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
 var COUNCIL_SCHEMA = "glide.council-run/v1";
@@ -25443,6 +25444,31 @@ function hsl(hex2) {
   const h2 = max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return { h: (h2 * 60 + 360) % 360, s: s2, l };
 }
+function saturateHex(hex2, s2) {
+  const rgb = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+  const m2 = [
+    [0.213 + 0.787 * s2, 0.715 - 0.715 * s2, 0.072 - 0.072 * s2],
+    [0.213 - 0.213 * s2, 0.715 + 0.285 * s2, 0.072 - 0.072 * s2],
+    [0.213 - 0.213 * s2, 0.715 - 0.715 * s2, 0.072 + 0.928 * s2]
+  ];
+  return "#" + m2.map(([x, y, z]) => Math.round(Math.min(255, Math.max(0, x * rgb[0] + y * rgb[1] + z * rgb[2]))).toString(16).padStart(2, "0")).join("");
+}
+function wallSamples(wal) {
+  const all8 = [wal.special.background, ...[0, 1, 2, 3, 4, 5, 6].map((i) => wal.colors[`color${i}`] ?? "")];
+  return [...new Set(all8.filter((c) => HEX.test(c)).map((c) => c.toLowerCase()))];
+}
+var SATURATE_STEPS = [1, 1.2, 1.4, 1.6, 1.8];
+var AA = 4.5;
+function tintFloor(inks, tint2, samples) {
+  const backdrops = samples.flatMap((c) => SATURATE_STEPS.map((s2) => saturateHex(c, s2)));
+  const holds = (pct3) => backdrops.every((px) => {
+    const under = mix2(px, tint2, pct3 / 100);
+    return inks.every((ink2) => (contrastRatio(ink2, under) ?? 0) >= AA);
+  });
+  let pct2 = 100;
+  while (pct2 > 0 && holds(pct2 - 1)) pct2--;
+  return pct2;
+}
 function pickGlow(wal, accent) {
   if (!HEX.test(accent)) return accent;
   const a2 = hsl(accent);
@@ -25461,6 +25487,19 @@ function pickGlow(wal, accent) {
   }
   return best;
 }
+var restTint = (p3) => Math.max(62, p3.floor);
+var K = "[data-eui][data-eui='card']";
+var CARD = `${K} .eu-card`;
+var MOTES = `${K}:not([data-eui-popup])::before`;
+var EDITOR = ".sf.sf-col.sf-col[data-role^='omp.editor']";
+var POPUP = ".sf-overlay .sf-ov-card";
+var LANES = ".sf-col[data-role='omp.live.lanes']";
+var STATUS = ".sf.sf-status:not(.transparent)";
+var NATIVE = ".sf.sf-card";
+var TEXT = ".sf.sf-text, .sf.sf-card.nohead";
+var INNER = ".sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text";
+var RIMMED = [CARD, EDITOR, POPUP, LANES];
+var after = (sel) => sel.map((s2) => `${s2}::after`).join(", ");
 function glassCss(p3) {
   const shade = mix2(p3.bg, "#000000", 0.7);
   const vars = `--g-a: ${p3.accent}; --g-b: ${p3.glow}; --g-shade: ${shade}; --g-glass: ${p3.bg}; --g-ease: cubic-bezier(.2, .7, .2, 1)`;
@@ -25469,6 +25508,10 @@ function glassCss(p3) {
   const glass = (pct2) => `color-mix(in srgb, var(--g-glass) ${pct2}%, transparent)`;
   const shadow = (pct2) => `color-mix(in srgb, var(--g-shade) ${pct2}%, transparent)`;
   const hi = (pct2) => `color-mix(in srgb, var(--t1) ${pct2}%, transparent)`;
+  const tint2 = glass(restTint(p3));
+  const frost = "-webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%)";
+  const halo = `0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a2(55)}, inset 0 1px 0 ${hi(8)}`;
+  const haloHot = `0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a2(75)}, inset 0 1px 0 ${hi(10)}`;
   const rim = `linear-gradient(180deg, var(--g-a), ${a2(70)} 30%, ${b(70)} 62%, var(--g-b))`;
   const mask = "-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude";
   const mote = (size, x, y, c) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`;
@@ -25489,21 +25532,31 @@ function glassCss(p3) {
     mote(2, 97, 30, b(55))
   ].join(", ");
   const sparks = [mote(2.5, 28, 2, "var(--g-a)"), mote(2, 74, 2, "var(--g-a)"), mote(2.5, 99, 46, "var(--g-b)"), mote(2, 62, 98, "var(--g-b)"), mote(1.5, 1, 64, "var(--g-b)")].join(", ");
-  const k = "[data-eui][data-eui='card']";
-  const card = `${k} .eu-card`;
-  const editor = ".sf-col[data-role^='omp.editor']";
+  const k = K;
   return `
-.sf, [data-eui='card'] { ${vars}; }
+.sf, [data-eui='card'], .sf-overlay { ${vars}; --sf-card-bg: ${tint2}; --pop-bg: ${tint2}; --modal-bg: ${tint2}; --glass-hi: ${hi(10)}; }
 ${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
-${k}:not([data-eui-popup])::before { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .85; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
+${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .85; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
 @keyframes glide-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -26px); } }
 @keyframes glide-twinkle { from { opacity: .45; } to { opacity: .95; } }
-${card} { background: ${glass(40)}; -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); border-color: transparent; border-radius: 16px; box-shadow: 0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a2(55)}, inset 0 1px 0 ${hi(8)}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
-${card}::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .7; transition: opacity .2s var(--g-ease); }
-${card}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
-${card}:hover { transform: translateY(-1px); box-shadow: 0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a2(75)}, inset 0 1px 0 ${hi(10)}; }
-${card}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
-${card}:hover::before { opacity: 1; transform: translateY(0); }
+${CARD}, ${EDITOR}, ${POPUP}, ${LANES} { background: ${tint2}; ${frost}; box-shadow: ${halo}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
+${CARD} { border-color: transparent; border-radius: 16px; }
+${LANES} { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 14px; }
+${STATUS} { background: ${tint2}; ${frost}; box-shadow: inset 0 1px 0 ${hi(10)}, 0 -1px 0 ${a2(22)}; }
+${NATIVE} { ${frost}; box-shadow: inset 0 0 0 1px ${a2(22)}, inset 0 1px 0 ${hi(10)}; }
+${POPUP} { box-shadow: ${halo}, 0 0 0 1px ${a2(18)}; }
+.sf-overlay .sf-ov-dim { background: ${shadow(40)}; }
+${after(RIMMED)} { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .7; transition: opacity .2s var(--g-ease); }
+${EDITOR}::after { opacity: .9; }
+.sf-place-dir, .sf-place-sep, .sf-t-dim { color: var(--t3); }
+.sf-t-muted { color: var(--t2); }
+${TEXT} { background: ${tint2}; ${frost}; padding: 6px 10px; margin: -6px -10px; border-radius: 10px; box-shadow: inset 0 0 0 1px ${a2(22)}, inset 0 1px 0 ${hi(10)}; }
+${INNER} { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }
+${CARD}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
+${CARD}:hover { transform: translateY(-1px); box-shadow: ${haloHot}; }
+${EDITOR}:hover { box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 38px -10px ${b(75)}, 0 0 20px -8px ${a2(60)}, inset 0 1px 0 ${hi(10)}; }
+${CARD}:hover::after, ${EDITOR}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
+${CARD}:hover::before { opacity: 1; transform: translateY(0); }
 @keyframes glide-shimmer { from { opacity: .85; } to { opacity: 1; } }
 ${k} .ih-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a2(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
@@ -25518,20 +25571,57 @@ ${k} .ih-flowlink.ih-gated { background: var(--g-b); }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a2(30)}; }
 ${k} .eu-btn:hover { border-color: ${a2(70)}; box-shadow: 0 0 16px -6px ${a2(70)}; transform: translateY(-1px); }
 ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
-${editor} { background: ${glass(78)} !important; -webkit-backdrop-filter: blur(24px) saturate(150%) !important; backdrop-filter: blur(24px) saturate(150%) !important; box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 36px -12px ${b(65)}, 0 0 64px -28px ${a2(50)}, inset 0 1px 0 ${hi(8)} !important; transition: box-shadow .22s var(--g-ease); }
-${editor}::after { background: ${rim} !important; opacity: .9; transition: opacity .22s var(--g-ease); }
-${editor}:hover { box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 38px -10px ${b(75)}, 0 0 20px -8px ${a2(60)}, inset 0 1px 0 ${hi(10)} !important; }
-${editor}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
 .hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }
 .hermes-press:hover { background-color: ${a2(16)}; box-shadow: 0 0 14px -6px ${a2(70)}; }
 @media (prefers-reduced-motion: reduce) {
-  ${k}:not([data-eui-popup])::before, ${card}:hover::after, ${editor}:hover::after { animation: none; }
-  ${card}:hover, ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover, ${k} .ih-key:hover, ${k} .eu-chip:hover, ${k} .eu-btn:hover { transform: none; }
+  ${MOTES}, ${CARD}:hover::after, ${EDITOR}:hover::after { animation: none; }
+  ${CARD}:hover, ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover, ${k} .ih-key:hover, ${k} .eu-chip:hover, ${k} .eu-btn:hover { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  ${card} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  ${editor} { background: var(--card) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .sf, [data-eui='card'], .sf-overlay { --sf-card-bg: var(--card); --pop-bg: var(--card); --modal-bg: var(--card); }
+  ${CARD}, ${EDITOR}, ${POPUP}, ${LANES}, ${STATUS}, ${NATIVE}, ${TEXT} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  ${INNER} { background: none; }
 }
+`;
+}
+var PLAY_SHEET = "glide-glass-play";
+var PLAY_SECONDS = 10;
+function playStops(p3) {
+  const rest = restTint(p3);
+  const up = (n3) => Math.min(100, Math.max(p3.floor, n3));
+  return [
+    { at: 0, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
+    { at: 20, tint: up(rest + 10), blur: 8, saturate: 120, glow: 0.5, motes: 1 },
+    { at: 50, tint: up(p3.floor), blur: 28, saturate: 180, glow: 1.8, motes: 2 },
+    { at: 75, tint: up(Math.round((rest + p3.floor) / 2) + 4), blur: 16, saturate: 160, glow: 1.3, motes: 1.5 },
+    { at: 100, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
+  ];
+}
+function glassPlayCss(p3, seconds = PLAY_SECONDS) {
+  const rgba3 = (hex2, pct2) => {
+    const [r, g, bl] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+    return `rgba(${r}, ${g}, ${bl}, ${Math.round(Math.min(100, pct2)) / 100})`;
+  };
+  const shade = mix2(p3.bg, "#000000", 0.7);
+  const stops = playStops(p3);
+  const frame2 = (sel) => stops.map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
+  const glass = (s2) => `background-color: ${rgba3(p3.bg, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
+  const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba3(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba3(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba3(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba3(p3.fg, 8 * s2.glow)}`;
+  const run8 = (name) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`;
+  const lit2 = [CARD, EDITOR, POPUP, LANES].join(", ");
+  const all8 = [lit2, STATUS, NATIVE, TEXT, after(RIMMED), MOTES].join(", ");
+  return `
+@keyframes glide-play { ${frame2((s2) => `${glass(s2)}; ${halo(s2)}`)} }
+@keyframes glide-play-flat { ${frame2(glass)} }
+@keyframes glide-play-rim { ${frame2((s2) => `opacity: ${Math.min(1, 0.55 + 0.25 * s2.glow).toFixed(2)}`)} }
+@keyframes glide-play-motes { ${frame2((s2) => `opacity: ${Math.min(1, 0.6 + 0.2 * s2.motes).toFixed(2)}; background-size: ${Math.round(100 / s2.motes)}% ${Math.round(100 / s2.motes)}%`)} }
+${lit2} { ${run8("glide-play")}; }
+${STATUS}, ${NATIVE}, ${TEXT} { ${run8("glide-play-flat")}; }
+${INNER} { animation: none; }
+${after(RIMMED)} { ${run8("glide-play-rim")}; }
+${MOTES} { ${run8("glide-play-motes")}; }
+@media (prefers-reduced-motion: reduce) { ${all8} { animation: none; } }
+@media (prefers-reduced-transparency: reduce) { ${all8} { animation: none; } }
 `;
 }
 
@@ -25594,21 +25684,28 @@ function walPalette(wal, source2 = "") {
   };
   const fg = text18(wal.special.foreground, wal.special.foreground);
   const accent = text18(pickAccent(wal), fg);
-  return {
-    source: source2,
-    dark: (relativeLuminance(bg) ?? 0) < 0.5,
-    bg,
+  const inks = {
     fg,
     accent,
-    accentInk: readableOn(accent),
     glow: text18(pickGlow(wal, accent), accent),
     muted: text18(wal.colors["color7"], fg),
     dim: text18(wal.colors["color8"], fg),
     error: text18(wal.colors["color1"], fg),
     success: text18(wal.colors["color2"], fg),
-    warning: text18(wal.colors["color3"], fg),
+    warning: text18(wal.colors["color3"], fg)
+  };
+  const samples = wallSamples(wal);
+  return {
+    source: source2,
+    dark: (relativeLuminance(bg) ?? 0) < 0.5,
+    bg,
+    ...inks,
+    accentInk: readableOn(accent),
     selectedBg: mix2(bg, accent, 0.18),
-    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)]
+    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)],
+    samples,
+    // The council and lanes popups paint their own night inks on the same glass.
+    floor: tintFloor([...Object.values(inks), ...NIGHT_INKS], bg, samples)
   };
 }
 function walTernPalette(p3) {
@@ -27543,6 +27640,15 @@ function pipe(in_, out) {
 function glideLanes(host) {
   openLanesPopup(host, host.laneFeed);
 }
+function glideGlass(host, sub) {
+  if (sub !== "demo") {
+    host.transcript.notice("Usage: /glide glass demo", "warning");
+    return;
+  }
+  const seconds = host.glassDemo?.() ?? null;
+  if (seconds === null) host.transcript.notice("The glass playground plays on the wallpaper theme: /glide theme auto first", "warning");
+  else host.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`);
+}
 function glideTheme(host, sub) {
   if (sub === "auto" || sub === "default") {
     host.setTheme?.(sub === "auto" ? "auto" : "tern");
@@ -27660,6 +27766,10 @@ async function glideCommand(host, arg) {
   const [first, second] = arg.trim().split(/\s+/);
   if (first === "theme") {
     glideTheme(host, second);
+    return;
+  }
+  if (first === "glass") {
+    glideGlass(host, second);
     return;
   }
   const ref = host.session.ref;
@@ -30059,7 +30169,7 @@ var VimComposer = class {
     this.composer.splice(range2.from, range2.to, replacement, range2.from);
     this.#mode("normal");
   }
-  #paste(after2, count5) {
+  #paste(after3, count5) {
     if (!this.#register) {
       this.#clear();
       return;
@@ -30069,16 +30179,16 @@ var VimComposer = class {
       const range2 = this.#range();
       this.composer.splice(range2.from, range2.to, this.#register.repeat(count5), range2.from);
     } else if (this.#linewise) {
-      const at2 = after2 ? lineEnd2(text18, cursor) : lineStart2(text18, cursor);
+      const at2 = after3 ? lineEnd2(text18, cursor) : lineStart2(text18, cursor);
       const value = this.#register.replace(/\n$/, "").concat("\n").repeat(count5);
-      if (after2 && at2 === text18.length) {
+      if (after3 && at2 === text18.length) {
         this.composer.splice(at2, at2, "\n" + value.slice(0, -1), at2 + 1);
       } else {
-        const from = after2 ? at2 + 1 : at2;
+        const from = after3 ? at2 + 1 : at2;
         this.composer.splice(from, from, value, from);
       }
     } else {
-      const at2 = after2 ? Math.min(lineEnd2(text18, cursor), nextGrapheme2(text18, cursor)) : cursor;
+      const at2 = after3 ? Math.min(lineEnd2(text18, cursor), nextGrapheme2(text18, cursor)) : cursor;
       this.composer.splice(at2, at2, this.#register.repeat(count5), at2);
     }
     this.#mode("normal");
@@ -30863,8 +30973,8 @@ function unmaskEdit(secret, ev) {
   const real = (masked) => bounds[Math.max(0, Math.min(count5, masked))] ?? secret.length;
   const from = real(ev.from);
   const to = real(ev.to);
-  const after2 = ev.cursor - ev.from - ev.text.length;
-  const cursor = ev.cursor <= ev.from ? real(ev.cursor) : after2 <= 0 ? from + (ev.cursor - ev.from) : real(ev.to + after2) - to + from + ev.text.length;
+  const after3 = ev.cursor - ev.from - ev.text.length;
+  const cursor = ev.cursor <= ev.from ? real(ev.cursor) : after3 <= 0 ? from + (ev.cursor - ev.from) : real(ev.to + after3) - to + from + ev.text.length;
   return { cursor, from, len: secret.length, text: ev.text, to };
 }
 
@@ -35460,8 +35570,8 @@ function describe3(command2, budget, depth) {
   let title2;
   if (remote) {
     const host = operand(remote.args, /* @__PURE__ */ new Set(["-p", "-i", "-o", "-l", "-J", "-F"]))?.replace(/^[^@]+@/, "");
-    const after2 = remote.args.slice(remote.args.findIndex((a2) => a2.replace(/^[^@]+@/, "") === host) + 1).join(" ");
-    const inner = after2 ? describe3(after2, budget, depth + 1) : "Open a shell";
+    const after3 = remote.args.slice(remote.args.findIndex((a2) => a2.replace(/^[^@]+@/, "") === host) + 1).join(" ");
+    const inner = after3 ? describe3(after3, budget, depth + 1) : "Open a shell";
     if (inner === void 0) return void 0;
     title2 = host ? `${inner} on ${host}` : inner;
   } else {
@@ -37148,14 +37258,14 @@ function todoCount(todos2) {
   return `${done}/${total}`;
 }
 var MARK = { cancelled: "\u2717", completed: "\u2713", in_progress: "\u2192", pending: "\u25CB" };
-function planStep(before2, after2) {
-  if (!after2?.length) {
+function planStep(before2, after3) {
+  if (!after3?.length) {
     return "Plan updated";
   }
   if (!before2?.length) {
-    return `Planned ${plural(after2.length, "step")}`;
+    return `Planned ${plural(after3.length, "step")}`;
   }
-  const changes = after2.flatMap((t) => {
+  const changes = after3.flatMap((t) => {
     const was = before2.find((b) => b.id === t.id);
     return !was ? [`+ ${t.content}`] : was.status !== t.status ? [`${MARK[t.status]} ${t.content}`] : [];
   });
@@ -45241,14 +45351,14 @@ function minifyText(node3, state) {
 }
 function all(parent, state) {
   let before2 = state.before;
-  const after2 = state.after;
+  const after3 = state.after;
   const children3 = parent.children;
   let length = children3.length;
   let index2 = -1;
   while (++index2 < length) {
     const result = minify(children3[index2], {
       ...state,
-      after: collapsableAfter(children3, index2, after2),
+      after: collapsableAfter(children3, index2, after3),
       before: before2
     });
     if (result.remove) {
@@ -45262,9 +45372,9 @@ function all(parent, state) {
       before2 = false;
     }
   }
-  return { ignore: false, stripAtStart: Boolean(before2 || after2), remove: false };
+  return { ignore: false, stripAtStart: Boolean(before2 || after3), remove: false };
 }
-function collapsableAfter(nodes, index2, after2) {
+function collapsableAfter(nodes, index2, after3) {
   while (++index2 < nodes.length) {
     const node3 = nodes[index2];
     let result = inferBoundary(node3);
@@ -45275,7 +45385,7 @@ function collapsableAfter(nodes, index2, after2) {
       return result;
     }
   }
-  return after2;
+  return after3;
 }
 function inferBoundary(node3) {
   if (node3.type === "element") {
@@ -47709,22 +47819,22 @@ function markdownTable(table3, options) {
   while (++columnIndex < mostCellsPerRow) {
     const code7 = alignments[columnIndex];
     let before2 = "";
-    let after2 = "";
+    let after3 = "";
     if (code7 === 99) {
       before2 = ":";
-      after2 = ":";
+      after3 = ":";
     } else if (code7 === 108) {
       before2 = ":";
     } else if (code7 === 114) {
-      after2 = ":";
+      after3 = ":";
     }
     let size = settings2.alignDelimiters === false ? 1 : Math.max(
       1,
-      longestCellByColumn[columnIndex] - before2.length - after2.length
+      longestCellByColumn[columnIndex] - before2.length - after3.length
     );
-    const cell3 = before2 + "-".repeat(size) + after2;
+    const cell3 = before2 + "-".repeat(size) + after3;
     if (settings2.alignDelimiters !== false) {
-      size = before2.length + size + after2.length;
+      size = before2.length + size + after3.length;
       if (size > longestCellByColumn[columnIndex]) {
         longestCellByColumn[columnIndex] = size;
       }
@@ -47744,7 +47854,7 @@ function markdownTable(table3, options) {
     while (++columnIndex < mostCellsPerRow) {
       const cell3 = row3[columnIndex] || "";
       let before2 = "";
-      let after2 = "";
+      let after3 = "";
       if (settings2.alignDelimiters !== false) {
         const size = longestCellByColumn[columnIndex] - (sizes2[columnIndex] || 0);
         const code7 = alignments[columnIndex];
@@ -47753,13 +47863,13 @@ function markdownTable(table3, options) {
         } else if (code7 === 99) {
           if (size % 2) {
             before2 = " ".repeat(size / 2 + 0.5);
-            after2 = " ".repeat(size / 2 - 0.5);
+            after3 = " ".repeat(size / 2 - 0.5);
           } else {
             before2 = " ".repeat(size / 2);
-            after2 = before2;
+            after3 = before2;
           }
         } else {
-          after2 = " ".repeat(size);
+          after3 = " ".repeat(size);
         }
       }
       if (settings2.delimiterStart !== false && !columnIndex) {
@@ -47775,7 +47885,7 @@ function markdownTable(table3, options) {
       }
       line.push(cell3);
       if (settings2.alignDelimiters !== false) {
-        line.push(after2);
+        line.push(after3);
       }
       if (settings2.padding !== false) {
         line.push(" ");
@@ -51227,7 +51337,7 @@ function candidates(tokens2, involved, runOf) {
   ordered2.reverse();
   return ordered2;
 }
-function check(tokens2, before2, after2) {
+function check(tokens2, before2, after3) {
   const runs3 = [];
   const wrong = /* @__PURE__ */ new Map();
   const runOf = /* @__PURE__ */ new Map();
@@ -51246,7 +51356,7 @@ function check(tokens2, before2, after2) {
     const head2 = index2 ? tokens2[index2 - 1].value : before2;
     const previous3 = classifyCharacter(head2.charCodeAt(head2.length - 1));
     const next2 = classifyCharacter(
-      (end < tokens2.length ? tokens2[end].value : after2).charCodeAt(0)
+      (end < tokens2.length ? tokens2[end].value : after3).charCodeAt(0)
     );
     const open5 = !next2 || next2 === 2 && Boolean(previous3);
     const close = !previous3 || previous3 === 2 && Boolean(next2);
@@ -51291,15 +51401,15 @@ function encode2(tokens2, start) {
   );
   token.value = start ? reference + token.value.slice(character.length) : token.value.slice(0, token.value.length - character.length) + reference;
 }
-function improve(items, chosen, mistake, before2, after2) {
+function improve(items, chosen, mistake, before2, after3) {
   for (const attention4 of mistake.attention) {
     const current = chosen.get(attention4) || attention4.sequences[0];
     for (const sequence of attention4.sequences) {
       if (sequence === current) continue;
       const trial = new Map(chosen);
       trial.set(attention4, sequence);
-      const tokens2 = render(items, trial, before2, after2);
-      const next2 = check(tokens2, before2, after2);
+      const tokens2 = render(items, trial, before2, after3);
+      const next2 = check(tokens2, before2, after3);
       if (!next2 || next2.index > mistake.index) {
         return { chosen: trial, mistake: next2, tokens: tokens2 };
       }
@@ -51399,12 +51509,12 @@ function phrasing4(parent, state, info) {
   let tracker = state.createTracker(info);
   while (++index2 < children3.length) {
     const child = children3[index2];
-    let after2;
+    let after3;
     indexStack[indexStack.length - 1] = index2;
     if (index2 + 1 < children3.length) {
       let handle4 = state.handle.handlers[children3[index2 + 1].type];
       if (handle4 && handle4.peek) handle4 = handle4.peek;
-      after2 = handle4 ? firstCharacter(
+      after3 = handle4 ? firstCharacter(
         handle4(children3[index2 + 1], parent, state, {
           before: "",
           after: "",
@@ -51412,7 +51522,7 @@ function phrasing4(parent, state, info) {
         })
       ) : "";
     } else {
-      after2 = info.after;
+      after3 = info.after;
     }
     const previous3 = results[results.length - 1];
     if (typeof previous3 === "string" && (before2 === "\r" || before2 === "\n") && child.type === "html" && htmlKind(child.value) !== 7) {
@@ -51446,7 +51556,7 @@ function phrasing4(parent, state, info) {
     } else {
       const value = state.handle(child, parent, state, {
         ...tracker.current(),
-        after: after2,
+        after: after3,
         before: before2
       });
       if (!value) continue;
@@ -51458,7 +51568,7 @@ function phrasing4(parent, state, info) {
   indexStack.pop();
   return results;
 }
-function render(items, chosen, before2, after2) {
+function render(items, chosen, before2, after3) {
   const tokens2 = [];
   let encodeAfter;
   let previous3 = lastCharacter(before2);
@@ -51480,7 +51590,7 @@ function render(items, chosen, before2, after2) {
     const next2 = items[index2 + 1];
     const outsideBefore = previous3;
     const outsideAfter = firstCharacter(
-      next2 === void 0 ? after2 : typeof next2 === "string" ? next2 : chosen.get(next2) || next2.sequences[0]
+      next2 === void 0 ? after3 : typeof next2 === "string" ? next2 : chosen.get(next2) || next2.sequences[0]
     );
     const inside = render(item3.children, chosen, sequence, sequence);
     const head2 = inside.length > 0 ? inside[0].value : "";
@@ -51509,13 +51619,13 @@ function render(items, chosen, before2, after2) {
   }
   return tokens2;
 }
-function serialize3(items, before2, after2) {
+function serialize3(items, before2, after3) {
   let chosen = /* @__PURE__ */ new Map();
-  const initial = render(items, chosen, before2, after2);
+  const initial = render(items, chosen, before2, after3);
   let tokens2 = initial;
-  let mistake = check(tokens2, before2, after2);
+  let mistake = check(tokens2, before2, after3);
   while (mistake) {
-    const next2 = improve(items, chosen, mistake, before2, after2);
+    const next2 = improve(items, chosen, mistake, before2, after3);
     if (!next2) {
       tokens2 = initial;
       break;
@@ -51620,18 +51730,18 @@ function safe(state, input2, config3) {
     let match;
     while (match = expression.exec(subject)) {
       const before2 = "before" in pattern || Boolean(pattern.atBreak);
-      const after2 = "after" in pattern;
+      const after3 = "after" in pattern;
       const position4 = from + match.index + (before2 ? match[1].length : 0);
       if (own7.call(infos, position4)) {
         if (infos[position4].before && !before2) {
           infos[position4].before = false;
         }
-        if (infos[position4].after && !after2) {
+        if (infos[position4].after && !after3) {
           infos[position4].after = false;
         }
       } else {
         positions.push(position4);
-        infos[position4] = { before: before2, after: after2 };
+        infos[position4] = { before: before2, after: after3 };
       }
     }
   }
@@ -51694,11 +51804,11 @@ function nodeInScope(types, node3) {
 function numerical(a2, b) {
   return a2 - b;
 }
-function escapeBackslashes(value, after2) {
+function escapeBackslashes(value, after3) {
   const expression = /\\(?=[!-/:-@[-`{-~])/g;
   const positions = [];
   const results = [];
-  const whole = value + after2;
+  const whole = value + after3;
   let index2 = -1;
   let start = 0;
   let match;
@@ -62993,9 +63103,9 @@ function tokenizeEmailDomainDotTrail(effects, ok3, nok) {
   return start;
   function start(code7) {
     effects.consume(code7);
-    return after2;
+    return after3;
   }
-  function after2(code7) {
+  function after3(code7) {
     return asciiAlphanumeric(code7) ? nok(code7) : ok3(code7);
   }
 }
@@ -63193,11 +63303,11 @@ function tokenizeAttention(effects, ok3) {
       return inside;
     }
     const token = effects.exit("attentionSequence");
-    const after2 = classifyCharacter(code7);
-    const open5 = !after2 || after2 === 2 && before2 || attentionMarkers2.includes(code7) && code7 !== 42 && code7 !== 95;
-    const close = !before2 || before2 === 2 && after2 || attentionMarkers2.includes(previous3) && previous3 !== 42 && previous3 !== 95;
+    const after3 = classifyCharacter(code7);
+    const open5 = !after3 || after3 === 2 && before2 || attentionMarkers2.includes(code7) && code7 !== 42 && code7 !== 95;
+    const close = !before2 || before2 === 2 && after3 || attentionMarkers2.includes(previous3) && previous3 !== 42 && previous3 !== 95;
     token._open = Boolean(marker === 42 ? open5 : open5 && (before2 || !close));
-    token._close = Boolean(marker === 42 ? close : close && (after2 || !open5));
+    token._close = Boolean(marker === 42 ? close : close && (after3 || !open5));
     return ok3(code7);
   }
 }
@@ -63337,7 +63447,7 @@ function factorySpaceMinMax(effects, ok3, nok, type, min, max) {
       effects.enter(type);
       return prefix2(code7);
     }
-    return after2(code7);
+    return after3(code7);
   }
   function prefix2(code7) {
     if (markdownSpace(code7) && size < max) {
@@ -63346,9 +63456,9 @@ function factorySpaceMinMax(effects, ok3, nok, type, min, max) {
       return prefix2;
     }
     effects.exit(type);
-    return after2(code7);
+    return after3(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     return size >= min ? ok3(code7) : nok(code7);
   }
 }
@@ -63361,9 +63471,9 @@ var blankLine = {
 function tokenizeBlankLine(effects, ok3, nok) {
   return start;
   function start(code7) {
-    return markdownSpace(code7) ? factorySpace(effects, after2, "linePrefix")(code7) : after2(code7);
+    return markdownSpace(code7) ? factorySpace(effects, after3, "linePrefix")(code7) : after3(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     return code7 === null || markdownLineEnding(code7) ? ok3(code7) : nok(code7);
   }
 }
@@ -63393,11 +63503,11 @@ function tokenizeBlockQuoteStart(effects, ok3, nok) {
       effects.enter("blockQuoteMarker");
       effects.consume(code7);
       effects.exit("blockQuoteMarker");
-      return after2;
+      return after3;
     }
     return nok(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     if (markdownSpace(code7)) {
       effects.enter("blockQuotePrefixWhitespace");
       effects.consume(code7);
@@ -63532,9 +63642,9 @@ function tokenizeNonLazyContinuation(effects, ok3, nok) {
     effects.enter("lineEnding");
     effects.consume(code7);
     effects.exit("lineEnding");
-    return after2;
+    return after3;
   }
-  function after2(code7) {
+  function after3(code7) {
     return self2.parser.lazy[self2.now().line] ? nok(code7) : ok3(code7);
   }
 }
@@ -63582,7 +63692,7 @@ function tokenizeCodeFenced(effects, ok3, nok) {
   function infoBefore(code7) {
     if (code7 === null || markdownLineEnding(code7)) {
       effects.exit("codeFencedFence");
-      return self2.interrupt ? ok3(code7) : effects.check(nonLazyContinuation, atNonLazyBreak, after2)(code7);
+      return self2.interrupt ? ok3(code7) : effects.check(nonLazyContinuation, atNonLazyBreak, after3)(code7);
     }
     effects.enter("codeFencedFenceInfo");
     effects.enter("chunkString", {
@@ -63630,7 +63740,7 @@ function tokenizeCodeFenced(effects, ok3, nok) {
     return meta3;
   }
   function atNonLazyBreak(code7) {
-    return effects.attempt(closeStart, after2, contentBefore)(code7);
+    return effects.attempt(closeStart, after3, contentBefore)(code7);
   }
   function contentBefore(code7) {
     effects.enter("lineEnding");
@@ -63643,7 +63753,7 @@ function tokenizeCodeFenced(effects, ok3, nok) {
   }
   function beforeContentChunk(code7) {
     if (code7 === null || markdownLineEnding(code7)) {
-      return effects.check(nonLazyContinuation, atNonLazyBreak, after2)(code7);
+      return effects.check(nonLazyContinuation, atNonLazyBreak, after3)(code7);
     }
     effects.enter("codeFlowValue");
     return contentChunk(code7);
@@ -63656,7 +63766,7 @@ function tokenizeCodeFenced(effects, ok3, nok) {
     effects.consume(code7);
     return contentChunk;
   }
-  function after2(code7) {
+  function after3(code7) {
     effects.exit("codeFenced");
     return ok3(code7);
   }
@@ -63719,10 +63829,10 @@ function tokenizeCodeIndented(effects, ok3, nok) {
   }
   function atBreak(code7) {
     if (code7 === null) {
-      return after2(code7);
+      return after3(code7);
     }
     if (markdownLineEnding(code7)) {
-      return effects.attempt(furtherStart, atBreak, after2)(code7);
+      return effects.attempt(furtherStart, atBreak, after3)(code7);
     }
     effects.enter("codeFlowValue");
     return inside(code7);
@@ -63735,7 +63845,7 @@ function tokenizeCodeIndented(effects, ok3, nok) {
     effects.consume(code7);
     return inside;
   }
-  function after2(code7) {
+  function after3(code7) {
     effects.exit("codeIndented");
     return ok3(code7);
   }
@@ -64582,9 +64692,9 @@ function tokenizeDefinition(effects, ok3, nok) {
     )(code7);
   }
   function destinationAfter(code7) {
-    return effects.attempt(titleBefore, after2, after2)(code7);
+    return effects.attempt(titleBefore, after3, after3)(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     return markdownSpace(code7) ? factorySpace(effects, afterWhitespace, "whitespace")(code7) : afterWhitespace(code7);
   }
   function afterWhitespace(code7) {
@@ -64622,9 +64732,9 @@ function tokenizeHardBreakEscape(effects, ok3, nok) {
   function start(code7) {
     effects.enter("hardBreakEscape");
     effects.consume(code7);
-    return after2;
+    return after3;
   }
-  function after2(code7) {
+  function after3(code7) {
     if (markdownLineEnding(code7)) {
       effects.exit("hardBreakEscape");
       return ok3(code7);
@@ -65512,9 +65622,9 @@ function tokenizeLabelEnd(effects, ok3, nok) {
     effects.consume(code7);
     effects.exit("labelMarker");
     effects.exit("labelEnd");
-    return after2;
+    return after3;
   }
-  function after2(code7) {
+  function after3(code7) {
     if (code7 === 40) {
       return effects.attempt(resourceConstruct, labelEndOk, defined2 ? labelEndOk : labelEndNok)(code7);
     }
@@ -65636,11 +65746,11 @@ function tokenizeLabelStartImage(effects, ok3, nok) {
       effects.consume(code7);
       effects.exit("labelMarker");
       labelImage = effects.exit("labelImage");
-      return after2;
+      return after3;
     }
     return nok(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     if (code7 === 94 && "_hiddenFootnoteSupport" in self2.parser.constructs) {
       return nok(code7);
     }
@@ -65666,9 +65776,9 @@ function tokenizeLabelStartLink(effects, ok3, nok) {
     effects.consume(code7);
     effects.exit("labelMarker");
     labelLink = effects.exit("labelLink");
-    return after2;
+    return after3;
   }
-  function after2(code7) {
+  function after3(code7) {
     if (code7 === 94 && "_hiddenFootnoteSupport" in self2.parser.constructs) {
       return nok(code7);
     }
@@ -66043,9 +66153,9 @@ function tokenizeSetextUnderline(effects, ok3, nok) {
       return inside;
     }
     effects.exit("setextHeadingLineSequence");
-    return markdownSpace(code7) ? factorySpace(effects, after2, "lineSuffix")(code7) : after2(code7);
+    return markdownSpace(code7) ? factorySpace(effects, after3, "lineSuffix")(code7) : after3(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     if (code7 === null || markdownLineEnding(code7)) {
       effects.exit("setextHeadingLine");
       return ok3(code7);
@@ -66415,9 +66525,9 @@ function gfmStrikethrough(options) {
       }
       if (size < 2 && !single) return nok(code7);
       const token = effects.exit("strikethroughSequenceTemporary");
-      const after2 = classifyCharacter(code7);
-      token._open = !after2 || after2 === 2 && Boolean(before2);
-      token._close = !before2 || before2 === 2 && Boolean(after2);
+      const after3 = classifyCharacter(code7);
+      token._open = !after3 || after3 === 2 && Boolean(before2);
+      token._close = !before2 || before2 === 2 && Boolean(after3);
       return ok3(code7);
     }
   }
@@ -66978,11 +67088,11 @@ function tokenizeTasklistCheck(effects, ok3, nok) {
       effects.consume(code7);
       effects.exit("taskListCheckMarker");
       effects.exit("taskListCheck");
-      return after2;
+      return after3;
     }
     return nok(code7);
   }
-  function after2(code7) {
+  function after3(code7) {
     if (markdownLineEnding(code7)) {
       return ok3(code7);
     }
@@ -66995,8 +67105,8 @@ function tokenizeTasklistCheck(effects, ok3, nok) {
   }
 }
 function spaceThenNonSpace(effects, ok3, nok) {
-  return factorySpace(effects, after2, "whitespace");
-  function after2(code7) {
+  return factorySpace(effects, after3, "whitespace");
+  function after3(code7) {
     return code7 === null ? nok(code7) : ok3(code7);
   }
 }
@@ -74998,7 +75108,7 @@ function councilCard(src, frame2, size = 480) {
           el("span", `${micro};font-size:8.5px`, [text18(`${MINERAL[seat.mineral].label.toUpperCase()} \xB7 ${seat.family.toUpperCase()}`)]),
           ...open5 ? [el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text18(STANCE[v.stance].label)], { attrs: { "data-council-stance": v.stance } })] : []
         ]),
-        el("span", `font-size:12.5px;line-height:18px;color:${open5 ? NIGHT.text2 : NIGHT.faint}`, [text18(open5 ? v.text : v ? "\u2026" : "no verdict recorded")])
+        el("span", `font-size:12.5px;line-height:18px;color:${open5 ? NIGHT.text2 : NIGHT.text3}`, [text18(open5 ? v.text : v ? "\u2026" : "no verdict recorded")])
       ])
     ]);
   }));
@@ -75020,7 +75130,7 @@ function councilCard(src, frame2, size = 480) {
         seats
       ])
     ]),
-    el("span", `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`, [text18(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])
+    el("span", `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text18(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])
   ])]);
 }
 function openCouncilPopup(host, src, clock4 = realClock) {
@@ -76208,7 +76318,7 @@ var COMMANDS3 = [
     run: (host) => openBranchTree(host)
   },
   {
-    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export]",
+    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export | glass demo]",
     name: "glide",
     run: (host, arg) => arg.trim() === "lanes" ? glideLanes(host) : glideCommand(host, arg)
   },
@@ -82177,7 +82287,7 @@ var before = (node3, nodes) => {
       node3
     );
 };
-var after = (node3, nodes) => {
+var after2 = (node3, nodes) => {
   const { ownerDocument, parentNode } = node3;
   if (parentNode)
     parentNode.insertBefore(
@@ -82241,7 +82351,7 @@ var CharacterData = class extends Node3 {
     before(this, nodes);
   }
   after(...nodes) {
-    after(this, nodes);
+    after2(this, nodes);
   }
   replaceWith(...nodes) {
     replaceWith(this, nodes);
@@ -84872,9 +84982,9 @@ var ParentNode = class extends Node3 {
     while (next2 !== end && next2.nodeType === ATTRIBUTE_NODE)
       next2 = next2[NEXT];
     while (next2 !== end) {
-      const after2 = getEnd(next2)[NEXT];
+      const after3 = getEnd(next2)[NEXT];
       next2.remove();
-      next2 = after2;
+      next2 = after3;
     }
     if (nodes.length)
       insert(this, end, nodes);
@@ -85493,7 +85603,7 @@ var Element2 = class extends ParentNode {
     before(this, nodes);
   }
   after(...nodes) {
-    after(this, nodes);
+    after2(this, nodes);
   }
   replaceWith(...nodes) {
     replaceWith(this, nodes);
@@ -87750,8 +87860,8 @@ var ImageClass = (ownerDocument) => (
 var deleteContents = ({ [START]: start, [END]: end }, fragment2 = null) => {
   setAdjacent(start[PREV], end[NEXT]);
   do {
-    const after2 = getEnd(start);
-    const next2 = after2 === end ? after2 : after2[NEXT];
+    const after3 = getEnd(start);
+    const next2 = after3 === end ? after3 : after3[NEXT];
     if (fragment2)
       fragment2.insertBefore(start, fragment2[END]);
     else
@@ -88402,7 +88512,7 @@ function svgInline(svg3, rules, theme) {
 // src/eui/sandbox.js
 var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
-var NATIVE = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
+var NATIVE2 = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
   return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
 }
@@ -88611,14 +88721,14 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
-  const K = ctx.__EUI;
-  await K.loadApps();
+  const K2 = ctx.__EUI;
+  await K2.loadApps();
   const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
-  K.theme.themes = themes;
-  K.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
+  K2.theme.themes = themes;
+  K2.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
   const kitCss2 = join16(dir2, "kit.css");
   const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
-  K.motion.speed = 1;
+  K2.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
   const byId = /* @__PURE__ */ new Map();
   let next2 = 1;
@@ -88631,7 +88741,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
     }
     return i;
   };
-  const clickable = (el) => NATIVE.has(el.localName) || el.hasAttribute("onclick") || [...listened.get(el) ?? []].some((t) => CLICKY.has(t));
+  const clickable = (el) => NATIVE2.has(el.localName) || el.hasAttribute("onclick") || [...listened.get(el) ?? []].some((t) => CLICKY.has(t));
   function snapshot4(el) {
     if (el.nodeType === 3) return el.data.trim() || el.data.includes(" ") ? { t: "text", text: el.data } : null;
     if (el.nodeType !== 1) return null;
@@ -88640,7 +88750,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
       const box = (el.getAttribute("viewBox") ?? "").split(/[\s,]+/).map(Number);
       const w = Number.parseFloat(el.getAttribute("width") ?? "") || box[2] || 16;
       const h2 = Number.parseFloat(el.getAttribute("height") ?? "") || box[3] || 16;
-      const svg3 = svgInline(el, rules, K.theme.base ?? {});
+      const svg3 = svgInline(el, rules, K2.theme.base ?? {});
       const image3 = { t: "svg", svg: svg3, w, h: h2, cls: el.getAttribute("class") ?? "", style: el.getAttribute("style") ?? "" };
       const controls = [...el.querySelectorAll('[role="button"]')].filter(clickable).map((control) => ({
         t: "el",
@@ -88682,12 +88792,12 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
     return e;
   };
   return {
-    kinds: Object.keys(K.KINDS),
-    apps: () => K.catalog.apps.map((a2) => ({ id: a2.id, name: a2.name, kinds: [...a2.kinds ?? []] })),
+    kinds: Object.keys(K2.KINDS),
+    apps: () => K2.catalog.apps.map((a2) => ({ id: a2.id, name: a2.name, kinds: [...a2.kinds ?? []] })),
     mount(kind, appId, onChange, doc, onIntent) {
-      const k = K.KINDS[kind];
+      const k = K2.KINDS[kind];
       if (!k) throw Error(`ephemeral-ui has no kind ${kind}`);
-      const app2 = K.catalog.byId[appId] ?? K.catalog.apps.find((a2) => (a2.kinds ?? []).includes(kind)) ?? { id: appId, name: appId, kinds: [kind] };
+      const app2 = K2.catalog.byId[appId] ?? K2.catalog.apps.find((a2) => (a2.kinds ?? []).includes(kind)) ?? { id: appId, name: appId, kinds: [kind] };
       const root7 = document3.createElement("div");
       root7.setAttribute("data-eui", "card");
       root7.setAttribute("data-eui-kind", kind);
@@ -88696,11 +88806,11 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
       document3.body.append(root7);
       const intent3 = (event) => onIntent?.(event.detail);
       if (onIntent) root7.addEventListener("eui:intent", intent3);
-      const c = k.make(app2, K.rng(app2.id + kind), doc);
+      const c = k.make(app2, K2.rng(app2.id + kind), doc);
       root7.append(c.el ?? c);
-      const run8 = new K.Run();
+      const run8 = new K2.Run();
       if (typeof c.play === "function") Promise.resolve().then(() => c.play(run8)).catch((e) => {
-        if (e !== K.Run.CANCEL) log(e);
+        if (e !== K2.Run.CANCEL) log(e);
       });
       let pending2;
       const mo = new window2.MutationObserver(() => {
@@ -89202,7 +89312,7 @@ function onTernEvent(ev, cx) {
 }
 
 // src/surface/input.ts
-async function runInput(input2, { after: after2, onError, onEvent, onKey: onKey2 }) {
+async function runInput(input2, { after: after3, onError, onEvent, onKey: onKey2 }) {
   try {
     for await (const item3 of input2) {
       if (item3.type === "key") {
@@ -89210,7 +89320,7 @@ async function runInput(input2, { after: after2, onError, onEvent, onKey: onKey2
       } else {
         onEvent(item3.event);
       }
-      after2();
+      after3();
     }
   } catch (error) {
     onError?.(error);
@@ -96479,6 +96589,8 @@ var Theme = class {
   /** The wallpaper palette the auto mode last sent. */
   #wal;
   #unwatch;
+  /** Takes the glass playground's sheet away once its cycle ends. */
+  #play;
   /** `mode` is the one settings.json kept. */
   constructor(host, mode) {
     this.#host = host;
@@ -96514,10 +96626,30 @@ var Theme = class {
     this.#host.settings.save({ theme: mode });
     this.apply();
   }
-  /** Stops following the wallpaper file. */
+  /**
+   * `/glide glass demo`: one CSS keyframe cycle of the glass (glass.ts glassPlayCss), then the sheet goes and
+   * the glass settles. Its seconds, or null outside the auto mode, where there is no glass to play.
+   */
+  playGlass() {
+    const wal = this.wal;
+    if (!wal || !this.#host.stylesheet) return null;
+    this.#stopPlay();
+    this.#host.stylesheet(PLAY_SHEET, glassPlayCss(wal));
+    this.#play = setTimeout(() => this.#stopPlay(), PLAY_SECONDS * 1e3 + 500);
+    this.#play.unref();
+    return PLAY_SECONDS;
+  }
+  /** Stops following the wallpaper file, and takes a playing glass cycle's sheet away with its timer. */
   dispose() {
+    this.#stopPlay();
     this.#unwatch?.();
     this.#unwatch = void 0;
+  }
+  #stopPlay() {
+    if (this.#play === void 0) return;
+    clearTimeout(this.#play);
+    this.#play = void 0;
+    this.#host.stylesheet?.(PLAY_SHEET, null);
   }
   #applyWal() {
     const file2 = this.#host.walFile ?? walFile();
@@ -97144,8 +97276,8 @@ var Attachments = class {
         if (!bytesRead) throw new Error("Image changed while it was read.");
         offset += bytesRead;
       }
-      const after2 = await file2.stat();
-      if (after2.size !== bytes.length) throw new Error("Image changed while it was read.");
+      const after3 = await file2.stat();
+      if (after3.size !== bytes.length) throw new Error("Image changed while it was read.");
     } finally {
       await file2.close();
     }
@@ -97528,8 +97660,8 @@ ${found.details}`, "warning");
     const { composer: composer2 } = this.#host;
     const [from, to] = composer2.selection;
     const before2 = composer2.text.slice(0, from);
-    const after2 = composer2.text.slice(to);
-    const inserted = `${before2 && !/\s$/.test(before2) ? " " : ""}${words3}${after2 && !/^\s/.test(after2) ? " " : ""}`;
+    const after3 = composer2.text.slice(to);
+    const inserted = `${before2 && !/\s$/.test(before2) ? " " : ""}${words3}${after3 && !/^\s/.test(after3) ? " " : ""}`;
     composer2.splice(from, to, inserted);
     this.#wrote = true;
   }
@@ -102283,6 +102415,9 @@ var App = class {
   setTheme(mode) {
     this.stores.theme.set(mode);
     this.changed();
+  }
+  glassDemo() {
+    return this.stores.theme.playGlass();
   }
   setEffort(value, scope2) {
     return applyEffort(this, value, scope2);

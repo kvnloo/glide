@@ -8,6 +8,7 @@ import { Theme } from '../chrome/theme.js'
 import { glideTheme } from '../commands/glide.js'
 import { contrastRatio } from '../hermes/theme.js'
 import { parseJson, record } from '../wire/json.js'
+import { PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
 import { pickAccent, TEXT_FLOOR, WAL_SHEET, walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
 
 // The auto theme (pywal): synthetic colors.json fixtures in a temp dir only, never the real ~/.cache/wal.
@@ -120,6 +121,39 @@ describe('Theme auto mode', () => {
     await writeFile(file, JSON.stringify(B))
     await vi.waitFor(() => expect(h.sheets.get(WAL_SHEET)).toContain('background: #f4efe6'), { timeout: 3000 })
     expect(t.wal?.dark).toBe(false)
+  })
+
+  it('plays the glass playground for one cycle, then takes its sheet away; nothing outside the auto mode', async () => {
+    const { file } = await fixture(A)
+    const h = host(file)
+    const t = new Theme(h, 'tern')
+    themes.push(t)
+    t.apply()
+    expect(t.playGlass()).toBeNull()
+    expect(h.sheets.has(PLAY_SHEET)).toBe(false)
+    vi.useFakeTimers()
+    try {
+      t.set('auto')
+      expect(t.playGlass()).toBe(PLAY_SECONDS)
+      expect(h.sheets.get(PLAY_SHEET)).toContain('@keyframes glide-play')
+      vi.advanceTimersByTime(PLAY_SECONDS * 1000)
+      expect(h.sheets.has(PLAY_SHEET)).toBe(true)
+      vi.advanceTimersByTime(1000)
+      expect(h.sheets.has(PLAY_SHEET)).toBe(false)
+      expect(h.sheets.has(WAL_SHEET)).toBe(true)
+      // Leaving the wallpaper theme mid-cycle takes the playground with it.
+      t.playGlass()
+      t.set('tern')
+      expect(h.sheets.size).toBe(0)
+      // So does a teardown mid-cycle: no timer outlives the theme to strand the sheet.
+      t.set('auto')
+      t.playGlass()
+      t.dispose()
+      expect(h.sheets.has(PLAY_SHEET)).toBe(false)
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('falls back to the default palette while colors.json is missing', async () => {

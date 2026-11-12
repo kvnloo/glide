@@ -34,6 +34,19 @@ export interface GlideHost {
   readonly laneFeed?: Pick<LaneFeed, 'call'> | null | undefined
   /** `/glide theme auto|default`: the same switch as `/theme`. */
   setTheme?(mode: ThemeMode): void
+  /** `/glide glass demo`: plays the glass cycle; its seconds, or null without the wallpaper theme. */
+  glassDemo?(): number | null
+}
+
+/** `/glide glass demo`: the glass playground, one cycle of blur, tint, saturation, rim and motes. */
+export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, sub: string | undefined): void {
+  if (sub !== 'demo') {
+    host.transcript.notice('Usage: /glide glass demo', 'warning')
+    return
+  }
+  const seconds = host.glassDemo?.() ?? null
+  if (seconds === null) host.transcript.notice('The glass playground plays on the wallpaper theme: /glide theme auto first', 'warning')
+  else host.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`)
 }
 
 /** `/glide theme auto|default|export`: wear the wallpaper's pywal colors, go back, or write them out. */
@@ -139,6 +152,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const [first, second] = arg.trim().split(/\s+/)
   if (first === 'theme') {
     glideTheme(host, second)
+    return
+  }
+  if (first === 'glass') {
+    glideGlass(host, second)
     return
   }
   const ref = host.session.ref

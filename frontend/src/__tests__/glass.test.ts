@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { mix } from '../hermes/theme.js'
-import { GLASS_FORBIDDEN, glassCss, pickGlow } from '../../../glide/frontend/glass.js'
+import { glideGlass } from '../commands/glide.js'
+import { contrastRatio, mix } from '../hermes/theme.js'
+import {
+  GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, pickGlow, PLAY_SECONDS, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
+} from '../../../glide/frontend/glass.js'
 import { walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
 
 // The hackathon film's palette (sampled from its wallpaper), as a pywal colors.json would carry it.
@@ -15,6 +18,93 @@ const GREY: WalColors = {
   special: { background: '#101010', foreground: '#e0e0e0' },
   colors: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`color${i}`, i === 0 ? '#101010' : '#808080']))
 }
+
+/** The body of every top-level rule naming `sel` in its selector list (keyframes and media blocks left out). */
+function decl(css: string, sel: string): string {
+  return [...css.matchAll(/^(?![\s@])([^{\n]+)\{([^}]*)\}/gm)].filter(m => m[1]!.split(',').map(s => s.trim()).includes(sel)).map(m => m[2]).join(';')
+}
+
+describe('tintFloor', () => {
+  const p = walPalette(FILM)
+  const inks = [p.fg, p.muted, p.dim, p.accent, p.glow, p.error, p.success, p.warning]
+
+  it('samples the wallpaper from pywal color0..6, not the greys it derives', () => {
+    expect(wallSamples(FILM)).toEqual(['#0d1a17', '#7db84a', '#d9b98a', '#d9c27e', '#5cc3c9', '#2f8f9a'])
+    expect(p.samples).toEqual(wallSamples(FILM))
+  })
+
+  it('pushes colours through saturate() as the backdrop filter does', () => {
+    expect(saturateHex('#7db84a', 1)).toBe('#7db84a')
+    expect(saturateHex('#808080', 1.8)).toBe('#808080')
+    const [r, g] = [1, 3].map(i => parseInt(saturateHex('#7db84a', 1.8).slice(i, i + 2), 16)) as [number, number]
+    expect(g - r).toBeGreaterThan(0xb8 - 0x7d)
+  })
+
+  it('is the least tint from which every text token keeps 4.5:1 over every wallpaper pixel, saturated or not', () => {
+    const under = (px: string, pct: number) => mix(px, p.bg, pct / 100)
+    const worst = (pct: number) => Math.min(...p.samples.flatMap(c => SATURATE_STEPS.map(s => saturateHex(c, s)))
+      .flatMap(px => inks.map(ink => contrastRatio(ink, under(px, pct)) ?? 0)))
+    expect(p.floor).toBe(tintFloor(inks, p.bg, p.samples))
+    expect(p.floor).toBeGreaterThan(40) // the film's bright moss would sink its 40% cards under AA
+    expect(p.floor).toBeLessThan(100)
+    for (let pct = p.floor; pct <= 100; pct++) expect(worst(pct)).toBeGreaterThanOrEqual(4.5)
+    expect(worst(p.floor - 1)).toBeLessThan(4.5)
+  })
+
+  it('needs the opaque tint when no lesser one holds, and none over a backdrop as dark as the tint', () => {
+    expect(tintFloor(['#707070'], '#000000', ['#ffffff'])).toBe(100)
+    expect(tintFloor(['#ffffff'], '#101010', ['#101010', '#000000'])).toBe(0)
+  })
+})
+
+describe('glassPlayCss', () => {
+  const p = walPalette(FILM)
+  const play = glassPlayCss(p)
+  const stops = playStops(p)
+
+  it('sweeps blur 8-28px, saturation 120-180% and the tint over 8-12 s, then settles where it started', () => {
+    expect(PLAY_SECONDS).toBeGreaterThanOrEqual(8)
+    expect(PLAY_SECONDS).toBeLessThanOrEqual(12)
+    expect(Math.min(...stops.map(s => s.blur))).toBe(8)
+    expect(Math.max(...stops.map(s => s.blur))).toBe(28)
+    expect(Math.min(...stops.map(s => s.saturate))).toBe(120)
+    expect(Math.max(...stops.map(s => s.saturate))).toBe(180)
+    expect(Math.max(...stops.map(s => s.saturate)) / 100).toBeLessThanOrEqual(Math.max(...SATURATE_STEPS))
+    expect(new Set(stops.map(s => s.tint)).size).toBeGreaterThan(2)
+    expect(Math.max(...stops.map(s => s.motes))).toBeGreaterThan(1)
+    expect(stops[0]).toEqual({ ...stops.at(-1), at: 0 })
+    expect(play).toContain(`${PLAY_SECONDS}s`)
+    expect(play).toMatch(/ 1; \}/) // one cycle, no fill: the resting glass takes over again
+  })
+
+  it('never lays text on a tint under the floor, at any keyframe or between them', () => {
+    for (const s of stops) expect(s.tint).toBeGreaterThanOrEqual(p.floor)
+    // Linear between stops, each above the floor, so every frame is too.
+    const bgs = [...play.matchAll(/background-color: rgba\(\d+, \d+, \d+, ([\d.]+)\)/g)].map(m => Number(m[1]))
+    expect(bgs.length).toBe(stops.length * 2)
+    for (const alpha of bgs) expect(alpha).toBeGreaterThanOrEqual(p.floor / 100)
+  })
+
+  it('animates in CSS only, stills for reduced motion and stays opaque for reduced transparency', () => {
+    for (const bad of GLASS_FORBIDDEN) expect(play).not.toContain(bad)
+    expect(play.split('{').length).toBe(play.split('}').length)
+    for (const sel of Object.values(GLASS_VIEWS)) expect(play).toContain(sel)
+    for (const media of ['prefers-reduced-motion: reduce', 'prefers-reduced-transparency: reduce']) {
+      expect(play).toMatch(new RegExp(`@media \\(${media}\\) \\{ [^{]+\\{ animation: none; \\} \\}`))
+    }
+  })
+
+  it('/glide glass demo plays the cycle, or says the playground needs the wallpaper theme', () => {
+    const notes: [string, string | undefined][] = []
+    const transcript = { notice: (t: string, tone?: string) => void notes.push([t, tone]) }
+    glideGlass({ transcript, glassDemo: () => 10 }, 'demo')
+    glideGlass({ transcript, glassDemo: () => null }, 'demo')
+    glideGlass({ transcript }, undefined)
+    expect(notes[0]).toEqual([expect.stringContaining('cycle for 10 s'), undefined])
+    expect(notes[1]).toEqual([expect.stringContaining('/glide theme auto'), 'warning'])
+    expect(notes[2]).toEqual(['Usage: /glide glass demo', 'warning'])
+  })
+})
 
 describe('glassCss', () => {
   const p = walPalette(FILM)
@@ -42,10 +132,33 @@ describe('glassCss', () => {
     expect(css).not.toMatch(/\.ih-lrole b \{ color/)
   })
 
+  it('frosts every Glide view on a tint at or over the floor, each with a 1px rim and an inner highlight', () => {
+    for (const [view, sel] of Object.entries(GLASS_VIEWS)) {
+      const body = decl(css, sel)
+      expect(body, view).toMatch(/backdrop-filter: blur\(\d+px\) saturate\(\d+%\)/)
+      expect(body, view).toMatch(/inset 0 1px 0 /)
+      const rim = decl(css, `${sel}::after`)
+      expect(rim || body, view).toMatch(/padding: 1px|inset 0 0 0 1px|0 -1px 0 /)
+      for (const m of body.matchAll(/var\(--g-glass\) (\d+)%/g)) expect(Number(m[1]), view).toBeGreaterThanOrEqual(p.floor)
+    }
+    // Tern's own cards and popups take the tint through its variables.
+    expect(decl(css, '.sf-overlay')).toContain(`--pop-bg: color-mix(in srgb, var(--g-glass) ${restTint(p)}%, transparent)`)
+    expect(decl(css, '.sf')).toContain(`--sf-card-bg: color-mix(in srgb, var(--g-glass) ${restTint(p)}%, transparent)`)
+    // Tern's fixed greys (the composer's path, transcript notices) fall to 3.6:1 on glass; they take the palette inks the floor covers.
+    expect(decl(css, '.sf-place-dir')).toBe(' color: var(--t3); ')
+    expect(decl(css, '.sf-t-muted')).toBe(' color: var(--t2); ')
+  })
+
+  it('stays well under the surface sheet cap', () => {
+    expect(Buffer.byteLength(walCss(p))).toBeLessThan(24 * 1024)
+    expect(Buffer.byteLength(glassPlayCss(p))).toBeLessThan(8 * 1024)
+  })
+
   it('frosts cards and the composer, rims them, and lifts them on hover within 250ms', () => {
-    expect(css).toMatch(/\.eu-card \{[^}]*backdrop-filter: blur\(/)
-    expect(css).toMatch(/omp\.editor'\] \{[^}]*backdrop-filter: blur\(/)
-    expect(css).toMatch(/\.eu-card::after \{[^}]*linear-gradient\(180deg, var\(--g-a\)[^}]*var\(--g-b\)\)/)
+    expect(decl(css, GLASS_VIEWS.cards)).toMatch(/backdrop-filter: blur\(/)
+    expect(decl(css, GLASS_VIEWS.composer)).toMatch(/backdrop-filter: blur\(/)
+    expect(css).not.toContain('!important')
+    expect(decl(css, `${GLASS_VIEWS.cards}::after`)).toMatch(/linear-gradient\(180deg, var\(--g-a\)[^;]*var\(--g-b\)\)/)
     for (const sel of ['.eu-card', '.ih-lane', '.ih-key', '.eu-chip', '.eu-btn']) {
       expect(css).toMatch(new RegExp(`${sel.replace('.', '\\.')}:hover[^{]*\\{[^}]*translateY\\(-1px\\)`))
     }

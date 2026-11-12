@@ -80,6 +80,8 @@ export interface ChatPorts extends OverlayHost {
   scroll(id: string, to: ScrollTo): void
   /** Switches the theme mode now and keeps it for the next launch. */
   setTheme(mode: ThemeMode): void
+  /** Plays one glass playground cycle; its seconds, or null outside the wallpaper theme. */
+  glassDemo(): number | null
   /** Round-trip the draft through Tern or a suspended terminal editor. */
   editExternal(): Promise<void>
   /** Sets the reasoning effort for this session, or as config.yaml's default for every new one. */

@@ -10,7 +10,8 @@ import { basename, dirname, join } from 'node:path'
 import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '../../frontend/src/hermes/theme.js'
 import { parseJson, record } from '../../frontend/src/wire/json.js'
 
-import { glassCss, pickGlow } from './glass.js'
+import { NIGHT_INKS } from './council.js'
+import { glassCss, pickGlow, tintFloor, wallSamples } from './glass.js'
 
 /** Tern's program palette (`t`), as @stencil-hq/tern's Palette. */
 export interface TernPalette {
@@ -47,6 +48,10 @@ export interface WalPalette {
   warning: string
   selectedBg: string
   layers: [string, string, string]
+  /** The wallpaper's own pixels as pywal sampled them (glass.ts wallSamples). */
+  samples: string[]
+  /** The least glass tint opacity (percent) that keeps every text ink, the popups' too, 4.5:1 over the wallpaper (glass.ts tintFloor). */
+  floor: number
 }
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -118,21 +123,28 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
   }
   const fg = text(wal.special.foreground, wal.special.foreground)
   const accent = text(pickAccent(wal), fg)
-  return {
-    source,
-    dark: (relativeLuminance(bg) ?? 0) < 0.5,
-    bg,
+  const inks = {
     fg,
     accent,
-    accentInk: readableOn(accent),
     glow: text(pickGlow(wal, accent), accent),
     muted: text(wal.colors['color7'], fg),
     dim: text(wal.colors['color8'], fg),
     error: text(wal.colors['color1'], fg),
     success: text(wal.colors['color2'], fg),
-    warning: text(wal.colors['color3'], fg),
+    warning: text(wal.colors['color3'], fg)
+  }
+  const samples = wallSamples(wal)
+  return {
+    source,
+    dark: (relativeLuminance(bg) ?? 0) < 0.5,
+    bg,
+    ...inks,
+    accentInk: readableOn(accent),
     selectedBg: mix(bg, accent, 0.18),
-    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)]
+    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)],
+    samples,
+    // The council and lanes popups paint their own night inks on the same glass.
+    floor: tintFloor([...Object.values(inks), ...NIGHT_INKS], bg, samples)
   }
 }
 
