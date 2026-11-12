@@ -24477,7 +24477,7 @@ var LaneStrip = class {
           { s: "muted", t: " \xB7 " + laneModel(lane.model, lane.resolved).label + " \xB7 " },
           lane.state === "dead" ? { s: "error", t: "dead" + (lane.error ? ` (${clip(lane.error, 60)})` : "") } : lane.state === "corrected" ? { s: "warning", t: "corrected" } : lane.state === "verified" ? { s: "success", t: "verified" } : { t: lane.state }
         ], wrap: "none" }, "who"),
-        lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
+        lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
         lane.entry ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: entryLine(lane.entry) }], wrap: "none" }, "entry") : null
       ] }, "text")
     ] }, `l${i}`));

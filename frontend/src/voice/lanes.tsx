@@ -386,7 +386,7 @@ export class LaneStrip {
                 : lane.state === 'verified' ? { s: 'success', t: 'verified' }
                   : { t: lane.state }
           ]} wrap="none" />
-          {lane.researching ? <text key="doing" spans={[{ s: 'dim', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
+          {lane.researching ? <text key="doing" spans={[{ s: 'muted', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
           {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
         </col>
       </row>
