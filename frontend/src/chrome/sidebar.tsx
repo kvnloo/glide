@@ -3,12 +3,10 @@
 // is from its upstream, the session's pull requests, and the changed files. It takes no keys; the
 // composer keeps them. A PR opens in the PR aside (in its place); a file opens the Changes sheet on its diff.
 
-import type { JSX, PrefsRow } from '@stencil-hq/tern'
+import type { JSX } from '@stencil-hq/tern'
 
 import type { ChatPorts } from '../app/ports.js'
 import { copyToClipboard } from '../clipboard.js'
-import { launchEnv } from '../config/env.js'
-import { optional } from '../core/assert.js'
 import type { Ticket } from '../core/epoch.js'
 import { Flash } from '../core/flash.js'
 import { type LiveSessionId, prKey } from '../core/ids.js'
@@ -17,6 +15,7 @@ import { type GitState, gitState } from '../git/status.js'
 import { checksState } from '../github/pullRequest.js'
 import { type ChangesHost, openChanges } from '../overlays/changes.js'
 import { openPullRequests, type PullRequestsSheetHost, stateLabel } from '../overlays/pullRequests.js'
+import { prTone } from '../prs/look.js'
 
 /** What the session sidebar reaches of the app. */
 export type SidebarHost = Pick<ChatPorts, 'changed' | 'prs' | 'session'> & ChangesHost & PullRequestsSheetHost
@@ -106,85 +105,125 @@ export class Sidebar {
       return null
     }
 
-    const host = this.#host
     const git = this.#state
-    const prs = host.prs.entries().toReversed()
+    const prs = this.#host.prs.entries().toReversed()
     const files = git?.files ?? []
     const added = files.reduce((n, f) => n + f.additions, 0)
     const removed = files.reduce((n, f) => n + f.deletions, 0)
-    const where = git?.upstream
-      ? git.ahead || git.behind
-        ? [git.ahead && `${git.ahead} ahead`, git.behind && `${git.behind} behind`].filter(Boolean).join(', ') + ` of ${git.upstream}`
-        : `Up to date with ${git.upstream}`
-      : 'Not pushed: no upstream'
-
-    const branchRows: PrefsRow[] = git
-      ? [
-          {
-            ...optional('control', git.branch ? { act: 'copy-branch', k: 'action', label: this.#copied.value ? 'Copied' : 'Copy' } : undefined),
-            hint: git.branch ? where : 'Detached HEAD',
-            id: 'branch',
-            label: git.branch ?? 'No branch'
-          }
-        ]
-      : [{ disabled: this.#cwd ? 'This folder is not in a git repository.' : 'The session has no folder yet.', id: 'branch', label: 'No git' }]
-
-    const prRows: PrefsRow[] = prs.length
-      ? prs.map(e => ({
-          control: { act: 'open-pr', k: 'action', label: 'Open' },
-          hint: e.pr
-            ? [
-                stateLabel(e.pr),
-                e.pr.checks.length ? `checks ${checksState(e.pr.checks)}` : '',
-                e.source === 'branch' ? 'this branch' : e.source === 'stack' ? 'stack layer' : ''
-              ]
-                .filter(Boolean)
-                .join(' · ')
-            : (e.error ?? 'Reading GitHub…'),
-          id: `pr:${prKey(e.ref)}`,
-          label: `#${e.ref.number} ${e.pr?.title ?? e.ref.repository}`,
-          ...optional('warning', e.pr?.state === 'open' && e.pr.mergeable === 'conflicting' ? 'Conflicts with its base branch' : undefined)
-        }))
-      : [{ disabled: 'Hermes links each PR it opens; the branch’s PR shows here too.', id: 'no-prs', label: 'None yet' }]
-
-    const fileRows: PrefsRow[] = files.length
-      ? files.slice(0, MAX_FILES).map(f => ({
-          control: { act: 'diff', k: 'action', label: 'Diff' },
-          hint: `${f.status}${f.staged ? ', staged' : ''} · +${f.additions} −${f.deletions}`,
-          id: `file:${f.path}`,
-          label: f.path
-        }))
-      : git
-        ? [{ disabled: 'Nothing changed since the last commit.', id: 'no-files', label: 'Clean' }]
-        : []
+    const upstream = git?.upstream?.replace(/^[^/]+\//, '')
+    const distance = !git ? 'No folder'
+      : !git.upstream ? 'No upstream'
+      : upstream + (git.ahead ? ' +' + git.ahead : '') + (git.behind ? ' −' + git.behind : '')
+    const branchStatus = !git ? 'NO GIT' : !git.branch ? 'DETACHED'
+      : !git.upstream ? 'LOCAL' : git.ahead && git.behind ? 'DIVERGED'
+      : git.behind ? 'BEHIND' : git.ahead ? 'AHEAD' : 'SYNCED'
+    const branchTone = !git || !git.branch ? 'muted'
+      : !git.upstream || git.behind ? 'warning'
+      : git.ahead ? 'info' : 'success'
+    // A single primary button carries the accent; the rest are quiet actions.
+    const primary = prs.length ? 'pr' : files.length ? 'file' : 'branch'
 
     return (
       <prefs
         key="sidebar"
-        lead={git ? git.root.replace(launchEnv().home ?? '\u0000', '~') : (host.session.info?.cwd ?? '')}
-        onAction={Object.fromEntries(ACTS.map(act => [act, (ev: { value?: unknown }) => this.#action(act, ev.value)]))}
+        role="glide.sidebar"
+        title="Session"
+        lead="Branch, pull requests and changed files"
         page="session"
         pages={[{ icon: 'branch', id: 'session', label: 'Session' }]}
-        sections={[
-          { id: 'branch', rows: branchRows, title: 'Branch' },
-          { id: 'prs', rows: prRows, title: `Pull requests${prs.length ? ` · ${prs.length}` : ''}` },
-          ...(fileRows.length
-            ? [
-                {
-                  id: 'files',
-                  rows: [
-                    ...fileRows,
-                    ...(files.length > MAX_FILES
-                      ? [{ control: { act: 'all-files', k: 'action' as const, label: 'Show all' }, id: 'more', label: `${files.length - MAX_FILES} more` }]
-                      : [])
-                  ],
-                  title: files.length ? `Changes · ${files.length} files · +${added} −${removed}` : 'Changes'
-                }
-              ]
-            : [])
-        ]}
-        title="Session"
-      />
+        sections={[]}
+        onAction={Object.fromEntries(ACTS.map(act => [act, (ev: { value?: unknown }) => this.#action(act, ev.value)]))}
+      >
+        <col key="content" gap="md" role="glide.sidebar.content">
+          <col key="branch-group" gap="none">
+            <text key="head" text="Branch" tone="muted" />
+            <row key="branch" role="glide.sidebar.row" min={{ h: '3lines' }} gap="sm" align="center">
+              <col key="name" grow={1} gap="none" min={{ w: 0 }}>
+                <text key="label" spans={[{ s: 'strong', t: git?.branch ?? (git ? 'Detached HEAD' : 'No repository') }]}
+                  wrap="none" truncate="end" />
+                <badge key="distance" role="glide.sidebar.fact" text={distance} tone="muted" basis="content" />
+              </col>
+              <badge key="state" role="glide.sidebar.status" text={branchStatus} tone={branchTone} basis="content" />
+              {git?.branch ? (
+                <button key="copy" text={this.#copied.value ? 'Copied' : 'Copy'} size="sm"
+                  min={{ h: '3lines' }} basis="content"
+                  variant={primary === 'branch' ? 'primary' : 'default'}
+                  onClick={() => this.#action('copy-branch', 'branch')} />
+              ) : null}
+            </row>
+          </col>
+
+          <col key="pr-group" gap="none">
+            <text key="head" text={'Pull requests · ' + prs.length} tone="muted" />
+            {prs.length ? prs.map((e, index) => {
+              const key = 'pr:' + prKey(e.ref)
+              const state = !e.pr ? (e.error ? 'ERROR' : 'READING')
+                : e.pr.draft ? 'DRAFT' : stateLabel(e.pr).toUpperCase()
+              const hint = e.pr
+                ? (e.pr.checks.length ? 'Checks ' + checksState(e.pr.checks) + ' · ' : '') + e.ref.repository
+                : (e.error ?? 'Reading GitHub')
+              return (
+                <row key={key} role="glide.sidebar.row" min={{ h: '3lines' }} gap="xs" align="center">
+                  <col key="name" grow={1} gap="none" min={{ w: 0 }}>
+                    <text key="label" spans={[{ s: 'strong', t: '#' + e.ref.number + ' ' + (e.pr?.title ?? e.ref.repository) }]}
+                      truncate="end" wrap="none" title={e.pr?.title ?? e.ref.repository} />
+                    <text key="meta" spans={[{ s: 'dim', t: hint }]} truncate="end" wrap="none" />
+                  </col>
+                  <badge key="state" role="glide.sidebar.status" text={state} tone={prTone(e)} basis="content" />
+                  <button key="open" text="Open" size="sm" min={{ h: '3lines' }} basis="content"
+                    variant={primary === 'pr' && index === 0 ? 'primary' : 'default'}
+                    onClick={() => this.#action('open-pr', key)} />
+                </row>
+              )
+            }) : (
+              <row key="no-prs" role="glide.sidebar.row" min={{ h: '3lines' }} gap="sm">
+                <text key="label" text="No linked pull requests" grow={1} />
+                <badge key="state" role="glide.sidebar.status" text="NONE" tone="muted" basis="content" />
+              </row>
+            )}
+          </col>
+
+          <col key="file-group" gap="none">
+            <text key="head" text={'Changes · ' + files.length + ' files · +' + added + ' −' + removed} tone="muted" />
+            {files.length ? files.slice(0, MAX_FILES).map((file, index) => {
+              const basename = file.path.slice(file.path.lastIndexOf('/') + 1)
+              const folder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : 'Working tree'
+              const hint = folder + ' · +' + file.additions + ' −' + file.deletions + (file.staged ? ' · staged' : '')
+              const status = file.staged ? 'STAGED' : file.status.toUpperCase()
+              const tone = file.status === 'conflicted' || file.status === 'deleted' ? 'error'
+                : file.status === 'added' || file.status === 'untracked' ? 'success'
+                : file.staged ? 'info' : 'warning'
+              const key = 'file:' + file.path
+              return (
+                <row key={key} role="glide.sidebar.row" min={{ h: '3lines' }} gap="xs" align="center">
+                  <col key="name" grow={1} gap="none" min={{ w: 0 }}>
+                    <text key="label" spans={[{ s: 'strong', t: basename }]} truncate="end"
+                      wrap="none" title={file.path} />
+                    <text key="meta" spans={[{ s: 'dim', t: hint }]} truncate="end" wrap="none" />
+                  </col>
+                  <badge key="state" role="glide.sidebar.status" text={status} tone={tone} basis="content" />
+                  <button key="diff" text="Diff" size="sm" min={{ h: '3lines' }} basis="content"
+                    variant={primary === 'file' && index === 0 ? 'primary' : 'default'}
+                    onClick={() => this.#action('diff', key)} />
+                </row>
+              )
+            }) : (
+              <row key="no-files" role="glide.sidebar.row" min={{ h: '3lines' }} gap="sm">
+                <text key="label" text={git ? 'Nothing changed' : 'No changes to show'} grow={1} />
+                <badge key="state" role="glide.sidebar.status" text={git ? 'CLEAN' : 'IDLE'} tone="muted" basis="content" />
+              </row>
+            )}
+            {files.length > MAX_FILES ? (
+              <row key="more" role="glide.sidebar.row" min={{ h: '3lines' }} gap="sm">
+                <text key="label" text={String(files.length - MAX_FILES) + ' more files'} grow={1} />
+                <badge key="state" role="glide.sidebar.status" text="MORE" tone="muted" basis="content" />
+                <button key="all" text="Show all" size="sm" min={{ h: '3lines' }} basis="content"
+                  onClick={() => this.#action('all-files', '')} />
+              </row>
+            ) : null}
+          </col>
+        </col>
+      </prefs>
     )
   }
 
