@@ -135,7 +135,7 @@ def test_block_holds_non_critical_asks_and_releases_one_digest(home):
     critical = attention.route(home, "prod is down", cls="critical", now=at(11, 9, 25), posture=None)
     assert critical["deliver"] is True and critical["queued"] == 2
     card = attention.focus(home, at(11, 9, 30), posture=None, flow=None)
-    assert card["block"] == {"until": "09:50", "minutes_left": 20} and card["queued"] == 2
+    assert card["block"] == {"until": "09:50", "minutes_left": 20, "minutes": 50} and card["queued"] == 2
     out = attention.stop_block(home, at(11, 9, 50))
     assert [i["title"] for i in out["digest"]] == ["PR #12 ready for review", "nightly eval done"]
     assert attention.route(home, "after", now=at(11, 13), posture=None)["deliver"] is True
