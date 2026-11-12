@@ -80,7 +80,7 @@
 		"statusLineSep": "border",
 		"statusLineModel": "primary",
 		"statusLinePath": "mutedForeground",
-		"statusLineGitClean": "mutedForeground",
+		"statusLineGitClean": "green",
 		"statusLineGitDirty": "yellow",
 		"statusLineContext": "mutedForeground",
 		"statusLineSpend": "primary",
