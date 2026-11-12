@@ -170,7 +170,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
     text = sections["hermes-tern.ephemeral-ui"]
     kinds = ephemeral_cards.kinds()
-    assert len(kinds) == 53
+    assert len(kinds) == 54
     assert len(text) < 4000
     assert all(f"{k}(" in text for k in kinds)
     assert "synthetic demo content" in text
