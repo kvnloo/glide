@@ -89,7 +89,6 @@ frontend/e2e/JOURNEYS.md
 frontend/e2e/REPORT.md
 frontend/e2e/features.json
 frontend/scripts/features-gate.mjs
-frontend/e2e/features.fleet.json  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, fleet inventory fragment
 frontend/scripts/fleet-kit-fixture.mjs  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend esbuild resolution
 frontend/scripts/fleet-python.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend producer-test setup
 frontend/scripts/fleet-verify.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend fleet verification

@@ -8,7 +8,7 @@
 
 The host wrapper displays `data.notes` and `host.notes` separately, then removes only those diagnostic extensions before kit schema validation. Both source validators accept all six available-source and missing-source projections. Product IDs include the portfolio key because the work config reuses component IDs.
 
-The agent prompt requires data from `glide.fleet` and forbids invented fleet data. The new feature inventory contains six rows in `frontend/e2e/features.fleet.json`.
+The agent prompt requires data from `glide.fleet` and forbids invented fleet data. The feature inventory `frontend/e2e/features.json` has six fleet rows in the `fleet` journey.
 
 ## Executed checks
 
