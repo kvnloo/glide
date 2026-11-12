@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process'
+import { ChildProcess, execFile } from 'node:child_process'
 
 import { describe, expect, it, vi } from 'vitest'
 
@@ -477,7 +477,8 @@ describe('openUrl', () => {
     }
     expect(spawn).not.toHaveBeenCalled()
 
-    spawn.mockImplementationOnce((() => undefined) as never)
+    // Never launch a real browser from the test.
+    spawn.mockImplementationOnce(() => new ChildProcess())
     expect(browsableUrl('https://github.com/o/r/pull/1')).toBe('https://github.com/o/r/pull/1')
     openUrl('https://github.com/o/r/pull/1')
     expect(spawn).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/^(open|xdg-open)$/), ['https://github.com/o/r/pull/1'], expect.any(Function))

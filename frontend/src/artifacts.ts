@@ -83,7 +83,7 @@ export interface PublicResponse {
   readonly ok: boolean
   readonly status: number
   readonly headers: { get(name: string): string | null }
-  readonly body: unknown
+  readonly body: (AsyncIterable<unknown> & { cancel(): Promise<void> }) | null
   arrayBuffer(): Promise<ArrayBuffer>
 }
 type Fetcher = (url: string, init: Record<string, unknown>) => Promise<PublicResponse>
@@ -141,14 +141,13 @@ export async function fetchPublic(source: string, init: { signal?: AbortSignal }
   throw new Error('Too many redirects')
 }
 
-async function cancel(body: unknown): Promise<void> {
-  const stream = body as { cancel?: () => Promise<void> } | null
-  await stream?.cancel?.().catch(() => undefined)
+async function cancel(body: PublicResponse['body']): Promise<void> {
+  await body?.cancel().catch(() => undefined)
 }
 
 async function download(source: string, target: string): Promise<void> {
   const response = await fetchPublic(source, { signal: AbortSignal.timeout(60_000) })
-  const body = response.body as (AsyncIterable<unknown> & { cancel(): Promise<void> }) | null
+  const body = response.body
   if (!response.ok || !body) {
     await cancel(body)
     throw new Error(`Model download failed (HTTP ${response.status})`)

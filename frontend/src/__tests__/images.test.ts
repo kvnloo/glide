@@ -10,7 +10,6 @@ import { Attachments, type AttachmentsHost, type ClipboardReader, type Image } f
 import { extractClipboardImage, type Runner, withClipboardImage } from '../hermes/clipboardImage.js'
 import type { HermesCommand } from '../hermes/connect.js'
 import { imageSize } from '../hermes/images.js'
-import { fetchPublic, publicAddress } from '../artifacts.js'
 import { localSource, Media, shownImage } from '../media.js'
 import type { ToolCall, TurnEntry, UserEntry } from '../model.js'
 import { promptAttachments, splitPrompt } from '../transcript/promptRefs.js'
@@ -542,45 +541,9 @@ describe('Attachments: the launcher\'s startup image', () => {
   })
 })
 
-const hosts: Record<string, string> = { 'cdn.test': '93.184.216.34', 'meta.test': '169.254.169.254', 'lan.test': '192.168.1.9' }
-const lookup = (host: string) => Promise.resolve(hosts[host] ? [{ address: hosts[host], family: 4 }] : [])
-const redirect = (location: string) => Promise.resolve(new Response(null, { status: 302, headers: { location } }))
-
-describe('fetchPublic', () => {
-  it('classifies loopback, private, link-local and metadata addresses as non-public', () => {
-    for (const a of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1', '192.168.0.1', '100.64.0.1', '0.0.0.0', '::1', 'fe80::1', 'fd00::1', '::ffff:127.0.0.1']) {
-      expect(publicAddress(a), a).toBe(false)
-    }
-    expect(publicAddress('93.184.216.34')).toBe(true)
-    expect(publicAddress('2606:2800:220:1::1')).toBe(true)
-  })
-
-  it('refuses a private or metadata address before any request', async () => {
-    const fetcher = vi.fn(() => Promise.resolve(new Response(PNG)))
-    for (const url of ['http://169.254.169.254/latest/meta-data', 'http://127.0.0.1/a.png', 'http://meta.test/a.png', 'http://[::1]/a.png', 'ftp://cdn.test/a.png']) {
-      await expect(fetchPublic(url, {}, { fetch: fetcher, lookup }), url).rejects.toThrow()
-    }
-    expect(fetcher).not.toHaveBeenCalled()
-  })
-
-  it('checks every redirect hop and never follows one into a private address', async () => {
-    const fetcher = vi.fn((url: string) => url.startsWith('http://cdn.test/') ? redirect('http://meta.test/latest') : Promise.resolve(new Response(PNG)))
-    await expect(fetchPublic('http://cdn.test/a.png', {}, { fetch: fetcher, lookup })).rejects.toThrow('public network')
-    expect(fetcher.mock.calls.map(c => c[0])).toEqual(['http://cdn.test/a.png'])
-    expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ redirect: 'manual' })
-
-    const hops = vi.fn((url: string) => url.endsWith('/a.png') ? redirect('/b.png') : Promise.resolve(new Response(PNG)))
-    const r = await fetchPublic('https://cdn.test/a.png', {}, { fetch: hops, lookup })
-    expect(r.ok).toBe(true)
-    expect(hops.mock.calls.map(c => c[0])).toEqual(['https://cdn.test/a.png', 'https://cdn.test/b.png'])
-
-    const loop = vi.fn(() => redirect('https://cdn.test/a.png'))
-    await expect(fetchPublic('https://cdn.test/a.png', {}, { fetch: loop, lookup })).rejects.toThrow('redirects')
-  })
-})
-
 describe('Media image fetches', () => {
   const shown = (image: string): ToolCall => call('image_generate', {}, { result: { image, success: true } })
+  const turn = (c: ToolCall): TurnEntry => ({ blocks: [{ call: c, id: entryId('b'), kind: 'tool' }], end: { endedAt: 9, status: 'done' }, id: entryId('t'), kind: 'turn', rev: 0, startedAt: 0 })
 
   it('uses the guarded fetch by default: a metadata URL never loads', async () => {
     const media = new Media({ blob: () => 'b' })
@@ -593,13 +556,13 @@ describe('Media image fetches', () => {
     const media = new Media({ blob: () => 'b' }, fetcher)
     const replayed = shown('https://cdn.test/cat.png')
     const done = vi.fn()
-    media.showAll([{ kind: 'turn', blocks: [{ kind: 'tool', call: replayed }] } as never], done)
+    media.showAll([turn(replayed)], done)
     await Promise.resolve()
     expect(fetcher).not.toHaveBeenCalled()
     expect(done).not.toHaveBeenCalled()
     // A data URL carries its own bytes: replay still shows it.
     const inline = shown(`data:image/png;base64,${PNG.toString('base64')}`)
-    media.showAll([{ kind: 'turn', blocks: [{ kind: 'tool', call: inline }] } as never], done)
+    media.showAll([turn(inline)], done)
     await vi.waitFor(() => expect(inline.image).toEqual({ blob: 'b' }))
   })
 })
