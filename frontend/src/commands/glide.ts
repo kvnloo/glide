@@ -53,13 +53,13 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
 export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
-    host.transcript.notice(sub === 'auto' ? `Glide theme follows the wallpaper: ${walFile()}` : 'Glide theme is back to the default')
+    host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
     return
   }
   if (sub === 'export') {
     const wal = readWal(walFile())
     if (!wal) {
-      host.transcript.notice(`/glide theme export: no pywal colors at ${walFile()} (run wal, or set GLIDE_WAL_COLORS)`, 'warning')
+      host.transcript.notice('/glide theme export: no wallpaper colours found yet (run wal, or set GLIDE_WAL_COLORS)', 'warning')
       return
     }
     const palette = walPalette(wal, walFile())

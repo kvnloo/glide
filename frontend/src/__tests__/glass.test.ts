@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { glideGlass } from '../commands/glide.js'
-import { contrastRatio, mix } from '../hermes/theme.js'
+import { contrastRatio, mix, relativeLuminance } from '../hermes/theme.js'
 import { NIGHT_INKS } from '../../../glide/frontend/council.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
 import {
-  GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, pickGlow, PLAY_SECONDS, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
+  GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, hueAt, pickGlow, PLAY_SECONDS, playInks, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
 } from '../../../glide/frontend/glass.js'
 import { walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
 
@@ -20,6 +20,9 @@ const GREY: WalColors = {
   special: { background: '#101010', foreground: '#e0e0e0' },
   colors: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`color${i}`, i === 0 ? '#101010' : '#808080']))
 }
+
+/** `#rrggbb` as the sheet writes it at a tint stop's color (alpha left open). */
+const rgba = (hex: string) => `rgba(${[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(',')},`
 
 /** The body of every top-level rule naming `sel` in its selector list (keyframes and media blocks left out). */
 function decl(css: string, sel: string): string {
@@ -65,16 +68,20 @@ describe('glassPlayCss', () => {
   const play = glassPlayCss(p)
   const stops = playStops(p)
 
-  it('sweeps blur 8-28px, saturation 120-180% and the tint over 8-12 s, then settles where it started', () => {
+  it('sweeps blur 2-44px, saturation 100-220%, a cyan then gold tint and a wide glow over 8-12 s, then settles where it started', () => {
     expect(PLAY_SECONDS).toBeGreaterThanOrEqual(8)
     expect(PLAY_SECONDS).toBeLessThanOrEqual(12)
-    expect(Math.min(...stops.map(s => s.blur))).toBe(8)
-    expect(Math.max(...stops.map(s => s.blur))).toBe(28)
-    expect(Math.min(...stops.map(s => s.saturate))).toBe(120)
-    expect(Math.max(...stops.map(s => s.saturate))).toBe(180)
-    expect(Math.max(...stops.map(s => s.saturate)) / 100).toBeLessThanOrEqual(Math.max(...SATURATE_STEPS))
-    expect(new Set(stops.map(s => s.tint)).size).toBeGreaterThan(2)
-    expect(Math.max(...stops.map(s => s.motes))).toBeGreaterThan(1)
+    expect(Math.min(...stops.map(s => s.blur))).toBe(2)
+    expect(Math.max(...stops.map(s => s.blur))).toBe(44)
+    expect(Math.min(...stops.map(s => s.saturate))).toBe(100)
+    expect(Math.max(...stops.map(s => s.saturate))).toBe(220)
+    expect(Math.max(...stops.map(s => s.glow)) / Math.min(...stops.map(s => s.glow))).toBeGreaterThanOrEqual(10)
+    expect(new Set(stops.map(s => s.hue)).size).toBe(3)
+    for (const s of stops.slice(1, -1)) expect(play).toContain(rgba(s.hue))
+    // The film's cool cyan and warm gold, each at the background's own luminance.
+    expect(stops.map(s => s.hue)).toEqual(expect.arrayContaining([hueAt(p.bg, p.glow), hueAt(p.bg, p.accent)]))
+    expect(Math.abs((relativeLuminance(hueAt(p.bg, p.accent)) ?? 0) - (relativeLuminance(p.bg) ?? 0))).toBeLessThan(0.001)
+    expect(Math.max(...stops.map(s => s.motes))).toBeGreaterThan(2)
     expect(stops[0]).toEqual({ ...stops.at(-1), at: 0 })
     expect(play).toContain(`${PLAY_SECONDS}s`)
     expect(play).toMatch(/ 1;\}/) // one cycle, no fill: the resting glass takes over again
@@ -84,12 +91,22 @@ describe('glassPlayCss', () => {
     expect(glassCss(p)).toContain('backdrop-filter: blur(22px) saturate(140%)')
   })
 
-  it('never lays text on a tint under the floor, at any keyframe or between them', () => {
-    for (const s of stops) expect(s.tint).toBeGreaterThanOrEqual(p.floor)
-    // Linear between stops, each above the floor, so every frame is too.
+  it('keeps every ink at 4.5:1 on every keyframe, over every wallpaper sample through that keyframe\'s saturate()', () => {
+    const inks = playInks(p)
+    let worst = Infinity
+    for (const s of stops) {
+      const steps = [...SATURATE_STEPS.filter(x => x <= s.saturate / 100), s.saturate / 100]
+      for (const px of p.samples.flatMap(c => steps.map(x => saturateHex(c, x)))) {
+        const under = mix(px, s.hue, s.tint / 100)
+        for (const ink of inks) worst = Math.min(worst, contrastRatio(ink, under) ?? 0)
+      }
+    }
+    expect(worst).toBeGreaterThanOrEqual(4.5)
+    // Linear between stops, each holding, so every frame does too; the sheet carries each stop's own tint.
     const bgs = [...play.matchAll(/background-color:rgba\(\d+,\d+,\d+,([\d.]+)\)/g)].map(m => Number(m[1]))
     expect(bgs.length).toBe((stops.length - 2) * 2)
-    for (const alpha of bgs) expect(alpha).toBeGreaterThanOrEqual(p.floor / 100)
+    const tints = stops.slice(1, -1).flatMap(s => [s.tint / 100, s.tint / 100]).sort()
+    expect([...bgs].sort()).toEqual(tints)
   })
 
   it('animates in CSS only, stills for reduced motion and stays opaque for reduced transparency', () => {

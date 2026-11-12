@@ -179,6 +179,9 @@ describe('/glide theme', () => {
     const notice = vi.fn()
     const h = { setTheme, transcript: { notice } }
     glideTheme(h, 'auto')
+    // Plain words, never the colors file's path.
+    expect(notice.mock.calls[0]).toEqual(['Glide theme now follows your wallpaper colours'])
+    expect(String(notice.mock.calls[0]?.[0])).not.toContain(file)
     glideTheme(h, 'default')
     expect(setTheme.mock.calls).toEqual([['auto'], ['tern']])
     glideTheme(h, 'export')

@@ -12,7 +12,8 @@
 // syntax the native renderer itself uses (no :scope, no :is, no currentColor in color-mix):
 // GLASS_FORBIDDEN lists them and the tests hold the sheet to it.
 
-import { contrastRatio, mix } from '../../frontend/src/hermes/theme.js'
+import { contrastRatio, mix, relativeLuminance } from '../../frontend/src/hermes/theme.js'
+import { NIGHT_INKS } from './council.js'
 import { minifyCss } from './css.js'
 
 import type { WalColors, WalPalette } from './wal.js'
@@ -52,7 +53,7 @@ export function wallSamples(wal: WalColors): string[] {
   return [...new Set(all.filter(c => HEX.test(c)).map(c => c.toLowerCase()))]
 }
 
-/** The saturate() steps the glass reaches: at rest 140%, and the playground sweeps 120% to 180%. */
+/** The saturate() steps the resting glass reaches: 140% at rest, up to 180% on a lifted card. */
 export const SATURATE_STEPS = [1, 1.2, 1.4, 1.6, 1.8] as const
 const AA = 4.5
 
@@ -62,8 +63,8 @@ const AA = 4.5
  * filter reaches. A blur only averages pixels, so the samples' extremes bound it. 100 when only the
  * opaque tint holds.
  */
-export function tintFloor(inks: readonly string[], tint: string, samples: readonly string[]): number {
-  const backdrops = samples.flatMap(c => SATURATE_STEPS.map(s => saturateHex(c, s)))
+export function tintFloor(inks: readonly string[], tint: string, samples: readonly string[], steps: readonly number[] = SATURATE_STEPS): number {
+  const backdrops = samples.flatMap(c => steps.map(s => saturateHex(c, s)))
   const holds = (pct: number) => backdrops.every(px => {
     const under = mix(px, tint, pct / 100)
     return inks.every(ink => (contrastRatio(ink, under) ?? 0) >= AA)
@@ -214,34 +215,62 @@ ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration
 export const PLAY_SHEET = 'glide-glass-play'
 export const PLAY_SECONDS = 10
 
-/** One playground keyframe: tint opacity (percent), blur (px), saturate (percent), rim and halo glow, mote tiling. */
-export interface PlayStop { at: number; tint: number; blur: number; saturate: number; glow: number; motes: number }
+/** One playground keyframe: tint color and opacity (percent), blur (px), saturate (percent), rim and halo glow, mote tiling. */
+export interface PlayStop { at: number; hue: string; tint: number; blur: number; saturate: number; glow: number; motes: number }
 
-/** The cycle: rest, a crisp clear frame, the deepest frost, a warm glow, rest. Tint never under the floor. */
+/** Every ink the glass carries text in: the palette's own and the council and lanes popups' night inks. */
+export const playInks = (p: WalPalette): string[] => [p.fg, p.accent, p.glow, p.muted, p.dim, p.error, p.success, p.warning, ...NIGHT_INKS]
+
+/** The saturate() steps up to `pct` percent, for the floor of one keyframe's backdrop. */
+const stepsTo = (pct: number) => [...new Set([...SATURATE_STEPS.filter(s => s <= pct / 100), pct / 100])]
+
+/** `hex`'s hue, saturated, at `ref`'s luminance: a tint that shifts color without lifting the floor text needs. */
+export function hueAt(ref: string, hex: string): string {
+  const want = relativeLuminance(ref) ?? 0
+  const hot = saturateHex(hex, 1.8)
+  let lo = 0
+  let hi = 1
+  for (let i = 0; i < 16; i++) {
+    const m = (lo + hi) / 2
+    if ((relativeLuminance(mix('#000000', hot, m)) ?? 0) > want) hi = m
+    else lo = m
+  }
+  return mix('#000000', hot, lo)
+}
+
+/**
+ * The cycle: rest, a clear sharp frame, a cool frost tinted the glow's hue, the deepest frost tinted the accent's
+ * with the brightest halo, rest. Each stop's tint takes its own floor (tintFloor over that stop's tint color and every
+ * saturate() step up to its own), so text keeps 4.5:1 at every keyframe and, the tint being linear, between them.
+ */
 export function playStops(p: WalPalette): PlayStop[] {
   const rest = restTint(p)
-  const up = (n: number) => Math.min(100, Math.max(p.floor, n))
+  const inks = playInks(p)
+  const stop = (at: number, hue: string, tint: number, blur: number, saturate: number, glow: number, motes: number): PlayStop => {
+    const floor = tintFloor(inks, hue, p.samples, stepsTo(saturate))
+    return { at, hue, tint: Math.min(100, Math.max(floor, tint)), blur, saturate, glow, motes }
+  }
   return [
-    { at: 0, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
-    { at: 20, tint: up(rest + 10), blur: 8, saturate: 120, glow: 0.5, motes: 1 },
-    { at: 50, tint: up(p.floor), blur: 28, saturate: 180, glow: 1.8, motes: 2 },
-    { at: 75, tint: up(Math.round((rest + p.floor) / 2) + 4), blur: 16, saturate: 160, glow: 1.3, motes: 1.5 },
-    { at: 100, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
+    { at: 0, hue: p.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
+    stop(18, p.bg, p.floor, 2, 100, 0.25, 0.6),
+    stop(42, hueAt(p.bg, p.glow), rest, 34, 220, 2.2, 2),
+    stop(66, hueAt(p.bg, p.accent), rest, 44, 200, 3, 2.6),
+    { at: 100, hue: p.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
   ]
 }
 
 /**
- * The playground: every glass surface sweeps blur 8-28px, saturation 120-180%, its tint, rim glow and mote
- * density over PLAY_SECONDS, then settles back, all in CSS keyframes (no per-frame JS). The values are
- * resolved rgba() rather than color-mix() so every stop interpolates. Reduced motion keeps it still and
- * reduced transparency keeps it opaque.
+ * The playground: every glass surface sweeps blur 2-44px, saturation 100-220%, a glow-hued then accent-hued tint, rim and
+ * halo glow from a bare edge to a blaze, and mote density over PLAY_SECONDS, then settles back, all in CSS
+ * keyframes (no per-frame JS). The values are resolved rgba() rather than color-mix() so every stop
+ * interpolates. Reduced motion keeps it still and reduced transparency keeps it opaque.
  */
 export function glassPlayCss(p: WalPalette, seconds = PLAY_SECONDS): string {
   const shade = mix(p.bg, '#000000', 0.7)
   const stops = playStops(p)
   // The first and last stops are the resting glass: left out, each keyframe set starts and ends on the sheet's own values.
   const frame = (sel: (s: PlayStop) => string) => stops.slice(1, -1).map(s => `${s.at}% { ${sel(s)} }`).join(' ')
-  const glass = (s: PlayStop) => `background-color: ${rgba(p.bg, s.tint)}; -webkit-backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%); backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%)`
+  const glass = (s: PlayStop) => `background-color: ${rgba(s.hue, s.tint)}; -webkit-backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%); backdrop-filter: blur(${s.blur}px) saturate(${s.saturate}%)`
   const halo = (s: PlayStop) => `box-shadow: 0 22px 48px -26px ${rgba(shade, 90)}, 0 0 ${Math.round(34 * s.glow)}px -12px ${rgba(p.glow, 60 * s.glow)}, 0 0 ${Math.round(64 * s.glow)}px -28px ${rgba(p.accent, 55 * s.glow)}, inset 0 1px 0 ${rgba(p.fg, 8 * s.glow)}`
   const run = (name: string) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`
   const lit = [CARD, EDITOR, POPUP, LANES].join(', ')
@@ -249,7 +278,7 @@ export function glassPlayCss(p: WalPalette, seconds = PLAY_SECONDS): string {
   return minifyCss(`
 @keyframes glide-play { ${frame(s => `${glass(s)}; ${halo(s)}`)} }
 @keyframes glide-play-flat { ${frame(glass)} }
-@keyframes glide-play-rim { ${frame(s => `opacity: ${Math.min(1, 0.55 + 0.25 * s.glow).toFixed(2)}`)} }
+@keyframes glide-play-rim { ${frame(s => `opacity: ${Math.min(1, 0.15 + 0.3 * s.glow).toFixed(2)}`)} }
 @keyframes glide-play-motes { ${frame(s => `opacity: ${Math.min(1, 0.6 + 0.2 * s.motes).toFixed(2)}; background-size: ${Math.round(100 / s.motes)}% ${Math.round(100 / s.motes)}%`)} }
 ${lit} { ${run('glide-play')}; }
 ${STATUS}, ${NATIVE}, ${TEXT} { ${run('glide-play-flat')}; }

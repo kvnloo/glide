@@ -27682,8 +27682,8 @@ function wallSamples(wal) {
 }
 var SATURATE_STEPS = [1, 1.2, 1.4, 1.6, 1.8];
 var AA = 4.5;
-function tintFloor(inks, tint2, samples) {
-  const backdrops = samples.flatMap((c) => SATURATE_STEPS.map((s2) => saturateHex(c, s2)));
+function tintFloor(inks, tint2, samples, steps = SATURATE_STEPS) {
+  const backdrops = samples.flatMap((c) => steps.map((s2) => saturateHex(c, s2)));
   const holds = (pct3) => backdrops.every((px) => {
     const under = mix2(px, tint2, pct3 / 100);
     return inks.every((ink2) => (contrastRatio(ink2, under) ?? 0) >= AA);
@@ -27809,22 +27809,40 @@ ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration
 }
 var PLAY_SHEET = "glide-glass-play";
 var PLAY_SECONDS = 10;
+var playInks = (p3) => [p3.fg, p3.accent, p3.glow, p3.muted, p3.dim, p3.error, p3.success, p3.warning, ...NIGHT_INKS];
+var stepsTo = (pct2) => [.../* @__PURE__ */ new Set([...SATURATE_STEPS.filter((s2) => s2 <= pct2 / 100), pct2 / 100])];
+function hueAt(ref, hex2) {
+  const want = relativeLuminance(ref) ?? 0;
+  const hot = saturateHex(hex2, 1.8);
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 16; i++) {
+    const m2 = (lo + hi) / 2;
+    if ((relativeLuminance(mix2("#000000", hot, m2)) ?? 0) > want) hi = m2;
+    else lo = m2;
+  }
+  return mix2("#000000", hot, lo);
+}
 function playStops(p3) {
   const rest = restTint(p3);
-  const up = (n3) => Math.min(100, Math.max(p3.floor, n3));
+  const inks = playInks(p3);
+  const stop3 = (at2, hue, tint2, blur, saturate, glow, motes) => {
+    const floor = tintFloor(inks, hue, p3.samples, stepsTo(saturate));
+    return { at: at2, hue, tint: Math.min(100, Math.max(floor, tint2)), blur, saturate, glow, motes };
+  };
   return [
-    { at: 0, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
-    { at: 20, tint: up(rest + 10), blur: 8, saturate: 120, glow: 0.5, motes: 1 },
-    { at: 50, tint: up(p3.floor), blur: 28, saturate: 180, glow: 1.8, motes: 2 },
-    { at: 75, tint: up(Math.round((rest + p3.floor) / 2) + 4), blur: 16, saturate: 160, glow: 1.3, motes: 1.5 },
-    { at: 100, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
+    { at: 0, hue: p3.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
+    stop3(18, p3.bg, p3.floor, 2, 100, 0.25, 0.6),
+    stop3(42, hueAt(p3.bg, p3.glow), rest, 34, 220, 2.2, 2),
+    stop3(66, hueAt(p3.bg, p3.accent), rest, 44, 200, 3, 2.6),
+    { at: 100, hue: p3.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
   ];
 }
 function glassPlayCss(p3, seconds = PLAY_SECONDS) {
   const shade = mix2(p3.bg, "#000000", 0.7);
   const stops = playStops(p3);
   const frame2 = (sel) => stops.slice(1, -1).map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
-  const glass = (s2) => `background-color: ${rgba2(p3.bg, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
+  const glass = (s2) => `background-color: ${rgba2(s2.hue, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
   const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba2(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba2(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba2(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba2(p3.fg, 8 * s2.glow)}`;
   const run8 = (name) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`;
   const lit2 = [CARD, EDITOR, POPUP, LANES].join(", ");
@@ -27832,7 +27850,7 @@ function glassPlayCss(p3, seconds = PLAY_SECONDS) {
   return minifyCss(`
 @keyframes glide-play { ${frame2((s2) => `${glass(s2)}; ${halo(s2)}`)} }
 @keyframes glide-play-flat { ${frame2(glass)} }
-@keyframes glide-play-rim { ${frame2((s2) => `opacity: ${Math.min(1, 0.55 + 0.25 * s2.glow).toFixed(2)}`)} }
+@keyframes glide-play-rim { ${frame2((s2) => `opacity: ${Math.min(1, 0.15 + 0.3 * s2.glow).toFixed(2)}`)} }
 @keyframes glide-play-motes { ${frame2((s2) => `opacity: ${Math.min(1, 0.6 + 0.2 * s2.motes).toFixed(2)}; background-size: ${Math.round(100 / s2.motes)}% ${Math.round(100 / s2.motes)}%`)} }
 ${lit2} { ${run8("glide-play")}; }
 ${STATUS}, ${NATIVE}, ${TEXT} { ${run8("glide-play-flat")}; }
@@ -28051,13 +28069,13 @@ function glideGlass(host, sub) {
 function glideTheme(host, sub) {
   if (sub === "auto" || sub === "default") {
     host.setTheme?.(sub === "auto" ? "auto" : "tern");
-    host.transcript.notice(sub === "auto" ? `Glide theme follows the wallpaper: ${walFile()}` : "Glide theme is back to the default");
+    host.transcript.notice(sub === "auto" ? "Glide theme now follows your wallpaper colours" : "Glide theme is back to the default");
     return;
   }
   if (sub === "export") {
     const wal = readWal(walFile());
     if (!wal) {
-      host.transcript.notice(`/glide theme export: no pywal colors at ${walFile()} (run wal, or set GLIDE_WAL_COLORS)`, "warning");
+      host.transcript.notice("/glide theme export: no wallpaper colours found yet (run wal, or set GLIDE_WAL_COLORS)", "warning");
       return;
     }
     const palette = walPalette(wal, walFile());
