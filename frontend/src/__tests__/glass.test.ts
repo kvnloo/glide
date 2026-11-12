@@ -211,8 +211,8 @@ describe('glassCss', () => {
     for (const sel of ['.ah-hero', '.ah-fact', '.ah-ask', '.ah-tile', '.ah-note', '.ih-stamp', '.ih-repo']) {
       expect(glassy(sel), sel).toMatch(/background: [^;]*rgba\(13,26,23,0\.2[46]\)/)
     }
-    // The glass is the wallpaper's own background colour, so the palette's 4.5:1 inks hold on it as on the card.
-    expect(css).toContain(`.ah-tile { background: rgba(13,26,23,0.24); }`)
+    // The note keeps its accent edge: only its fill turns to glass, never its border.
+    expect(css).toContain('.ah-note { background: rgba(13,26,23,0.24); }')
   })
 
   it('rides on the auto theme sheet', () => {

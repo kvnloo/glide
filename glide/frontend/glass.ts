@@ -185,10 +185,9 @@ ${CARD}:hover::after, ${EDITOR}:hover::after { opacity: 1; animation: glide-shim
 ${CARD}:hover::before { opacity: 1; transform: translateY(0); }
 @keyframes glide-shimmer { from { opacity: .85; } to { opacity: 1; } }
 ${k} .ih-hero, ${k} .ah-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
-${k} .ih-hero:hover, ${k} .ah-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
-${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget, ${k} .ih-repo, ${k} .ih-stamp, ${k} .ah-fact, ${k} .ah-ask, ${k} .ah-note { background: ${glass(24)}; border-color: ${a(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
-${k} .ah-note { border-left-color: ${p.accent}; }
-${k} .ah-tile { background: ${glass(24)}; }
+${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
+${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget, ${k} .ih-repo, ${k} .ih-stamp, ${k} .ah-fact, ${k} .ah-ask { background: ${glass(24)}; border-color: ${a(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
+${k} .ah-tile, ${k} .ah-note { background: ${glass(24)}; }
 ${k} .ih-sample { background: ${glass(45)}; border-color: ${a(45)}; color: ${p.accent}; }
 ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a(60)}; box-shadow: 0 0 14px -6px ${a(60)}; }
 ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
