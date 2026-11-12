@@ -24,7 +24,7 @@ function setup(reply: unknown = { kind: 'fleet-hosts', app: 'k3s', data: { at: '
   const draft = vi.fn()
   const resume = vi.fn(async () => undefined)
   const host: FleetHost = { gw: stub<FleetHost['gw']>({ request }), session, transcript, eui,
-    notice: (text, tone) => { transcript.notice(text, tone) },
+    notice: (text, tone) => { transcript.notice(text, tone) }, reveal: vi.fn(),
     control: () => stub<ReturnType<FleetHost['control']>>({ draft }), resume }
   return { host, request, draft, resume, session, transcript, eui,
     view: () => must(eui.hostView(ofKind(transcript.entries.at(-1), 'panel'))) }
