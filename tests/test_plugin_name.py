@@ -60,3 +60,12 @@ def test_no_hermes_tern_names_outside_attribution():
         for line in path.read_text().splitlines():
             if "hermes-tern" in line:
                 assert any(a in line for a in allowed), f"{path.name}: {line}"
+
+
+def test_docs_say_gateway_method_features_are_inactive_on_released_hermes():
+    # Released Hermes has no ctx.register_gateway_method, so the docs must not advertise those
+    # methods as working: every line that mentions them also says they are inactive for now.
+    for doc in ("README.md", "docs/SUBMISSION.md", "docs/MEDIA-DELIVERY.md", "plugin.yaml"):
+        for line in (ROOT / doc).read_text(encoding="utf-8").splitlines():
+            if "gateway method" in line.lower() or "session-bound" in line.lower():
+                assert "inactive" in line.lower(), f"{doc}: {line}"

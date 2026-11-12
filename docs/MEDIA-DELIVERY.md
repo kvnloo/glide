@@ -53,7 +53,7 @@ does not authorize even if text or image bytes happen to match.
 
 ## Plugin-owned proof and read gates
 
-The existing optional gateway methods are unchanged:
+The existing optional gateway methods are unchanged (inactive on released Hermes, which lacks `ctx.register_gateway_method`):
 
 - `glide.media.attach_bytes` (canonical only) stages
   PNG/JPEG/GIF/WebP with the original `stage_image_bytes`,

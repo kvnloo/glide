@@ -97,7 +97,7 @@ The inherited base chat is shown below, not a Glide onboarding capture.
 ## What runs beyond a prompt
 
 - [Python memory backend](glide/memory.py), [source reader](glide/source.py), and [atomic storage](glide/storage.py) resolve eligible message generations and build a bounded local BM25 index.
-- The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) validate parameters and serve the cards.
+- The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) would validate parameters and serve the cards, but they need `ctx.register_gateway_method`, which released Hermes does not have yet, so they are inactive for now; the cards run through the `/glide` command instead.
 - The [TypeScript flow](frontend/src/commands/glide.ts) renders native cards and handles approval actions. [Router](glide/skill_router.py), [benchmark](glide/hill_climb.py), and [Ollama offload](glide/offload.py) modules persist their own results.
 
 - Opt-in live voice (`/live` or Alt+Shift+V) shows helper lanes beside the thinking orb. They read real state from a local lane broker on `127.0.0.1:8791` and stay off without its token file. Live voice needs a Hermes gateway with the `voice.live` methods; the pinned Hermes may lack them, which shows a visible activation failure. [Voice and lanes](frontend/docs/voice.md)
