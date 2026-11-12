@@ -6,7 +6,7 @@
 - [x] Sketch: compare a new Playwright test-runner stack with a small browser audit behind the existing Python lifecycle owner.
 - [x] Agree: proceed without a checkpoint under the fixed W5 brief.
 - [x] Implement: deterministic detectors and fail-closed target contracts.
-- [x] Verify: all eleven lanes executed on Boat; first full receipt audit passed. App qualification did not.
+- [x] Verify: all eleven lanes executed on Boat. Final semantic review invalidated the original kit click/theme receipts; the auditor now requires a same-URL seeded-to-clean regression. App qualification is not claimed.
 - [x] Scrap: field values, shell-only nodes, and native accessibility nodes are not substituted for visible app feedback. Canvas/CSS-only gallery effects remain explicit test bugs rather than asserted defects.
 
 ## Usage
@@ -17,7 +17,7 @@
 
 `boat/up.py` chooses the deterministic entry point. `sweeps_up.main` freezes archives and calls the existing `Army.new/upload/remote/pull/delete` methods. `boat/sweep_lane.py` owns subprocesses inside one sandbox and writes an atomic `lane.json`. `sweeps.mjs` drives Chromium, records per-control outcomes and computed-style evidence, and writes `report.json`. `findings.collect` consumes this report separately from the model-explorer format. `sanity.sample` selects clean PASS captures even from a lane with other findings.
 
-The existing `canary.prepare_site` only changes the served copy. Clean observations block its script; seeded observations reload the same page with the script admitted. Canary classification requires the matching detector, phase and selector. No verdict is based on finding prose.
+The existing `canary.prepare_site` only changes the served copy. Clean observations block its script; seeded observations admit it. `freshDocument` commits `about:blank` before every target load, because navigating to the same URL/hash otherwise retains injected CSS, observers, handlers, and instrumentation. A real Chromium regression checks seed removal and exactly one intent per clean click. Canary classification requires the matching detector, phase and selector. No verdict is based on finding prose.
 
 ## Shape
 
@@ -32,7 +32,7 @@ A requested independent design/review attempt failed because the account rejecte
 ## Tradeoffs
 
 - Reuse the W4 dependency snapshot, but rebuild each Tern lane's frontend from its exact archive. This avoids consuming more snapshot slots while preventing a stale vendored bundle from passing.
-- Every lane has private output. Only the parent merges receipts.
+- Every lane has private output. Only the parent merges receipts. `compose_run.py` selects replacement lanes at identical frozen revisions, records each source and payload hash, preserves originals, and includes superseded sandboxes in accounting. Composite bundles stay outside the ownership-ledger input.
 - Console/build have no matching defect among the four existing seeds. Their recall is not applicable, not 100%. Clicks must catch the dead action; themes must catch the surface, clipping and count defects.
 - The premium screenshot re-judge remains pending for the orchestrator. Computed checks do not certify visual taste.
 

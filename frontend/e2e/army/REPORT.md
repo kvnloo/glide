@@ -1,3 +1,99 @@
+# W5 deterministic sweeps, 2026-11-12
+
+Status: receipt audit passed; application qualification failed. Every selected lane exited 1 for findings or coverage gaps. No native Tern UI PASS or premium screenshot review is claimed.
+
+## Final evidence and provenance
+
+The final local bundle is `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final`. It contains `FINDINGS.md`, `findings.json`, `SANITY.md`, `sanity-manifest.json`, `audit.json`, and the selected lane logs, DOM dumps, checks, controls, and PNGs. Artifacts remain ignored, following the existing army convention.
+
+| Input | Frozen revision |
+|---|---|
+| Published kit | `c3b7b275521e125fc303b683fe5c752eabdfd5e2` |
+| Glide main | `f83c6c59d25234a0d6f8dca846907c1ebb324738` |
+| Glide PR #269 | `792f68518f5a0c560982babd730833ee3a5392a2` |
+| Dependency snapshot | `glide-army-5ae480ebbfeda4f5` |
+
+Two full eleven-lane campaigns ran on Boat. Final semantic review then found that same-URL/hash navigation retained the planted observer, CSS, dead-button handler, and a second intent listener in kit clicks/themes. Those original clean classifications were invalid. Their reports/PNGs remain untouched, with `INVALIDATED.md` alongside them; the current auditor rejects both full campaigns for missing isolation proof. The strict-theme subset had the same defect and is also superseded. Do not use their original counts.
+
+The corrected helper commits `about:blank` before each target load. A real Chromium regression first failed with `99/6 online` still present, then passed after the fix, checking seed removal and exactly one clean intent. Kit clicks/themes were rerun at the same frozen revisions. The first clean phone case now displays `4/5 online`; no clean dead-control or duplicate-intent app finding remains in the corrected click lane.
+
+`compose_run.py` selects the corrected kit lanes from `runs/boat/20261112T012907Z-sweeps` and the unaffected clean-only console/Tern lanes from `runs/boat/20261112T010159Z-sweeps`. `run.json` records each lane's source and payload hash. This is eleven selected lane reports backed by thirteen source sandboxes, not one fresh eleven-sandbox run. Superseded source sandboxes remain in accounting. The corrected theme run and unaffected console traversal have the same 547 contrast case/selector identities and measured styles; older ratios have two-decimal rather than four-decimal output. The comparison receipt is `runs/boat/20261112T012907Z-sweeps/theme-cross-check.json`.
+
+## Findings and coverage
+
+Counts are non-canary observation records, including repeated checks across lanes, themes, and widths—not distinct root causes.
+
+| Classification | Finding records | Coverage-gap records | Combined |
+|---|---:|---:|---:|
+| real defect | 1,139 | 0 | 1,139 |
+| test bug | 1,442 | 230 | 1,672 |
+| provider gap | 0 | 16 | 16 |
+
+- Real defects: 1,094 contrast observations across theme and console traversals; 44 disabled-without-reason observations across click and console traversals; one main archive vendor-PIN mismatch. The main disk PIN is `63e06b29ffb0d7c5b9d482abebc0312335897321`, not the required kit revision. PR #269's disk PIN matches. Neither disk result certifies the served pane.
+- Test bugs: 1,266 non-flat/gradient contrast observations needing a pixel-aware oracle, 176 ambiguous canvas/CSS/replay feedback observations, and 230 animated/intercepted/unsupported control automation gaps. These are not asserted application defects.
+- Provider gaps: two per native lane. Private web-PTY startup now exposes transcript accessibility articles, but actual native captures remain uniformly white, styled transcript card DOM is absent, and served-pane build/PIN provenance is not queryable. Native clicks, computed styles, and console coverage remain unqualified. Zero browser console errors is not proof that a native UI rendered.
+
+Corrected kit clicks recorded 943 observations (37 calibration, 906 clean), covering nine fleet kind/width combinations and all 55 frozen gallery examples. The clean-only console lane recorded 906 control observations, the same 55 gallery examples, and the full theme matrix. Kit themes ran all 81 unique clean combinations: nine themes × three widths × three kinds, plus one seeded calibration case. Browser `pageerror` and `console.error` arrays were empty in all eleven selected reports; native target coverage still failed.
+
+A representative clean contrast finding is `10 agents`, 11px, ratio 4.1098 against its computed backdrop at t3-light/390. Full selectors, measured values, theme, width, reproduction steps, and absolute screenshot paths are in final `FINDINGS.md` and `findings.json`.
+
+## Matching recall and sanity handoff
+
+| Sweep | Kit | Tern main | Tern PR #269 |
+|---|---|---|---|
+| clicks: dead button | 1/1 | 1/1 | 1/1 |
+| themes: black surface, phone clipping, wrong count | 3/3 | 3/3 | 3/3 |
+| console | N/A | N/A | N/A |
+| build | N/A | N/A | N/A |
+
+Tern calibration runs on the served kit copy. It proves the matching detector, not native Tern coverage. Console/build have no matching planted defect; N/A is not 100% recall.
+
+`sanity.py` retained four of 33 candidate PASS screenshots (seed `20261112`) and every one of seven zero-finding lanes. Premium re-judge is pending for the orchestrator; miss rate is unknown and no PASS is trusted. No model participates in deterministic verdicts.
+
+## Commands and actual exits
+
+Commands below ran from `frontend/e2e/army`. Browsers and application builds ran headlessly on Boat, never on the owner's display.
+
+```sh
+SWEEPS=1 MAIN_SHA=f83c6c59d25234a0d6f8dca846907c1ebb324738 PR_SHA=792f68518f5a0c560982babd730833ee3a5392a2 LANES=8 CANARY=1 python3 boat/up.py
+SWEEPS=1 ONLY='^kit-sweep-(clicks|themes)$' MAIN_SHA=f83c6c59d25234a0d6f8dca846907c1ebb324738 PR_SHA=792f68518f5a0c560982babd730833ee3a5392a2 LANES=2 CANARY=1 python3 boat/up.py
+```
+
+Both commands exited 1: the full campaign contains findings/gaps and superseded kit evidence; the corrected subset contains 22 disabled-reason findings plus test gaps in clicks and 547 contrast findings plus unresolved gradient checks in themes. No setup error occurred in either corrected lane. Their Chromium detector/navigation fixtures and rendered controller fixtures passed.
+
+The off-host verification command exited 0, receipt `fleet-mbp-fa26dc1f32f64978`: 28 Python tests, five Node tests, JS syntax, Python compilation, and Bash syntax.
+
+```sh
+fleet-build --node mbp --light --src-include frontend/e2e/army -- bash -euc 'cd frontend/e2e/army; python3 -m unittest discover -s tests -p "test_*.py"; node --test tests/sweep-audit.test.mjs; node --check sweeps.mjs; node --check sweep-navigation.mjs; node --check tests/sweep-browser-contract.mjs; python3 -m py_compile *.py boat/*.py; bash -n boat/up.sh boat/lane.sh boat/setup.sh'
+```
+
+Final artifact commands all exited 0:
+
+```sh
+python3 compose_run.py runs/boat/20261112T010159Z-sweeps runs/boat/20261112T012907Z-sweeps runs/w5-final
+python3 findings.py runs/w5-final
+python3 sanity.py runs/w5-final --seed 20261112
+python3 audit_run.py runs/w5-final
+python3 ledger.py runs/boat --since 20261111T235205Z
+```
+
+Exit 0 from `audit_run.py` means consistent receipts, not application acceptance. The same auditor now exits 1 on each original full campaign, explicitly rejecting its two contaminated kit lanes. The initial navigation regression command, `CHROME_EXE=/opt/google/chrome/chrome node tests/sweep-browser-contract.mjs`, exited 1 on Boat before the fix; `node tests/sweep-browser-contract.mjs` passed in both corrected lane startups.
+
+Representative inspected captures:
+
+- `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final/kit-sweep-themes/runs/kit-sweep-themes/0004-fleet-hosts-t3-light-390-clean.png`
+- `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final/tern-pr269-sweep-build/runs/tern-pr269-sweep-build/0002-tern-initial.png`
+
+## Accounting and remaining blockers
+
+`runs/boat/W5-LEDGER.json` lists every one of 43 owned sandbox IDs, including failed probes and superseded campaigns. A fresh `W5-boat-list-final.json` confirms all are absent. Global peak concurrency was eight. There are no ledger errors, warnings, missing usage receipts, or undeleted owned sandboxes. The unrelated owner sandbox was not modified.
+
+Per-sandbox usage sampled immediately before deletion totals 158.73333333333332 VM minutes across all W5 attempts. The thirteen source sandboxes backing the composite total 64.58333333333333 VM minutes, including two superseded lanes. Samples exclude teardown latency. Source account-wide deltas are preserved separately (50.31666666666667 and 16.016666666666666 minutes), include unrelated activity, and are not added across overlapping runs. Wallet balance stayed zero, automatic top-up and extra starts stayed off, and the existing included snapshot was reused.
+
+Remaining gates: obtain a painted, deterministically observable native Tern transcript surface; expose served-pane build/PIN provenance; resolve the explicitly listed gallery/gradient automation gaps; review/fix reported app defects; and have the orchestrator complete the premium screenshot re-judge. These blockers keep `done:false`.
+
+---
+
 # W4 infrastructure receipt, 2026-11-11
 
 Status: blocked at G0. Infrastructure is committed, but neither requested explorer smoke ran. No app PASS, seeded-defect recall verdict, premium re-judge, or paired-model qualification is claimed.
