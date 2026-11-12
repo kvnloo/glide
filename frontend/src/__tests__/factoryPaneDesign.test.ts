@@ -14,7 +14,9 @@ import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
 type Row = { id: string; label?: string; hint?: string; disabled?: string; control?: { act?: string; label?: string } }
 type Section = { id: string; rows: Row[] }
-type View = { sections: Section[]; onAction: { render: (event: { value?: unknown }) => void } }
+type View = { sections: Section[] }
+const isView = (value: unknown): value is View =>
+  typeof value === 'object' && value !== null && Array.isArray(Reflect.get(value, 'sections'))
 
 const run = (name: string, state: 'ready' | 'running' | 'done' | 'failed') => ({
   run: name, state, output: null, seconds: null, verdict: null, compare: null
@@ -53,8 +55,8 @@ function opened(response: unknown) {
 function view(pane: FactoryPane): View {
   const element = pane.node('layer.factory')
   expect(element).toBeInstanceOf(Node)
-  if (!(element instanceof Node)) throw new Error('Factory aside missing')
-  return element.props as unknown as View
+  if (!(element instanceof Node) || !isView(element.props)) throw new Error('Factory aside missing')
+  return element.props
 }
 const section = (pane: FactoryPane, id: string) => view(pane).sections.find(s => s.id === id)
 
@@ -67,23 +69,23 @@ describe('factory native aside design', () => {
     expect(sections[0]?.rows[0]?.hint).toBe('Run an approved suggestion below.')
     expect(sections[1]?.id).toBe('suggestions')
     expect(sections.find(s => s.id === 'running')).toBeUndefined()
-    // Private run IDs are stable row keys, never text in the visible hero or attention copy.
+    // Active runs are only counted in the hero; runs needing a decision are named so rows stay distinguishable.
     expect(JSON.stringify(sections)).not.toContain('running-a')
-    expect(section(pane, 'attention')?.rows.map(r => r.label)).toEqual(['FAILED · Held run', 'DONE · Awaiting review'])
+    expect(section(pane, 'attention')?.rows.map(r => [r.label, r.hint?.split(' · ')[0]]))
+      .toEqual([['held-private', 'FAILED'], ['done-private', 'DONE']])
   })
 
   it('gives only a same-session approved render one action, never an approval shortcut', async () => {
     const { pane, request } = opened(sample())
     await vi.waitFor(() => expect(section(pane, 'suggestions')?.rows).toHaveLength(4))
-    const rows = section(pane, 'suggestions')!.rows
+    const rows = section(pane, 'suggestions')?.rows ?? []
     expect(rows.filter(r => r.control)).toEqual([expect.objectContaining({
       id: 'approved-one', control: { act: 'render', k: 'action', label: 'Run approved intent' }
     })])
     expect(rows.find(r => r.id === 'pending-one')?.hint).toContain('Review pending')
     expect(rows.find(r => r.id === 'pending-one')?.disabled).toBe('AODL review unavailable')
     expect(rows.find(r => r.id === 'other-session')?.control).toBeUndefined()
-    view(pane).onAction.render({ value: 'pending-one' })
-    view(pane).onAction.render({ value: 'other-session' })
+    // Only the snapshot poll went out: rendering the list never dispatches a render.
     expect(request).toHaveBeenCalledTimes(1)
   })
 

@@ -148,10 +148,10 @@ export class FactoryPane {
       if (run.state !== 'failed' && run.state !== 'done') return []
       return [{
         id: 'run:' + run.run,
-        label: run.state === 'failed' ? 'FAILED · Held run' : 'DONE · Awaiting review',
+        label: run.run,
         hint: run.state === 'failed'
-          ? 'Inspect the failure with /factory runs.'
-          : 'Review the result with /factory runs.'
+          ? 'FAILED · Inspect with /factory runs.'
+          : 'DONE · Awaiting review in /factory runs.'
       }]
     })
 
@@ -162,7 +162,7 @@ export class FactoryPane {
       { id: 'status-line', title: 'Factory now', rows: [hero] },
       { id: 'suggestions', title: 'Suggested actions',
         rows: suggestions.length ? suggestions
-          : [{ id: 'no-suggestions', label: snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
+          : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
       ...(attention.length ? [{ id: 'attention', title: 'Runs to review', rows: attention }] : []),
       ...(this.#error ? [{ id: 'check', title: 'Factory check',
         rows: [{ id: 'poll-error', label: 'Last check failed', hint: errorLine || 'Retrying on the next check.' }] }] : [])
