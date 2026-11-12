@@ -3,7 +3,9 @@
 // pre_llm_call hook). Every step that writes waits for a tap on a host-owned approve card.
 
 import type { EuiCards } from '../eui/cards.js'
-import type { EuiApprovalContext } from '../eui/host.js'
+import type { EuiApprovalContext, EuiHostHandle, EuiOperation } from '../eui/host.js'
+import { MAX_HOST_ROWS } from '../wire/euiHostCard.js'
+import { DIGEST_APP, FOCUS_APP, WIND_APP } from '../../../glide/frontend/attentionCards.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import type { SessionView } from '../app/ports.js'
@@ -87,7 +89,7 @@ const glideFocus = z.object({
   phase: z.string(), phase_source: z.string(),
   flow: z.nullable(z.object({ flow: z.number(), confidence: z.number() })),
   next_window: z.nullable(z.string()), bedtime: z.nullable(z.string()),
-  block: z.nullable(z.object({ until: z.string(), minutes_left: z.number() })),
+  block: z.nullable(z.object({ until: z.string(), minutes_left: z.number(), minutes: z.optional(z.nullable(z.number())) })),
   guarded: z.boolean(), queued: z.number(),
   learned: z.object({
     days: z.number(), source: z.string(), stop: z.nullable(z.number()),
@@ -406,63 +408,94 @@ const hours = (f: GlideFocus) => f.learned.windows.map(w => `${String(w.start).p
 
 // /glide focus [MINUTES|start|stop|wind-down|hours]: the attention half. The card reads circadian and Flowkit
 // when they are installed, else hours learned from your own sessions. A block holds non-critical asks
-// and releases them as one digest when it ends.
+// and releases them as one digest when it ends. One focus card is live per pane: it turns from Start
+// into the running ring into ended in place, and a newer /glide focus retires the older card, so the
+// End block button never shows twice.
+const liveFocus = new WeakMap<Cards, EuiHostHandle>()
+const BLOCK = 50
+
+const focusRows = (f: GlideFocus) => [
+  { label: 'phase', value: phaseName(f.phase) },
+  { label: 'flow', value: f.flow ? `${Math.round(f.flow.flow * 100)}% est.` : 'no signal' },
+  { label: 'next', value: f.next_window ?? '' },
+  { label: 'bedtime', value: clock(f.bedtime) },
+  { label: 'block', value: f.block ? 'on' : 'off' },
+  ...(f.block
+    ? [{ label: 'left', value: f.block.minutes_left }, { label: 'length', value: f.block.minutes ?? f.block.minutes_left }, { label: 'until', value: f.block.until }]
+    : [{ label: 'length', value: BLOCK }]),
+  { label: 'held', value: f.queued }
+]
+const source = (f: GlideFocus) => f.phase_source === 'circadian' ? 'From your circadian schedule.' : `From ${f.learned.source}.`
+
 export async function focusCommand(cards: Cards, call: FocusCall, sub: string, fail: (e: unknown) => void): Promise<void> {
   const guarded = (run: (ctx: EuiApprovalContext) => Promise<void>) => async (ctx: EuiApprovalContext) => {
     try { await run(ctx) } catch (error) { fail(error) }
   }
-  const stopCard = () => cards.publish({
-    kind: 'approve', app: APP, title: 'End the deep-work block',
-    rows: [{ label: 'Then', value: 'everything held arrives as one digest' }],
-    approval: { label: 'End block', description: 'Ends the block and shows the asks Glide held while you worked.' }
-  }, guarded(async ({ signal }) => {
-    const f = await call({ action: 'stop' })
-    if (signal.aborted) return
+  const digest = (f: GlideFocus) => {
     const held = f.digest ?? []
     cards.publish({
-      kind: 'receipt', app: APP, title: held.length ? `While you were in deep work: ${held.length} held` : 'Block ended, nothing held',
-      rows: held.length ? held.map(i => ({ label: i.cls, value: i.title })) : [{ label: 'Held', value: 'nothing' }]
+      kind: 'receipt', app: DIGEST_APP, title: held.length ? `While you were in deep work: ${held.length} held` : 'Block ended, nothing held',
+      rows: [{ label: 'count', value: held.length }, ...held.slice(0, MAX_HOST_ROWS - 1).map(i => ({ label: i.cls.slice(0, 80) || 'ask', value: i.title.slice(0, 2048) }))]
     })
-  }))
-  const blockOn = (f: GlideFocus) => {
-    cards.publish({
-      kind: 'receipt', app: APP, title: `Deep-work block on until ${f.block?.until ?? '—'}`,
-      rows: [
-        { label: 'Agent asks', value: 'held until the block ends' },
-        { label: 'Critical', value: 'still passes' },
-        { label: 'Held so far', value: f.queued }
-      ]
-    })
-    stopCard()
   }
-  const startCard = () => cards.publish({
-    kind: 'approve', app: APP, title: 'Start a deep-work block',
-    rows: [{ label: 'Length', value: '50 min' }, { label: 'Holds', value: 'non-critical agent asks' }],
-    approval: { label: 'Start block', description: 'For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.' }
-  }, guarded(async ({ signal }) => {
-    const on = await call({ action: 'start', minutes: 50 })
-    if (signal.aborted) return
-    blockOn(on)
-  }))
+  const ended = (f: GlideFocus) => ({
+    kind: 'receipt', app: FOCUS_APP, title: 'Deep-work block ended', summary: source(f), rows: focusRows({ ...f, block: null, queued: 0 })
+  })
+  // An ended card keeps its receipt: only a card that still has a button is retired by a newer one.
+  const settle = (f: GlideFocus) => {
+    const live = liveFocus.get(cards)
+    liveFocus.delete(cards)
+    live?.update(ended(f))
+  }
+  const card = (f: GlideFocus): [unknown, EuiOperation] => f.block
+    ? [{
+        kind: 'approve', app: FOCUS_APP, title: `Deep-work block on until ${f.block.until}`, summary: 'Agent asks are held for one digest. Critical alerts still pass.',
+        rows: focusRows(f),
+        approval: { label: 'End block', description: 'Ends the block and hands back everything Glide held as one digest.' }
+      }, guarded(async ({ signal }) => {
+        const done = await call({ action: 'stop' })
+        if (signal.aborted) return
+        settle(done)
+        digest(done)
+      })]
+    : [{
+        kind: 'approve', app: FOCUS_APP, title: 'Your attention', summary: source(f), rows: focusRows(f),
+        approval: { label: 'Start block', description: `For the next ${BLOCK} minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.` }
+      }, guarded(async ({ signal }) => {
+        const on = await call({ action: 'start', minutes: BLOCK })
+        if (signal.aborted) return
+        liveFocus.get(cards)?.update(...card(on))
+      })]
+  const show = (f: GlideFocus) => {
+    liveFocus.get(cards)?.revoke()
+    liveFocus.set(cards, cards.publish(...card(f)))
+  }
 
   if (sub === 'stop') {
-    stopCard()
+    // The typed command is the consent: end now, settle the live card, hand back the digest.
+    const done = await call({ action: 'stop' })
+    try { settle(done) } catch { /* that card already left the pane */ }
+    digest(done)
     return
   }
   if (/^\d+$/.test(sub)) {
     // `/glide focus 25`: the typed command is the consent, so the block starts at once.
-    blockOn(await call({ action: 'start', minutes: Math.max(5, Math.min(240, Number(sub))) }))
+    show(await call({ action: 'start', minutes: Math.max(5, Math.min(240, Number(sub))) }))
     return
   }
   if (sub === 'wind-down') {
     const f = await call({ action: 'wind_down' })
     const asks = f.wind_down?.resume?.last_asks ?? []
+    const now = new Date()
     cards.publish({
-      kind: 'receipt', app: APP, title: "Time to wrap: here's where you left off",
+      kind: 'receipt', app: WIND_APP, title: "Time to wrap: here's where you left off",
       rows: [
-        { label: 'Bedtime', value: clock(f.bedtime) },
-        { label: 'Left off', value: asks.join(' · ') || 'nothing yet' },
-        { label: 'Tomorrow', value: 'your first turn starts from this note' }
+        { label: 'now', value: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` },
+        { label: 'bedtime', value: clock(f.bedtime) },
+        { label: 'stop', value: f.learned.stop ?? '' },
+        { label: 'best', value: f.learned.windows.map(w => `${w.start}-${w.end}`).join(', ') },
+        { label: 'next', value: f.next_window ?? '' },
+        ...asks.slice(0, 5).map(a => ({ label: 'ask', value: a.slice(0, 2048) }))
       ]
     })
     return
@@ -479,22 +512,5 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
     })
     return
   }
-  if (sub === 'start') {
-    blockOn(f)
-    return
-  }
-  cards.publish({
-    kind: 'metric', app: APP, title: 'Your attention',
-    summary: f.phase_source === 'circadian' ? 'From your circadian schedule.' : `From ${f.learned.source}.`,
-    rows: [
-      { label: 'Phase', value: phaseName(f.phase) },
-      { label: 'Flow likelihood', value: f.flow ? `${Math.round(f.flow.flow * 100)}% (estimate)` : 'no wearable signal' },
-      { label: 'Next deep work', value: f.next_window ?? 'not learned yet' },
-      { label: 'Bedtime', value: clock(f.bedtime) },
-      { label: 'Deep-work block', value: f.block ? `on until ${f.block.until}` : 'off' },
-      { label: 'Held for later', value: f.queued }
-    ]
-  })
-  if (f.block) stopCard()
-  else startCard()
+  show(f)
 }

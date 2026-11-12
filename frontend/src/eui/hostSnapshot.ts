@@ -1,4 +1,5 @@
 // Host data uses the existing EuiNode -> Tern renderer; the demo kit never sees an operation.
+import { attentionHero } from '../../../glide/frontend/attentionCards.js'
 import { intentDoneLabel, intentHero } from '../../../glide/frontend/intentCards.js'
 import type { EuiHostCardData } from '../wire/euiHostCard.js'
 
@@ -14,15 +15,18 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   const el = (tag: string, kids: readonly EuiNode[], cls = '', attrs: Record<string, string> = {}): EuiNode => ({
     t: 'el', tag, id: next++, cls, style: '', attrs, click: false, kids
   })
-  const hero = intentHero(data, el)
-  const hold = data.kind === 'intent-contract'
+  const attention = attentionHero(data, el)
+  const hero = intentHero(data, el) ?? attention
+  // The focus card's Start/End block is the same rich button as the contract's hold to approve.
+  const hold = data.kind === 'intent-contract' || (attention !== undefined && data.approval !== undefined)
   // The declare hero sets the ask and its clause keys; the contract hero draws every row (criteria,
   // lanes, hosts, gate, budget). A paragraph or list under either would repeat it.
-  const drawn = hero !== undefined && (hold || data.kind === 'intent-declare')
+  // Attention heroes draw all their rows and keep the summary as the source line.
+  const drawn = attention !== undefined || (hero !== undefined && (hold || data.kind === 'intent-declare'))
   const kids: EuiNode[] = [
     el('h3', [text(data.title)], 'eui-host-title'),
     ...(hero ? [hero] : []),
-    ...(data.summary === undefined || (drawn && !hold) ? [] : [el('p', [text(data.summary)])]),
+    ...(data.summary === undefined || (drawn && !hold && !attention) ? [] : [el('p', [text(data.summary)])]),
     ...(drawn ? [] : [el('dl', data.rows.flatMap(row => [
       el('dt', [text(row.label)]),
       el('dd', [text(String(row.value))])
