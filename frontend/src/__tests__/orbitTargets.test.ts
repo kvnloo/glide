@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { minifyCss } from '../../../glide/frontend/css.js'
 import { type OrbitLane, orbitLayout } from '../voice/orbit.js'
 import { armAngle, armPoint, BRAKE_S, brakedAngle, JIGGLE_DEG, JIGGLE_PX, JIGGLE_S, orbitCss, orbitPx, orbitSeats } from '../voice/orbitTargets.js'
 
@@ -50,10 +51,10 @@ describe('orbit targets', () => {
 
   it('pauses the arms on hover and brakes with a curve whose slopes are 2 then 0', () => {
     const css = orbitCss(LANES)
-    expect(css).toContain(':hover .glide-orbit-arm, .glide-orbit:hover .glide-orbit-face { animation-play-state: paused; }')
-    expect(css).toContain(`transition: transform ${BRAKE_S}s cubic-bezier(0.3333, 0.6667, 0.6667, 1)`)
-    expect(css).toContain('.glide-orbit:hover .glide-orbit-tail { opacity: 0; }') // a stopped planet has no comet tail
-    expect(css).toContain('.glide-orbit .sf-image { pointer-events: none;') // a click reaches the planet, not Tern's image viewer
+    expect(css).toContain(minifyCss(':hover .glide-orbit-arm, .glide-orbit:hover .glide-orbit-face { animation-play-state: paused; }'))
+    expect(css).toContain(minifyCss(`transition: transform ${BRAKE_S}s cubic-bezier(0.3333, 0.6667, 0.6667, 1)`))
+    expect(css).toContain(minifyCss('.glide-orbit:hover .glide-orbit-tail { opacity: 0; }')) // a stopped planet has no comet tail
+    expect(css).toContain(minifyCss('.glide-orbit .sf-image { pointer-events: none;')) // a click reaches the planet, not Tern's image viewer
   })
 
   it('jiggles within ±3° at about 7 Hz, out of step, and never under reduced motion', () => {
@@ -63,15 +64,15 @@ describe('orbit targets', () => {
     expect(1 / JIGGLE_S).toBeGreaterThan(6)
     expect(1 / JIGGLE_S).toBeLessThan(8)
     const css = orbitCss(LANES)
-    const degs = [...css.matchAll(/@keyframes glide-orbit-jiggle[^\n]*/g)].flatMap(m => [...m[0].matchAll(/rotate\((-?[\d.]+)deg\)/g)].map(d => Number(d[1])))
+    const degs = [...css.matchAll(/@keyframes glide-orbit-jiggle.*?\}\s*\}/g)].flatMap(m => [...m[0].matchAll(/rotate\((-?[\d.]+)deg\)/g)].map(d => Number(d[1])))
     expect(degs.length).toBeGreaterThan(0)
     for (const d of degs) expect(Math.abs(d)).toBeLessThanOrEqual(3)
     const phases = orbitSeats(LANES).map(s => s.jiggleDelay)
     expect(new Set(phases).size).toBe(phases.length)
     for (const p of phases) { expect(p).toBeLessThanOrEqual(0); expect(p).toBeGreaterThan(-JIGGLE_S) }
     const still = orbitCss(LANES, true)
-    expect(still).toContain('.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }')
-    expect(still).toContain('.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }')
+    expect(still).toContain(minifyCss('.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }'))
+    expect(still).toContain(minifyCss('.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }'))
     expect(orbitSeats(LANES, true).every(s => !s.moving && s.brake === 0)).toBe(true)
   })
 
@@ -80,6 +81,6 @@ describe('orbit targets', () => {
     if (!dead) throw new Error('no seat')
     expect(dead.moving).toBe(false)
     expect(armAngle(dead, 0)).toBe(armAngle(dead, 9))
-    expect(orbitCss(LANES)).toContain('.glide-orbit .glide-orbit-s5 { ')
+    expect(orbitCss(LANES)).toContain(minifyCss('.glide-orbit .glide-orbit-s5 { '))
   })
 })

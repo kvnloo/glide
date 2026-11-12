@@ -296,11 +296,11 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(css).not.toMatch(/:has\(|::-webkit-|\(\s*(pointer|hover)\s*:|\d+dvh|env\(|conic-gradient/)
     expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:|\bpadding-inline\s*:/)
     expect(css).toContain('.eu-btn')
-    expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
+    expect(css).toContain('.ff-stats{grid-template-columns:repeat(2,1fr)}')
   })
 
   it('lets native SVG callback buttons grow with wrapped labels', () => {
-    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls > \.eu-btn\{([^}]*)\}/)?.[1]
+    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls>\.eu-btn\{([^}]*)\}/)?.[1]
     expect(rule).toBeDefined()
     expect(rule).toMatch(/display:\s*block/)
     expect(rule).toMatch(/height:\s*auto/)

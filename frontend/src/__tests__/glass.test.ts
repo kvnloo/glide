@@ -84,7 +84,7 @@ describe('glassPlayCss', () => {
     expect(Math.max(...stops.map(s => s.motes))).toBeGreaterThan(2)
     expect(stops[0]).toEqual({ ...stops.at(-1), at: 0 })
     expect(play).toContain(`${PLAY_SECONDS}s`)
-    expect(play).toMatch(/ 1;\}/) // one cycle, no fill: the resting glass takes over again
+    expect(play).toMatch(/ 1\}/) // one cycle, no fill: the resting glass takes over again
     // The rest stops are left to the resting sheet, so the cycle starts and ends exactly on it.
     expect(play).not.toMatch(/\b(0|100)% ?\{/)
     expect(stops[0]).toMatchObject({ tint: restTint(p), blur: 22, saturate: 140 })
@@ -114,7 +114,7 @@ describe('glassPlayCss', () => {
     expect(play.split('{').length).toBe(play.split('}').length)
     for (const sel of Object.values(GLASS_VIEWS)) expect(play).toContain(sel)
     for (const media of ['prefers-reduced-motion: reduce', 'prefers-reduced-transparency: reduce']) {
-      expect(play).toMatch(new RegExp(`@media \\(${media}\\)\\{[^{]+\\{animation:none;\\}\\}`))
+      expect(play).toMatch(new RegExp(`@media \\(${media}\\)\\{[^{]+\\{animation:none\\}\\}`))
     }
   })
 

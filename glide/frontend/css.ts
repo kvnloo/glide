@@ -9,6 +9,7 @@ export const minifyCss = (sheet: string): string => sheet
   .map((part, i) => i % 2 ? part : part
     .replace(/\s+/g, ' ')
     .replace(/ ?([{};,>]) ?/g, '$1')
-    .replace(/: (?![^(]*\))/g, ':'))
+    .replace(/: (?![^(]*\))/g, ':')
+    .replace(/;}/g, '}'))
   .join('')
   .trim()

@@ -2,6 +2,8 @@
 // opt-in local corrections memory that Hermes quotes into matching turns (the plugin's
 // pre_llm_call hook). Every step that writes waits for a tap on a host-owned approve card.
 
+import { createHash } from 'node:crypto'
+
 import type { EuiCards } from '../eui/cards.js'
 import type { EuiApprovalContext, EuiHostHandle, EuiOperation } from '../eui/host.js'
 import { MAX_HOST_ROWS } from '../wire/euiHostCard.js'
@@ -194,7 +196,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
     }
     if (verb === 'intent') {
       const ask = rest.join(' ')
-      if (!ask) host.transcript.notice('Usage: /glide intent <ask>', 'warning')
+      if (ask === 'proof') intentProof(cards, host.transcript)
+      else if (!ask) host.transcript.notice('Usage: /glide intent <ask>', 'warning')
       else intentCommand(cards, ask, host.laneFeed?.call?.lanes)
       return
     }
@@ -379,11 +382,29 @@ const SAMPLE_HOSTS = [
   { name: 'k3s', value: '3/3 ready · small, CI' }
 ]
 
+const lastAsk = new WeakMap<Cards, string>()
+
+// /glide intent proof: the receipt card for the last ask. Nothing has run, so it is a labelled sample:
+// the stamp is the ask's own hash, standing in for the hash a real turn would leave.
+function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void {
+  const ask = lastAsk.get(cards)
+  if (!ask) {
+    transcript.notice('Usage: /glide intent <ask>, then /glide intent proof', 'warning')
+    return
+  }
+  cards.publish({
+    kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',
+    summary: 'Sample receipt (synthetic): no real turn has run; the stamp is the hash of the ask.',
+    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }]
+  })
+}
+
 // /glide intent <ask>: the AODL loop on host cards. Declare quotes the ask; the contract drafts one
 // criterion per clause (none evidenced yet) plus the orchestration, hosts, gate and budget that would
 // run it; holding approve advances to a sample work rail. Nothing runs. Live lane state is used when
 // the lane broker has a call; hosts and budget are sample data until Glide reads them.
 export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] | null): void {
+  lastAsk.set(cards, ask)
   const clauses = askClauses(ask)
   cards.publish({ kind: 'intent-declare', app: 'ripple', title: 'One ask. Exact words.', summary: ask.slice(0, 2048), rows: clauses })
   const lane = (p: typeof PLAN[number]) => {

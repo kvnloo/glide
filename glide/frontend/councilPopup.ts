@@ -73,7 +73,8 @@ export async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get: typeo
 const STANCE = { agree: { label: 'AGREE', color: NIGHT.agree }, dissent: { label: 'DISSENT', color: NIGHT.danger }, abstain: { label: 'ABSTAIN', color: NIGHT.text3 } }
 
 /** The popup's card at one moment, as the same node data the ephemeral-ui sandbox produces. */
-export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNode {
+/** `sideHeader` moves the title and brief beside the instrument so the card is no taller than it (a popup in a short pane). */
+export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHeader = false): EuiNode {
   let next = 10
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
@@ -96,7 +97,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
         (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
       [text(src.live ? `LIVE · ${src.from.toUpperCase()}` : 'DEMO')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })
     ]),
-    el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:30px;line-height:34px;color:${NIGHT.text}`, [text('Socratic council')]),
+    el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:${sideHeader ? '24px;line-height:28px' : '30px;line-height:34px'};color:${NIGHT.text}`, [text('Socratic council')]),
     el('span', `${micro};margin-top:6px`, [text('THE BRIEF')]),
     el('p', `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:14px;line-height:20px;color:${NIGHT.text}`, [text(run.brief)])
   ])
@@ -111,16 +112,23 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
       : `${run.seats.length} seats · ${run.rounds} rounds · verdicts appear as each seat closes`)])
   ])
 
-  const seats = el('div', 'display:flex;flex-direction:column;gap:2px', run.seats.map((seat, i) => {
+  const seats = el('div', sideHeader ? 'display:flex;flex-wrap:wrap;gap:6px' : 'display:flex;flex-direction:column;gap:2px', run.seats.map((seat, i) => {
     const v = run.verdicts.find(x => x.seat === i)
     const open = v !== undefined && shown.has(i)
+    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
+    // A short pane gets one line per seat; the verdict prose lives in the transcript card.
+    if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:3px 10px 3px 4px;border-radius:999px;border:1px solid ${NIGHT.border}`, [
+      svg(swatchSvg(seat.mineral, 16), 16, 'flex:none'),
+      el('span', `font-family:${SERIF};font-size:14px;color:${NIGHT.text}`, [text(seat.name)]),
+      ...(open ? stance : [el('span', `font-size:12px;color:${NIGHT.text3}`, [text(v ? '…' : '—')])])
+    ])
     return el('div', `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
       svg(swatchSvg(seat.mineral, 30), 30, 'flex:none'),
       el('div', 'display:flex;flex-direction:column;gap:2px;flex:1;min-width:0', [
         el('div', 'display:flex;align-items:baseline;gap:8px', [
           el('span', `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text(seat.name)]),
           el('span', `${micro};font-size:8.5px`, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
-          ...(open ? [el('span', `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : [])
+          ...stance
         ]),
         el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
       ])
@@ -135,20 +143,22 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480): EuiNo
     { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : 'close' } })
   const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Convene again  →'
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
-    header,
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+    ...(sideHeader ? [] : [header]),
     el('div', 'display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start', [
-      el('div', 'flex:1 1 340px;display:flex;justify-content:center', [svg(instrumentSvg(run, frame, size), size, 'max-width:100%;height:auto')]),
-      el('div', 'flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0', [
+      el('div', `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg(instrumentSvg(run, frame, size), size, 'max-width:100%;height:auto')]),
+      el('div', `flex:1 1 280px;display:flex;flex-direction:column;gap:${sideHeader ? 8 : 12}px;min-width:0`, [
+        ...(sideHeader ? [header] : []),
         el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text(narration(run, frame))]),
         verdictBox,
         el('div', 'display:flex;gap:8px', [button(CONVENE_ID, convene, true), button(CLOSE_ID, 'Close', false)]),
         seats
       ])
     ]),
-    el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text(src.live
+    // The popup's title already says live or demo; a short pane has no row to spare for the provenance line.
+    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text(src.live
       ? `live run read from ${src.from} · this card draws it and computes nothing`
-      : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])
+      : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])])
   ])])
 }
 
@@ -183,7 +193,7 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
       const f = frame()
       const view = {
         spec: { kind: 'council', app: APP }, app: APP, label: 'Socratic council', identity: 'council',
-        node: councilCard(src, f, 320),
+        node: councilCard(src, f, 320, true),
         activate: (n: number) => { if (n === CONVENE_ID && !stop) convene(); else if (n === CLOSE_ID) host.close(overlay) }
       }
       return euiPopupNode(nativeOverlayKey(id), src.live ? 'Council · live' : 'Council · demo', view, eui)
