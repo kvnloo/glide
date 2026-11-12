@@ -1,55 +1,72 @@
-// Ephemeral, instance-owned publications. Only trusted host code can register an operation.
-// Model fences and the kit sandbox cannot create or look up these grants.
+// Object-owned publications. Model fences cannot register or look up host operations.
 import type { Ticket } from '../core/epoch.js'
 import type { EntryId } from '../core/ids.js'
 import type { PanelEntry } from '../model.js'
 import { decodeEuiHostCard, type EuiHostCardData } from '../wire/euiHostCard.js'
+import { decodeEuiKit, kitInput, kitNotes, type EuiKitDoc } from '../wire/euiKit.js'
 
 import type { EuiCardView } from './cards.js'
 import { HOST_APPROVE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
+import { kitSnapshot } from './kitSnapshot.js'
+import type { EuiMounted, EuiSandbox } from './sandbox.js'
 
 export const MAX_HOST_CARDS = 48
-
-export interface EuiHostOwner extends Ticket {
-  readonly sessionId: string
-}
-
+export interface EuiHostOwner extends Ticket { readonly sessionId: string }
 export interface EuiHostPort {
-  /** A permanent session/profile generation plus transcript lifetime, never a reusable id alone. */
   owner(): EuiHostOwner | undefined
-  /** The pane is visible, connected and not switching sessions or covered by a modal. */
   active(): boolean
   append(title: string): PanelEntry
   contains(entry: PanelEntry): boolean
 }
-
 export interface EuiApprovalContext {
   readonly sessionId: string
   readonly revision: number
   readonly data: EuiHostCardData
-  /** Aborts on replacement, eviction, owner loss or disposal; async operations must honor it. */
   readonly signal: AbortSignal
 }
 export type EuiOperation = (context: EuiApprovalContext) => void | Promise<void>
-
 export interface EuiHostHandle {
   readonly id: EntryId
   readonly revision: number
-  /** Publishes a new immutable revision and invalidates the previous revision's button. */
   update(data: unknown, operation?: EuiOperation): void
   revoke(): void
 }
-
+export interface EuiKitContext extends Ticket {
+  readonly sessionId: string
+  readonly revision: number
+}
+export type EuiKitIntent = (detail: unknown, context: EuiKitContext) => void | Promise<void>
+export type EuiKitRefresh = (context: EuiKitContext) => void | Promise<void>
+export interface EuiKitHandle {
+  readonly id: EntryId
+  readonly revision: number
+  update(doc: unknown, intent: EuiKitIntent, refresh?: EuiKitRefresh): void
+  revoke(): void
+}
+type Content = {
+  readonly kind: 'rows'
+  readonly data: EuiHostCardData
+  operation: EuiOperation | undefined
+  status: HostCardStatus
+} | {
+  readonly kind: 'kit'
+  readonly data: EuiKitDoc
+  readonly intent: EuiKitIntent
+  readonly refresh: EuiKitRefresh | undefined
+  mounted?: EuiMounted
+  mounting?: symbol
+  error?: string
+  refreshing: boolean
+  accepting: boolean
+}
 interface Slot {
   readonly entry: PanelEntry
   readonly key: string
-  readonly revision: number
-  readonly data: EuiHostCardData
+  revision: number
+  readonly content: Content
   readonly owner: EuiHostOwner
   readonly controller: AbortController
   readonly onAbort: () => void
-  operation: EuiOperation | undefined
-  status: HostCardStatus
 }
 
 export class EuiHostCards {
@@ -57,35 +74,43 @@ export class EuiHostCards {
   readonly #kinds: readonly string[]
   readonly #changed: (key: string) => void
   readonly #port: EuiHostPort | undefined
+  readonly #sandbox: (() => Promise<EuiSandbox>) | undefined
   #revision = 0
   #closed = false
   #revoking = false
 
-  constructor(kinds: readonly string[], changed: (key: string) => void, port?: EuiHostPort) {
+  constructor(kinds: readonly string[], changed: (key: string) => void, port?: EuiHostPort, sandbox?: () => Promise<EuiSandbox>) {
     this.#kinds = kinds
     this.#changed = changed
     this.#port = port
+    this.#sandbox = sandbox
   }
-
   get size(): number { return this.#slots.size }
 
   publish(raw: unknown, operation?: EuiOperation): EuiHostHandle {
-    const data = this.#data(raw, operation)
+    const handle = this.#publish(this.#rows(raw, operation))
+    return { ...handle, get revision() { return handle.revision }, update: (raw, run) => handle.update(this.#rows(raw, run)) }
+  }
+
+  /** Only a trusted caller receives this publication's intent callback and abort lifetime. */
+  publishKit(raw: unknown, intent: EuiKitIntent, refresh?: EuiKitRefresh): EuiKitHandle {
+    const handle = this.#publish(this.#kit(raw, intent, refresh))
+    return { ...handle, get revision() { return handle.revision }, update: (raw, run, refresh) => handle.update(this.#kit(raw, run, refresh)) }
+  }
+
+  #publish(content: Content) {
     const port = this.#port
     const owner = port?.owner()
     if (this.#closed || this.#revoking || !port || !owner || !owner.sessionId ||
-      owner.signal.aborted || !owner.isCurrent() || !port.active()) {
-      throw new Error('Host card needs an active session')
-    }
+      owner.signal.aborted || !owner.isCurrent() || !port.active()) throw new Error('Host card needs an active session')
     this.sync()
-    if (owner.signal.aborted || !owner.isCurrent() || !port.active()) {
-      throw new Error('Host card owner changed')
-    }
-    const entry = port.append(data.title)
+    if (owner.signal.aborted || !owner.isCurrent() || !port.active()) throw new Error('Host card owner changed')
+    const title = content.data.title ?? content.data.kind
+    const entry = port.append(title)
     if (this.#closed || owner.signal.aborted || !owner.isCurrent() || !port.contains(entry) || !port.active()) {
       throw new Error('Host card owner changed while publishing')
     }
-    let slot = this.#install(entry, data, operation, owner)
+    let slot = this.#install(entry, content, owner)
     while (this.#slots.size > MAX_HOST_CARDS) {
       const oldest = this.#slots.values().next().value
       if (!oldest) break
@@ -96,20 +121,16 @@ export class EuiHostCards {
     return {
       id: entry.id,
       get revision() { return slot.revision },
-      update: (next, run) => {
-        const data = this.#data(next, run)
-        if (!this.#current(slot) || !port.active() || this.#revoking) {
-          throw new Error('Host card is no longer current')
-        }
+      update: (content: Content) => {
+        if (!this.#current(slot) || !port.active() || this.#revoking) throw new Error('Host card is no longer current')
         const owner = slot.owner
         this.#drop(slot)
-        // An operation's abort handler may have changed the owning session synchronously.
         if (this.#closed || !owner.isCurrent() || owner.signal.aborted || !port.contains(entry) || !port.active()) {
           this.#changed(slot.key)
           throw new Error('Host card owner changed')
         }
-        entry.title = data.title
-        slot = this.#install(entry, data, run, owner)
+        entry.title = content.data.title ?? content.data.kind
+        slot = this.#install(entry, content, owner)
         this.#changed(slot.key)
       },
       revoke: () => {
@@ -121,106 +142,155 @@ export class EuiHostCards {
     }
   }
 
-  /** Object identity is the authority: a matching model fence or reconstructed panel grants nothing. */
   view(entry: PanelEntry): EuiCardView | undefined {
     this.sync()
     const slot = this.#slots.get(entry)
     if (!slot) return undefined
+    const content = slot.content
+    const revision = slot.revision
     return {
-      spec: slot.data,
-      app: slot.data.app,
-      label: slot.data.title,
-      identity: 'host-' + slot.revision,
-      node: hostSnapshot(slot.data, slot.status),
-      activate: id => { this.#approve(slot, id) }
-    }
-  }
-
-  /** Also covers transcript reset/load when the runtime id happens to stay the same. */
-  sync() {
-    for (const slot of this.#slots.values()) {
-      if (!this.#current(slot)) {
-        this.#drop(slot)
-        this.#changed(slot.key)
+      spec: content.data, app: content.data.app, label: content.data.title ?? content.data.kind,
+      identity: 'host-' + revision,
+      node: content.kind === 'rows' ? hostSnapshot(content.data, content.status)
+        : kitSnapshot(content.mounted?.snapshot() ?? null, kitNotes(content.data), content.refresh !== undefined, content.refreshing, content.error),
+      activate: id => {
+        if (slot.revision !== revision) return
+        if (content.kind === 'rows') this.#approve(slot, id)
+        else this.#clickKit(slot, id)
       }
     }
   }
 
+  sync() {
+    for (const slot of this.#slots.values()) {
+      if (!this.#current(slot)) { this.#drop(slot); this.#changed(slot.key) }
+    }
+  }
   invalidate() {
     const slots = [...this.#slots.values()]
     for (const slot of slots) this.#drop(slot)
     for (const slot of slots) this.#changed(slot.key)
   }
+  close() { this.#closed = true; this.invalidate() }
 
-  close() {
-    this.#closed = true
-    this.invalidate()
+  /** Theme changes retire native ids and pending mounts, but keep the publication and owner. */
+  remountKit() {
+    for (const slot of this.#slots.values()) {
+      if (slot.content.kind !== 'kit') continue
+      slot.content.mounted?.dispose()
+      delete slot.content.mounted
+      slot.revision = ++this.#revision
+      this.#mountKit(slot)
+      this.#changed(slot.key)
+    }
   }
 
-  #data(raw: unknown, operation: EuiOperation | undefined): EuiHostCardData {
+  #rows(raw: unknown, operation: EuiOperation | undefined): Content {
     const data = decodeEuiHostCard(raw, this.#kinds)
     if (Boolean(data.approval) !== (typeof operation === 'function')) {
       throw new TypeError('An approval needs its separate host operation; read-only cards have none')
     }
-    return data
+    return { kind: 'rows', data, operation, status: 'pending' }
   }
-
-  #install(entry: PanelEntry, data: EuiHostCardData, operation: EuiOperation | undefined, owner: EuiHostOwner): Slot {
+  #kit(raw: unknown, intent: EuiKitIntent, refresh: EuiKitRefresh | undefined): Content {
+    return { kind: 'kit', data: decodeEuiKit(raw), intent, refresh, refreshing: false, accepting: false }
+  }
+  #install(entry: PanelEntry, content: Content, owner: EuiHostOwner): Slot {
     const slot: Slot = {
       entry, key: 'main.' + entry.id + '.host', revision: ++this.#revision,
-      data, operation, owner, controller: new AbortController(), status: 'pending',
+      content, owner, controller: new AbortController(),
       onAbort: () => {
-        if (this.#slots.get(entry) === slot) {
-          this.#drop(slot)
-          this.#changed(slot.key)
-        }
+        if (this.#slots.get(entry) === slot) { this.#drop(slot); this.#changed(slot.key) }
       }
     }
     this.#slots.set(entry, slot)
     owner.signal.addEventListener('abort', slot.onAbort, { once: true })
+    this.#mountKit(slot)
     return slot
   }
-
   #current(slot: Slot): boolean {
     return !this.#closed && this.#slots.get(slot.entry) === slot &&
       !slot.owner.signal.aborted && slot.owner.isCurrent() && this.#port?.contains(slot.entry) === true
   }
-
   #drop(slot: Slot) {
     this.#slots.delete(slot.entry)
-    slot.operation = undefined
+    const content = slot.content
+    if (content.kind === 'rows') content.operation = undefined
+    else { content.accepting = false; content.mounted?.dispose(); delete content.mounting }
     slot.owner.signal.removeEventListener('abort', slot.onAbort)
     const wasRevoking = this.#revoking
     this.#revoking = true
     try { slot.controller.abort() } finally { this.#revoking = wasRevoking }
   }
-
-  #approve(slot: Slot, id: number) {
-    if (id !== HOST_APPROVE_ID || !this.#current(slot) || !this.#port?.active() ||
-      slot.status !== 'pending' || !slot.operation) return
-    const run = slot.operation
-    // Consume before calling any user code, including reentrant callbacks and rejected promises.
-    slot.operation = undefined
-    slot.status = 'running'
-    try {
-      const result = run(Object.freeze({
-        sessionId: slot.owner.sessionId, revision: slot.revision,
-        data: slot.data, signal: slot.controller.signal
-      }))
-      void Promise.resolve(result).then(
-        () => this.#finish(slot, 'done'),
-        () => this.#finish(slot, 'failed')
-      )
+  #context(slot: Slot): EuiKitContext {
+    const revision = slot.revision
+    return { sessionId: slot.owner.sessionId, revision, signal: slot.controller.signal,
+      isCurrent: () => this.#current(slot) && slot.revision === revision && this.#port?.active() === true }
+  }
+  #mountKit(slot: Slot) {
+    const content = slot.content
+    if (content.kind !== 'kit' || !this.#sandbox) return
+    const token = content.mounting = Symbol()
+    delete content.error
+    this.#sandbox().then(sb => {
+      if (!this.#current(slot) || content.mounting !== token) return
+      content.mounted = sb.mount(content.data.kind, content.data.app, () => {
+        if (this.#current(slot) && content.mounting === token) this.#changed(slot.key)
+      }, kitInput(content.data), detail => {
+        if (!content.accepting || !this.#current(slot) || content.mounting !== token || !this.#port?.active()) return
+        content.accepting = false
+        void this.#runKit(slot, () => content.intent(detail, this.#context(slot)))
+      })
+      this.#changed(slot.key)
+    }).catch((error: unknown) => {
+      if (!this.#current(slot) || content.mounting !== token) return
+      content.error = error instanceof Error ? error.message : String(error)
+      this.#changed(slot.key)
+    })
+  }
+  #clickKit(slot: Slot, id: number) {
+    const content = slot.content
+    if (content.kind !== 'kit' || !this.#current(slot) || !this.#port?.active()) return
+    if (id === -1 && content.refresh && !content.refreshing) {
+      content.refreshing = true
+      this.#changed(slot.key)
+      void this.#runKit(slot, () => content.refresh?.(this.#context(slot))).finally(() => {
+        if (!this.#current(slot)) return
+        content.refreshing = false
+        this.#changed(slot.key)
+      })
+    } else if (id > 0) {
+      content.accepting = true
+      try { content.mounted?.click(id) } finally { content.accepting = false }
       if (this.#current(slot)) this.#changed(slot.key)
-    } catch {
-      this.#finish(slot, 'failed')
     }
   }
-
+  async #runKit(slot: Slot, run: () => void | Promise<void>) {
+    const revision = slot.revision
+    try { await run() } catch (error) {
+      if (!this.#current(slot) || slot.revision !== revision || slot.content.kind !== 'kit') return
+      slot.content.error = error instanceof Error ? error.message : String(error)
+    } finally {
+      if (this.#current(slot) && slot.revision === revision) this.#changed(slot.key)
+    }
+  }
+  #approve(slot: Slot, id: number) {
+    const content = slot.content
+    if (content.kind !== 'rows' || id !== HOST_APPROVE_ID || !this.#current(slot) || !this.#port?.active() ||
+      content.status !== 'pending' || !content.operation) return
+    const run = content.operation
+    content.operation = undefined
+    content.status = 'running'
+    try {
+      const result = run(Object.freeze({ sessionId: slot.owner.sessionId, revision: slot.revision,
+        data: content.data, signal: slot.controller.signal }))
+      void Promise.resolve(result).then(() => this.#finish(slot, 'done'), () => this.#finish(slot, 'failed'))
+      if (this.#current(slot)) this.#changed(slot.key)
+    } catch { this.#finish(slot, 'failed') }
+  }
   #finish(slot: Slot, status: 'done' | 'failed') {
-    // A late result cannot paint over a replacement or resurrect a disposed/foreign card.
-    if (!this.#current(slot)) return
-    slot.status = status
+    if (!this.#current(slot) || slot.content.kind !== 'rows') return
+    slot.content.status = status
     this.#changed(slot.key)
   }
 }

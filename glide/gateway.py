@@ -8,10 +8,11 @@ Every method is bound to the session the caller is attached to.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import attention, core, source, taste
+from . import attention, core, fleet, source, taste
 from .skill_router import install as skill_router_install
 from .offload import savings_card as offload_savings_card
 
@@ -21,6 +22,17 @@ NAMESPACE = "glide"
 class SessionParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
     session_id: str = Field(min_length=1)
+
+
+class FleetParams(SessionParams):
+    view: Literal["hosts", "portfolio", "factory"]
+    portfolio: str | None = Field(default=None, min_length=1, max_length=128, strict=True)
+
+
+class FleetPodParams(SessionParams):
+    host: str = Field(min_length=1, max_length=253, strict=True)
+    ns: str = Field(min_length=1, max_length=63, pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", strict=True)
+    name: str = Field(min_length=1, max_length=253, pattern=r"^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$", strict=True)
 
 
 class SyncParams(SessionParams):
@@ -75,6 +87,8 @@ _SAMPLE_TASK = (
 VERBS = {
     "detect": (SessionParams, lambda home, p: core.detect(home)),
     "taste": (SessionParams, lambda home, p: taste.board()),
+    "fleet": (FleetParams, lambda home, p: fleet.card(home, p.view, p.portfolio)),
+    "fleet_pod": (FleetPodParams, lambda home, p: fleet.pod(home, p.host, p.ns, p.name)),
     "sync": (SyncParams, lambda home, p: core.sync(home, p.limit, p.session_id)),
     "enable": (EnableParams, lambda home, p: core.set_enabled(home, p.on)),
     "recall": (RecallParams, lambda home, p: {"hits": core.recall(home, p.query)}),

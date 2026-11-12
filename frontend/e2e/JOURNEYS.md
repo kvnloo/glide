@@ -2,7 +2,7 @@
 
 This is the army's test map for `features.json`. Each numbered item is a feature ID in execution order. A shared setup may be reused, but each receipt names one feature and the exact tested commit. Existing test references are not army passes or proof of native Tern behavior.
 
-The ten journeys cover the shipped checkout. Fleet cards and fleet commands are added by their implementation owner. Native GUI checks require an owned isolated headless display. A blocked integration passes only when its refusal is visible and no unauthorized action occurs.
+The eleven journeys cover the shipped checkout. Native GUI checks require an owned isolated headless display. A blocked integration passes only when its refusal is visible and no unauthorized action occurs.
 
 Run the inventory check from the repository root:
 
@@ -224,3 +224,13 @@ Find commands and inspect integrations. Use the palette and help, inspect config
 15. `media-preview-gateway`
 16. `quit-chat`
 
+## fleet
+
+See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` and `/factory graph`; each card shows its source and per-host notes, or an explicit "Fleet data unavailable" reason, never sample data. Tap every card action: Open chat resumes a trusted session, Open pod describes read-only, Set next drafts without sending, and Refresh re-calls `glide.fleet` in the same panel.
+
+1. `fleet-hosts`
+2. `fleet-sessions`
+3. `fleet-pods`
+4. `fleet-portfolio`
+5. `fleet-factory`
+6. `fleet-authority`

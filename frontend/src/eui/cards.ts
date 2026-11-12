@@ -132,8 +132,8 @@ interface Slot {
 
 export class EuiCards {
   revision = 0
-  readonly dir = euiDir()
-  readonly kinds = pinnedKinds(this.dir)
+  readonly dir: string
+  readonly kinds: readonly string[]
   readonly host: EuiHostCards
   #sink: EuiSink | undefined
   #changed: (key?: string) => void
@@ -144,10 +144,12 @@ export class EuiCards {
   #rules = new Map<string, string>()
   #sheetDirty = false
 
-  constructor(changed: (key?: string) => void, sink?: EuiSink, host?: EuiHostPort) {
+  constructor(changed: (key?: string) => void, sink?: EuiSink, host?: EuiHostPort, dir = euiDir()) {
+    this.dir = dir
+    this.kinds = pinnedKinds(dir)
     this.#changed = changed
     this.#sink = sink
-    this.host = new EuiHostCards(this.kinds, key => { this.#bump(key) }, host)
+    this.host = new EuiHostCards(this.kinds, key => { this.#bump(key) }, host, () => this.#loadSandbox())
   }
 
   attach(sink: EuiSink, dark: boolean) {
@@ -166,6 +168,7 @@ export class EuiCards {
 
     this.#dark = dark
     this.#sandbox = undefined
+    this.host.remountKit()
     this.#reset()
   }
 
@@ -259,9 +262,12 @@ export class EuiCards {
     }
   }
 
+  #loadSandbox(): Promise<EuiSandbox> {
+    return this.#sandbox ??= createSandbox(this.dir, this.#dark ? 'dark' : 'light')
+  }
+
   #mount(key: string, slot: Slot) {
-    this.#sandbox ??= createSandbox(this.dir, this.#dark ? 'dark' : 'light')
-    this.#sandbox.then(sb => {
+    this.#loadSandbox().then(sb => {
       if (this.#slots.get(key) !== slot) {
         return
       }
