@@ -109,7 +109,7 @@ describe('intent-contract hero', () => {
   it('shows where each slice runs with a status dot, plus the council gate and the budget', () => {
     const node = snap(contractOf(DEMO_ASK))
     const hosts = find(node, 'ih-host')
-    expect(hosts.map(h => words(find(h, 'ih-lrole')[0] ?? h))).toEqual(['groot', 'MBP', 'phone', 'k3s'])
+    expect(hosts.map(h => words(find(h, 'ih-lrole')[0] ?? h))).toEqual(['atlas', 'laptop', 'phone', 'tablet'])
     expect(hosts.map(h => find(h, 'ih-led').map(l => l.t === 'el' ? l.cls : '')[0])).toEqual(['ih-led ih-ok', 'ih-led ih-ok', 'ih-led ih-idle', 'ih-led ih-ok'])
     expect(find(must(find(node, 'ih-gate')[0]), 'ih-pip')).toHaveLength(4)
     expect(words(must(find(node, 'ih-budget')[0]))).toContain('61% of weekly quota left')
