@@ -12,7 +12,6 @@ import { key } from './fakes.js'
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const source = (file: string) => readFileSync(join(here, file), 'utf8')
 const stylesFile = join(here, '../view/styles.ts')
 const styles = readFileSync(stylesFile, 'utf8')
 
