@@ -19,7 +19,8 @@ export const TERN_ATTR = 'data-eui-a-'
 
 /** A selector with each non-data attribute test moved to its data-eui-a- mirror. */
 export function ternSelector(sel) {
-  return sel.replace(/\[\s*(?!data-)([a-zA-Z][\w-]*)/g, `[${TERN_ATTR}$1`)
+  return sel.replace(/:disabled\b/g, `[${TERN_ATTR}disabled]`)
+    .replace(/\[\s*(?!data-)([a-zA-Z][\w-]*)/g, `[${TERN_ATTR}$1`)
 }
 
 /** One declaration as Tern parses it: equivalents for logical borders, dvh and env(); undefined drops it. */

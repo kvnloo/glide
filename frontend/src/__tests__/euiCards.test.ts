@@ -290,6 +290,10 @@ describe('ephemeral-ui kit stylesheet', () => {
       `.eu-switch[data-eui-a-aria-checked="true"] i,[data-eui-a-open]>summary,[data-x='1']`)
     expect(euiStyles()).toContain(`.eu-switch[data-eui-a-aria-checked="true"]`)
     expect(euiStyles()).not.toMatch(/\[aria-/)
+    expect(ternSelector('.eu-btn:disabled,.ff-act:disabled::before')).toBe(
+      '.eu-btn[data-eui-a-disabled],.ff-act[data-eui-a-disabled]::before')
+    expect(euiStyles()).toContain('.ff-act[data-eui-a-disabled]')
+    expect(euiStyles()).not.toMatch(/:disabled\b/)
     const eui = new EuiCards(() => undefined)
     const spec = { kind: 'home', app: 'home-assistant' }
     eui.view('h', spec)
