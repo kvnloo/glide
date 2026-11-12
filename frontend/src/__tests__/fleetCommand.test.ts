@@ -20,10 +20,11 @@ function setup(reply: unknown = { kind: 'fleet-hosts', app: 'k3s', data: { at: '
   const transcript = new Transcript()
   const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session, transcript }, () => true))
   cards.push(eui)
-  const request = vi.fn(async () => reply)
+  const request = vi.fn(async (_method: string, _params: unknown) => reply)
   const draft = vi.fn()
   const resume = vi.fn(async () => undefined)
   const host: FleetHost = { gw: stub<FleetHost['gw']>({ request }), session, transcript, eui,
+    notice: (text, tone) => { transcript.notice(text, tone) }, reveal: vi.fn(),
     control: () => stub<ReturnType<FleetHost['control']>>({ draft }), resume }
   return { host, request, draft, resume, session, transcript, eui,
     view: () => must(eui.hostView(ofKind(transcript.entries.at(-1), 'panel'))) }
@@ -41,6 +42,33 @@ describe('fleet commands', () => {
     await must(localCommand(name)).run(stub({ ...f.host }), arg)
     expect(f.request).toHaveBeenCalledWith('glide.fleet', { session_id: 'fixture-session', view, ...(portfolio ? { portfolio } : {}) })
     expect(f.view().spec.kind).toBe(`fleet-${view}`)
+    expect(JSON.stringify(f.view().node)).toContain('Source: read-only fleet collectors')
+  })
+
+  it.each(['unknown method: glide.fleet', 'Method not found', { code: -32601 }])('renders and refreshes through stock command.dispatch for %j', async error => {
+    const doc = { kind: 'fleet-portfolio', app: 'dash', data: { at: '2026-11-11T00:00:00Z', portfolios: {}, notes: ['Synthetic source unavailable'] } }
+    const f = setup()
+    f.request.mockImplementation(async method => {
+      if (method === 'glide.fleet') throw typeof error === 'string' ? new Error(error) : error
+      return { output: JSON.stringify(doc) }
+    })
+    await fleetCommand(f.host, 'portfolio', 'sample')
+    expect(f.request).toHaveBeenCalledWith('command.dispatch', {
+      name: 'fleet', arg: 'portfolio {"portfolio":"sample"}', session_id: 'fixture-session'
+    })
+    expect(f.view().spec.kind).toBe('fleet-portfolio')
+    expect(JSON.stringify(f.view().node)).toContain('Synthetic source unavailable')
+    must(f.view().activate)(-1)
+    await vi.waitFor(() => expect(f.request).toHaveBeenCalledTimes(4))
+    expect(f.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
+  })
+
+  it.each([{ output: 'not-json' }, { output: JSON.stringify({ error: 'Synthetic fleet failure' }) }, { output: '{}' }, { output: JSON.stringify({ kind: 'fleet-factory', app: 'aodl', data: {} }) }])('rejects malformed stock dispatch reply %j visibly', async reply => {
+    const f = setup()
+    f.request.mockRejectedValueOnce(new Error('unknown method: glide.fleet')).mockResolvedValueOnce(reply)
+    await fleetCommand(f.host, 'hosts')
+    expect(f.eui.host.size).toBe(0)
+    expect(JSON.stringify(f.transcript.entries)).toContain('/hosts:')
   })
 
   it('shows source notes and refresh re-calls the same verb in the same panel', async () => {

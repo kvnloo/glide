@@ -3,6 +3,7 @@ import { describe, expect, it, vi, afterEach } from 'vitest'
 import { fleetIntent, type FleetHost } from '../commands/fleet.js'
 import type { EuiKitContext } from '../eui/host.js'
 import { openUrl } from '../overlays/pullRequests.js'
+import { Transcript } from '../transcript/store.js'
 import { decodeEuiKit } from '../wire/euiKit.js'
 
 import { stub } from './fakes.js'
@@ -22,14 +23,16 @@ const task = { product: 'glide', feature: 'cards', task: 'g3' }
 const node = { node: 'c2' }
 const pod = { host: 'groot', ns: 'z0', name: 'litellm' }
 function setup() {
-  const notice = vi.fn(), panel = vi.fn(), draft = vi.fn(), resume = vi.fn(async () => undefined)
+  const transcript = new Transcript()
+  const notice = vi.fn((...args: Parameters<FleetHost['notice']>) => transcript.notice(...args))
+  const reveal = vi.fn(), panel = vi.fn(), draft = vi.fn(), resume = vi.fn(async () => undefined)
   const request = vi.fn(async (): Promise<unknown> => ({ text: 'Synthetic pod description' }))
   const control = () => stub<ReturnType<FleetHost['control']>>({ panel, draft })
-  const host = stub<FleetHost>({ transcript: { notice }, control, resume, gw: { request } })
+  const host = stub<FleetHost>({ notice, reveal, transcript, control, resume, gw: { request } })
   const controller = new AbortController()
   const current = { value: true }
   const context: EuiKitContext = { sessionId: 'fixture-session', revision: 1, signal: controller.signal, isCurrent: () => current.value }
-  return { host, context, controller, current, notice, panel, draft, resume, request }
+  return { host, context, controller, current, notice, reveal, panel, draft, resume, request }
 }
 
 describe('fleet fixed action routes', () => {
@@ -42,6 +45,29 @@ describe('fleet fixed action routes', () => {
     }
     expect(f.resume).toHaveBeenCalledTimes(1)
     expect(f.notice).toHaveBeenCalledWith(expect.stringContaining('Not a Hermes session'), 'warning')
+  })
+
+  it.each(['process', 'missing-url'])('reveals action feedback below a long card for %s', async reason => {
+    const f = setup()
+    const doc = reason === 'process' ? hosts('Hermes', 'process:12') : factory()
+    const detail = reason === 'process'
+      ? { action: 'open-chat', entities: { ...agent, agent: 'process:12' } }
+      : { action: 'open-node', entities: node }
+    await fleetIntent(f.host, doc, detail, f.context)
+    expect(f.notice).toHaveBeenCalledTimes(1)
+    const entry = f.host.transcript.entries.at(-1)
+    expect(entry?.kind).toBe('notice')
+    expect(f.reveal).toHaveBeenCalledExactlyOnceWith(`main.${entry?.id}`)
+  })
+
+  it.each(['stale', 'abort'])('does not reveal a notice after its publication becomes %s', async reason => {
+    const f = setup()
+    const run = fleetIntent(f.host, factory(), { action: 'open-node', entities: node }, f.context)
+    if (reason === 'stale') f.current.value = false
+    else f.controller.abort()
+    await run
+    expect(f.notice).toHaveBeenCalledTimes(1)
+    expect(f.reveal).not.toHaveBeenCalled()
   })
 
   it.each(['nudge', 'set-next', 'queue-fix'])('%s drafts through the composer and never submits', async action => {
@@ -58,6 +84,17 @@ describe('fleet fixed action routes', () => {
     await fleetIntent(f.host, hosts(), { action: 'open-pod', entities: pod }, f.context)
     expect(f.request).toHaveBeenCalledWith('glide.fleet_pod', { session_id: 'fixture-session', ...pod })
     expect(f.panel).toHaveBeenCalledWith('z0/litellm', 'Synthetic pod description')
+  })
+
+  it('describes pods through stock command.dispatch when the plugin method is missing', async () => {
+    const f = setup()
+    f.request.mockRejectedValueOnce(new Error('unknown method: glide.fleet_pod'))
+      .mockResolvedValueOnce({ output: JSON.stringify({ text: 'Stock pod details' }) })
+    await fleetIntent(f.host, hosts(), { action: 'open-pod', entities: pod }, f.context)
+    expect(f.request).toHaveBeenCalledWith('command.dispatch', {
+      name: 'fleet', arg: 'pod {"host":"groot","ns":"z0","name":"litellm"}', session_id: 'fixture-session'
+    })
+    expect(f.panel).toHaveBeenCalledWith('z0/litellm', 'Stock pod details')
   })
 
   it.each(['open-task', 'open-node'])('%s opens only the URL in the trusted row', async action => {
@@ -126,5 +163,6 @@ describe('fleet fixed action routes', () => {
     await fleetIntent(f.host, hosts(), { action: 'open-chat', entities: agent }, f.context)
     expect(f.resume).not.toHaveBeenCalled()
     expect(f.notice).not.toHaveBeenCalled()
+    expect(f.reveal).not.toHaveBeenCalled()
   })
 })
