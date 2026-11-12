@@ -74,7 +74,16 @@ describe('live lane strip', () => {
     s.update(false)
     expect(s.node()).toBeNull() // no live voice and no open call: nothing drawn
     s.update(true)
-    expect(texts(s.node()).map(t => t.text)).toEqual(['Lanes · lane broker answered 401'])
+    expect(texts(s.node()).map(t => t.text)).toEqual(['Lanes · lane broker refused this device'])
+  })
+
+  it('says the broker is offline in plain words, never an exception name', async () => {
+    const fetch = vi.fn(async () => { throw new TypeError('fetch failed') })
+    const feed = new LaneFeed({ url: 'http://broker/', token: 't0k', changed: vi.fn(), fetch })
+    await feed.poll()
+    feed.stop()
+    expect(feed.error).toBe('lane broker is offline')
+    expect(feed.error).not.toMatch(/Error|fetch failed/)
   })
 
   it('orbits lanes around the voice orb only in a focus block with live voice; otherwise the strip is unchanged', async () => {

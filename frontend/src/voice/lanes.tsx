@@ -108,13 +108,13 @@ export class LaneFeed {
         headers: { Authorization: 'Bearer ' + this.#o.token },
         signal: AbortSignal.timeout(2500)
       })
-      if (!res.ok) error = `lane broker answered ${res.status}`
+      if (!res.ok) error = res.status === 401 || res.status === 403 ? 'lane broker refused this device' : 'lane broker is not answering'
       else {
         call = parseLaneStatus(await res.json())
-        if (!call) error = 'lane broker sent no lane call'
+        if (!call) error = 'waiting for a voice call'
       }
     } catch (e) {
-      error = 'lane broker unreachable' + (e instanceof Error && e.name !== 'Error' ? ` (${e.name})` : '')
+      error = 'lane broker is offline'
     }
     const key = JSON.stringify([call, error])
     if (key !== this.#last) {
