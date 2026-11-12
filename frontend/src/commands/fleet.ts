@@ -167,8 +167,9 @@ function fleetGraph(model: FleetDesign, phone: boolean): string {
   const count = Array.from({ length: cols }, () => 0)
   for (const [index, tile] of model.tiles.entries()) {
     const column = phone ? index % 2 : tile.column
-    positions.set(tile.key, {x:column * 164, y: count[column]! * 124})
-    count[column]!++
+    const row = count[column] ?? 0
+    positions.set(tile.key, {x:column * 164, y: row * 124})
+    count[column] = row + 1
   }
   const height = Math.max(1, ...count) * 124 - 12
   const paths = model.edges.map(([a, b]) => {
