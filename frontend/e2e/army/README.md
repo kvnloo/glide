@@ -27,7 +27,7 @@ Set `RUN` to a full eleven-lane artifact directory, then audit it:
 
 ```sh
 python3 audit_run.py "$RUN"
-python3 ledger.py runs/boat --since 20261111T235205Z
+python3 ledger.py ~/.local/state/glide-army/boat --since 20261111T235205Z
 ```
 
 The first command checks exact lane IDs, fixtures, canary recall, PNG signatures, usage, concurrency, and sampler coverage. Exit 0 means consistent receipts, not app acceptance. The ledger includes failed attempts and diagnostics, reads a fresh Boat list, checks the cross-run peak, and never adds overlapping account-wide billing deltas. Usage is sampled immediately before deletion, so teardown latency is excluded.
@@ -72,7 +72,7 @@ The pair inherits the same goal, target, kit payload and Glide SHA. Both models 
 
 ## Read the receipts
 
-Each invocation writes `runs/boat/<UTC>/`:
+Each invocation writes `$ARMY_RUNS/boat/<UTC>/` (default `~/.local/state/glide-army`, outside the worktree so `git worktree remove` cannot delete evidence; `OUT` overrides one run):
 
 - `run.json` records the exact SHA, snapshot, frozen payload hash, lane configuration, sandbox IDs, deletion status, and account-wide VM minutes from billing before and after. Per-sandbox usage receipts separate this run from unrelated activity.
 - `g0/` contains a real kit screenshot, rendered canary checks, and the canonical image/tool/schema probe results. No explore lane starts unless every selected model passes.

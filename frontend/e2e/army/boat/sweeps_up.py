@@ -13,7 +13,8 @@ import tarfile
 import tempfile
 import time
 
-from up import Army, ROOT, boat, digest, guard_budget, redact, run
+from up import Army, ROOT, RUNS, boat, digest, guard_budget, redact, run
+
 
 SWEEPS = ('sweep-clicks', 'sweep-themes', 'sweep-console', 'sweep-build')
 
@@ -58,7 +59,7 @@ def main():
     snaps = boat('snapshots')
     if not any(s['name'] == snapshot and s['status'] == 'ready' for s in snaps['named']):
         raise RuntimeError('W4 dependency snapshot is not ready: ' + snapshot)
-    out = Path(os.getenv('OUT', 'runs/boat/' + time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + '-sweeps')).resolve()
+    out = Path(os.getenv('OUT', str(RUNS / 'boat' / (time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + '-sweeps')))).resolve()
     out.mkdir(parents=True, exist_ok=False)
     army = Army(out)
     before = boat('billing')

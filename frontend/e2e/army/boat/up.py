@@ -19,6 +19,9 @@ sys.path.insert(0, str(ROOT))
 from canary import prepare_site
 from findings import main as findings
 
+# Out of the worktree: removing a worktree deletes its ignored runs/, so evidence lives here.
+RUNS = Path(os.getenv('ARMY_RUNS', str(Path.home() / '.local/state/glide-army')))
+
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -202,7 +205,7 @@ def main():
     concurrency = int(os.getenv('LANES', '2'))
     if not 1 <= concurrency <= 3:
         raise ValueError('LANES must be 1..3 to respect NIM throughput')
-    out = Path(os.getenv('OUT', 'runs/boat/' + time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()))).resolve()
+    out = Path(os.getenv('OUT', str(RUNS / 'boat' / time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())))).resolve()
     out.mkdir(parents=True, exist_ok=False)
     army = Army(out)
     before = boat('billing')
