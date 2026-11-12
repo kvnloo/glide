@@ -86,8 +86,8 @@ describe('ephemeral-ui kit sandbox', () => {
       expect(card.click(action)).toBe(true)
       const disabled: string[] = []
       walk(card.snapshot(), n => {
-        if (n.t === 'el' && n.tag === 'button' && n.attrs.disabled === 'true') {
-          expect(n.attrs.title).toBe('Already completed')
+        if (n.t === 'el' && n.tag === 'button' && n.attrs['disabled'] === 'true') {
+          expect(n.attrs['title']).toBe('Already completed')
           disabled.push(JSON.stringify(n.kids))
         }
       })
