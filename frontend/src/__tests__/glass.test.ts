@@ -37,6 +37,11 @@ describe('glassCss', () => {
     expect([...hexes].sort()).toEqual([p.accent, p.glow, p.bg, mix(p.bg, '#000000', 0.7)].sort())
   })
 
+  it('rims the council in the glow but leaves its 11px label on the theme text colour', () => {
+    expect(css).toMatch(/\.ih-l-council, [^{]*\{ border-color: var\(--g-b\); \}/)
+    expect(css).not.toMatch(/\.ih-lrole b \{ color/)
+  })
+
   it('frosts cards and the composer, rims them, and lifts them on hover within 250ms', () => {
     expect(css).toMatch(/\.eu-card \{[^}]*backdrop-filter: blur\(/)
     expect(css).toMatch(/omp\.editor'\] \{[^}]*backdrop-filter: blur\(/)

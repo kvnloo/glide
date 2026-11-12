@@ -82,7 +82,8 @@ export function glassCss(p: WalPalette): string {
   const k = "[data-eui][data-eui='card']"
   const card = `${k} .eu-card`
   const editor = ".sf-col[data-role^='omp.editor']"
-  // The intent cards draw the council in a fixed violet; under glass it takes the palette's glow.
+  // The intent cards rim the council in a fixed violet; under glass it takes the palette's glow. Its label stays --h-fg
+  // so the 11px text keeps AA contrast whatever the wallpaper.
   return `
 .sf, [data-eui='card'] { ${vars}; }
 ${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
@@ -105,7 +106,6 @@ ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), t
 ${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a(55)}; }
 ${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
 ${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
-${k} .ih-l-council .ih-lrole b { color: var(--g-b); }
 ${k} .ih-flowlink.ih-gated { background: var(--g-b); }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a(30)}; }
 ${k} .eu-btn:hover { border-color: ${a(70)}; box-shadow: 0 0 16px -6px ${a(70)}; transform: translateY(-1px); }

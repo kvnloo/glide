@@ -527,6 +527,24 @@ describe('evictions, failure and shutdown', () => {
     })
   })
 
+  it('keeps drawing after Tern skips unsupported CSS in a stylesheet, and says so once', async () => {
+    const diagnostic = vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    await withApp(async h => {
+      const sheetError = { ev: 'error', sheet: 'ephemeral-ui', msg: '1:1: unsupported at-rule `@container` in `@container (min-width: 600px)`' }
+      await h.event(sheetError)
+      await h.event(sheetError)
+      const before = h.peer.frames.length
+      h.app.stores.composer.set('still typing')
+      h.app.changed()
+      await painted()
+      expect(h.peer.frames.length).toBeGreaterThan(before)
+      expect(h.tern.surfaces).toHaveLength(1)
+      expect(h.app.transcript.entries.some(e => e.kind === 'notice' && e.text.includes('Tern'))).toBe(false)
+      expect(diagnostic).toHaveBeenCalledTimes(1)
+      expect(diagnostic).toHaveBeenCalledWith(expect.stringContaining('stylesheet ephemeral-ui'))
+    })
+  })
+
   it('stops on a locally malformed duplicate view without replaying any gateway intent', async () => {
     const diagnostic = vi.spyOn(process.stderr, 'write').mockReturnValue(true)
     await withApp(async h => {

@@ -231,7 +231,6 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
 [data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
 [data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
-[data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
 [data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
 [data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .9; }
