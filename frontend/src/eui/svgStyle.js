@@ -3,7 +3,7 @@
 // sandbox DOM is still around, so the image draws the same as the card on the kit site.
 
 // Declarations an SVG renderer honours as presentation; the rest (transitions, cursors) do nothing in an image.
-const KEEP = /^(fill|fill-opacity|stroke|stroke-width|stroke-opacity|stroke-dasharray|stroke-dashoffset|stroke-linecap|stroke-linejoin|opacity|font-size|font-family|font-weight|text-anchor|dominant-baseline|display|visibility|stop-color|stop-opacity)$/
+const KEEP = /^(--(?!h-)[\w-]+|color|fill|fill-opacity|stroke|stroke-width|stroke-opacity|stroke-dasharray|stroke-dashoffset|stroke-linecap|stroke-linejoin|opacity|font-size|font-family|font-weight|text-anchor|dominant-baseline|display|visibility|stop-color|stop-opacity)$/
 const SCOPE = "[data-eui='card'] "
 const DARK = '[data-scheme="dark"] '
 
@@ -81,24 +81,26 @@ export function svgInline(svg, rules, theme) {
   const copy = svg.cloneNode(true)
   const live = [svg, ...svg.querySelectorAll('*')]
   const out = [copy, ...copy.querySelectorAll('*')]
-  // Custom properties and colour inherited from the card down to the svg.
-  const inherited = {}
-  for (let a = svg.parentElement; a; a = a.parentElement) {
-    for (const [k, v] of Object.entries(props(a.getAttribute('style')))) if (!(k in inherited) && (k.startsWith('--') || k === 'color')) inherited[k] = v
-  }
-  const scope = new Map([[svg, inherited]])
-  live.forEach((el, i) => {
-    const up = scope.get(el.parentElement) ?? inherited
+  const declarations = el => {
     const decl = {}
     for (const r of rules) {
       let hit = false
       try { hit = el.matches(r.sel) } catch { hit = false }
       if (hit) for (const [p, v] of r.decls) decl[p] = v
     }
-    const own = props(el.getAttribute('style'))
-    Object.assign(decl, own)
+    return Object.assign(decl, props(el.getAttribute('style')))
+  }
+  // Custom properties and colour inherited from the card down to the svg.
+  const inherited = {}
+  for (let a = svg.parentElement; a; a = a.parentElement) {
+    for (const [k, v] of Object.entries(declarations(a))) if (!(k in inherited) && (k.startsWith('--') || k === 'color')) inherited[k] = v
+  }
+  const scope = new Map([[svg, inherited]])
+  live.forEach((el, i) => {
+    const up = scope.get(el.parentElement) ?? inherited
+    const decl = declarations(el)
     const vars = { ...up }
-    for (const [k, v] of Object.entries(own)) if (k.startsWith('--') || k === 'color') vars[k] = v
+    for (const [k, v] of Object.entries(decl)) if (k.startsWith('--') || k === 'color') vars[k] = v
     scope.set(el, vars)
     const lookup = name => {
       if (name in vars) return resolveValue(vars[name], lookup, 1)
@@ -133,6 +135,7 @@ export function svgInline(svg, rules, theme) {
     if (style.length) out[i].setAttribute('style', style.map(([p, v]) => `${p}:${v}`).join(';'))
     else out[i].removeAttribute('style')
   })
-  const markup = copy.outerHTML
+  // HTML permits '<' in attributes; standalone SVG requires XML escaping.
+  const markup = copy.outerHTML.replace(/="[^"]*"/g, attr => attr.replace(/</g, '&lt;'))
   return markup.includes('xmlns=') ? markup : markup.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
 }

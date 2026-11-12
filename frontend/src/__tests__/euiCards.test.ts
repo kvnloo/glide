@@ -185,6 +185,23 @@ describe('ephemeral-ui kit sandbox', () => {
 })
 
 describe('ephemeral-ui SVG images', () => {
+  it.each(['light', 'dark'] as const)('escapes factory SVG attributes and resolves its palette in %s', async scheme => {
+    const sb = await createSandbox(euiDir(), scheme)
+    const card = sb.mount('fleet-factory', 'aodl', () => undefined, { kind: 'fleet-factory', app: 'aodl', data: {
+      at: '2026-11-11T00:00:00Z', stats: { queue: 0, depth: 0, sendsHour: 0, capHour: 30, posted: 0, verifyPass: 0.89 },
+      nodes: [{ id: 'brain', col: 0, label: 'Factory brain', kind: 'chat', state: 'idle', reason: 'Requires Python <3.14' }], edges: []
+    } })
+    try {
+      await settle(30)
+      let markup = ''
+      walk(card.snapshot(), n => { if (n.t === 'svg' && n.cls.includes('ff-svg')) markup = n.svg })
+      expect(markup).toContain('&lt;3.14')
+      expect(markup).not.toMatch(/="[^"]*</)
+      expect(markup).toMatch(/<rect style="[^"]*fill:/)
+      expect(markup).toMatch(/<text style="[^"]*fill:/)
+    } finally { card.dispose() }
+  })
+
   // Tern draws a card's SVG as an image, outside the kit sheet: class styling and var() must be baked in.
   const svgs = async (kind: string, scheme: 'light' | 'dark') => {
     const sb = await createSandbox(euiDir(), scheme)
@@ -255,6 +272,7 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(css).not.toMatch(/:has\(|::-webkit-|\(\s*(pointer|hover)\s*:|\d+dvh|env\(|conic-gradient/)
     expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:/)
     expect(css).toContain('.eu-btn')
+    expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
   })
 
   it('rewrites logical borders and drops layout-less values', () => {
