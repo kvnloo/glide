@@ -28445,16 +28445,16 @@ var NEEDS = {
   proof: "needs a receipt hash from a real turn"
 };
 var PLAN = [
-  { role: "fast", job: "triage", model: "haiku", host: "MBP" },
-  { role: "small", job: "T2, T3", model: "kimi", host: "k3s" },
-  { role: "large", job: "T1", model: "opus", host: "groot" },
-  { role: "council", job: "review", model: "4 seats", host: "groot" }
+  { role: "fast", job: "triage", model: "haiku", host: "laptop" },
+  { role: "small", job: "T2, T3", model: "kimi", host: "tablet" },
+  { role: "large", job: "T1", model: "opus", host: "atlas" },
+  { role: "council", job: "review", model: "4 seats", host: "atlas" }
 ];
 var SAMPLE_HOSTS = [
-  { name: "groot", value: "online \xB7 large, council" },
-  { name: "MBP", value: "online \xB7 fast lane" },
+  { name: "atlas", value: "online \xB7 large, council" },
+  { name: "laptop", value: "online \xB7 fast lane" },
   { name: "phone", value: "idle \xB7 voice in" },
-  { name: "k3s", value: "3/3 ready \xB7 small, CI" }
+  { name: "tablet", value: "online \xB7 small lane" }
 ];
 var lastAsk = /* @__PURE__ */ new WeakMap();
 function intentProof(cards, transcript) {
