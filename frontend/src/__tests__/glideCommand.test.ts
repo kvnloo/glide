@@ -338,7 +338,7 @@ describe('/council', () => {
     expect(done.match(/data-council-stance/g)).toHaveLength(4)
     // Still fits once every seat has closed: seats are one line each, and the verdict prose stays in the transcript card.
     for (const v of demoRun().verdicts) expect(done).not.toContain(JSON.stringify(v.text))
-    expect(done).toContain('Convene again')
+    expect(done).toContain('Replay the council')
 
     press(overlays[0], 'enter')
     expect(c.running).toBe(true)
@@ -533,7 +533,7 @@ describe('/glide focus', () => {
     await glideCommand(host, 'focus')
     expect(titles()).toEqual(['Your attention'])
     const idle = JSON.stringify(view(0))
-    for (const s of ['ah-ring', 'Peak', '72% est.', '02:30', 'min block', 'Start block']) expect(idle).toContain(s)
+    for (const s of ['ah-ring', 'Peak', '72% est.', '02:30', 'min, ready', 'Start block']) expect(idle).toContain(s)
     expect(idle).not.toContain('eui-host-rows')
     expect(request.mock.calls.map(c => c[1])).toEqual([{ session_id: 'glide-session' }])
 
@@ -550,10 +550,18 @@ describe('/glide focus', () => {
     expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'stop' }])
     expect(titles()).toEqual(['Deep-work block ended', 'While you were in deep work: 2 held'])
     expect(JSON.stringify(view(0))).not.toContain('End block')
+    const after = JSON.stringify(view(0))
+    for (const s of ['Start another block', '50', 'min done']) expect(after).toContain(s)
     const digest = JSON.stringify(view(1))
-    for (const s of ['ah-stack', 'ah-tile', '"text":"2"', 'held asks', '1 digest', 'PR #12 ready for review', 'nightly eval done']) expect(digest).toContain(s)
-    // The top ask sits on the stack; the list below holds the rest, so no ask is drawn twice.
+    for (const s of ['ah-list', 'ah-tile', '"text":"2"', 'held asks', 'PR #12 ready for review', 'nightly eval done']) expect(digest).toContain(s)
+    expect(digest).not.toContain('ah-stack') // one flat list: no stacked card hides a truncated ask behind it
     expect(digest.split('"text":"PR #12 ready for review"')).toHaveLength(2)
+
+    // The ended card's one action is the next block of the same length, on the same card.
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'start', minutes: 50 }])
+    expect(titles()[0]).toBe('Deep-work block on until 09:50')
   })
 
   it('never leaves two live End block cards', async () => {
@@ -579,7 +587,7 @@ describe('/glide focus', () => {
     expect(request.mock.calls[0]?.[1]).toEqual({ session_id: 'glide-session', action: 'wind_down' })
     expect(titles()).toEqual(["Time to wrap: here's where you left off"])
     const wind = JSON.stringify(view(0))
-    for (const s of ['ah-daysvg', 'Tomorrow starts here', '“fix the tokenizer”', 'bed 02:30', 'best hours', 'next deep work now, until 09:00–11:00']) expect(wind).toContain(s)
+    for (const s of ['ah-daysvg', 'Tomorrow starts here', '“fix the tokenizer”', 'bed 02:30', 'best hours', 'Next deep work now, until 09:00–11:00']) expect(wind).toContain(s)
     await glideCommand(host, 'focus hours')
     expect(titles().at(-1)).toBe('Your best deep-work hours')
     const hours = JSON.stringify(view(panels().length - 1))

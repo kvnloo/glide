@@ -194,6 +194,8 @@ ${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: ${p.glow}; }
 ${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(30)}; }
 ${k} .ih-flowlink.ih-gated { background: ${p.glow}; }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a(30)}; }
+/* Gold means one thing: the button to press. The card's approve button is the one solid fill, in dark ink. */
+${k} .eu-btn.eui-host-approve:not([disabled]) { background: ${p.accent}; border-color: ${p.accent}; color: ${shade}; }
 ${k} .eu-btn:hover { border-color: ${a(70)}; box-shadow: 0 6px 14px -8px ${shadow(80)}; transform: translateY(-1px); }
 ${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
 .hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }

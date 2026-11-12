@@ -104,7 +104,7 @@ function contract(d: EuiHostCardData, el: El): EuiNode {
     return el('div', [
       el('small', [text(kind)], 'ih-kind'),
       el('div', [el('span', [text(`“${phrase}”`)], 'ih-phrase'),
-        el('span', [text(good ? `evidence · ${more || state}` : more || 'needs a real-turn receipt')], 'ih-needs')], 'ih-req-text'),
+        el('span', [text(good ? (more ? `evidence · ${more}` : 'observed, no receipt id') : more || 'needs a real-turn receipt')], 'ih-needs')], 'ih-req-text'),
       good ? el('span', [el('b', [text('✓')], 'ih-tick'), text(' evidenced')], 'ih-mark')
         : el('span', [el('i', [], 'ih-dot'), text(' missing')], 'ih-mark')
     ], good ? 'ih-slot ih-met' : 'ih-slot ih-missing', { 'data-state': good ? 'met' : 'missing' })
@@ -184,6 +184,7 @@ function proof(d: EuiHostCardData, el: El): EuiNode {
       ? [el('span', [text(String(n - 1))], 'ih-n ih-n-out'), el('span', [text(String(n))], 'ih-n ih-n-in')]
       : [el('span', [text('0')], 'ih-n')], 'ih-counter'),
     el('small', [text(n === 1 ? 'real-turn receipt' : 'real-turn receipts')], 'ih-cap'),
+    el('b', [text(n > 0 ? 'Proven by a real turn' : 'Not proven yet')], n > 0 ? 'ih-verdict' : 'ih-verdict ih-none'),
     n > 0 && hash ? el('span', [text(hash.slice(0, 12))], 'ih-stamp') : el('span', [text('no receipt yet')], 'ih-stamp ih-none')
   ], `ih-hero ih-proof ${n > 0 ? 'ih-landed' : ''}`.trim())
 }
@@ -195,14 +196,14 @@ export function intentHero(d: EuiHostCardData, el: El): EuiNode | undefined {
 }
 
 export const INTENT_CSS = `
-[data-eui='card'] .ih-hero { --ih-acc: var(--h-success, ${STATUS.ok}); --ih-scope: var(--h-primary); --ih-due: var(--h-warning, ${STATUS.warn}); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
+[data-eui='card'] .ih-hero { --ih-acc: var(--h-success, ${STATUS.ok}); --ih-scope: var(--h-fg); --ih-due: var(--h-warning, ${STATUS.warn}); position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
 [data-eui='card'] .ih-wavebox { position: relative; }
 [data-eui='card'] .ih-wave { display: block; width: 100%; height: 40px; margin-bottom: 8px; opacity: .45; }
 [data-eui='card'] .ih-ask { position: relative; margin: 0; padding: 14px 4px; font-size: 20px; line-height: 1.5; font-weight: 600; color: var(--h-fg); letter-spacing: -.01em; }
-[data-eui='card'] .ih-u { padding-bottom: 1px; border-bottom: 3px solid var(--h-primary); }
+[data-eui='card'] .ih-u { padding-bottom: 1px; border-bottom: 3px solid var(--h-fg); }
 [data-eui='card'] .ih-c-acceptance { border-color: var(--ih-acc); color: var(--ih-acc); }
 [data-eui='card'] .ih-c-scope { border-color: var(--ih-scope); color: var(--ih-scope); }
-[data-eui='card'] .ih-c-deadline { border-color: var(--ih-due); color: var(--ih-due); }
+[data-eui='card'] .ih-c-deadline { border-color: var(--h-mutedFg); border-style: dashed; color: var(--h-fg); }
 [data-eui='card'] .ih-keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 [data-eui='card'] .ih-key { font: 11px/1.4 var(--h-mono); padding: 2px 8px; border: 1px solid; border-radius: 999px; border-bottom-width: 1px; }
 [data-eui='card'] .ih-tick { font-weight: 700; }
@@ -267,13 +268,13 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-cap { margin: 8px 0 0; font: 11px/1.4 var(--h-mono); color: var(--h-fg); opacity: .85; }
 [data-eui='card'] .ih-hold { position: relative; overflow: hidden; width: auto; min-width: 160px; padding: 7px 16px; border-radius: 8px; border: 1px solid var(--h-primary); background: var(--h-card, var(--h-bg)); color: var(--h-fg); font-weight: 700; }
 [data-eui='card'] .ih-hold[disabled] { background: var(--h-muted); color: var(--h-fg); }
-[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-primary); opacity: .4; transition: width .15s ease-out; }
+[data-eui='card'] .ih-holdfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--h-bg); opacity: .35; transition: width .15s ease-out; }
 [data-eui='card'] .ih-hold:active .ih-holdfill { width: 100%; transition: width 1s linear; }
 [data-eui='card'] .ih-rail { display: flex; align-items: center; gap: 0; }
 [data-eui='card'] .ih-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; }
 [data-eui='card'] .ih-node { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--h-border); font: 600 13px var(--h-mono); }
 [data-eui='card'] .ih-s-built .ih-node { border-color: var(--ih-acc); color: var(--ih-acc); }
-[data-eui='card'] .ih-s-running .ih-node { border-color: var(--h-primary); color: var(--h-primary); animation: ih-pulse 1.2s ease-in-out infinite; }
+[data-eui='card'] .ih-s-running .ih-node { border-color: var(--h-fg); color: var(--h-fg); animation: ih-pulse 1.2s ease-in-out infinite; }
 [data-eui='card'] .ih-s-blocked .ih-node { border-color: var(--ih-due); color: var(--ih-due); border-style: dashed; }
 [data-eui='card'] .ih-state { font: 10px var(--h-mono); color: var(--h-fg); opacity: .85; text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-repo { font: 10px var(--h-mono); padding: 1px 6px; border-radius: 4px; background: var(--h-bg); border: 1px solid var(--h-border); }
@@ -281,7 +282,9 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-seam { flex: 1; text-align: center; font: 10px var(--h-mono); color: var(--ih-due); border-top: 2px dashed var(--ih-due); padding-top: 4px; margin-top: -18px; }
 [data-eui='card'] .ih-proof { display: flex; flex-direction: column; align-items: center; padding: 18px; }
 [data-eui='card'] .ih-counter { position: relative; height: 96px; width: 120px; overflow: hidden; text-align: center; }
-[data-eui='card'] .ih-n { position: absolute; left: 0; right: 0; top: 0; font-size: 88px; line-height: 96px; font-weight: 500; letter-spacing: -.06em; color: var(--h-primary); }
+[data-eui='card'] .ih-n { position: absolute; left: 0; right: 0; top: 0; font-size: 88px; line-height: 96px; font-weight: 500; letter-spacing: -.06em; color: var(--h-fg); }
+[data-eui='card'] .ih-verdict { margin-top: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: var(--ih-acc); }
+[data-eui='card'] .ih-verdict.ih-none { color: var(--h-fg); opacity: .8; }
 [data-eui='card'] .ih-n-out { opacity: 0; transform: translateY(-100%); animation: ih-out .5s ease-in; }
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }
 [data-eui='card'] .ih-stamp { margin-top: 12px; padding: 3px 10px; font: 500 12px/1.4 var(--h-mono); color: var(--h-fg); border: 1px solid var(--h-border); border-radius: 999px; background: var(--h-muted); }

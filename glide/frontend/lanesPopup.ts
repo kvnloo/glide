@@ -146,7 +146,8 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
     const waiting = !live && lane.state === 'idle'
     const tone = waiting ? NIGHT.agree : DOT[lane.state]
     const id = info.via ? `${info.via} → ${info.target ?? 'unresolved'}` : info.id
-    const line = isDead ? `dead${lane.error ? ` · ${clip(lane.error, 80)}` : ''}`
+    // The pill already says DEAD: the line says why in words and what to do about it.
+    const line = isDead ? `Not answering${lane.error ? ` (${clip(lane.error, 80)})` : ''}. Pick another model below.`
       : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `Working on “${clip(lane.researching, 100)}”`
         : live ? 'no blackboard entry yet' : ''
     // A fact the catalog does not know is left out rather than badged UNSPECIFIED / UNKNOWN.
@@ -154,9 +155,10 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
       ...(info.provider === 'unknown' ? [] : [badge([dot(hue, 6), text(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { 'data-lane-provider': `${lane.role}=${info.provider}` })]),
       ...(info.billing === 'unknown' ? [] : [badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` })]),
       ...(info.effort === 'unknown' ? [] : [badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' })]),
-      badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` }),
+      // A local model's provider badge already says it runs here; only a remote route needs its own badge.
+      ...(info.provider === 'local' ? [] : [badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` })]),
       ...(info.via ? [badge([text('VOICE PLAN')], NIGHT.text2, NIGHT.border)] : []),
-      ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba(NIGHT.strong, 0.4), { 'data-lane-rebound': lane.role })] : [])
+      ...(binding && binding !== lane.model ? [badge([text('YOUR PICK')], NIGHT.strong, rgba(NIGHT.strong, 0.4), { 'data-lane-rebound': lane.role })] : [])
     ]
     // The lane picked on the orbit: its row lifts in its role's ring tint, says so, and leads the list
     // (flex order only, so it opens in view and every picker keeps its id).
@@ -164,10 +166,11 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
     const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : ''
     return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : '') + lift, [
       // Role label, model name, then the status pill: three weights, never one run of caps.
-      el('div', 'display:flex;align-items:center;gap:10px', [
+      // The row wraps rather than squeezes: a long model name drops to its own line whole, never cut or split.
+      el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px', [
         swatch(lane.role, hue),
         el('span', `width:58px;flex:none;font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(lane.role.toUpperCase())], { attrs: { 'data-lane-role': lane.role } }),
-        el('span', `flex:1;min-width:0;font-family:${SERIF};font-size:20px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
+        el('span', `flex:1 1 auto;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${SERIF};font-size:20px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
         ...(picked ? [el('span', `${micro};color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : []),
         el('span', `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone, 0.45)};background-color:${rgba(tone, 0.1)};font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${tone}`, [
           el('span', `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone}` + (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
@@ -201,15 +204,15 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
   ])
   const item = (mark: EuiNode, label: string) => el('span', `display:flex;align-items:center;gap:6px;font-size:12px;color:${NIGHT.text2}`, [mark, text(label)])
   const ringMark = (role: string) => el('span', `width:11px;height:11px;border-radius:50%;flex:none;border:1.5px solid ${tint(role, true)}`, [])
-  const legend = el('div', `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:12px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+  const legend = el('div', `display:flex;flex-direction:column;gap:5px;padding:8px 12px;border-radius:12px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px', [
       el('span', micro, [text('KEY')]),
       el('span', `font-size:11px;color:${NIGHT.text2}`, [text('hue = provider · pips = effort · ring = role')])
     ]),
     keyRow('PROVIDER', PROVIDERS_SHOWN.map(p => item(dot(PROVIDERS[p].hue), PROVIDERS[p].label))),
     keyRow('EFFORT', EFFORTS_SHOWN.map(e => item(pips(e), EFFORTS[e].label))),
-    keyRow('ORBIT', [...ROLES_SHOWN.map(r => item(ringMark(r), `${r} ${lanePeriod(r)} s`)), item(dot(NIGHT.text2, 7), 'one dot per lane')]),
-    keyRow('BILLING', [item(el('span', `font-family:${MONO};font-size:10px;color:${NIGHT.agree}`, [text('FREE')]), 'local or free tier'), item(el('span', `font-family:${MONO};font-size:10px;color:${NIGHT.text2}`, [text('SUB')]), 'subscription'), item(el('span', `font-family:${MONO};font-size:10px;color:${NIGHT.danger}`, [text('PAID')]), 'metered')])
+    // FREE / SUB / PAID are words on every chip, so billing needs no key row.
+    keyRow('ORBIT', [...ROLES_SHOWN.map(r => item(ringMark(r), `${r} ${lanePeriod(r)} s`)), item(dot(NIGHT.text2, 7), 'one dot per lane')])
   ], { attrs: { 'data-lanes-legend': 'true' } })
 
   const close = el('button', `padding:9px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,

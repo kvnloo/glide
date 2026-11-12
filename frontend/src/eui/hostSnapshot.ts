@@ -21,8 +21,8 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   const hold = data.kind === 'intent-contract' || (attention !== undefined && data.approval !== undefined)
   // The declare hero sets the ask and its clause keys; the contract hero draws every row (criteria,
   // lanes, hosts, gate, budget). A paragraph or list under either would repeat it.
-  // Attention heroes draw all their rows and keep the summary as the source line.
-  const drawn = attention !== undefined || (hero !== undefined && (hold || data.kind === 'intent-declare'))
+  // Work and proof heroes draw their rows too. Attention heroes draw all their rows and keep the summary as the source line.
+  const drawn = hero !== undefined
   // The title is a head row above the box, as omp heads its tool cards (name, then target).
   const head = el('div', [el('span', [text('Glide')], 'eui-host-name'), el('span', [text(data.title)], 'eui-host-title')], 'eui-host-head')
   const kids: EuiNode[] = [
@@ -30,7 +30,7 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
     ...(data.summary === undefined || (drawn && !hold && !attention) ? [] : [el('p', [text(data.summary)])]),
     ...(drawn ? [] : [el('dl', data.rows.flatMap(row => [
       el('dt', [text(row.label)]),
-      el('dd', [text(String(row.value))])
+      el('dd', [text(typeof row.value === 'boolean' ? (row.value ? 'yes' : 'no') : String(row.value))])
     ]), 'eui-host-rows')])
   ]
   if (data.approval) {

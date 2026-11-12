@@ -102,10 +102,12 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     el('p', `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:13px;line-height:20px;color:${NIGHT.text}`, [text(run.brief)])
   ])
 
-  const verdictBox = el('div', `padding:10px 14px;border-radius:12px;border:1px solid ${dissent && done ? 'rgba(227,127,101,0.45)' : 'rgba(152,207,139,0.22)'};background-color:rgba(28,28,24,0.55)`, [
+  // The verdict's tone is the majority's: a 3-1 agreement is a decision, its one dissent is in the line under it.
+  const carried = agree > dissent
+  const verdictBox = el('div', `padding:12px 14px;border-radius:12px;border:1px solid ${done ? (carried ? 'rgba(152,207,139,0.45)' : 'rgba(227,127,101,0.45)') : NIGHT.border};background-color:rgba(28,28,24,0.55)`, [
     el('div', 'display:flex;align-items:center;gap:8px', [
-      el('span', `width:7px;height:7px;border-radius:4px;background-color:${done ? (dissent ? NIGHT.danger : NIGHT.agree) : NIGHT.muted}`, []),
-      el('span', `font-family:${SERIF};font-size:20px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
+      el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${done ? (carried ? NIGHT.agree : NIGHT.danger) : NIGHT.muted}`, []),
+      el('span', `font-family:${SERIF};font-size:20px;line-height:26px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
     ]),
     el('span', `display:block;margin-top:4px;font-size:13px;line-height:18px;color:${NIGHT.text3}`, [text(done
       ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}`
@@ -141,7 +143,8 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
       : `padding:11px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el('span', gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text(label)])],
     { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : 'close' } })
-  const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Convene again  →'
+  // Again only replays the run it read: say so, rather than promise a fresh council.
+  const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Replay the council  →'
 
   return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:16px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     ...(sideHeader ? [] : [header]),
@@ -149,8 +152,8 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
       el('div', `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg(instrumentSvg(run, frame, size), size, 'max-width:100%;height:auto')]),
       el('div', `flex:1 1 280px;display:flex;flex-direction:column;gap:${sideHeader ? 8 : 12}px;min-width:0`, [
         ...(sideHeader ? [header] : []),
-        el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text(narration(run, frame))]),
         verdictBox,
+        el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:15px;line-height:20px;color:${NIGHT.text2}`, [text(narration(run, frame))]),
         el('div', 'display:flex;gap:8px', [button(CONVENE_ID, convene, true), button(CLOSE_ID, 'Close', false)]),
         seats
       ])

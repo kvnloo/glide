@@ -458,6 +458,8 @@ const hours = (f: GlideFocus) => f.learned.windows.map(w => `${String(w.start).p
 // into the running ring into ended in place, and a newer /glide focus retires the older card, so the
 // End block button never shows twice.
 const liveFocus = new WeakMap<Cards, EuiHostHandle>()
+// The running block's length, so its ended card can say how long it was.
+const liveMinutes = new WeakMap<Cards, number>()
 const BLOCK = 50
 
 const focusRows = (f: GlideFocus) => [
@@ -484,17 +486,24 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
       rows: [{ label: 'count', value: held.length }, ...held.slice(0, MAX_HOST_ROWS - 1).map(i => ({ label: i.cls.slice(0, 80) || 'ask', value: i.title.slice(0, 2048) }))]
     })
   }
-  const ended = (f: GlideFocus) => ({
-    kind: 'receipt', app: FOCUS_APP, title: 'Deep-work block ended', summary: source(f), rows: focusRows({ ...f, block: null, queued: 0 })
+  const start = (minutes: number) => guarded(async ({ signal }) => {
+    const on = await call({ action: 'start', minutes })
+    if (signal.aborted) return
+    liveFocus.get(cards)?.update(...card(on))
   })
-  // An ended card keeps its receipt: only a card that still has a button is retired by a newer one.
+  // An ended block keeps its length and says how many asks it hands back (the digest card lists them),
+  // and its one action is the next block of the same length, so the same card turns back into the ring.
+  const ended = (f: GlideFocus, length?: number): [unknown, EuiOperation] => [{
+    kind: 'approve', app: FOCUS_APP, title: 'Deep-work block ended', summary: source(f),
+    rows: focusRows({ ...f, block: null, queued: f.digest?.length ?? 0 }).map(r =>
+      r.label === 'block' ? { label: 'block', value: 'done' } : r.label === 'length' ? { label: 'length', value: length ?? '' } : r),
+    approval: { label: 'Start another block', description: `Another ${length ?? BLOCK} minutes on the same terms. The digest below stays where it is.` }
+  }, start(length ?? BLOCK)]
   const settle = (f: GlideFocus) => {
-    const live = liveFocus.get(cards)
-    liveFocus.delete(cards)
-    live?.update(ended(f))
+    liveFocus.get(cards)?.update(...ended(f, liveMinutes.get(cards)))
   }
   const card = (f: GlideFocus): [unknown, EuiOperation] => f.block
-    ? [{
+    ? (liveMinutes.set(cards, f.block.minutes ?? f.block.minutes_left), [{
         kind: 'approve', app: FOCUS_APP, title: `Deep-work block on until ${f.block.until}`, summary: 'Agent asks are held for one digest. Critical alerts still pass.',
         rows: focusRows(f),
         approval: { label: 'End block', description: 'Ends the block and hands back everything Glide held as one digest.' }
@@ -503,15 +512,11 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
         if (signal.aborted) return
         settle(done)
         digest(done)
-      })]
+      })])
     : [{
         kind: 'approve', app: FOCUS_APP, title: 'Your attention', summary: source(f), rows: focusRows(f),
         approval: { label: 'Start block', description: `For the next ${BLOCK} minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.` }
-      }, guarded(async ({ signal }) => {
-        const on = await call({ action: 'start', minutes: BLOCK })
-        if (signal.aborted) return
-        liveFocus.get(cards)?.update(...card(on))
-      })]
+      }, start(BLOCK)]
   const show = (f: GlideFocus) => {
     liveFocus.get(cards)?.revoke()
     liveFocus.set(cards, cards.publish(...card(f)))

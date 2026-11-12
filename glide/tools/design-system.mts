@@ -174,12 +174,16 @@ ${group('Status fallbacks and the council hue · on Dash black', { ...STATUS, co
 const orbs = () => (['idle', 'listening', 'thinking', 'working', 'speaking', 'waiting', 'error'] as OrbState[])
   .map(s => `<figure>${img(orbSvg(s, 1.2, true), 72, 72)}<figcaption>${s}</figcaption></figure>`).join('')
 
-/** Tern's own rows (status, transcript, native card, composer, lanes) under the selectors glass.ts dresses. */
-const surface = () => `<div class="sf sf-status"><span>glide</span><span>claude-opus · 41% context</span><span>focus · peak · block 38m</span></div>
-<div class="row"><div class="sf sf-text">› A banner line in the transcript sits on its own strip of glass.</div></div>
+/** Tern's own rows (transcript, native card, lanes, composer) under the selectors glass.ts dresses. The composer
+ * mirrors view/dock.tsx composerNode: context hairline, orb + text box, then the bar (model, effort, folder and
+ * branch, send). There is no status strip under it, as in omp. */
+const surface = () => `<div class="row"><div class="sf sf-text">› A banner line in the transcript sits on its own strip of glass.</div></div>
 <div class="sf sf-card"><div class="sf-text"><b>Native card</b> · a Tern card with a head: the tool result, the diff, the file read.</div></div>
 <div class="sf-col" data-role="omp.live.lanes"><div class="sf-text">lanes · fast answered · small verified · large thinking: compare the two rollout plans</div></div>
-<div class="sf sf-col sf-col" data-role="omp.editor"><div class="sf-text">Ask Glide…  /glide focus 50 · /council · /glide theme dash</div></div>`
+<div class="sf sf-col sf-col" data-role="omp.editor">
+<div class="cm" role="omp.composer.context" title="82,000 of 200,000 tokens"><i style="width:41%"></i><span>41%</span><span>200k</span></div>
+<div class="cl" role="omp.composer.line">${img(orbSvg('idle', 0, true), 30, 30)}<span class="ph">Ask Glide…  /glide focus 50 · /council</span></div>
+<div class="cb" role="omp.composer.bar"><span class="chip">◆ Claude Opus 5.5 ▾</span><span class="chip">high</span><span class="ex">~/glide · ⎇ feat/design-system</span><kbd>⏎</kbd></div></div>`
 
 // ---- the page, per theme mode
 function themeSheet(mode: ThemeMode, walFile: string) {
@@ -251,11 +255,17 @@ code { font: ${TYPE.meta}px ${MONO}; color: var(--t3); }
 .ov-head { padding: 10px 16px; color: var(--t2); border-bottom: 1px solid rgba(255,255,255,.08); }
 .ov-body { padding: 12px; }
 [data-eui-svg] img { display: block; max-width: 100%; height: auto; }
-.sf { margin: 0 0 10px; } .sf-status { display: flex; gap: 18px; padding: 6px 12px; font: ${TYPE.meta}px ${MONO}; color: var(--t2); border-radius: ${RADIUS.tile}px; }
+.sf { margin: 0 0 10px; }
+.cm { position: relative; display: flex; justify-content: space-between; height: 14px; margin: 0 0 8px; font: ${TYPE.label}px ${MONO}; color: var(--t3); border-top: 2px solid var(--l3); }
+.cm i { position: absolute; left: 0; top: -2px; height: 2px; background: var(--t2); } .cm span { padding-top: 2px; }
+.cl { display: flex; align-items: center; gap: 10px; min-height: 34px; } .cl .ph { color: var(--t3); font: ${TYPE.body}px ${MONO}; }
+.cb { display: flex; align-items: center; gap: 8px; margin-top: 8px; font: ${TYPE.meta}px ${MONO}; color: var(--t2); }
+.cb .chip { padding: 2px 8px; border: 1px solid var(--l3); border-radius: ${RADIUS.chip}px; white-space: nowrap; } .cb .ex { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cb kbd { font: ${TYPE.meta}px ${MONO}; padding: 1px 7px; border: 1px solid var(--l3); border-radius: ${RADIUS.chip}px; color: var(--t1); }
 .sf-card, .sf-col[data-role] { padding: 12px 14px; color: var(--t1); margin: 0 0 10px; border-radius: ${RADIUS.card}px; }
 /* A transcript row's gutter takes the banner strip's bleed (glass.ts: padding offset by margin), so it lines up with the panes. */
 .row { padding: 6px 10px; margin: 0 0 10px; } .sf-col[data-role='omp.editor'] { color: var(--t3); font: ${TYPE.body}px ${MONO}; }
-@media (max-width: 600px) { .split { grid-template-columns: minmax(0, 1fr); } .ty, .tr { grid-template-columns: 84px minmax(0, 1fr); } .sf-status { flex-wrap: wrap; gap: 4px 12px; } .sw-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .split { grid-template-columns: minmax(0, 1fr); } .ty, .tr { grid-template-columns: 84px minmax(0, 1fr); } .sw-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 ${euiStyles()}
 ${css}
 ${[...rules.values()].join('\n')}
