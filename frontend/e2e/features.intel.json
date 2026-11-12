@@ -1,0 +1,75 @@
+{
+  "about": "Frontend intel contract coverage with synthetic data. No native acceptance receipts. The orchestrator vendors kit updates; unavailable kinds use the host's visible error fallback.",
+  "features": [
+    {
+      "id": "intel-stock-command",
+      "title": "Open local intelligence through the stock plugin command",
+      "surface": "pane",
+      "entry": "/intel [hill|skills|memory|failures|trace]",
+      "journey": "intel",
+      "expect": "Help lists intel; stock command.dispatch output is validated before publishing one host-owned inline card without optional gateway methods",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-tabs-refresh",
+      "title": "Switch intel tabs and refresh in place",
+      "surface": "pane",
+      "entry": "intel tab intent and kit or host Refresh",
+      "journey": "intel",
+      "expect": "Tabs update the same publication without RPC; refresh re-calls the stock command and preserves the selected tab",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-climb-detail",
+      "title": "Read climb detail in a text panel",
+      "surface": "pane",
+      "entry": "intel open-climb intent",
+      "journey": "intel",
+      "expect": "A snapshot-owned run id reaches the read-only climb subcommand; validated backend text opens in a panel",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-skill-detail",
+      "title": "Read a skill description in a text panel",
+      "surface": "pane",
+      "entry": "intel open-skill intent",
+      "journey": "intel",
+      "expect": "A snapshot-owned skill name reaches the read-only skill subcommand; validated backend text opens in a panel",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-failure-detail",
+      "title": "Read a failure ledger entry in a text panel",
+      "surface": "pane",
+      "entry": "intel open-failure intent",
+      "journey": "intel",
+      "expect": "A snapshot-owned signature reaches the read-only failure subcommand; validated backend text opens in a panel",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-boundaries-ownership",
+      "title": "Reject invalid intel data and stale actions",
+      "surface": "pane",
+      "entry": "intel stock replies and host-owned actions",
+      "journey": "intel",
+      "expect": "Unknown actions and invalid data show notes; foreign entities cannot dispatch; session, profile, transcript and revision changes discard stale work",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    },
+    {
+      "id": "intel-pinned-kit-status",
+      "title": "Show a visible fallback for unavailable pinned kit kinds",
+      "surface": "pane",
+      "entry": "/intel with the pinned ephemeral-ui kit",
+      "journey": "intel",
+      "expect": "The pinned intel kind renders when available; otherwise the wrapper shows source notes and the missing-kind error without a replacement renderer or demo workaround",
+      "tests": ["frontend/src/__tests__/intel.test.ts"],
+      "army": []
+    }
+  ]
+}

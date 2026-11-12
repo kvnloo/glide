@@ -185,6 +185,14 @@ def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
     assert "host-owned" in text
 
 
+def test_intel_prompt_requires_stock_command_data_not_invented_examples(ctx):
+    sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
+    text = sections["hermes-tern.ephemeral-ui"]
+    assert "intel-suite/glide" in text and "/intel" in text
+    assert "stock intel plugin command, never invented" in text
+    assert "Assistant fences cannot grant intel actions" in text
+
+
 def test_the_chart_task_has_a_plugin_namespaced_key(ctx):
     ((args, kwargs),) = [(a, k) for a, k in ctx.of("register_auxiliary_task") if a[0] == "tern_charts"]
     assert args[0] == "tern_charts" and kwargs["display_name"]
