@@ -206,9 +206,12 @@ describe('glassCss', () => {
     for (const d of durations) expect(d).toBeLessThanOrEqual(0.25)
   })
 
-  it('drifts dust motes behind the cards and stills them for reduced motion', () => {
-    expect(css).toMatch(/:not\(\[data-eui-popup\]\)::before \{[^}]*radial-gradient[^}]*animation: glide-drift/)
-    expect(css).toContain('@keyframes glide-drift')
+  it('shows no dust motes or sparks at rest or on hover, and stills motion when asked', () => {
+    // Kevin read the drifting gold/cyan dots around the window as random particles. Only the /glide glass demo shows them.
+    expect(css).toMatch(/:not\(\[data-eui-popup\]\)::before \{[^}]*radial-gradient[^}]*opacity: 0; \}/)
+    expect(css).not.toContain('glide-drift')
+    expect(css).not.toMatch(/:hover::before/)
+    expect(glassPlayCss(p)).toContain('@keyframes glide-play-motes')
     const still = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'))
     expect(still).toMatch(/::before[^{]*\{ animation: none; \}/)
     expect(still).toMatch(/:hover[^{]*\{ transform: none; \}/)

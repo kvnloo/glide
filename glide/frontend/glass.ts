@@ -153,8 +153,6 @@ export function glassCss(p: WalPalette): string {
     mote(2.5, 6, 92, a(80)), mote(3, 94, 88, b(85)), mote(2, 12, 34, a(70)), mote(2.5, 89, 26, b(75)),
     mote(2, 9, 74, b(70)), mote(2, 91, 66, a(70))
   ].join(', ')
-  // Sparks sit on the rim line (the layer reaches 6px past the card), clear of the content padding.
-  const sparks = [mote(2.5, 28, 2, p.accent), mote(2, 74, 2, p.accent), mote(2.5, 99, 46, p.glow), mote(2, 62, 98, p.glow), mote(1.5, 1, 64, p.glow)].join(', ')
   const k = K
   // The kit's and the intent cards' sheets land after this one, so each rule outranks theirs. The intent
   // cards rim the council in a fixed violet; under glass it takes the palette's glow. Its label stays --h-fg
@@ -163,9 +161,7 @@ export function glassCss(p: WalPalette): string {
   return `
 .sf, [data-eui='card'], .sf-overlay { ${vars}; --sf-card-bg: ${tint}; --pop-bg: ${tint}; --modal-bg: ${tint}; --glass-hi: ${hi(10)}; }
 ${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
-${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .4; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
-@keyframes glide-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -26px); } }
-@keyframes glide-twinkle { from { opacity: .2; } to { opacity: .45; } }
+${MOTES} { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: 0; }
 ${CARD}, ${EDITOR}, ${POPUP}, ${LANES} { background: ${tint}; ${frost}; box-shadow: ${halo}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${CARD} { border-color: transparent; border-radius: 16px; }
 ${LANES} { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 14px; }
@@ -179,11 +175,9 @@ ${EDITOR}::after { opacity: 1; }
 .sf-t-muted { color: var(--t2); }
 ${TEXT} { background: ${tint}; ${frost}; padding: 6px 10px; margin: -6px -10px; border-radius: 10px; box-shadow: inset 0 0 0 1px ${a(22)}, inset 0 1px 0 ${hi(10)}; }
 ${INNER} { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }
-${CARD}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
 ${CARD}:hover { transform: translateY(-1px); box-shadow: ${haloHot}; }
 ${EDITOR}:hover { box-shadow: ${haloHot}; }
 ${CARD}:hover::after, ${EDITOR}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
-${CARD}:hover::before { opacity: 1; transform: translateY(0); }
 @keyframes glide-shimmer { from { opacity: .9; } to { opacity: 1; } }
 ${k} .ih-hero, ${k} .ah-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
 ${k} .ih-hero:hover { border-color: ${a(40)}; box-shadow: inset 0 1px 0 ${hi(12)}; }
