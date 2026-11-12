@@ -31,6 +31,7 @@ class SweepContracts(unittest.TestCase):
 
     def test_seeded_findings_are_not_real_defects(self):
         with tempfile.TemporaryDirectory() as temp:
+            temp = os.path.realpath(temp)
             root = Path(temp)
             self.fixture(root, {'status':'passed', 'findings':[{'classification':'canary', 'title':'black light surface', 'evidence':['runs/lane/shot.png']}],
                 'screenshots':['runs/lane/shot.png'], 'canary':{'expected':['seed'], 'reported':['seed'], 'missed':[], 'recall':1}})
@@ -41,12 +42,14 @@ class SweepContracts(unittest.TestCase):
 
     def test_canary_miss_voids_pass(self):
         with tempfile.TemporaryDirectory() as temp:
+            temp = os.path.realpath(temp)
             root = Path(temp)
             self.fixture(root, {'status':'canary-fail','canary':{'reported':[], 'missed':['dead-button']}})
             self.assertEqual(collect(root)[0]['verdict'], 'canary-fail')
 
     def test_failed_browser_never_becomes_pass(self):
         with tempfile.TemporaryDirectory() as temp:
+            temp = os.path.realpath(temp)
             root = Path(temp)
             self.fixture(root, {'status':'failed'}, exit_code=1)
             self.assertEqual(collect(root)[0]['verdict'], 'coverage-gap')

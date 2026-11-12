@@ -1,3 +1,4 @@
+import os
 import json
 from pathlib import Path
 import sys
@@ -25,6 +26,7 @@ class CompositeContracts(unittest.TestCase):
 
     def test_replacements_preserve_provenance_and_all_accounting(self):
         with tempfile.TemporaryDirectory() as temp:
+            temp = os.path.realpath(temp)
             base, new, output = (Path(temp) / name for name in ('base', 'new', 'final'))
             self.source(base, ['clicks', 'console'], 'old')
             self.source(new, ['clicks'], 'fixed')
@@ -50,6 +52,7 @@ class CompositeContracts(unittest.TestCase):
 
     def test_existing_output_is_never_overwritten(self):
         with tempfile.TemporaryDirectory() as temp:
+            temp = os.path.realpath(temp)
             base, new, output = (Path(temp) / name for name in ('base', 'new', 'final'))
             self.source(base, ['clicks'], 'old')
             self.source(new, ['clicks'], 'fixed')
