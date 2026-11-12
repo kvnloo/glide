@@ -26840,7 +26840,7 @@ void main() {
       const m = model(key, portfolios);
       head.replaceChildren(
         h("div", { class: "fp-title" }, h("h3", { title: m.pf.label }, m.pf.label), h("p", { title: m.pf.lead }, m.pf.lead)),
-        h("div", { class: "fp-stats" }, `${m.products.length} products \xB7 ${m.features.length} features \xB7 ${m.tasks.length} tasks \xB7 ${m.tasks.filter((t) => t.status === "blocked").length} blocked`)
+        h("div", { class: "fp-stats" }, `${m.products.length} product${m.products.length === 1 ? "" : "s"} \xB7 ${m.features.length} feature${m.features.length === 1 ? "" : "s"} \xB7 ${m.tasks.length} task${m.tasks.length === 1 ? "" : "s"} \xB7 ${m.tasks.filter((t) => t.status === "blocked").length} blocked`)
       );
       next.replaceChildren(h("span", { class: "fp-next-k" }, "Next step"), m.queue.length ? task(m.queue[0]) : h("span", {}, "No unblocked next task"));
       const feature = (f, p) => h(
@@ -26858,7 +26858,7 @@ void main() {
       if (view === "tree") stage.replaceChildren(h("div", { class: "fp-tree" }, ...m.products.map((p) => h(
         "details",
         { class: "fp-group open", open: true, style: { "--pc": p.hue } },
-        h("summary", { class: "fp-prow" }, h("span", { class: "fp-rt" }, h("b", { title: p.label }, p.label), h("small", {}, `${p.features.length} features`)), h("span", { class: `fp-hz ${p.horizon}` }, HZ[p.horizon])),
+        h("summary", { class: "fp-prow" }, h("span", { class: "fp-rt" }, h("b", { title: p.label }, p.label), h("small", {}, `${p.features.length} feature${p.features.length === 1 ? "" : "s"}`)), h("span", { class: `fp-hz ${p.horizon}` }, HZ[p.horizon])),
         h("div", { class: "fp-kids" }, ...p.features.map((f) => feature(f, p)))
       ))));
       else if (view === "roadmap") stage.replaceChildren(h("div", { class: "fp-lanes" }, ...Object.entries(HZ).map(([hz, label]) => h(

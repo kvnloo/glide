@@ -27,7 +27,7 @@ def synthetic_documents():
         "ops": {"queue": 1, "depth": 1, "sendsHour": 0, "posted": 0, "notes": []},
         "verify": [{"verdict": "pass"}],
         "brain": {"last_run": "2026-11-11T00:00:00Z", "verifier_lanes": {"mbp": "idle"},
-                  "pending_review": ["example/glide#1"]},
+                  "pending_review": [{"tag": "example/glide#1", "detail": "x" * 500}]},
     }
     docs = []
     with TemporaryDirectory(prefix="fleet-schema-") as directory:

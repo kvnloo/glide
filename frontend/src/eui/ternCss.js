@@ -6,7 +6,7 @@
 // otherwise the declaration or rule goes. Each reject is cosmetic in a chat card.
 export const TERN_DROP = new Set(['aspect-ratio', 'text-anchor', 'vector-effect', '-webkit-appearance', 'appearance',
   '-webkit-touch-callout', 'scroll-margin-top', 'grid-template-areas', 'grid-area', 'resize', 'offset-rotate',
-  'offset-anchor', 'text-underline-offset', 'text-decoration-thickness'])
+  'offset-anchor', 'text-underline-offset', 'text-decoration-thickness', 'container-type', 'paint-order', 'transform-box'])
 // Last three: values a kind computes from layout the sandbox DOM lacks (NaNpx, undefinedpx).
 export const TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i
 export const TERN_BAD_SELECTOR = /:has\(|::-webkit-|::-moz-|::backdrop/

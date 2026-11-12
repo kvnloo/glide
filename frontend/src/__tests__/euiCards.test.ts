@@ -83,6 +83,22 @@ describe('ephemeral-ui fences', () => {
 })
 
 describe('ephemeral-ui kit sandbox', () => {
+  it('uses singular feature counts in the pinned fleet portfolio', async () => {
+    const sb = await createSandbox(euiDir(), 'light')
+    const card = sb.mount('fleet-portfolio', 'dash', () => undefined, { kind: 'fleet-portfolio', app: 'dash', data: {
+      at: '2026-11-11T00:00:00Z', portfolios: { glide: { label: 'Synthetic portfolio', lead: 'Synthetic tasks',
+        products: [{ id: 'glide', label: 'Glide', horizon: 'now', features: [{ id: 'cards', label: 'Cards', horizon: 'now', tasks: [{ id: 'g3', label: 'Fleet', status: 'next' }] }] }], shared: [] } }
+    } })
+    try {
+      await settle(30)
+      const snapshot = JSON.stringify(card.snapshot())
+      expect(snapshot).toContain('1 feature')
+      expect(snapshot).not.toContain('1 features')
+      expect(snapshot).not.toContain('1 products')
+      expect(snapshot).not.toContain('1 tasks')
+    } finally { card.dispose() }
+  })
+
   it('keeps the completed Oura action reason in the native snapshot', async () => {
     const sb = await createSandbox(euiDir(), 'light')
     const card = sb.mount('health', 'oura', () => undefined)
@@ -237,6 +253,7 @@ describe('ephemeral-ui kit stylesheet', () => {
     const css = euiStyles()
     expect(css).not.toMatch(/[{;](-webkit-)?appearance:|aspect-ratio:|text-underline-offset:|border-block:|border-inline-start:/)
     expect(css).not.toMatch(/:has\(|::-webkit-|\(\s*(pointer|hover)\s*:|\d+dvh|env\(|conic-gradient/)
+    expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:/)
     expect(css).toContain('.eu-btn')
   })
 
@@ -244,6 +261,7 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(ternBody('border-block:1px solid red;aspect-ratio:1;width:undefinedpx;transform:translateX(NaNpx);color:')).toBe(
       'border-top:1px solid red;border-bottom:1px solid red')
     expect(ternBody("height:100dvh;padding:env(safe-area-inset-top);content:'a;b'")).toBe("height:100vh;padding:0px;content:'a;b'")
+    expect(ternBody('container-type:inline-size;paint-order:stroke;transform-box:fill-box;color:red')).toBe('color:red')
   })
 
   // Tern 0.9.9 matches [data-*] only (probed live), so a switch never showed aria-checked="true".

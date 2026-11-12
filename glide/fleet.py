@@ -398,7 +398,7 @@ def _factory(home, root, notes):
     def add(id_, col, label, kind, state, reason="", url=None):
         if len(nodes) >= MAX_NODES:
             return
-        node = {"id": str(id_), "col": col, "label": str(label)[:200], "kind": kind, "state": state, "reason": str(reason)[:500]}
+        node = {"id": str(id_), "col": col, "label": str(label)[:200], "kind": kind, "state": state, "reason": str(reason)[:200]}
         if url:
             node["url"] = url
         nodes.append(node)
