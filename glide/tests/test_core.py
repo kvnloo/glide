@@ -81,7 +81,7 @@ def test_register_adds_the_hook_and_a_slash_command_for_every_frontend(home):
     ctx = types.SimpleNamespace(register_hook=lambda name, fn: hooks.append(name),
                                 register_command=lambda name, fn, **kw: commands.__setitem__(name, fn))
     gateway.register(ctx)
-    assert hooks == ["pre_llm_call"] and list(commands) == ["glide"]
+    assert hooks == ["pre_llm_call"] and list(commands) == ["glide", "intel"]
 
 
 def test_command_walks_build_on_recall_off(home):
@@ -114,7 +114,7 @@ def test_gateway_methods_are_namespaced_schema_checked_and_session_bound(home):
                                 register_command=lambda name, fn, **kw: commands.append(name),
                                 register_gateway_method=lambda name, fn, schema: methods.__setitem__(name, (fn, schema)))
     gateway.register(ctx)
-    assert hooks == ["pre_llm_call"] and commands == ["glide"]
+    assert hooks == ["pre_llm_call"] and commands == ["glide", "intel"]
     assert sorted(methods) == [f"glide.{v}" for v in ("detect", "enable", "fleet", "fleet_pod", "focus", "hill_climb", "offload", "recall", "route", "skill_router", "sync", "taste")]
     assert all(schema.model_config["extra"] == "forbid" for _, schema in methods.values())
     request = types.SimpleNamespace(session_id="live", assert_attached=lambda: None)
@@ -128,7 +128,7 @@ def test_cores_without_gateway_methods_still_get_the_command(home):
     hooks, commands = [], []
     gateway.register(types.SimpleNamespace(register_hook=lambda name, fn: hooks.append(name),
                                            register_command=lambda name, fn, **kw: commands.append(name)))
-    assert hooks == ["pre_llm_call"] and commands == ["glide"]
+    assert hooks == ["pre_llm_call"] and commands == ["glide", "intel"]
 
 
 def test_json_command_gives_card_frontends_the_methods_on_cores_without_them(home):

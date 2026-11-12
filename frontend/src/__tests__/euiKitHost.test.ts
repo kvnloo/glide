@@ -134,7 +134,7 @@ describe('trusted kit publications', () => {
     f.host.publishKit(doc, vi.fn(), vi.fn())
     await flush()
     const view = JSON.stringify(f.view().node)
-    expect(view).toContain('Fleet card unavailable')
+    expect(view).toContain('Card unavailable')
     expect(view).toContain('ephemeral-ui has no kind fleet-hosts')
     expect(view).toContain('Missing synthetic source')
     expect(view).toContain('Refresh')
