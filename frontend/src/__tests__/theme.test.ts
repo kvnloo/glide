@@ -100,3 +100,32 @@ describe('settings', () => {
     expect(loadSettings(file)).toEqual({ theme: 'nous' })
   })
 })
+
+describe('dash theme mode', () => {
+  function host() {
+    const sent: Palette[] = []
+    const sheets: [string, string | null][] = []
+    return {
+      sent, sheets,
+      palette: (p: Palette) => sent.push(p),
+      stylesheet: (name: string, css: string | null) => sheets.push([name, css]),
+      settings: { save: () => ({}) },
+      walFile: '/nonexistent/colors.json'
+    }
+  }
+
+  it("wears Dash's night and one gold, and takes its stylesheet away on leaving", () => {
+    const h = host()
+    const theme = new Theme(h, 'dash')
+
+    theme.apply()
+    expect(h.sent.at(-1)?.name).toEqual({ dark: 'dash', light: 'dash' })
+    expect(h.sent.at(-1)?.dark).toMatchObject({ accent: '#d7b986', text: '#ECE8DF', statusLineModel: '#d7b986' })
+    expect(h.sheets.at(-1)?.[1]).toMatch(/background: ?#0c0c0a/)
+    expect(theme.wal?.accent).toBe('#d7b986')
+
+    theme.set('tern')
+    expect(h.sheets.at(-1)).toEqual([expect.any(String), null])
+    expect(h.sent.at(-1)?.dark).toEqual({})
+  })
+})

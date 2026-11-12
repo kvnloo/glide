@@ -9,6 +9,7 @@ import type { SettingsSource, ThemeMode } from '../settings.js'
 
 import { paletteFor } from './palette.js'
 import { glassPlayCss, PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
+import { dashPalette, dashTernPalette } from '../../../glide/frontend/dash.js'
 import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from '../../../glide/frontend/wal.js'
 
 /** What the theme reaches of the app. */
@@ -32,6 +33,8 @@ export class Theme {
   /** The wallpaper palette the auto mode last sent. */
   #wal: WalPalette | undefined
   #unwatch: (() => void) | undefined
+  /** Whether the dash mode's stylesheet is installed (the next mode takes it away). */
+  #sheet = false
   /** Takes the glass playground's sheet away once its cycle ends. */
   #play: NodeJS.Timeout | undefined
 
@@ -48,6 +51,7 @@ export class Theme {
 
   /** The wallpaper palette in the auto mode; undefined in the others or without a readable colors.json. */
   get wal(): WalPalette | undefined {
+    if (this.#mode === 'dash') return dashPalette()
     return this.#mode === 'auto' ? this.#wal : undefined
   }
 
@@ -58,6 +62,17 @@ export class Theme {
       return
     }
     this.#leaveWal()
+    if (this.#mode === 'dash') {
+      const dash = dashPalette()
+      this.#host.palette(dashTernPalette(dash))
+      this.#host.stylesheet?.(WAL_SHEET, walCss(dash))
+      this.#sheet = true
+      return
+    }
+    if (this.#sheet) {
+      this.#sheet = false
+      this.#host.stylesheet?.(WAL_SHEET, null)
+    }
     this.#host.palette(paletteFor(this.#mode, this.#skin))
   }
 
