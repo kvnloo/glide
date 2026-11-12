@@ -205,6 +205,16 @@ describe('glassCss', () => {
     expect(css).toContain('@media (prefers-reduced-transparency: reduce)')
   })
 
+  it('puts the focus, digest and proof insets on the same dark glass as the intent cards, never a light layer', () => {
+    // The film showed light insets (PHASE / FLOW / BEDTIME tiles, digest rows, the receipt chip) inside dark cards.
+    const glassy = (sel: string) => [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].find(m => (m[1] ?? '').split(',').some(s => s.trim().endsWith(sel)) && (m[2] ?? '').includes('background:'))?.[2] ?? ''
+    for (const sel of ['.ah-hero', '.ah-fact', '.ah-ask', '.ah-tile', '.ah-note', '.ih-stamp', '.ih-repo']) {
+      expect(glassy(sel), sel).toMatch(/background: [^;]*rgba\(13,26,23,0\.2[46]\)/)
+    }
+    // The note keeps its accent edge: only its fill turns to glass, never its border.
+    expect(css).toContain('.ah-note { background: rgba(13,26,23,0.24); }')
+  })
+
   it('rides on the auto theme sheet', () => {
     expect(walCss(p).endsWith(minifyCss(css))).toBe(true)
   })

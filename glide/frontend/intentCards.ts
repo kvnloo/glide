@@ -282,12 +282,11 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-n { position: absolute; left: 0; right: 0; top: 0; font-size: 88px; line-height: 96px; font-weight: 500; letter-spacing: -.06em; color: var(--h-primary); }
 [data-eui='card'] .ih-n-out { opacity: 0; transform: translateY(-100%); animation: ih-out .5s ease-in; }
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }
-[data-eui='card'] .ih-stamp { margin-top: 10px; padding: 4px 12px; font: 600 13px var(--h-mono); color: var(--h-primary); border: 2px solid var(--h-primary); border-radius: 6px; transform: rotate(-6deg); animation: ih-slam 1.35s cubic-bezier(.2,1.6,.4,1); }
-[data-eui='card'] .ih-stamp.ih-none { color: var(--h-mutedFg); border-color: var(--h-border); border-style: dashed; transform: none; opacity: 1; animation: none; }
+[data-eui='card'] .ih-stamp { margin-top: 12px; padding: 3px 10px; font: 500 12px/1.4 var(--h-mono); color: var(--h-fg); border: 1px solid var(--h-border); border-radius: 999px; background: var(--h-muted); }
+[data-eui='card'] .ih-stamp.ih-none { color: var(--h-mutedFg); border-style: dashed; }
 @keyframes ih-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .5 } }
 @keyframes ih-out { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-100%); opacity: 0 } }
 @keyframes ih-in { 0%, 44% { transform: translateY(100%) } 100% { transform: translateY(0) } }
-@keyframes ih-slam { 0%, 74% { opacity: 0; transform: rotate(-6deg) scale(2.6) } 100% { opacity: 1; transform: rotate(-6deg) scale(1) } }
 @media (prefers-reduced-motion: reduce) {
   [data-eui='card'] .ih-hero *, [data-eui='card'] .ih-hold .ih-holdfill { animation: none; transition: none; }
 }

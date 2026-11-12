@@ -162,6 +162,13 @@ describe('intent-proof hero', () => {
     expect(find(none, 'ih-n').map(words)).toEqual(['0'])
     expect(words(must(find(none, 'ih-stamp')[0]))).toBe('no receipt yet')
   })
+
+  it('shows the hash as a plain mono chip, not a tilted sticker', () => {
+    const chip = /\.ih-stamp \{([^}]*)\}/.exec(INTENT_CSS)?.[1] ?? ''
+    expect(chip).toMatch(/border-radius: 999px/)
+    expect(chip).toMatch(/var\(--h-mono\)/)
+    expect(INTENT_CSS).not.toMatch(/rotate\(|ih-slam/)
+  })
 })
 
 describe('intent hero styles', () => {

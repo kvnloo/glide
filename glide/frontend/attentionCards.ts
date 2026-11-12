@@ -39,7 +39,7 @@ function focus(d: EuiHostCardData, el: El): EuiNode {
     el('div', [
       el('div', [el('i', [], on ? 'ah-led ah-on' : 'ah-led'), text(on ? `Deep work until ${one(d, 'until')}` : `Next deep work ${one(d, 'next') || 'not learned yet'}`)], 'ah-status'),
       el('div', [fact('phase', one(d, 'phase')), fact('flow', one(d, 'flow')), fact('bedtime', one(d, 'bedtime'))], 'ah-facts'),
-      el('span', [text(on ? `${held} ${held === 1 ? 'ask' : 'asks'} held for the digest` : 'Asks are delivered as they come')], held ? 'ah-pill ah-held' : 'ah-pill')
+      el('span', [text(on ? (held ? `${held} ${held === 1 ? 'ask' : 'asks'} held for the digest` : 'Asks wait here for the digest') : 'Asks are delivered as they come')], held ? 'ah-pill ah-held' : 'ah-pill')
     ], 'ah-side')
   ], `ah-hero ah-focus${on ? ' ah-live' : ''}`)
 }
