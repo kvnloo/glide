@@ -3,6 +3,7 @@ import { storedSessionId } from '../core/ids.js'
 import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
+import { glideCall } from './glide.js'
 import { decodeFleet, decodeFleetIntent, fleetAgent, fleetNode, fleetPod, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
 export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control'> & {
@@ -39,7 +40,7 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
       }
       case 'open-pod': {
         const pod = fleetPod(doc, action.entities)
-        const reply = await host.gw.request<unknown>('glide.fleet_pod', { session_id: context.sessionId, ...pod })
+        const reply = await glideCall(host.gw, context.sessionId)('fleet_pod', { ...pod })
         if (context.isCurrent() && !context.signal.aborted) host.control().panel(`${pod.ns}/${pod.name}`, fleetText(reply))
         return
       }
@@ -74,8 +75,8 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
   const lifetime = host.transcript.lifetime
   const current = () => host.session.ref === ref && host.session.ref.live === sessionId &&
     owner?.isCurrent() !== false && !owner?.signal.aborted && host.transcript.lifetime === lifetime
-  const params = { session_id: sessionId, view, ...(portfolio ? { portfolio } : {}) }
-  const read = async () => decodeFleet(await host.gw.request<unknown>('glide.fleet', params), view)
+  const params = { view, ...(portfolio ? { portfolio } : {}) }
+  const read = async () => decodeFleet(await glideCall(host.gw, sessionId)('fleet', params), view)
   let handle: EuiKitHandle
   const publish = (doc: EuiKitDoc, first: boolean) => {
     const intent = (detail: unknown, context: EuiKitContext) => fleetIntent(host, doc, detail, context)

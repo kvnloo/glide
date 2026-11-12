@@ -20,7 +20,7 @@ function setup(reply: unknown = { kind: 'fleet-hosts', app: 'k3s', data: { at: '
   const transcript = new Transcript()
   const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session, transcript }, () => true))
   cards.push(eui)
-  const request = vi.fn(async () => reply)
+  const request = vi.fn(async (_method: string, _params?: unknown): Promise<unknown> => reply)
   const draft = vi.fn()
   const resume = vi.fn(async () => undefined)
   const host: FleetHost = { gw: stub<FleetHost['gw']>({ request }), session, transcript, eui,
@@ -41,6 +41,18 @@ describe('fleet commands', () => {
     await must(localCommand(name)).run(stub({ ...f.host }), arg)
     expect(f.request).toHaveBeenCalledWith('glide.fleet', { session_id: 'fixture-session', view, ...(portfolio ? { portfolio } : {}) })
     expect(f.view().spec.kind).toBe(`fleet-${view}`)
+  })
+
+  it('falls back to /glide json on a core without plugin gateway methods', async () => {
+    const doc = { kind: 'fleet-factory', app: 'aodl', data: { at: '2026-11-11T00:00:00Z', notes: [] } }
+    const f = setup()
+    f.request.mockImplementation(async (method: string) => {
+      if (method === 'glide.fleet') throw new Error('unknown method: glide.fleet — not available on this Hermes backend')
+      return { output: JSON.stringify(doc) }
+    })
+    await fleetCommand(f.host, 'factory')
+    expect(f.request).toHaveBeenLastCalledWith('command.dispatch', { name: 'glide', arg: 'json fleet {"view":"factory"}', session_id: 'fixture-session' })
+    expect(f.view().spec.kind).toBe('fleet-factory')
   })
 
   it('shows source notes and refresh re-calls the same verb in the same panel', async () => {
