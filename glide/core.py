@@ -379,6 +379,8 @@ def register(ctx) -> None:
     if callable(getattr(ctx, "register_skill", None)):  # The model's half of onboarding.
         ctx.register_skill("onboarding", Path(__file__).with_name("skills") / "onboarding" / "SKILL.md",
                            description="Use when the user installs or sets up Glide, or asks what it remembers.")
-    gateway.register(ctx)  # Card-drawing frontends (Tern); a no-op on cores without gateway methods.
+    ctx.register_command("fleet", gateway.command, description="Read local fleet snapshots or pod details as JSON",
+                         args_hint="hosts|portfolio|factory|pod [JSON params]")
+    gateway.register(ctx)  # Optional fast path; /fleet works on stock Hermes.
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
                          args_hint="[focus|build|on|off|recall <words>|taste]")
