@@ -4,7 +4,7 @@ import { storedSessionId } from '../core/ids.js'
 import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
-import { decodeFleet, decodeFleetIntent, fleetAgent, fleetDesign, fleetHost, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetDesign, type FleetDesignRow, type FleetTone, type FleetView } from '../wire/fleet.js'
+import { decodeFleet, decodeFleetIntent, fleetAgent, fleetDesign, fleetHost, fleetVisibleDoc, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetDesign, type FleetDesignRow, type FleetTone, type FleetView } from '../wire/fleet.js'
 
 export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
@@ -96,7 +96,7 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
       if (!current() || !context.isCurrent() || context.signal.aborted) return
       publish(next, false)
     }
-    const data = { ...doc, title: (title[view] + ' · ' + fleetDesign(doc, view).hero).slice(0, 200) }
+    const data = { ...fleetVisibleDoc(doc), title: (title[view] + ' · ' + fleetDesign(doc, view).hero).slice(0, 200) }
     if (first) handle = eui.host.publishKit(data, intent, refresh)
     else handle.update(data, intent, refresh)
   }
