@@ -277,6 +277,14 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
   })
 
+  it('lets native SVG callback buttons grow with wrapped labels', () => {
+    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls > \.eu-btn\{([^}]*)\}/)?.[1]
+    expect(rule).toBeDefined()
+    expect(rule).toMatch(/display:\s*block/)
+    expect(rule).toMatch(/height:\s*auto/)
+    expect(rule).toMatch(/white-space:\s*normal/)
+  })
+
   it('binds primary foreground to a native theme token', () => {
     expect(euiStyles()).toMatch(/--h-primaryFg:\s*var\(--card\)/)
     expect(euiStyles()).not.toContain('--accent-ink')

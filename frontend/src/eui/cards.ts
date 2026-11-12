@@ -69,6 +69,7 @@ export function euiStyles(): string {
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
 [data-eui='card'] [data-eui-svg] { display: inline-block; vertical-align: middle; flex: none; max-width: 100%; min-width: 0; }
 [data-eui='card'] [data-eui-svg] > .sf-image, [data-eui='card'] [data-eui-svg] .sf-img-svg { max-width: 100%; height: auto; }
+[data-eui='card'] .eui-svg-controls > .eu-btn { display: block; height: auto; min-height: 28px; white-space: normal; text-align: left; }
 [data-eui='card'] .eui-host { padding: 16px; }
 [data-eui='card'] .eui-host-title { font-size: 16px; margin: 0 0 8px; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
