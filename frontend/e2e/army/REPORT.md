@@ -161,3 +161,27 @@ Recorded sandbox usage totals 293 seconds, or 4.8833 VM minutes. The sum of each
 ## Remaining work
 
 Restore a free model that passes image input, tool calls, and structured output, then rerun exactly one kit lane and one Tern lane. The later full army, premium screenshot re-judge, recall qualification, and paired findings comparison are separate runs. Tern's private startup path and detached explorer result collection still need runtime verification once G0 admits a model.
+
+## W5 free-tier sanity check: premium re-judge (orchestrator, claude-opus-5-5, 2026-11-11)
+
+Reviewer: claude-opus-5-5 (manager), image review of each PNG.
+
+| Sampled PASS | Verdict | Note |
+|---|---|---|
+| kit-sweep-console 0191 fleet-hosts nous 768 | PASS | plurals right (1 agent / 0 agents), no clipping |
+| kit-sweep-themes 0082 fleet-hosts slate 1440 | PASS | muted mono lines are the weakest contrast |
+| kit-sweep-themes 0022 fleet-hosts nous 390 | PASS | wraps cleanly, no overflow |
+| kit-sweep-console 0197 fleet-hosts nous-dark 390 | PASS | no light boxes on dark |
+
+Missed defects in the sample: 0/4, so the miss rate on the sample is 0. The judge independently flagged the muted secondary text as the weakest contrast, and this agrees with the detector's `contrast` finding (4.11:1 < 4.5).
+
+Zero-finding lanes: all 7 are the `tern-*` lanes, and every capture in them is blank white (checked on `tern-pr269-sweep-build/0002-tern-initial.png`). **Their zero findings are VOID, not PASS.** Native Tern coverage instead comes from the isolated real-Tern matrix (W6, and W7 after the stock-transport fix).
+
+Distinct root causes behind 2,827 observation records:
+1. **Real.** The kit's light-theme muted text is 4.11:1 (`rgb(113,113,123)` on `#ececed`), which is below AA. Counted 1094 times.
+2. **Real.** Disabled card footer buttons have no title or visible reason. Counted 44 times.
+3. **Resolved.** The vendor PIN on main at f83c6c5 was stale. #269 has since merged (12f7db7).
+4. **Test bug.** Contrast over gradient backgrounds cannot be resolved (1266 records), and dead-control detection on gallery controls fails (176 records).
+
+Paired free-vs-premium lane: not run. No model is in the verdict loop, so there is no model output to pair.
+
