@@ -382,7 +382,7 @@ function stepItem(e: AgentStep, id: string, a: Subagent): PickerItem {
   if (e.kind === 'tool') {
     return {
       // The call's own command over the gateway's compact preview (`git log … + 1 command`).
-      detail: typeof e.call?.command === 'string' ? compactCommand(e.call.command) : e.args,
+      detail: typeof e.call?.['command'] === 'string' ? compactCommand(e.call['command']) : e.args,
       ...optional('dot', e.running && isRunning(a) ? 'accent' : undefined),
       facts: { at: clock(e.at) },
       icon: hubIconOf(e.name),
