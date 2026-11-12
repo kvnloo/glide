@@ -17,6 +17,14 @@ def free_port():
         return sock.getsockname()[1]
 
 
+def launch_script(env, dotenv, command):
+    # Web PTYs may replace profile variables; preserve only their generated pane identity.
+    exports = ''.join('export ' + key + '=' + shlex.quote(value) + '\n'
+                      for key, value in env.items() if key != 'NVIDIA_API_KEY')
+    return ('#!/bin/sh\n' + exports + 'set -a\n. ' + shlex.quote(str(dotenv))
+            + '\nset +a\nexec ' + shlex.join(command) + '\n')
+
+
 def start(spawn, sha):
     scratch = Path('/home/user/army-private')
     scratch.mkdir(mode=0o700, exist_ok=False)
@@ -63,6 +71,13 @@ def start(spawn, sha):
                                     stdout=log, stderr=subprocess.STDOUT)
     Path('runs/plugin-validation.json').write_text(json.dumps({'exit': validation.returncode,
         'scope': 'catalog admission; runtime registration checked by private launch'}))
+    # Exercise actual registration, not the catalog's permissive capability probe.
+    probe = subprocess.run([str(core / '.venv/bin/python'), '-c',
+        "import logging,sys; logging.basicConfig(level=logging.DEBUG); from hermes_cli.main import main; sys.argv=['hermes','tern','--help']; main()"],
+        env=env, capture_output=True, text=True, timeout=120)
+    Path('runs/plugin-runtime.log').write_text(probe.stdout + probe.stderr)
+    if probe.returncode:
+        raise RuntimeError('Private plugin CLI registration failed; inspect runs/plugin-runtime.log')
     # Allow only read/search/browser tools. Delegation cannot be discovered or invoked.
     session_flags = ['--new']
     if os.getenv('ARMY_DETERMINISTIC') == '1':
@@ -76,7 +91,7 @@ def start(spawn, sha):
     # Start a private gateway before the frontend, as Hermes >=0.23 requires attach.
     spawn([exe, 'gateway', 'run'], 'gateway', env)
     launch = scratch / 'launch.sh'
-    launch.write_text('#!/bin/sh\nset -a\n. ' + shlex.quote(str(dotenv)) + '\nset +a\nexec ' + shlex.join(command) + '\n')
+    launch.write_text(launch_script(env, dotenv, command))
     launch.chmod(0o700)
     if os.getenv('ARMY_DETERMINISTIC') == '1':
         # web serve owns a separate pane, not a mirror of native `serve`.

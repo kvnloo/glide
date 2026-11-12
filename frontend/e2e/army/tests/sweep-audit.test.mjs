@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { colors, controlOutcome, canaryRecall } from '../sweep-audit.mjs';
+import { colors, controlOutcome, canaryRecall, hasPixelVariation } from '../sweep-audit.mjs';
 
+test('a uniform framebuffer is not proof that native UI painted', () => {
+  assert.equal(hasPixelVariation([255,255,255,255,255,255,255,255]), false);
+  assert.equal(hasPixelVariation([0,0,0,255,0,0,0,255]), false);
+  assert.equal(hasPixelVariation([255,255,255,255,0,0,0,255]), true);
+});
 test('contrast composites translucent foregrounds instead of treating them as opaque', () => {
   const c = colors();
   assert.equal(c.contrast([0,0,0,1], [255,255,255,1]), 21);

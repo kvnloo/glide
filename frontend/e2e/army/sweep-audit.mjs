@@ -17,6 +17,12 @@ export function colors() {
   return {parse,over,lum,contrast};
 }
 
+export function hasPixelVariation(rgba) {
+  for(let i=4;i<rgba.length;i+=4)
+    if(rgba[i]!==rgba[0] || rgba[i+1]!==rgba[1] || rgba[i+2]!==rgba[2]) return true;
+  return false;
+}
+
 export function controlOutcome({before, after, intents, navigation}) {
   if (intents.length) return 'intent';
   if (navigation) return 'navigation';
@@ -87,9 +93,13 @@ export function auditDOM({rootSelector, theme}) {
     }
     const ratio=contrast(over(fg,bg),bg), threshold=parseFloat(s.fontSize)>=18?3:4.5;
     let image='none';
-    for(let p=el;p;p=p.parentElement) if(getComputedStyle(p).backgroundImage!=='none') {image=getComputedStyle(p).backgroundImage;break;}
+    for(let p=el;p;p=p.parentElement) {
+      const ps=getComputedStyle(p);
+      if(ps.backgroundImage!=='none') {image=ps.backgroundImage;break;}
+      if(parse(ps.backgroundColor)[3]>=.999) break;
+    }
     if(image!=='none') result.push({...meta,check:'contrast-unresolved',actual:{backgroundImage:image},expected:'pixel-backed contrast for a non-flat background',classification:'test bug'});
-    else if (ratio+.01<threshold) add('contrast',{ratio:Number(ratio.toFixed(2)),color:ink,background:bg,fontSize:s.fontSize},'contrast >= '+threshold);
+    else if (ratio+1e-6<threshold) add('contrast',{ratio:Number(ratio.toFixed(4)),color:ink,background:bg,fontSize:s.fontSize},'contrast >= '+threshold);
     for (let p=el;p && root.contains(p);p=p.parentElement) {
       const ps=getComputedStyle(p);
       if (['hidden','clip'].includes(ps.overflowX) && p.scrollWidth>p.clientWidth+1 && !el.closest('[title]')?.title.trim()) {
@@ -98,7 +108,8 @@ export function auditDOM({rootSelector, theme}) {
       }
     }
   }
-  if(document.documentElement.scrollWidth>document.documentElement.clientWidth+1)
-    result.push({check:'horizontal-overflow',selector:'html',actual:{scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth},expected:'no horizontal overflow'});
+  for(const surface of new Set([root,document.documentElement]))
+    if(surface.scrollWidth>surface.clientWidth+1)
+      result.push({check:'horizontal-overflow',selector:surface===document.documentElement?'html':selector(surface),actual:{scrollWidth:surface.scrollWidth,clientWidth:surface.clientWidth},expected:'no horizontal overflow'});
   return result;
 }

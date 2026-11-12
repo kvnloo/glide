@@ -5,9 +5,9 @@
 - [x] Ground: trace W4 ownership, canary injection, reports and sampler.
 - [x] Sketch: compare a new Playwright test-runner stack with a small browser audit behind the existing Python lifecycle owner.
 - [x] Agree: proceed without a checkpoint under the fixed W5 brief.
-- [ ] Implement: complete detector and target contracts.
-- [ ] Verify: execute all lanes on Boat and audit their receipts.
-- [ ] Scrap: replace any observation method that cannot distinguish app feedback from incidental animation.
+- [x] Implement: deterministic detectors and fail-closed target contracts.
+- [x] Verify: all eleven lanes executed on Boat; first full receipt audit passed. App qualification did not.
+- [x] Scrap: field values, shell-only nodes, and native accessibility nodes are not substituted for visible app feedback. Canvas/CSS-only gallery effects remain explicit test bugs rather than asserted defects.
 
 ## Usage
 
@@ -38,4 +38,4 @@ A requested independent design/review attempt failed because the account rejecte
 
 ## Risks to resolve with runtime evidence
 
-Can the native Tern web client expose all transcript controls to Playwright? Is build provenance queryable from the pane rather than only from files on disk? Can animation change the DOM while an unrelated dead control is clicked? These are acceptance gates, not reasons to declare partial coverage complete.
+The private web PTY initially lost its profile environment; the launcher now exports it explicitly and has a shell-level regression. Native transcript articles subsequently appeared in the accessibility snapshot, but the actual capture stayed uniformly white and no styled card DOM or pane build/PIN was exposed. These are provider/observability gates, not app PASSes. Kit animation/interception and non-flat gradient text remain explicit test bugs. The orchestrator's premium re-judge remains pending. Exact runs, counts, and accounting are in REPORT.md and the ignored local receipts.

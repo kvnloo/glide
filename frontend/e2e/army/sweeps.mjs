@@ -2,7 +2,7 @@
 import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdirSync, writeFileSync, realpathSync } from 'node:fs';
-import { colors, controlOutcome, canaryRecall, auditDOM } from './sweep-audit.mjs';
+import { colors, controlOutcome, canaryRecall, auditDOM, hasPixelVariation } from './sweep-audit.mjs';
 
 process.chdir('/home/user/army');
 if (realpathSync(process.cwd()) !== realpathSync('/home/user/army')) throw new Error('Sweeps run only in an owned Boat sandbox');
@@ -121,7 +121,7 @@ async function controls(root, canary=false) {
     const locator=page.locator(root).locator(control.selector).first();
     try {
       if(await locator.count()===0) throw new Error('control disappeared before action');
-      await locator.scrollIntoViewIfNeeded();
+      await locator.scrollIntoViewIfNeeded({timeout:4000});
       if(control.tag==='SELECT' && control.selected) {
         const alternative=inventory.find(c=>c.selector===control.selector&&c.option!==control.option&&!c.optionDisabled);
         if(alternative) await locator.selectOption(alternative.option);
@@ -149,7 +149,7 @@ async function controls(root, canary=false) {
       report.controls.push(result);
       if(emitted.length>1) finding({check:'duplicate-intent',...control,actual:emitted,expected:'exactly one action per control'},await shot('duplicate-intent'));
       if(result.outcome==='dead') {
-        const uncertain=control.hasCanvas||control.pressed==='true'||control.label==='Replay';
+        const uncertain=scope.surface==='gallery'||control.hasCanvas||control.pressed==='true'||control.label==='Replay';
         const item={check:'dead-control',...control,actual:'enabled control has no visible DOM change, intent, navigation, or unavailable reason',expected:'observable effect',
           classification:uncertain?'test bug':'real defect'};
         if(canary&&control.seedTarget&&control.label==='Open chat') item.canary='dead-button';
@@ -228,7 +228,18 @@ async function ternSweep() {
   scope={phase:'clean',surface:'tern',width:1440,theme:'runtime'};
   await navigate(config.url);
   await page.waitForFunction(()=>document.querySelector('[data-eui="card"],#status.error'),null,{timeout:20000}).catch(()=>{});
-  await shot('tern-initial');
+  const initial=await shot('tern-initial');
+  const pixels=await page.evaluate(async png=>{
+    const bytes=Uint8Array.from(atob(png),c=>c.charCodeAt(0));
+    const image=await createImageBitmap(new Blob([bytes],{type:'image/png'}));
+    const canvas=new OffscreenCanvas(64,40), ctx=canvas.getContext('2d');
+    ctx.drawImage(image,0,0,64,40); image.close();
+    return [...ctx.getImageData(0,0,64,40).data];
+  },readFileSync(initial).toString('base64'));
+  const painted=hasPixelVariation(pixels);
+  report.checks.push({...scope,check:'framebuffer-painted',pass:painted,evidence:initial,
+    expected:'nonuniform framebuffer; necessary but not sufficient to prove native UI'});
+  if(!painted) report.gaps.push({...scope,error:'Uniform framebuffer: native accessibility nodes do not prove that UI pixels painted',classification:'provider gap',evidence:[initial]});
   writeFileSync(out+'/tern-dom.html',await page.content());
   const native=await page.locator('button,select,input[type=checkbox],[role=button]').count();
   report.coverage.push({...scope,nativeControls:native});

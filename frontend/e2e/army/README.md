@@ -12,16 +12,25 @@ SWEEPS=1 CANARY=1 LANES=8 bash boat/up.sh
 
 This freezes kit `c3b7b275`, `origin/main`, and `origin/feat/eui-fleet-vendor`. Three kit lanes and four Tern lanes per Glide revision cover clicks, themes, console errors, and served build provenance. Kit has no Glide build lane. `ONLY` selects lane IDs; `MAIN_SHA`, `PR_SHA`, and `KIT_SHA` override the frozen references. The default deterministic `KIT_DIR` is the published worktree, not the dirty authoring tree. No model participates in any verdict.
 
-- Clicks record each visible action, checkbox, and select option. Disclosures open before inventory; actions run before destructive filters. A field's value alone is not app feedback. Duplicate intents are findings. Canvas-only effects, replay, and already-selected controls need a stronger oracle and are classified as test bugs, not certified dead actions.
+- Clicks record each visible action, checkbox, and select option. Disclosures open before inventory; actions run before destructive filters. A field's value alone is not app feedback. Duplicate intents are findings. Canvas-only and CSS-only gallery effects, replay, and already-selected controls need a stronger oracle and are classified as test bugs, not certified dead actions. Animated/intercepted controls produce explicit automation gaps; scrolling has a four-second bound.
 - Themes cover all nine themes, three fleet kinds, and widths 390/768/1440: 81 clean cases. The matching three seeds are calibrated in one light/390 host case before clean coverage. Data consistency reads the same authored HOSTS fixture used by the card.
 - Console runs the clean click/gallery/theme traversal and preserves every console.error and pageerror. Graphics initialization errors are provider gaps.
 - Build records the archive SHA and disk PIN but refuses to infer served-pane provenance from them. Missing queryable pane provenance fails coverage.
 
 Every lane first runs the Chromium style-detector fixtures and the rendered control-order fixture. Matching recall is exact detector + selector + seed ID, not text matching. Clicks require 1/1; themes require 3/3. Console/build have no matching planted seed: recall is not applicable. Calibrations do not contaminate clean findings.
 
-The Tern web server creates its own pane; native `ctl run` is not proof that its web client launched Glide. The deterministic path supplies a private launch executable as `SHELL` to the owned web environment and requires actual transcript content. The explorer path retains native `serve --control`. A blank canvas, shell-only accessibility nodes, unsupported native styles, or missing transcript cards remain coverage gaps.
+The Tern web server creates its own pane; native `ctl run` is not proof that its web client launched Glide. The deterministic path supplies a private launch executable as `SHELL`; that executable re-exports the private profile because the PTY can replace environment variables. Tern-generated pane identity is preserved. A real `hermes tern --help` registration probe precedes launch. The explorer path retains native `serve --control`. The PNG is checked for a uniform framebuffer: accessibility nodes and zero console errors alone do not prove pixels painted. Blank frames, unsupported native styles, missing transcript cards, and absent pane provenance remain coverage gaps.
 
-`boat/diagnose.py web-help` and `boat/diagnose.py gpu` are bounded Boat diagnostics. They collect outputs even after remote failure, then delete their owned sandbox. Their accounting and deletion receipts use the same lifecycle owner.
+`boat/diagnose.py web-help`, `boat/diagnose.py plugins`, and `boat/diagnose.py gpu` are bounded Boat diagnostics. They collect outputs even after remote failure, then delete their owned sandbox. Their accounting and deletion receipts use the same lifecycle owner.
+
+Set `RUN` to a full eleven-lane artifact directory, then audit it:
+
+```sh
+python3 audit_run.py "$RUN"
+python3 ledger.py runs/boat --since 20261111T235205Z
+```
+
+The first command checks exact lane IDs, fixtures, canary recall, PNG signatures, usage, concurrency, and sampler coverage. Exit 0 means consistent receipts, not app acceptance. The ledger includes failed attempts and diagnostics, reads a fresh Boat list, checks the cross-run peak, and never adds overlapping account-wide billing deltas. Usage is sampled immediately before deletion, so teardown latency is excluded.
 
 Run artifacts contain structured per-control results, checks, console records, PNGs, `FINDINGS.md`, and the pending premium-review sampler. See `REPORT.md` for measured outcomes and limitations, and `SWEEPS-DESIGN.md` for ownership and design rationale.
 
