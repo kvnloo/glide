@@ -308,6 +308,10 @@ frontend/src/__tests__/skillStub.test.ts
 frontend/src/__tests__/__snapshots__/golden/agent-wait-solo.json
 frontend/src/__tests__/__snapshots__/golden/agent-wait-tiles.json
 frontend/src/__tests__/__snapshots__/golden/context-meter.json
+frontend/src/__tests__/compactCommand.test.ts
+frontend/src/__tests__/glideTheme.test.ts
+frontend/src/__tests__/intentCards.test.ts
+frontend/src/__tests__/intentFixtures.ts
 frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
@@ -410,6 +414,9 @@ gateway_operations.py
 .github/workflows/bundle-candidate.yml
 .github/workflows/fettl.yml
 frontend/src/__tests__/lanes.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/orbit.test.ts
+frontend/src/__tests__/subagentTranscript.test.ts
+frontend/src/__tests__/transcriptCardActions.test.ts
 frontend/src/voice/lanes.tsx  # esbuild and tsc resolve @stencil-hq/tern only from frontend/
 media_backend.py
 plan_gateway.py
@@ -436,3 +443,5 @@ tests/test_plan_gateway_dispatch.py
 tests/test_table_chart_gateway.py
 tests/test_table_chart_planner.py
 tests/test_talk_backend.py
+frontend/src/voice/catalog.ts
+frontend/src/voice/orbit.ts
