@@ -276,6 +276,11 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
   })
 
+  it('binds primary foreground to a native theme token', () => {
+    expect(euiStyles()).toContain('--h-primaryFg:var(--card)')
+    expect(euiStyles()).not.toContain('--accent-ink')
+  })
+
   it('rewrites logical borders and drops layout-less values', () => {
     expect(ternBody('border-block:1px solid red;aspect-ratio:1;width:undefinedpx;transform:translateX(NaNpx);color:')).toBe(
       'border-top:1px solid red;border-bottom:1px solid red')
