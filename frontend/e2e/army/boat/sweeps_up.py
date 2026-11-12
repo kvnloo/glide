@@ -52,7 +52,7 @@ def main():
         ('main', os.getenv('MAIN_SHA', 'origin/main')),
         ('pr269', os.getenv('PR_SHA', 'origin/feat/eui-fleet-vendor')))]
     selected = plan(revisions)
-    kit_repo = Path(os.getenv('KIT_DIR', '/mnt/zer0models/worktrees/ephemeral-ui-pages'))
+    kit_repo = Path(os.environ['KIT_DIR'])  # ephemeral-ui gh-pages checkout
     kit_sha = run('git', '-C', str(kit_repo), 'rev-parse', os.getenv('KIT_SHA', 'c3b7b27')).strip()
     snapshot = os.getenv('SNAPSHOT', 'glide-army-5ae480ebbfeda4f5')
     snaps = boat('snapshots')

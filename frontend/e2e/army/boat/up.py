@@ -214,8 +214,7 @@ def main():
     tern = Path(os.getenv('TERN_BIN', str(Path.home() / '.local/bin/tern'))).resolve()
     bun = Path(os.getenv('BUN_BIN', shutil.which('bun') or '')).resolve()
     probe = Path(os.getenv('PROBE_SCRIPT', str(Path.home() / '.hermes/profiles/clean/skills/rendered-ui-qualification/scripts/probe-vision-model.py')))
-    default_kit = Path('/mnt/zer0models/workspace/zer0/products/launch-videos/pretotypes/ephemeral-ui/src')
-    kit = Path(os.getenv('KIT_DIR', str(default_kit)))
+    kit = Path(os.environ['KIT_DIR'])  # ephemeral-ui kit src/
     key = hashlib.sha256((''.join([digest(ROOT / 'package-lock.json'), digest(ROOT / 'boat/setup.sh'),
                                   sha, tag, hermes_sha, digest(tern), digest(bun)])).encode()).hexdigest()[:16]
     snap = 'glide-army-' + key

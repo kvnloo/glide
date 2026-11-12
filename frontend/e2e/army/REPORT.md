@@ -4,7 +4,7 @@ Status: receipt audit passed; application qualification failed. Every selected l
 
 ## Final evidence and provenance
 
-The final local bundle is `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final`. It contains `FINDINGS.md`, `findings.json`, `SANITY.md`, `sanity-manifest.json`, `audit.json`, and the selected lane logs, DOM dumps, checks, controls, and PNGs. Artifacts remain ignored, following the existing army convention.
+The final local bundle is `runs/w5-final`. It contains `FINDINGS.md`, `findings.json`, `SANITY.md`, `sanity-manifest.json`, `audit.json`, and the selected lane logs, DOM dumps, checks, controls, and PNGs. Artifacts remain ignored, following the existing army convention.
 
 | Input | Frozen revision |
 |---|---|
@@ -81,8 +81,8 @@ Exit 0 from `audit_run.py` means consistent receipts, not application acceptance
 
 Representative inspected captures:
 
-- `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final/kit-sweep-themes/runs/kit-sweep-themes/0004-fleet-hosts-t3-light-390-clean.png`
-- `/mnt/zer0models/worktrees/glide-army/frontend/e2e/army/runs/w5-final/tern-pr269-sweep-build/runs/tern-pr269-sweep-build/0002-tern-initial.png`
+- `runs/w5-final/kit-sweep-themes/runs/kit-sweep-themes/0004-fleet-hosts-t3-light-390-clean.png`
+- `runs/w5-final/tern-pr269-sweep-build/runs/tern-pr269-sweep-build/0002-tern-initial.png`
 
 ## Accounting and remaining blockers
 

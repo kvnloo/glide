@@ -10,7 +10,7 @@ From this directory, without a provider key:
 SWEEPS=1 CANARY=1 LANES=8 bash boat/up.sh
 ```
 
-This freezes kit `c3b7b275`, `origin/main`, and `origin/feat/eui-fleet-vendor`. Three kit lanes and four Tern lanes per Glide revision cover clicks, themes, console errors, and served build provenance. Kit has no Glide build lane. `ONLY` selects lane IDs; `MAIN_SHA`, `PR_SHA`, and `KIT_SHA` override the frozen references. The default deterministic `KIT_DIR` is the published worktree, not the dirty authoring tree. No model participates in any verdict.
+This freezes kit `c3b7b275`, `origin/main`, and `origin/feat/eui-fleet-vendor`. Three kit lanes and four Tern lanes per Glide revision cover clicks, themes, console errors, and served build provenance. Kit has no Glide build lane. `ONLY` selects lane IDs; `MAIN_SHA`, `PR_SHA`, and `KIT_SHA` override the frozen references. `KIT_DIR` is required: point it at the published gh-pages worktree, not the dirty authoring tree. No model participates in any verdict.
 
 - Clicks record each visible action, checkbox, and select option. Disclosures open before inventory; actions run before destructive filters. A field's value alone is not app feedback. Duplicate intents are findings. Canvas-only and CSS-only gallery effects, replay, and already-selected controls need a stronger oracle and are classified as test bugs, not certified dead actions. Animated/intercepted controls produce explicit automation gaps; scrolling has a four-second bound.
 - Themes cover all nine themes, three fleet kinds, and widths 390/768/1440: 81 clean cases. The matching three seeds are calibrated in one light/390 host case before clean coverage. Data consistency reads the same authored HOSTS fixture used by the card.
@@ -56,7 +56,7 @@ WITH_KEYS=/path/to/operations/with-keys.sh
 "$WITH_KEYS" env KIND=tern ONLY='^tern-hosts$' LANES=1 STEPS=2 bash boat/up.sh
 ```
 
-Set `KIT_DIR` to a self-contained built kit directory containing `fleet.html` and `index.html`. The default is the kit source directory specified in W4's brief. The runner copies it before injection and never edits it. Kit goals navigate to `/fleet.html?w=1440`, `/fleet.html?w=390`, and `/`. Query strings stay out of `app.url` because e2e rejects them there.
+Set `KIT_DIR` to a self-contained built kit directory containing `fleet.html` and `index.html`. It is required; no host path is baked in. The runner copies it before injection and never edits it. Kit goals navigate to `/fleet.html?w=1440`, `/fleet.html?w=390`, and `/`. Query strings stay out of `app.url` because e2e rejects them there.
 
 For a later full run, omit `ONLY`, use `STEPS=8`, and keep `LANES` between 1 and 3. Do not edit `up.sh` or the runner while it is live. Each invocation freezes a payload before starting lanes.
 
