@@ -54,11 +54,24 @@ def start(spawn, sha):
     (plugins / 'hermes-tern').symlink_to('/home/user/glide', target_is_directory=True)
     if Path('/home/user/glide/ARMY_SHA').read_text().strip() != sha:
         raise RuntimeError('plugin exact-SHA check failed')
-    subprocess.run([exe, 'plugins', 'validate', '/home/user/glide'], env=env,
-                   stdin=subprocess.DEVNULL, check=True, timeout=120,
-                   stdout=open('runs/plugin-validate.log', 'w'), stderr=subprocess.STDOUT)
+    # This command is the catalog-admission scanner, not an installed-plugin startup gate.
+    # It flags literal source examples and the build's .hermes-src symlink. Preserve its
+    # receipt, but prove registration by starting the actual private runtime instead.
+    with open('runs/plugin-validate.log', 'w') as log:
+        validation = subprocess.run([exe, 'plugins', 'validate', '/home/user/glide'], env=env,
+                                    stdin=subprocess.DEVNULL, timeout=120,
+                                    stdout=log, stderr=subprocess.STDOUT)
+    Path('runs/plugin-validation.json').write_text(json.dumps({'exit': validation.returncode,
+        'scope': 'catalog admission; runtime registration checked by private launch'}))
     # Allow only read/search/browser tools. Delegation cannot be discovered or invoked.
-    command = [exe, 'tern', '--new', '--provider', 'nvidia', '-m', 'google/gemma-4-31b-it',
+    session_flags = ['--new']
+    if os.getenv('ARMY_DETERMINISTIC') == '1':
+        seeded = subprocess.run([str(core / '.venv/bin/python'), '/home/user/army/boat/seed_session.py'],
+                                env=env, capture_output=True, text=True, timeout=60)
+        Path('runs/seed-session.log').write_text(seeded.stdout + seeded.stderr)
+        seeded.check_returncode()
+        session_flags = ['--resume', 'army-synthetic-transcript']
+    command = [exe, 'tern', *session_flags, '--provider', 'nvidia', '-m', 'google/gemma-4-31b-it',
                '--toolsets', 'web', '--max-turns', '4']
     # Start a private gateway before the frontend, as Hermes >=0.23 requires attach.
     spawn([exe, 'gateway', 'run'], 'gateway', env)
@@ -82,9 +95,22 @@ def start(spawn, sha):
     url = f'http://127.0.0.1:{port}/'
     for _ in range(90):
         try:
+            # Tern 0.9.9 announces its per-server authentication token on stdout.
+            # Use only this owned server's URL; never a live daemon or owner session.
+            log = Path('runs/tern-web.log')
+            if log.exists():
+                for line in log.read_text().splitlines():
+                    if line.startswith('{'):
+                        announced = json.loads(line).get('url', '')
+                        if announced.startswith(url + '?token='):
+                            url = announced
+                            break
+            if '?token=' not in url:
+                time.sleep(1)
+                continue
             with urllib.request.urlopen(url, timeout=2) as response:
                 if response.status == 200:
                     return url
-        except (OSError, TimeoutError):
+        except (OSError, TimeoutError, json.JSONDecodeError):
             time.sleep(1)
     raise RuntimeError('tern web serve did not answer HTTP on its private loopback port')

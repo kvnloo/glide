@@ -64,8 +64,8 @@ export function auditDOM({rootSelector, theme}) {
     const s=getComputedStyle(el), rect=el.getBoundingClientRect(), own=parse(s.backgroundColor);
     const meta={selector:selector(el), text:el.textContent.trim().slice(0,150)};
     const add=(check,actual,expected,canary)=>result.push({...meta,check,actual,expected,...(canary?{canary}:{})});
-    // Only opaque, substantial neutral surfaces, not icons, swatches or inverse primary buttons.
-    if (own[3]>.95 && rect.width>80 && rect.height>24 && !el.matches('button,[role=button],input')) {
+    // Measure opaque, substantial surfaces; small icons are not panel backgrounds.
+    if (own[3]>.95 && rect.width>80 && rect.height>24) {
       const extremeBlack=own.slice(0,3).every(x=>x===0), extremeWhite=own.slice(0,3).every(x=>x===255);
       if ((extremeBlack && lum(parse(theme.bg))>.5) || (extremeWhite && lum(parse(theme.bg))<.1))
         add('surface',s.backgroundColor,'surface polarity agrees with theme '+theme.id,
@@ -81,7 +81,7 @@ export function auditDOM({rootSelector, theme}) {
     if (ratio+.01<threshold) add('contrast',{ratio:Number(ratio.toFixed(2)),color:s.color,background:bg,fontSize:s.fontSize},'contrast >= '+threshold);
     for (let p=el;p && root.contains(p);p=p.parentElement) {
       const ps=getComputedStyle(p);
-      if (['hidden','clip'].includes(ps.overflowX) && p.scrollWidth>p.clientWidth+1 && !el.closest('[title]')) {
+      if (['hidden','clip'].includes(ps.overflowX) && p.scrollWidth>p.clientWidth+1 && !el.closest('[title]')?.title.trim()) {
         add('clipped-text',{scrollWidth:p.scrollWidth,clientWidth:p.clientWidth,clippingAncestor:selector(p)},'text fits or has a title tooltip',el.matches('.fh-title')?'phone-clipped-label':undefined);
         break;
       }

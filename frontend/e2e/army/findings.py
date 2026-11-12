@@ -63,8 +63,8 @@ def collect(root: Path):
             for finding in found:
                 finding['evidence'] = [local_shot(p) for p in finding.get('evidence', [])]
             gaps = report.get('gaps', [])
-            if lane.get('error') or report.get('error') or not reports:
-                gaps.append({'classification': 'provider gap', 'error': lane.get('error') or report.get('error') or 'missing deterministic report'})
+            if lane.get('error') or report.get('error') or not reports or report.get('status') in ('failed', 'running'):
+                gaps.append({'classification': 'provider gap', 'error': lane.get('error') or report.get('error') or 'missing or incomplete deterministic report'})
             real = [f for f in found if f.get('classification') != 'canary']
             seeds = [f for f in found if f.get('classification') == 'canary']
             lane.update(findings=real, seeded_findings=seeds, gaps=gaps, screenshots=shots,

@@ -25,13 +25,16 @@ def main():
     children, logs = [], []
 
     def save():
+        # Boat may rehydrate the home mount while dependencies are first touched.
+        # Re-enter its stable path rather than inheriting a retired directory inode.
+        os.chdir(ROOT)
         Path('runs/lane.tmp').write_text(json.dumps(status, indent=2))
         Path('runs/lane.tmp').replace('runs/lane.json')
 
     def spawn(command, name, env=None, cwd=None):
-        log = open('runs/' + name + '.log', 'w')
+        log = open(ROOT / ('runs/' + name + '.log'), 'w')
         logs.append(log)
-        child = subprocess.Popen(command, env=env, cwd=cwd, stdin=subprocess.DEVNULL,
+        child = subprocess.Popen(command, env=env, cwd=cwd or str(ROOT), stdin=subprocess.DEVNULL,
                                  stdout=log, stderr=subprocess.STDOUT)
         children.append(child)
         return child
@@ -57,7 +60,13 @@ def main():
             lane['url'] = url
         else:
             lane['url'] = 'http://127.0.0.1:18931/'
+        os.chdir(ROOT)
         Path('sweep-config.json').write_text(json.dumps(lane))
+        status['stage'] = 'detector-regressions'
+        save()
+        regression = spawn(['node', 'tests/sweep-browser-contract.mjs'], 'detector-regressions')
+        if regression.wait(timeout=90):
+            raise RuntimeError('rendered detector regression failed; see detector-regressions.log')
         status['stage'] = 'sweep'
         save()
         child = spawn(['node', 'sweeps.mjs', 'sweep-config.json'], 'sweep')

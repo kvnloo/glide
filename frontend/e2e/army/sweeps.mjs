@@ -1,15 +1,17 @@
 // Deterministic Playwright sweeps. Headless Boat only; no inference API is configured.
 import { chromium } from 'playwright-core';
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync, realpathSync } from 'node:fs';
 import { colors, controlOutcome, canaryRecall, auditDOM } from './sweep-audit.mjs';
 
-if (process.cwd() !== '/home/user/army') throw new Error('Sweeps run only in an owned Boat sandbox');
+process.chdir('/home/user/army');
+if (realpathSync(process.cwd()) !== realpathSync('/home/user/army')) throw new Error('Sweeps run only in an owned Boat sandbox');
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const out = 'runs/'+config.id;
 mkdirSync(out, {recursive:true});
 const report = {status:'running', findings:[], controls:[], checks:[], screenshots:[], coverage:[], gaps:[]};
 const browser = await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,
-  args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+  args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader',
+    '--enable-unsafe-webgpu','--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream']});
 const context = await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce', permissions:['clipboard-read','clipboard-write']});
 let page, serial=0, scope={};
 const errors=[];
@@ -20,14 +22,17 @@ function watch(p) {
 }
 context.on('page',watch);
 page=await context.newPage();
-async function shot(label) {
+async function shot(label, root) {
+  root ??= scope.root;
   const path=out+'/'+String(++serial).padStart(4,'0')+'-'+label.replace(/[^a-z0-9_-]/gi,'_').slice(0,120)+'.png';
-  await page.screenshot({path,fullPage:true,timeout:30000});
+  if(root) await page.locator(root).screenshot({path,timeout:30000});
+  else await page.screenshot({path,fullPage:true,timeout:30000});
   report.screenshots.push(path);
   return path;
 }
 function finding(item, evidence) {
   const seed=config.canary && scope.phase==='canary' && item.canary;
+  if(scope.phase==='canary' && !seed) return; // Clean-build findings are already recorded.
   const clean={...item};
   if(!seed) delete clean.canary;
   report.findings.push({...scope,...clean,title:item.check+': '+(item.text||item.actual?.message||JSON.stringify(item.actual)).slice(0,180),
@@ -85,13 +90,14 @@ async function controls(root, canary=false) {
         .flatMap(n=>{
           const data={selector:path(n),tag:n.tagName,label:(n.getAttribute('aria-label')||n.textContent||n.title).trim().slice(0,120),
             disabled:n.matches(':disabled,[aria-disabled=true]'),reason:n.title||n.getAttribute('aria-description')||'',
-            checked:n.checked};
+            checked:n.checked, context:n.closest('details,li,tr,.pm-task,.ff-node')?.textContent.trim().slice(0,240)??''};
           return n.tagName==='SELECT'?[...n.options].map(o=>({...data,option:o.value,optionDisabled:o.disabled,selected:o.selected})): [data];
-        });
+        }).sort((a,b)=>Number(a.tag==='SELECT')-Number(b.tag==='SELECT'));
     });
-    const control=inventory.find(c=>!seen.has(JSON.stringify([c.selector,c.label,c.option])));
+    const key=c=>JSON.stringify([c.selector,c.label,c.option,c.context,c.disabled]);
+    const control=inventory.find(c=>!seen.has(key(c)));
     if(!control) return;
-    seen.add(JSON.stringify([control.selector,control.label,control.option]));
+    seen.add(key(control));
     const result={...scope,...control};
     if(control.disabled||control.optionDisabled) {
       result.outcome=control.reason?'unavailable':'missing-disabled-reason';
@@ -103,6 +109,10 @@ async function controls(root, canary=false) {
     try {
       if(await locator.count()===0) throw new Error('control disappeared before action');
       await locator.scrollIntoViewIfNeeded();
+      if(control.tag==='SELECT' && control.selected) {
+        const alternative=inventory.find(c=>c.selector===control.selector&&c.option!==control.option&&!c.optionDisabled);
+        if(alternative) await locator.selectOption(alternative.option);
+      }
       const before=await visibleState(root);
       const intents=await page.evaluate(()=>globalThis.__armyIntents.length);
       const url=page.url();
@@ -110,14 +120,13 @@ async function controls(root, canary=false) {
       const onNavigation=frame=>{if(frame===page.mainFrame())navigated=true;};
       page.on('framenavigated',onNavigation);
       if(control.tag==='SELECT') {
-        // A selected option is tested from a different starting value when one exists.
-        if(control.selected) {
-          const alternative=inventory.find(c=>c.selector===control.selector&&c.option!==control.option&&!c.optionDisabled);
-          if(alternative) await locator.selectOption(alternative.option);
-        }
         await locator.selectOption(control.option);
       } else if(control.tag==='INPUT') await locator.setChecked(!control.checked);
-      else await locator.click({timeout:4000});
+      else if(/hold/i.test(control.label) || await locator.evaluate(el=>el.classList.contains('hold'))) {
+        const box=await locator.boundingBox();
+        await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+        await page.mouse.down(); await page.waitForTimeout(1250); await page.mouse.up();
+      } else await locator.click({timeout:4000});
       await page.waitForTimeout(180);
       page.off('framenavigated',onNavigation);
       const after=await visibleState(root).catch(()=>'<root removed>');
@@ -158,7 +167,7 @@ async function fleetClicks(canary=false) {
     await navigate('http://127.0.0.1:18931/fleet.html?w='+width+'#theme=t3-light',canary);
     for(const kind of ['fleet-hosts','fleet-portfolio','fleet-factory']) {
       scope.kind=kind;
-      await controls(`[data-kind="${kind}"]`,canary);
+      await controls(`#stage > .cell[data-kind="${kind}"]`,canary);
     }
     await shot('fleet-clicks-'+scope.phase+'-'+width);
   }
@@ -178,7 +187,7 @@ async function galleryClicks() {
     await page.waitForTimeout(100);
     await controls(root);
     report.coverage.push({...scope,controls:report.controls.filter(c=>c.surface==='gallery'&&c.kind===scope.kind).length});
-    await shot('gallery-'+scope.kind);
+    await shot('gallery-'+scope.kind,root);
   }
 }
 async function fleetThemes(canary=false) {
