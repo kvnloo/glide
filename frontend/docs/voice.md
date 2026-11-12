@@ -39,10 +39,12 @@ answered, verified, corrected, dead), what it is researching and its newest
 blackboard entry. Every value comes from a local lane broker's
 `GET /v1/lanes/status`; nothing is inferred, and a dead lane renders as dead.
 The broker (z0live) is a separate local service and is not installed by this
-plugin. The strip polls only `GLIDE_LANES_URL` (default `http://127.0.0.1:8791`)
-with the bearer token in `GLIDE_LANES_TOKEN_FILE` (default
-`~/.config/z0live/hermes-mobile-relay.token`). Without that token file there is
-no strip and no request. Malformed status or unknown states are refused, not
+plugin. The strip is opt-in: name the bearer token file in the plugin setting
+`lanes_token_file` (`hermes config set plugins.entries.glide.settings.lanes_token_file PATH`)
+or in `GLIDE_LANES_TOKEN_FILE`; no default path is read. It polls only
+`GLIDE_LANES_URL` (default `http://127.0.0.1:8791`), and only when that URL is
+loopback (127.0.0.0/8, `::1` or `localhost`). Without a named token file, or with
+a non-loopback URL, there is no strip and no request. Malformed status or unknown states are refused, not
 guessed. [Lanes](../src/voice/lanes.tsx) · [Tests](../src/__tests__/lanes.test.ts)
 
 ## OMP verification (from frontend)

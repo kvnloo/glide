@@ -128,6 +128,13 @@ def normalize_host(raw: Any) -> str | None:
     return f"{name}:{port}" if colon else name
 
 
+def setting(key: str) -> Any:
+    """The user's plugin setting ``plugins.entries.glide.settings.<key>``; None when unset or unreadable."""
+    with contextlib.suppress(Exception):
+        return _ctx.get_config(key) if _ctx is not None else None
+    return None
+
+
 def enterprise_hosts() -> list[str]:
     """The GitHub Enterprise hosts the user listed in the plugin's ``enterprise_hosts`` setting (a
     list, or one comma-separated string), normalised. An entry that is not a plain host is dropped,

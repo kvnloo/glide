@@ -24,3 +24,8 @@ config_schema:
     default: []
     label: GitHub Enterprise hosts
     description: "GitHub Enterprise Server hosts (e.g. github.mycompany.com) that tern may read pull requests from and send GITHUB_ENTERPRISE_TOKEN to. github.com is always allowed. Any other host is refused."
+  lanes_token_file:
+    type: string
+    default: ""
+    label: Lane broker token file
+    description: "Path of the file holding the bearer token for a local lane broker (GLIDE_LANES_URL, loopback only). Empty (the default) reads no token file and shows no lane strip."

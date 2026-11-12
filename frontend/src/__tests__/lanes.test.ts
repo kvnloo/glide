@@ -1,11 +1,11 @@
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { type JSX, Node, type Session, type Surface, Tree } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, parseLaneStatus, speech } from '../voice/lanes.js'
+import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, loopbackUrl, parseLaneStatus, speech } from '../voice/lanes.js'
 
 import { stub } from './fakes.js'
 
@@ -139,6 +139,33 @@ describe('live lane strip', () => {
     writeFileSync(file, ' secret\n')
     expect(laneToken({ GLIDE_LANES_TOKEN_FILE: file })).toBe('secret')
     expect(laneToken({ GLIDE_LANES_TOKEN_FILE: '/nonexistent/token' })).toBe('')
+  })
+
+  it('reads no token file unless the user names one', () => {
+    const home = mkdtempSync(join(tmpdir(), 'lane-home-'))
+    mkdirSync(join(home, '.config', 'z0live'), { recursive: true })
+    writeFileSync(join(home, '.config', 'z0live', 'hermes-mobile-relay.token'), 'secret')
+    vi.stubEnv('HOME', home)
+    try {
+      expect(laneToken({ HOME: home })).toBe('')
+      expect(laneFeedFromEnv(() => undefined, { HOME: home })).toBeNull()
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('sends the token only to a loopback lane broker', () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'lane-token-')), 'token')
+    writeFileSync(file, 'secret')
+    for (const url of ['http://127.0.0.1:8791', 'http://127.9.9.9', 'http://localhost:1', 'http://[::1]:2']) {
+      expect(loopbackUrl(url), url).toBe(true)
+      expect(laneFeedFromEnv(() => undefined, { GLIDE_LANES_TOKEN_FILE: file, GLIDE_LANES_URL: url }), url).not.toBeNull()
+    }
+    for (const url of ['http://lanes.example:8791', 'http://10.0.0.5:8791', 'http://169.254.169.254', 'http://localhost.evil.example', 'http://127.0.0.1.nip.io', 'file:///x', 'not a url']) {
+      expect(loopbackUrl(url), url).toBe(false)
+      expect(laneFeedFromEnv(() => undefined, { GLIDE_LANES_TOKEN_FILE: file, GLIDE_LANES_URL: url }), url).toBeNull()
+    }
+    expect(laneFeedFromEnv(() => undefined, { GLIDE_LANES_TOKEN_FILE: file })).not.toBeNull()
   })
 
   it('stays off without a relay token and under tests', () => {
