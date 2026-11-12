@@ -35,7 +35,8 @@ export function decodeEuiKit(raw: unknown): EuiKitDoc {
 export function kitNotes(doc: EuiKitDoc): readonly string[] {
   const notes = z.array(z.string()).safeParse(doc.data['notes'])
   const hosts = z.array(z.object({ label: z.string(), notes: z.optional(z.array(z.string())) })).safeParse(doc.data['hosts'])
-  return [...(notes.success ? notes.data : []), ...(hosts.success ? hosts.data.flatMap(host => (host.notes ?? []).map(note => `${host.label}: ${note}`)) : [])]
+  return [...(doc.kind.startsWith('fleet-') ? ['Source: read-only fleet collectors'] : []),
+    ...(notes.success ? notes.data : []), ...(hosts.success ? hosts.data.flatMap(host => (host.notes ?? []).map(note => `${host.label}: ${note}`)) : [])]
 }
 
 export function kitInput(doc: EuiKitDoc): EuiKitDoc {
