@@ -66,13 +66,16 @@ export function euiStyles(): string {
   const dir = euiDir()
   const kit = dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : ''
   kitCss = `${kit}
-[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
+[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
 [data-eui='card'] [data-eui-svg] { display: inline-block; vertical-align: middle; flex: none; max-width: 100%; min-width: 0; }
 [data-eui='card'] [data-eui-svg] > .sf-image, [data-eui='card'] [data-eui-svg] .sf-img-svg { max-width: 100%; height: auto; }
 [data-eui='card'] .eui-svg-controls > .eu-btn { display: block; height: auto; min-height: 28px; white-space: normal; text-align: left; }
-[data-eui='card'] .eui-host { padding: 16px; }
-[data-eui='card'] .eui-host-title { font-size: 16px; margin: 0 0 8px; }
+[data-eui='card'] .eui-host-head { display: flex; align-items: baseline; gap: 8px; height: 24px; margin: 0 0 6px; font: 500 13px/24px var(--sans); white-space: nowrap; overflow: hidden; }
+[data-eui='card'] .eui-host-name { flex: none; color: var(--t2); }
+[data-eui='card'] .eui-host-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 400; color: var(--t1); }
+[data-eui='card'] .eu-card.eui-host { padding: 14px; border-radius: 8px; border: 1px solid var(--l3); background: var(--l1); box-shadow: none; }
+[data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
 [data-eui='card'] .eui-host-rows dt { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
