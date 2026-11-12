@@ -13,7 +13,7 @@ export const intentCards = {
   },
   work: {
     kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
-    rows: [{ label: 'H1', value: 'built · glide' }, { label: 'T1', value: 'running · thinking-orbs' }, { label: 'P1', value: 'blocked · glide' }]
+    rows: [{ label: 'H1', value: 'succeeded · glide' }, { label: 'T1', value: 'running · thinking-orbs' }, { label: 'P1', value: 'declared · glide' }]
   },
   proof: {
     kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',

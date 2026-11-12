@@ -77,8 +77,10 @@ describe('intent-contract hero', () => {
     expect(find(gate, 'ih-holdfill')).toHaveLength(1)
     expect(INTENT_CSS).toMatch(/\.ih-hold:active \.ih-holdfill \{ width: 100%; transition: width 1s linear/)
     const mixed = snap(intentCards.contract)
-    expect(find(mixed, 'ih-mark').map(words)).toEqual(['✓ evidenced', '✓ evidenced', ' missing'])
-    expect(find(mixed, 'ih-needs').map(words)[0]).toBe('evidence · 4e1b09c2')
+    // AODL evidence is a trace, receipt or screenshot: an observation with no receipt id is not evidence yet.
+    expect(find(mixed, 'ih-mark').map(words)).toEqual(['✓ evidenced', ' no receipt', ' missing'])
+    expect(find(mixed, 'ih-needs').map(words).slice(0, 2)).toEqual(['evidence · 4e1b09c2', 'observed, no receipt id'])
+    expect(words(mixed)).toContain('1/3 evidenced · 2 missing')
     expect(find(mixed, 'ih-met').flatMap(s => find(s, 'ih-dot'))).toHaveLength(0)
   })
 
@@ -106,20 +108,24 @@ describe('intent-contract hero', () => {
     expect(find(live, 'ih-sample')).toHaveLength(1)
   })
 
-  it('shows where each slice runs with a status dot, plus the council gate and the budget', () => {
+  it('shows where each slice runs with a status dot, the council as a verifier and the budget as declared', () => {
     const node = snap(contractOf(DEMO_ASK))
     const hosts = find(node, 'ih-host')
     expect(hosts.map(h => words(find(h, 'ih-lrole')[0] ?? h))).toEqual(['atlas', 'laptop', 'phone', 'tablet'])
     expect(hosts.map(h => find(h, 'ih-led').map(l => l.t === 'el' ? l.cls : '')[0])).toEqual(['ih-led ih-ok', 'ih-led ih-ok', 'ih-led ih-idle', 'ih-led ih-ok'])
     expect(find(must(find(node, 'ih-gate')[0]), 'ih-pip')).toHaveLength(4)
-    expect(words(must(find(node, 'ih-budget')[0]))).toContain('61% of weekly quota left')
+    // AODL: review is a verifier; the human gate is the approve button. A declared budget is never spend.
+    expect(words(must(find(node, 'ih-gate')[0]))).toContain('verifier')
+    expect(words(must(find(node, 'ih-gate')[0]))).not.toContain('gate')
+    expect(words(must(find(node, 'ih-budget')[0]))).toContain('≤ 40k tokens declared')
+    expect(words(must(find(node, 'ih-budget')[0]))).toContain('observed · 61% of weekly quota left')
     expect(find(node, 'ih-w6')).toHaveLength(1)
   })
 
   it('reads approved, not completed, while any receipt is missing', () => {
     expect(words(snap(intentCards.contract, 'done'))).toContain('Approved — awaiting receipts')
     expect(words(snap(intentCards.contract, 'done'))).not.toContain('Completed')
-    const all = { ...intentCards.contract, rows: intentCards.contract.rows.slice(0, 2) }
+    const all = { ...intentCards.contract, rows: intentCards.contract.rows.slice(0, 1) }
     expect(words(snap(all, 'done'))).toContain('Approved · all criteria evidenced')
     expect(words(snap({ kind: 'approve', app: 'x', title: 't', rows: [], approval: intentCards.contract.approval }, 'done'))).toContain('Completed')
   })
@@ -141,15 +147,16 @@ describe('intent-contract hero', () => {
 })
 
 describe('intent-work hero', () => {
-  it('rails H1 -> T1 -> P1 with states, repo chips and the built != accepted seam after the built run', () => {
+  it('rails H1 -> T1 -> P1 with AODL lifecycle states, repo chips and the succeeded != accepted seam', () => {
     const node = snap(intentCards.work)
     const rail = must(find(node, 'ih-rail')[0])
     const order = rail.t === 'el' ? rail.kids.map(k => k.t === 'el' ? k.cls.split(' ')[0] : '') : []
     expect(order).toEqual(['ih-stop', 'ih-seam', 'ih-stop', 'ih-link', 'ih-stop'])
     expect(find(node, 'ih-node').map(words)).toEqual(['H1', 'T1', 'P1'])
-    expect(find(node, 'ih-state').map(words)).toEqual(['built', 'running', 'blocked'])
+    expect(find(node, 'ih-state').map(words)).toEqual(['succeeded', 'running', 'declared'])
     expect(find(node, 'ih-repo').map(words)).toEqual(['glide', 'thinking-orbs', 'glide'])
-    expect(words(must(find(node, 'ih-seam')[0]))).toBe('built ≠ accepted')
+    // A node's lifecycle can succeed while its verifier has not accepted it.
+    expect(words(must(find(node, 'ih-seam')[0]))).toBe('succeeded ≠ accepted')
   })
 })
 
@@ -161,6 +168,14 @@ describe('intent-proof hero', () => {
     const none = snap({ ...intentCards.proof, rows: [{ label: 'receipts', value: 0 }] })
     expect(find(none, 'ih-n').map(words)).toEqual(['0'])
     expect(words(must(find(none, 'ih-stamp')[0]))).toBe('no receipt yet')
+  })
+
+  it('reports what was observed and never claims acceptance or a run that did not happen', () => {
+    expect(words(must(find(snap(intentCards.proof), 'ih-verdict')[0]))).toBe('Receipt observed')
+    expect(words(snap(intentCards.proof))).not.toMatch(/proven|accepted|passed/i)
+    const sample = snap({ ...intentCards.proof, rows: [...intentCards.proof.rows, { label: 'sample', value: 'receipt' }] })
+    expect(words(must(find(sample, 'ih-verdict')[0]))).toBe('Sample · no real turn has run')
+    expect(INTENT_CSS).toMatch(/\.ih-verdict \{[^}]*color: var\(--h-fg\)/)
   })
 
   it('shows the hash as a plain mono chip, not a tilted sticker', () => {
