@@ -1,43 +1,46 @@
-// The program palette (the `t` verb) for each theme mode. A `t` replaces the previous palette
-// whole and an empty one leaves every token to Tern, so:
-//
-// - `tern` (the default) sends nothing: the user's Tern theme colors everything, light and dark.
-// - `nous` is the Nous look (video-lab taste): bone ink, quiet grays, blue links, and gold kept
-//   for the few accent moments (a finished agent, the selected row), never for text at large.
-// - `skin` takes the Hermes skin's semantic colors only (accent, success, warning, error).
-//   Muted and dim text stay Tern's: Hermes derives them from the accent, which turned every
-//   secondary line gold.
+// Theme palettes for the session shell. Dash's tokens supply the quiet inks;
+// the accent is reserved for the primary action and the focused row.
+// Tern mode sends no palette, and a skin keeps its own semantic hues.
 
 import type { HermesSkin } from '@hermes/shared/skin'
 import type { Palette } from '@stencil-hq/tern'
 
+import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
+import { ensureContrast, mix } from '../hermes/theme.js'
 import { skinColors, type SkinSemantics } from '../hermes/theme.js'
 import type { ThemeMode } from '../settings.js'
 
 type Tokens = Record<string, string>
 
+/** A focused row has one restrained gold wash, not gold secondary copy. */
+const DARK_SELECTED = mix(DASH.bg, DASH.gold, 0.12)
+const LIGHT_SELECTED = mix(DASH.fg, DASH.gold, 0.12)
+
+/** Every readable ink clears 4.5:1 on both its canvas and its selected row. */
 const NOUS: { dark: Tokens; light: Tokens } = {
   dark: {
-    accent: '#F5B820',
-    dim: '#77746D',
-    error: '#E5484D',
-    mdLink: '#7A9CFF',
-    muted: '#9A968C',
-    selectedBg: '#26262A',
-    statusLinePath: '#9A968C',
-    text: '#EDE8DC'
+    accent: DASH.gold,
+    dim: NIGHT.text3,
+    error: ensureContrast(DASH.error, DARK_SELECTED, 4.5),
+    mdLink: NIGHT.text2,
+    muted: DASH.muted,
+    selectedBg: DARK_SELECTED,
+    statusLinePath: NIGHT.text3,
+    text: DASH.fg
   },
   light: {
-    accent: '#956E00',
-    dim: '#8A867C',
-    error: '#C93C42',
-    mdLink: '#2F5BD8',
-    muted: '#6B675E',
-    statusLinePath: '#6B675E'
+    accent: ensureContrast(DASH.gold, LIGHT_SELECTED, 4.5),
+    dim: ensureContrast(DASH.dim, LIGHT_SELECTED, 4.5),
+    error: ensureContrast(DASH.error, LIGHT_SELECTED, 4.5),
+    mdLink: NIGHT.faint,
+    muted: NIGHT.faint,
+    selectedBg: LIGHT_SELECTED,
+    statusLinePath: NIGHT.faint,
+    text: DASH.bg
   }
 }
 
-/** The palette `mode` sends; `skin` only matters in `skin` mode. */
+/** The palette mode sends; skin is consulted only for the skin mode. */
 export function paletteFor(mode: ThemeMode, skin: HermesSkin | undefined): Palette {
   if (mode === 'nous') {
     return { dark: NOUS.dark, light: NOUS.light, name: { dark: 'nous', light: 'nous' } }
@@ -56,7 +59,7 @@ export function paletteFor(mode: ThemeMode, skin: HermesSkin | undefined): Palet
   return { dark: {}, light: {}, name: { dark: 'tern', light: 'tern' } }
 }
 
-/** The skin's colors for one polarity: the overlay a skin authors for that polarity wins over its base colors. */
+/** A skin's polarity-specific colors override its base colors. */
 function resolve(skin: HermesSkin, polarity: 'dark' | 'light'): SkinSemantics {
   return skinColors({ ...skin.colors, ...(polarity === 'light' ? skin.light_colors : skin.dark_colors) }, polarity)
 }
@@ -66,13 +69,12 @@ function semantic(c: SkinSemantics): Tokens {
     accent: c.accent,
     borderAccent: c.accent,
     error: c.error,
-    mdListBullet: c.accent,
-    statusLineModel: c.accent,
     success: c.ok,
     warning: c.warn
   }
 
-  // Tern reads #rrggbb (and #rgb); drop anything an ANSI fallback produced.
+  // Never assign the accent to secondary text, paths, bullets or model labels.
+  // Ignore non-hex colors from an ANSI fallback.
   for (const key in out) {
     if (!/^#[0-9a-f]{3,8}$/i.test(out[key] ?? '')) {
       delete out[key]
