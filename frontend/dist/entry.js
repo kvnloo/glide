@@ -929,8 +929,8 @@ var require_util = __commonJS({
     }
     var KEEPALIVE_TIMEOUT_EXPR = /timeout=(\d+)/;
     function parseKeepAliveTimeout(val) {
-      const m = val.toString().match(KEEPALIVE_TIMEOUT_EXPR);
-      return m ? parseInt(m[1], 10) * 1e3 : null;
+      const m2 = val.toString().match(KEEPALIVE_TIMEOUT_EXPR);
+      return m2 ? parseInt(m2[1], 10) * 1e3 : null;
     }
     function headerNameToString(value) {
       return typeof value === "string" ? headerNameLowerCasedRecord[value] ?? value.toLowerCase() : tree.lookup(value) ?? value.toString("latin1").toLowerCase();
@@ -1132,11 +1132,11 @@ var require_util = __commonJS({
     }
     function parseRangeHeader(range2) {
       if (range2 == null || range2 === "") return { start: 0, end: null, size: null };
-      const m = range2 ? range2.match(/^bytes (\d+)-(\d+)\/(\d+)?$/) : null;
-      return m ? {
-        start: parseInt(m[1]),
-        end: m[2] ? parseInt(m[2]) : null,
-        size: m[3] ? parseInt(m[3]) : null
+      const m2 = range2 ? range2.match(/^bytes (\d+)-(\d+)\/(\d+)?$/) : null;
+      return m2 ? {
+        start: parseInt(m2[1]),
+        end: m2[2] ? parseInt(m2[2]) : null,
+        size: m2[3] ? parseInt(m2[3]) : null
       } : null;
     }
     function addListener(obj3, name, listener) {
@@ -17031,19 +17031,19 @@ var require_connection = __commonJS({
         ws[kReadyState] = states.CLOSING;
       } else if (ws[kSentClose] === sentCloseFrameState.NOT_SENT) {
         ws[kSentClose] = sentCloseFrameState.PROCESSING;
-        const frame = new WebsocketFrameSend();
+        const frame2 = new WebsocketFrameSend();
         if (code7 !== void 0 && reason2 === void 0) {
-          frame.frameData = Buffer.allocUnsafe(2);
-          frame.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData = Buffer.allocUnsafe(2);
+          frame2.frameData.writeUInt16BE(code7, 0);
         } else if (code7 !== void 0 && reason2 !== void 0) {
-          frame.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
-          frame.frameData.writeUInt16BE(code7, 0);
-          frame.frameData.write(reason2, 2, "utf-8");
+          frame2.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
+          frame2.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData.write(reason2, 2, "utf-8");
         } else {
-          frame.frameData = emptyBuffer;
+          frame2.frameData = emptyBuffer;
         }
         const socket = ws[kResponse].socket;
-        socket.write(frame.createFrame(opcodes.CLOSE));
+        socket.write(frame2.createFrame(opcodes.CLOSE));
         ws[kSentClose] = sentCloseFrameState.SENT;
         ws[kReadyState] = states.CLOSING;
       } else {
@@ -17527,8 +17527,8 @@ var require_receiver = __commonJS({
           return false;
         } else if (opcode === opcodes.PING) {
           if (!this.ws[kReceivedClose]) {
-            const frame = new WebsocketFrameSend(body);
-            this.ws[kResponse].socket.write(frame.createFrame(opcodes.PONG));
+            const frame2 = new WebsocketFrameSend(body);
+            this.ws[kResponse].socket.write(frame2.createFrame(opcodes.PONG));
             if (channels.ping.hasSubscribers) {
               channels.ping.publish({
                 payload: body
@@ -17578,14 +17578,14 @@ var require_sender = __commonJS({
       }
       add(item3, cb, hint) {
         if (hint !== sendHints.blob) {
-          const frame = createFrame(item3, hint);
+          const frame2 = createFrame(item3, hint);
           if (!this.#running) {
-            this.#socket.write(frame, cb);
+            this.#socket.write(frame2, cb);
           } else {
             const node4 = {
               promise: null,
               callback: cb,
-              frame
+              frame: frame2
             };
             this.#queue.push(node4);
           }
@@ -20668,7 +20668,7 @@ function mods(raw2) {
   const list10 = strings(raw2, "mods");
   if (!list10)
     return void 0;
-  return list10.filter((m) => m === "shift" || m === "ctrl" || m === "alt" || m === "meta");
+  return list10.filter((m2) => m2 === "shift" || m2 === "ctrl" || m2 === "alt" || m2 === "meta");
 }
 function defined(target2, fields) {
   for (const key3 in fields) {
@@ -23016,8 +23016,8 @@ function G(n3, s2) {
   const t = Math.floor(n3), r = Math.floor(s2);
   let a2 = n3 - t, o = s2 - r;
   a2 = a2 * a2 * (3 - 2 * a2), o = o * o * (3 - 2 * o);
-  const c = E(t, r), M = E(t + 1, r), h2 = E(t, r + 1), m = E(t + 1, r + 1);
-  return c + (M - c) * a2 + (h2 - c) * o + (c - M - h2 + m) * a2 * o;
+  const c = E(t, r), M = E(t + 1, r), h2 = E(t, r + 1), m2 = E(t + 1, r + 1);
+  return c + (M - c) * a2 + (h2 - c) * o + (c - M - h2 + m2) * a2 * o;
 }
 function E(n3, s2) {
   const t = Math.sin(n3 * 12.9898 + s2 * 78.233) * 43758.5453;
@@ -23032,8 +23032,8 @@ function et(n3, s2) {
 }
 function _(n3, s2, t, r, a2) {
   const o = Math.sin(s2), c = Math.cos(s2), M = Math.sin(n3), h2 = Math.cos(n3);
-  return (m, D2, p3) => {
-    const e = m * h2 + p3 * M, l = -m * M + p3 * h2, R = D2 * c - l * o, w = D2 * o + l * c;
+  return (m2, D2, p3) => {
+    const e = m2 * h2 + p3 * M, l = -m2 * M + p3 * h2, R = D2 * c - l * o, w = D2 * o + l * c;
     return [t + e * a2, r - R * a2, w];
   };
 }
@@ -23062,9 +23062,9 @@ function $(n3, s2) {
   return (n3 / 300) ** s2;
 }
 var Mt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.ghostN ?? 150;
-  for (let e = 0; e < m; e++) {
-    const l = J(e, m), [R, w, i] = c(l[0] * o, l[1] * o, l[2] * o), u = (i / o + 1) / 2;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.ghostN ?? 150;
+  for (let e = 0; e < m2; e++) {
+    const l = J(e, m2), [R, w, i] = c(l[0] * o, l[1] * o, l[2] * o), u = (i / o + 1) / 2;
     h2.push({ x: R, y: w, z: i, r: 0.8 * M, white: 0.78, a: 0.1 + 0.22 * u });
   }
   const D2 = t.strandN ?? 52, p3 = t.turns ?? 3;
@@ -23088,7 +23088,7 @@ function lt(n3, s2, t, r) {
   const a2 = 2 * s2 * t + r, o = n3 % a2, c = new Array(s2).fill(0);
   let M = -1;
   if (o < 2 * s2 * t) {
-    const h2 = Math.floor(o / t), m = (o - h2 * t) / t, p3 = 1 - (1 - Math.min(1, m / 0.7)) ** 3;
+    const h2 = Math.floor(o / t), m2 = (o - h2 * t) / t, p3 = 1 - (1 - Math.min(1, m2 / 0.7)) ** 3;
     if (h2 < s2) {
       for (let e = 0; e < h2; e++) c[e] = 1;
       c[h2] = p3, M = h2;
@@ -23104,8 +23104,8 @@ function pt(n3, s2, t) {
   let [r, a2, o] = n3, c = false;
   for (let M = 0; M < s2.length; M++) {
     if (t.amount[M] <= 0) continue;
-    const h2 = s2[M], m = h2.axis === 0 ? r : h2.axis === 1 ? a2 : o;
-    if (m < h2.lo || m >= h2.hi) continue;
+    const h2 = s2[M], m2 = h2.axis === 0 ? r : h2.axis === 1 ? a2 : o;
+    if (m2 < h2.lo || m2 >= h2.hi) continue;
     M === t.active && (c = true);
     const D2 = h2.ang * t.amount[M], p3 = Math.cos(D2), e = Math.sin(D2);
     if (h2.axis === 0) {
@@ -23130,11 +23130,11 @@ function ut(n3) {
   return s2;
 }
 var ft = (n3, s2, t) => {
-  const a2 = n3 / 2, o = n3 / 2, c = n3 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n3, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
+  const a2 = n3 / 2, o = n3 / 2, c = n3 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m2 = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n3, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
   for (let w = 0; w <= l; w++) {
     const i = -Math.PI / 2 + w / l * Math.PI, u = Math.cos(i), y = Math.sin(i), b = Math.max(1, Math.round(Math.abs(u) * R));
     for (let f = 0; f < b; f++) {
-      const P = f / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
+      const P = f / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m2), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
       e.push({
         x,
         y: g,
@@ -23149,11 +23149,11 @@ var ft = (n3, s2, t) => {
   return L(e, [], t.rMin);
 };
 var dt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m2 = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
   for (let R = 0; R <= e; R++) {
     const w = -Math.PI / 2 + R / e * Math.PI, i = Math.cos(w), u = Math.sin(w), y = Math.max(1, Math.round(Math.abs(i) * l));
     for (let b = 0; b < y; b++) {
-      const f = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f), u, i * Math.sin(f)], m, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
+      const f = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f), u, i * Math.sin(f)], m2, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
       p3.push({
         x: v,
         y: k,
@@ -23166,9 +23166,9 @@ var dt = (n3, s2, t) => {
   return L(p3, [], t.rMin);
 };
 var bt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.rings ?? 15, D2 = t.lonDensity ?? 40;
-  for (let p3 = 0; p3 <= m; p3++) {
-    const e = -Math.PI / 2 + p3 / m * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.rings ?? 15, D2 = t.lonDensity ?? 40;
+  for (let p3 = 0; p3 <= m2; p3++) {
+    const e = -Math.PI / 2 + p3 / m2 * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
     for (let y = 0; y < u; y++) {
       const b = y / u * 2 * Math.PI, [f, P, x] = c(l * Math.cos(b) * i, R * i, l * Math.sin(b) * i), g = (x / o + 1) / 2, d = Math.max(0, w);
       h2.push({
@@ -23196,8 +23196,8 @@ function st(n3) {
     let o = a2 * r, c = 0;
     for (; o > t[c] && c < s2 - 1; )
       o -= t[c], c++;
-    const M = n3[c], h2 = n3[(c + 1) % s2], m = t[c] ? Math.min(1, o / t[c]) : 0;
-    return [M[0] + (h2[0] - M[0]) * m, M[1] + (h2[1] - M[1]) * m];
+    const M = n3[c], h2 = n3[(c + 1) % s2], m2 = t[c] ? Math.min(1, o / t[c]) : 0;
+    return [M[0] + (h2[0] - M[0]) * m2, M[1] + (h2[1] - M[1]) * m2];
   };
 }
 var yt = (n3) => {
@@ -23224,9 +23224,9 @@ var V = 1.4;
 var ot = 0.9;
 var Q = V + ot;
 var Pt = (n3, s2, t) => {
-  const r = H.length, a2 = s2 % (Q * r), o = Math.floor(a2 / Q), c = a2 - o * Q, M = c > V ? xt((c - V) / ot) : 0, h2 = t.spread ?? 1, m = H[o], D2 = H[(o + 1) % r], p3 = 160, e = [];
+  const r = H.length, a2 = s2 % (Q * r), o = Math.floor(a2 / Q), c = a2 - o * Q, M = c > V ? xt((c - V) / ot) : 0, h2 = t.spread ?? 1, m2 = H[o], D2 = H[(o + 1) % r], p3 = 160, e = [];
   for (let x = 0; x < p3; x++) {
-    const g = x / p3, d = m(g), v = D2(g);
+    const g = x / p3, d = m2(g), v = D2(g);
     e.push([(d[0] + (v[0] - d[0]) * M) * h2, (d[1] + (v[1] - d[1]) * M) * h2]);
   }
   const l = [];
@@ -23253,8 +23253,8 @@ var Pt = (n3, s2, t) => {
   return L(y, [], t.rMin);
 };
 var Rt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
-  for (let e = 0; e < m; e++) {
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
+  for (let e = 0; e < m2; e++) {
     const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f = Math.cos(y), P = Math.sin(y) * Math.sin(u);
     let x = -f, g = b;
     const d = 0, v = Math.max(1e-6, Math.sqrt(x * x + g * g));
@@ -23293,10 +23293,10 @@ var Rt = (n3, s2, t) => {
   return L(h2, [], t.rMin);
 };
 var Z = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m = $(n3, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m2 = $(n3, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
   for (let z = 0; z < p3; z++) {
     const O = J(z, p3), [B, I, S] = h2(O[0] * o, O[1] * o, O[2] * o), A = (S / o + 1) / 2;
-    D2.push({ x: B, y: I, z: S, r: 0.8 * m, white: 0.78, a: 0.1 + 0.22 * A });
+    D2.push({ x: B, y: I, z: S, r: 0.8 * m2, white: 0.78, a: 0.1 + 0.22 * A });
   }
   const e = s2 * 0.24 * c, l = t.faceOn ? -M : 0.55 + 0.3 * Math.sin(s2 * 0.18) * c, R = Math.cos(e), w = 0, i = Math.sin(e), u = -i * Math.sin(l), y = Math.cos(l), b = R * Math.sin(l), f = w * b - i * y, P = i * u - R * b, x = R * y - w * u, g = 0.23 * (t.wobMul ?? 1), d = t.faceOn ? o / (1 + 0.85 * g) : o, v = t.lanes ?? 5, k = t.segs ?? 88, N = Math.max(1, Math.round(v * (t.bandMul ?? 1)));
   for (let z = 0; z < N; z++) {
@@ -23307,7 +23307,7 @@ var Z = (n3, s2, t) => {
         x: ct,
         y: at2,
         z: X,
-        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K) * (1 - 0.25 * B) * m,
+        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K) * (1 - 0.25 * B) * m2,
         white: 0.52 - 0.44 * K + 0.18 * B,
         a: 0.4 + 0.6 * K
       });
@@ -23316,7 +23316,7 @@ var Z = (n3, s2, t) => {
   return L(D2, [], t.rMin);
 };
 var Dt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m2 = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
   for (let i = 0; i < h2; i++) {
     const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f * f);
     e.push([y / P, b / P, f / P]);
@@ -23325,7 +23325,7 @@ var Dt = (n3, s2, t) => {
   for (let i = 0; i < h2; i++)
     for (let u = i + 1; u < h2; u++) {
       const y = e[i][0] - e[u][0], b = e[i][1] - e[u][1], f = e[i][2] - e[u][2], P = Math.sqrt(y * y + b * b + f * f);
-      if (P >= m) continue;
+      if (P >= m2) continue;
       const [x, g, d] = c(e[i][0], e[i][1], e[i][2]), [v, k, N] = c(e[u][0], e[u][1], e[u][2]), z = ((d + N) / 2 + 1) / 2;
       l.push({
         x1: x,
@@ -23333,7 +23333,7 @@ var Dt = (n3, s2, t) => {
         x2: v,
         y2: k,
         white: 0.42,
-        a: (1 - P / m) * (0.3 + 0.55 * z),
+        a: (1 - P / m2) * (0.3 + 0.55 * z),
         w: Math.max(0.6, (t.lineW ?? 0.8) * M)
       });
     }
@@ -23656,7 +23656,8 @@ var OrbActivity = class {
 };
 var NODE_ID = "dock.composer.line.orb";
 var FPS = 15;
-var FRAMES = 144;
+var CYCLE_S = 9.6;
+var SCENE_FPS = 30;
 var ThinkingOrb = class {
   #tern;
   #surface;
@@ -23673,6 +23674,7 @@ var ThinkingOrb = class {
   #closed = false;
   #timer;
   #scene;
+  #fps;
   /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
   constructor(tern, surface, options = {}) {
     this.#tern = tern;
@@ -23681,6 +23683,7 @@ var ThinkingOrb = class {
     this.#size = options.size ?? 34;
     this.#label = options.label ?? "Hermes agent";
     this.#scene = options.scene;
+    this.#fps = options.scene ? SCENE_FPS : FPS;
     this.#dark = Boolean(tern.caps.dark);
     this.#reduce = Boolean(tern.caps.reduceMotion);
   }
@@ -23733,9 +23736,9 @@ var ThinkingOrb = class {
         if (this.#surface.blocked) {
           return;
         }
-        this.#frame = (this.#frame + 1) % FRAMES;
+        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps);
         this.#surface.send([["set", this.#node, { blob: this.#blob() }]]);
-      }, 1e3 / FPS);
+      }, 1e3 / this.#fps);
       this.#timer.unref();
     }
   }
@@ -23744,7 +23747,7 @@ var ThinkingOrb = class {
     let blob2 = this.#frames.get(key3);
     if (!blob2) {
       blob2 = this.#tern.blob(
-        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / FPS, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / FPS, this.#dark)),
+        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / this.#fps, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / this.#fps, this.#dark)),
         "image/svg+xml"
       );
       this.#frames.set(key3, blob2);
@@ -23772,7 +23775,7 @@ var STILL = 0.6;
 function orbSvg(state, seconds, dark) {
   const preset = Lt(LIBRARY_STATE[state], SOURCE);
   const animated = state !== "idle" && state !== "waiting" && state !== "error";
-  const frame = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, white));
     const level = Math.round((dark ? 1 - ink2 : ink2) * 255);
@@ -23780,19 +23783,140 @@ function orbSvg(state, seconds, dark) {
   };
   const n3 = (v) => v.toFixed(1);
   const alpha = (v) => (v ?? 1).toFixed(2);
-  const marks2 = frame.lines.map(
+  const marks2 = frame2.lines.map(
     (l) => `<line x1="${n3(l.x1)}" y1="${n3(l.y1)}" x2="${n3(l.x2)}" y2="${n3(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n3(l.w)}" stroke-opacity="${alpha(l.a)}"/>`
   );
-  for (const d of frame.dots) {
+  for (const d of frame2.dots) {
     marks2.push(`<circle cx="${n3(d.x)}" cy="${n3(d.y)}" r="${n3(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks2.join("")}</svg>`;
 }
 
 // src/voice/lanes.tsx
+import { readFileSync as readFileSync2 } from "node:fs";
+import { homedir as homedir2, userInfo as userInfo2 } from "node:os";
+import { join as join2 } from "node:path";
+
+// src/voice/catalog.ts
 import { readFileSync } from "node:fs";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
+
+// src/wire/json.ts
+function record(v) {
+  if (typeof v === "string") {
+    try {
+      return record(JSON.parse(v));
+    } catch {
+      return void 0;
+    }
+  }
+  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
+}
+function parseJson(text18) {
+  try {
+    return JSON.parse(text18);
+  } catch {
+    return void 0;
+  }
+}
+function decodeJson(text18) {
+  return JSON.parse(text18);
+}
+function commandReply(output) {
+  const reply2 = record(output);
+  if (!reply2) throw new Error("the command did not answer with JSON");
+  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
+  return reply2;
+}
+
+// src/voice/catalog.ts
+var PROVIDERS = {
+  local: { label: "Local", hue: "#b3bfd4" },
+  anthropic: { label: "Anthropic", hue: "#e6b86f" },
+  openai: { label: "OpenAI", hue: "#54d7c2" },
+  opencode: { label: "OpenCode", hue: "#3dd68c" },
+  groq: { label: "Groq", hue: "#f0794a" },
+  multi: { label: "Multi-provider", hue: "#d875ef" },
+  unknown: { label: "Unspecified", hue: "#9ca39a" }
+};
+var EFFORTS = {
+  min: { label: "Min", orbits: 1, accent: "#92a198" },
+  standard: { label: "Standard", orbits: 2, accent: "#7ee3a0" },
+  high: { label: "High", orbits: 3, accent: "#68dfff" },
+  max: { label: "Max", orbits: 4, accent: "#ffd34c" },
+  unknown: { label: "Unspecified", orbits: 0, accent: "#9ca39a" }
+};
+var BILLING = { free: "Free", subscription: "Subscription", paid: "Paid", unknown: "Unknown" };
+var m = (id, label, provider, billing, effort2, extra = {}) => ({ id, label, provider, billing, route: provider === "local" ? "local" : "cloud", effort: effort2, ...extra });
+var ROLE_MODELS = {
+  fast: [
+    m("qwen3-0.6b-q8", "Qwen3 0.6B Q8", "local", "free", "min"),
+    m("qwen3-1.7b", "Qwen3 1.7B", "local", "free", "min"),
+    m("claude-haiku-4-5", "Claude Haiku 4.5", "anthropic", "subscription", "min"),
+    m("llama-3.1-8b-instant", "Llama 3.1 8B", "groq", "free", "min", { note: "Groq free tier" })
+  ],
+  small: [
+    m("smol", "smol role", "anthropic", "subscription", "standard", { alias: true }),
+    m("qwen3.5-4b", "Qwen3.5 4B", "local", "free", "standard"),
+    m("luna", "GPT Luna", "openai", "subscription", "standard", { note: "via fx" }),
+    m("deepseek-v4.1-flash-free", "DeepSeek V4.1 Flash", "opencode", "free", "standard")
+  ],
+  large: [
+    m("slow", "slow role", "anthropic", "subscription", "high", { alias: true }),
+    m("claude-sonnet-5", "Claude Sonnet 5", "anthropic", "subscription", "high"),
+    m("gpt-6.1-sol", "GPT-6.1 Sol", "openai", "subscription", "high", { note: "via fx" })
+  ],
+  council: [
+    m("socratic-council", "Socratic council", "multi", "subscription", "max", { note: "seats Opus 5.5 \xB7 Sol \xB7 Argon" })
+  ]
+};
+var RESOLVED = [
+  m("claude-opus-5-5", "Claude Opus 5.5", "anthropic", "subscription", "high")
+];
+var BY_ID = new Map([...RESOLVED, ...Object.values(ROLE_MODELS).flat()].map((x) => [x.id, x]));
+var PLAN_PATH = ".z0int/config/z0live-voice-plan.json";
+var plan;
+function voicePlanRoles(env2 = process.env, now = Date.now()) {
+  if (plan && now - plan.at < 1e4) return plan.roles;
+  const real = (() => {
+    try {
+      return userInfo().homedir;
+    } catch {
+      return "";
+    }
+  })();
+  const files = env2["Z0LIVE_VOICE_PLAN"] ? [env2["Z0LIVE_VOICE_PLAN"]] : [...new Set([homedir(), real].filter(Boolean))].map((h2) => join(h2, PLAN_PATH));
+  let roles = {};
+  for (const file2 of files) {
+    try {
+      const v = record(readFileSync(file2, "utf8"));
+      if (!v) continue;
+      roles = Object.fromEntries(Object.entries(record(v["roles"]) ?? {}).flatMap(([k, r]) => {
+        const model = record(r)?.["model"];
+        return typeof model === "string" ? [[k, model]] : [];
+      }));
+      break;
+    } catch {
+    }
+  }
+  plan = { at: now, roles };
+  return roles;
+}
+function laneModel(id, resolved = null, roles = voicePlanRoles()) {
+  const known3 = BY_ID.get(id);
+  if (!known3) return m(id, id, "unknown", "unknown", "unknown");
+  if (!known3.alias) return known3;
+  const target2 = resolved ?? roles[id];
+  const real = target2 ? BY_ID.get(target2) : void 0;
+  return { ...known3, label: real?.label ?? target2 ?? `${id} role (unresolved)`, provider: real?.provider ?? (target2 ? "unknown" : known3.provider), via: id, ...target2 ? { target: target2 } : {} };
+}
+function roleChoices(role, current = []) {
+  const ids = (ROLE_MODELS[role] ?? []).map((x) => x.id);
+  return [.../* @__PURE__ */ new Set([...ids, ...current.filter(Boolean)])];
+}
+var deepen = (hex2) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex2.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
+var providerHue = (id, dark) => dark ? PROVIDERS[id].hue : deepen(PROVIDERS[id].hue);
 
 // src/voice/orbit.ts
 var ORBIT_R = { fast: 46, small: 62, large: 78, council: 94 };
@@ -23814,6 +23938,7 @@ var deadTint = (dark) => dark ? "#ff6b6b" : "#c62828";
 var PERIOD = 9.6;
 var ROLE_PERIOD = { fast: 2.4, small: 4.8, large: 9.6, council: 9.6 };
 var lanePeriod = (role) => ROLE_PERIOD[role] ?? PERIOD;
+var ROLE_PHASE = { fast: 0, small: Math.PI / 2, large: Math.PI, council: 3 * Math.PI / 2 };
 var TILT = 1;
 var PLANET = 5;
 var HALO = 8;
@@ -23822,14 +23947,22 @@ var SOURCE2 = 64;
 var CORE = 60;
 var ORB_R = CORE * 28.4 / SOURCE2;
 var orbitRadius = (role) => ORBIT_R[role] ?? FALLBACK_R;
-function orbitScene(lanes2) {
+var ORBIT_SCALE = 1.3;
+function orbitUnits(lanes2) {
   const r = Math.max(orbitRadius("fast"), ...lanes2.map((l) => orbitRadius(l.role)));
   return { w: Math.ceil(2 * (r * TILT + PAD)), h: Math.ceil(2 * (r + PAD)) };
 }
+function orbitScene(lanes2) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return { w: Math.round(w * ORBIT_SCALE), h: Math.round(h2 * ORBIT_SCALE) };
+}
 function orbitLayout(lanes2, seconds, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
-  const moving = lanes2.filter((l) => l.state !== "dead").length;
+  const { w, h: h2 } = orbitUnits(lanes2);
+  const moving = /* @__PURE__ */ new Map();
+  for (const l of lanes2) if (l.state !== "dead") moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1);
+  const total = [...moving.values()].reduce((a2, b) => a2 + b, 0);
   let k = 0;
+  const seat = /* @__PURE__ */ new Map();
   const parkedAt = /* @__PURE__ */ new Map();
   return lanes2.map((lane) => {
     const r = orbitRadius(lane.role);
@@ -23840,7 +23973,9 @@ function orbitLayout(lanes2, seconds, reduce = false) {
       parkedAt.set(r, j + 1);
       theta = Math.PI + j * 0.45;
     } else {
-      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + 2 * Math.PI * k / moving + 2 * Math.PI * seconds / lanePeriod(lane.role);
+      const j = seat.get(r) ?? 0;
+      seat.set(r, j + 1);
+      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds / lanePeriod(lane.role);
       k++;
     }
     const z = parked ? 0 : Math.sin(theta);
@@ -23862,38 +23997,17 @@ function orbitLayout(lanes2, seconds, reduce = false) {
 var n = (v) => v.toFixed(1);
 function marks(state, seconds, animated, dark) {
   const preset = Lt(state, SOURCE2);
-  const frame = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink2 : ink2) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   };
   const a2 = (v) => (v ?? 1).toFixed(2);
-  const out = frame.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
-  for (const d of frame.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
+  const out = frame2.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
+  for (const d of frame2.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
   return out.join("");
 }
 var still = (s2) => s2 === "idle" || s2 === "waiting" || s2 === "error";
-function stipple(cx, cy, a2, b, step) {
-  const N = 720;
-  const pts2 = [];
-  for (let i = 0; i <= N; i++) {
-    const t = i * 2 * Math.PI / N;
-    pts2.push([cx + a2 * Math.sin(t), cy + b * Math.cos(t)]);
-  }
-  const len = [0];
-  for (let i = 1; i <= N; i++) len.push((len[i - 1] ?? 0) + Math.hypot((pts2[i]?.[0] ?? 0) - (pts2[i - 1]?.[0] ?? 0), (pts2[i]?.[1] ?? 0) - (pts2[i - 1]?.[1] ?? 0)));
-  const total = len[N] ?? 0;
-  const count5 = Math.round(total / step);
-  const out = [];
-  let j = 0;
-  for (let k = 0; k < count5; k++) {
-    const s2 = k * total / count5;
-    while ((len[j + 1] ?? total) < s2) j++;
-    const f = (s2 - (len[j] ?? 0)) / ((len[j + 1] ?? total) - (len[j] ?? 0) || 1);
-    out.push([(pts2[j]?.[0] ?? 0) + f * ((pts2[j + 1]?.[0] ?? 0) - (pts2[j]?.[0] ?? 0)), (pts2[j]?.[1] ?? 0) + f * ((pts2[j + 1]?.[1] ?? 0) - (pts2[j]?.[1] ?? 0))]);
-  }
-  return out;
-}
 function deadMark(x, y, r, dark) {
   const red = deadTint(dark);
   const strike = [];
@@ -23903,49 +24017,49 @@ function deadMark(x, y, r, dark) {
   }
   return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join("")}</g>`;
 }
-function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
-  const CX = w / 2;
-  const CY = h2 / 2;
-  const sats = orbitLayout(lanes2, seconds, reduce);
-  const t = reduce ? 0 : seconds;
+var frame = (lanes2, body) => {
+  const u = orbitUnits(lanes2);
+  const px = orbitScene(lanes2);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px.w}" height="${px.h}" viewBox="0 0 ${u.w} ${u.h}">${body}</svg>`;
+};
+function planet(s2, lane, CX, CY, dark, reduce) {
+  const r = PLANET * s2.scale;
+  const c = lane.hue ?? tint(lane.role, dark);
+  const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
+    const th = s2.theta - (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
+    const k = 1 - (i + 1) / 7;
+    return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
+  }).join("");
+  const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
   const edge = dark ? "#000000" : "#ffffff";
-  const planet = (s2, lane) => {
-    const r = PLANET * s2.scale;
-    const c = tint(lane.role, dark);
-    const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
-      const lag = (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
-      const th = s2.theta - lag;
-      const k = 1 - (i + 1) / 7;
-      return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
-    }).join("");
-    const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
-    const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
-  };
-  const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
-  const back = order2.filter((o) => o.s.z < 0).map((o) => planet(o.s, o.lane)).join("");
-  const front = order2.filter((o) => o.s.z >= 0).map((o) => planet(o.s, o.lane)).join("");
-  const radii = [...new Set(lanes2.map((l) => orbitRadius(l.role)))];
-  const rings = radii.map((r) => {
+  const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
+  return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
+}
+function planets(lanes2, seconds, dark, reduce, pick2) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  const sats = orbitLayout(lanes2, seconds, reduce);
+  return sats.flatMap((s2, i) => lanes2[i] && pick2(lanes2[i], s2) ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z).map((o) => planet(o.s, o.lane, w / 2, h2 / 2, dark, reduce)).join("");
+}
+function tracks(lanes2, dark) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return [...new Set(lanes2.map((l) => orbitRadius(l.role)))].map((r) => {
     const on = lanes2.filter((l) => orbitRadius(l.role) === r);
     const dead = on.every((l) => l.state === "dead");
-    const dots = stipple(CX, CY, r * TILT, r, 2);
-    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.7"/>`;
-    if (dead) {
-      const dash2 = dots.filter((_2, i) => i % 4 < 2).map(dot).join("");
-      return `<g data-ring="${r}" fill="${dark ? "#9a9a9a" : "#6a6a6a"}" fill-opacity="0.6">${dash2}</g>`;
-    }
-    const near = dots.filter(([x]) => x >= CX).map(dot).join("");
-    const far = dots.filter(([x]) => x < CX).map(dot).join("");
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.38}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.38}">${near}</g></g>`;
+    const stroke = dead ? dark ? "#9a9a9a" : "#6a6a6a" : tint(on[0]?.role ?? "", dark);
+    const alpha = dead ? 0.6 : dark ? 0.72 : 0.78;
+    return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h2 / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ""}/>`;
   }).join("");
-  const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
+}
+function core(main, lanes2, seconds, dark, reduce) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
+}
+function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z < 0) + core(main, lanes2, seconds, dark, reduce) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z >= 0));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
-  const body = lane.state === "dead" ? deadMark(c, c, 4.6, dark) : `<circle cx="${c}" cy="${c}" r="4.6" fill="${tint(lane.role, dark)}" stroke="${dark ? "#000000" : "#ffffff"}" stroke-width="0.8"/>`;
+  const body = lane.state === "dead" ? deadMark(c, c, 4.6, dark) : `<circle cx="${c}" cy="${c}" r="${n(c - 0.9)}" fill="none" stroke="${tint(lane.role, dark)}" stroke-width="1.2"/><circle cx="${c}" cy="${c}" r="3.4" fill="${lane.hue ?? tint(lane.role, dark)}"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`;
 }
 var focusBlock = {
@@ -24039,15 +24153,15 @@ var TOKEN_PATH = ".config/z0live/hermes-mobile-relay.token";
 function laneToken(env2 = process.env) {
   const real = (() => {
     try {
-      return userInfo().homedir;
+      return userInfo2().homedir;
     } catch {
       return "";
     }
   })();
-  const files = env2["GLIDE_LANES_TOKEN_FILE"] ? [env2["GLIDE_LANES_TOKEN_FILE"]] : [...new Set([homedir(), real].filter(Boolean))].map((h2) => join(h2, TOKEN_PATH));
+  const files = env2["GLIDE_LANES_TOKEN_FILE"] ? [env2["GLIDE_LANES_TOKEN_FILE"]] : [...new Set([homedir2(), real].filter(Boolean))].map((h2) => join2(h2, TOKEN_PATH));
   for (const file2 of files) {
     try {
-      const token = readFileSync(file2, "utf8").trim();
+      const token = readFileSync2(file2, "utf8").trim();
       if (token) return token;
     } catch {
     }
@@ -24069,6 +24183,22 @@ var LANE_ORB = {
   dead: "error"
 };
 var ROLE_ORDER = ["fast", "small", "large", "council"];
+var LIVE_DOCK = "dock.live";
+var LANES_ID = `${LIVE_DOCK}.lanes`;
+function laneCounts(lanes2) {
+  const n3 = /* @__PURE__ */ new Map();
+  for (const l of lanes2) n3.set(l.role, (n3.get(l.role) ?? 0) + 1);
+  const order2 = [...ROLE_ORDER, ...[...n3.keys()].filter((r) => !ROLE_ORDER.includes(r))];
+  return order2.flatMap((r) => n3.get(r) ? [`${n3.get(r)} ${r}`] : []).join(" \xB7 ");
+}
+function liveDock(voice, lanes2) {
+  if (!voice && !lanes2) return null;
+  return /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
+    voice,
+    lanes2
+  ] }, LIVE_DOCK.slice("dock.".length));
+}
+var orbitLane = (lane, dark) => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) });
 var clip = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
 function entryLine(e) {
   const what = e.kind === "intent" ? "intent" : e.status === "draft" ? `draft ${e.confidence.toFixed(2)}` : e.status;
@@ -24124,7 +24254,7 @@ var LaneStrip = class {
       if (!this.#orbit) {
         const current = () => this.lanes();
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: "dock.live-lanes.orbit",
+          node: `${LANES_ID}.orbit.scene`,
           label: "Voice and lanes",
           scene: {
             get w() {
@@ -24133,8 +24263,8 @@ var LaneStrip = class {
             get h() {
               return orbitScene(current()).h;
             },
-            key: () => this.lanes().map((l) => `${l.role}=${l.state}`).join(","),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
+            key: () => this.lanes().map((l) => `${l.role}=${l.model}=${l.state}`).join(","),
+            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
           }
         });
         this.#orbit.environment(this.#env);
@@ -24147,7 +24277,7 @@ var LaneStrip = class {
     for (const orb of this.#orbs.splice(lanes2.length)) orb.close();
     while (this.#orbs.length < lanes2.length) {
       const i = this.#orbs.length;
-      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `dock.live-lanes.l${i}.orb`, size: 14, label: "Lane" });
+      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `${LANES_ID}.l${i}.orb`, size: 14, label: "Lane" });
       orb.environment(this.#env);
       this.#orbs.push(orb);
     }
@@ -24155,10 +24285,11 @@ var LaneStrip = class {
   }
   #swatch(lane) {
     const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
-    const key3 = `${lane.role}:${lane.state === "dead"}:${dark}`;
+    const drawn = orbitLane(lane, dark);
+    const key3 = `${lane.role}:${drawn.hue}:${lane.state === "dead"}:${dark}`;
     let blob2 = this.#swatches.get(key3);
     if (!blob2) {
-      blob2 = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), "image/svg+xml");
+      blob2 = this.#tern.blob(Buffer.from(laneSwatch(drawn, dark)), "image/svg+xml");
       this.#swatches.set(key3, blob2);
     }
     return { blob: blob2, alt: `${lane.role} lane${lane.state === "dead" ? ", dead" : ""}`, w: 14, h: 14 };
@@ -24168,13 +24299,13 @@ var LaneStrip = class {
     const call = this.#feed.call;
     const lanes2 = this.lanes();
     if (!lanes2.length && !this.#live) return null;
-    const head2 = lanes2.length ? `Lanes \xB7 ${call?.revision ?? ""}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
+    const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
     const rows = lanes2.map((lane, i) => /* @__PURE__ */ jsxs("row", { align: "start", gap: "sm", role: "omp.live.lane", children: [
       this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
       /* @__PURE__ */ jsxs("col", { children: [
         /* @__PURE__ */ jsx("text", { spans: [
           { s: "strong", t: lane.role },
-          { s: "muted", t: " \xB7 " + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}\u2192${lane.resolved}` : lane.model) + " \xB7 " },
+          { s: "muted", t: " \xB7 " + laneModel(lane.model, lane.resolved).label + " \xB7 " },
           lane.state === "dead" ? { s: "error", t: "dead" + (lane.error ? ` (${clip(lane.error, 60)})` : "") } : lane.state === "corrected" ? { s: "warning", t: "corrected" } : lane.state === "verified" ? { s: "success", t: "verified" } : { t: lane.state }
         ], wrap: "none" }, "who"),
         lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
@@ -24183,47 +24314,18 @@ var LaneStrip = class {
     ] }, `l${i}`));
     return /* @__PURE__ */ jsxs("col", { gap: this.#orbit ? "sm" : "none", role: "omp.live.lanes", children: [
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
-      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "stretch", gap: "md", role: "omp.live.lanes.orbit", children: [
+      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
         /* @__PURE__ */ jsx("image", { ...this.#orbit.props() }, "scene"),
-        /* @__PURE__ */ jsx("col", { grow: 1, justify: "between", min: { w: 0 }, children: rows }, "rows")
-      ] }, "orbit") : rows,
-      this.#orbit ? /* @__PURE__ */ jsx("spacer", { size: "lg" }, "gap") : null
-    ] }, "live-lanes");
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows }, "rows")
+      ] }, "orbit") : rows
+    ] }, "lanes");
   }
 };
 
-// src/wire/json.ts
-function record(v) {
-  if (typeof v === "string") {
-    try {
-      return record(JSON.parse(v));
-    } catch {
-      return void 0;
-    }
-  }
-  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
-}
-function parseJson(text18) {
-  try {
-    return JSON.parse(text18);
-  } catch {
-    return void 0;
-  }
-}
-function decodeJson(text18) {
-  return JSON.parse(text18);
-}
-function commandReply(output) {
-  const reply2 = record(output);
-  if (!reply2) throw new Error("the command did not answer with JSON");
-  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
-  return reply2;
-}
-
 // ../glide/frontend/wal.ts
-import { mkdirSync, readFileSync as readFileSync2, watch, writeFileSync } from "node:fs";
-import { homedir as homedir2 } from "node:os";
-import { basename as basename2, dirname, join as join2 } from "node:path";
+import { mkdirSync, readFileSync as readFileSync3, watch, writeFileSync } from "node:fs";
+import { homedir as homedir3 } from "node:os";
+import { basename as basename2, dirname, join as join3 } from "node:path";
 
 // node_modules/@hermes/shared/src/color.ts
 var HEX6_RE = /^#?([0-9a-f]{6})$/i;
@@ -24232,19 +24334,19 @@ var RGB_FN_RE = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i;
 var clampChannel = (v) => Math.max(0, Math.min(255, Math.round(v)));
 function parseColor(input2) {
   const value = input2.trim();
-  let m = HEX6_RE.exec(value);
-  if (m) {
-    const n3 = parseInt(m[1], 16);
+  let m2 = HEX6_RE.exec(value);
+  if (m2) {
+    const n3 = parseInt(m2[1], 16);
     return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255];
   }
-  m = HEX3_RE.exec(value);
-  if (m) {
-    const [r, g, b] = m[1];
+  m2 = HEX3_RE.exec(value);
+  if (m2) {
+    const [r, g, b] = m2[1];
     return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
   }
-  m = RGB_FN_RE.exec(value);
-  if (m) {
-    return [clampChannel(Number(m[1])), clampChannel(Number(m[2])), clampChannel(Number(m[3]))];
+  m2 = RGB_FN_RE.exec(value);
+  if (m2) {
+    return [clampChannel(Number(m2[1])), clampChannel(Number(m2[2])), clampChannel(Number(m2[3]))];
   }
   return null;
 }
@@ -24338,15 +24440,15 @@ var TEXT_FLOOR = 4.5;
 var WAL_SHEET = "glide-auto-theme";
 var HEX = /^#[0-9a-f]{6}$/i;
 function walFile(env2 = process.env) {
-  return env2["GLIDE_WAL_COLORS"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "wal", "colors.json");
+  return env2["GLIDE_WAL_COLORS"] || join3(env2["XDG_CACHE_HOME"] || join3(homedir3(), ".cache"), "wal", "colors.json");
 }
 function exportFile(env2 = process.env) {
-  return env2["GLIDE_THEME_EXPORT"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "glide", "theme.json");
+  return env2["GLIDE_THEME_EXPORT"] || join3(env2["XDG_CACHE_HOME"] || join3(homedir3(), ".cache"), "glide", "theme.json");
 }
 function readWal(file2) {
   let text18;
   try {
-    text18 = readFileSync2(file2, "utf8");
+    text18 = readFileSync3(file2, "utf8");
   } catch {
     return void 0;
   }
@@ -26255,9 +26357,9 @@ function pipe(in_, out) {
 }
 
 // ../glide/frontend/lanesPopup.ts
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir as homedir3 } from "node:os";
-import { dirname as dirname2, join as join3 } from "node:path";
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir4 } from "node:os";
+import { dirname as dirname2, join as join4 } from "node:path";
 
 // src/overlays/identity.ts
 var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
@@ -26601,9 +26703,9 @@ function schedule(run8) {
   }
   return { at: at2, total: t };
 }
-function moment(run8, frame) {
+function moment(run8, frame2) {
   const { at: at2, total } = schedule(run8);
-  const t = frame.t;
+  const t = frame2.t;
   const done = t !== null && t >= total;
   let idx = -1;
   if (t !== null) {
@@ -26634,21 +26736,21 @@ function moment(run8, frame) {
   });
   return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
 }
-function narration(run8, frame) {
-  const m = moment(run8, frame);
+function narration(run8, frame2) {
+  const m2 = moment(run8, frame2);
   const nm = (i) => run8.seats[i]?.name ?? "?";
   const helpers = run8.events.filter((e) => e.type === "spawn").length;
-  if (frame.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
-  if (m.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
-  const cur = run8.events[m.idx];
+  if (frame2.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
+  if (m2.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
+  const cur = run8.events[m2.idx];
   if (!cur) return "The council takes its seats";
   if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
   if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
   if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
   return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
 }
-function closedSeats(run8, frame) {
-  return moment(run8, frame).closed;
+function closedSeats(run8, frame2) {
+  return moment(run8, frame2).closed;
 }
 var n2 = (v) => (Math.round(v * 10) / 10).toString();
 var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -26689,7 +26791,7 @@ function brilliant(cx, cy, r) {
   return f;
 }
 function gem(id, kind, cx, cy, r, opts = {}) {
-  const m = MINERAL[kind];
+  const m2 = MINERAL[kind];
   const glint = opts.glint ?? null;
   const g = glint ?? 0.5;
   const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
@@ -26698,24 +26800,24 @@ function gem(id, kind, cx, cy, r, opts = {}) {
   const far = at(cx, cy, r * 0.38, az + Math.PI);
   const op = opts.dim ? 0.55 : void 0;
   if (opts.low) {
-    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m.base, "fill-opacity": 0.16, stroke: m.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
+    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m2.base, "fill-opacity": 0.16, stroke: m2.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m2.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
     return tag2(
       "g",
       { opacity: op },
-      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m.light) + stop(0.45, m.base) + stop(1, m.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
+      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m2.light) + stop(0.45, m2.base) + stop(1, m2.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
     );
   }
   const user = { gradientUnits: "userSpaceOnUse" };
-  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m.glow, 0.75 + 0.2 * shine) + stop(1, m.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m.light) + stop(0.42, m.base) + stop(1, m.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
+  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m2.glow, 0.75 + 0.2 * shine) + stop(1, m2.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m2.light) + stop(0.42, m2.base) + stop(1, m2.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
   if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
   if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
-  let body = tag2("circle", { cx, cy, r, fill: m.base });
-  if (m.cut === "brilliant") {
+  let body = tag2("circle", { cx, cy, r, fill: m2.base });
+  if (m2.cut === "brilliant") {
     body += brilliant(cx, cy, r).map((f, k) => {
       const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
-      let fill = mix2(m.deep, m.base, b * 1.35);
-      if (b > 0.72) fill = mix2(fill, m.light, (b - 0.72) * 3 + shine * 0.25);
-      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
+      let fill = mix2(m2.deep, m2.base, b * 1.35);
+      if (b > 0.72) fill = mix2(fill, m2.light, (b - 0.72) * 3 + shine * 0.25);
+      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m2.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
     }).join("");
     if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
     if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n2(cx + r * 0.18)} ${n2(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
@@ -26755,10 +26857,10 @@ function gem(id, kind, cx, cy, r, opts = {}) {
       }
     }
   }
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m2.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
   body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
   const [hx, hy] = hl;
-  body += m.cut === "brilliant" ? tag2("path", {
+  body += m2.cut === "brilliant" ? tag2("path", {
     d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n2(hx + r * dx)} ${n2(hy + r * dy)}`).join(" ") + " Z",
     fill: "#ffffff",
     "fill-opacity": 0.55 + 0.45 * shine
@@ -26777,8 +26879,8 @@ var STARS = (() => {
   const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
   return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
 })();
-function instrumentSvg(run8, frame, size = 480) {
-  const m = moment(run8, frame);
+function instrumentSvg(run8, frame2, size = 480) {
+  const m2 = moment(run8, frame2);
   const c = size / 2;
   const orbit = size * 0.335;
   const R = Math.max(18, size * 0.064);
@@ -26792,8 +26894,8 @@ function instrumentSvg(run8, frame, size = 480) {
     const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
     return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
   });
-  const t = frame.t ?? 0;
-  const cur = m.idx >= 0 ? run8.events[m.idx] : void 0;
+  const t = frame2.t ?? 0;
+  const cur = m2.idx >= 0 ? run8.events[m2.idx] : void 0;
   const user = { gradientUnits: "userSpaceOnUse" };
   let s2 = tag2(
     "defs",
@@ -26812,18 +26914,18 @@ function instrumentSvg(run8, frame, size = 480) {
   s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
   for (let i = 0; i < run8.rounds; i++) {
     const r = ringR(i);
-    const now = m.running && m.round === i + 1;
-    const past = frame.t !== null && (m.round > i + 1 || m.done);
+    const now = m2.running && m2.round === i + 1;
+    const past = frame2.t !== null && (m2.round > i + 1 || m2.done);
     s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
     if (ringGap >= 12 || i % 2 === 1 || now) {
       s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
       s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
     }
   }
-  if (m.speaking >= 0 && cur?.type === "turn") {
-    const p3 = pos[m.speaking];
-    const k = ease(m.since / THREAD_MS);
-    const targets = cur.cites.filter((j) => j !== m.speaking);
+  if (m2.speaking >= 0 && cur?.type === "turn") {
+    const p3 = pos[m2.speaking];
+    const k = ease(m2.since / THREAD_MS);
+    const targets = cur.cites.filter((j) => j !== m2.speaking);
     if (p3 && !targets.length) {
       s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
     }
@@ -26836,7 +26938,7 @@ function instrumentSvg(run8, frame, size = 480) {
       if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
     }
   }
-  if (m.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
+  if (m2.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
@@ -26844,19 +26946,19 @@ function instrumentSvg(run8, frame, size = 480) {
   run8.seats.forEach((seat, i) => {
     const p3 = pos[i];
     if (!p3) return;
-    const talk = m.speaking === i;
+    const talk = m2.speaking === i;
     const crew = seat.crew;
     const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
     crew.forEach((stone, k) => {
       const ang = p3.a + (k - (crew.length - 1) / 2) * step;
-      const on = frame.t === null || k < (m.lit[i] ?? 0);
-      const born = m.running ? m.born.get(`${i}.${k}`) : void 0;
+      const on = frame2.t === null || k < (m2.lit[i] ?? 0);
+      const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
       const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
       const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
       s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
     });
     if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
-    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m.since / TURN_MS) : null, dim: m.running && !talk });
+    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m2.since / TURN_MS) : null, dim: m2.running && !talk });
     const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
     s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
     s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
@@ -26867,16 +26969,15 @@ function instrumentSvg(run8, frame, size = 480) {
 
 // ../glide/frontend/lanesPopup.ts
 var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
-var MODELS_ENV = "GLIDE_LANE_MODELS";
 var CLOSE_ID = 2;
 var PICK_BASE = 100;
 var PICK_STRIDE = 32;
 var APP = "glide";
 var ROLE_ORDER2 = ["fast", "small", "large", "council"];
-function fileBindings(path2 = process.env[BINDINGS_ENV] || join3(homedir3(), ".config/glide/lane-bindings.json")) {
+function fileBindings(path2 = process.env[BINDINGS_ENV] || join4(homedir4(), ".config/glide/lane-bindings.json")) {
   const get = () => {
     try {
-      const v = JSON.parse(readFileSync3(path2, "utf8"));
+      const v = JSON.parse(readFileSync4(path2, "utf8"));
       if (!v || typeof v !== "object" || Array.isArray(v)) return {};
       return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
     } catch {
@@ -26901,13 +27002,16 @@ var DOT = {
   dead: NIGHT.danger
 };
 var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
-function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
-  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
-  return [...new Set(all8)].slice(0, PICK_STRIDE);
-}
+var laneChoices = (lane, bound2) => roleChoices(lane.role, [lane.model, bound2[lane.role] ?? ""]).slice(0, PICK_STRIDE);
 var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
 var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
-function lanesCard(src, bound2, where, extra) {
+var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
+var ROLES_SHOWN = ["fast", "small", "large", "council"];
+var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
+var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
+var BILL_SHORT = { free: "FREE", subscription: "SUB", paid: "PAID", unknown: "?" };
+var BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 };
+function lanesCard(src, bound2, where, roles) {
   let next2 = 10;
   const text18 = (value) => ({ t: "text", text: value });
   const el = (tag3, style2, kids, opts = {}) => ({
@@ -26921,12 +27025,14 @@ function lanesCard(src, bound2, where, extra) {
     kids
   });
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
+  const dot = (hue, size = 8) => el("span", `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, []);
+  const swatch = (role, hue) => el("span", `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)]);
+  const pips = (effort2) => el("span", "display:flex;align-items:center;gap:2px", [0, 1, 2, 3].map((i) => el("span", `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort2].orbits ? EFFORTS[effort2].accent : NIGHT.faint}`, [])));
+  const badge = (kids, color2, border, attrs = {}) => el("span", `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color2}`, kids, { attrs });
   const lanes2 = sortLanes(src.call?.lanes ?? []);
   const live = Boolean(src.call?.open && lanes2.length);
-  const choices = modelChoices(lanes2, bound2, extra);
   const dead = lanes2.filter((l) => l.state === "dead").length;
-  const revision = (src.call?.revision || "call").toUpperCase();
-  const badge = live ? `LIVE \xB7 ${revision}` : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
+  const status = live ? "LIVE CALL" : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
   const ready = lanes2.length - dead;
   const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
   const header = el("div", "display:flex;flex-direction:column;gap:4px", [
@@ -26935,8 +27041,8 @@ function lanesCard(src, bound2, where, extra) {
       el(
         "span",
         `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
-        [text18(badge)],
-        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {} } }
+        [text18(status)],
+        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {} } }
       )
     ]),
     el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
@@ -26949,40 +27055,82 @@ function lanesCard(src, bound2, where, extra) {
   ]);
   const rows = lanes2.map((lane, i) => {
     const binding = bound2[lane.role];
+    const current = binding ?? lane.model;
+    const info = laneModel(current, binding ? null : lane.resolved, roles);
+    const hue = PROVIDERS[info.provider].hue;
     const isDead = lane.state === "dead";
     const waiting5 = !live && lane.state === "idle";
     const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : "";
+    const id = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
     const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
-    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
-      el("div", "display:flex;align-items:center;gap:8px", [
-        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
-        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
-        ...model ? [el("span", `${micro};font-size:9px`, [text18(model)])] : [],
-        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text18(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
-        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [text18(waiting5 ? "READY" : lane.state.toUpperCase())])
+    const badges = [
+      badge([dot(hue, 6), text18(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` }),
+      badge([text18(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` }),
+      badge([pips(info.effort), text18(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { "data-lane-effort": `${lane.role}=${info.effort}`, title: "effort: orbit pips, as in the zerOS agent-core key" }),
+      badge([text18(info.route === "local" ? "ON DEVICE" : "CLOUD")], NIGHT.text2, NIGHT.border, { "data-lane-route": `${lane.role}=${info.route}` }),
+      ...info.via ? [badge([text18("VOICE PLAN")], NIGHT.text2, NIGHT.border)] : [],
+      ...binding && binding !== lane.model ? [badge([text18("BOUND LOCALLY")], NIGHT.strong, rgba("#eccd8c", 0.4), { "data-lane-rebound": lane.role })] : []
+    ];
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
+      el("div", "display:flex;align-items:center;gap:9px", [
+        swatch(lane.role, hue),
+        el("span", `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
+        el("span", `font-size:13.5px;color:${NIGHT.text}`, [text18(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(" \xB7 "), "data-lane-model": `${lane.role}=${current}` } }),
+        el("span", `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [
+          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+          text18(waiting5 ? "READY" : lane.state.toUpperCase())
+        ])
       ]),
-      ...line ? [el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
-      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
-        const on = (binding ?? lane.model) === m;
-        return el(
-          "button",
-          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
-          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text}`, [text18(m)])],
-          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
-        );
-      }))
+      el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:23px", badges),
+      ...line ? [el("span", `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
+      el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px", [
+        el("span", `${micro};font-size:8.5px`, [text18("REBIND")]),
+        ...laneChoices(lane, bound2).map((m2, j) => {
+          const on = current === m2;
+          const c = laneModel(m2, null, roles);
+          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
+          const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
+          const label = twin ? `${short} \xB7 plan` : short;
+          return el(
+            "button",
+            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
+            [
+              dot(PROVIDERS[c.provider].hue, 6),
+              el("span", `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text18(label)]),
+              el("span", `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text18(BILL_SHORT[c.billing])])
+            ],
+            { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m2}`, title: [c.via ? `${c.via} \u2192 ${c.target ?? "unresolved"}` : m2, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(" \xB7 "), ...on ? { "data-lane-bound": "true" } : {} } }
+          );
+        })
+      ])
     ]);
   });
+  const keyRow = (title, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
+    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text18(title)]),
+    ...items
+  ]);
+  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
+  const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
+  const legend = el("div", `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+    el("div", "display:flex;align-items:center;justify-content:space-between", [
+      el("span", `${micro};letter-spacing:2px`, [text18("KEY")]),
+      el("span", `font-size:11px;color:${NIGHT.text2}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
+    ]),
+    keyRow("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
+    keyRow("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
+    keyRow("ORBIT", [...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ${lanePeriod(r)} s`)), item3(dot(NIGHT.text2, 7), "one dot per lane")]),
+    keyRow("BILLING", [item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text18("SUB")]), "subscription"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text18("PAID")]), "metered")])
+  ], { attrs: { "data-lanes-legend": "true" } });
   const close = el(
     "button",
     `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
     { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
   );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-direction:column", rows),
+    legend,
     el("div", "display:flex;justify-content:flex-end", [close])
   ])]);
 }
@@ -27001,7 +27149,6 @@ function openLanesPopup(host, feed, bindings = fileBindings()) {
       const src = source2();
       const bound2 = bindings.get();
       const lanes2 = sortLanes(src.call?.lanes ?? []);
-      const choices = modelChoices(lanes2, bound2);
       const view = {
         spec: { kind: "lanes", app: APP },
         app: APP,
@@ -27011,7 +27158,7 @@ function openLanesPopup(host, feed, bindings = fileBindings()) {
         activate: (n3) => {
           if (n3 === CLOSE_ID) return host.close(overlay2);
           const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
-          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
+          const model = lane && laneChoices(lane, bound2)[(n3 - PICK_BASE) % PICK_STRIDE];
           if (n3 < PICK_BASE || !lane || !model) return;
           try {
             bindings.set(lane.role, model);
@@ -27126,10 +27273,10 @@ var glideFocus = object({
 var NS = "glide";
 var APP2 = "glide";
 var SESSIONS = 100;
-var memoryRows = (m) => [
-  { label: "Sessions read", value: m.sessions },
-  { label: "Corrections kept", value: m.corrections },
-  { label: "Quoted into turns", value: m.on ? "on" : "off" }
+var memoryRows = (m2) => [
+  { label: "Sessions read", value: m2.sessions },
+  { label: "Corrections kept", value: m2.corrections },
+  { label: "Quoted into turns", value: m2.on ? "on" : "off" }
 ];
 function glideCall(gw2, sid) {
   return async (verb, params = {}) => {
@@ -27200,8 +27347,8 @@ async function glideCommand(host, arg) {
       return;
     }
     if (verb === "off") {
-      const m = glideMemory.parse(await call("enable", { on: false }));
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m) });
+      const m2 = glideMemory.parse(await call("enable", { on: false }));
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m2) });
       return;
     }
     if (verb === "recall") {
@@ -27331,9 +27478,9 @@ async function glideCommand(host, arg) {
         description: "Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win."
       }
     }, async ({ signal }) => {
-      const m = glideMemory.parse(await call("enable", { on: true }));
+      const m2 = glideMemory.parse(await call("enable", { on: true }));
       if (signal.aborted) return;
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m) });
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m2) });
       router();
     });
     cards.publish({
@@ -27347,10 +27494,10 @@ async function glideCommand(host, arg) {
       }
     }, async ({ signal }) => {
       try {
-        const m = glideMemory.parse(await call("sync", { limit: SESSIONS }));
+        const m2 = glideMemory.parse(await call("sync", { limit: SESSIONS }));
         if (signal.aborted) return;
-        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
-        if (m.on) router();
+        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m2), { label: "Messages scanned", value: m2.scanned ?? 0 }] });
+        if (m2.on) router();
         else enable();
       } catch (error) {
         fail2(error);
@@ -27972,7 +28119,7 @@ var KEYS2 = {
 };
 var EXTERNAL_EDITOR_KEY = { label: "ctrl+g", name: "g", with: ["ctrl"], without: ["alt", "meta", "shift"] };
 function matches(key3, match) {
-  return key3.name === match.name && match.with.every((m) => key3[m]) && !match.without?.some((m) => key3[m]);
+  return key3.name === match.name && match.with.every((m2) => key3[m2]) && !match.without?.some((m2) => key3[m2]);
 }
 function bound(cx, id, key3, fallback) {
   return cx.shortcut ? cx.shortcut(id, key3) : matches(key3, fallback);
@@ -28248,7 +28395,7 @@ function nextWord(text18, at2) {
 import { spawnSync } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join as join4 } from "node:path";
+import { join as join5 } from "node:path";
 function editorArgv(command2) {
   const args = [];
   let word = "";
@@ -28300,9 +28447,9 @@ var openDraftFile = (file2) => {
   }
 };
 async function editTextExternal(initial, opener = openDraftFile) {
-  const dir2 = await mkdtemp(join4(tmpdir(), "hermes-tern-edit-"));
+  const dir2 = await mkdtemp(join5(tmpdir(), "hermes-tern-edit-"));
   try {
-    const file2 = join4(dir2, "draft.txt");
+    const file2 = join5(dir2, "draft.txt");
     await writeFile(file2, initial, { mode: 384 });
     await opener(file2);
     return await readFile(file2, "utf8");
@@ -28884,12 +29031,12 @@ function approvalOverlay(host, prompt) {
 }
 
 // node_modules/@hermes/shared/src/node/prompt-history.ts
-import { appendFileSync as appendFileSync2, existsSync, mkdirSync as mkdirSync3, readFileSync as readFileSync4 } from "node:fs";
-import { homedir as homedir4 } from "node:os";
-import { join as join5 } from "node:path";
+import { appendFileSync as appendFileSync2, existsSync, mkdirSync as mkdirSync3, readFileSync as readFileSync5 } from "node:fs";
+import { homedir as homedir5 } from "node:os";
+import { join as join6 } from "node:path";
 var MAX = 1e3;
-var dir = process.env.HERMES_HOME ?? join5(homedir4(), ".hermes");
-var file = join5(dir, ".hermes_history");
+var dir = process.env.HERMES_HOME ?? join6(homedir5(), ".hermes");
+var file = join6(dir, ".hermes_history");
 var cache = null;
 function load() {
   if (cache) {
@@ -28902,7 +29049,7 @@ function load() {
     }
     const entries2 = [];
     let current = [];
-    for (const line of readFileSync4(file, "utf8").split("\n")) {
+    for (const line of readFileSync5(file, "utf8").split("\n")) {
       if (line.startsWith("+")) {
         current.push(line.slice(1));
       } else if (current.length) {
@@ -29022,28 +29169,28 @@ function inlineMarks(line, from, at2, mark2) {
   const take = (start, len) => {
     rest = rest.slice(0, start) + "\0".repeat(len) + rest.slice(start + len);
   };
-  for (const m of [...rest.matchAll(CODE_SPAN)]) {
-    const tick2 = m.groups?.["ticks"]?.length ?? 0;
-    mark2(at2 + m.index, at2 + m.index + tick2, "dim");
-    mark2(at2 + m.index + tick2, at2 + m.index + m[0].length - tick2, "code");
-    mark2(at2 + m.index + m[0].length - tick2, at2 + m.index + m[0].length, "dim");
-    take(m.index, m[0].length);
+  for (const m2 of [...rest.matchAll(CODE_SPAN)]) {
+    const tick2 = m2.groups?.["ticks"]?.length ?? 0;
+    mark2(at2 + m2.index, at2 + m2.index + tick2, "dim");
+    mark2(at2 + m2.index + tick2, at2 + m2.index + m2[0].length - tick2, "code");
+    mark2(at2 + m2.index + m2[0].length - tick2, at2 + m2.index + m2[0].length, "dim");
+    take(m2.index, m2[0].length);
   }
-  for (const m of [...rest.matchAll(LINK)]) {
-    const label = m.groups?.["label"]?.length ?? 0;
-    mark2(at2 + m.index, at2 + m.index + 1, "dim");
-    mark2(at2 + m.index + 1, at2 + m.index + 1 + label, "link");
-    mark2(at2 + m.index + 1 + label, at2 + m.index + m[0].length, "dim");
-    take(m.index + 2 + label, m[0].length - 2 - label);
+  for (const m2 of [...rest.matchAll(LINK)]) {
+    const label = m2.groups?.["label"]?.length ?? 0;
+    mark2(at2 + m2.index, at2 + m2.index + 1, "dim");
+    mark2(at2 + m2.index + 1, at2 + m2.index + 1 + label, "link");
+    mark2(at2 + m2.index + 1 + label, at2 + m2.index + m2[0].length, "dim");
+    take(m2.index + 2 + label, m2[0].length - 2 - label);
   }
   const pair3 = (re2, marker, s2) => {
-    for (const m of [...rest.matchAll(re2)]) {
-      const len = m[0].length;
-      mark2(at2 + m.index, at2 + m.index + marker, "dim");
-      mark2(at2 + m.index + marker, at2 + m.index + len - marker, s2);
-      mark2(at2 + m.index + len - marker, at2 + m.index + len, "dim");
-      take(m.index, marker);
-      take(m.index + len - marker, marker);
+    for (const m2 of [...rest.matchAll(re2)]) {
+      const len = m2[0].length;
+      mark2(at2 + m2.index, at2 + m2.index + marker, "dim");
+      mark2(at2 + m2.index + marker, at2 + m2.index + len - marker, s2);
+      mark2(at2 + m2.index + len - marker, at2 + m2.index + len, "dim");
+      take(m2.index, marker);
+      take(m2.index + len - marker, marker);
     }
   };
   pair3(BOLD, 2, "strong");
@@ -29071,14 +29218,14 @@ function listNewline(text18, cursor) {
   const nl = text18.indexOf("\n", cursor);
   const end = nl < 0 ? text18.length : nl;
   const line = text18.slice(start, end);
-  const m = LIST.exec(line);
-  if (!m || cursor - start < m[0].length) {
+  const m2 = LIST.exec(line);
+  if (!m2 || cursor - start < m2[0].length) {
     return void 0;
   }
-  if (!line.slice(m[0].length).trim()) {
+  if (!line.slice(m2[0].length).trim()) {
     return { cursor: start, from: start, text: "", to: end };
   }
-  const [, indent2 = "", bullet = "", gap = " ", box] = m;
+  const [, indent2 = "", bullet = "", gap = " ", box] = m2;
   const n3 = /^\d+/.exec(bullet)?.[0];
   const next2 = n3 ? `${Number(n3) + 1}${bullet.slice(n3.length)}` : bullet;
   const insert2 = `
@@ -29135,9 +29282,9 @@ function markedRun(text18, at2, marker) {
   const nl = text18.indexOf("\n", at2);
   const line = text18.slice(start, nl < 0 ? text18.length : nl);
   const re2 = marker === "**" ? /\*\*(?=\S)([^\n]*?\S)\*\*/g : /(?<![\w_])_(?=[^\s_])([^\n_]*?[^\s_])_(?![\w_])/g;
-  for (const m of line.matchAll(re2)) {
-    const open5 = start + m.index;
-    const close = open5 + m[0].length - marker.length;
+  for (const m2 of line.matchAll(re2)) {
+    const open5 = start + m2.index;
+    const close = open5 + m2[0].length - marker.length;
     if (at2 > open5 + marker.length - 1 && at2 <= close) {
       return { close, open: open5 };
     }
@@ -31434,10 +31581,10 @@ import { existsSync as existsSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 // src/wire/files.ts
-import { readFileSync as readFileSync5 } from "node:fs";
+import { readFileSync as readFileSync6 } from "node:fs";
 function readJsonFile(file2) {
   try {
-    return parseJson(readFileSync5(file2, "utf8"));
+    return parseJson(readFileSync6(file2, "utf8"));
   } catch {
     return void 0;
   }
@@ -31625,7 +31772,7 @@ function recordKey(raw2) {
     label: `${modifier === "meta" ? "cmd" : modifier}+${name}`,
     name,
     with: [modifier],
-    without: ["alt", "ctrl", "meta"].filter((m) => m !== modifier)
+    without: ["alt", "ctrl", "meta"].filter((m2) => m2 !== modifier)
   };
 }
 
@@ -31677,14 +31824,14 @@ import { createHash as createHash2 } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { mkdir, open, readFile as readFile2, rename, rm as rm2, stat, writeFile as writeFile2 } from "node:fs/promises";
 import { isIP } from "node:net";
-import { homedir as homedir5 } from "node:os";
-import { dirname as dirname3, extname as extname2, join as join6, resolve as resolve2 } from "node:path";
+import { homedir as homedir6 } from "node:os";
+import { dirname as dirname3, extname as extname2, join as join7, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { promisify as promisify2 } from "node:util";
 var run2 = promisify2(execFile3);
 var MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i;
 var MAX_BYTES = 128 * 1024 * 1024;
-var CACHE = join6(process.env["XDG_CACHE_HOME"] || join6(homedir5(), ".cache"), "hermes-tern", "artifacts");
+var CACHE = join7(process.env["XDG_CACHE_HOME"] || join7(homedir6(), ".cache"), "hermes-tern", "artifacts");
 function extension(source2) {
   try {
     return extname2(new URL(source2).pathname).toLowerCase();
@@ -31818,7 +31965,7 @@ async function companions(source2, path2) {
       return typeof uri === "string" && !uri.startsWith("data:") ? [uri] : [];
     });
   } else {
-    refs3 = [...text18.matchAll(/^mtllib\s+(.+)$/gm)].map((m) => (m[1] ?? "").trim()).filter(Boolean);
+    refs3 = [...text18.matchAll(/^mtllib\s+(.+)$/gm)].map((m2) => (m2[1] ?? "").trim()).filter(Boolean);
   }
   if (refs3.length > 64) {
     throw new Error("Model has more than 64 companion files. Use an embedded GLB instead.");
@@ -31842,10 +31989,10 @@ async function openArtifact(source2, cwd = process.cwd()) {
     if (!MODEL.test(ext)) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz URL");
     }
-    const dir2 = join6(CACHE, createHash2("sha256").update(source2).digest("hex"));
-    path2 = join6(dir2, `model${ext}`);
+    const dir2 = join7(CACHE, createHash2("sha256").update(source2).digest("hex"));
+    path2 = join7(dir2, `model${ext}`);
     try {
-      await stat(join6(dir2, ".complete"));
+      await stat(join7(dir2, ".complete"));
     } catch {
       await mkdir(dir2, { recursive: true, mode: 448 });
       const temp = `${path2}.${process.pid}.part`;
@@ -31853,13 +32000,13 @@ async function openArtifact(source2, cwd = process.cwd()) {
         await download(source2, temp);
         await companions(source2, temp);
         await rename(temp, path2);
-        await writeFile2(join6(dir2, ".complete"), "", { mode: 384 });
+        await writeFile2(join7(dir2, ".complete"), "", { mode: 384 });
       } finally {
         await rm2(temp, { force: true });
       }
     }
   } else {
-    path2 = source2.startsWith("file://") ? fileURLToPath2(source2) : resolve2(cwd, source2.replace(/^~(?=\/)/, homedir5()));
+    path2 = source2.startsWith("file://") ? fileURLToPath2(source2) : resolve2(cwd, source2.replace(/^~(?=\/)/, homedir6()));
     if (!MODEL.test(extension(path2))) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz file");
     }
@@ -32159,8 +32306,8 @@ function compact(n3) {
     const k = n3 / 1e3;
     return `${k < 10 ? k.toFixed(1).replace(/\.0$/, "") : Math.round(k)}K`;
   }
-  const m = n3 / 1e6;
-  return `${m < 10 ? m.toFixed(1).replace(/\.0$/, "") : Math.round(m)}M`;
+  const m2 = n3 / 1e6;
+  return `${m2 < 10 ? m2.toFixed(1).replace(/\.0$/, "") : Math.round(m2)}M`;
 }
 
 // src/agents/look.ts
@@ -32552,7 +32699,7 @@ function hitRuns(positions, limit) {
 }
 
 // node_modules/@hermes/shared/src/json-rpc-channel.ts
-var isServerRequestFrame = (frame) => typeof frame.id === "string" && typeof frame.method === "string" && frame.method !== "event";
+var isServerRequestFrame = (frame2) => typeof frame2.id === "string" && typeof frame2.method === "string" && frame2.method !== "event";
 var JsonRpcGatewayError = class extends Error {
   code;
   data;
@@ -32736,13 +32883,13 @@ var JsonRpcRequestChannel = class {
    */
   deliverRequest(id, method, params, replayed = false) {
     let settled2 = false;
-    const send2 = (frame) => {
+    const send2 = (frame2) => {
       if (settled2) {
         return;
       }
       settled2 = true;
       try {
-        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id, ...frame }));
+        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id, ...frame2 }));
       } catch {
       }
     };
@@ -32793,7 +32940,7 @@ var JsonRpcRequestChannel = class {
     }
   }
   /** Settle the ping or pending call this response answers; an unknown id is ignored. */
-  settleResponse(id, frame) {
+  settleResponse(id, frame2) {
     if (typeof id === "string" && this.outstandingPings.delete(id)) {
       this.lastLivenessAt = Date.now();
       return;
@@ -32804,12 +32951,12 @@ var JsonRpcRequestChannel = class {
     }
     this.lastLivenessAt = Date.now();
     this.clearPending(id);
-    if (frame.error) {
-      call.reject(jsonRpcErrorFromFrame(frame.error));
+    if (frame2.error) {
+      call.reject(jsonRpcErrorFromFrame(frame2.error));
       return;
     }
-    this.deliverOpenRequests(frame.result);
-    call.resolve(frame.result);
+    this.deliverOpenRequests(frame2.result);
+    call.resolve(frame2.result);
   }
   /**
    * Route one inbound frame: a response settles its pending call, an error
@@ -32820,38 +32967,38 @@ var JsonRpcRequestChannel = class {
    * JSON or not a JSON object (`null`, a scalar).
    */
   handleFrame(text18) {
-    let frame;
+    let frame2;
     try {
-      frame = JSON.parse(text18);
+      frame2 = JSON.parse(text18);
     } catch {
       return null;
     }
-    if (!frame || typeof frame !== "object") {
+    if (!frame2 || typeof frame2 !== "object") {
       return null;
     }
     if (this.options.heartbeatLiveness === "any-inbound") {
       this.lastLivenessAt = Date.now();
     }
-    if (isServerRequestFrame(frame)) {
-      const params = frame.params && typeof frame.params === "object" ? frame.params : {};
-      this.deliverRequest(frame.id, frame.method, params);
-      return frame;
+    if (isServerRequestFrame(frame2)) {
+      const params = frame2.params && typeof frame2.params === "object" ? frame2.params : {};
+      this.deliverRequest(frame2.id, frame2.method, params);
+      return frame2;
     }
-    if (frame.id !== void 0 && frame.id !== null) {
-      this.settleResponse(frame.id, frame);
-      return frame;
+    if (frame2.id !== void 0 && frame2.id !== null) {
+      this.settleResponse(frame2.id, frame2);
+      return frame2;
     }
-    if (frame.error) {
-      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame.error));
-      return frame;
+    if (frame2.error) {
+      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame2.error));
+      return frame2;
     }
-    if (frame.method === "event" && frame.params && typeof frame.params.type === "string") {
-      if (frame.params.type === "gateway.ready") {
+    if (frame2.method === "event" && frame2.params && typeof frame2.params.type === "string") {
+      if (frame2.params.type === "gateway.ready") {
         this.advertiseCapabilities();
       }
-      this.options.onEvent?.(frame.params);
+      this.options.onEvent?.(frame2.params);
     }
-    return frame;
+    return frame2;
   }
   /**
    * Tell the backend, once per connection generation, that this client answers
@@ -33203,11 +33350,11 @@ function duration2(ms2) {
   if (s2 < 60) {
     return `${s2 < 10 ? s2.toFixed(1) : Math.round(s2)}s`;
   }
-  const m = Math.floor(s2 / 60);
-  if (m < 60) {
-    return `${m}m ${String(Math.round(s2 % 60)).padStart(2, "0")}s`;
+  const m2 = Math.floor(s2 / 60);
+  if (m2 < 60) {
+    return `${m2}m ${String(Math.round(s2 % 60)).padStart(2, "0")}s`;
   }
-  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
+  return `${Math.floor(m2 / 60)}h ${String(m2 % 60).padStart(2, "0")}m`;
 }
 function durationCompact(ms2) {
   if (!Number.isFinite(ms2) || ms2 < 0) {
@@ -33225,20 +33372,20 @@ function durationCompact(ms2) {
   }
   const total = Math.round(ms2 / 1e3);
   const h2 = Math.floor(total / 3600);
-  const m = Math.floor(total % 3600 / 60);
+  const m2 = Math.floor(total % 3600 / 60);
   const s2 = total % 60;
-  return [h2 ? `${h2}h` : "", m ? `${m}m` : "", s2 ? `${s2}s` : ""].filter(Boolean).join(" ");
+  return [h2 ? `${h2}h` : "", m2 ? `${m2}m` : "", s2 ? `${s2}s` : ""].filter(Boolean).join(" ");
 }
 function durationWhole(ms2) {
   const s2 = Math.max(0, Math.round(ms2 / 1e3));
   return s2 < 60 ? `${s2}s` : s2 < 3600 ? `${Math.floor(s2 / 60)}m ${s2 % 60}s` : `${Math.floor(s2 / 3600)}h ${Math.floor(s2 % 3600 / 60)}m`;
 }
 function ageShort(ms2) {
-  const m = Math.max(0, Math.round(ms2 / 6e4));
-  if (m < 60) {
-    return `${Math.max(1, m)}m`;
+  const m2 = Math.max(0, Math.round(ms2 / 6e4));
+  if (m2 < 60) {
+    return `${Math.max(1, m2)}m`;
   }
-  const h2 = Math.round(m / 60);
+  const h2 = Math.round(m2 / 60);
   if (h2 < 24) {
     return `${h2}h`;
   }
@@ -33793,10 +33940,10 @@ function searchDetail({ args, result }) {
     countsMalformed: result?.["counts"] !== void 0 && (!result["counts"] || typeof result["counts"] !== "object" || Array.isArray(result["counts"])),
     files: list2(result?.["files"]) ? texts(result?.["files"]) : void 0,
     filesOnly: args["target"] === "files",
-    matches: matches3 ? objects(matches3).map((m) => ({
-      line: num3(m["line"]) ?? 0,
-      path: text2(m["path"]) ?? "",
-      text: typeof m["content"] === "string" ? m["content"] : ""
+    matches: matches3 ? objects(matches3).map((m2) => ({
+      line: num3(m2["line"]) ?? 0,
+      path: text2(m2["path"]) ?? "",
+      text: typeof m2["content"] === "string" ? m2["content"] : ""
     })) : void 0,
     matchesText: text2(result?.["matches_text"]),
     path: text2(args["path"]),
@@ -33979,9 +34126,9 @@ function taskNeedsAttention(call) {
 }
 
 // src/view/tools/steps.ts
-import { homedir as homedir6 } from "node:os";
+import { homedir as homedir7 } from "node:os";
 function shortPath(path2) {
-  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir6() });
+  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir7() });
 }
 function namedStep(call) {
   const name = call.name.replace(/_/g, " ");
@@ -34096,7 +34243,7 @@ function briefNode(head2, text18) {
 }
 
 // src/media.ts
-import { homedir as homedir7 } from "node:os";
+import { homedir as homedir8 } from "node:os";
 import { isAbsolute as isAbsolute2 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
@@ -34197,7 +34344,7 @@ function localSource(src) {
       return void 0;
     }
   }
-  const path2 = src.replace(/^~(?=\/)/, homedir7());
+  const path2 = src.replace(/^~(?=\/)/, homedir8());
   return isAbsolute2(path2) ? { path: path2 } : void 0;
 }
 var Media = class {
@@ -34348,7 +34495,7 @@ function primarySpark(view, points = MINI_SPARK_POINTS) {
   return { ...spark, values: spark.values.slice(from), ...spark.tips ? { tips: spark.tips.slice(from) } : {} };
 }
 function sparkProps(b) {
-  const marks2 = (b.marks ?? []).map((m) => ({ value: m.value, ...m.tone ? { tone: m.tone } : {}, ...m.label ? { title: plain(m.label) } : {} }));
+  const marks2 = (b.marks ?? []).map((m2) => ({ value: m2.value, ...m2.tone ? { tone: m2.tone } : {}, ...m2.label ? { title: plain(m2.label) } : {} }));
   return {
     kind: "bars",
     max: b.max,
@@ -34380,9 +34527,9 @@ function tilesNode(entries2, key3 = "tiles") {
 }
 var FIGURE_NUMBER = /^([-+]?(?:\d[\d,]*(?:\.\d+)?|\.\d+)[kKMGT]?%?)(?:\s+|(?=\/)|$)(.*)$/;
 function figureSpans(g) {
-  const m = FIGURE_NUMBER.exec(g.text);
-  const value = m?.[1] ?? g.text;
-  const unit = (m?.[2] ?? "").replace(/^\/\s*/, "/ ");
+  const m2 = FIGURE_NUMBER.exec(g.text);
+  const value = m2?.[1] ?? g.text;
+  const unit = (m2?.[2] ?? "").replace(/^\/\s*/, "/ ");
   const label = g.label && !unit.toLowerCase().includes(g.label.toLowerCase()) ? g.label : "";
   return [
     ...label ? [sp(`${label} `, "dim")] : [],
@@ -34538,7 +34685,7 @@ function sparkNode(b, key3) {
     /* @__PURE__ */ jsxs("col", { gap: "none", role: "omp.job.widget.side", children: [
       /* @__PURE__ */ jsx("text", { spans: [sp(last, "num strong")], wrap: "none" }, "last"),
       label && !last.endsWith(label) ? /* @__PURE__ */ jsx("text", { spans: [sp(label, "muted")], truncate: "end", wrap: "none" }, "label") : null,
-      (b.marks ?? []).map((m, i) => /* @__PURE__ */ jsx("text", { spans: [sp("\u2504 ", toneStyle(m.tone ?? "muted")), sp(plain(m.label), "dim")], truncate: "end", wrap: "none" }, `mark-${i}`))
+      (b.marks ?? []).map((m2, i) => /* @__PURE__ */ jsx("text", { spans: [sp("\u2504 ", toneStyle(m2.tone ?? "muted")), sp(plain(m2.label), "dim")], truncate: "end", wrap: "none" }, `mark-${i}`))
     ] }, "side")
   ] }, key3);
 }
@@ -34705,8 +34852,8 @@ var MAX_SSH_DEPTH = 8;
 function words(segment) {
   const out = [];
   const re2 = /'([^']*)'|"((?:\\.|[^"\\])*)"|(\S+)/g;
-  for (const m of segment.matchAll(re2)) {
-    out.push(m[1] ?? m[2] ?? m[3] ?? "");
+  for (const m2 of segment.matchAll(re2)) {
+    out.push(m2[1] ?? m2[2] ?? m2[3] ?? "");
   }
   return out;
 }
@@ -34845,9 +34992,9 @@ function npmTitle(a2) {
   return sub === "test" ? "Run tests" : sub === "install" || sub === "i" || sub === "ci" ? "Install packages" : `npm ${sub ?? ""}`.trim();
 }
 function pythonTitle(a2) {
-  const m = a2.indexOf("-m");
-  if (m >= 0 && a2[m + 1]) {
-    return a2[m + 1] === "pytest" ? "Run tests" : `Run ${a2[m + 1]}`;
+  const m2 = a2.indexOf("-m");
+  if (m2 >= 0 && a2[m2 + 1]) {
+    return a2[m2 + 1] === "pytest" ? "Run tests" : `Run ${a2[m2 + 1]}`;
   }
   if (a2.includes("-c") || a2.includes("-")) {
     return "Run Python";
@@ -34873,20 +35020,20 @@ var CMDLETS = {
   "stop-process": "stop a process"
 };
 function powershellScript(text18) {
-  const used = [...new Set([...text18.matchAll(/\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b/g)].flatMap((m) => m[1]?.toLowerCase() ?? []))];
+  const used = [...new Set([...text18.matchAll(/\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b/g)].flatMap((m2) => m2[1]?.toLowerCase() ?? []))];
   const said = [...new Set(used.map((c) => CMDLETS[c] ?? (c.startsWith("get-") ? `read ${c.slice(4)}` : void 0)).filter(Boolean))];
   return said.length ? said.slice(0, 2).join(" and ") : void 0;
 }
 function hostOf(target2) {
-  const m = /^(?:[^@\s]+@)?([A-Za-z0-9][\w.-]*):/.exec(target2) ?? /^[^@\s]+@([\w.-]+)$/.exec(target2);
-  return m?.[1];
+  const m2 = /^(?:[^@\s]+@)?([A-Za-z0-9][\w.-]*):/.exec(target2) ?? /^[^@\s]+@([\w.-]+)$/.exec(target2);
+  return m2?.[1];
 }
 function sections(script) {
   const out = [];
   for (const line of script.split("\n")) {
-    const m = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line);
-    if (m?.[1] && !/^!/.test(m[1])) {
-      out.push(m[1].replace(/\s+/g, " "));
+    const m2 = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line);
+    if (m2?.[1] && !/^!/.test(m2[1])) {
+      out.push(m2[1].replace(/\s+/g, " "));
     }
   }
   return out;
@@ -35000,8 +35147,8 @@ function browserCaller(session2) {
 function validBrowserId(id) {
   return /^[1-9][0-9]*$/.test(id);
 }
-function validBrowserFrame(frame) {
-  return frame === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame);
+function validBrowserFrame(frame2) {
+  return frame2 === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame2);
 }
 function requireCaller(caller) {
   if (!caller || !caller.current() || !caller.sessionId || !PROFILE.test(caller.profile)) {
@@ -35022,7 +35169,7 @@ async function ensureMethod(gw2, caller, method) {
   const capabilities2 = await gw2.request("gateway.capabilities", { session_id: caller.sessionId });
   requireCaller(caller);
   const methods = record(capabilities2)?.["plugin_methods"];
-  if (!Array.isArray(methods) || !methods.every((m) => typeof m === "string") || !ALL.every((name) => methods.includes(name)) || !methods.includes(method)) {
+  if (!Array.isArray(methods) || !methods.every((m2) => typeof m2 === "string") || !ALL.every((name) => methods.includes(name)) || !methods.includes(method)) {
     throw new Error("Native browser requires Hermes plugin gateway methods and operator drive consent");
   }
 }
@@ -35061,18 +35208,18 @@ async function listBrowserBlocks(gw2, caller) {
     ...typeof reason2 === "string" ? { reason: reason2 } : {}
   };
 }
-async function browserTarget(gw2, action, caller, targetId, frame) {
+async function browserTarget(gw2, action, caller, targetId, frame2) {
   if (!validBrowserId(targetId)) {
     throw new Error("Invalid Tern browser block id");
   }
-  if (action === "hermes-tern.browser.frame" && (!frame || !validBrowserFrame(frame))) {
+  if (action === "hermes-tern.browser.frame" && (!frame2 || !validBrowserFrame(frame2))) {
     throw new Error("Use main or an exact frame index path (for example 0 or 1.0)");
   }
   await ensureMethod(gw2, caller, action);
   const raw2 = await gw2.request(action, {
     session_id: caller.sessionId,
     target_id: targetId,
-    ...action === "hermes-tern.browser.frame" ? { frame } : {}
+    ...action === "hermes-tern.browser.frame" ? { frame: frame2 } : {}
   });
   requireCaller(caller);
   const data = record(raw2);
@@ -35116,15 +35263,15 @@ function ternTargetOf(call) {
   const id = target2?.["target_id"];
   const title = target2?.["title"];
   const url = target2?.["url"];
-  const frame = target2?.["frame"];
-  if (target2?.["in_tern"] !== true || typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || frame !== void 0 && frame !== null && typeof frame !== "string") {
+  const frame2 = target2?.["frame"];
+  if (target2?.["in_tern"] !== true || typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || frame2 !== void 0 && frame2 !== null && typeof frame2 !== "string") {
     return void 0;
   }
   return {
     target_id: id,
     title,
     url,
-    ...typeof frame === "string" ? { frame } : {}
+    ...typeof frame2 === "string" ? { frame: frame2 } : {}
   };
 }
 
@@ -35632,8 +35779,8 @@ function liveCard(payload, session2) {
   const op = { deadlineAt, id, seq, session: session2 };
   return { callId, card: { op, opened: [], settled: settleReason(r), targets } };
 }
-function applyFrame(card, frame) {
-  const r = record(frame);
+function applyFrame(card, frame2) {
+  const r = record(frame2);
   const op = card.op;
   const seq = num4(r?.["seq"]);
   if (!r || !op || card.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
@@ -36849,10 +36996,10 @@ function searchCard(call, d) {
   if (d.countMode && !d.matches?.length && !d.matchesText) return countCard(call, d, pattern);
   const matches3 = d.matches?.length ? d.matches : void 0;
   const byFile = /* @__PURE__ */ new Map();
-  for (const m of matches3 ?? []) {
-    const path2 = m.path.replace(/^\.\//, "");
+  for (const m2 of matches3 ?? []) {
+    const path2 = m2.path.replace(/^\.\//, "");
     const list10 = byFile.get(path2) ?? [];
-    list10.push({ line: m.line, text: m.text });
+    list10.push({ line: m2.line, text: m2.text });
     byFile.set(path2, list10);
   }
   const total = d.total ?? matches3?.length ?? 0;
@@ -37267,28 +37414,28 @@ function gatewayAuthor(gw2, sid) {
 
 // src/processes/widgets/files.ts
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { homedir as homedir8 } from "node:os";
-import { isAbsolute as isAbsolute5, join as join7, normalize } from "node:path";
+import { homedir as homedir9 } from "node:os";
+import { isAbsolute as isAbsolute5, join as join8, normalize } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 var TARGET = /(?:^|[\s;&|(])(?:1|&)?>>?\s*([^\s;&|)<>]+)|\btee\s+(?:-a\s+)?([^\s;&|)<>-][^\s;&|)<>]*)/g;
 var CD = /^\s*cd\s+([^\s;&|]+)\s*(?:&&|;)/;
 var SKIP = /^\/dev\/|^&/;
 var unquote = (s2) => s2.replace(/^(['"])(.*)\1$/, "$2");
 function expand(path2, env2) {
-  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir8()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
+  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir9()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
   return out.includes("$") ? void 0 : out;
 }
 function outputFiles(command2, env2 = process.env) {
   const cd = CD.exec(command2)?.[1];
   const base3 = cd ? expand(cd, env2) : void 0;
   const files = [];
-  for (const m of command2.matchAll(TARGET)) {
-    const raw2 = m[1] ?? m[2];
+  for (const m2 of command2.matchAll(TARGET)) {
+    const raw2 = m2[1] ?? m2[2];
     if (!raw2 || SKIP.test(raw2)) {
       continue;
     }
     const path2 = expand(raw2, env2);
-    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join7(base3, path2) : void 0);
+    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join8(base3, path2) : void 0);
     if (full && !files.includes(normalize(full))) {
       files.push(normalize(full));
     }
@@ -37619,9 +37766,9 @@ var LineMatcher = class {
     const hits = [];
     lines.forEach((text18, line) => {
       this.#patterns.forEach((re2, pattern) => {
-        const m = re2.exec(text18);
-        if (m) {
-          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m.groups?.[name]), line, pattern });
+        const m2 = re2.exec(text18);
+        if (m2) {
+          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m2.groups?.[name]), line, pattern });
         }
       });
     });
@@ -37639,7 +37786,7 @@ function ruleReadsSource(from, id) {
   return from.endsWith("*") ? id.startsWith(from.slice(0, -1)) : from === id;
 }
 function patternGroupNames(pattern) {
-  return new Set([...pattern.matchAll(NAMED_GROUP)].flatMap((m) => m[1] ?? []));
+  return new Set([...pattern.matchAll(NAMED_GROUP)].flatMap((m2) => m2[1] ?? []));
 }
 function ruleFields(rule) {
   const fields = [];
@@ -37698,8 +37845,8 @@ var WRITTEN_NUMBER = /\d[\d,_]*(?:\.\d+)?[kKMG]?/g;
 function checkStatedNumbers(spec, samples, brief, errors) {
   const stated = /* @__PURE__ */ new Set();
   const collect = (text18) => {
-    for (const m of text18.matchAll(WRITTEN_NUMBER)) {
-      stated.add(parseValue(m[0]));
+    for (const m2 of text18.matchAll(WRITTEN_NUMBER)) {
+      stated.add(parseValue(m2[0]));
     }
   };
   collect(brief);
@@ -38509,7 +38656,7 @@ var ChartRuntime = class {
     const points = downsample(ring, SPARK_POINTS);
     const values = points.map((p3) => p3.v);
     const marks2 = block.target === void 0 ? void 0 : [{ label: block.targetLabel ?? `target ${formatNumber(block.target, block.unit)}`, tone: "muted", value: block.target }];
-    const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m) => m.value)], block.min, block.max);
+    const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m2) => m2.value)], block.min, block.max);
     let tone2;
     if (block.better && block.target !== void 0 && series.values) {
       const reached = block.better === "higher" ? series.last >= block.target : series.last <= block.target;
@@ -41636,8 +41783,8 @@ function openBrowserBlocks(host) {
   let message = caller ? "Loading Tern browser blocks\u2026" : "Native browser unavailable: verified canonical profile identity is missing from this session.";
   let selected;
   let editing;
-  const frame = new Composer();
-  frame.set("main");
+  const frame2 = new Composer();
+  frame2.set("main");
   const live = () => host.session.ref === sessionRef && host.session.ref.live === sid && host.overlays.at(-1) === overlay2;
   const refresh = async () => {
     if (!live() || working || loading) {
@@ -41695,7 +41842,7 @@ function openBrowserBlocks(host) {
           await refresh();
         }
       } else if (intent2 === "frame") {
-        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame.text.trim());
+        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame2.text.trim());
         if (live()) {
           message = `Block ${result.target_id} \xB7 evaluation frame ${result.frame ?? "main"}`;
           if (editing === block) {
@@ -41724,7 +41871,7 @@ function openBrowserBlocks(host) {
       return;
     }
     editing = block;
-    frame.set("main");
+    frame2.set("main");
     host.changed();
   };
   const overlay2 = {
@@ -41772,15 +41919,15 @@ function openBrowserBlocks(host) {
             "input",
             {
               aria: "Evaluation frame path",
-              cursor: frame.cursor,
+              cursor: frame2.cursor,
               onEdit: (ev) => {
                 if (live() && present(block) && editing === block && !working) {
-                  frame.edit(ev);
+                  frame2.edit(ev);
                   host.changed();
                 }
               },
               role: "omp.ask.input",
-              text: frame.text
+              text: frame2.text
             },
             "frame-path"
           ),
@@ -41809,7 +41956,7 @@ function openBrowserBlocks(host) {
           editing = void 0;
         } else if (key3.name === "up" || key3.name === "down") {
           selected = moveSelection(key3, blocks2.map((block) => block.target_id), selected) ?? selected;
-        } else if (frame.key(key3) === "submit") {
+        } else if (frame2.key(key3) === "submit") {
           void choose(editing, "frame");
         }
         host.changed();
@@ -43108,7 +43255,7 @@ function planStatusOf(value) {
     return void 0;
   }
   const rawPlan = value["plan"];
-  let plan = null;
+  let plan2 = null;
   if (rawPlan !== null) {
     if (!isRecord2(rawPlan)) {
       return void 0;
@@ -43133,9 +43280,9 @@ function planStatusOf(value) {
       }
       annotations.push({ section, text: noteText });
     }
-    plan = { annotations, decision, id, revision, text: text18 };
+    plan2 = { annotations, decision, id, revision, text: text18 };
   }
-  return { enabled: value["enabled"], generating: value["generating"], plan };
+  return { enabled: value["enabled"], generating: value["generating"], plan: plan2 };
 }
 function reviewPlanText(text18) {
   return parsePlan(text18) ?? { preamble: "", sections: [{ level: 1, text: text18, title: "Plan" }], text: text18 };
@@ -43183,11 +43330,11 @@ function latestPlan(entries2) {
     if (entry?.kind !== "turn" || entry.end.status !== "done") {
       continue;
     }
-    const plan = parsePlan(
+    const plan2 = parsePlan(
       entry.blocks.filter((block) => block.kind === "text").map((block) => block.text).join("\n\n")
     );
-    if (plan) {
-      return plan;
+    if (plan2) {
+      return plan2;
     }
   }
   return void 0;
@@ -43197,7 +43344,7 @@ function latestPlan(entries2) {
 import { spawnSync as spawnSync2 } from "node:child_process";
 import { mkdtemp as mkdtemp2, readFile as readFile3, rm as rm3, writeFile as writeFile3 } from "node:fs/promises";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join8 } from "node:path";
+import { join as join9 } from "node:path";
 var openPlanFile = (path2) => {
   const inTern = Boolean(process.env["TERN_WINDOW_KEY"]);
   const command2 = (process.env["VISUAL"] || process.env["EDITOR"] || "vi").trim().split(/\s+/);
@@ -43221,9 +43368,9 @@ var openPlanFile = (path2) => {
   }
 };
 async function editPlanExternal(initial, opener = openPlanFile) {
-  const dir2 = await mkdtemp2(join8(tmpdir2(), "hermes-plan-"));
+  const dir2 = await mkdtemp2(join9(tmpdir2(), "hermes-plan-"));
   try {
-    const path2 = join8(dir2, "plan.md");
+    const path2 = join9(dir2, "plan.md");
     await writeFile3(path2, initial, { mode: 384 });
     await opener(path2);
     return await readFile3(path2, "utf8");
@@ -43280,7 +43427,7 @@ function openPlanReview(host) {
     host.notice("Close the current question before opening plan review.", "warning");
     return;
   }
-  let plan = latestPlan(host.transcript.entries);
+  let plan2 = latestPlan(host.transcript.entries);
   let status;
   let planRpc;
   let loading = true;
@@ -43303,7 +43450,7 @@ function openPlanReview(host) {
   };
   const current = (stamp, expected) => active2() && stamp === version2 && (expected ? same(expected) : target2() === void 0);
   const canDecide = () => Boolean(status?.enabled && status.plan?.decision === "pending" && !status.generating && !host.busy && !busy && !submitted);
-  const canOrdinary = () => Boolean(plan && !loading && !status?.enabled && !status?.plan && !status?.generating && !busy && !submitted);
+  const canOrdinary = () => Boolean(plan2 && !loading && !status?.enabled && !status?.plan && !status?.generating && !busy && !submitted);
   const requestPlan = (method, params) => {
     if (!planRpc) {
       return Promise.reject(new Error("Plan authority is unavailable."));
@@ -43337,9 +43484,9 @@ function openPlanReview(host) {
       throw new Error("The gateway returned an invalid plan status. No plan change was assumed.");
     }
     status = verified;
-    plan = verified.plan ? reviewPlanText(verified.plan.text) : latestPlan(host.transcript.entries);
+    plan2 = verified.plan ? reviewPlanText(verified.plan.text) : latestPlan(host.transcript.entries);
     version2++;
-    selected = Math.min(selected, Math.max(0, (plan?.sections.length ?? 1) - 1));
+    selected = Math.min(selected, Math.max(0, (plan2?.sections.length ?? 1) - 1));
     editing = void 0;
     note.set("");
   };
@@ -43372,7 +43519,7 @@ function openPlanReview(host) {
     }
   };
   const choose = (index2, stamp, expected) => {
-    if (!current(stamp, expected) || !plan?.sections[index2] || editing) {
+    if (!current(stamp, expected) || !plan2?.sections[index2] || editing) {
       return;
     }
     selected = index2;
@@ -43381,14 +43528,14 @@ function openPlanReview(host) {
     host.scroll(root7 + ".body.markdown", "start");
   };
   const startEdit = (kind, stamp, expected) => {
-    if (!current(stamp, expected) || !plan || !(canDecide() || kind === "refine" && canOrdinary())) {
+    if (!current(stamp, expected) || !plan2 || !(canDecide() || kind === "refine" && canOrdinary())) {
       return;
     }
     version2++;
     editing = kind;
     editingSection = selected;
     note.set(
-      kind === "plan" ? plan.text : kind === "annotation" ? status?.plan?.annotations.find((a2) => a2.section === selected)?.text ?? "" : ""
+      kind === "plan" ? plan2.text : kind === "annotation" ? status?.plan?.annotations.find((a2) => a2.section === selected)?.text ?? "" : ""
     );
     error = "";
     host.changed();
@@ -43483,7 +43630,7 @@ function openPlanReview(host) {
     const stamp = version2;
     const allowed = canDecide();
     const ordinary = canOrdinary();
-    const section = plan?.sections[selected];
+    const section = plan2?.sections[selected];
     const annotations = status?.plan?.annotations.filter((item3) => item3.section === selected) ?? [];
     const actions = [];
     if (editing) {
@@ -43496,7 +43643,7 @@ function openPlanReview(host) {
         host.changed();
       } });
       actions.push({ key: "save", label: editing === "refine" ? "Send refinement" : "Save revision", onClick: () => write(revision, stamp) });
-    } else if (plan && (allowed || ordinary)) {
+    } else if (plan2 && (allowed || ordinary)) {
       actions.push({
         key: "approve",
         label: allowed && revision ? "Approve exact revision (no execution)" : "Continue (ordinary prompt)",
@@ -43519,14 +43666,14 @@ function openPlanReview(host) {
         label: status.enabled ? "Disable plan mode" : "Enable plan mode",
         onClick: () => toggleMode(stamp, revision)
       }) : null,
-      allowed && plan && revision ? /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.plan.tools", children: [
+      allowed && plan2 && revision ? /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.plan.tools", children: [
         button({ key: "annotate", label: "Annotate section", onClick: () => startEdit("annotation", stamp, revision) }),
         button({ key: "edit-plan", label: "Edit plan", onClick: () => startEdit("plan", stamp, revision) }),
-        button({ key: "external-editor", label: "Edit in $EDITOR", onClick: () => externalEdit(revision, plan?.text, stamp) })
+        button({ key: "external-editor", label: "Edit in $EDITOR", onClick: () => externalEdit(revision, plan2?.text, stamp) })
       ] }, "tools") : null,
-      !editing && plan ? /* @__PURE__ */ jsxs("col", { gap: "xs", role: "omp.plan.contents", children: [
-        /* @__PURE__ */ jsx("text", { text: "Section " + (selected + 1) + "/" + plan.sections.length + " \xB7 Up/Down to jump" }, "hint"),
-        plan.sections.map((part, index2) => button({
+      !editing && plan2 ? /* @__PURE__ */ jsxs("col", { gap: "xs", role: "omp.plan.contents", children: [
+        /* @__PURE__ */ jsx("text", { text: "Section " + (selected + 1) + "/" + plan2.sections.length + " \xB7 Up/Down to jump" }, "hint"),
+        plan2.sections.map((part, index2) => button({
           key: "section-" + index2,
           label: "  ".repeat(Math.max(0, part.level - 1)) + part.title,
           onClick: () => choose(index2, stamp, revision)
@@ -43568,7 +43715,7 @@ function openPlanReview(host) {
         "md",
         {
           role: "omp.plan.body",
-          text: plan ? (selected === 0 ? plan.preamble : "") + (section?.text ?? "") : status?.generating ? "Hermes is still generating this plan." : "No completed assistant plan found. Ask Hermes to make a plan first."
+          text: plan2 ? (selected === 0 ? plan2.preamble : "") + (section?.text ?? "") : status?.generating ? "Hermes is still generating this plan." : "No completed assistant plan found. Ask Hermes to make a plan first."
         },
         "markdown"
       ),
@@ -45285,15 +45432,15 @@ function collectText(node3, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join19;
+  let join20;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join19 = void 0;
+      join20 = void 0;
     } else if (lines[index2]) {
-      if (typeof join19 === "number") result.push(join19);
+      if (typeof join20 === "number") result.push(join20);
       result.push(lines[index2]);
-      join19 = 0;
+      join20 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -48275,7 +48422,7 @@ function htmlKind(value) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/join.js
-var join9 = [joinDefaults];
+var join10 = [joinDefaults];
 function joinDefaults(left, right, parent, state) {
   if (right.type === "code" && formatCodeAsIndented(right, state) && (left.type === "list" || left.type === right.type && formatCodeAsIndented(left, state))) {
     return false;
@@ -51252,7 +51399,7 @@ function toMarkdown(tree, options) {
     handle: void 0,
     indentLines,
     indexStack: [],
-    join: [...join9],
+    join: [...join10],
     options: {},
     safe: safeBound,
     stack: [],
@@ -72105,7 +72252,7 @@ var needsAttention = (call) => call.outcome.kind === "error" || call.outcome.kin
 function pieces(blocks2, turn2 = blocks2) {
   const out = [];
   let items = [];
-  const plan = turn2.findLast((b) => b.kind === "tool" && isTodoName(b.call.name) && b.call.todos?.length);
+  const plan2 = turn2.findLast((b) => b.kind === "tool" && isTodoName(b.call.name) && b.call.todos?.length);
   for (const b of blocks2) {
     if (b.kind === "tool" && needsAttention(b.call)) {
       if (items.length) {
@@ -72115,7 +72262,7 @@ function pieces(blocks2, turn2 = blocks2) {
       out.push(ownsCard(b.call) || webExtractNeedsAttention(b.call) || evalNeedsAttention(b.call) || writeLintNeedsAttention(b.call) || patchLintNeedsAttention(b.call) || v4aLintNeedsAttention(b.call) || terminalNeedsAttention(b.call) || writeRefusalNeedsAttention(b.call) || memoryStagingReported(b.call) || v4aValidationFailure(b.call) || patchContextWarning(b.call) || writeContextWarning(b.call) ? { block: b, kind: "block" } : { items: [b], kind: "work" });
       continue;
     }
-    if (b.kind === "thinking" || b.kind === "tool" && (!ownsCard(b.call) || isTodoName(b.call.name) && b !== plan)) {
+    if (b.kind === "thinking" || b.kind === "tool" && (!ownsCard(b.call) || isTodoName(b.call.name) && b !== plan2)) {
       items.push(b);
       continue;
     }
@@ -73631,7 +73778,7 @@ var MODES = [
   { detail: "The wallpaper's pywal colors, live as the file changes (/glide theme auto)", icon: "image", id: "auto", label: "Wallpaper" }
 ];
 function isThemeMode(v) {
-  return MODES.some((m) => m.id === v);
+  return MODES.some((m2) => m2.id === v);
 }
 var modeOf = (item3) => item3 !== void 0 && isThemeMode(item3) ? item3 : void 0;
 function openThemePicker(host) {
@@ -73688,7 +73835,7 @@ function openThemePicker(host) {
       } else if (k.name === "enter") {
         host.close(overlay2);
       } else {
-        pick2(modeOf(moveSelection(k, MODES.map((m) => m.id), selected)));
+        pick2(modeOf(moveSelection(k, MODES.map((m2) => m2.id), selected)));
       }
       return true;
     }
@@ -73789,7 +73936,7 @@ import { isAbsolute as isAbsolute7 } from "node:path";
 import { pathToFileURL as pathToFileURL5 } from "node:url";
 
 // src/wire/card.ts
-import { basename as basename5, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
+import { basename as basename5, dirname as dirname4, join as join11, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL3 } from "node:url";
 function isCardContract(value) {
   const module = record(value);
@@ -73801,7 +73948,7 @@ function packagedCardUrl() {
   const here = dirname4(fileURLToPath5(import.meta.url));
   const source2 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
   const frontend = source2 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL3(join10(frontend, "openui/card.mjs")).href;
+  return pathToFileURL3(join11(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -73820,7 +73967,7 @@ async function openCardContract() {
 }
 
 // src/wire/openui.ts
-import { basename as basename6, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
+import { basename as basename6, dirname as dirname5, join as join12, resolve as resolve7 } from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 function isOpenUiContract(value) {
   const module = record(value);
@@ -73832,7 +73979,7 @@ function packagedValidatorUrl() {
   const here = dirname5(fileURLToPath6(import.meta.url));
   const source2 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
   const frontend = source2 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL4(join11(frontend, "openui/openui-preview/src/bundle.mjs")).href;
+  return pathToFileURL4(join12(frontend, "openui/openui-preview/src/bundle.mjs")).href;
 }
 async function openUiContract() {
   let loaded;
@@ -74437,7 +74584,7 @@ async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get = fetch) {
   }
 }
 var STANCE = { agree: { label: "AGREE", color: NIGHT.agree }, dissent: { label: "DISSENT", color: NIGHT.danger }, abstain: { label: "ABSTAIN", color: NIGHT.text3 } };
-function councilCard(src, frame, size = 480) {
+function councilCard(src, frame2, size = 480) {
   let next2 = 10;
   const text18 = (value) => ({ t: "text", text: value });
   const el = (tag3, style2, kids, opts = {}) => ({
@@ -74453,9 +74600,9 @@ function councilCard(src, frame, size = 480) {
   const svg3 = (markup, w, style2 = "") => ({ t: "svg", svg: markup, w, h: w, cls: "", style: style2 });
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
   const { run: run8 } = src;
-  const done = frame.t !== null && frame.t >= schedule(run8).total;
-  const playing = frame.t !== null && !done;
-  const shown3 = closedSeats(run8, frame);
+  const done = frame2.t !== null && frame2.t >= schedule(run8).total;
+  const playing = frame2.t !== null && !done;
+  const shown3 = closedSeats(run8, frame2);
   const agree = run8.verdicts.filter((v) => v.stance === "agree").length;
   const dissent = run8.verdicts.filter((v) => v.stance === "dissent").length;
   const abstain = run8.verdicts.filter((v) => v.stance === "abstain").length;
@@ -74476,7 +74623,7 @@ function councilCard(src, frame, size = 480) {
   const verdictBox = el("div", `padding:10px 14px;border-radius:14px;border:1px solid ${dissent && done ? "rgba(227,127,101,0.45)" : "rgba(152,207,139,0.22)"};background-color:rgba(28,28,24,0.55)`, [
     el("div", "display:flex;align-items:center;gap:8px", [
       el("span", `width:7px;height:7px;border-radius:4px;background-color:${done ? dissent ? NIGHT.danger : NIGHT.agree : NIGHT.muted}`, []),
-      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text18(done ? run8.outcome ?? "The council has spoken" : frame.t === null ? "The council is seated" : "The council is sitting")])
+      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text18(done ? run8.outcome ?? "The council has spoken" : frame2.t === null ? "The council is seated" : "The council is sitting")])
     ]),
     el("span", `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(done ? `${agree} of ${run8.verdicts.length} agree \xB7 ${dissent} dissent${abstain ? ` \xB7 ${abstain} abstain` : ""}` : `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 verdicts appear as each seat closes`)])
   ]);
@@ -74501,13 +74648,13 @@ function councilCard(src, frame, size = 480) {
     [el("span", gold ? `color:#1d160b;font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text18(label)])],
     { id, attrs: { "data-eui-action": id === CONVENE_ID ? "convene" : "close" } }
   );
-  const convene = playing ? "Convening\u2026" : frame.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
+  const convene = playing ? "Convening\u2026" : frame2.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start", [
-      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg3(instrumentSvg(run8, frame, size), size, "max-width:100%;height:auto")]),
+      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg3(instrumentSvg(run8, frame2, size), size, "max-width:100%;height:auto")]),
       el("div", "flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0", [
-        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame))]),
+        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame2))]),
         verdictBox,
         el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID2, "Close", false)]),
         seats
@@ -74525,7 +74672,7 @@ function openCouncilPopup(host, src, clock4 = realClock) {
   const total = schedule(src.run).total;
   let start = null;
   let stop3;
-  const frame = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
+  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
   const halt = () => {
     stop3?.();
     stop3 = void 0;
@@ -74544,7 +74691,7 @@ function openCouncilPopup(host, src, clock4 = realClock) {
     modal: true,
     focus: () => null,
     node: (id) => {
-      const f = frame();
+      const f = frame2();
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
@@ -75692,25 +75839,25 @@ function normalizeChord(raw2) {
   const parts3 = raw2.toLowerCase().split("+").map((s2) => s2.trim()).map((s2) => ALIASES3[s2] ?? s2);
   const name = parts3.pop() ?? "";
   const validName = /^(?:[a-z0-9,./;=\-]|f(?:[1-9]|1[0-9]|2[0-4])|enter|escape|tab|space|backspace|delete|home|end|up|down|left|right|page_up|page_down)$/.test(name);
-  if (!validName || parts3.some((p3) => !MODIFIERS2.some((m) => m === p3)) || new Set(parts3).size !== parts3.length) {
+  if (!validName || parts3.some((p3) => !MODIFIERS2.some((m2) => m2 === p3)) || new Set(parts3).size !== parts3.length) {
     throw new Error(`Invalid key chord: ${raw2}`);
   }
   if (parts3.includes("meta") || parts3.includes("ctrl") && parts3.includes("shift") && ["c", "v", "k", "p"].includes(name) || parts3.includes("alt") && ["f4", "tab"].includes(name)) {
     throw new Error(`Host-reserved key chord: ${raw2}`);
   }
-  return [...MODIFIERS2.filter((m) => parts3.includes(m)), name].join("+");
+  return [...MODIFIERS2.filter((m2) => parts3.includes(m2)), name].join("+");
 }
 function exact(chord, key3) {
   const parts3 = chord.split("+");
   const name = parts3.pop();
-  return key3.name.toLowerCase() === name && MODIFIERS2.every((m) => key3[m] === parts3.includes(m));
+  return key3.name.toLowerCase() === name && MODIFIERS2.every((m2) => key3[m2] === parts3.includes(m2));
 }
 function shortcutMatches(shortcut, key3) {
   const policy = shortcut.legacy;
   if (policy) {
     return shortcut.keys.some((chord) => {
       const name = chord.split("+").at(-1);
-      return name === key3.name.toLowerCase() && policy.must.every((m) => key3[m]) && policy.forbid.every((m) => !key3[m]);
+      return name === key3.name.toLowerCase() && policy.must.every((m2) => key3[m2]) && policy.forbid.every((m2) => !key3[m2]);
     });
   }
   return shortcut.keys.some((chord) => exact(chord, key3));
@@ -75932,22 +76079,22 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join13 } from "node:path";
+import { join as join14 } from "node:path";
 
 // src/config/dataDir.ts
-import { homedir as homedir9 } from "node:os";
-import { join as join12 } from "node:path";
-var dataDir = (env2 = process.env) => join12(env2["HERMES_HOME"] || join12(homedir9(), ".hermes"), "plugin-data", "hermes-tern");
+import { homedir as homedir10 } from "node:os";
+import { join as join13 } from "node:path";
+var dataDir = (env2 = process.env) => join13(env2["HERMES_HOME"] || join13(homedir10(), ".hermes"), "plugin-data", "hermes-tern");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join13(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join14(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join13(dir2, "panes"), { recursive: true });
+    mkdirSync4(join14(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -75964,10 +76111,10 @@ function forgetPane(launch3, dir2 = dataDir()) {
 
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { dirname as dirname6, join as join14 } from "node:path";
+import { homedir as homedir11 } from "node:os";
+import { dirname as dirname6, join as join15 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "hermes-tern", "settings.json");
+  return join15(env2["HERMES_HOME"] || join15(homedir11(), ".hermes"), "hermes-tern", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
@@ -76265,8 +76412,8 @@ var SurfaceLifecycle = class {
 
 // src/eui/cards.ts
 import { createHash as createHash4 } from "node:crypto";
-import { readFileSync as readFileSync7 } from "node:fs";
-import { dirname as dirname7, join as join16, resolve as resolve8 } from "node:path";
+import { readFileSync as readFileSync8 } from "node:fs";
+import { dirname as dirname7, join as join17, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -76394,7 +76541,7 @@ function contract(d, el) {
   const flow4 = [el("span", [text14("ask")], "ih-term")];
   for (const l of lanes2) {
     if (mid.includes(l)) {
-      if (l === mid[0]) flow4.push(link3(), el("div", mid.map((m) => el("div", [el("i", [], "ih-stub"), node3(m), el("i", [], "ih-stub")], "ih-branch")), "ih-fan"));
+      if (l === mid[0]) flow4.push(link3(), el("div", mid.map((m2) => el("div", [el("i", [], "ih-stub"), node3(m2), el("i", [], "ih-stub")], "ih-branch")), "ih-fan"));
       continue;
     }
     flow4.push(link3(), node3(l));
@@ -76821,8 +76968,8 @@ var EuiHostCards = class {
 };
 
 // src/eui/sandbox.js
-import { existsSync as existsSync3, readFileSync as readFileSync6 } from "node:fs";
-import { join as join15 } from "node:path";
+import { existsSync as existsSync3, readFileSync as readFileSync7 } from "node:fs";
+import { join as join16 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -81223,7 +81370,7 @@ var esca = {
   "<": "&lt;",
   ">": "&gt;"
 };
-var pe = (m) => esca[m];
+var pe = (m2) => esca[m2];
 var escape2 = (es) => replace2.call(es, ca, pe);
 
 // node_modules/linkedom/esm/interface/attr.js
@@ -87459,23 +87606,23 @@ function resolveValue(value, lookup2, depth = 0) {
   v = v.replace(/hsla?\(\s*([\d.]+)(?:deg)?\s+([\d.]+%)\s+([\d.]+%)\s*\)/g, (_2, h2, s2, l) => `hsl(${h2},${s2},${l})`);
   return v;
 }
-function rgba(c) {
+function rgba2(c) {
   c = c.trim();
   if (c === "transparent") return [0, 0, 0, 0];
-  let m = /^#([0-9a-f]{3,8})$/i.exec(c);
-  if (m) {
-    const h2 = m[1].length < 6 ? [...m[1]].map((x) => x + x).join("") : m[1];
+  let m2 = /^#([0-9a-f]{3,8})$/i.exec(c);
+  if (m2) {
+    const h2 = m2[1].length < 6 ? [...m2[1]].map((x) => x + x).join("") : m2[1];
     return [0, 2, 4].map((i) => Number.parseInt(h2.slice(i, i + 2), 16)).concat(h2.length === 8 ? Number.parseInt(h2.slice(6), 16) / 255 : 1);
   }
-  m = /^rgba?\(([^)]*)\)$/.exec(c);
-  if (m) {
-    const p3 = m[1].split(/[\s,/]+/).filter(Boolean).map(Number.parseFloat);
+  m2 = /^rgba?\(([^)]*)\)$/.exec(c);
+  if (m2) {
+    const p3 = m2[1].split(/[\s,/]+/).filter(Boolean).map(Number.parseFloat);
     return p3.length >= 3 ? [p3[0], p3[1], p3[2], p3[3] ?? 1] : void 0;
   }
   return void 0;
 }
 function mix3(a2, p3, b) {
-  const x = rgba(a2), y = rgba(b);
+  const x = rgba2(a2), y = rgba2(b);
   if (!x || !y) return void 0;
   const al = x[3] * p3 + y[3] * (1 - p3);
   const ch = (i) => al === 0 ? 0 : Math.round((x[i] * x[3] * p3 + y[i] * y[3] * (1 - p3)) / al);
@@ -87557,13 +87704,13 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join15(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join15(dir2, "data", match[1] + ".json");
-  return existsSync3(file2) ? readFileSync6(file2, "utf8") : void 0;
+  const file2 = join16(dir2, "data", match[1] + ".json");
+  return existsSync3(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
 }) {
@@ -87763,14 +87910,14 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync6(join15(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K = ctx.__EUI;
   await K.loadApps();
-  const themes = JSON.parse(readFileSync6(join15(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
   K.theme.themes = themes;
   K.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join15(dir2, "kit.css");
-  const rules = existsSync3(kitCss2) ? svgRules(readFileSync6(kitCss2, "utf8"), scheme2) : [];
+  const kitCss2 = join16(dir2, "kit.css");
+  const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   K.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
   const byId = /* @__PURE__ */ new Map();
@@ -87922,7 +88069,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = dir2 ? readFileSync7(join16(dir2, "kit.css"), "utf8") : "";
+  const kit = dir2 ? readFileSync8(join17(dir2, "kit.css"), "utf8") : "";
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--accent-ink, var(--card)); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -87942,7 +88089,7 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync7(join16(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join17(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -87953,15 +88100,15 @@ function splitEuiFences(text18, block, kinds) {
   const parts3 = [];
   let at2 = 0;
   let n3 = 0;
-  for (const m of text18.matchAll(FENCE2)) {
-    const start = m.index + (m[1]?.length ?? 0);
+  for (const m2 of text18.matchAll(FENCE2)) {
+    const start = m2.index + (m2[1]?.length ?? 0);
     const before2 = text18.slice(at2, start);
     if (before2.trim()) {
       parts3.push({ kind: "md", text: before2 });
     }
-    const decoded = decodeEuiCard(m[4] ?? "", kinds);
-    parts3.push("error" in decoded ? { kind: "bad", text: m[0].slice(m[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n3++}`, spec: decoded });
-    at2 = m.index + m[0].length;
+    const decoded = decodeEuiCard(m2[4] ?? "", kinds);
+    parts3.push("error" in decoded ? { kind: "bad", text: m2[0].slice(m2[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n3++}`, spec: decoded });
+    at2 = m2.index + m2[0].length;
   }
   const rest = text18.slice(at2);
   if (rest.trim() || parts3.length === 0) {
@@ -88018,8 +88165,8 @@ var EuiCards = class {
       this.#evict();
       this.#mount(key3, slot);
     }
-    const m = slot.mounted;
-    return { spec, app: m?.app ?? spec.app, label: m?.label ?? spec.kind, node: m ? m.snapshot() : null, ...slot.error === void 0 ? {} : { error: slot.error } };
+    const m2 = slot.mounted;
+    return { spec, app: m2?.app ?? spec.app, label: m2?.label ?? spec.kind, node: m2 ? m2.snapshot() : null, ...slot.error === void 0 ? {} : { error: slot.error } };
   }
   /** A trusted host panel, through the same stylesheet and node renderer as demo cards. */
   hostView(entry) {
@@ -88783,11 +88930,11 @@ function hardBreaks(text18) {
 var HEADER = /^\s*(?:[^\p{L}\p{N}*\s]\S*\s+)?\*\*(?<title>.+?)\*\*\s*(?<inline>.*)$/u;
 var SUFFIX = { b: 1e9, k: 1e3, m: 1e6 };
 function parseCount(raw2) {
-  const m = /^~?\s*(?<digits>[\d,]*\.?\d+)\s*(?<suffix>[kmb])?$/i.exec(raw2.trim());
-  if (!m) {
+  const m2 = /^~?\s*(?<digits>[\d,]*\.?\d+)\s*(?<suffix>[kmb])?$/i.exec(raw2.trim());
+  if (!m2) {
     return NaN;
   }
-  const { digits = "", suffix } = m.groups ?? {};
+  const { digits = "", suffix } = m2.groups ?? {};
   return Number(digits.replace(/,/g, "")) * (suffix ? SUFFIX[suffix.toLowerCase()] ?? 1 : 1);
 }
 function compactCount(n3) {
@@ -88803,23 +88950,23 @@ function compactCount(n3) {
 function limits(inline) {
   const out = [];
   for (const part of inline.split("|")) {
-    const m = /^\s*(?<name>[A-Za-z]+):\s*(?<left>[\d.,]+\s*[kmb]?)\s*\/\s*(?<limit>[\d.,]+\s*[kmb]?)(?:\s*\(resets?\s+(?<reset>.+?)\))?\s*$/i.exec(part)?.groups;
-    const left = m ? parseCount(m["left"] ?? "") : NaN;
-    const limit = m ? parseCount(m["limit"] ?? "") : NaN;
-    if (m && Number.isFinite(left) && limit > 0) {
-      out.push({ left, limit, name: (m["name"] ?? "").toUpperCase(), reset: m["reset"] });
+    const m2 = /^\s*(?<name>[A-Za-z]+):\s*(?<left>[\d.,]+\s*[kmb]?)\s*\/\s*(?<limit>[\d.,]+\s*[kmb]?)(?:\s*\(resets?\s+(?<reset>.+?)\))?\s*$/i.exec(part)?.groups;
+    const left = m2 ? parseCount(m2["left"] ?? "") : NaN;
+    const limit = m2 ? parseCount(m2["limit"] ?? "") : NaN;
+    if (m2 && Number.isFinite(left) && limit > 0) {
+      out.push({ left, limit, name: (m2["name"] ?? "").toUpperCase(), reset: m2["reset"] });
     }
   }
   return out;
 }
 function pair2(line) {
-  const m = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line)?.groups;
-  return m ? { key: m["key"] ?? "", value: (m["value"] ?? "").replace(/^`(.*)`$/, "$1") } : void 0;
+  const m2 = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line)?.groups;
+  return m2 ? { key: m2["key"] ?? "", value: (m2["value"] ?? "").replace(/^`(.*)`$/, "$1") } : void 0;
 }
 function crumb(line) {
-  const m = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line)?.groups;
-  const tokens2 = m ? parseCount(m["tokens"] ?? "") : NaN;
-  return m && Number.isFinite(tokens2) ? { label: m["label"] ?? "", pct: m["pct"] ? Number(m["pct"]) : void 0, tokens: tokens2 } : void 0;
+  const m2 = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line)?.groups;
+  const tokens2 = m2 ? parseCount(m2["tokens"] ?? "") : NaN;
+  return m2 && Number.isFinite(tokens2) ? { label: m2["label"] ?? "", pct: m2["pct"] ? Number(m2["pct"]) : void 0, tokens: tokens2 } : void 0;
 }
 function build2(title, inline, body) {
   const name = title.replace(/:$/, "").trim();
@@ -91284,14 +91431,14 @@ var ROWS = [
     (_code, text18) => /^gateway not (?:connected|running)\b/.test(text18),
     () => "Hermes is not connected right now, so that was not sent. It reconnects automatically; wait a moment and try again."
   ],
-  [(_code, text18) => UNAVAILABLE_METHOD_RE.exec(text18), (m) => `This Hermes backend does not provide ${m?.[1] ?? "?"}, so that was not done.`],
+  [(_code, text18) => UNAVAILABLE_METHOD_RE.exec(text18), (m2) => `This Hermes backend does not provide ${m2?.[1] ?? "?"}, so that was not done.`],
   [
     (_code, text18) => text18.trim() === "launch_credentials_unavailable",
     () => "This chat can't use the API key it was started with any more (it changed or was removed), so that was not done. A chat never switches to a different key on its own. Type /new to start a new chat on your current key."
   ],
   [
     (_code, text18) => /^request timed out after (\d+)s/.exec(text18),
-    (m) => `Hermes did not answer within ${m?.[1] ?? "?"}s. Try again; if it keeps happening, report the last lines of the gateway log.`
+    (m2) => `Hermes did not answer within ${m2?.[1] ?? "?"}s. Try again; if it keeps happening, report the last lines of the gateway log.`
   ]
 ];
 function describeRpcError(error) {
@@ -91301,9 +91448,9 @@ function describeRpcError(error) {
     return "Tern and the Hermes backend are out of sync (different versions). Run `hermes update`, then start `hermes tern` again.";
   }
   for (const [match, say] of ROWS) {
-    const m = match(code7, text18);
-    if (m) {
-      return say(m === true ? null : m);
+    const m2 = match(code7, text18);
+    if (m2) {
+      return say(m2 === true ? null : m2);
     }
   }
   return text18;
@@ -91556,18 +91703,18 @@ function shellLines(r) {
   ];
 }
 function typedCommands(text18, pasted = []) {
-  return [...text18.matchAll(new RegExp(INTERPOLATION_RE.source, "g"))].filter((m) => !pasted.some((p3) => p3.includes(m[0])));
+  return [...text18.matchAll(new RegExp(INTERPOLATION_RE.source, "g"))].filter((m2) => !pasted.some((p3) => p3.includes(m2[0])));
 }
 async function interpolate(gw2, sid, text18, pasted = []) {
   const matches3 = typedCommands(text18, pasted);
   const results = await Promise.all(
-    matches3.map(async (m) => {
-      const r = await shellExec(gw2, sid, m[1] ?? "");
+    matches3.map(async (m2) => {
+      const r = await shellExec(gw2, sid, m2[1] ?? "");
       return [r.stdout, r.stderr].filter(Boolean).join("\n").trim();
     })
   );
   return matches3.reduceRight(
-    (acc, m, i) => acc.slice(0, m.index) + (results[i] ?? "") + acc.slice((m.index ?? 0) + m[0].length),
+    (acc, m2, i) => acc.slice(0, m2.index) + (results[i] ?? "") + acc.slice((m2.index ?? 0) + m2[0].length),
     text18
   );
 }
@@ -93993,10 +94140,9 @@ function drawFrame(cx, now = Date.now()) {
   if (!modal2) {
     cx.completion.update(cx.composer);
   }
-  const voice = cx.liveVoice.node();
-  const lanes2 = cx.lanes?.node() ?? null;
+  const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null);
   const chrome = {
-    dock: [...voice ? [voice] : [], ...lanes2 ? [lanes2] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
+    dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
     layer: [
       ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
@@ -95700,12 +95846,12 @@ var TodoHud = class {
   /** Prefer this session's event snapshot, including an empty one, then its restored history. */
   visible(turnRunning, history2) {
     const snapshot4 = this.#active ? this.#plans.get(this.#active) : void 0;
-    const plan = snapshot4 ?? history2;
-    return todos(plan ? [...plan] : void 0, turnRunning);
+    const plan2 = snapshot4 ?? history2;
+    return todos(plan2 ? [...plan2] : void 0, turnRunning);
   }
-  #remember(key3, plan) {
+  #remember(key3, plan2) {
     this.#plans.delete(key3);
-    this.#plans.set(key3, plan.map((todo) => ({ ...todo })));
+    this.#plans.set(key3, plan2.map((todo) => ({ ...todo })));
     while (this.#plans.size > MAX_CACHED_SESSIONS) {
       const oldest = this.#plans.keys().next().value;
       if (oldest === void 0) {
@@ -95866,9 +96012,9 @@ var ConnectWatcher = class {
     }
     const op = card.op;
     rpc(this.#host.gw, "connectors.operation.status", opParams(op)).then(
-      (frame) => {
+      (frame2) => {
         if (ticket.isCurrent()) {
-          this.#apply(call, frame);
+          this.#apply(call, frame2);
         }
       },
       (error) => {
@@ -95914,9 +96060,9 @@ var ConnectWatcher = class {
     }
   }
   /** Applies a frame of its operation to `call`'s card, when it moves something. */
-  #apply(call, frame) {
+  #apply(call, frame2) {
     const card = call.connect;
-    const next2 = card && applyFrame(card, frame);
+    const next2 = card && applyFrame(card, frame2);
     if (next2) {
       this.#host.transcript.mutateCall(call, (c) => c.connect = next2);
       this.#host.changed();
@@ -96068,8 +96214,8 @@ import { fileURLToPath as fileURLToPath11 } from "node:url";
 import { execFile as execFile9 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
-import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
-import { join as join17, resolve as resolve10 } from "node:path";
+import { homedir as homedir12, tmpdir as tmpdir3 } from "node:os";
+import { join as join18, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
   execFile9(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
@@ -96137,9 +96283,9 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp3(join17(tmpdir3(), "hermes-tern-clipboard-"));
+  const dir2 = await mkdtemp3(join18(tmpdir3(), "hermes-tern-clipboard-"));
   try {
-    const path2 = await extract(join17(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join18(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm4(dir2, { force: true, recursive: true });
@@ -96158,7 +96304,7 @@ function imagePathOf(text18, cwd) {
       return void 0;
     }
   }
-  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir11());
+  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir12());
   if (!IMAGE2.test(raw2)) {
     return void 0;
   }
@@ -96757,13 +96903,13 @@ var run7 = promisify7(execFile10);
 function parseRemote(url, hosts = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
-  const m = scp ?? full;
-  if (!m) {
+  const m2 = scp ?? full;
+  if (!m2) {
     return void 0;
   }
   const port = full?.["scheme"]?.startsWith("http") ? full["port"] ?? "" : "";
-  const trusted = hosts.trusted(`${m["host"] ?? ""}${port}`);
-  return trusted ? { host: trusted.host, repository: (m["repo"] ?? "").toLowerCase() } : void 0;
+  const trusted = hosts.trusted(`${m2["host"] ?? ""}${port}`);
+  return trusted ? { host: trusted.host, repository: (m2["repo"] ?? "").toLowerCase() } : void 0;
 }
 async function git2(cwd, ...args) {
   const { stdout } = await run7("git", ["-C", cwd, ...args], { timeout: 5e3 });
@@ -98239,16 +98385,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync6, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync5 } from "node:fs";
-import { join as join18 } from "node:path";
+import { join as join19 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe2 = (id) => /^[\w.-]{1,128}$/.test(id);
-function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
   return {
     load(id) {
       if (!safe2(id)) {
         return void 0;
       }
-      const value = readJsonFile(join18(dir2, `${id}.json`));
+      const value = readJsonFile(join19(dir2, `${id}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -98266,9 +98412,9 @@ function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
       }
       try {
         mkdirSync6(dir2, { recursive: true });
-        writeFileSync5(join18(dir2, `${id}.json`), JSON.stringify(value));
+        writeFileSync5(join19(dir2, `${id}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join18(dir2, name);
+          const file2 = join19(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -99223,7 +99369,7 @@ function splitPrompt(raw2) {
   let hinted = [];
   const hints = HINTS.exec(text18);
   if (hints) {
-    const paths = [...(hints[1] ?? "").matchAll(/^\[Image attached(?: at)?: (?<path>.+)\]$/gm)].flatMap((m) => m.groups?.["path"] ?? []);
+    const paths = [...(hints[1] ?? "").matchAll(/^\[Image attached(?: at)?: (?<path>.+)\]$/gm)].flatMap((m2) => m2.groups?.["path"] ?? []);
     const placeholders2 = (hints[2] ?? "").split("[screenshot]").length - 1;
     if (placeholders2 === 0 || placeholders2 === paths.length) {
       text18 = text18.slice(0, hints.index);
@@ -99264,10 +99410,10 @@ function splitPrompt(raw2) {
   if (marker) {
     const context = text18.slice(marker.index + marker[0].length);
     text18 = text18.slice(0, marker.index);
-    for (const m of context.matchAll(CONTEXT_REF)) {
-      const ref = `@${m[1]}:${m[2]}`;
-      const end = context.indexOf("\n", m.index);
-      const line = context.slice(m.index, end < 0 ? void 0 : end);
+    for (const m2 of context.matchAll(CONTEXT_REF)) {
+      const ref = `@${m2[1]}:${m2[2]}`;
+      const end = context.indexOf("\n", m2.index);
+      const line = context.slice(m2.index, end < 0 ? void 0 : end);
       const disk = /available on disk at `([^`]+)`/.exec(line)?.[1];
       if (!text18.includes(ref) && !files.some((f) => f.ref === ref)) {
         files.push({ ref, ...disk ? { path: disk } : {} });
@@ -99300,18 +99446,18 @@ function history({ kept, messages, id }) {
   let promptAt = 0;
   const calls = /* @__PURE__ */ new Map();
   let todos2;
-  for (const m of messages) {
-    const at2 = typeof m.timestamp === "number" ? m.timestamp * 1e3 : 0;
-    const text18 = typeof m.text === "string" ? m.text : typeof m.content === "string" ? m.content : "";
-    const steered = m.role === "user" ? m.display_kind === "steer" ? text18.trim() : steerText(text18) : void 0;
+  for (const m2 of messages) {
+    const at2 = typeof m2.timestamp === "number" ? m2.timestamp * 1e3 : 0;
+    const text18 = typeof m2.text === "string" ? m2.text : typeof m2.content === "string" ? m2.content : "";
+    const steered = m2.role === "user" ? m2.display_kind === "steer" ? text18.trim() : steerText(text18) : void 0;
     if (steered !== void 0 && turn2) {
       turn2.blocks.push({ at: at2, id: id("s"), kind: "steer", text: steered });
       continue;
     }
-    if (m.role === "user") {
+    if (m2.role === "user") {
       turn2 = void 0;
       promptAt = at2;
-      const notice = displayNotice(m.display_kind, m.display_metadata) ?? internalNotice(text18);
+      const notice = displayNotice(m2.display_kind, m2.display_metadata) ?? internalNotice(text18);
       if (notice) {
         pendingContinued = notice;
       } else {
@@ -99320,7 +99466,7 @@ function history({ kept, messages, id }) {
       }
       continue;
     }
-    if (m.role === "system") {
+    if (m2.role === "system") {
       turn2 = void 0;
       if (text18.trim()) {
         entries2.push({ id: id("n"), kind: "notice", text: text18, tone: "info" });
@@ -99338,21 +99484,21 @@ function history({ kept, messages, id }) {
     if (at2 > 0 && end.status !== "live") {
       turn2.end = { ...end, endedAt: Math.max(end.endedAt ?? at2, at2) };
     }
-    if (m.role === "assistant") {
-      const meta3 = record(m.display_metadata);
-      const thought = storedThought(m);
+    if (m2.role === "assistant") {
+      const meta3 = record(m2.display_metadata);
+      const thought = storedThought(m2);
       if (thought.trim()) {
         turn2.blocks.push({ endedAt: at2, id: id("k"), kind: "thinking", startedAt: at2, text: thought });
       }
-      if (m.display_kind === "failed_turn") {
+      if (m2.display_kind === "failed_turn") {
         const surface = record(meta3?.["error_surface"]);
         const error = str8(meta3?.["error"]) ?? str8(surface?.["message"]);
         const card = error ? failure3(error, surface?.["code"]) : turn2.end.status === "error" ? turn2.end : {};
         endTurn(turn2, { ...card, hint: text18.trim() || void 0, status: "error" });
         continue;
       }
-      const reply2 = typeof m["display_content"] === "string" ? m["display_content"] : text18;
-      const notes = Array.isArray(m["display_commentary"]) ? m["display_commentary"].filter((n3) => typeof n3 === "string" && Boolean(n3.trim())) : [];
+      const reply2 = typeof m2["display_content"] === "string" ? m2["display_content"] : text18;
+      const notes = Array.isArray(m2["display_commentary"]) ? m2["display_commentary"].filter((n3) => typeof n3 === "string" && Boolean(n3.trim())) : [];
       const flat2 = (s2) => s2.replace(/\s+/g, " ").trim();
       if (!reply2.trim() || flat2(notes.join("\n\n")) !== flat2(reply2)) {
         turn2.blocks.push(...notes.map((n3) => ({ id: id("x"), kind: "text", text: n3 })));
@@ -99363,10 +99509,10 @@ function history({ kept, messages, id }) {
       if (meta3?.["interrupted"] === true) {
         endTurn(turn2, { status: "interrupted" });
       }
-    } else if (m.role === "tool") {
-      const callId = toolCallId(m.tool_call_id ?? id("c"));
-      const result = typeof m.content === "string" && m.content ? m.content : void 0;
-      const diff2 = str8(record(record(m.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
+    } else if (m2.role === "tool") {
+      const callId = toolCallId(m2.tool_call_id ?? id("c"));
+      const result = typeof m2.content === "string" && m2.content ? m2.content : void 0;
+      const diff2 = str8(record(record(m2.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
       const existing = calls.get(callId);
       if (existing) {
         existing.result = result ?? existing.result;
@@ -99376,12 +99522,12 @@ function history({ kept, messages, id }) {
         }
         continue;
       }
-      const u = unwrap(m.name ?? "tool", m.args ?? {});
+      const u = unwrap(m2.name ?? "tool", m2.args ?? {});
       const args = u.args;
       const call = {
         args,
         argsText: "",
-        context: m.context ?? "",
+        context: m2.context ?? "",
         diff: diff2,
         id: callId,
         name: u.name,
@@ -99449,11 +99595,11 @@ function endTurn(turn2, end) {
   turn2.end = at2 === void 0 ? end : { ...end, endedAt: at2 };
 }
 var str8 = (v) => typeof v === "string" && v.trim() ? v : void 0;
-function storedThought(m) {
-  if (typeof m["display_reasoning"] === "string") {
-    return detailsText(m["display_reasoning"]);
+function storedThought(m2) {
+  if (typeof m2["display_reasoning"] === "string") {
+    return detailsText(m2["display_reasoning"]);
   }
-  return str8(m.reasoning) ?? str8(m["reasoning_content"]) ?? detailsText(m["reasoning_details"]);
+  return str8(m2.reasoning) ?? str8(m2["reasoning_content"]) ?? detailsText(m2["reasoning_details"]);
 }
 function detailsText(details) {
   let blocks2 = details;
@@ -101645,9 +101791,9 @@ var redactUrl = (raw2) => {
   }
   try {
     const url = new URL(raw2);
-    const userInfo2 = url.username || url.password ? "***@" : "";
+    const userInfo3 = url.username || url.password ? "***@" : "";
     const query2 = url.search ? "?***" : "";
-    return `${url.protocol}//${userInfo2}${url.host}${url.pathname}${query2}`;
+    return `${url.protocol}//${userInfo3}${url.host}${url.pathname}${query2}`;
   } catch {
     const noUserInfo = raw2.replace(_USERINFO_FALLBACK_RE, "$1***@");
     const queryIdx = noUserInfo.indexOf("?");
@@ -101982,8 +102128,8 @@ var GatewayClient = class extends EventEmitter2 {
     }
   }
   publishLocalEvent(ev) {
-    const frame = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
-    this.mirrorEventToSidecar(frame);
+    const frame2 = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
+    this.mirrorEventToSidecar(frame2);
     this.publish(ev);
   }
   handleWebSocketFrame(raw2) {
@@ -101991,12 +102137,12 @@ var GatewayClient = class extends EventEmitter2 {
     if (!text18) {
       return;
     }
-    const frame = this.channel.handleFrame(text18);
-    if (!frame) {
+    const frame2 = this.channel.handleFrame(text18);
+    if (!frame2) {
       this.protocolError("malformed websocket frame", text18, "(empty frame)");
       return;
     }
-    if (frame.method === "event") {
+    if (frame2.method === "event") {
       this.mirrorEventToSidecar(text18);
     }
   }

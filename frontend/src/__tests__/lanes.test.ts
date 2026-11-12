@@ -2,10 +2,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { type JSX, Node, type Session, type Surface } from '@stencil-hq/tern'
+import { type JSX, Node, type Session, type Surface, Tree } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LANE_ORB, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, parseLaneStatus } from '../voice/lanes.js'
+import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, parseLaneStatus } from '../voice/lanes.js'
 
 import { stub } from './fakes.js'
 
@@ -88,6 +88,16 @@ describe('live lane strip', () => {
     s.update(true, false, 'listening', true)
     expect(s.orbiting).toBe(true)
     expect(JSON.stringify(s.node())).toContain('omp.live.lanes.orbit')
+    // The animator's per-frame 'set' must address the scene image's real id in the dock, or frames only land on full renders.
+    const dock = liveDock(null, s.node())
+    if (!(dock instanceof Node)) throw new Error('no dock column')
+    const ids = (t: Tree): string[] => [t.id, ...t.children.flatMap(ids)]
+    const images = (t: Tree): string[] => [...(t.kind === 'image' ? [t.id] : []), ...t.children.flatMap(images)]
+    const tree = new Tree('dock', new Node('col', {}, [dock]))
+    expect(images(tree)).toContain(`${LANES_ID}.orbit.scene`)
+    expect(ids(tree)).toContain(LANES_ID)
+    // Role-less, so Tern's chat reader centres its children on the composer's track.
+    expect(dock.props['role']).toBeUndefined()
     s.update(true, false, 'listening', false)
     expect(s.orbiting).toBe(false)
     expect(JSON.stringify(s.node())).not.toContain('omp.live.lanes.orbit')
@@ -102,12 +112,12 @@ describe('live lane strip', () => {
     s.update(false)
     const lines = texts(s.node())
     expect(lines.map(t => t.text)).toEqual([
-      'Lanes · preset-D-smol2000-router06b',
-      'fast · qwen3-1.7b · dead (URLError)',
-      'small · smol→claude-haiku-4-5 · answered',
+      'Lanes · 1 fast · 1 small · 1 large', // a human summary: the broker's revision id never shows
+      'fast · Qwen3 1.7B · dead (URLError)',
+      'small · Claude Haiku 4.5 · answered',
       'last: answer: what is 17 times 23',
       'draft 0.90 · “17 times 23 is 391”',
-      'large · slow→claude-opus-5-5 · thinking',
+      'large · Claude Opus 5.5 · thinking',
       'researching: answer: what is 17 times 23'
     ])
     expect(lines[1]?.styles).toContain('error')
@@ -139,7 +149,7 @@ describe('live lane strip', () => {
     expect(s.node()).toBeNull()
     // With this pane's live voice on, the broker's lanes still show their real health, marked as no open call.
     s.update(true)
-    expect(texts(s.node()).map(t => t.text)[0]).toBe('Lanes · preset-D-smol2000-router06b · no open call')
+    expect(texts(s.node()).map(t => t.text)[0]).toBe('Lanes · 1 fast · 1 small · 1 large · no open call')
     s.close()
   })
 })
