@@ -65,7 +65,9 @@ export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub
       return
     }
     const palette = walPalette(wal, walFile())
-    host.transcript.notice(`Glide palette written to ${exportPalette(palette)}\n${JSON.stringify(palette)}`)
+    exportPalette(palette)
+    // Plain words only: a notice never shows a filesystem path (it would leak the home folder on screen).
+    host.transcript.notice('Glide palette exported. Other tools can now wear your wallpaper colours too.')
     return
   }
   host.transcript.notice('Usage: /glide theme auto|default|export', 'warning')
@@ -394,7 +396,7 @@ function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void
   }
   cards.publish({
     kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',
-    summary: 'Sample receipt (synthetic): no real turn has run; the stamp is the hash of the ask.',
+    summary: 'Sample receipt · no real turn has run yet. The chip is a fingerprint of your ask.',
     rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }]
   })
 }
@@ -428,7 +430,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
     if (signal.aborted) return
     cards.publish({
       kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
-      summary: 'Sample work rail (synthetic): no agent has been dispatched.',
+      summary: 'Sample plan · tasks wait in this rail until you approve the contract.',
       rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'queued'} · ${c.label}` }))
     })
   })

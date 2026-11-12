@@ -76,6 +76,17 @@ export const pickId = (lane: number, choice: number) => PICK_BASE + lane * PICK_
 
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
+/**
+ * The popup's panel: the dark glass of the other Glide cards, a near-opaque night tint so every NIGHT ink keeps
+ * 4.5:1 even over a white backdrop (lanesPopup.test.ts proves it), frosted where Tern blurs.
+ */
+export const LANES_GLASS = 'rgba(12,12,10,0.88)'
+
+const SPACE: EuiNode = { t: 'text', text: ' ' }
+/** `kids` with a plain space between each pair of adjacent elements (see `el` in lanesCard). */
+export const spaced = (kids: readonly EuiNode[]): EuiNode[] =>
+  kids.flatMap((k, i): EuiNode[] => (i > 0 && k.t === 'el' && kids[i - 1]?.t === 'el' ? [SPACE, k] : [k]))
+
 const rgba = (hex: string, a: number) => `rgba(${[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(',')},${a})`
 const ROLES_SHOWN = ['fast', 'small', 'large', 'council']
 const PROVIDERS_SHOWN: readonly ProviderId[] = ['local', 'anthropic', 'openai', 'opencode', 'groq', 'multi']
@@ -85,11 +96,14 @@ const BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.da
 
 /** The popup's card, as the same node data the ephemeral-ui sandbox produces. */
 /** `focus` is the lane picked on the orbit (its index in sortLanes order): its row is marked selected. */
-export function lanesCard(src: LaneSource, bound: Record<string, string>, where: string, roles?: Record<string, string>, focus?: number): EuiNode {
+export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?: Record<string, string>, focus?: number): EuiNode {
   let next = 10
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
+  // Sibling elements get a plain space between them as well as the flex gap: a row whose stylesheet has not
+  // landed (or a reader that flattens text) still reads 'LANE BROKER NO CALL OPEN', never 'LANE BROKERNO CALL OPEN'.
+  // Inside a flex box a whitespace-only text node draws nothing, so the styled popup is unchanged.
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
-    t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
+    t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids: spaced(kids)
   })
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`
   const dot = (hue: string, size = 8) => el('span', `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, [])
@@ -120,7 +134,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text('Helper lanes')]),
     el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
-      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } })
+      { attrs: { title: 'Lane state comes from the lane broker; a model pick is saved on this device (the broker has no binding endpoint)' } })
   ])
 
   const rows = lanes.map((lane, i) => {
@@ -133,12 +147,13 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
     const tone = waiting ? NIGHT.agree : DOT[lane.state]
     const id = info.via ? `${info.via} → ${info.target ?? 'unresolved'}` : info.id
     const line = isDead ? `dead${lane.error ? ` · ${clip(lane.error, 80)}` : ''}`
-      : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `researching: ${clip(lane.researching, 100)}`
+      : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `Working on “${clip(lane.researching, 100)}”`
         : live ? 'no blackboard entry yet' : ''
+    // A fact the catalog does not know is left out rather than badged UNSPECIFIED / UNKNOWN.
     const badges = [
-      badge([dot(hue, 6), text(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { 'data-lane-provider': `${lane.role}=${info.provider}` }),
-      badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` }),
-      badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' }),
+      ...(info.provider === 'unknown' ? [] : [badge([dot(hue, 6), text(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { 'data-lane-provider': `${lane.role}=${info.provider}` })]),
+      ...(info.billing === 'unknown' ? [] : [badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` })]),
+      ...(info.effort === 'unknown' ? [] : [badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' })]),
       badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` }),
       ...(info.via ? [badge([text('VOICE PLAN')], NIGHT.text2, NIGHT.border)] : []),
       ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba('#eccd8c', 0.4), { 'data-lane-rebound': lane.role })] : [])
@@ -148,19 +163,20 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
     const picked = i === focus
     const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : ''
     return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : '') + lift, [
-      el('div', 'display:flex;align-items:center;gap:9px', [
+      // Role label, model name, then the status pill: three weights, never one run of caps.
+      el('div', 'display:flex;align-items:center;gap:10px', [
         swatch(lane.role, hue),
-        el('span', `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
-        el('span', `font-size:13.5px;color:${NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
-        el('span', `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [
+        el('span', `width:58px;flex:none;font-family:${MONO};font-size:10px;letter-spacing:1.6px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(lane.role.toUpperCase())], { attrs: { 'data-lane-role': lane.role } }),
+        el('span', `flex:1;min-width:0;font-family:${SERIF};font-size:19px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
+        ...(picked ? [el('span', `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : []),
+        el('span', `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone, 0.45)};background-color:${rgba(tone, 0.1)};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [
           el('span', `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone}` + (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
           text(waiting ? 'READY' : lane.state.toUpperCase())
-        ]),
-        ...(picked ? [el('span', `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : [])
+        ])
       ]),
-      el('div', 'display:flex;flex-wrap:wrap;gap:5px;padding-left:23px', badges),
-      ...(line ? [el('span', `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
-      el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px', [
+      el('div', 'display:flex;flex-wrap:wrap;gap:5px;padding-left:24px', badges),
+      ...(line ? [el('span', `padding-left:24px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
+      el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:24px', [
         el('span', `${micro};font-size:8.5px`, [text('REBIND')]),
         ...laneChoices(lane, bound).map((m, j) => {
           const on = current === m
@@ -186,7 +202,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
   const item = (mark: EuiNode, label: string) => el('span', `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark, text(label)])
   const ringMark = (role: string) => el('span', `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, [])
   const legend = el('div', `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
-    el('div', 'display:flex;align-items:center;justify-content:space-between', [
+    el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px', [
       el('span', `${micro};letter-spacing:2px`, [text('KEY')]),
       el('span', `font-size:11px;color:${NIGHT.text2}`, [text('hue = provider · pips = effort · ring = role')])
     ]),
@@ -199,7 +215,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
   const close = el('button', `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el('span', `color:${NIGHT.text2};font-size:13px`, [text('Close')])], { id: CLOSE_ID, attrs: { 'data-eui-action': 'close' } })
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:18px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
     el('div', 'display:flex;flex-direction:column', rows),
     legend,
@@ -227,7 +243,7 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
       const lanes = sortLanes(src.call?.lanes ?? [])
       const view = {
         spec: { kind: 'lanes', app: APP }, app: APP, label: 'Voice lanes', identity: 'lanes',
-        node: lanesCard(src, bound, bindings.where, undefined, focus),
+        node: lanesCard(src, bound, undefined, focus),
         activate: (n: number) => {
           if (n === CLOSE_ID) return host.close(overlay)
           const lane = lanes[Math.floor((n - PICK_BASE) / PICK_STRIDE)]

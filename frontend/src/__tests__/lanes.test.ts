@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { type JSX, Node, type Session, type Surface, Tree } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, LaneStrip, laneToken, liveDock, loopbackUrl, parseLaneStatus, speech } from '../voice/lanes.js'
+import { LANE_ORB, LANES_ID, LaneFeed, laneFeedFromEnv, laneQuote, LaneStrip, laneToken, liveDock, loopbackUrl, parseLaneStatus, speech } from '../voice/lanes.js'
 
 import { stub } from './fakes.js'
 
@@ -110,7 +110,7 @@ describe('live lane strip', () => {
     s.close()
   })
 
-  it('draws each lane with role, model, real state, ticker and blackboard entry; dead renders dead', async () => {
+  it('draws one compact line per lane: role, model, real state and one short quote; dead renders dead', async () => {
     const { feed } = feedWith(STATUS)
     await feed.poll()
     feed.stop()
@@ -120,13 +120,25 @@ describe('live lane strip', () => {
     expect(lines.map(t => t.text)).toEqual([
       'Lanes · 1 fast · 1 small · 1 large', // a human summary: the broker's revision id never shows
       'fast · Qwen3 1.7B · dead (URLError)',
-      'small · Claude Haiku 4.5 · answered',
-      'last: what is 17 times 23',
-      'draft 0.90 · “17 times 23 is 391”',
-      'large · Claude Opus 5.5 · thinking',
-      'researching: what is 17 times 23'
+      'small · Claude Haiku 4.5 · answered · “17 times 23 is 391”',
+      'large · Claude Opus 5.5 · thinking · “what is 17 times 23”'
     ])
     expect(lines[1]?.styles).toContain('error')
+  })
+
+  it('never prints a router tag and says a question every lane shares only once', async () => {
+    const ask = 'intent: what is 17 times 23 [kind=simple]'
+    const lanes = ['fast', 'small', 'large'].map(role => ({ role, model: role, state: 'thinking', researching: ask, entry: null }))
+    const { feed } = feedWith({ session_id: 's', open: true, lanes })
+    await feed.poll()
+    feed.stop()
+    const s = strip(feed)
+    s.update(false)
+    const all = texts(s.node()).map(t => t.text)
+    expect(all.join('\n')).not.toMatch(/\[[a-z_]+=|intent:|last:|researching:/i)
+    expect(all.filter(t => t.includes('what is 17 times 23'))).toHaveLength(1)
+    expect(laneQuote({ state: 'answered', researching: null, entry: { text: 'answer: green [kind=simple]', confidence: 1, status: 'verified', kind: 'answer' } }, new Set())).toBe('green')
+    expect(laneQuote({ state: 'dead', researching: 'x', entry: null }, new Set())).toBeNull()
   })
 
   it('animates only a lane with a job in flight', () => {

@@ -181,12 +181,18 @@ describe('/glide theme', () => {
     glideTheme(h, 'auto')
     // Plain words, never the colors file's path.
     expect(notice.mock.calls[0]).toEqual(['Glide theme now follows your wallpaper colours'])
+    // An older build printed the colors.json path here (the film caught it): no path, ever.
+    expect(JSON.stringify(notice.mock.calls)).not.toMatch(/\/home\/|\.cache|colors\.json/)
     expect(String(notice.mock.calls[0]?.[0])).not.toContain(file)
     glideTheme(h, 'default')
     expect(setTheme.mock.calls).toEqual([['auto'], ['tern']])
     glideTheme(h, 'export')
     expect(record(parseJson(await readFile(out, 'utf8')))).toMatchObject({ accent: '#ff810d', bg: '#0f1420' })
-    expect(String(notice.mock.calls.at(-1)?.[0])).toContain(out)
+    // The export says so in plain words: no path (the home folder would show on screen), no JSON dump.
+    expect(notice.mock.calls.at(-1)).toEqual(['Glide palette exported. Other tools can now wear your wallpaper colours too.'])
+    for (const [said] of notice.mock.calls) {
+      for (const leak of ['/home/', '.cache', dir, file, out]) expect(String(said)).not.toContain(leak)
+    }
     glideTheme(h, 'nope')
     expect(notice.mock.calls.at(-1)?.[1]).toBe('warning')
   })

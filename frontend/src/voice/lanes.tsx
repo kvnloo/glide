@@ -207,9 +207,16 @@ export function liveDock(voice: JSX.Element | null, lanes: JSX.Element | null): 
 export const orbitLane = (lane: Lane, dark: boolean): OrbitLane => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) })
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
-function entryLine(e: LaneEntry): string {
-  const what = e.kind === 'intent' ? 'intent' : e.status === 'draft' ? `draft ${e.confidence.toFixed(2)}` : e.status
-  return `${what} · “${clip(e.text, 90)}”`
+/**
+ * The one short quote a lane line carries: its blackboard entry, else what it researches, as speech (never a
+ * router tag such as [kind=simple]). Null for a dead lane, or when an earlier lane already said it.
+ */
+export function laneQuote(lane: Pick<Lane, 'state' | 'entry' | 'researching'>, said: Set<string>): string | null {
+  if (lane.state === 'dead') return null
+  const quote = speech(lane.entry?.text ?? lane.researching)
+  if (!quote || said.has(quote.toLowerCase())) return null
+  said.add(quote.toLowerCase())
+  return quote
 }
 
 /** The lane strip under the live controls, with one small orb per lane. */
@@ -390,13 +397,17 @@ export class LaneStrip {
       ? `Lanes · ${laneCounts(lanes)}${call?.open ? '' : ' · no open call'}`
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
-        : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
-    const rows = lanes.map((lane, i) => (
-      <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
-        {this.#orbit
-          ? <image key="key" role="omp.live.lane.key" {...this.#swatch(lane)} />
-          : this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
-        <col key="text">
+        : 'Lanes · waiting for a voice call'
+    // One compact line per lane: its dot, role, model, state and one short quote. A quote already said by an
+    // earlier lane (the same question every lane researches) is not repeated.
+    const said = new Set<string>()
+    const rows = lanes.map((lane, i) => {
+      const quote = laneQuote(lane, said)
+      return (
+        <row align="center" gap="sm" key={`l${i}`} role="omp.live.lane">
+          {this.#orbit
+            ? <image key="key" role="omp.live.lane.key" {...this.#swatch(lane)} />
+            : this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
           <text key="who" spans={[
             { s: 'strong', t: lane.role },
             { s: 'muted', t: ' · ' + laneModel(lane.model, lane.resolved).label + ' · ' },
@@ -404,13 +415,12 @@ export class LaneStrip {
               ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
               : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
                 : lane.state === 'verified' ? { s: 'success', t: 'verified' }
-                  : { t: lane.state }
+                  : { t: lane.state },
+            ...(quote ? [{ s: 'muted', t: ` · “${clip(quote, 72)}”` }] : [])
           ]} wrap="none" />
-          {lane.researching ? <text key="doing" spans={[{ s: 'muted', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
-          {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
-        </col>
-      </row>
-    ))
+        </row>
+      )
+    })
     return (
       <col gap={this.#orbit ? 'sm' : 'none'} key="lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />

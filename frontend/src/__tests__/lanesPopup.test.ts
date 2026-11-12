@@ -18,7 +18,10 @@ import { record } from '../wire/json.js'
 
 import { must, tree } from './fakes.js'
 
-import { fileBindings, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
+import { fileBindings, LANES_GLASS, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
+import { NIGHT_INKS } from '../../../glide/frontend/council.js'
+import type { EuiNode } from '../eui/sandbox.js'
+import { contrastRatio, mix } from '../hermes/theme.js'
 import { PROVIDERS, ROLE_MODELS } from '../voice/catalog.js'
 import { glideLanes } from '../commands/glide.js'
 
@@ -108,7 +111,10 @@ describe('voice lanes popup', () => {
     expect(out).toContain('"title":"broker preset r7"')
     expect(out).toContain('3 of 4 lanes ready for the next call · 1 dead')
     expect(out).toContain('provider timed out')
-    expect(out).toContain('"title":"Lane state comes from the lane broker; a model pick is saved locally to')
+    expect(out).toContain('"title":"Lane state comes from the lane broker; a model pick is saved on this device')
+    // The bindings file's path never shows, not even in a tooltip: it would put the home folder on screen.
+    expect(out).not.toContain(bindings.where)
+    expect(out).not.toMatch(/\/home\/|\.config\/glide|\.cache/)
     expect(out).not.toMatch(/"text":"[^"]*binding endpoint/)
   })
 
@@ -136,7 +142,7 @@ describe('voice lanes popup', () => {
       { role: 'small', model: 'smol', resolved: null, state: 'idle' },
       { role: 'large', model: 'slow', resolved: null, state: 'idle' }
     ] }))
-    const out = JSON.stringify(lanesCard({ call: real, error: '' }, {}, '/tmp/b.json', { smol: 'claude-haiku-4-5', slow: 'claude-opus-5-5' }))
+    const out = JSON.stringify(lanesCard({ call: real, error: '' }, {}, { smol: 'claude-haiku-4-5', slow: 'claude-opus-5-5' }))
     const picks = (role: string) => [...out.matchAll(new RegExp(`"data-lane-pick":"${role}=([^"]+)"`, 'g'))].map(m => m[1])
     for (const role of ['fast', 'small', 'large']) expect(picks(role)).toEqual(must(ROLE_MODELS[role]).map(x => x.id))
     expect(picks('fast')).not.toContain('slow')
@@ -160,8 +166,8 @@ describe('voice lanes popup', () => {
   })
 
   it('never shows the broker revision id as text, only in the status tooltip', () => {
-    const { feed, bindings } = setup()
-    const out = JSON.stringify(lanesCard(feed, {}, bindings.where, {}))
+    const { feed } = setup()
+    const out = JSON.stringify(lanesCard(feed, {}, {}))
     expect(out).toContain('"text":"LIVE CALL"')
     expect(out).not.toMatch(/"text":"[^"]*\br7\b/i)
     expect(out).toContain('broker preset r7')
@@ -169,21 +175,21 @@ describe('voice lanes popup', () => {
 
   it('marks the lane picked on the orbit, and only that one', () => {
     const { host, feed, bindings, draw } = setup()
-    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}))).not.toContain('data-lane-focus')
+    expect(JSON.stringify(lanesCard(feed, {}, {}))).not.toContain('data-lane-focus')
     const role = sortLanes(feed.call?.lanes ?? [])[1]?.role ?? 'none'
     openLanesPopup(host, feed, bindings, 1)
     const out = draw()
     expect(out.match(/data-lane-focus/g)).toHaveLength(1)
     expect(out).toContain(`"data-lane-focus":"${role}"`)
     expect(out).toContain('"text":"SELECTED"')
-    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}, 1)).match(/order:-1/g)).toHaveLength(1) // it leads the list, so it opens in view
+    expect(JSON.stringify(lanesCard(feed, {}, {}, 1)).match(/order:-1/g)).toHaveLength(1) // it leads the list, so it opens in view
   })
 
   it('shows a legend: provider hues, effort pips and what the orbit means', () => {
     const { host, feed, bindings, draw } = setup()
     openLanesPopup(host, feed, bindings)
     expect(draw()).toContain('"data-lanes-legend":"true"')
-    const out = JSON.stringify(lanesCard(feed, {}, bindings.where, {}))
+    const out = JSON.stringify(lanesCard(feed, {}, {}))
     for (const p of ['local', 'anthropic', 'openai', 'opencode', 'groq'] as const) {
       expect(out).toContain(`"text":"${PROVIDERS[p].label}"`)
       expect(out).toContain(`background-color:${PROVIDERS[p].hue}`)
@@ -194,6 +200,53 @@ describe('voice lanes popup', () => {
     expect(out).toContain('"text":"large 9.6 s"')
     expect(out).toContain('one dot per lane')
     expect(out).toContain('hue = provider · pips = effort · ring = role')
+  })
+
+  it('separates every pair of adjacent labels, so no two words run together even unstyled', () => {
+    const { feed } = setup()
+    for (const call of [feed.call, must(parseLaneStatus({ ...status, open: false }))]) {
+      const card = lanesCard({ call, error: '' }, {}, {}, 1)
+      // Each element's children: two elements never sit side by side without a text leaf between them.
+      const walk = (n: EuiNode): void => {
+        if (n.t !== 'el') return
+        n.kids.forEach((k, i) => {
+          if (i > 0 && k.t === 'el') expect(n.kids[i - 1]?.t, `${n.tag} child ${i}`).toBe('text')
+          walk(k)
+        })
+      }
+      walk(card)
+      // Read flat, as a text extractor or an unstyled fallback does: the film's run-together strings are gone.
+      const flat = (n: EuiNode): string => n.t === 'text' ? n.text : n.t === 'el' ? n.kids.map(flat).join('') : ''
+      const words = flat(card).replace(/\s+/g, ' ')
+      expect(words).toMatch(/LANE BROKER (LIVE CALL|NO CALL OPEN)/)
+      for (const run of ['BROKERNO', 'BROKERLIVE', 'ANSWEREDLOCAL', 'SUBSCRIPTIONHIGH', 'HIGHCLOUD', 'READYSELECTED', 'SELECTEDREADY']) expect(words).not.toContain(run)
+    }
+  })
+
+  it('gives each lane a role label, its model by name and a status pill, and badges only what it knows', () => {
+    const { feed } = setup()
+    const card = lanesCard(feed, {}, {})
+    const out = JSON.stringify(card)
+    expect(out).toContain('"data-lane-role":"fast"')
+    expect(out).toContain('"text":"FAST"')
+    const els = (n: EuiNode): Extract<EuiNode, { t: 'el' }>[] => n.t === 'el' ? [n, ...n.kids.flatMap(els)] : []
+    const pill = els(card).find(e => e.kids.some(k => k.t === 'el' && k.attrs['data-lane-state'] === 'answered'))
+    expect(pill?.style).toMatch(/border-radius:999px/)
+    expect(pill?.style).toMatch(/border:1px solid/)
+    // The sample models are not in the catalog: no UNSPECIFIED / UNKNOWN badge stands in for a fact.
+    expect(out).not.toMatch(/"text":"(UNSPECIFIED|UNKNOWN)"/)
+  })
+
+  it('sits on dark glass where every NIGHT ink keeps 4.5:1, even over a white backdrop', () => {
+    const { feed } = setup()
+    const out = JSON.stringify(lanesCard(feed, {}, {}))
+    expect(out).toContain(`background-color:${LANES_GLASS}`)
+    expect(out).toContain('backdrop-filter:blur(')
+    const alpha = Number(/,([\d.]+)\)$/.exec(LANES_GLASS)?.[1])
+    for (const backdrop of ['#ffffff', '#808080', '#000000']) {
+      const panel = mix(backdrop, '#0c0c0a', alpha) // the tint over the backdrop, as glass.test.ts composites it
+      for (const ink of NIGHT_INKS) expect(contrastRatio(ink, panel), `${ink} on ${backdrop}`).toBeGreaterThanOrEqual(4.5)
+    }
   })
 })
 
