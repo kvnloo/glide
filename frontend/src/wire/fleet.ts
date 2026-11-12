@@ -236,3 +236,44 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
     rows: [], tiles: nodes.map(n => ({...n, recommended: n.key === next?.key})),
     edges: parsed.data.edges.filter(([a,b]) => ids.has(a) && ids.has(b)).map(([a,b]) => [a,b]) }
 }
+
+
+/** Human-facing diagnostics only. Action validation still uses the original collector document. */
+export function fleetVisibleDoc(doc: EuiKitDoc): EuiKitDoc {
+  const copy = (value: unknown): string => {
+    if (typeof value !== 'string') return 'Fleet details unavailable. Refresh to retry.'
+    const note = value.trim()
+    if (/^portfolio: unknown key/i.test(note)) return 'Portfolio not found.'
+    if (/^Remote gauges and harnesses/i.test(note)) return 'Remote host: status only.'
+    if (/^GitHub tasks are repository-wide/i.test(note)) return 'Tasks are grouped by repository.'
+    if (/^Factory graph is a bounded/i.test(note)) return 'Factory snapshot. Details may be delayed.'
+    if (/^(?:ops|brain|verify|gauges|tailscale|k3s|github|config|processes|sessions|cpu|memory)\s*:/i.test(note)
+      || /\b(?:provider|traceback|exception|FileNotFoundError|TimeoutExpired|stderr)\b|[{}<>]/i.test(note))
+      return 'A fleet source could not respond. Refresh to retry.'
+    if (/^[a-f\d]{24,}$/i.test(note)) return 'Details are available in the source.'
+    return note.slice(0, 200)
+  }
+  const data: Record<string, unknown> = { ...doc.data }
+  if (Array.isArray(data['notes'])) data['notes'] = data['notes'].map(copy)
+  if (Array.isArray(data['hosts'])) data['hosts'] = data['hosts'].map((host: unknown) => {
+    if (!host || typeof host !== 'object' || Array.isArray(host)) return host
+    const row = host as Record<string, unknown>
+    return { ...row,
+      ...(Array.isArray(row['notes']) ? { notes: row['notes'].map(copy) } : {}),
+      ...(Array.isArray(row['harnesses']) ? { harnesses: row['harnesses'].map((harness: unknown) => {
+        if (!harness || typeof harness !== 'object' || Array.isArray(harness)) return harness
+        const group = harness as Record<string, unknown>
+        return { ...group, ...(Array.isArray(group['agents']) ? { agents: group['agents'].map((agent: unknown) => {
+          if (!agent || typeof agent !== 'object' || Array.isArray(agent)) return agent
+          const a = agent as Record<string, unknown>
+          return { ...a, ...(typeof a['line'] === 'string' ? { line: copy(a['line']) } : {}) }
+        }) } : {}) }
+      }) } : {}) }
+  })
+  if (Array.isArray(data['nodes'])) data['nodes'] = data['nodes'].map((node: unknown) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return node
+    const row = node as Record<string, unknown>
+    return { ...row, ...(typeof row['reason'] === 'string' ? { reason: copy(row['reason']) } : {}) }
+  })
+  return { ...doc, data }
+}
