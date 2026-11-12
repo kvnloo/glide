@@ -27,7 +27,7 @@ fi
 fetch=()
 if [[ -n ${FLEET_OUT:-} ]]; then
   mkdir -p "$FLEET_OUT"
-  fetch=(--out "$(cd "$FLEET_OUT" && pwd)" --fetch frontend/fleet-results)
+  fetch=(--out "$(cd "$FLEET_OUT" && pwd)" --fetch src/frontend/fleet-results)
 fi
 fleet-build --src "$stage" --node mbp --wait 1800 "${fetch[@]}" -- bash -lc '
   set -euo pipefail

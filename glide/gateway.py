@@ -7,6 +7,7 @@ Every method is bound to the session the caller is attached to.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -217,6 +218,23 @@ def call(home: Path, verb: str, params: dict):
     """One `glide.<verb>` call with its schema checked; shared by both transports."""
     schema, run = VERBS[verb]
     return run(home, schema.model_validate(params))
+
+
+def command(raw_args: str = "", session_id: str | None = None) -> str:
+    """Stock-Hermes `/fleet hosts|portfolio|factory|pod [JSON params]` transport."""
+    view, _, raw = raw_args.strip().partition(" ")
+    try:
+        params = json.loads(raw or "{}")
+        if view == "pod":
+            verb = "fleet_pod"
+        elif view in ("hosts", "portfolio", "factory"):
+            verb = "fleet"
+            params = dict(view=view, **params)
+        else:
+            raise ValueError("Usage: /fleet hosts|portfolio|factory|pod [JSON params]")
+        return json.dumps(call(core._home(), verb, {**params, "session_id": session_id}))
+    except (ValueError, TypeError) as error:
+        return json.dumps({"error": str(error).splitlines()[0]})
 
 
 def register(ctx) -> None:

@@ -293,6 +293,37 @@ def test_gateway_schema_full_document_and_pod(monkeypatch, tmp_path):
             gateway.call(tmp_path, "fleet", {"session_id": "session-a", **extra})
 
 
+@pytest.mark.parametrize("view,key", [("hosts", "hosts"), ("portfolio", "portfolios"), ("factory", "nodes")])
+def test_stock_command_registered_without_gateway_methods(monkeypatch, tmp_path, view, key):
+    from glide_plugin import core
+
+    commands = {}
+    core.register(SimpleNamespace(register_hook=lambda *a: None,
+        register_command=lambda name, fn, **kw: commands.setdefault(name, fn)))
+    monkeypatch.setattr(core, "_home", lambda: tmp_path)
+    doc = json.loads(commands["fleet"](view, session_id="session-a"))
+    assert doc == gateway.call(tmp_path, "fleet", {"session_id": "session-a", "view": view})
+    assert doc["kind"] == f"fleet-{view}" and key in doc["data"]
+    assert doc["data"]["at"].endswith("Z") and doc["data"]["notes"]
+    assert "demo" not in doc
+
+
+def test_stock_command_validates_pods_and_does_not_accept_session_override(monkeypatch, tmp_path):
+    from glide_plugin import core
+
+    monkeypatch.setattr(core, "_home", lambda: tmp_path)
+    sources(monkeypatch, host_sources())
+    monkeypatch.setattr(fleet, "_command", lambda argv: "Synthetic pod details")
+    args = json.dumps({"host": "mbp", "ns": "fleet", "name": "verify"})
+    assert json.loads(gateway.command(f"pod {args}", "session-a")) == {"text": "Synthetic pod details"}
+    assert "error" in json.loads(gateway.command('pod {"host":"mbp","ns":"--help","name":"verify"}', "session-a"))
+    assert "error" in json.loads(gateway.command("hosts", None))
+    assert "error" in json.loads(gateway.command("unknown", "session-a"))
+    for raw in ('not-json', '[]', '{"extra":true}', '{"view":"factory"}'):
+        assert "error" in json.loads(gateway.command(f"hosts {raw}", "session-a"))
+    assert "hosts" in json.loads(gateway.command('hosts {"session_id":"foreign"}', "session-a"))["data"]
+
+
 def test_gateway_registration_preserves_attached_session(monkeypatch, tmp_path):
     registered = {}
     gateway.register(SimpleNamespace(register_gateway_method=lambda name, fn, **kw: registered.setdefault(name, fn)))
