@@ -53,7 +53,7 @@ describe('FOCUS orbit design', () => {
     const css = orbitCss(lanes)
     expect(css).toContain('.glide-orbit:hover .glide-orbit-arm')
     expect(css).toContain('.glide-orbit:focus-within .glide-orbit-arm')
-    expect(css).toContain('.glide-orbit:focus-within .glide-orbit-s0 > .glide-orbit-brake')
+    expect(css).toContain('.glide-orbit:focus-within .glide-orbit-s0>.glide-orbit-brake')
     expect(css).toContain('glide-orbit-jiggle')
     expect(JIGGLE_S).toBeGreaterThanOrEqual(0.12)
     expect(HIT).toBeGreaterThanOrEqual(44)
