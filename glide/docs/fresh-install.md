@@ -15,12 +15,15 @@ The runner fetches the exact Hermes revision in `frontend/hermes-src.lock` and
 installs its frozen dependencies. It then runs the real commands:
 
 ```sh
-hermes plugins install kvnloo/glide --force --enable --yes-deps
+hermes plugins install kvnloo/glide --ref "$(git rev-parse HEAD)" --force --enable --yes-deps
 hermes plugins validate "$HERMES_HOME/plugins/glide"
 ```
 
-This tests public main, not an unpublished plugin patch. Both installed SHAs
-appear in the log. `--force` is explicit consent to the scanner's CAUTION
+This tests the checked-out plugin commit, which must already be published to
+`kvnloo/glide`. Uncommitted or unpushed changes are not installed. CI checks out
+the PR head explicitly. The runner checks that the installed plugin SHA matches
+that checkout; both the plugin and pinned Hermes SHAs appear in the log.
+`--force` is explicit consent to the scanner's CAUTION
 verdict for this custom source. The scan still runs, and DANGEROUS still blocks
 installation. Do not treat this test's consent as advice to trust other plugins.
 `--yes-deps` supplies dependency consent for non-interactive installation.
