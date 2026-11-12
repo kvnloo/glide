@@ -277,7 +277,7 @@ describe('ephemeral-ui kit stylesheet', () => {
   })
 
   it('binds primary foreground to a native theme token', () => {
-    expect(euiStyles()).toContain('--h-primaryFg:var(--card)')
+    expect(euiStyles()).toMatch(/--h-primaryFg:\s*var\(--card\)/)
     expect(euiStyles()).not.toContain('--accent-ink')
   })
 
