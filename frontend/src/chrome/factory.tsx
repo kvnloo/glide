@@ -129,7 +129,7 @@ export class FactoryPane {
         suggestion.status === 'approved' && suggestion.action === 'render'
       const hint = suggestion.status === 'pending' ? 'HELD · Review pending.'
         : suggestion.status === 'rejected' ? 'HELD · Suggestion declined.'
-        : canRender ? 'DONE · Approved to render.'
+        : canRender ? 'APPROVED · Ready to render.'
         : 'HELD · Not available in this session.'
       return {
         id: suggestion.contract_id,
@@ -156,8 +156,8 @@ export class FactoryPane {
     })
 
     // A transport or snapshot error is one quiet line, never an exception stack.
-    const errorLine = this.#error?.split(/\r?\n/, 1)[0]?.replace(/^Error:\s*/, '')
-      .replace(/\s+/g, ' ').trim().slice(0, 96)
+    const errorLine = (this.#error?.split(/\r?\n/, 1)[0] ?? '')
+      .replace(/^Error:\s*/, '').replace(/\s+/g, ' ').trim().slice(0, 96)
     const sections = [
       { id: 'status-line', title: 'Factory now', rows: [hero] },
       { id: 'suggestions', title: 'Suggested actions',
