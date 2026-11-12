@@ -75,21 +75,26 @@ def start(spawn, sha):
                '--toolsets', 'web', '--max-turns', '4']
     # Start a private gateway before the frontend, as Hermes >=0.23 requires attach.
     spawn([exe, 'gateway', 'run'], 'gateway', env)
-    control = tc / 'control.sock'
-    spawn(['tern', 'serve', '--control', str(control)], 'tern-serve', env)
-    for _ in range(90):
-        if control.exists():
-            break
-        time.sleep(1)
-    else:
-        raise RuntimeError('tern serve did not create the private --control socket')
     launch = scratch / 'launch.sh'
     launch.write_text('#!/bin/sh\nset -a\n. ' + shlex.quote(str(dotenv)) + '\nset +a\nexec ' + shlex.join(command) + '\n')
     launch.chmod(0o700)
-    clean = ['env', '-i', *(key + '=' + value for key, value in env.items() if key != 'NVIDIA_API_KEY'), str(launch)]
-    subprocess.run(['tern', 'ctl', '--control', str(control), 'run', json.dumps(shlex.join(clean))],
-                   env=env, stdin=subprocess.DEVNULL, check=True, timeout=120,
-                   stdout=open('runs/tern-run.log', 'w'), stderr=subprocess.STDOUT)
+    if os.getenv('ARMY_DETERMINISTIC') == '1':
+        # web serve owns a separate pane, not a mirror of native `serve`.
+        # Start only that client; never attach two clients to the synthetic session.
+        env['SHELL'] = str(launch)
+    else:
+        control = tc / 'control.sock'
+        spawn(['tern', 'serve', '--control', str(control)], 'tern-serve', env)
+        for _ in range(90):
+            if control.exists():
+                break
+            time.sleep(1)
+        else:
+            raise RuntimeError('tern serve did not create the private --control socket')
+        clean = ['env', '-i', *(key + '=' + value for key, value in env.items() if key != 'NVIDIA_API_KEY'), str(launch)]
+        subprocess.run(['tern', 'ctl', '--control', str(control), 'run', json.dumps(shlex.join(clean))],
+                       env=env, stdin=subprocess.DEVNULL, check=True, timeout=120,
+                       stdout=open('runs/tern-run.log', 'w'), stderr=subprocess.STDOUT)
     port = free_port()
     spawn(['tern', 'web', 'serve', '--listen', f'127.0.0.1:{port}'], 'tern-web', env)
     url = f'http://127.0.0.1:{port}/'

@@ -8,6 +8,9 @@ test('contrast composites translucent foregrounds instead of treating them as op
   assert.equal(c.contrast([255,255,255,1], [255,255,255,1]), 1);
   assert.ok(c.contrast(c.over([0,0,0,.1], [255,255,255,1]), [255,255,255,1]) < 1.3);
 });
+test('CSS color-mix sRGB channels are normalized, not byte values', () => {
+  assert.deepEqual(colors().parse('color(srgb 1 0.5 0 / 0.25)'), [255,127.5,0,.25]);
+});
 test('changing a checkbox or select value alone is not visible app feedback', () => {
   assert.equal(controlOutcome({before:'same', after:'same', intents:[], navigation:false}), 'dead');
   assert.equal(controlOutcome({before:'one', after:'two', intents:[], navigation:false}), 'dom-change');

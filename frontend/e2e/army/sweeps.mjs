@@ -1,5 +1,6 @@
 // Deterministic Playwright sweeps. Headless Boat only; no inference API is configured.
 import { chromium } from 'playwright-core';
+import assert from 'node:assert/strict';
 import { readFileSync, mkdirSync, writeFileSync, realpathSync } from 'node:fs';
 import { colors, controlOutcome, canaryRecall, auditDOM } from './sweep-audit.mjs';
 
@@ -9,9 +10,11 @@ const config = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const out = 'runs/'+config.id;
 mkdirSync(out, {recursive:true});
 const report = {status:'running', findings:[], controls:[], checks:[], screenshots:[], coverage:[], gaps:[]};
-const browser = await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,
-  args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader',
+const graphics=config.target==='tern'?['--use-angle=vulkan','--enable-features=Vulkan','--ignore-gpu-blocklist']:['--use-gl=angle','--use-angle=swiftshader'];
+const browser = await chromium.launch({executablePath:'/opt/google/chrome/chrome',headless:true,
+  args:['--no-sandbox','--disable-dev-shm-usage',...graphics,'--enable-unsafe-swiftshader',
     '--enable-unsafe-webgpu','--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream']});
+report.browser={executable:'/opt/google/chrome/chrome',graphics};
 const context = await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce', permissions:['clipboard-read','clipboard-write']});
 let page, serial=0, scope={};
 const errors=[];
@@ -75,6 +78,14 @@ async function visibleState(root) {
 async function controls(root, canary=false) {
   const seen=new Set();
   for(let iteration=0;iteration<2000;iteration++) {
+    // Open disclosures before scanning. Never collapse an initially open branch and
+    // accidentally erase its untested actions from the inventory.
+    for(const summary of await page.locator(root).locator('details > summary').all()) {
+      if(await summary.isVisible() && !await summary.evaluate(n=>n.parentElement.open)) {
+        try {await summary.click({timeout:2000});}
+        catch(error) {report.gaps.push({...scope,error:'disclosure: '+error.message,classification:'test bug'});}
+      }
+    }
     // Assign identity without relying on volatile nth-child paths after DOM replacement.
     const inventory=await page.locator(root).evaluate(el=>{
       const path=n=>{
@@ -85,14 +96,16 @@ async function controls(root, canary=false) {
         }
         return bits.join(' > ');
       };
-      return [...el.querySelectorAll('button,select,input[type=checkbox],input[type=radio],[role=button],summary')]
+      return [...el.querySelectorAll('button,select,input[type=checkbox],input[type=radio],[role=button]')]
         .filter(n=>n.checkVisibility({checkOpacity:true,checkVisibilityCSS:true})&&!n.closest('[hidden]'))
         .flatMap(n=>{
           const data={selector:path(n),tag:n.tagName,label:(n.getAttribute('aria-label')||n.textContent||n.title).trim().slice(0,120),
             disabled:n.matches(':disabled,[aria-disabled=true]'),reason:n.title||n.getAttribute('aria-description')||'',
-            checked:n.checked, context:n.closest('details,li,tr,.pm-task,.ff-node')?.textContent.trim().slice(0,240)??''};
+            checked:n.checked, pressed:n.getAttribute('aria-pressed'), hasCanvas:!!el.querySelector('canvas'),
+            seedTarget:n===document.querySelector('.fh-btn:not(:disabled)'),
+            context:n.closest('details,li,tr,.fp-task,.ff-node')?.textContent.trim().slice(0,240)??''};
           return n.tagName==='SELECT'?[...n.options].map(o=>({...data,option:o.value,optionDisabled:o.disabled,selected:o.selected})): [data];
-        }).sort((a,b)=>Number(a.tag==='SELECT')-Number(b.tag==='SELECT'));
+        }).sort((a,b)=>(a.tag==='SELECT'?2:a.tag==='INPUT'?1:0)-(b.tag==='SELECT'?2:b.tag==='INPUT'?1:0));
     });
     const key=c=>JSON.stringify([c.selector,c.label,c.option,c.context,c.disabled]);
     const control=inventory.find(c=>!seen.has(key(c)));
@@ -134,9 +147,12 @@ async function controls(root, canary=false) {
       result.outcome=controlOutcome({before,after,intents:emitted,navigation:navigated||page.url()!==url});
       result.intents=emitted;
       report.controls.push(result);
+      if(emitted.length>1) finding({check:'duplicate-intent',...control,actual:emitted,expected:'exactly one action per control'},await shot('duplicate-intent'));
       if(result.outcome==='dead') {
-        const item={check:'dead-control',...control,actual:'enabled control has no visible DOM change, intent, navigation, or unavailable reason',expected:'observable effect'};
-        if(canary&&control.label==='Open chat') item.canary='dead-button';
+        const uncertain=control.hasCanvas||control.pressed==='true'||control.label==='Replay';
+        const item={check:'dead-control',...control,actual:'enabled control has no visible DOM change, intent, navigation, or unavailable reason',expected:'observable effect',
+          classification:uncertain?'test bug':'real defect'};
+        if(canary&&control.seedTarget&&control.label==='Open chat') item.canary='dead-button';
         finding(item,await shot('dead-control'));
       }
     } catch(error) {
@@ -161,11 +177,11 @@ async function dataConsistency() {
   if(!pass) finding({check:'data-consistency',selector:'.fh-count',actual:check,expected:'online count equals hosts with online=true',canary:'wrong-stat'},await shot('wrong-stat'));
 }
 async function fleetClicks(canary=false) {
-  for(const width of [390,768,1440]) {
+  for(const width of canary?[390]:[390,768,1440]) {
     scope={phase:canary?'canary':'clean',surface:'fleet',theme:'t3-light',width};
     await page.setViewportSize({width,height:900});
     await navigate('http://127.0.0.1:18931/fleet.html?w='+width+'#theme=t3-light',canary);
-    for(const kind of ['fleet-hosts','fleet-portfolio','fleet-factory']) {
+    for(const kind of canary?['fleet-hosts']:['fleet-hosts','fleet-portfolio','fleet-factory']) {
       scope.kind=kind;
       await controls(`#stage > .cell[data-kind="${kind}"]`,canary);
     }
@@ -183,16 +199,18 @@ async function galleryClicks() {
   for(let i=0;i<kinds.length;i++) {
     scope.kind=kinds[i];
     const root='#kindgrid .kcell:nth-child('+(i+1)+')';
+    scope.root=root;
     await page.locator(root).scrollIntoViewIfNeeded();
     await page.waitForTimeout(100);
     await controls(root);
     report.coverage.push({...scope,controls:report.controls.filter(c=>c.surface==='gallery'&&c.kind===scope.kind).length});
-    await shot('gallery-'+scope.kind,root);
+    const evidence=await shot('gallery-'+scope.kind,root);
+    report.checks.push({...scope,check:'controls',evidence,pass:report.controls.filter(c=>c.surface==='gallery'&&c.kind===scope.kind).every(c=>['dom-change','intent','navigation','unavailable'].includes(c.outcome))});
   }
 }
 async function fleetThemes(canary=false) {
   const themes=JSON.parse(readFileSync('site/data/themes.json','utf8')).themes;
-  for(const theme of themes) for(const width of [390,768,1440]) for(const kind of ['fleet-hosts','fleet-portfolio','fleet-factory']) {
+  for(const theme of canary?themes.filter(t=>t.id==='t3-light'):themes) for(const width of canary?[390]:[390,768,1440]) for(const kind of canary?['fleet-hosts']:['fleet-hosts','fleet-portfolio','fleet-factory']) {
     scope={phase:canary?'canary':'clean',surface:'fleet',theme:theme.id,width,kind};
     await page.setViewportSize({width,height:900});
     await navigate(`http://127.0.0.1:18931/fleet.html?kind=${kind}&w=${width}#theme=${theme.id}`,canary);
@@ -209,7 +227,7 @@ async function fleetThemes(canary=false) {
 async function ternSweep() {
   scope={phase:'clean',surface:'tern',width:1440,theme:'runtime'};
   await navigate(config.url);
-  await page.waitForTimeout(3000);
+  await page.waitForFunction(()=>document.querySelector('[data-eui="card"],#status.error'),null,{timeout:20000}).catch(()=>{});
   await shot('tern-initial');
   writeFileSync(out+'/tern-dom.html',await page.content());
   const native=await page.locator('button,select,input[type=checkbox],[role=button]').count();
@@ -225,24 +243,84 @@ async function ternSweep() {
     const exposed=evidence.includes(config.sha)&&evidence.includes(pin.sha);
     report.checks.push({...scope,check:'pane-build-provenance',pass:exposed,actual:evidence.slice(0,2000),expected:'queryable Glide SHA and vendor PIN in the Tern pane',bundleBytes:bundle.length});
     if(!exposed) report.gaps.push({...scope,error:'Build/PIN not exposed in initial Tern DOM; cannot certify served build from archive marker',classification:'provider gap'});
-  } else if(native) {
-    await controls('body');
-    if(config.sweep==='sweep-themes') report.gaps.push({...scope,error:'Tern transcript fixture and full theme matrix not yet observable',classification:'test bug'});
-  } else report.gaps.push({...scope,error:'Tern web client exposes no DOM controls; inspect tern-dom.html and screenshot',classification:'provider gap'});
+  } else {
+    const cards=await page.locator('[data-eui="card"]').count();
+    if(!cards) {
+      const runtime=await page.locator('body').innerText();
+      report.gaps.push({...scope,error:'Tern transcript has no DOM card surface for deterministic interaction/computed styles. '+runtime.slice(0,1000),classification:'provider gap'});
+    } else if(config.sweep==='sweep-themes') {
+      const themes=JSON.parse(readFileSync('site/data/themes.json','utf8')).themes;
+      for(const theme of themes) for(const width of [390,768,1440]) {
+        scope={phase:'clean',surface:'tern-transcript',theme:theme.id,width,url:config.url};
+        await page.setViewportSize({width,height:900});
+        await page.locator('[data-eui="card"]').evaluateAll((nodes,t)=>{
+          for(const n of nodes) for(const [key,value] of Object.entries({'--l1':t.bg,'--t1':t.fg,'--l2':t.muted,
+            '--t3':t.mutedFg,'--l3':t.border,'--accent':t.primary,'--accent-ink':t.primaryFg,'--card':t.card,'--sans':t.font,'--mono':t.mono})) n.style.setProperty(key,value,'important');
+        },theme);
+        const evidence=await shot('transcript-'+theme.id+'-'+width);
+        const items=await page.evaluate(({theme})=>{
+          const result=[];
+          for(const [i,n] of [...document.querySelectorAll('[data-eui="card"]')].entries()) {
+            n.id='army-transcript-'+i;
+            result.push(...globalThis.__armyAudit({rootSelector:'#'+n.id,theme}));
+          }
+          return result;
+        },{theme});
+        items.forEach(item=>finding(item,evidence));
+        report.checks.push({...scope,check:'computed-style',pass:items.length===0,evidence});
+        report.coverage.push({...scope,cards});
+      }
+    } else if(native) await controls('body');
+    else report.gaps.push({...scope,error:'Tern web client exposes no DOM controls; inspect tern-dom.html and screenshot',classification:'provider gap'});
+  }
   // The same detector must prove its kit canary even when the lane's primary target is Tern.
+}
+async function controlContracts() {
+  const saved={scope,findings:report.findings,controls:report.controls,screenshots:report.screenshots,gaps:report.gaps};
+  report.findings=[];report.controls=[];report.screenshots=[];report.gaps=[];
+  scope={phase:'regression',surface:'fixture',root:'#fixture',width:1440};
+  try {
+    await page.setContent(`<div id="fixture">
+      <button class="fh-btn" id="dead">Open chat</button>
+      <details open><summary>Initially open</summary><button id="first" onclick="document.dispatchEvent(new CustomEvent('eui:intent',{detail:{action:'first'}}))">First action</button></details>
+      <details><summary>Initially closed</summary><button id="hidden" onclick="document.dispatchEvent(new CustomEvent('eui:intent',{detail:{action:'hidden'}}))">Hidden action</button></details>
+      <input type="checkbox" id="filter" onchange="document.getElementById('first')?.remove()">
+      <select id="select" onchange="document.getElementById('branch').textContent=this.value"><option>A</option><option>B</option><option>C</option></select>
+      <p id="branch">A</p></div>`);
+    await instrument();
+    await controls('#fixture');
+    const first=report.controls.findIndex(c=>c.selector==='#first');
+    const filter=report.controls.findIndex(c=>c.selector==='#filter');
+    assert.ok(first>=0&&first<filter,'actions must be visited before a filter removes them');
+    assert.ok(report.controls.some(c=>c.selector==='#hidden'&&c.outcome==='intent'),'closed disclosures must expose their actions');
+    assert.ok(report.controls.some(c=>c.selector==='#dead'&&c.outcome==='dead'),'dead action must not become PASS');
+    const options=report.controls.filter(c=>c.selector==='#select');
+    assert.equal(options.length,3,'every select option must be tested');
+    assert.ok(options.every(c=>c.outcome==='dom-change'),'selected option must be tested from a different starting value');
+    assert.equal(report.gaps.length,0,'regression fixture has no unsupported controls');
+    report.detector_regressions={controls:'passed',observations:report.controls.length};
+  } finally {
+    scope=saved.scope;
+    for(const key of ['findings','controls','screenshots','gaps']) report[key]=saved[key];
+  }
 }
 let code=1;
 try {
-  if(config.target==='kit') {
-    if(config.sweep==='sweep-clicks'||config.sweep==='sweep-console') {await fleetClicks();await galleryClicks();}
-    if(config.sweep==='sweep-themes'||config.sweep==='sweep-console') await fleetThemes();
-  } else await ternSweep();
+  await controlContracts();
   if(config.canary) {
     if(config.sweep==='sweep-clicks') await fleetClicks(true);
     if(config.sweep==='sweep-themes') await fleetThemes(true);
   }
+  if(config.target==='kit') {
+    if(config.sweep==='sweep-clicks'||config.sweep==='sweep-console') {await fleetClicks();await galleryClicks();}
+    if(config.sweep==='sweep-themes'||config.sweep==='sweep-console') await fleetThemes();
+  } else await ternSweep();
   const consoleShot=errors.length?await shot('console-errors'):null;
-  if(config.sweep==='sweep-console') for(const item of errors) finding({...item,classification:'real defect'},consoleShot);
+  if(config.sweep==='sweep-console') for(const item of errors) {
+    const provider=/GPU adapter|GPUDevice|createBuffer|WebGL context|WebGPU|unreachable/.test(item.actual);
+    if(provider) report.gaps.push({...item,error:item.actual,classification:'provider gap',evidence:[consoleShot]});
+    else finding({...item,classification:'real defect'},consoleShot);
+  }
   report.console=errors;
   report.canary=canaryRecall(config.sweep,report.findings);
   report.status=report.canary.missed.length?'canary-fail':report.gaps.length?'coverage-gap':report.findings.some(f=>f.classification!=='canary')?'findings':'passed';

@@ -1,3 +1,5 @@
 ts	phase	decision	why	evidence	result
 2026-11-11T23:53:13Z	ground	Reuse W4 dependency snapshot with immutable target archives	Keep sandbox ownership and plan-only gates in one place	boat/sweeps_up.py	first two Boat lanes running
 2026-11-11T23:53:13Z	verification	Keep model checks out of deterministic verdicts	W5 supersedes explorer G0 for these lanes	sweep-audit.mjs; tests/sweep-audit.test.mjs	3 pure rule checks pass; cross-family reviewer unavailable
+2026-11-12T00:37:17Z	calibrate	Open disclosures; visit actions before filters; calibrate before target coverage	Old click run missed dead-button seed after filter hid actions; partial traversal must not skip recall	20261111T235922Z-sweeps; rendered control-order fixture	Full eleven-lane run started; acceptance pending
+2026-11-12T00:37:17Z	verify	Use stock Chrome Vulkan for Tern; keep shell-only output as coverage gap	Unsafe SwiftShader hit Tern GPU allocation panic; Vulkan alone did not prove a rendered app	20261112T002130Z-sweeps/tern-pr269-sweep-build; fleet-mbp-180946cdd504433d	17 Python and 4 pure Node tests green; real pane not certified

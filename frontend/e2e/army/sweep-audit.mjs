@@ -6,8 +6,9 @@ export function colors() {
       if (h.length === 3) h = [...h].map(x => x+x).join('');
       return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)).concat(h.length===8 ? parseInt(h.slice(6),16)/255 : 1);
     }
-    const n = value.match(/[\d.]+/g)?.map(Number) ?? [0,0,0,0];
-    return [n[0],n[1],n[2],n[3] ?? 1];
+    const n = value.match(/-?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gi)?.map(Number) ?? [0,0,0,0];
+    const scale=value.startsWith('color(srgb ')?255:1;
+    return [n[0]*scale,n[1]*scale,n[2]*scale,n[3] ?? 1];
   };
   const over = (a,b) => a.slice(0,3).map((n,i) => n*a[3]+b[i]*(1-a[3])).concat(1);
   const lum = rgb => rgb.slice(0,3).map(x => x/255).map(x => x<=.04045 ? x/12.92 : ((x+.055)/1.055)**2.4)
@@ -76,9 +77,19 @@ export function auditDOM({rootSelector, theme}) {
     // Read every visible text run. Composite foreground alpha and inherited opacity over its backdrop.
     let opacity=1;
     for(let p=el;p;p=p.parentElement) opacity*=Number(getComputedStyle(p).opacity);
-    const fg=parse(s.color); fg[3]*=opacity;
-    const bg=background(el), ratio=contrast(over(fg,bg),bg), threshold=parseFloat(s.fontSize)>=18?3:4.5;
-    if (ratio+.01<threshold) add('contrast',{ratio:Number(ratio.toFixed(2)),color:s.color,background:bg,fontSize:s.fontSize},'contrast >= '+threshold);
+    const svgText=el.namespaceURI==='http://www.w3.org/2000/svg' && ['text','tspan'].includes(el.tagName.toLowerCase());
+    const ink=svgText && s.fill!=='none'?s.fill:s.color;
+    const fg=parse(ink); fg[3]*=opacity*(svgText?Number(s.fillOpacity):1);
+    let bg=background(el);
+    if(svgText) {
+      const plate=el.closest('g')?.querySelector('rect.ff-pill');
+      if(plate) bg=over(parse(getComputedStyle(plate).fill),bg);
+    }
+    const ratio=contrast(over(fg,bg),bg), threshold=parseFloat(s.fontSize)>=18?3:4.5;
+    let image='none';
+    for(let p=el;p;p=p.parentElement) if(getComputedStyle(p).backgroundImage!=='none') {image=getComputedStyle(p).backgroundImage;break;}
+    if(image!=='none') result.push({...meta,check:'contrast-unresolved',actual:{backgroundImage:image},expected:'pixel-backed contrast for a non-flat background',classification:'test bug'});
+    else if (ratio+.01<threshold) add('contrast',{ratio:Number(ratio.toFixed(2)),color:ink,background:bg,fontSize:s.fontSize},'contrast >= '+threshold);
     for (let p=el;p && root.contains(p);p=p.parentElement) {
       const ps=getComputedStyle(p);
       if (['hidden','clip'].includes(ps.overflowX) && p.scrollWidth>p.clientWidth+1 && !el.closest('[title]')?.title.trim()) {

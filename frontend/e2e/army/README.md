@@ -1,8 +1,31 @@
 # Run the Glide tester army on Boat
 
-This ports `kvnloo/trafficiq`'s `feat/e2e-tester-army:e2e/army` template. Each goal runs through the real `e2e explore` package in Chrome, in its own disposable Boat sandbox. This is infrastructure, not a completed qualification run.
+This ports `kvnloo/trafficiq`'s `feat/e2e-tester-army:e2e/army` template. W4 uses `e2e explore`; W5 adds deterministic Playwright sweeps. Each lane owns one disposable Boat sandbox. Neither incomplete coverage nor an unreviewed screenshot is a certified PASS.
 
-## Run a smoke
+## Deterministic sweeps (W5)
+
+From this directory, without a provider key:
+
+```sh
+SWEEPS=1 CANARY=1 LANES=8 bash boat/up.sh
+```
+
+This freezes kit `c3b7b275`, `origin/main`, and `origin/feat/eui-fleet-vendor`. Three kit lanes and four Tern lanes per Glide revision cover clicks, themes, console errors, and served build provenance. Kit has no Glide build lane. `ONLY` selects lane IDs; `MAIN_SHA`, `PR_SHA`, and `KIT_SHA` override the frozen references. The default deterministic `KIT_DIR` is the published worktree, not the dirty authoring tree. No model participates in any verdict.
+
+- Clicks record each visible action, checkbox, and select option. Disclosures open before inventory; actions run before destructive filters. A field's value alone is not app feedback. Duplicate intents are findings. Canvas-only effects, replay, and already-selected controls need a stronger oracle and are classified as test bugs, not certified dead actions.
+- Themes cover all nine themes, three fleet kinds, and widths 390/768/1440: 81 clean cases. The matching three seeds are calibrated in one light/390 host case before clean coverage. Data consistency reads the same authored HOSTS fixture used by the card.
+- Console runs the clean click/gallery/theme traversal and preserves every console.error and pageerror. Graphics initialization errors are provider gaps.
+- Build records the archive SHA and disk PIN but refuses to infer served-pane provenance from them. Missing queryable pane provenance fails coverage.
+
+Every lane first runs the Chromium style-detector fixtures and the rendered control-order fixture. Matching recall is exact detector + selector + seed ID, not text matching. Clicks require 1/1; themes require 3/3. Console/build have no matching planted seed: recall is not applicable. Calibrations do not contaminate clean findings.
+
+The Tern web server creates its own pane; native `ctl run` is not proof that its web client launched Glide. The deterministic path supplies a private launch executable as `SHELL` to the owned web environment and requires actual transcript content. The explorer path retains native `serve --control`. A blank canvas, shell-only accessibility nodes, unsupported native styles, or missing transcript cards remain coverage gaps.
+
+`boat/diagnose.py web-help` and `boat/diagnose.py gpu` are bounded Boat diagnostics. They collect outputs even after remote failure, then delete their owned sandbox. Their accounting and deletion receipts use the same lifecycle owner.
+
+Run artifacts contain structured per-control results, checks, console records, PNGs, `FINDINGS.md`, and the pending premium-review sampler. See `REPORT.md` for measured outcomes and limitations, and `SWEEPS-DESIGN.md` for ownership and design rationale.
+
+## Model-explorer smoke (W4)
 
 Run from `frontend/e2e/army` through the operations `with-keys.sh` wrapper. It loads `NVIDIA_API_KEY` from bws without writing or printing it.
 
@@ -37,7 +60,7 @@ Each invocation writes `runs/boat/<UTC>/`:
 - `FINDINGS.md` and `findings.json` separate coverage gaps from app findings and report each canary defect detected per lane.
 - `SANITY.md` and `sanity-manifest.json` select at least 10% of PASS screenshots randomly, plus every zero-finding lane. The seed is recorded. A premium reviewer must record missed defects, degraded lanes, and the miss rate. Until then, no PASS is trusted.
 
-Canary recall uses conservative finding-text matching and lists the matching titles for human confirmation. The seeded defects are one dead Open chat button, a black header surface in light theme, a clipped phone title, and an impossible online count. Two steps cannot establish recall. Canary misses void PASS.
+Model-explorer canary recall uses conservative finding-text matching and lists the matching titles for human confirmation. Deterministic recall uses detector tags and selectors instead. The seeded defects are one dead Open chat button, a black header surface in light theme, a clipped phone title, and an impossible online count. Two steps cannot establish recall. Canary misses void PASS.
 
 ## Isolation and budget
 

@@ -16,7 +16,9 @@ try {
   </style><div id="root"><div class="fh-head"></div>
     <div class="fh-title">Hosts label</div><div id="tooltip" title="Whole label">Whole label</div><div id="empty-title" title="">Still clipped</div>
     <div id="low">Low contrast</div><div id="hidden">Not visible</div>
-    <div id="big">Large type uses 3 to 1</div></div>`);
+    <div id="big">Large type uses 3 to 1</div>
+    <svg width="300" height="50"><text id="svg-low" x="0" y="20" fill="#ddd" style="color:#000;font-size:12px">SVG fill, not CSS color</text></svg>
+    <div id="gradient" style="background:linear-gradient(#fff,#000)">Pixel audit needed</div></div>`);
   await page.evaluate(({c,a})=>{
     globalThis.__armyColors=(0,eval)('('+c+')')();
     globalThis.__armyAudit=(0,eval)('('+a+')');
@@ -29,6 +31,8 @@ try {
   assert.ok(findings.some(f=>f.selector==='#empty-title'&&f.check==='clipped-text'));
   assert.ok(!findings.some(f=>f.selector==='#hidden'));
   assert.ok(!findings.some(f=>f.selector==='#big'&&f.check==='contrast'));
+  assert.ok(findings.some(f=>f.selector==='#svg-low'&&f.check==='contrast'));
+  assert.ok(findings.some(f=>f.selector==='#gradient'&&f.check==='contrast-unresolved'&&f.classification==='test bug'));
   await page.setContent('<style>body{margin:0}div{width:500px}</style><div id="root">Overflow</div>');
   const overflow=await page.evaluate(()=>globalThis.__armyAudit({rootSelector:'#root',theme:{id:'test-light',scheme:'light',bg:'#fff'}}));
   assert.ok(overflow.some(f=>f.check==='horizontal-overflow'));
