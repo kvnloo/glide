@@ -25,7 +25,7 @@ function setup() {
   const notice = vi.fn(), panel = vi.fn(), draft = vi.fn(), resume = vi.fn(async () => undefined)
   const request = vi.fn(async (): Promise<unknown> => ({ text: 'Synthetic pod description' }))
   const control = () => stub<ReturnType<FleetHost['control']>>({ panel, draft })
-  const host = stub<FleetHost>({ transcript: { notice }, control, resume, gw: { request } })
+  const host = stub<FleetHost>({ notice, transcript: { notice: vi.fn() }, control, resume, gw: { request } })
   const controller = new AbortController()
   const current = { value: true }
   const context: EuiKitContext = { sessionId: 'fixture-session', revision: 1, signal: controller.signal, isCurrent: () => current.value }

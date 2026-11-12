@@ -5,7 +5,7 @@ import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
 import { decodeFleet, decodeFleetIntent, fleetAgent, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
-export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control'> & {
+export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
 }
 const title = { hosts: 'Hosts', portfolio: 'Portfolio', factory: 'Factory graph' }
@@ -26,7 +26,7 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
       case 'open-chat': {
         const { harness, agent } = fleetAgent(doc, action.entities)
         if (harness?.kind.toLowerCase() !== 'hermes' || agent.id.startsWith('process:') || /^\d+$/.test(agent.id)) {
-          host.transcript.notice('Not a Hermes session. Process ids cannot be resumed.', 'warning')
+          host.notice('Not a Hermes session. Process ids cannot be resumed.', 'warning')
           return
         }
         await host.resume(storedSessionId(agent.id))
@@ -59,7 +59,7 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
     }
   } catch (error) {
     if (context.isCurrent() && !context.signal.aborted) {
-      host.transcript.notice(`Fleet action: ${error instanceof Error ? error.message : String(error)}`, 'warning')
+      host.notice(`Fleet action: ${error instanceof Error ? error.message : String(error)}`, 'warning')
     }
   }
 }
@@ -67,7 +67,7 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
 export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?: string): Promise<void> {
   const sessionId = host.session.ref.live
   const label = view === 'factory' ? '/factory graph' : `/${view}`
-  if (!sessionId || !host.eui) { host.transcript.notice(`${label} needs an attached session and inline cards`, 'warning'); return }
+  if (!sessionId || !host.eui) { host.notice(`${label} needs an attached session and inline cards`, 'warning'); return }
   const eui = host.eui
   const ref = host.session.ref
   const owner = host.session.ownerTicket?.()
@@ -92,6 +92,6 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
     const doc = await read()
     if (current()) publish(doc, true)
   } catch (error) {
-    if (current()) host.transcript.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
+    if (current()) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
   }
 }

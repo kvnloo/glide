@@ -36,7 +36,8 @@ export function scopeCss(css) {
     const body = css.slice(open + 1, close)
 
     if (/^@container\b/.test(head)) {
-      // Tern has no container queries; retain the card's base layout.
+      // Tern has no container queries; the compact layout is safe at every width.
+      out += scopeCss(body)
     } else if (/^@(media|supports|layer)/.test(head)) {
       if (!TERN_BAD_MEDIA.test(head)) { out += `${head}{${scopeCss(body)}}\n` }
     } else if (/^@keyframes/.test(head)) {
