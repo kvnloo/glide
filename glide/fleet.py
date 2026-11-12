@@ -126,9 +126,17 @@ def _reason(name: str, error: Exception) -> str:
     return f"{name}: source unavailable or invalid ({type(error).__name__})."
 
 
+def _fixture(root: str, name: str, *args):
+    """GLIDE_FLEET_FIXTURE=<dir>: synthetic sources for demos and films. Reads <name>.json, or
+    github/<owner>__<repo>.json for a repository's tasks; nothing is run or contacted."""
+    leaf = f"github/{args[0].replace('/', '__')}.json" if name == "github" else f"{name}.json"
+    return json.loads(_read(Path(root) / leaf))
+
+
 def _get(name, home, notes, fallback, *args):
     try:
-        return _source(name, home, *args)
+        fixture = os.environ.get("GLIDE_FLEET_FIXTURE")
+        return _fixture(fixture, name, *args) if fixture else _source(name, home, *args)
     except (OSError, ValueError, subprocess.SubprocessError, RecursionError) as error:
         notes.append(_reason(name, error))
         return deepcopy(fallback)
@@ -147,7 +155,7 @@ def card(home: Path, view: str, portfolio: str | None = None) -> dict:
         raise ValueError("unknown fleet view")
     config = os.environ.get("GLIDE_TASTE_WORK_CONFIG", str(_DEFAULT_ROOT / "oss/taste-skill/examples/taste-atlas/scripts/work.config.json"))
     ops = os.environ.get("GLIDE_FACTORY_OPS", str(_DEFAULT_ROOT / "data/operations"))
-    key = (str(home), view, portfolio, config, ops)
+    key = (str(home), view, portfolio, config, ops, os.environ.get("GLIDE_FLEET_FIXTURE"))
     cached = _CARDS.get(key)
     if cached and time.monotonic() - cached[0] < 30:
         return deepcopy(cached[1])

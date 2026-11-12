@@ -582,3 +582,23 @@ def test_worker_dispatch_uses_only_named_file_sources(monkeypatch, tmp_path):
     assert seen == [tmp_path / "work.json", tmp_path / "factory-loop-1102/brain-state.json"]
     with pytest.raises(ValueError):
         fleet._collect("arbitrary-command", tmp_path, [])
+
+
+def test_fixture_dir_serves_synthetic_sources_and_runs_nothing(monkeypatch, tmp_path):
+    # GLIDE_FLEET_FIXTURE: demos and films read <name>.json (github/<owner>__<repo>.json); _source is never called.
+    fixture = tmp_path / "fixture"
+    (fixture / "github").mkdir(parents=True)
+    for name, value in {**host_sources(), "config": work_config()}.items():
+        (fixture / f"{name}.json").write_text(json.dumps(value))
+    (fixture / "github" / "example__glide.json").write_text(json.dumps([
+        {"number": 3, "title": "orbit jiggle", "url": "https://github.com/example/glide/pull/3", "isDraft": False}]))
+    monkeypatch.setenv("GLIDE_FLEET_FIXTURE", str(fixture))
+    hosts = fleet.card(tmp_path, "hosts")["data"]
+    assert hosts["hosts"][0]["gauges"]["cpu"] == 40 and hosts["hosts"][0]["k3s"]["node"] == "Ready"
+    assert hosts["hosts"][1]["phone"] is True
+    tasks = fleet.card(tmp_path, "portfolio", "glide")["data"]["portfolios"]["glide"]["products"][0]["features"][0]["tasks"]
+    assert tasks == [{"id": "example/glide#3", "label": "orbit jiggle", "status": "active", "defect": False,
+                      "url": "https://github.com/example/glide/pull/3"}]
+    (fixture / "gauges.json").unlink()
+    fleet._CARDS.clear()
+    assert "gauges: source not installed or missing." in fleet.card(tmp_path, "hosts")["data"]["notes"]
