@@ -5,6 +5,7 @@
 import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
+import { MONO, RADIUS, STATUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 export const STYLES = minifyCss(css`
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
@@ -186,17 +187,28 @@ export const STYLES = minifyCss(css`
     opacity: 0.85;
   }
 
-  /* Notice tones in the composer bar. */
+  /* Gateway notices: plain single-line copy in the host's status hues. */
+  [data-role='hermes.statusline.warn'],
+  [data-role='hermes.statusline.bad'],
+  [data-role='hermes.statusline.good'] {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 400 ${TYPE.meta}px/1.4 var(--sans) !important;
+  }
+
   [data-role='hermes.statusline.warn'] {
-    color: var(--sf-c-warning, var(--t2)) !important;
+    color: var(--h-warning, ${STATUS.warn}) !important;
   }
 
   [data-role='hermes.statusline.bad'] {
-    color: var(--sf-c-error, var(--t2)) !important;
+    color: var(--h-danger, ${STATUS.bad}) !important;
   }
 
   [data-role='hermes.statusline.good'] {
-    color: var(--sf-c-success, var(--t2)) !important;
+    color: var(--h-success, ${STATUS.ok}) !important;
   }
 
   /* While a turn runs, an accent streak sweeps the composer's top edge. */
@@ -437,14 +449,81 @@ export const STYLES = minifyCss(css`
     font-family: var(--sans) !important;
   }
 
-  /* A pill holding the keys (Down from an empty prompt): ringed in the accent, without the pick mark's side bar. */
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick'] {
-    box-shadow: inset 0 0 0 1px var(--sf-p-accent, var(--accent)) !important;
+  /* HUD pills and goal/loop capsules: status-pill grammar, with gold reserved for keyboard focus. */
+  .sf-row[data-role='omp.hud'] {
+    max-width: 100%;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .sf-row[data-role='omp.hud.pill'],
+  .sf-row[data-role='hermes.automation.item'] {
+    --glide-hud-hue: var(--t3);
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    border: 1px solid color-mix(in srgb, var(--glide-hud-hue) 40%, var(--l3));
+    border-radius: ${RADIUS.pill}px !important;
+    background: color-mix(in srgb, var(--glide-hud-hue) 9%, var(--l1)) !important;
+    color: var(--t1) !important;
+    font: 500 ${TYPE.label}px/1.4 ${MONO} !important;
+    letter-spacing: ${TRACK.caps} !important;
+    text-transform: uppercase;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .sf-row[data-role='omp.hud.pill'] :is(.sf-text, .sf-elapsed),
+  .sf-row[data-role='hermes.automation.item'] :is(.sf-text, .sf-elapsed) {
+    font-family: ${MONO} !important;
+    font-size: ${TYPE.label}px !important;
+    letter-spacing: ${TRACK.caps} !important;
+    text-transform: uppercase;
+  }
+
+  /* Tern's activity spinner and status icons tint the pill, never the entire HUD. */
+  .sf-row[data-role='omp.hud.pill']:has(.sf-spinner),
+  .sf-row[data-role='hermes.automation.item']:has(.sf-spinner),
+  .sf-row[data-role='omp.hud.pill']:has([data-tone='success'], .st-success),
+  .sf-row[data-role='hermes.automation.item']:has([data-tone='success'], .st-success) {
+    --glide-hud-hue: var(--h-success, ${STATUS.ok});
+  }
+
+  .sf-row[data-role='omp.hud.pill']:has([data-tone='warning'], .st-warning),
+  .sf-row[data-role='hermes.automation.item']:has([data-tone='warning'], .st-warning) {
+    --glide-hud-hue: var(--h-warning, ${STATUS.warn});
+  }
+
+  .sf-row[data-role='omp.hud.pill']:has([data-tone='error'], .st-error),
+  .sf-row[data-role='hermes.automation.item']:has([data-tone='error'], .st-error) {
+    --glide-hud-hue: var(--h-danger, ${STATUS.bad});
+  }
+
+  .sf-row[data-role='omp.hud.pill'] :is(.sf-icon, .sf-spinner, svg),
+  .sf-row[data-role='hermes.automation.item'] :is(.sf-icon, .sf-spinner, svg) {
+    color: var(--glide-hud-hue) !important;
+  }
+
+  .sf-row[data-role='omp.hud.pill']:hover,
+  .sf-row[data-role='hermes.automation.item']:hover {
+    background: color-mix(in srgb, var(--glide-hud-hue) 16%, var(--l1)) !important;
+  }
+
+  .sf-row[data-role='omp.hud.pill'][data-mark='pick'],
+  .sf-row[data-role='hermes.automation.item'][data-mark='pick'] {
+    box-shadow: inset 0 0 0 2px var(--sf-p-accent, var(--accent)) !important;
     color: var(--t1) !important;
   }
 
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick']::after {
+  .sf-row[data-role='omp.hud.pill'][data-mark='pick']::after,
+  .sf-row[data-role='hermes.automation.item'][data-mark='pick']::after {
     display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sf-row[data-role='omp.hud.pill'],
+    .sf-row[data-role='hermes.automation.item'] {
+      transition: none;
+    }
   }
 
   /* What the keys do while a pill holds them, beside the pills. */
