@@ -1,14 +1,14 @@
 // Completed tools can publish models beside their chat. Tern owns the renderer and orbit controls.
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lookup } from 'node:dns/promises'
+import { lookup as dnsLookup } from 'node:dns/promises'
 import { mkdir, open, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { isIP } from 'node:net'
 import { homedir } from 'node:os'
 import { dirname, extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { Agent, fetch } from 'undici'
+import { Agent, fetch as undiciFetch } from 'undici'
 
 import type { ToolCall } from './model.js'
 import { parseJson, record } from './wire/json.js'
@@ -64,7 +64,10 @@ export function modelSources(value: unknown): string[] {
   return all.some(src => extension(src) === '.glb') ? all.filter(src => extension(src) === '.glb') : all
 }
 
-function publicAddress(address: string): boolean {
+const MAX_REDIRECTS = 5
+
+/** A unicast address on the public internet: not loopback, private, link-local, CGNAT or multicast. */
+export function publicAddress(address: string): boolean {
   if (isIP(address) === 6) {
     // Reject mapped IPv4, loopback, link-local, unique-local and multicast ranges.
     return /^[23][0-9a-f]{3}:/i.test(address)
@@ -74,77 +77,103 @@ function publicAddress(address: string): boolean {
     !(a === 172 && b >= 16 && b <= 31) && !(a === 192 && b === 168) && !(a === 100 && b >= 64 && b <= 127)
 }
 
-// Validate the address used by the socket as well, so DNS rebinding cannot bypass remoteURL.
-const network = new Agent({
+type Lookup = (host: string) => Promise<readonly { address: string; family: number }[]>
+/** The response surface callers read; both undici's and the global Response satisfy it. */
+export interface PublicResponse {
+  readonly ok: boolean
+  readonly status: number
+  readonly headers: { get(name: string): string | null }
+  readonly body: unknown
+  arrayBuffer(): Promise<ArrayBuffer>
+}
+type Fetcher = (url: string, init: Record<string, unknown>) => Promise<PublicResponse>
+export interface PublicFetchDeps { fetch?: Fetcher; lookup?: Lookup }
+
+const resolveAll: Lookup = host => dnsLookup(host, { all: true })
+
+// Validate the address used by the socket as well, so DNS rebinding cannot bypass publicURL.
+export const publicDispatcher = new Agent({
   connect: {
     lookup: (hostname, options, callback) => {
-      void lookup(hostname, { all: true }).then(addresses => {
+      void dnsLookup(hostname, { all: true }).then(addresses => {
         const first = addresses[0]
         if (!first || addresses.some(a => !publicAddress(a.address))) {
-          callback(new Error('Model downloads require a public network address'), '', 4)
+          callback(new Error('Downloads require a public network address'), '', 4)
         } else if (options.all) {
           callback(null, addresses)
         } else {
           callback(null, first.address, first.family)
         }
-      }, () => callback(new Error('Model host lookup failed'), '', 4))
+      }, () => callback(new Error('Host lookup failed'), '', 4))
     }
   }
 })
 
-/** Do not turn model links in untrusted tool output into access to local services. */
-async function remoteURL(source: string): Promise<URL> {
+/** `source` as a URL safe to request: http(s), no credentials, every resolved address public. */
+export async function publicURL(source: string, lookup: Lookup = resolveAll): Promise<URL> {
   const url = new URL(source)
   if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) {
-    throw new Error('Model downloads require an HTTP(S) URL without credentials')
+    throw new Error('Downloads require an HTTP(S) URL without credentials')
   }
-  const addresses = await lookup(url.hostname.replace(/^\[|\]$/g, ''), { all: true })
+  const host = url.hostname.replace(/^\[|\]$/g, '')
+  const addresses = isIP(host) ? [{ address: host, family: isIP(host) }] : await lookup(host)
   if (!addresses.length || addresses.some(a => !publicAddress(a.address))) {
-    throw new Error('Model downloads require a public network address')
+    throw new Error('Downloads require a public network address')
   }
   return url
 }
 
-async function download(source: string, target: string): Promise<void> {
-  let url = await remoteURL(source)
-  const signal = AbortSignal.timeout(60_000)
-  for (let redirects = 0; redirects <= 5; redirects++) {
-    const response = await fetch(url, { dispatcher: network, redirect: 'manual', signal })
+/** GET `source`, following at most five redirects by hand and re-checking every hop. */
+export async function fetchPublic(source: string, init: { signal?: AbortSignal }, deps: PublicFetchDeps = {}): Promise<PublicResponse> {
+  const lookup = deps.lookup ?? resolveAll
+  const request: Fetcher = deps.fetch ?? ((url, options) => undiciFetch(url, options))
+  let url = await publicURL(source, lookup)
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const response = await request(url.href, { ...init, dispatcher: publicDispatcher, redirect: 'manual' })
     const location = response.headers.get('location')
     if (response.status >= 300 && response.status < 400 && location) {
-      await response.body?.cancel()
-      url = await remoteURL(new URL(location, url).href)
+      await cancel(response.body)
+      url = await publicURL(new URL(location, url).href, lookup)
       continue
     }
-    if (!response.ok || !response.body) {
-      await response.body?.cancel()
-      throw new Error(`Model download failed (HTTP ${response.status})`)
-    }
-    if (Number(response.headers.get('content-length')) > MAX_BYTES) {
-      await response.body.cancel()
-      throw new Error('Model exceeds the 128 MiB download limit')
-    }
-    const file = await open(target, 'w', 0o600)
-    try {
-      let bytes = 0
-      // undici types body chunks as any; read them as unknown and narrow.
-      const chunks: AsyncIterable<unknown> = response.body
-      for await (const chunk of chunks) {
-        if (!(chunk instanceof Uint8Array)) {
-          throw new Error('Model download returned a non-byte chunk')
-        }
-        bytes += chunk.length
-        if (bytes > MAX_BYTES) {
-          throw new Error('Model exceeds the 128 MiB download limit')
-        }
-        await file.writeFile(chunk)
-      }
-    } finally {
-      await file.close()
-    }
-    return
+    return response
   }
-  throw new Error('Too many model download redirects')
+  throw new Error('Too many redirects')
+}
+
+async function cancel(body: unknown): Promise<void> {
+  const stream = body as { cancel?: () => Promise<void> } | null
+  await stream?.cancel?.().catch(() => undefined)
+}
+
+async function download(source: string, target: string): Promise<void> {
+  const response = await fetchPublic(source, { signal: AbortSignal.timeout(60_000) })
+  const body = response.body as (AsyncIterable<unknown> & { cancel(): Promise<void> }) | null
+  if (!response.ok || !body) {
+    await cancel(body)
+    throw new Error(`Model download failed (HTTP ${response.status})`)
+  }
+  if (Number(response.headers.get('content-length')) > MAX_BYTES) {
+    await cancel(body)
+    throw new Error('Model exceeds the 128 MiB download limit')
+  }
+  const file = await open(target, 'w', 0o600)
+  try {
+    let bytes = 0
+    // undici types body chunks as any; read them as unknown and narrow.
+    for await (const chunk of body) {
+      if (!(chunk instanceof Uint8Array)) {
+        throw new Error('Model download returned a non-byte chunk')
+      }
+      bytes += chunk.length
+      if (bytes > MAX_BYTES) {
+        throw new Error('Model exceeds the 128 MiB download limit')
+      }
+      await file.writeFile(chunk)
+    }
+  } finally {
+    await file.close()
+  }
 }
 
 /** Fetch only relative companions under the model's directory. No absolute paths or traversal. */

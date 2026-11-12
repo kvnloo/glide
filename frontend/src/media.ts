@@ -8,6 +8,7 @@ import { homedir } from 'node:os'
 import { isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { fetchPublic, type PublicResponse } from './artifacts.js'
 import { imageFormat } from './hermes/images.js'
 import type { Entry, ImageSource, ToolCall } from './model.js'
 import { record } from './wire/json.js'
@@ -68,7 +69,7 @@ export interface MediaHost {
   blob(bytes: Uint8Array, mime: string): string | undefined
 }
 
-type Fetch = (url: string, init: { signal: AbortSignal }) => Promise<Response>
+type Fetch = (url: string, init: { signal: AbortSignal }) => Promise<PublicResponse>
 
 /** Turns URLs into blobs, each once: a fetch in flight is shared, a failure is remembered. */
 export class Media {
@@ -78,16 +79,18 @@ export class Media {
   /** What each settled load gave, so a call rebuilt from history gets it before the next frame. */
   readonly #loaded = new Map<string, ImageSource | null>()
 
-  constructor(host: MediaHost, fetcher: Fetch = (url, init) => fetch(url, init)) {
+  // The default fetch refuses private, loopback and link-local addresses on every redirect hop.
+  constructor(host: MediaHost, fetcher: Fetch = (url, init) => fetchPublic(url, init)) {
     this.#host = host
     this.#fetch = fetcher
   }
 
   /**
    * Gets the image `call` shows ready: a URL's bytes land on `call.image` (null when they could
-   * not be had) and `done` runs. A local file needs nothing; Tern reads it.
+   * not be had) and `done` runs. A local file needs nothing; Tern reads it. A `replay` (history
+   * loading) never starts a network fetch: only data URLs and already loaded URLs show.
    */
-  show(call: ToolCall, done: () => void) {
+  show(call: ToolCall, done: () => void, replay = false) {
     const src = shownImage(call)
 
     if (!src || localSource(src) || call.image !== undefined) {
@@ -96,6 +99,10 @@ export class Media {
 
     if (this.#loaded.has(src)) {
       call.image = this.#loaded.get(src)
+      return
+    }
+
+    if (replay && !src.startsWith('data:')) {
       return
     }
 
@@ -110,7 +117,7 @@ export class Media {
     for (const e of entries) {
       for (const b of e.kind === 'turn' ? e.blocks : []) {
         if (b.kind === 'tool') {
-          this.show(b.call, () => done(b.call))
+          this.show(b.call, () => done(b.call), true)
         }
       }
     }
