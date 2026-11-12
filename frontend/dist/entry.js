@@ -25430,10 +25430,116 @@ function skinColors(colors, polarity) {
   };
 }
 
+// ../glide/frontend/glass.ts
+var HEX = /^#[0-9a-f]{6}$/i;
+function hsl(hex2) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  const l = (max + min) / 2;
+  if (d === 0) return { h: 0, s: 0, l };
+  const s2 = d / (1 - Math.abs(2 * l - 1));
+  const h2 = max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: (h2 * 60 + 360) % 360, s: s2, l };
+}
+function pickGlow(wal, accent) {
+  if (!HEX.test(accent)) return accent;
+  const a2 = hsl(accent);
+  let best = accent;
+  let top = 0;
+  for (let i = 1; i <= 6; i++) {
+    const c = wal.colors[`color${i}`] ?? "";
+    if (!HEX.test(c)) continue;
+    const { h: h2, s: s2, l } = hsl(c);
+    const apart = Math.min(Math.abs(h2 - a2.h), 360 - Math.abs(h2 - a2.h));
+    const score = apart * s2 * l;
+    if (score > top) {
+      best = c;
+      top = score;
+    }
+  }
+  return best;
+}
+function glassCss(p3) {
+  const shade = mix(p3.bg, "#000000", 0.7);
+  const vars = `--g-a: ${p3.accent}; --g-b: ${p3.glow}; --g-shade: ${shade}; --g-glass: ${p3.bg}; --g-ease: cubic-bezier(.2, .7, .2, 1)`;
+  const a2 = (pct2) => `color-mix(in srgb, var(--g-a) ${pct2}%, transparent)`;
+  const b = (pct2) => `color-mix(in srgb, var(--g-b) ${pct2}%, transparent)`;
+  const glass = (pct2) => `color-mix(in srgb, var(--g-glass) ${pct2}%, transparent)`;
+  const shadow = (pct2) => `color-mix(in srgb, var(--g-shade) ${pct2}%, transparent)`;
+  const hi = (pct2) => `color-mix(in srgb, var(--t1) ${pct2}%, transparent)`;
+  const rim = `linear-gradient(180deg, var(--g-a), ${a2(70)} 30%, ${b(70)} 62%, var(--g-b))`;
+  const mask = "-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude";
+  const mote = (size, x, y, c) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`;
+  const motes = [
+    mote(3, 4, 12, "var(--g-a)"),
+    mote(2.5, 96, 8, "var(--g-b)"),
+    mote(3.5, 2, 58, b(80)),
+    mote(3, 98, 46, a2(90)),
+    mote(2.5, 6, 92, a2(80)),
+    mote(3, 94, 88, b(85)),
+    mote(2, 12, 34, a2(70)),
+    mote(2.5, 89, 26, b(75)),
+    mote(2, 9, 74, b(70)),
+    mote(2, 91, 66, a2(70)),
+    mote(1.5, 7, 4, b(60)),
+    mote(1.5, 93, 97, a2(60)),
+    mote(2, 3, 40, a2(55)),
+    mote(2, 97, 30, b(55))
+  ].join(", ");
+  const sparks = [mote(2.5, 28, 2, "var(--g-a)"), mote(2, 74, 2, "var(--g-a)"), mote(2.5, 99, 46, "var(--g-b)"), mote(2, 62, 98, "var(--g-b)"), mote(1.5, 1, 64, "var(--g-b)")].join(", ");
+  const k = "[data-eui][data-eui='card']";
+  const card = `${k} .eu-card`;
+  const editor = ".sf-col[data-role^='omp.editor']";
+  return `
+.sf, [data-eui='card'] { ${vars}; }
+${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
+${k}:not([data-eui-popup])::before { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .85; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
+@keyframes glide-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -26px); } }
+@keyframes glide-twinkle { from { opacity: .45; } to { opacity: .95; } }
+${card} { background: ${glass(40)}; -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); border-color: transparent; border-radius: 16px; box-shadow: 0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a2(55)}, inset 0 1px 0 ${hi(8)}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
+${card}::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .7; transition: opacity .2s var(--g-ease); }
+${card}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
+${card}:hover { transform: translateY(-1px); box-shadow: 0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a2(75)}, inset 0 1px 0 ${hi(10)}; }
+${card}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
+${card}:hover::before { opacity: 1; transform: translateY(0); }
+@keyframes glide-shimmer { from { opacity: .85; } to { opacity: 1; } }
+${k} .ih-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a2(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
+${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
+${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget { background: ${glass(24)}; border-color: ${a2(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
+${k} .ih-sample { background: ${glass(45)}; border-color: ${a2(45)}; color: var(--g-a); }
+${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a2(60)}; box-shadow: 0 0 14px -6px ${a2(60)}; }
+${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
+${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a2(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a2(55)}; }
+${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
+${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
+${k} .ih-l-council .ih-lrole b { color: var(--g-b); }
+${k} .ih-flowlink.ih-gated { background: var(--g-b); }
+${k} .eu-btn { background: ${glass(45)}; border-color: ${a2(30)}; }
+${k} .eu-btn:hover { border-color: ${a2(70)}; box-shadow: 0 0 16px -6px ${a2(70)}; transform: translateY(-1px); }
+${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
+${editor} { background: ${glass(78)} !important; -webkit-backdrop-filter: blur(24px) saturate(150%) !important; backdrop-filter: blur(24px) saturate(150%) !important; box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 36px -12px ${b(65)}, 0 0 64px -28px ${a2(50)}, inset 0 1px 0 ${hi(8)} !important; transition: box-shadow .22s var(--g-ease); }
+${editor}::after { background: ${rim} !important; opacity: .9; transition: opacity .22s var(--g-ease); }
+${editor}:hover { box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 38px -10px ${b(75)}, 0 0 20px -8px ${a2(60)}, inset 0 1px 0 ${hi(10)} !important; }
+${editor}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
+.hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }
+.hermes-press:hover { background-color: ${a2(16)}; box-shadow: 0 0 14px -6px ${a2(70)}; }
+@media (prefers-reduced-motion: reduce) {
+  ${k}:not([data-eui-popup])::before, ${card}:hover::after, ${editor}:hover::after { animation: none; }
+  ${card}:hover, ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover, ${k} .ih-key:hover, ${k} .eu-chip:hover, ${k} .eu-btn:hover { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  ${card} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  ${editor} { background: var(--card) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+`;
+}
+
 // ../glide/frontend/wal.ts
 var TEXT_FLOOR = 4.5;
 var WAL_SHEET = "glide-auto-theme";
-var HEX = /^#[0-9a-f]{6}$/i;
+var HEX2 = /^#[0-9a-f]{6}$/i;
 function walFile(env2 = process.env) {
   return env2["GLIDE_WAL_COLORS"] || join4(env2["XDG_CACHE_HOME"] || join4(homedir4(), ".cache"), "wal", "colors.json");
 }
@@ -25452,7 +25558,7 @@ function readWal(file2) {
   const palette = record(raw2?.["colors"]);
   const background2 = special?.["background"];
   const foreground = special?.["foreground"];
-  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX.test(background2) || !HEX.test(foreground) || !palette) {
+  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX2.test(background2) || !HEX2.test(foreground) || !palette) {
     return void 0;
   }
   const colors = {};
@@ -25474,7 +25580,7 @@ function pickAccent(wal) {
   let top = -1;
   for (let i = 1; i <= 6; i++) {
     const c = wal.colors[`color${i}`] ?? "";
-    if (HEX.test(c) && saturation(c) > top) {
+    if (HEX2.test(c) && saturation(c) > top) {
       best = c;
       top = saturation(c);
     }
@@ -25484,7 +25590,7 @@ function pickAccent(wal) {
 function walPalette(wal, source2 = "") {
   const bg = wal.special.background;
   const text18 = (c, fallback) => {
-    const lifted = ensureContrast(c && HEX.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
+    const lifted = ensureContrast(c && HEX2.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
     return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
   };
   const fg = text18(wal.special.foreground, wal.special.foreground);
@@ -25496,6 +25602,7 @@ function walPalette(wal, source2 = "") {
     fg,
     accent,
     accentInk: readableOn(accent),
+    glow: text18(pickGlow(wal, accent), accent),
     muted: text18(wal.colors["color7"], fg),
     dim: text18(wal.colors["color8"], fg),
     error: text18(wal.colors["color1"], fg),
@@ -25538,12 +25645,14 @@ function walCss(p3) {
     `--l2: ${l2}`,
     `--l3: ${l3}`,
     `--card: ${l1}`,
+    `--raise: ${l1}`,
     `--panel: ${p3.bg}`,
     `--sf-c-error: ${p3.error}`
   ];
   return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
+.sf { ${vars.join("; ")}; }
 [data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
-`;
+${glassCss(p3)}`;
 }
 function exportPalette(p3, file2 = exportFile()) {
   mkdirSync2(dirname2(file2), { recursive: true });
