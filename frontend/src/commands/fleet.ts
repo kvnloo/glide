@@ -3,7 +3,7 @@ import { storedSessionId } from '../core/ids.js'
 import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
-import { decodeFleet, decodeFleetIntent, fleetAgent, fleetNode, fleetPod, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
+import { decodeFleet, decodeFleetIntent, fleetAgent, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
 export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
@@ -39,7 +39,7 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
       }
       case 'open-pod': {
         const pod = fleetPod(doc, action.entities)
-        const reply = await host.gw.request<unknown>('glide.fleet_pod', { session_id: context.sessionId, ...pod })
+        const reply = await fleetRequest(host.gw, context.sessionId, pod)
         if (context.isCurrent() && !context.signal.aborted) host.control().panel(`${pod.ns}/${pod.name}`, fleetText(reply))
         return
       }
@@ -74,8 +74,8 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
   const lifetime = host.transcript.lifetime
   const current = () => host.session.ref === ref && host.session.ref.live === sessionId &&
     owner?.isCurrent() !== false && !owner?.signal.aborted && host.transcript.lifetime === lifetime
-  const params = { session_id: sessionId, view, ...(portfolio ? { portfolio } : {}) }
-  const read = async () => decodeFleet(await host.gw.request<unknown>('glide.fleet', params), view)
+  const params = { view, ...(portfolio ? { portfolio } : {}) }
+  const read = async () => decodeFleet(await fleetRequest(host.gw, sessionId, params), view)
   let handle: EuiKitHandle
   const publish = (doc: EuiKitDoc, first: boolean) => {
     const intent = (detail: unknown, context: EuiKitContext) => fleetIntent(host, doc, detail, context)

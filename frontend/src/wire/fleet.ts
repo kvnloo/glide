@@ -1,6 +1,28 @@
 import * as z from 'zod/mini'
 
 import { decodeEuiKit, type EuiKitDoc } from './euiKit.js'
+import { factoryOutput } from './factory.js'
+import { isUnsupportedFork } from './fork.js'
+import { commandReply } from './json.js'
+import type { Requester } from './rpc.js'
+
+/** The same validated producer, through stock commands when optional plugin methods are absent. */
+export async function fleetRequest(gw: Requester, sessionId: string, request:
+  | { view: FleetView; portfolio?: string }
+  | { host: string; ns: string; name: string }
+): Promise<unknown> {
+  const method = 'view' in request ? 'glide.fleet' : 'glide.fleet_pod'
+  try {
+    return await gw.request<unknown>(method, { session_id: sessionId, ...request })
+  } catch (error) {
+    if (!isUnsupportedFork(error)) throw error
+  }
+  const { view, ...params } = 'view' in request ? request : { view: 'pod', ...request }
+  const reply = await gw.request<unknown>('command.dispatch', {
+    name: 'fleet', arg: `${view} ${JSON.stringify(params)}`, session_id: sessionId
+  })
+  return commandReply<unknown>(factoryOutput(reply))
+}
 
 export type FleetView = 'hosts' | 'portfolio' | 'factory'
 const apps = { hosts: 'k3s', portfolio: 'dash', factory: 'aodl' }
