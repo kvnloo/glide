@@ -71,6 +71,12 @@ export function fleetAgent(doc: EuiKitDoc, entity: z.infer<typeof agentEntities>
   if (!host?.online || !agent || agent.state === 'offline') throw new Error('Agent unavailable in this snapshot')
   return { host, harness, agent }
 }
+export function fleetHost(doc: EuiKitDoc, entity: { host: string }) {
+  if (doc.kind !== 'fleet-hosts') throw new Error('Action does not belong to this fleet card')
+  const host = hosts.parse(doc.data).hosts.find(h => h.id === entity.host)
+  if (!host) throw new Error('Host unavailable in this snapshot')
+  return host
+}
 export function fleetPod(doc: EuiKitDoc, entity: { host: string; ns: string; name: string }) {
   if (doc.kind !== 'fleet-hosts') throw new Error('Action does not belong to this fleet card')
   const host = hosts.parse(doc.data).hosts.find(h => h.id === entity.host)
