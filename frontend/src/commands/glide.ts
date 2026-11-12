@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto'
 import type { EuiCards } from '../eui/cards.js'
 import type { EuiApprovalContext, EuiHostHandle, EuiOperation } from '../eui/host.js'
 import { MAX_HOST_ROWS } from '../wire/euiHostCard.js'
-import { DIGEST_APP, FOCUS_APP, WIND_APP } from '../../../glide/frontend/attentionCards.js'
+import { DIGEST_APP, FOCUS_APP, HOURS_APP, WIND_APP } from '../../../glide/frontend/attentionCards.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import type { SessionView } from '../app/ports.js'
@@ -543,7 +543,7 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
   const f = await call(sub === 'start' ? { action: 'start' } : {})
   if (sub === 'hours') {
     cards.publish({
-      kind: 'metric', app: APP, title: 'Your best deep-work hours',
+      kind: 'metric', app: HOURS_APP, title: 'Your best deep-work hours',
       summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
       rows: [
         ...hours(f).map((h, i) => ({ label: i ? 'Also good' : 'Best', value: h })),
