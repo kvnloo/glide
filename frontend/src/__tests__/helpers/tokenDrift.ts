@@ -8,7 +8,7 @@ export interface Drift { radii: string[]; sizes: string[]; tracking: string[]; h
 export const NO_DRIFT: Drift = { radii: [], sizes: [], tracking: [], hexes: [] }
 
 const literal = /^-?[\d.]+(px|em)$|^\d+%$/
-const values = (s: string, prop: RegExp) => [...s.matchAll(prop)].map(m => m[1]!.trim()).filter(v => literal.test(v))
+const values = (s: string, prop: RegExp) => [...s.matchAll(prop)].map(m => (m[1] ?? '').trim()).filter(v => literal.test(v))
 
 export function tokenDrift(src: string): Drift {
   const radii = new Set([...Object.values(RADIUS).map(r => `${r}px`), '50%', '0'])

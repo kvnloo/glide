@@ -5,15 +5,17 @@ import { describe, expect, it } from 'vitest'
 import { euiStyles } from '../eui/cards.js'
 import { hostSnapshot } from '../eui/hostSnapshot.js'
 import type { EuiNode } from '../eui/sandbox.js'
+import type { EuiHostCardData } from '../wire/euiHostCard.js'
 
-const card = { kind: 'note', title: 'Deep-work block on until 10:32', summary: 'Asks are held.', rows: [] } as never
+const card: EuiHostCardData = { kind: 'note', app: 'glide', title: 'Deep-work block on until 10:32', summary: 'Asks are held.', rows: [] }
 
 const els = (n: EuiNode): Extract<EuiNode, { t: 'el' }>[] => n.t === 'el' ? [n, ...n.kids.flatMap(els)] : []
 
 describe('host card layout', () => {
   it('puts the title in a head row above the box, not inside it', () => {
-    const root = hostSnapshot(card, 'pending') as Extract<EuiNode, { t: 'el' }>
-    const [head, box] = root.kids as [Extract<EuiNode, { t: 'el' }>, Extract<EuiNode, { t: 'el' }>]
+    const [root] = els(hostSnapshot(card, 'pending'))
+    const [head, box] = (root?.kids ?? []).flatMap(k => k.t === 'el' ? [k] : [])
+    if (!head || !box) throw new Error('host card needs a head row and a box')
     expect(head.cls).toBe('eui-host-head')
     expect(JSON.stringify(head)).toContain('Deep-work block on until 10:32')
     expect(box.cls).toBe('eu-card eui-host')

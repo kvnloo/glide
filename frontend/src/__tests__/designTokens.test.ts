@@ -19,7 +19,7 @@ const src = (name: string) => readFileSync(join(root, `${name}.ts`), 'utf8')
 const literal = /^-?[\d.]+(px|em)$|^\d+%$/
 
 const values = (s: string, prop: RegExp) =>
-  [...s.matchAll(prop)].map(m => m[1]!.trim()).filter(v => literal.test(v))
+  [...s.matchAll(prop)].map(m => (m[1] ?? '').trim()).filter(v => literal.test(v))
 
 describe('design tokens', () => {
   for (const name of COMPONENTS) {
