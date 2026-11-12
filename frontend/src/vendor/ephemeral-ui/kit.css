@@ -1595,9 +1595,12 @@
 [data-eui='card'] .fh-legend span{display:inline-flex;align-items:center;gap:6px}
 [data-eui='card'] .fh-legend .fh-dot{animation:none}
 [data-eui='card'] .fh-machines{display:grid;grid-template-columns:1fr;gap:8px}
+[data-eui='card'] .fh-machines{grid-template-columns:1fr 1fr}
 [data-eui='card'] .fh-mach{text-align:left;background:var(--fl-surface);border:1px solid var(--fl-hair);border-radius:var(--fl-r-md);padding:11px 12px 12px;cursor:pointer;display:flex;flex-direction:column;gap:9px;min-width:0}
 [data-eui='card'] .fh-mach:hover{border-color:var(--fl-hair2)}
 [data-eui='card'] .fh-mach.off{opacity:.6}
+[data-eui='card'] .fh-mach.off:last-child:nth-child(odd){grid-column:1 / -1}
+[data-eui='card'] .fh-mach.off .fh-gauges{display:none}
 [data-eui='card'] .fh-mh{display:flex;align-items:center;gap:10px;min-width:0}
 [data-eui='card'] .fh-gauges{display:flex;flex-direction:column;gap:5px}
 [data-eui='card'] .fh-g{display:grid;grid-template-columns:36px 1fr 38px;align-items:center;gap:8px}
@@ -1642,6 +1645,10 @@
 [data-eui='card'] .fh-toast:empty::after{content:"tap a row · nothing runs without you";color:var(--fl-ink3)}
 [data-eui='card'] .fh-toast.on{animation:fh-flash 1.2s cubic-bezier(.16,1,.3,1)}
 @keyframes fh-flash{ 0% {border-color:var(--fl-gold);box-shadow:0 0 14px color-mix(in srgb, var(--fl-gold) 35%, transparent)} 100% {border-color:color-mix(in srgb, var(--fl-gold) 30%, transparent);box-shadow:none} }
+[data-eui='card'] .fh-title{font-size:30px}
+[data-eui='card'] .fh-l0 .fh-mm{display:none}
+[data-eui='card'] .fh-kids{margin-left:6px}
+[data-eui='card'] .fh-row{gap:7px;padding-inline:4px}
 [data-eui='card'] .fh-harness{font:500 12px var(--fl-mono);color:var(--fl-ink3);margin:12px 8px 4px}
 [data-eui='card'] .fh-agentwrap[data-eui-a-open] .fh-line,[data-eui='card'] .fh-sub{white-space:normal;overflow-wrap:anywhere}
 [data-eui='card'] .fh-host-group{min-width:0}
@@ -1766,6 +1773,13 @@
 [data-eui='card'] .fp-chip .fp-dot{width:6px;height:6px}
 [data-eui='card'] .fp-chip:hover,[data-eui='card'] .fp-chip.fp-picked{background:color-mix(in srgb, var(--fl-ink) 6%, transparent);color:var(--fl-ink)}
 [data-eui='card'] .fp-fcard .fp-detail{margin:2px 0 0;padding:8px}
+[data-eui='card'] .fp-lanes{grid-template-columns:1fr}
+[data-eui='card'] .fp-lane-cards{grid-template-columns:repeat(2, minmax(0, 1fr))}
+[data-eui='card'] .fp-title h3{font-size:25px}
+[data-eui='card'] .fp-head{grid-template-columns:1fr}
+[data-eui='card'] .fp-switch{justify-self:start}
+[data-eui='card'] .fp-stats{gap:4px 10px;font-size:11.5px}
+[data-eui='card'] .fp-stats .x{display:none}
 [data-eui='card'] .fp-task{flex-wrap:wrap}
 [data-eui='card'] .fp-task .fp-task-l{flex-basis:calc(100% - 85px)}
 [data-eui='card'] .fp-task .fp-d-acts{width:100%;padding-left:16px}
@@ -1805,6 +1819,8 @@
 [data-eui='card'] .fp-readout{min-height:38px;padding:9px 11px;border-radius:var(--fl-r-sm);background:var(--fl-surface);border:1px solid var(--fl-hair);display:grid;gap:6px;align-content:start;font-size:12.5px;color:var(--fl-ink2)}
 [data-eui='card'] .fp-readout b{color:var(--fl-ink)}
 [data-eui='card'] .fp-readout > b + span{display:inline}
+[data-eui='card'] .fp-root .fp-pnode,[data-eui='card'] .fp-root .fp-snode{padding:0 8px;gap:6px}
+[data-eui='card'] .fp-legend .fp-hint{margin-left:0}
 [data-eui='card'] .ff-root{padding:16px 16px 14px;display:grid;gap:12px;border:1px solid var(--fl-hair)}
 [data-eui='card'] .ff-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 [data-eui='card'] .ff-eyebrow{font:500 10px/1 var(--fl-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--fl-gold);opacity:.85}
@@ -1910,6 +1926,14 @@
 [data-eui='card'] .ff-bi .ff-act{align-self:center}
 [data-eui='card'] .ff-bi.ff-s-queued .ff-rt > span::before{content:"queued · ";color:var(--fl-gold)}
 [data-eui='card'] .ff-bi.ff-s-queued .ff-rt > span{color:var(--fl-ink3)}
+[data-eui='card'] .ff-title{font-size:26px}
+[data-eui='card'] .ff-stats{grid-template-columns:repeat(2, 1fr)}
+[data-eui='card'] .ff-row{flex-wrap:wrap}
+[data-eui='card'] .ff-row .ff-rt{flex-basis:calc(100% - 50px)}
+[data-eui='card'] .ff-row .ff-chip{margin-left:20px}
+[data-eui='card'] .ff-bi{flex-wrap:wrap}
+[data-eui='card'] .ff-bi .ff-rt{flex-basis:calc(100% - 40px)}
+[data-eui='card'] .ff-act-row{margin-left:32px}
 [data-eui='card'] .ff-head > div,[data-eui='card'] .ff-bi,[data-eui='card'] .ff-row{min-width:0}
 [data-eui='card'] .ff-rt b{white-space:normal;overflow-wrap:anywhere}
 [data-eui='card'] .ff-rt b > span{min-width:0;overflow-wrap:anywhere}
