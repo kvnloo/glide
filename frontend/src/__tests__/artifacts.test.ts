@@ -86,7 +86,7 @@ const redirect = (location: string) => Promise.resolve(new Response(null, { stat
 
 describe('fetchPublic', () => {
   it('classifies loopback, private, link-local and metadata addresses as non-public', () => {
-    for (const a of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1', '192.168.0.1', '100.64.0.1', '0.0.0.0', '::1', 'fe80::1', 'fd00::1', '::ffff:127.0.0.1']) {
+    for (const a of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1', '192.168.0.1', '100.64.0.1', '0.0.0.0', '::1', 'fe80::1', 'fd00::1', '::ffff:127.0.0.1']) { // CGNAT range, not a real host: privacy: ok
       expect(publicAddress(a), a).toBe(false)
     }
     expect(publicAddress('93.184.216.34')).toBe(true)
