@@ -84,6 +84,14 @@ def test_missing_sources_remain_valid_visible_documents(tmp_path, view, key):
         assert 0 <= doc["data"]["stats"]["verifyPass"] <= 1
 
 
+def test_factory_reason_respects_kit_string_limit(monkeypatch, tmp_path):
+    sources(monkeypatch, {"brain": {"pending_review": [{"tag": "synthetic-card", "detail": "x" * 500}]},
+                          "ops": {}, "verify": []})
+    node = fleet.card(tmp_path, "factory")["data"]["nodes"][1]
+    assert len(node["reason"]) == 200
+    assert node["label"] == "synthetic-card"
+
+
 def test_kit_input_projection_keeps_raw_string_diagnostics_and_other_fields():
     from copy import deepcopy
     from verify_fleet_schema import diagnostic_strings, kit_input, synthetic_documents

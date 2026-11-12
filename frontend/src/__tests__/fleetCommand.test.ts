@@ -41,6 +41,7 @@ describe('fleet commands', () => {
     await must(localCommand(name)).run(stub({ ...f.host }), arg)
     expect(f.request).toHaveBeenCalledWith('glide.fleet', { session_id: 'fixture-session', view, ...(portfolio ? { portfolio } : {}) })
     expect(f.view().spec.kind).toBe(`fleet-${view}`)
+    expect(JSON.stringify(f.view().node)).toContain('Source: read-only fleet collectors')
   })
 
   it.each(['unknown method: glide.fleet', 'Method not found', { code: -32601 }])('renders and refreshes through stock command.dispatch for %j', async error => {
