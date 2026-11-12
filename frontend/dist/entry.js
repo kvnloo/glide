@@ -21346,20 +21346,20 @@ var KeyDecoder = class {
       j++;
     while (j < bytes.length && (bytes[j] ?? 0) >= 32 && (bytes[j] ?? 0) <= 47)
       j++;
-    const f = bytes[j];
-    if (f === void 0) {
+    const f2 = bytes[j];
+    if (f2 === void 0) {
       if (!final)
         return 0;
       return bytes.length - start;
     }
-    if (f < 64 || f > 126)
+    if (f2 < 64 || f2 > 126)
       return j - start;
     const params = decoder3.decode(bytes.subarray(at2 + 2, j));
-    if (intro === 91 && params === "200" && f === 126) {
+    if (intro === 91 && params === "200" && f2 === 126) {
       this.#paste = [];
       return j + 1 - start;
     }
-    const found = csiKey(params, String.fromCharCode(f));
+    const found = csiKey(params, String.fromCharCode(f2));
     if (found && alt) {
       out.push(key(found.name, { ctrl: found.ctrl, alt: true, shift: found.shift, meta: found.meta }));
     } else if (found)
@@ -23071,7 +23071,7 @@ var Mt = (n3, s2, t) => {
   for (let e = 0; e < 3; e++) {
     const l = e / 3 * 2 * Math.PI;
     for (let R = 0; R < D2; R++) {
-      const w = (nt(R / D2 + s2 * 0.045) * 2 - 1) * 0.96, i = Math.sqrt(Math.max(0, 1 - w * w)), u = Math.min(1, (1 - Math.abs(w)) / 0.1), y = w * Math.PI * p3 + l, b = 1 + 0.075 * Math.sin(w * Math.PI * p3 * 2 + l * 2 + s2 * 0.8), f = i * o * b, [P, x, g] = c(Math.cos(y) * f, w * o * b, Math.sin(y) * f), d = (g / o + 1) / 2;
+      const w = (nt(R / D2 + s2 * 0.045) * 2 - 1) * 0.96, i = Math.sqrt(Math.max(0, 1 - w * w)), u = Math.min(1, (1 - Math.abs(w)) / 0.1), y = w * Math.PI * p3 + l, b = 1 + 0.075 * Math.sin(w * Math.PI * p3 * 2 + l * 2 + s2 * 0.8), f2 = i * o * b, [P, x, g] = c(Math.cos(y) * f2, w * o * b, Math.sin(y) * f2), d = (g / o + 1) / 2;
       h2.push({
         x: P,
         y: x,
@@ -23133,8 +23133,8 @@ var ft = (n3, s2, t) => {
   const a2 = n3 / 2, o = n3 / 2, c = n3 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m2 = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n3, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
   for (let w = 0; w <= l; w++) {
     const i = -Math.PI / 2 + w / l * Math.PI, u = Math.cos(i), y = Math.sin(i), b = Math.max(1, Math.round(Math.abs(u) * R));
-    for (let f = 0; f < b; f++) {
-      const P = f / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m2), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
+    for (let f2 = 0; f2 < b; f2++) {
+      const P = f2 / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m2), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
       e.push({
         x,
         y: g,
@@ -23153,7 +23153,7 @@ var dt = (n3, s2, t) => {
   for (let R = 0; R <= e; R++) {
     const w = -Math.PI / 2 + R / e * Math.PI, i = Math.cos(w), u = Math.sin(w), y = Math.max(1, Math.round(Math.abs(i) * l));
     for (let b = 0; b < y; b++) {
-      const f = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f), u, i * Math.sin(f)], m2, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
+      const f2 = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f2), u, i * Math.sin(f2)], m2, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
       p3.push({
         x: v,
         y: k,
@@ -23170,9 +23170,9 @@ var bt = (n3, s2, t) => {
   for (let p3 = 0; p3 <= m2; p3++) {
     const e = -Math.PI / 2 + p3 / m2 * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
     for (let y = 0; y < u; y++) {
-      const b = y / u * 2 * Math.PI, [f, P, x] = c(l * Math.cos(b) * i, R * i, l * Math.sin(b) * i), g = (x / o + 1) / 2, d = Math.max(0, w);
+      const b = y / u * 2 * Math.PI, [f2, P, x] = c(l * Math.cos(b) * i, R * i, l * Math.sin(b) * i), g = (x / o + 1) / 2, d = Math.max(0, w);
       h2.push({
-        x: f,
+        x: f2,
         y: P,
         z: x,
         r: ((t.rBase ?? 0.6) + (t.rDepth ?? 1.7) * g) * (1 + 0.4 * d) * M,
@@ -23236,12 +23236,12 @@ var Pt = (n3, s2, t) => {
     l.push(v), R += v;
   }
   const w = wt(t.iconD ?? 1), i = (t.rDot ?? 0.021) * 1.35 * h2, u = 1 + 0.02 * Math.sin(c * 3.1), y = [], b = n3 / 2;
-  let f = 0, P = 0;
+  let f2 = 0, P = 0;
   for (let x = 0; x < w; x++) {
     const g = x / w * R;
-    for (; P + l[f] < g && f < p3 - 1; )
-      P += l[f], f++;
-    const d = e[f], v = e[(f + 1) % p3], k = l[f] ? Math.min(1, (g - P) / l[f]) : 0, N = (d[0] + (v[0] - d[0]) * k) * u, z = (d[1] + (v[1] - d[1]) * k) * u;
+    for (; P + l[f2] < g && f2 < p3 - 1; )
+      P += l[f2], f2++;
+    const d = e[f2], v = e[(f2 + 1) % p3], k = l[f2] ? Math.min(1, (g - P) / l[f2]) : 0, N = (d[0] + (v[0] - d[0]) * k) * u, z = (d[1] + (v[1] - d[1]) * k) * u;
     y.push({
       x: b + N * n3,
       y: b + z * n3,
@@ -23255,11 +23255,11 @@ var Pt = (n3, s2, t) => {
 var Rt = (n3, s2, t) => {
   const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
   for (let e = 0; e < m2; e++) {
-    const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f = Math.cos(y), P = Math.sin(y) * Math.sin(u);
-    let x = -f, g = b;
+    const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f2 = Math.cos(y), P = Math.sin(y) * Math.sin(u);
+    let x = -f2, g = b;
     const d = 0, v = Math.max(1e-6, Math.sqrt(x * x + g * g));
     x /= v, g /= v;
-    const k = f * d - P * g, N = P * x - b * d, z = b * g - f * x, O = (0.25 + 0.55 * w) * (w > 0.5 ? 1 : -1);
+    const k = f2 * d - P * g, N = P * x - b * d, z = b * g - f2 * x, O = (0.25 + 0.55 * w) * (w > 0.5 ? 1 : -1);
     for (let B = 0; B < D2; B++) {
       const I = B / D2 * 2 * Math.PI, [S, A, T] = c(
         (x * Math.cos(I) + k * Math.sin(I)) * i,
@@ -23298,11 +23298,11 @@ var Z = (n3, s2, t) => {
     const O = J(z, p3), [B, I, S] = h2(O[0] * o, O[1] * o, O[2] * o), A = (S / o + 1) / 2;
     D2.push({ x: B, y: I, z: S, r: 0.8 * m2, white: 0.78, a: 0.1 + 0.22 * A });
   }
-  const e = s2 * 0.24 * c, l = t.faceOn ? -M : 0.55 + 0.3 * Math.sin(s2 * 0.18) * c, R = Math.cos(e), w = 0, i = Math.sin(e), u = -i * Math.sin(l), y = Math.cos(l), b = R * Math.sin(l), f = w * b - i * y, P = i * u - R * b, x = R * y - w * u, g = 0.23 * (t.wobMul ?? 1), d = t.faceOn ? o / (1 + 0.85 * g) : o, v = t.lanes ?? 5, k = t.segs ?? 88, N = Math.max(1, Math.round(v * (t.bandMul ?? 1)));
+  const e = s2 * 0.24 * c, l = t.faceOn ? -M : 0.55 + 0.3 * Math.sin(s2 * 0.18) * c, R = Math.cos(e), w = 0, i = Math.sin(e), u = -i * Math.sin(l), y = Math.cos(l), b = R * Math.sin(l), f2 = w * b - i * y, P = i * u - R * b, x = R * y - w * u, g = 0.23 * (t.wobMul ?? 1), d = t.faceOn ? o / (1 + 0.85 * g) : o, v = t.lanes ?? 5, k = t.segs ?? 88, N = Math.max(1, Math.round(v * (t.bandMul ?? 1)));
   for (let z = 0; z < N; z++) {
     const O = (z - (N - 1) / 2) * 0.075, B = Math.abs(z - (N - 1) / 2) / Math.max(1, (N - 1) / 2);
     for (let I = 0; I < k; I++) {
-      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
+      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
       D2.push({
         x: ct,
         y: at2,
@@ -23318,13 +23318,13 @@ var Z = (n3, s2, t) => {
 var Dt = (n3, s2, t) => {
   const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m2 = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
   for (let i = 0; i < h2; i++) {
-    const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f * f);
-    e.push([y / P, b / P, f / P]);
+    const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f2 = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f2 * f2);
+    e.push([y / P, b / P, f2 / P]);
   }
   const l = [], R = [];
   for (let i = 0; i < h2; i++)
     for (let u = i + 1; u < h2; u++) {
-      const y = e[i][0] - e[u][0], b = e[i][1] - e[u][1], f = e[i][2] - e[u][2], P = Math.sqrt(y * y + b * b + f * f);
+      const y = e[i][0] - e[u][0], b = e[i][1] - e[u][1], f2 = e[i][2] - e[u][2], P = Math.sqrt(y * y + b * b + f2 * f2);
       if (P >= m2) continue;
       const [x, g, d] = c(e[i][0], e[i][1], e[i][2]), [v, k, N] = c(e[u][0], e[u][1], e[u][2]), z = ((d + N) / 2 + 1) / 2;
       l.push({
@@ -23338,20 +23338,20 @@ var Dt = (n3, s2, t) => {
       });
     }
   for (let i = 0; i < h2; i++) {
-    const [u, y, b] = c(e[i][0], e[i][1], e[i][2]), f = (b + 1) / 2, P = 1 + 0.25 * Math.sin(s2 * 1.4 + i * 2.7);
+    const [u, y, b] = c(e[i][0], e[i][1], e[i][2]), f2 = (b + 1) / 2, P = 1 + 0.25 * Math.sin(s2 * 1.4 + i * 2.7);
     R.push({
       x: u,
       y,
       z: b,
-      r: (D2 + p3 * f) * P * M,
-      white: 0.55 - 0.45 * f
+      r: (D2 + p3 * f2) * P * M,
+      white: 0.55 - 0.45 * f2
     });
   }
   const w = t.signals ?? 5;
   for (let i = 0; i < w; i++) {
     const u = Math.floor(s2 * 0.55 + i * 7.31), y = Math.floor(E(u, i * 3.1 + 1.7) * h2), b = Math.floor(E(u, i * 5.7 + 4.2) * h2);
     if (y === b) continue;
-    const f = nt(s2 * 0.55 + i * 7.31), P = U(e[y][0], e[b][0], f), x = U(e[y][1], e[b][1], f), g = U(e[y][2], e[b][2], f), d = Math.max(1e-6, Math.sqrt(P * P + x * x + g * g)), [v, k, N] = c(P / d, x / d, g / d), z = (N + 1) / 2;
+    const f2 = nt(s2 * 0.55 + i * 7.31), P = U(e[y][0], e[b][0], f2), x = U(e[y][1], e[b][1], f2), g = U(e[y][2], e[b][2], f2), d = Math.max(1e-6, Math.sqrt(P * P + x * x + g * g)), [v, k, N] = c(P / d, x / d, g / d), z = (N + 1) / 2;
     R.push({
       x: v,
       y: k,
@@ -23724,7 +23724,7 @@ var ThinkingOrb = class {
     this.#timer = void 0;
   }
   #sync() {
-    const run8 = this.#visible && !this.#reduce && !this.#paused && (this.#scene !== void 0 || this.#state !== "idle" && this.#state !== "waiting" && this.#state !== "error") && !this.#surface.closed;
+    const run8 = this.#visible && !this.#reduce && !this.#paused && (this.#scene !== void 0 && this.#scene.moves !== false || this.#state !== "idle" && this.#state !== "waiting" && this.#state !== "error") && !this.#surface.closed;
     if (!run8) {
       this.#stop();
     } else if (!this.#timer) {
@@ -24022,24 +24022,6 @@ var frame = (lanes2, body) => {
   const px = orbitScene(lanes2);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${px.w}" height="${px.h}" viewBox="0 0 ${u.w} ${u.h}">${body}</svg>`;
 };
-function planet(s2, lane, CX, CY, dark, reduce) {
-  const r = PLANET * s2.scale;
-  const c = lane.hue ?? tint(lane.role, dark);
-  const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
-    const th = s2.theta - (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
-    const k = 1 - (i + 1) / 7;
-    return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
-  }).join("");
-  const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
-  const edge = dark ? "#000000" : "#ffffff";
-  const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
-  return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
-}
-function planets(lanes2, seconds, dark, reduce, pick2) {
-  const { w, h: h2 } = orbitUnits(lanes2);
-  const sats = orbitLayout(lanes2, seconds, reduce);
-  return sats.flatMap((s2, i) => lanes2[i] && pick2(lanes2[i], s2) ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z).map((o) => planet(o.s, o.lane, w / 2, h2 / 2, dark, reduce)).join("");
-}
 function tracks(lanes2, dark) {
   const { w, h: h2 } = orbitUnits(lanes2);
   return [...new Set(lanes2.map((l) => orbitRadius(l.role)))].map((r) => {
@@ -24054,8 +24036,8 @@ function core(main, lanes2, seconds, dark, reduce) {
   const { w, h: h2 } = orbitUnits(lanes2);
   return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
 }
-function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
-  return frame(lanes2, tracks(lanes2, dark) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z < 0) + core(main, lanes2, seconds, dark, reduce) + planets(lanes2, seconds, dark, reduce, (_2, s2) => s2.z >= 0));
+function orbitBackdrop(main, lanes2, seconds, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds, dark, reduce));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
@@ -24064,13 +24046,134 @@ function laneSwatch(lane, dark, size = 14) {
 }
 var focusBlock = {
   until: 0,
-  note(f, now = Date.now()) {
-    this.until = f.block && f.block.minutes_left > 0 ? now + f.block.minutes_left * 6e4 : 0;
+  note(f2, now = Date.now()) {
+    this.until = f2.block && f2.block.minutes_left > 0 ? now + f2.block.minutes_left * 6e4 : 0;
   },
   active(now = Date.now()) {
     return now < this.until;
   }
 };
+
+// src/voice/orbitTargets.ts
+var ORBIT_SHEET = "glide-orbit";
+var ORBIT_CLASS = "glide-orbit";
+var BRAKE_S = 0.3;
+var BRAKE_EASE = "cubic-bezier(0.3333, 0.6667, 0.6667, 1)";
+var JIGGLE_DEG = 2.5;
+var JIGGLE_PX = 0.8;
+var JIGGLE_S = 0.14;
+var HIT = 26;
+var HOVER_SCALE = 1.35;
+var LABEL_GAP = Math.ceil(HIT * (HOVER_SCALE - 1) / 2) + 5;
+var TAU = 2 * Math.PI;
+var f = (v, d = 3) => Number(v.toFixed(d)).toString();
+var orbitPx = (lanes2) => orbitScene(lanes2).w / orbitUnits(lanes2).w;
+function orbitSeats(lanes2, reduce = false) {
+  const px = orbitPx(lanes2);
+  return orbitLayout(lanes2, 0, reduce).map((s2, i) => {
+    const period = lanePeriod(s2.role);
+    const moving = !s2.parked && !reduce;
+    const turn2 = (s2.theta % TAU + TAU) % TAU;
+    return {
+      role: s2.role,
+      moving,
+      theta: s2.theta,
+      period,
+      arm: 2 * s2.r * px,
+      delay: moving ? -(turn2 / TAU) * period : 0,
+      brake: moving ? 360 / period * BRAKE_S / 2 : 0,
+      // A golden-ratio step spreads the phases evenly over one wobble.
+      jiggleDelay: -(i * 0.618034 % 1) * JIGGLE_S
+    };
+  });
+}
+var n2 = (v) => v.toFixed(1);
+function planetSvg(lane, dark) {
+  const u = HIT / ORBIT_SCALE;
+  const c = u / 2;
+  const r = PLANET * 1.1;
+  const hue = lane.hue ?? tint(lane.role, dark);
+  const edge = dark ? "#000000" : "#ffffff";
+  const body = lane.state === "dead" ? deadMark(c, c, r, dark) : (lane.state === "thinking" ? `<circle cx="${n2(c)}" cy="${n2(c)}" r="${n2(HALO * 1.1)}" fill="${hue}" fill-opacity="0.2"/>` : "") + `<circle cx="${n2(c)}" cy="${n2(c)}" r="${n2(r)}" fill="${hue}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n2(c - r * 0.3)}" cy="${n2(c - r * 0.3)}" r="${n2(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${HIT}" height="${HIT}" viewBox="0 0 ${n2(u)} ${n2(u)}">${body}</svg>`;
+}
+function tailSvg(lane, seat, dark) {
+  const u = seat.arm / ORBIT_SCALE;
+  const c = u / 2;
+  const rr = c;
+  const r = PLANET * 1.1;
+  const hue = lane.hue ?? tint(lane.role, dark);
+  const dots = Array.from({ length: 6 }, (_2, i) => {
+    const th = -((i + 1) / 6) * (TAU * 0.35 / seat.period);
+    const k = 1 - (i + 1) / 7;
+    return `<circle cx="${n2(c + rr * Math.sin(th))}" cy="${n2(c + rr * Math.cos(th))}" r="${n2(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
+  }).join("");
+  const px = Math.round(seat.arm);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${n2(u)} ${n2(u)}"><g data-tail="${lane.role}" fill="${hue}">${dots}</g></svg>`;
+}
+function badgeSvg(dark) {
+  const fill = dark ? "#ece8df" : "#2a2724";
+  const ink2 = dark ? "#1a1917" : "#ffffff";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11"><circle cx="5.5" cy="5.5" r="5" fill="${fill}" stroke="${ink2}" stroke-width="0.8"/>` + [3.2, 5.5, 7.8].map((x) => `<circle cx="${x}" cy="5.5" r="0.85" fill="${ink2}"/>`).join("") + "</svg>";
+}
+function orbitCss(lanes2, reduce = false) {
+  const { w, h: h2 } = orbitScene(lanes2);
+  const seats = orbitSeats(lanes2, reduce);
+  const O = `.${ORBIT_CLASS}`;
+  const half = HIT / 2;
+  const rules = [
+    `${O} { position: relative; flex: none; width: ${w}px; height: ${h2}px; }`,
+    `${O} [data-role='glide.orbit.bg'] { position: absolute; left: 0; top: 0; }`,
+    // Tern opens an image viewer on a click on any image (`.sf-zoom`): here clicks belong to the planets' buttons.
+    `${O} .sf-image { pointer-events: none; cursor: default; }`,
+    `${O} .glide-orbit-arm { position: absolute; pointer-events: none; animation-name: glide-orbit-turn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
+    `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake, ${O} .glide-orbit-jiggle { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }`,
+    `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake { transition: transform ${BRAKE_S}s ${BRAKE_EASE}; }`,
+    `${O} .glide-orbit-tail { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity ${BRAKE_S}s; }`,
+    `${O} .glide-orbit-planet { position: absolute; left: 50%; top: 100%; width: ${HIT}px; height: ${HIT}px; margin: -${half}px 0 0 -${half}px; padding: 0; border: 0; border-radius: 50%; background: transparent; pointer-events: auto; cursor: pointer; }`,
+    `${O} .glide-orbit-face { position: absolute; left: 0; top: 0; right: 0; bottom: 0; animation-name: glide-orbit-unturn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
+    `${O} .glide-orbit-jiggle { transition: transform .18s ease-out; }`,
+    `${O} .glide-orbit-jiggle [data-role='glide.orbit.face'] { position: absolute; left: 0; top: 0; }`,
+    // The badge overlaps the planet's upper-left rim, as iOS's edit badge does an icon's corner.
+    `${O} .glide-orbit-badge { position: absolute; left: 3px; top: 3px; opacity: 0; transition: opacity .2s; }`,
+    `${O} .glide-orbit-ring { position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px; border-radius: 50%; border: 1.5px dashed var(--t2, #888888); opacity: 0; transition: opacity .2s; }`,
+    `${O} .glide-orbit-label { position: absolute; left: 50%; bottom: 100%; margin-bottom: ${LABEL_GAP}px; translate: -50% 0; padding: 2px 7px; border-radius: 999px; white-space: nowrap; font: 500 11px var(--sans, sans-serif); color: var(--t1, #ece8df); background: var(--pop-bg, rgba(20,19,18,.92)); border: 1px solid var(--l2, rgba(236,232,223,.18)); box-shadow: 0 3px 10px rgba(0,0,0,.28); opacity: 0; pointer-events: none; transition: opacity .15s; }`,
+    // Hover: the arms and faces stop where they are; the brake carries each on to rest.
+    `${O}:hover .glide-orbit-arm, ${O}:hover .glide-orbit-face { animation-play-state: paused; }`,
+    `${O}:hover .glide-orbit-badge { opacity: 1; }`,
+    // A stopped planet leaves no comet tail.
+    `${O}:hover .glide-orbit-tail { opacity: 0; }`,
+    `${O}:hover .glide-orbit-jiggle { animation-name: glide-orbit-jiggle; animation-duration: ${JIGGLE_S}s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`,
+    `${O}:hover .glide-orbit-arm:hover { z-index: 3; }`,
+    `${O} .glide-orbit-planet:hover .glide-orbit-jiggle { animation-name: none; transform: scale(${HOVER_SCALE}); }`,
+    `${O} .glide-orbit-planet:hover .glide-orbit-label, ${O} .glide-orbit-planet:focus-visible .glide-orbit-label { opacity: 1; }`,
+    // Reduced motion: nothing moves; a dashed ring says the planets can be picked.
+    `${O}.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }`,
+    `${O}.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }`,
+    `${O}.glide-orbit-still .glide-orbit-planet:hover .glide-orbit-jiggle { transform: scale(1.2); }`,
+    `@keyframes glide-orbit-turn { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }`,
+    `@keyframes glide-orbit-unturn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`,
+    `@keyframes glide-orbit-jiggle { 0%, 100% { transform: translate(-${JIGGLE_PX}px, ${JIGGLE_PX / 2}px) rotate(-${JIGGLE_DEG}deg); } 50% { transform: translate(${JIGGLE_PX}px, -${JIGGLE_PX / 2}px) rotate(${JIGGLE_DEG}deg); } }`
+  ];
+  seats.forEach((s2, i) => {
+    const L2 = `${O} .glide-orbit-s${i}`;
+    const at2 = `left: ${f(w / 2 - s2.arm / 2)}px; top: ${f(h2 / 2 - s2.arm / 2)}px; width: ${f(s2.arm)}px; height: ${f(s2.arm)}px;`;
+    if (s2.moving) {
+      const timing = `animation-duration: ${f(s2.period)}s; animation-delay: ${f(s2.delay, 4)}s;`;
+      rules.push(
+        `${L2} { ${at2} ${timing} }`,
+        `${L2} .glide-orbit-face { ${timing} }`,
+        `${O}:hover .glide-orbit-s${i} > .glide-orbit-brake { transform: rotate(-${f(s2.brake)}deg); }`,
+        `${O}:hover .glide-orbit-s${i} .glide-orbit-unbrake { transform: rotate(${f(s2.brake)}deg); }`
+      );
+    } else {
+      const deg = f(s2.theta * 180 / Math.PI);
+      rules.push(`${L2} { ${at2} animation-name: none; transform: rotate(-${deg}deg); }`, `${L2} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`);
+    }
+    rules.push(`${L2} .glide-orbit-jiggle { animation-delay: ${f(s2.jiggleDelay, 4)}s; }`);
+  });
+  return rules.join("\n");
+}
 
 // src/voice/lanes.tsx
 var LANE_STATES = ["idle", "thinking", "answered", "verified", "corrected", "dead"];
@@ -24213,15 +24316,20 @@ var LaneStrip = class {
   #live = false;
   #orbit;
   #swatches = /* @__PURE__ */ new Map();
-  constructor(feed, tern, surface) {
+  #select;
+  #sheet = "";
+  /** `select` runs when a planet is clicked: the lane's index in lanes() (the popup's row order) and the lane. */
+  constructor(feed, tern, surface, select2) {
     this.#feed = feed;
     this.#tern = tern;
     this.#surface = surface;
+    this.#select = select2;
   }
-  /** A recovered surface gets fresh animators. */
+  /** A recovered surface gets fresh animators (and the orbit's stylesheet again). */
   surface(surface) {
     this.close();
     this.#surface = surface;
+    this.#sheet = "";
   }
   environment(options) {
     this.#env = { ...this.#env, ...options };
@@ -24254,7 +24362,8 @@ var LaneStrip = class {
       if (!this.#orbit) {
         const current = () => this.lanes();
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: `${LANES_ID}.orbit.scene`,
+          // The planets are pointer targets animated by the orbit's stylesheet; this image is the tracks and the orb.
+          node: `${LANES_ID}.orbit.scene.bg`,
           label: "Voice and lanes",
           scene: {
             get w() {
@@ -24263,8 +24372,9 @@ var LaneStrip = class {
             get h() {
               return orbitScene(current()).h;
             },
-            key: () => this.lanes().map((l) => `${l.role}=${l.model}=${l.state}`).join(","),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
+            moves: false,
+            key: () => this.lanes().map((l) => `${l.role}=${l.state === "dead"}`).join(","),
+            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
           }
         });
         this.#orbit.environment(this.#env);
@@ -24282,6 +24392,65 @@ var LaneStrip = class {
       this.#orbs.push(orb);
     }
     lanes2.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused));
+  }
+  #image(key3, svg3) {
+    let blob2 = this.#swatches.get(key3);
+    if (!blob2) {
+      blob2 = this.#tern.blob(Buffer.from(svg3()), "image/svg+xml");
+      this.#swatches.set(key3, blob2);
+    }
+    return blob2;
+  }
+  /**
+   * The orbit: the tracks-and-orb image with one native button per lane riding a CSS arm over it. Tern sends
+   * no hover events, so hovering is the stylesheet's (orbitTargets.ts): the arms stop, the planets wobble,
+   * and the one under the pointer names its lane. A click selects the lane (its row in the lanes popup).
+   */
+  #orbitNode(lanes2) {
+    if (!this.#orbit) return null;
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
+    const reduce = Boolean(this.#env.reduce ?? this.#tern.caps.reduceMotion);
+    const drawn = lanes2.map((l) => orbitLane(l, dark));
+    const css2 = orbitCss(drawn, reduce);
+    if (css2 !== this.#sheet) {
+      this.#sheet = css2;
+      this.#surface.stylesheet(ORBIT_SHEET, css2);
+    }
+    const seats = orbitSeats(drawn, reduce);
+    const badge = this.#image(`badge:${dark}`, () => badgeSvg(dark));
+    return /* @__PURE__ */ jsxs(html.div, { class: ORBIT_CLASS + (reduce ? ` ${ORBIT_CLASS}-still` : ""), role: "glide.orbit", children: [
+      /* @__PURE__ */ jsx("image", { role: "glide.orbit.bg", ...this.#orbit.props() }, "bg"),
+      lanes2.map((lane, i) => {
+        const d = drawn[i];
+        const seat = seats[i];
+        if (!d || !seat) return null;
+        const name = `${laneModel(lane.model, lane.resolved).label} \xB7 ${lane.role}`;
+        const face = this.#image(`planet:${d.role}:${d.hue}:${d.state === "thinking" ? "t" : d.state === "dead" ? "d" : "i"}:${dark}`, () => planetSvg(d, dark));
+        const tail = seat.moving ? this.#image(`tail:${d.role}:${d.hue}:${Math.round(seat.arm)}:${dark}`, () => tailSvg(d, seat, dark)) : null;
+        return /* @__PURE__ */ jsx(html.div, { class: `glide-orbit-arm glide-orbit-s${i}`, children: /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-brake", children: [
+          tail ? /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-tail", children: /* @__PURE__ */ jsx("image", { blob: tail, alt: "", w: Math.round(seat.arm), h: Math.round(seat.arm) }, "img") }, "tail") : null,
+          /* @__PURE__ */ jsx(
+            html.button,
+            {
+              aria: `${name}${lane.state === "dead" ? ", dead" : ""}: select this lane`,
+              attrs: { "data-lane": lane.role, "data-lane-index": i },
+              class: "glide-orbit-planet",
+              onClick: () => this.#select?.(i, lane),
+              role: "glide.orbit.planet",
+              children: /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-face", children: /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-unbrake", children: [
+                /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-jiggle", children: [
+                  /* @__PURE__ */ jsx("image", { alt: `${lane.role} lane`, blob: face, h: HIT, role: "glide.orbit.face", w: HIT }, "img"),
+                  /* @__PURE__ */ jsx(html.span, { class: "glide-orbit-ring" }, "ring"),
+                  /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-badge", children: /* @__PURE__ */ jsx("image", { alt: "", blob: badge, h: 11, w: 11 }, "img") }, "badge")
+                ] }, "j"),
+                /* @__PURE__ */ jsx(html.span, { class: "glide-orbit-label", text: name }, "label")
+              ] }, "u") }, "f")
+            },
+            "hit"
+          )
+        ] }, "b") }, `p${i}`);
+      })
+    ] }, "scene");
   }
   #swatch(lane) {
     const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
@@ -24315,17 +24484,843 @@ var LaneStrip = class {
     return /* @__PURE__ */ jsxs("col", { gap: this.#orbit ? "sm" : "none", role: "omp.live.lanes", children: [
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
       this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
-        /* @__PURE__ */ jsx("image", { ...this.#orbit.props() }, "scene"),
+        this.#orbitNode(lanes2),
         /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows }, "rows")
       ] }, "orbit") : rows
     ] }, "lanes");
   }
 };
 
-// ../glide/frontend/wal.ts
-import { mkdirSync, readFileSync as readFileSync3, watch, writeFileSync } from "node:fs";
+// ../glide/frontend/lanesPopup.ts
+import { mkdirSync, readFileSync as readFileSync3, writeFileSync } from "node:fs";
 import { homedir as homedir3 } from "node:os";
-import { basename as basename2, dirname, join as join3 } from "node:path";
+import { dirname, join as join3 } from "node:path";
+
+// src/overlays/identity.ts
+var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
+function nativeOverlayKey(root7) {
+  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
+  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
+    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
+  }
+  return key3;
+}
+function withinOverlayRoot(id, root7) {
+  return id === root7 || id.startsWith(root7 + ".");
+}
+
+// src/eui/ternCss.js
+var TERN_DROP = /* @__PURE__ */ new Set([
+  "aspect-ratio",
+  "text-anchor",
+  "vector-effect",
+  "-webkit-appearance",
+  "appearance",
+  "-webkit-touch-callout",
+  "scroll-margin-top",
+  "grid-template-areas",
+  "grid-area",
+  "resize",
+  "offset-rotate",
+  "offset-anchor",
+  "text-underline-offset",
+  "text-decoration-thickness"
+]);
+var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
+var TERN_ATTR = "data-eui-a-";
+function ternDecl(decl) {
+  const at2 = decl.indexOf(":");
+  if (at2 < 0) {
+    return decl;
+  }
+  const prop2 = decl.slice(0, at2).trim().toLowerCase();
+  let value = decl.slice(at2 + 1).trim();
+  if (prop2.startsWith("--")) {
+    return decl;
+  }
+  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
+    return void 0;
+  }
+  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
+  if (prop2 === "position" && value === "fixed") {
+    return `${decl.slice(0, at2)}:absolute`;
+  }
+  if (prop2 === "border-block") {
+    return `border-top:${value};border-bottom:${value}`;
+  }
+  if (prop2 === "border-inline-start") {
+    return `border-left:${value}`;
+  }
+  return `${decl.slice(0, at2)}:${value}`;
+}
+function ternBody(body) {
+  const out = [];
+  let depth = 0;
+  let quote2 = "";
+  let start = 0;
+  for (let i = 0; i <= body.length; i++) {
+    const ch = body[i];
+    if (quote2) {
+      if (ch === quote2 && body[i - 1] !== "\\") {
+        quote2 = "";
+      }
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote2 = ch;
+    } else if (ch === "(") {
+      depth++;
+    } else if (ch === ")") {
+      depth--;
+    } else if (ch === ";" && depth === 0 || i === body.length) {
+      const decl = body.slice(start, i).trim();
+      const kept = decl ? ternDecl(decl) : void 0;
+      if (kept) {
+        out.push(kept);
+      }
+      start = i + 1;
+    }
+  }
+  return out.join(";");
+}
+
+// src/view/euiCard.tsx
+var TAGS = new Set(EL_TAGS);
+var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
+var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
+function isTag(tag3) {
+  return TAGS.has(tag3);
+}
+function ternTag(tag3, attrs) {
+  if (tag3 === "input") {
+    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
+  }
+  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
+}
+function convert(n3, key3, eui, activate) {
+  if (n3.t === "text") {
+    return n3.text;
+  }
+  if (n3.t === "svg") {
+    const blob2 = eui.svg(n3.svg);
+    const attrs2 = { "data-eui-svg": "" };
+    if (n3.style) {
+      attrs2["data-eui-s"] = eui.style(n3.style);
+    }
+    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
+  }
+  const tag3 = ternTag(n3.tag, n3.attrs);
+  const attrs = {};
+  for (const [k, v] of Object.entries(n3.attrs)) {
+    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
+      attrs[k] = v;
+    }
+    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
+      attrs[`${TERN_ATTR}${k}`] = v;
+    }
+  }
+  if (tag3 !== n3.tag) {
+    attrs["data-eui-tag"] = n3.tag;
+  }
+  if (n3.style) {
+    attrs["data-eui-s"] = eui.style(n3.style);
+  }
+  const kids = n3.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
+  if (n3.tag === "input" && tag3 === "span") {
+    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
+  }
+  return ui.el({
+    key: key3,
+    tag: tag3,
+    attrs,
+    class: n3.cls,
+    ...n3.attrs["hidden"] ? { hidden: true } : {},
+    ...n3.attrs["disabled"] ? { disabled: true } : {},
+    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
+    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
+    ...n3.click ? { onClick: () => {
+      activate(n3.id);
+    } } : {}
+  }, kids);
+}
+function euiCardNode(card, view, eui, popup = false) {
+  if (view.error !== void 0 || !view.node) {
+    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
+  }
+  const root7 = view.node;
+  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
+  const activate = view.activate ?? ((id) => {
+    eui.click(card, id);
+  });
+  return html.div(
+    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
+    root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
+  );
+}
+function euiPopupNode(key3, head2, view, eui) {
+  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
+}
+
+// ../glide/frontend/council.ts
+var MINERAL = {
+  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
+  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
+  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
+  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
+  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
+  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
+  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
+  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
+};
+var FAMILY = {
+  anthropic: ["citrine", "rose", "smoky"],
+  openai: ["labradorite", "moonstone", "lapis"],
+  google: ["malachite"],
+  free: ["clear"]
+};
+var NIGHT = {
+  canvas: "#0c0c0a",
+  text: "#ECE8DF",
+  text2: "#B4AFA3",
+  text3: "#837F74",
+  faint: "#5e5b52",
+  action: "#d7b986",
+  strong: "#eccd8c",
+  muted: "#99835c",
+  danger: "#e37f65",
+  agree: "#98cf8b",
+  border: "rgba(236,232,223,0.10)",
+  borderStrong: "rgba(236,232,223,0.16)"
+};
+var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
+var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
+var COUNCIL_SCHEMA = "glide.council-run/v1";
+var MINERALS = new Set(Object.keys(MINERAL));
+var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
+var KEYS = {
+  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
+  seat: ["id", "name", "family", "mineral", "crew"],
+  turn: ["type", "seat", "round", "cites"],
+  spawn: ["type", "seat"],
+  verdict: ["seat", "stance", "text"]
+};
+var Bad = class extends Error {
+};
+var fail = (where, what) => {
+  throw new Bad(`${where}: ${what}`);
+};
+function obj2(v, where, keys3) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
+  const extra = Object.keys(v).find((k) => !keys3.includes(k));
+  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
+}
+function str3(v, where, max) {
+  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
+}
+function int(v, where, min, max) {
+  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
+}
+function list(v, where, min, max) {
+  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
+}
+function mineral(v, where) {
+  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
+}
+function parseCouncilRun(raw2) {
+  try {
+    return readRun(raw2);
+  } catch (e) {
+    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
+    throw e;
+  }
+}
+function readRun(raw2) {
+  const d = obj2(raw2, "run", KEYS.run);
+  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
+  const rounds = int(d["rounds"], "rounds", 1, 8);
+  const used = /* @__PURE__ */ new Map();
+  const index2 = /* @__PURE__ */ new Map();
+  const seats = list(d["seats"], "seats", 2, 6).map((v, i) => {
+    const s2 = obj2(v, `seats.${i}`, KEYS.seat);
+    const id = str3(s2["id"], `seats.${i}.id`, 40);
+    if (!SEAT_ID.test(id)) fail(`seats.${i}.id`, "expected a lowercase id");
+    if (index2.has(id)) fail(`seats.${i}.id`, "two seats share an id");
+    index2.set(id, i);
+    const family = str3(s2["family"], `seats.${i}.family`, 24);
+    const key3 = family.trim().toLowerCase();
+    const pool = FAMILY[key3] ?? ["clear"];
+    const n3 = used.get(key3) ?? 0;
+    used.set(key3, n3 + 1);
+    return Object.freeze({
+      id,
+      family,
+      name: str3(s2["name"], `seats.${i}.name`, 24),
+      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
+      crew: Object.freeze(s2["crew"] === void 0 ? [] : list(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
+    });
+  });
+  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
+  const events = list(d["events"], "events", 0, 400).map((v, i) => {
+    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
+    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS.spawn)["seat"], `events.${i}.seat`) });
+    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
+    const e = obj2(v, `events.${i}`, KEYS.turn);
+    const cites = e["cites"] === void 0 ? [] : list(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
+    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
+  });
+  const heard = /* @__PURE__ */ new Set();
+  const verdicts = list(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
+    const e = obj2(v, `verdicts.${i}`, KEYS.verdict);
+    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
+    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
+    heard.add(s2);
+    const stance = e["stance"];
+    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
+    return Object.freeze({ seat: s2, stance, text: str3(e["text"], `verdicts.${i}.text`, 240) });
+  });
+  return Object.freeze({
+    brief: str3(d["brief"], "brief", 280),
+    rounds,
+    seats: Object.freeze(seats),
+    events: Object.freeze(events),
+    verdicts: Object.freeze(verdicts),
+    ...d["outcome"] === void 0 ? {} : { outcome: str3(d["outcome"], "outcome", 160) }
+  });
+}
+function demoRun() {
+  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
+  const seats = [
+    { id: "argon", name: "Argon", family: "Google", crew: CREW },
+    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
+    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
+    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
+  ];
+  const ids = seats.map((s2) => s2.id);
+  const events = [];
+  for (const id of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id });
+  for (let round = 1; round <= 4; round++) {
+    ids.forEach((id, i) => {
+      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id });
+      const peers = ids.filter((p3) => p3 !== id);
+      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
+      events.push({ type: "turn", seat: id, round, cites });
+    });
+  }
+  for (const id of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id });
+  const run8 = parseCouncilRun({
+    schema: COUNCIL_SCHEMA,
+    brief: "Should a small team ship a plugin before its launcher?",
+    rounds: 4,
+    seats,
+    events,
+    verdicts: [
+      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
+      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
+      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
+      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
+    ],
+    outcome: "Ship the plugin first"
+  });
+  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
+  return run8;
+}
+var TURN_MS = 520;
+var SPAWN_MS = 90;
+var FLY_MS = 220;
+var THREAD_MS = 360;
+var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+function schedule(run8) {
+  const at2 = [];
+  let t = 0;
+  for (const e of run8.events) {
+    at2.push(t);
+    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
+  }
+  return { at: at2, total: t };
+}
+function moment(run8, frame2) {
+  const { at: at2, total } = schedule(run8);
+  const t = frame2.t;
+  const done = t !== null && t >= total;
+  let idx = -1;
+  if (t !== null) {
+    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
+  }
+  const running2 = t !== null && !done;
+  const lit2 = run8.seats.map(() => 0);
+  const born = /* @__PURE__ */ new Map();
+  const lastTurn = run8.seats.map(() => -1);
+  run8.events.forEach((e, i) => {
+    if (e.type === "turn") lastTurn[e.seat] = i;
+  });
+  let round = 0;
+  for (let i = 0; i <= idx; i++) {
+    const e = run8.events[i];
+    if (!e) continue;
+    if (e.type === "spawn") {
+      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
+      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
+    } else round = e.round;
+  }
+  const cur = idx >= 0 ? run8.events[idx] : void 0;
+  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
+  const closed = /* @__PURE__ */ new Set();
+  run8.seats.forEach((_2, s2) => {
+    const last = lastTurn[s2] ?? -1;
+    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
+  });
+  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
+}
+function narration(run8, frame2) {
+  const m2 = moment(run8, frame2);
+  const nm = (i) => run8.seats[i]?.name ?? "?";
+  const helpers = run8.events.filter((e) => e.type === "spawn").length;
+  if (frame2.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
+  if (m2.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
+  const cur = run8.events[m2.idx];
+  if (!cur) return "The council takes its seats";
+  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
+  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
+  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
+  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
+}
+function closedSeats(run8, frame2) {
+  return moment(run8, frame2).closed;
+}
+var n22 = (v) => (Math.round(v * 10) / 10).toString();
+var esc = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function tag2(name, attrs, kids = "") {
+  let a2 = "";
+  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n22(v) : esc(v)}"`;
+  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
+}
+var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
+var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
+var toHex = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+var mix = (a2, b, t) => {
+  const x = hex(a2), y = hex(b);
+  return toHex(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
+};
+var D = Math.PI / 180;
+var KEY = 225 * D;
+function lit(phi, tilt, az) {
+  const el = 52 * D;
+  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
+}
+var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
+var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
+var pts = (p3) => p3.map(([x, y]) => `${n22(x)},${n22(y)}`).join(" ");
+function brilliant(cx, cy, r) {
+  const f2 = [];
+  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
+  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
+  const g = (deg) => at(cx, cy, r, deg * D);
+  f2.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
+  for (let k = 0; k < 8; k++) {
+    const a2 = 22.5 + 45 * k;
+    f2.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
+    f2.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
+    f2.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
+    f2.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
+  }
+  return f2;
+}
+function gem(id, kind, cx, cy, r, opts = {}) {
+  const m2 = MINERAL[kind];
+  const glint = opts.glint ?? null;
+  const g = glint ?? 0.5;
+  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
+  const az = KEY + (g - 0.5) * 70 * D;
+  const hl = at(cx, cy, r * 0.42, az);
+  const far = at(cx, cy, r * 0.38, az + Math.PI);
+  const op = opts.dim ? 0.55 : void 0;
+  if (opts.low) {
+    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m2.base, "fill-opacity": 0.16, stroke: m2.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m2.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
+    return tag2(
+      "g",
+      { opacity: op },
+      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m2.light) + stop(0.45, m2.base) + stop(1, m2.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
+    );
+  }
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m2.glow, 0.75 + 0.2 * shine) + stop(1, m2.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m2.light) + stop(0.42, m2.base) + stop(1, m2.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
+  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
+  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
+  let body = tag2("circle", { cx, cy, r, fill: m2.base });
+  if (m2.cut === "brilliant") {
+    body += brilliant(cx, cy, r).map((f2, k) => {
+      const b = Math.min(1, lit(f2.phi, f2.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
+      let fill = mix(m2.deep, m2.base, b * 1.35);
+      if (b > 0.72) fill = mix(fill, m2.light, (b - 0.72) * 3 + shine * 0.25);
+      return tag2("path", { d: `M ${pts(f2.p).replace(/ /g, " L ")} Z`, fill, stroke: m2.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
+    }).join("");
+    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
+    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n22(cx + r * 0.18)} ${n22(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
+    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
+    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
+  } else {
+    body += tag2("circle", { cx, cy, r, fill: `url(#${id}d)` });
+    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
+      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
+      const distance = Math.hypot(bx - cx, by - cy);
+      const angle = Math.atan2(cy - by, cx - bx);
+      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
+      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
+      return tag2("path", {
+        d: `M ${pts([start])} A ${n22(radius)} ${n22(radius)} 0 0 1 ${pts([end])}`,
+        fill: "none",
+        stroke: k % 2 ? "#0c3a26" : "#5cc893",
+        "stroke-opacity": k % 2 ? 0.75 : 0.45,
+        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
+      });
+    }).join("");
+    if (kind === "labradorite") body += tag2("ellipse", {
+      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
+      cy: cy + r * 0.05,
+      rx: r * 0.95,
+      ry: r * 0.42,
+      transform: `rotate(${n22(-32 + (g - 0.5) * 50)} ${n22(cx)} ${n22(cy)})`,
+      fill: `url(#${id}f)`,
+      "fill-opacity": 0.5 + 0.45 * shine
+    });
+    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id}a)`, "fill-opacity": 0.55 + 0.4 * shine });
+    if (kind === "lapis") {
+      body += tag2("path", { d: `M ${n22(cx - r)} ${n22(cy + r * 0.35)} Q ${n22(cx - r * 0.1)} ${n22(cy + r * 0.05)} ${n22(cx + r)} ${n22(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
+      for (let k = 0; k < 14; k++) {
+        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
+        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
+      }
+    }
+  }
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m2.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
+  const [hx, hy] = hl;
+  body += m2.cut === "brilliant" ? tag2("path", {
+    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n22(hx + r * dx)} ${n22(hy + r * dy)}`).join(" ") + " Z",
+    fill: "#ffffff",
+    "fill-opacity": 0.55 + 0.45 * shine
+  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n22(az / D + 90)} ${n22(hx)} ${n22(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
+  return tag2(
+    "g",
+    { opacity: op },
+    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id}c)` }, body)
+  );
+}
+function swatchSvg(kind, size) {
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
+}
+var STARS = (() => {
+  let seed = 11;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
+})();
+function instrumentSvg(run8, frame2, size = 480) {
+  const m2 = moment(run8, frame2);
+  const c = size / 2;
+  const orbit = size * 0.335;
+  const R = Math.max(18, size * 0.064);
+  const table3 = orbit + R + size * 0.06;
+  const ringMin = size * 0.085;
+  const ringMax = orbit - R * 0.35;
+  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
+  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
+  const n3 = run8.seats.length;
+  const pos = run8.seats.map((_2, i) => {
+    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
+    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
+  });
+  const t = frame2.t ?? 0;
+  const cur = m2.idx >= 0 ? run8.events[m2.idx] : void 0;
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let s2 = tag2(
+    "defs",
+    {},
+    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
+  );
+  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
+  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
+  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
+  for (let i = 0; i < 72; i++) {
+    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
+    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
+  }
+  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
+  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
+  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
+  for (let i = 0; i < run8.rounds; i++) {
+    const r = ringR(i);
+    const now = m2.running && m2.round === i + 1;
+    const past = frame2.t !== null && (m2.round > i + 1 || m2.done);
+    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
+    if (ringGap >= 12 || i % 2 === 1 || now) {
+      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
+      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
+    }
+  }
+  if (m2.speaking >= 0 && cur?.type === "turn") {
+    const p3 = pos[m2.speaking];
+    const k = ease(m2.since / THREAD_MS);
+    const targets = cur.cites.filter((j) => j !== m2.speaking);
+    if (p3 && !targets.length) {
+      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
+    }
+    for (const j of targets) {
+      const q2 = pos[j];
+      if (!p3 || !q2) continue;
+      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
+      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
+      s2 += tag2("path", { d: `M ${n22(p3.x)} ${n22(p3.y)} Q ${n22(mx)} ${n22(my)} ${n22(q2.x)} ${n22(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n22(len)} ${n22(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
+      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
+    }
+  }
+  if (m2.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
+  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
+  run8.seats.forEach((seat, i) => {
+    const p3 = pos[i];
+    if (!p3) return;
+    const talk = m2.speaking === i;
+    const crew = seat.crew;
+    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
+    crew.forEach((stone, k) => {
+      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
+      const on = frame2.t === null || k < (m2.lit[i] ?? 0);
+      const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
+      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
+      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
+    });
+    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
+    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m2.since / TURN_MS) : null, dim: m2.running && !talk });
+    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
+    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc(seat.name));
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc(MINERAL[seat.mineral].label.toUpperCase()));
+  });
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
+}
+
+// ../glide/frontend/lanesPopup.ts
+var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
+var CLOSE_ID = 2;
+var PICK_BASE = 100;
+var PICK_STRIDE = 32;
+var APP = "glide";
+var ROLE_ORDER2 = ["fast", "small", "large", "council"];
+function fileBindings(path2 = process.env[BINDINGS_ENV] || join3(homedir3(), ".config/glide/lane-bindings.json")) {
+  const get = () => {
+    try {
+      const v = JSON.parse(readFileSync3(path2, "utf8"));
+      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
+    } catch {
+      return {};
+    }
+  };
+  return {
+    where: path2,
+    get,
+    set: (role, model) => {
+      mkdirSync(dirname(path2), { recursive: true });
+      writeFileSync(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
+    }
+  };
+}
+var DOT = {
+  idle: NIGHT.text3,
+  thinking: NIGHT.strong,
+  answered: NIGHT.action,
+  verified: NIGHT.agree,
+  corrected: NIGHT.muted,
+  dead: NIGHT.danger
+};
+var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
+var laneChoices = (lane, bound2) => roleChoices(lane.role, [lane.model, bound2[lane.role] ?? ""]).slice(0, PICK_STRIDE);
+var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
+var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
+var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
+var ROLES_SHOWN = ["fast", "small", "large", "council"];
+var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
+var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
+var BILL_SHORT = { free: "FREE", subscription: "SUB", paid: "PAID", unknown: "?" };
+var BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 };
+function lanesCard(src, bound2, where, roles, focus) {
+  let next2 = 10;
+  const text18 = (value) => ({ t: "text", text: value });
+  const el = (tag3, style2, kids, opts = {}) => ({
+    t: "el",
+    tag: tag3,
+    id: opts.id ?? next2++,
+    cls: "",
+    style: style2,
+    attrs: opts.attrs ?? {},
+    click: opts.id !== void 0,
+    kids
+  });
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
+  const dot = (hue, size = 8) => el("span", `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, []);
+  const swatch = (role, hue) => el("span", `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)]);
+  const pips = (effort2) => el("span", "display:flex;align-items:center;gap:2px", [0, 1, 2, 3].map((i) => el("span", `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort2].orbits ? EFFORTS[effort2].accent : NIGHT.faint}`, [])));
+  const badge = (kids, color2, border, attrs = {}) => el("span", `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color2}`, kids, { attrs });
+  const lanes2 = sortLanes(src.call?.lanes ?? []);
+  const live = Boolean(src.call?.open && lanes2.length);
+  const dead = lanes2.filter((l) => l.state === "dead").length;
+  const status = live ? "LIVE CALL" : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
+  const ready = lanes2.length - dead;
+  const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
+  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
+    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
+      el("span", `${micro};letter-spacing:2px`, [text18("LANE BROKER")]),
+      el(
+        "span",
+        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
+        [text18(status)],
+        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {} } }
+      )
+    ]),
+    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
+    el(
+      "span",
+      `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`,
+      [text18(summary4)],
+      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } }
+    )
+  ]);
+  const rows = lanes2.map((lane, i) => {
+    const binding = bound2[lane.role];
+    const current = binding ?? lane.model;
+    const info = laneModel(current, binding ? null : lane.resolved, roles);
+    const hue = PROVIDERS[info.provider].hue;
+    const isDead = lane.state === "dead";
+    const waiting5 = !live && lane.state === "idle";
+    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
+    const id = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
+    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
+    const badges = [
+      badge([dot(hue, 6), text18(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` }),
+      badge([text18(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` }),
+      badge([pips(info.effort), text18(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { "data-lane-effort": `${lane.role}=${info.effort}`, title: "effort: orbit pips, as in the zerOS agent-core key" }),
+      badge([text18(info.route === "local" ? "ON DEVICE" : "CLOUD")], NIGHT.text2, NIGHT.border, { "data-lane-route": `${lane.role}=${info.route}` }),
+      ...info.via ? [badge([text18("VOICE PLAN")], NIGHT.text2, NIGHT.border)] : [],
+      ...binding && binding !== lane.model ? [badge([text18("BOUND LOCALLY")], NIGHT.strong, rgba("#eccd8c", 0.4), { "data-lane-rebound": lane.role })] : []
+    ];
+    const picked = i === focus;
+    const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : "";
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : "") + lift, [
+      el("div", "display:flex;align-items:center;gap:9px", [
+        swatch(lane.role, hue),
+        el("span", `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
+        el("span", `font-size:13.5px;color:${NIGHT.text}`, [text18(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(" \xB7 "), "data-lane-model": `${lane.role}=${current}` } }),
+        el("span", `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [
+          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+          text18(waiting5 ? "READY" : lane.state.toUpperCase())
+        ]),
+        ...picked ? [el("span", `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text18("SELECTED")], { attrs: { "data-lane-focus": lane.role } })] : []
+      ]),
+      el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:23px", badges),
+      ...line ? [el("span", `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
+      el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px", [
+        el("span", `${micro};font-size:8.5px`, [text18("REBIND")]),
+        ...laneChoices(lane, bound2).map((m2, j) => {
+          const on = current === m2;
+          const c = laneModel(m2, null, roles);
+          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
+          const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
+          const label = twin ? `${short} \xB7 plan` : short;
+          return el(
+            "button",
+            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
+            [
+              dot(PROVIDERS[c.provider].hue, 6),
+              el("span", `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text18(label)]),
+              el("span", `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text18(BILL_SHORT[c.billing])])
+            ],
+            { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m2}`, title: [c.via ? `${c.via} \u2192 ${c.target ?? "unresolved"}` : m2, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(" \xB7 "), ...on ? { "data-lane-bound": "true" } : {} } }
+          );
+        })
+      ])
+    ]);
+  });
+  const keyRow = (title, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
+    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text18(title)]),
+    ...items
+  ]);
+  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
+  const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
+  const legend = el("div", `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+    el("div", "display:flex;align-items:center;justify-content:space-between", [
+      el("span", `${micro};letter-spacing:2px`, [text18("KEY")]),
+      el("span", `font-size:11px;color:${NIGHT.text2}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
+    ]),
+    keyRow("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
+    keyRow("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
+    keyRow("ORBIT", [...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ${lanePeriod(r)} s`)), item3(dot(NIGHT.text2, 7), "one dot per lane")]),
+    keyRow("BILLING", [item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text18("SUB")]), "subscription"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text18("PAID")]), "metered")])
+  ], { attrs: { "data-lanes-legend": "true" } });
+  const close = el(
+    "button",
+    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
+    { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
+  );
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+    header,
+    el("div", "display:flex;flex-direction:column", rows),
+    legend,
+    el("div", "display:flex;justify-content:flex-end", [close])
+  ])]);
+}
+function openLanesPopup(host, feed, bindings = fileBindings(), focus) {
+  const eui = host.eui;
+  if (!eui) {
+    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
+    return void 0;
+  }
+  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token." };
+  const overlay2 = {
+    key: "glide-lanes",
+    modal: true,
+    focus: () => null,
+    node: (id) => {
+      const src = source2();
+      const bound2 = bindings.get();
+      const lanes2 = sortLanes(src.call?.lanes ?? []);
+      const view = {
+        spec: { kind: "lanes", app: APP },
+        app: APP,
+        label: "Voice lanes",
+        identity: "lanes",
+        node: lanesCard(src, bound2, bindings.where, void 0, focus),
+        activate: (n3) => {
+          if (n3 === CLOSE_ID) return host.close(overlay2);
+          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
+          const model = lane && laneChoices(lane, bound2)[(n3 - PICK_BASE) % PICK_STRIDE];
+          if (n3 < PICK_BASE || !lane || !model) return;
+          try {
+            bindings.set(lane.role, model);
+          } catch (e) {
+            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
+          }
+          host.changed();
+        }
+      };
+      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
+    },
+    onKey: (key3) => {
+      if (key3.name === "escape") host.close(overlay2);
+      return true;
+    }
+  };
+  host.open(overlay2);
+  return overlay2;
+}
+
+// ../glide/frontend/wal.ts
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, watch, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir4 } from "node:os";
+import { basename as basename2, dirname as dirname2, join as join4 } from "node:path";
 
 // node_modules/@hermes/shared/src/color.ts
 var HEX6_RE = /^#?([0-9a-f]{6})$/i;
@@ -24350,14 +25345,14 @@ function parseColor(input2) {
   }
   return null;
 }
-var toHex = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
-function mix(a2, b, t) {
+var toHex2 = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
+function mix2(a2, b, t) {
   const pa = parseColor(a2);
   const pb = parseColor(b);
   if (!pa || !pb) {
     return a2;
   }
-  return toHex([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
+  return toHex2([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
 }
 function channelLuminance(value) {
   const normalized = value / 255;
@@ -24402,7 +25397,7 @@ function ensureContrast(color2, bg, min, step = 0.2) {
   let best = color2;
   const rung = Number.isFinite(step) && step >= 1e-3 ? Math.min(step, 1) : 0.2;
   for (let amount = rung; amount <= 1.0001; amount += rung) {
-    best = mix(color2, pole, Math.min(amount, 1));
+    best = mix2(color2, pole, Math.min(amount, 1));
     const stepRatio = contrastRatio(best, bg);
     if (stepRatio !== null && stepRatio >= min) {
       return best;
@@ -24440,15 +25435,15 @@ var TEXT_FLOOR = 4.5;
 var WAL_SHEET = "glide-auto-theme";
 var HEX = /^#[0-9a-f]{6}$/i;
 function walFile(env2 = process.env) {
-  return env2["GLIDE_WAL_COLORS"] || join3(env2["XDG_CACHE_HOME"] || join3(homedir3(), ".cache"), "wal", "colors.json");
+  return env2["GLIDE_WAL_COLORS"] || join4(env2["XDG_CACHE_HOME"] || join4(homedir4(), ".cache"), "wal", "colors.json");
 }
 function exportFile(env2 = process.env) {
-  return env2["GLIDE_THEME_EXPORT"] || join3(env2["XDG_CACHE_HOME"] || join3(homedir3(), ".cache"), "glide", "theme.json");
+  return env2["GLIDE_THEME_EXPORT"] || join4(env2["XDG_CACHE_HOME"] || join4(homedir4(), ".cache"), "glide", "theme.json");
 }
 function readWal(file2) {
   let text18;
   try {
-    text18 = readFileSync3(file2, "utf8");
+    text18 = readFileSync4(file2, "utf8");
   } catch {
     return void 0;
   }
@@ -24506,8 +25501,8 @@ function walPalette(wal, source2 = "") {
     error: text18(wal.colors["color1"], fg),
     success: text18(wal.colors["color2"], fg),
     warning: text18(wal.colors["color3"], fg),
-    selectedBg: mix(bg, accent, 0.18),
-    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)]
+    selectedBg: mix2(bg, accent, 0.18),
+    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)]
   };
 }
 function walTernPalette(p3) {
@@ -24551,8 +25546,8 @@ function walCss(p3) {
 `;
 }
 function exportPalette(p3, file2 = exportFile()) {
-  mkdirSync(dirname(file2), { recursive: true });
-  writeFileSync(file2, `${JSON.stringify(p3, null, 2)}
+  mkdirSync2(dirname2(file2), { recursive: true });
+  writeFileSync2(file2, `${JSON.stringify(p3, null, 2)}
 `);
   return file2;
 }
@@ -24560,7 +25555,7 @@ function watchWal(file2, changed, debounceMs = 50) {
   let timer;
   let watcher;
   try {
-    watcher = watch(dirname(file2), (_event, name) => {
+    watcher = watch(dirname2(file2), (_event, name) => {
       if (name && name.toString() !== basename2(file2)) return;
       clearTimeout(timer);
       timer = setTimeout(changed, debounceMs);
@@ -26157,7 +27152,7 @@ var ZodMiniNumberFormat = /* @__PURE__ */ $constructor("ZodMiniNumberFormat", (i
   ZodMiniNumber.init(inst, def);
 });
 // @__NO_SIDE_EFFECTS__
-function int(params) {
+function int2(params) {
   return _int(ZodMiniNumberFormat, params);
 }
 var ZodMiniBoolean = /* @__PURE__ */ $constructor("ZodMiniBoolean", (inst, def) => {
@@ -26356,829 +27351,6 @@ function pipe(in_, out) {
   });
 }
 
-// ../glide/frontend/lanesPopup.ts
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir as homedir4 } from "node:os";
-import { dirname as dirname2, join as join4 } from "node:path";
-
-// src/overlays/identity.ts
-var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
-function nativeOverlayKey(root7) {
-  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
-  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
-    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
-  }
-  return key3;
-}
-function withinOverlayRoot(id, root7) {
-  return id === root7 || id.startsWith(root7 + ".");
-}
-
-// src/eui/ternCss.js
-var TERN_DROP = /* @__PURE__ */ new Set([
-  "aspect-ratio",
-  "text-anchor",
-  "vector-effect",
-  "-webkit-appearance",
-  "appearance",
-  "-webkit-touch-callout",
-  "scroll-margin-top",
-  "grid-template-areas",
-  "grid-area",
-  "resize",
-  "offset-rotate",
-  "offset-anchor",
-  "text-underline-offset",
-  "text-decoration-thickness"
-]);
-var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
-var TERN_ATTR = "data-eui-a-";
-function ternDecl(decl) {
-  const at2 = decl.indexOf(":");
-  if (at2 < 0) {
-    return decl;
-  }
-  const prop2 = decl.slice(0, at2).trim().toLowerCase();
-  let value = decl.slice(at2 + 1).trim();
-  if (prop2.startsWith("--")) {
-    return decl;
-  }
-  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
-    return void 0;
-  }
-  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
-  if (prop2 === "position" && value === "fixed") {
-    return `${decl.slice(0, at2)}:absolute`;
-  }
-  if (prop2 === "border-block") {
-    return `border-top:${value};border-bottom:${value}`;
-  }
-  if (prop2 === "border-inline-start") {
-    return `border-left:${value}`;
-  }
-  return `${decl.slice(0, at2)}:${value}`;
-}
-function ternBody(body) {
-  const out = [];
-  let depth = 0;
-  let quote2 = "";
-  let start = 0;
-  for (let i = 0; i <= body.length; i++) {
-    const ch = body[i];
-    if (quote2) {
-      if (ch === quote2 && body[i - 1] !== "\\") {
-        quote2 = "";
-      }
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote2 = ch;
-    } else if (ch === "(") {
-      depth++;
-    } else if (ch === ")") {
-      depth--;
-    } else if (ch === ";" && depth === 0 || i === body.length) {
-      const decl = body.slice(start, i).trim();
-      const kept = decl ? ternDecl(decl) : void 0;
-      if (kept) {
-        out.push(kept);
-      }
-      start = i + 1;
-    }
-  }
-  return out.join(";");
-}
-
-// src/view/euiCard.tsx
-var TAGS = new Set(EL_TAGS);
-var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
-var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
-function isTag(tag3) {
-  return TAGS.has(tag3);
-}
-function ternTag(tag3, attrs) {
-  if (tag3 === "input") {
-    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
-  }
-  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
-}
-function convert(n3, key3, eui, activate) {
-  if (n3.t === "text") {
-    return n3.text;
-  }
-  if (n3.t === "svg") {
-    const blob2 = eui.svg(n3.svg);
-    const attrs2 = { "data-eui-svg": "" };
-    if (n3.style) {
-      attrs2["data-eui-s"] = eui.style(n3.style);
-    }
-    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
-  }
-  const tag3 = ternTag(n3.tag, n3.attrs);
-  const attrs = {};
-  for (const [k, v] of Object.entries(n3.attrs)) {
-    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
-      attrs[k] = v;
-    }
-    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
-      attrs[`${TERN_ATTR}${k}`] = v;
-    }
-  }
-  if (tag3 !== n3.tag) {
-    attrs["data-eui-tag"] = n3.tag;
-  }
-  if (n3.style) {
-    attrs["data-eui-s"] = eui.style(n3.style);
-  }
-  const kids = n3.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
-  if (n3.tag === "input" && tag3 === "span") {
-    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
-  }
-  return ui.el({
-    key: key3,
-    tag: tag3,
-    attrs,
-    class: n3.cls,
-    ...n3.attrs["hidden"] ? { hidden: true } : {},
-    ...n3.attrs["disabled"] ? { disabled: true } : {},
-    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
-    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
-    ...n3.click ? { onClick: () => {
-      activate(n3.id);
-    } } : {}
-  }, kids);
-}
-function euiCardNode(card, view, eui, popup = false) {
-  if (view.error !== void 0 || !view.node) {
-    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
-  }
-  const root7 = view.node;
-  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
-  const activate = view.activate ?? ((id) => {
-    eui.click(card, id);
-  });
-  return html.div(
-    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
-    root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
-  );
-}
-function euiPopupNode(key3, head2, view, eui) {
-  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
-}
-
-// ../glide/frontend/council.ts
-var MINERAL = {
-  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
-  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
-  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
-  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
-  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
-  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
-  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
-  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
-};
-var FAMILY = {
-  anthropic: ["citrine", "rose", "smoky"],
-  openai: ["labradorite", "moonstone", "lapis"],
-  google: ["malachite"],
-  free: ["clear"]
-};
-var NIGHT = {
-  canvas: "#0c0c0a",
-  text: "#ECE8DF",
-  text2: "#B4AFA3",
-  text3: "#837F74",
-  faint: "#5e5b52",
-  action: "#d7b986",
-  strong: "#eccd8c",
-  muted: "#99835c",
-  danger: "#e37f65",
-  agree: "#98cf8b",
-  border: "rgba(236,232,223,0.10)",
-  borderStrong: "rgba(236,232,223,0.16)"
-};
-var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
-var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
-var COUNCIL_SCHEMA = "glide.council-run/v1";
-var MINERALS = new Set(Object.keys(MINERAL));
-var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
-var KEYS = {
-  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
-  seat: ["id", "name", "family", "mineral", "crew"],
-  turn: ["type", "seat", "round", "cites"],
-  spawn: ["type", "seat"],
-  verdict: ["seat", "stance", "text"]
-};
-var Bad = class extends Error {
-};
-var fail = (where, what) => {
-  throw new Bad(`${where}: ${what}`);
-};
-function obj2(v, where, keys3) {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
-  const extra = Object.keys(v).find((k) => !keys3.includes(k));
-  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
-}
-function str3(v, where, max) {
-  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
-}
-function int2(v, where, min, max) {
-  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
-}
-function list(v, where, min, max) {
-  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
-}
-function mineral(v, where) {
-  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
-}
-function parseCouncilRun(raw2) {
-  try {
-    return readRun(raw2);
-  } catch (e) {
-    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
-    throw e;
-  }
-}
-function readRun(raw2) {
-  const d = obj2(raw2, "run", KEYS.run);
-  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
-  const rounds = int2(d["rounds"], "rounds", 1, 8);
-  const used = /* @__PURE__ */ new Map();
-  const index2 = /* @__PURE__ */ new Map();
-  const seats = list(d["seats"], "seats", 2, 6).map((v, i) => {
-    const s2 = obj2(v, `seats.${i}`, KEYS.seat);
-    const id = str3(s2["id"], `seats.${i}.id`, 40);
-    if (!SEAT_ID.test(id)) fail(`seats.${i}.id`, "expected a lowercase id");
-    if (index2.has(id)) fail(`seats.${i}.id`, "two seats share an id");
-    index2.set(id, i);
-    const family = str3(s2["family"], `seats.${i}.family`, 24);
-    const key3 = family.trim().toLowerCase();
-    const pool = FAMILY[key3] ?? ["clear"];
-    const n3 = used.get(key3) ?? 0;
-    used.set(key3, n3 + 1);
-    return Object.freeze({
-      id,
-      family,
-      name: str3(s2["name"], `seats.${i}.name`, 24),
-      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
-      crew: Object.freeze(s2["crew"] === void 0 ? [] : list(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
-    });
-  });
-  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
-  const events = list(d["events"], "events", 0, 400).map((v, i) => {
-    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
-    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS.spawn)["seat"], `events.${i}.seat`) });
-    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
-    const e = obj2(v, `events.${i}`, KEYS.turn);
-    const cites = e["cites"] === void 0 ? [] : list(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
-    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int2(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
-  });
-  const heard = /* @__PURE__ */ new Set();
-  const verdicts = list(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
-    const e = obj2(v, `verdicts.${i}`, KEYS.verdict);
-    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
-    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
-    heard.add(s2);
-    const stance = e["stance"];
-    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
-    return Object.freeze({ seat: s2, stance, text: str3(e["text"], `verdicts.${i}.text`, 240) });
-  });
-  return Object.freeze({
-    brief: str3(d["brief"], "brief", 280),
-    rounds,
-    seats: Object.freeze(seats),
-    events: Object.freeze(events),
-    verdicts: Object.freeze(verdicts),
-    ...d["outcome"] === void 0 ? {} : { outcome: str3(d["outcome"], "outcome", 160) }
-  });
-}
-function demoRun() {
-  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
-  const seats = [
-    { id: "argon", name: "Argon", family: "Google", crew: CREW },
-    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
-    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
-    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
-  ];
-  const ids = seats.map((s2) => s2.id);
-  const events = [];
-  for (const id of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id });
-  for (let round = 1; round <= 4; round++) {
-    ids.forEach((id, i) => {
-      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id });
-      const peers = ids.filter((p3) => p3 !== id);
-      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
-      events.push({ type: "turn", seat: id, round, cites });
-    });
-  }
-  for (const id of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id });
-  const run8 = parseCouncilRun({
-    schema: COUNCIL_SCHEMA,
-    brief: "Should a small team ship a plugin before its launcher?",
-    rounds: 4,
-    seats,
-    events,
-    verdicts: [
-      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
-      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
-      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
-      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
-    ],
-    outcome: "Ship the plugin first"
-  });
-  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
-  return run8;
-}
-var TURN_MS = 520;
-var SPAWN_MS = 90;
-var FLY_MS = 220;
-var THREAD_MS = 360;
-var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
-function schedule(run8) {
-  const at2 = [];
-  let t = 0;
-  for (const e of run8.events) {
-    at2.push(t);
-    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
-  }
-  return { at: at2, total: t };
-}
-function moment(run8, frame2) {
-  const { at: at2, total } = schedule(run8);
-  const t = frame2.t;
-  const done = t !== null && t >= total;
-  let idx = -1;
-  if (t !== null) {
-    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
-  }
-  const running2 = t !== null && !done;
-  const lit2 = run8.seats.map(() => 0);
-  const born = /* @__PURE__ */ new Map();
-  const lastTurn = run8.seats.map(() => -1);
-  run8.events.forEach((e, i) => {
-    if (e.type === "turn") lastTurn[e.seat] = i;
-  });
-  let round = 0;
-  for (let i = 0; i <= idx; i++) {
-    const e = run8.events[i];
-    if (!e) continue;
-    if (e.type === "spawn") {
-      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
-      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
-    } else round = e.round;
-  }
-  const cur = idx >= 0 ? run8.events[idx] : void 0;
-  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
-  const closed = /* @__PURE__ */ new Set();
-  run8.seats.forEach((_2, s2) => {
-    const last = lastTurn[s2] ?? -1;
-    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
-  });
-  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
-}
-function narration(run8, frame2) {
-  const m2 = moment(run8, frame2);
-  const nm = (i) => run8.seats[i]?.name ?? "?";
-  const helpers = run8.events.filter((e) => e.type === "spawn").length;
-  if (frame2.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
-  if (m2.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
-  const cur = run8.events[m2.idx];
-  if (!cur) return "The council takes its seats";
-  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
-  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
-  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
-  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
-}
-function closedSeats(run8, frame2) {
-  return moment(run8, frame2).closed;
-}
-var n2 = (v) => (Math.round(v * 10) / 10).toString();
-var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-function tag2(name, attrs, kids = "") {
-  let a2 = "";
-  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n2(v) : esc2(v)}"`;
-  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
-}
-var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
-var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
-var toHex2 = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
-var mix2 = (a2, b, t) => {
-  const x = hex(a2), y = hex(b);
-  return toHex2(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
-};
-var D = Math.PI / 180;
-var KEY = 225 * D;
-function lit(phi, tilt, az) {
-  const el = 52 * D;
-  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
-}
-var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
-var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
-var pts = (p3) => p3.map(([x, y]) => `${n2(x)},${n2(y)}`).join(" ");
-function brilliant(cx, cy, r) {
-  const f = [];
-  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
-  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
-  const g = (deg) => at(cx, cy, r, deg * D);
-  f.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
-  for (let k = 0; k < 8; k++) {
-    const a2 = 22.5 + 45 * k;
-    f.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
-    f.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
-    f.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
-    f.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
-  }
-  return f;
-}
-function gem(id, kind, cx, cy, r, opts = {}) {
-  const m2 = MINERAL[kind];
-  const glint = opts.glint ?? null;
-  const g = glint ?? 0.5;
-  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
-  const az = KEY + (g - 0.5) * 70 * D;
-  const hl = at(cx, cy, r * 0.42, az);
-  const far = at(cx, cy, r * 0.38, az + Math.PI);
-  const op = opts.dim ? 0.55 : void 0;
-  if (opts.low) {
-    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m2.base, "fill-opacity": 0.16, stroke: m2.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m2.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
-    return tag2(
-      "g",
-      { opacity: op },
-      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m2.light) + stop(0.45, m2.base) + stop(1, m2.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
-    );
-  }
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m2.glow, 0.75 + 0.2 * shine) + stop(1, m2.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m2.light) + stop(0.42, m2.base) + stop(1, m2.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
-  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
-  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
-  let body = tag2("circle", { cx, cy, r, fill: m2.base });
-  if (m2.cut === "brilliant") {
-    body += brilliant(cx, cy, r).map((f, k) => {
-      const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
-      let fill = mix2(m2.deep, m2.base, b * 1.35);
-      if (b > 0.72) fill = mix2(fill, m2.light, (b - 0.72) * 3 + shine * 0.25);
-      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m2.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
-    }).join("");
-    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
-    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n2(cx + r * 0.18)} ${n2(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
-    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
-    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
-  } else {
-    body += tag2("circle", { cx, cy, r, fill: `url(#${id}d)` });
-    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
-      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
-      const distance = Math.hypot(bx - cx, by - cy);
-      const angle = Math.atan2(cy - by, cx - bx);
-      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
-      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
-      return tag2("path", {
-        d: `M ${pts([start])} A ${n2(radius)} ${n2(radius)} 0 0 1 ${pts([end])}`,
-        fill: "none",
-        stroke: k % 2 ? "#0c3a26" : "#5cc893",
-        "stroke-opacity": k % 2 ? 0.75 : 0.45,
-        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
-      });
-    }).join("");
-    if (kind === "labradorite") body += tag2("ellipse", {
-      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
-      cy: cy + r * 0.05,
-      rx: r * 0.95,
-      ry: r * 0.42,
-      transform: `rotate(${n2(-32 + (g - 0.5) * 50)} ${n2(cx)} ${n2(cy)})`,
-      fill: `url(#${id}f)`,
-      "fill-opacity": 0.5 + 0.45 * shine
-    });
-    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id}a)`, "fill-opacity": 0.55 + 0.4 * shine });
-    if (kind === "lapis") {
-      body += tag2("path", { d: `M ${n2(cx - r)} ${n2(cy + r * 0.35)} Q ${n2(cx - r * 0.1)} ${n2(cy + r * 0.05)} ${n2(cx + r)} ${n2(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
-      for (let k = 0; k < 14; k++) {
-        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
-        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
-      }
-    }
-  }
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m2.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
-  const [hx, hy] = hl;
-  body += m2.cut === "brilliant" ? tag2("path", {
-    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n2(hx + r * dx)} ${n2(hy + r * dy)}`).join(" ") + " Z",
-    fill: "#ffffff",
-    "fill-opacity": 0.55 + 0.45 * shine
-  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n2(az / D + 90)} ${n2(hx)} ${n2(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
-  return tag2(
-    "g",
-    { opacity: op },
-    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id}c)` }, body)
-  );
-}
-function swatchSvg(kind, size) {
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
-}
-var STARS = (() => {
-  let seed = 11;
-  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
-})();
-function instrumentSvg(run8, frame2, size = 480) {
-  const m2 = moment(run8, frame2);
-  const c = size / 2;
-  const orbit = size * 0.335;
-  const R = Math.max(18, size * 0.064);
-  const table3 = orbit + R + size * 0.06;
-  const ringMin = size * 0.085;
-  const ringMax = orbit - R * 0.35;
-  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
-  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
-  const n3 = run8.seats.length;
-  const pos = run8.seats.map((_2, i) => {
-    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
-    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
-  });
-  const t = frame2.t ?? 0;
-  const cur = m2.idx >= 0 ? run8.events[m2.idx] : void 0;
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let s2 = tag2(
-    "defs",
-    {},
-    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
-  );
-  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
-  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
-  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
-  for (let i = 0; i < 72; i++) {
-    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
-    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
-  }
-  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
-  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
-  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
-  for (let i = 0; i < run8.rounds; i++) {
-    const r = ringR(i);
-    const now = m2.running && m2.round === i + 1;
-    const past = frame2.t !== null && (m2.round > i + 1 || m2.done);
-    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
-    if (ringGap >= 12 || i % 2 === 1 || now) {
-      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
-      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
-    }
-  }
-  if (m2.speaking >= 0 && cur?.type === "turn") {
-    const p3 = pos[m2.speaking];
-    const k = ease(m2.since / THREAD_MS);
-    const targets = cur.cites.filter((j) => j !== m2.speaking);
-    if (p3 && !targets.length) {
-      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
-    }
-    for (const j of targets) {
-      const q2 = pos[j];
-      if (!p3 || !q2) continue;
-      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
-      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
-      s2 += tag2("path", { d: `M ${n2(p3.x)} ${n2(p3.y)} Q ${n2(mx)} ${n2(my)} ${n2(q2.x)} ${n2(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n2(len)} ${n2(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
-      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
-    }
-  }
-  if (m2.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
-  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
-  run8.seats.forEach((seat, i) => {
-    const p3 = pos[i];
-    if (!p3) return;
-    const talk = m2.speaking === i;
-    const crew = seat.crew;
-    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
-    crew.forEach((stone, k) => {
-      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
-      const on = frame2.t === null || k < (m2.lit[i] ?? 0);
-      const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
-      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
-      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
-    });
-    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
-    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m2.since / TURN_MS) : null, dim: m2.running && !talk });
-    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
-    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
-  });
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
-}
-
-// ../glide/frontend/lanesPopup.ts
-var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
-var CLOSE_ID = 2;
-var PICK_BASE = 100;
-var PICK_STRIDE = 32;
-var APP = "glide";
-var ROLE_ORDER2 = ["fast", "small", "large", "council"];
-function fileBindings(path2 = process.env[BINDINGS_ENV] || join4(homedir4(), ".config/glide/lane-bindings.json")) {
-  const get = () => {
-    try {
-      const v = JSON.parse(readFileSync4(path2, "utf8"));
-      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
-      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
-    } catch {
-      return {};
-    }
-  };
-  return {
-    where: path2,
-    get,
-    set: (role, model) => {
-      mkdirSync2(dirname2(path2), { recursive: true });
-      writeFileSync2(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
-    }
-  };
-}
-var DOT = {
-  idle: NIGHT.text3,
-  thinking: NIGHT.strong,
-  answered: NIGHT.action,
-  verified: NIGHT.agree,
-  corrected: NIGHT.muted,
-  dead: NIGHT.danger
-};
-var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
-var laneChoices = (lane, bound2) => roleChoices(lane.role, [lane.model, bound2[lane.role] ?? ""]).slice(0, PICK_STRIDE);
-var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
-var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
-var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
-var ROLES_SHOWN = ["fast", "small", "large", "council"];
-var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
-var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
-var BILL_SHORT = { free: "FREE", subscription: "SUB", paid: "PAID", unknown: "?" };
-var BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 };
-function lanesCard(src, bound2, where, roles) {
-  let next2 = 10;
-  const text18 = (value) => ({ t: "text", text: value });
-  const el = (tag3, style2, kids, opts = {}) => ({
-    t: "el",
-    tag: tag3,
-    id: opts.id ?? next2++,
-    cls: "",
-    style: style2,
-    attrs: opts.attrs ?? {},
-    click: opts.id !== void 0,
-    kids
-  });
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
-  const dot = (hue, size = 8) => el("span", `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, []);
-  const swatch = (role, hue) => el("span", `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)]);
-  const pips = (effort2) => el("span", "display:flex;align-items:center;gap:2px", [0, 1, 2, 3].map((i) => el("span", `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort2].orbits ? EFFORTS[effort2].accent : NIGHT.faint}`, [])));
-  const badge = (kids, color2, border, attrs = {}) => el("span", `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color2}`, kids, { attrs });
-  const lanes2 = sortLanes(src.call?.lanes ?? []);
-  const live = Boolean(src.call?.open && lanes2.length);
-  const dead = lanes2.filter((l) => l.state === "dead").length;
-  const status = live ? "LIVE CALL" : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
-  const ready = lanes2.length - dead;
-  const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
-  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
-    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text18("LANE BROKER")]),
-      el(
-        "span",
-        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
-        [text18(status)],
-        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {} } }
-      )
-    ]),
-    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
-    el(
-      "span",
-      `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`,
-      [text18(summary4)],
-      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } }
-    )
-  ]);
-  const rows = lanes2.map((lane, i) => {
-    const binding = bound2[lane.role];
-    const current = binding ?? lane.model;
-    const info = laneModel(current, binding ? null : lane.resolved, roles);
-    const hue = PROVIDERS[info.provider].hue;
-    const isDead = lane.state === "dead";
-    const waiting5 = !live && lane.state === "idle";
-    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
-    const id = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
-    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
-    const badges = [
-      badge([dot(hue, 6), text18(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` }),
-      badge([text18(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` }),
-      badge([pips(info.effort), text18(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { "data-lane-effort": `${lane.role}=${info.effort}`, title: "effort: orbit pips, as in the zerOS agent-core key" }),
-      badge([text18(info.route === "local" ? "ON DEVICE" : "CLOUD")], NIGHT.text2, NIGHT.border, { "data-lane-route": `${lane.role}=${info.route}` }),
-      ...info.via ? [badge([text18("VOICE PLAN")], NIGHT.text2, NIGHT.border)] : [],
-      ...binding && binding !== lane.model ? [badge([text18("BOUND LOCALLY")], NIGHT.strong, rgba("#eccd8c", 0.4), { "data-lane-rebound": lane.role })] : []
-    ];
-    return el("div", `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
-      el("div", "display:flex;align-items:center;gap:9px", [
-        swatch(lane.role, hue),
-        el("span", `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
-        el("span", `font-size:13.5px;color:${NIGHT.text}`, [text18(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(" \xB7 "), "data-lane-model": `${lane.role}=${current}` } }),
-        el("span", `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [
-          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
-          text18(waiting5 ? "READY" : lane.state.toUpperCase())
-        ])
-      ]),
-      el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:23px", badges),
-      ...line ? [el("span", `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
-      el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px", [
-        el("span", `${micro};font-size:8.5px`, [text18("REBIND")]),
-        ...laneChoices(lane, bound2).map((m2, j) => {
-          const on = current === m2;
-          const c = laneModel(m2, null, roles);
-          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
-          const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
-          const label = twin ? `${short} \xB7 plan` : short;
-          return el(
-            "button",
-            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
-            [
-              dot(PROVIDERS[c.provider].hue, 6),
-              el("span", `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text18(label)]),
-              el("span", `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text18(BILL_SHORT[c.billing])])
-            ],
-            { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m2}`, title: [c.via ? `${c.via} \u2192 ${c.target ?? "unresolved"}` : m2, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(" \xB7 "), ...on ? { "data-lane-bound": "true" } : {} } }
-          );
-        })
-      ])
-    ]);
-  });
-  const keyRow = (title, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
-    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text18(title)]),
-    ...items
-  ]);
-  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
-  const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
-  const legend = el("div", `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
-    el("div", "display:flex;align-items:center;justify-content:space-between", [
-      el("span", `${micro};letter-spacing:2px`, [text18("KEY")]),
-      el("span", `font-size:11px;color:${NIGHT.text2}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
-    ]),
-    keyRow("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
-    keyRow("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
-    keyRow("ORBIT", [...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ${lanePeriod(r)} s`)), item3(dot(NIGHT.text2, 7), "one dot per lane")]),
-    keyRow("BILLING", [item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text18("SUB")]), "subscription"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text18("PAID")]), "metered")])
-  ], { attrs: { "data-lanes-legend": "true" } });
-  const close = el(
-    "button",
-    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
-    { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
-  );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
-    header,
-    el("div", "display:flex;flex-direction:column", rows),
-    legend,
-    el("div", "display:flex;justify-content:flex-end", [close])
-  ])]);
-}
-function openLanesPopup(host, feed, bindings = fileBindings()) {
-  const eui = host.eui;
-  if (!eui) {
-    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
-    return void 0;
-  }
-  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token." };
-  const overlay2 = {
-    key: "glide-lanes",
-    modal: true,
-    focus: () => null,
-    node: (id) => {
-      const src = source2();
-      const bound2 = bindings.get();
-      const lanes2 = sortLanes(src.call?.lanes ?? []);
-      const view = {
-        spec: { kind: "lanes", app: APP },
-        app: APP,
-        label: "Voice lanes",
-        identity: "lanes",
-        node: lanesCard(src, bound2, bindings.where),
-        activate: (n3) => {
-          if (n3 === CLOSE_ID) return host.close(overlay2);
-          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
-          const model = lane && laneChoices(lane, bound2)[(n3 - PICK_BASE) % PICK_STRIDE];
-          if (n3 < PICK_BASE || !lane || !model) return;
-          try {
-            bindings.set(lane.role, model);
-          } catch (e) {
-            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
-          }
-          host.changed();
-        }
-      };
-      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
-    },
-    onKey: (key3) => {
-      if (key3.name === "escape") host.close(overlay2);
-      return true;
-    }
-  };
-  host.open(overlay2);
-  return overlay2;
-}
-
 // src/commands/glide.ts
 function glideLanes(host) {
   openLanesPopup(host, host.laneFeed);
@@ -27334,9 +27506,9 @@ async function glideCommand(host, arg) {
     }
     if (verb === "focus") {
       await focusCommand(cards, async (params) => {
-        const f = glideFocus.parse(await call("focus", params));
-        focusBlock.note(f);
-        return f;
+        const f2 = glideFocus.parse(await call("focus", params));
+        focusBlock.note(f2);
+        return f2;
       }, rest[0] ?? "", fail2);
       return;
     }
@@ -27580,7 +27752,7 @@ var PHASE = {
 };
 var phaseName = (p3) => PHASE[p3] ?? p3.replace(/_/g, " ").toLowerCase();
 var clock = (t) => t ? /T(\d\d:\d\d)/.exec(t)?.[1] ?? t : "unknown";
-var hours = (f) => f.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
+var hours = (f2) => f2.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
 async function focusCommand(cards, call, sub, fail2) {
   const guarded3 = (run8) => async (ctx) => {
     try {
@@ -27596,9 +27768,9 @@ async function focusCommand(cards, call, sub, fail2) {
     rows: [{ label: "Then", value: "everything held arrives as one digest" }],
     approval: { label: "End block", description: "Ends the block and shows the asks Glide held while you worked." }
   }, guarded3(async ({ signal }) => {
-    const f2 = await call({ action: "stop" });
+    const f3 = await call({ action: "stop" });
     if (signal.aborted) return;
-    const held = f2.digest ?? [];
+    const held = f3.digest ?? [];
     cards.publish({
       kind: "receipt",
       app: APP2,
@@ -27606,15 +27778,15 @@ async function focusCommand(cards, call, sub, fail2) {
       rows: held.length ? held.map((i) => ({ label: i.cls, value: i.title })) : [{ label: "Held", value: "nothing" }]
     });
   }));
-  const blockOn = (f2) => {
+  const blockOn = (f3) => {
     cards.publish({
       kind: "receipt",
       app: APP2,
-      title: `Deep-work block on until ${f2.block?.until ?? "\u2014"}`,
+      title: `Deep-work block on until ${f3.block?.until ?? "\u2014"}`,
       rows: [
         { label: "Agent asks", value: "held until the block ends" },
         { label: "Critical", value: "still passes" },
-        { label: "Held so far", value: f2.queued }
+        { label: "Held so far", value: f3.queued }
       ]
     });
     stopCard();
@@ -27639,53 +27811,53 @@ async function focusCommand(cards, call, sub, fail2) {
     return;
   }
   if (sub === "wind-down") {
-    const f2 = await call({ action: "wind_down" });
-    const asks = f2.wind_down?.resume?.last_asks ?? [];
+    const f3 = await call({ action: "wind_down" });
+    const asks = f3.wind_down?.resume?.last_asks ?? [];
     cards.publish({
       kind: "receipt",
       app: APP2,
       title: "Time to wrap: here's where you left off",
       rows: [
-        { label: "Bedtime", value: clock(f2.bedtime) },
+        { label: "Bedtime", value: clock(f3.bedtime) },
         { label: "Left off", value: asks.join(" \xB7 ") || "nothing yet" },
         { label: "Tomorrow", value: "your first turn starts from this note" }
       ]
     });
     return;
   }
-  const f = await call(sub === "start" ? { action: "start" } : {});
+  const f2 = await call(sub === "start" ? { action: "start" } : {});
   if (sub === "hours") {
     cards.publish({
       kind: "metric",
       app: APP2,
       title: "Your best deep-work hours",
-      summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
+      summary: `Learned from ${f2.learned.days} days of ${f2.learned.source}. An hour counts when you sent three or more messages in it.`,
       rows: [
-        ...hours(f).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
-        { label: "Usual stop", value: f.learned.stop === null ? "unknown" : `${String(f.learned.stop).padStart(2, "0")}:00` }
+        ...hours(f2).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
+        { label: "Usual stop", value: f2.learned.stop === null ? "unknown" : `${String(f2.learned.stop).padStart(2, "0")}:00` }
       ]
     });
     return;
   }
   if (sub === "start") {
-    blockOn(f);
+    blockOn(f2);
     return;
   }
   cards.publish({
     kind: "metric",
     app: APP2,
     title: "Your attention",
-    summary: f.phase_source === "circadian" ? "From your circadian schedule." : `From ${f.learned.source}.`,
+    summary: f2.phase_source === "circadian" ? "From your circadian schedule." : `From ${f2.learned.source}.`,
     rows: [
-      { label: "Phase", value: phaseName(f.phase) },
-      { label: "Flow likelihood", value: f.flow ? `${Math.round(f.flow.flow * 100)}% (estimate)` : "no wearable signal" },
-      { label: "Next deep work", value: f.next_window ?? "not learned yet" },
-      { label: "Bedtime", value: clock(f.bedtime) },
-      { label: "Deep-work block", value: f.block ? `on until ${f.block.until}` : "off" },
-      { label: "Held for later", value: f.queued }
+      { label: "Phase", value: phaseName(f2.phase) },
+      { label: "Flow likelihood", value: f2.flow ? `${Math.round(f2.flow.flow * 100)}% (estimate)` : "no wearable signal" },
+      { label: "Next deep work", value: f2.next_window ?? "not learned yet" },
+      { label: "Bedtime", value: clock(f2.bedtime) },
+      { label: "Deep-work block", value: f2.block ? `on until ${f2.block.until}` : "off" },
+      { label: "Held for later", value: f2.queued }
     ]
   });
-  if (f.block) stopCard();
+  if (f2.block) stopCard();
   else startCard();
 }
 
@@ -30540,15 +30712,15 @@ function maskedOverlay(host, prompt) {
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title }, "question"),
       note ? /* @__PURE__ */ jsx("text", { spans: [{ s: method === "secret" ? "mono dim" : "muted", t: note }], wrap: "word" }, "note") : null,
       prompt.command ? /* @__PURE__ */ jsx("code", { lang: "bash", text: prompt.command }, "command") : null,
-      fields.map((f, i) => /* @__PURE__ */ jsx(
+      fields.map((f2, i) => /* @__PURE__ */ jsx(
         "input",
         {
-          cursor: f.masked ? maskedOffset(f.value.text, f.value.cursor) : f.value.cursor,
+          cursor: f2.masked ? maskedOffset(f2.value.text, f2.value.cursor) : f2.value.cursor,
           onEdit: (ev) => {
             at2 = i;
-            const edit = f.masked ? unmaskEdit(f.value.text, ev) : ev;
+            const edit = f2.masked ? unmaskEdit(f2.value.text, ev) : ev;
             if (edit) {
-              f.value.edit(edit);
+              f2.value.edit(edit);
             }
             host.changed();
           },
@@ -30556,11 +30728,11 @@ function maskedOverlay(host, prompt) {
             at2 = i;
             host.changed();
           },
-          placeholder: f.label,
+          placeholder: f2.label,
           role: "omp.ask.input",
-          text: f.masked ? maskOf(f.value.text) : f.value.text
+          text: f2.masked ? maskOf(f2.value.text) : f2.value.text
         },
-        f.id
+        f2.id
       )),
       sendingLine(sending),
       actionsRow([
@@ -31240,9 +31412,9 @@ function parseTargets(targets) {
   return targets.flatMap((t) => {
     const r = record(t);
     const name = typeof r?.["name"] === "string" ? r["name"].trim() : "";
-    const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f) => envField(f)) : [];
-    const env2 = Object.fromEntries(fields.flatMap((f) => f.default ? [[f.name, f.default]] : []));
-    const needs = fields.filter((f) => f.required && !f.default).map((f) => f.name);
+    const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f2) => envField(f2)) : [];
+    const env2 = Object.fromEntries(fields.flatMap((f2) => f2.default ? [[f2.name, f2.default]] : []));
+    const needs = fields.filter((f2) => f2.required && !f2.default).map((f2) => f2.name);
     return name ? [
       {
         alias: text(r?.["alias"]),
@@ -36966,7 +37138,7 @@ function searchCard(call, d) {
   const inPath = where && where !== "." ? ` \xB7 in ${where}` : "";
   const files = d.files;
   if (files || d.filesOnly) {
-    const list10 = (files ?? []).map((f) => f.replace(/^\.\//, ""));
+    const list10 = (files ?? []).map((f2) => f2.replace(/^\.\//, ""));
     const total2 = d.total ?? list10.length;
     const notices2 = [
       ...d.total !== void 0 && (d.totalLowerBound || d.truncated) ? [`${d.omitted ? "Hermes total: " : ""}${count(total2, true, "file")}`] : [],
@@ -36975,9 +37147,9 @@ function searchCard(call, d) {
       ...list10.length > FILE_LIMIT ? [`Showing ${FILE_LIMIT} of ${list10.length} retained files`] : []
     ];
     return {
-      body: [...list10.slice(0, FILE_LIMIT).map((f, i) => {
-        const slash = f.lastIndexOf("/");
-        return /* @__PURE__ */ jsx("row", { role: "omp.tool.file", ...optional2("title", slash > 0 ? f.slice(0, slash + 1) : void 0), children: /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: slash > 0 ? f.slice(slash + 1) : f }] }, "p") }, `f${i}`);
+      body: [...list10.slice(0, FILE_LIMIT).map((f2, i) => {
+        const slash = f2.lastIndexOf("/");
+        return /* @__PURE__ */ jsx("row", { role: "omp.tool.file", ...optional2("title", slash > 0 ? f2.slice(0, slash + 1) : void 0), children: /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: slash > 0 ? f2.slice(slash + 1) : f2 }] }, "p") }, `f${i}`);
       }), ...disclosures(notices2), ...errorNotice(call)],
       folded: list10.length > 20,
       frame: "inline",
@@ -37006,19 +37178,19 @@ function searchCard(call, d) {
   const body = [];
   let fileIndex = 0;
   for (const [path2, hits] of byFile) {
-    const f = `f${fileIndex++}`;
+    const f2 = `f${fileIndex++}`;
     body.push(
       /* @__PURE__ */ jsxs("row", { role: "omp.tool.file", children: [
         /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: path2 }] }, "p"),
         /* @__PURE__ */ jsx("text", { role: "omp.tool.chip", spans: [{ t: String(hits.length) }] }, "n")
-      ] }, f)
+      ] }, f2)
     );
     let run8 = [];
     let runIndex = 0;
     const flush = () => {
       const start = run8[0]?.line ?? 1;
       if (runIndex > 0) {
-        body.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.context", spans: [{ s: "muted", t: "\u2026" }] }, `${f}.g${runIndex}`));
+        body.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.context", spans: [{ s: "muted", t: "\u2026" }] }, `${f2}.g${runIndex}`));
       }
       body.push(
         /* @__PURE__ */ jsx(
@@ -37030,7 +37202,7 @@ function searchCard(call, d) {
             start,
             text: run8.map((h2) => h2.text).join("\n")
           },
-          `${f}.c${runIndex++}`
+          `${f2}.c${runIndex++}`
         )
       );
       run8 = [];
@@ -38319,7 +38491,7 @@ var ChartRuntime = class {
     this.now = now;
     for (const rule of spec?.rules ?? []) {
       if (rule.key !== void 0) {
-        ruleFields(rule).forEach((f) => this.#keyedFields.add(f.field));
+        ruleFields(rule).forEach((f2) => this.#keyedFields.add(f2.field));
       }
     }
   }
@@ -38880,10 +39052,10 @@ var Charts = class {
     const now = this.#now();
     const settled2 = entry.process.state.status !== "running";
     entry.tap.update(entry.process.output);
-    entry.files.forEach((f) => f.update());
+    entry.files.forEach((f2) => f2.update());
     if (settled2) {
       entry.tap.close();
-      entry.files.forEach((f) => f.close());
+      entry.files.forEach((f2) => f2.close());
     }
     entry.runtime.ingest([entry.tap, ...entry.files], settled2);
     if (settled2) {
@@ -42025,7 +42197,7 @@ function parseStatus(text18) {
   return state;
 }
 function applyNumstat(files, text18) {
-  const byPath = new Map(files.map((f) => [f.path, f]));
+  const byPath = new Map(files.map((f2) => [f2.path, f2]));
   const records2 = text18.split("\0");
   for (let i = 0; i < records2.length; i++) {
     const [add2, del2, ...rest] = (records2[i] ?? "").split("	");
@@ -42034,10 +42206,10 @@ function applyNumstat(files, text18) {
       path2 = records2[i + 2] ?? "";
       i += 2;
     }
-    const f = byPath.get(path2);
-    if (f) {
-      f.additions = Number(add2) || 0;
-      f.deletions = Number(del2) || 0;
+    const f2 = byPath.get(path2);
+    if (f2) {
+      f2.additions = Number(add2) || 0;
+      f2.deletions = Number(del2) || 0;
     }
   }
 }
@@ -42047,20 +42219,20 @@ async function gitState(cwd) {
     const state = parseStatus(await git(root7, "status", "--porcelain=2", "--branch", "--untracked-files=all", "-z"));
     const numstat = await git(root7, "diff", "--numstat", "-z", "-M", "HEAD").catch(() => "");
     applyNumstat(state.files, numstat);
-    for (const f of state.files.filter((x) => x.status === "untracked").slice(0, 50)) {
-      const out = await git(root7, "diff", "--no-index", "--numstat", "-z", "--", "/dev/null", f.path).catch((e) => e.stdout ?? "");
-      applyNumstat([f], out);
+    for (const f2 of state.files.filter((x) => x.status === "untracked").slice(0, 50)) {
+      const out = await git(root7, "diff", "--no-index", "--numstat", "-z", "--", "/dev/null", f2.path).catch((e) => e.stdout ?? "");
+      applyNumstat([f2], out);
     }
     return { root: root7, ...state };
   } catch {
     return void 0;
   }
 }
-async function fileDiff(root7, f) {
-  if (f.status === "untracked") {
-    return git(root7, "diff", "--no-index", "--", "/dev/null", f.path).catch((e) => e.stdout ?? "");
+async function fileDiff(root7, f2) {
+  if (f2.status === "untracked") {
+    return git(root7, "diff", "--no-index", "--", "/dev/null", f2.path).catch((e) => e.stdout ?? "");
   }
-  return git(root7, "diff", "-M", "HEAD", "--", ...f.from ? [f.from, f.path] : [f.path]).catch(() => "");
+  return git(root7, "diff", "-M", "HEAD", "--", ...f2.from ? [f2.from, f2.path] : [f2.path]).catch(() => "");
 }
 
 // src/code/review.ts
@@ -42310,19 +42482,19 @@ function openChanges(host, focus) {
     diffs.clear();
     host.changed();
   };
-  const load2 = (f) => {
-    if (!f || !state || diffs.has(f.path)) {
+  const load2 = (f2) => {
+    if (!f2 || !state || diffs.has(f2.path)) {
       return;
     }
-    diffs.set(f.path, null);
-    void fileDiff(state.root, f).then((text18) => {
-      diffs.set(f.path, text18);
+    diffs.set(f2.path, null);
+    void fileDiff(state.root, f2).then((text18) => {
+      diffs.set(f2.path, text18);
       host.changed();
     });
   };
   void read();
   const files = () => state?.files ?? [];
-  const current = () => files().find((f) => f.path === selected);
+  const current = () => files().find((f2) => f2.path === selected);
   const review = () => {
     const picked = current();
     if (state && picked) {
@@ -42346,7 +42518,7 @@ function openChanges(host, focus) {
       } else {
         selected = moveSelection(
           k,
-          files().map((f) => f.path),
+          files().map((f2) => f2.path),
           selected
         ) ?? selected;
       }
@@ -42355,20 +42527,20 @@ function openChanges(host, focus) {
   };
   function sheetNode(id) {
     const list10 = files();
-    if (!list10.some((f2) => f2.path === selected)) {
+    if (!list10.some((f3) => f3.path === selected)) {
       selected = list10[0]?.path;
     }
-    const f = current();
-    load2(f);
-    const diff2 = f ? diffs.get(f.path) : void 0;
+    const f2 = current();
+    load2(f2);
+    const diff2 = f2 ? diffs.get(f2.path) : void 0;
     const added = list10.reduce((n3, x) => n3 + x.additions, 0);
     const removed = list10.reduce((n3, x) => n3 + x.deletions, 0);
     return /* @__PURE__ */ jsx(
       "picker",
       {
         actions: [
-          { ...optional2("disabled", f ? void 0 : "No file"), id: "copy", keys: ["c"], label: "Copy path" },
-          { ...optional2("disabled", f ? void 0 : "No file"), id: "review", keys: ["v"], label: "Review split" },
+          { ...optional2("disabled", f2 ? void 0 : "No file"), id: "copy", keys: ["c"], label: "Copy path" },
+          { ...optional2("disabled", f2 ? void 0 : "No file"), id: "review", keys: ["v"], label: "Review split" },
           { id: "refresh", keys: ["shift+r"], label: "Refresh" },
           { end: true, id: "close", keys: ["esc"], label: "Close", primary: true }
         ],
@@ -42379,7 +42551,7 @@ function openChanges(host, focus) {
         noun: "files",
         onAction: {
           close: () => host.close(overlay2),
-          copy: () => f && copyToClipboard(f.path),
+          copy: () => f2 && copyToClipboard(f2.path),
           refresh: () => void read(),
           review
         },
@@ -42400,34 +42572,34 @@ function openChanges(host, focus) {
         ],
         title: "Changes",
         total: list10.length,
-        children: f ? diffView(f, diff2) : null
+        children: f2 ? diffView(f2, diff2) : null
       },
       nativeOverlayKey(id)
     );
   }
   host.open(overlay2);
 }
-function item2(f) {
+function item2(f2) {
   return {
     badges: [
-      ...f.status !== "modified" ? [{ text: f.status, ...optional2("tone", TONE[f.status]) }] : [],
-      ...f.staged ? [{ text: "staged" }] : []
+      ...f2.status !== "modified" ? [{ text: f2.status, ...optional2("tone", TONE[f2.status]) }] : [],
+      ...f2.staged ? [{ text: "staged" }] : []
     ],
-    ...optional2("detail", f.from ? `from ${f.from}` : void 0),
-    facts: { changes: [{ s: "success", t: `+${f.additions}` }, { t: " " }, { s: "error", t: `\u2212${f.deletions}` }] },
-    id: f.path,
-    label: f.path,
+    ...optional2("detail", f2.from ? `from ${f2.from}` : void 0),
+    facts: { changes: [{ s: "success", t: `+${f2.additions}` }, { t: " " }, { s: "error", t: `\u2212${f2.deletions}` }] },
+    id: f2.path,
+    label: f2.path,
     mono: true
   };
 }
-function diffView(f, diff2) {
+function diffView(f2, diff2) {
   if (diff2 === void 0 || diff2 === null) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Reading the diff\u2026" }] }, "wait")];
   }
   if (!diff2.trim()) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "No line changed (a mode or a rename only)." }] }, "none")];
   }
-  return /^Binary files /m.test(diff2) ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary file." }] }, "bin")] : [/* @__PURE__ */ jsx("diff", { path: f.path, text: diff2 }, `d:${f.path}`)];
+  return /^Binary files /m.test(diff2) ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary file." }] }, "bin")] : [/* @__PURE__ */ jsx("diff", { path: f2.path, text: diff2 }, `d:${f2.path}`)];
 }
 
 // src/modelCaps.ts
@@ -70828,28 +71000,28 @@ function filesTab(e, pr, id, density, reveal) {
   if (!files.length) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "No files changed." }] }, "none")];
   }
-  const cards = files.map((f, i) => fileCard(f, `f${i}`));
+  const cards = files.map((f2, i) => fileCard(f2, `f${i}`));
   if (density === "narrow") {
     return cards;
   }
   const list10 = /* @__PURE__ */ jsxs("col", { gap: "none", role: "hermes.pr.filelist", children: [
-    files.map((f, i) => {
-      const slash = f.path.lastIndexOf("/");
+    files.map((f2, i) => {
+      const slash = f2.path.lastIndexOf("/");
       return pressable(
-        { key: `l${i}`, name: f.path, onClick: () => reveal?.(`${id}.diffs.f${i}`), role: "hermes.pr.fileitem" },
-        /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", title: f.path, children: [
-          /* @__PURE__ */ jsx("icon", { name: "file", ...optional2("tone", FILE_TONE[f.status]) }, "i"),
+        { key: `l${i}`, name: f2.path, onClick: () => reveal?.(`${id}.diffs.f${i}`), role: "hermes.pr.fileitem" },
+        /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", title: f2.path, children: [
+          /* @__PURE__ */ jsx("icon", { name: "file", ...optional2("tone", FILE_TONE[f2.status]) }, "i"),
           /* @__PURE__ */ jsx(
             "text",
             {
               grow: 1,
-              spans: [...slash > 0 ? [{ s: "dim", t: f.path.slice(0, slash + 1) }] : [], { t: f.path.slice(slash + 1) }],
+              spans: [...slash > 0 ? [{ s: "dim", t: f2.path.slice(0, slash + 1) }] : [], { t: f2.path.slice(slash + 1) }],
               truncate: "start",
               wrap: "none"
             },
             "p"
           ),
-          /* @__PURE__ */ jsx("text", { shrink: 0, spans: [{ s: "success", t: `+${f.additions}` }, { t: " " }, { s: "error", t: `\u2212${f.deletions}` }], wrap: "none" }, "n")
+          /* @__PURE__ */ jsx("text", { shrink: 0, spans: [{ s: "success", t: `+${f2.additions}` }, { t: " " }, { s: "error", t: `\u2212${f2.deletions}` }], wrap: "none" }, "n")
         ] }, "face")
       );
     }),
@@ -70864,24 +71036,24 @@ function filesTab(e, pr, id, density, reveal) {
 }
 var FILE_TONE = { added: "success", removed: "error", renamed: "info" };
 var FILE_TITLE = { added: "Added", copied: "Copied", modified: "Changed", removed: "Deleted", renamed: "Renamed" };
-function fileCard(f, key3) {
-  const lines = f.patch ? f.patch.split("\n").length : 0;
+function fileCard(f2, key3) {
+  const lines = f2.patch ? f2.patch.split("\n").length : 0;
   return node(
     "tool",
     {
-      badges: f.previous ? [{ text: `from ${f.previous}` }] : void 0,
-      collapsed: f.status === "removed" || lines > LONG_DIFF,
+      badges: f2.previous ? [{ text: `from ${f2.previous}` }] : void 0,
+      collapsed: f2.status === "removed" || lines > LONG_DIFF,
       collapsible: true,
       key: key3,
-      meta: [`+${f.additions} \u2212${f.deletions}`],
-      name: f.status === "added" ? "write" : "edit",
+      meta: [`+${f2.additions} \u2212${f2.deletions}`],
+      name: f2.status === "added" ? "write" : "edit",
       role: "hermes.pr.file",
       status: "done",
-      target: f.path,
+      target: f2.path,
       targetKind: "path",
-      title: FILE_TITLE[f.status] ?? "Changed"
+      title: FILE_TITLE[f2.status] ?? "Changed"
     },
-    f.patch ? [/* @__PURE__ */ jsx("diff", { ...optional2("lang", langOf(f.path)), path: f.path, text: f.patch }, "d")] : [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary, or too large to show here." }] }, "none")]
+    f2.patch ? [/* @__PURE__ */ jsx("diff", { ...optional2("lang", langOf(f2.path)), path: f2.path, text: f2.patch }, "d")] : [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary, or too large to show here." }] }, "none")]
   );
 }
 
@@ -74691,13 +74863,13 @@ function openCouncilPopup(host, src, clock4 = realClock) {
     modal: true,
     focus: () => null,
     node: (id) => {
-      const f = frame2();
+      const f2 = frame2();
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
         label: "Socratic council",
         identity: "council",
-        node: councilCard(src, f, 320),
+        node: councilCard(src, f2, 320),
         activate: (n3) => {
           if (n3 === CONVENE_ID && !stop3) convene();
           else if (n3 === CLOSE_ID2) host.close(overlay2);
@@ -74919,7 +75091,7 @@ var factoryAnswers = {
   suggest: object({
     runs: array(run6),
     suggestions: array(suggestion),
-    running_count: number2().check(int(), _gte(0)),
+    running_count: number2().check(int2(), _gte(0)),
     error: optional(string2()),
     fail_closed: optional(boolean2())
   })
@@ -87770,8 +87942,8 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   };
   EP.blur ??= function() {
   };
-  const timer = (f) => (fn, ms2, ...a2) => {
-    const t = f(() => {
+  const timer = (f2) => (fn, ms2, ...a2) => {
+    const t = f2(() => {
       try {
         fn(...a2);
       } catch (e) {
@@ -87802,7 +87974,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
     }, removeEventListener() {
     }, addListener() {
     } }),
-    requestAnimationFrame: (f) => timer(setTimeout)(() => f(performance.now()), 16),
+    requestAnimationFrame: (f2) => timer(setTimeout)(() => f2(performance.now()), 16),
     cancelAnimationFrame: clearTimeout,
     setTimeout: timer(setTimeout),
     clearTimeout,
@@ -89444,8 +89616,8 @@ function drawDetail(call, view, whyFailed, now, context, focusBrowser, media2, l
 }
 
 // src/view/ui/fold.tsx
-function foldSection(f) {
-  return node("section", { collapsed: true, collapsible: true, head: `${f.id}.head`, key: f.key, role: f.role }, [f.head, f.body]);
+function foldSection(f2) {
+  return node("section", { collapsed: true, collapsible: true, head: `${f2.id}.head`, key: f2.key, role: f2.role }, [f2.head, f2.body]);
 }
 function headedCard(c) {
   return node("card", { head: `${c.id}.head`, key: c.key, role: c.role, tone: c.tone }, [c.head, c.body]);
@@ -95617,8 +95789,8 @@ var Sidebar = class {
     const git3 = this.#state;
     const prs = host.prs.entries().toReversed();
     const files = git3?.files ?? [];
-    const added = files.reduce((n3, f) => n3 + f.additions, 0);
-    const removed = files.reduce((n3, f) => n3 + f.deletions, 0);
+    const added = files.reduce((n3, f2) => n3 + f2.additions, 0);
+    const removed = files.reduce((n3, f2) => n3 + f2.deletions, 0);
     const where = git3?.upstream ? git3.ahead || git3.behind ? [git3.ahead && `${git3.ahead} ahead`, git3.behind && `${git3.behind} behind`].filter(Boolean).join(", ") + ` of ${git3.upstream}` : `Up to date with ${git3.upstream}` : "Not pushed: no upstream";
     const branchRows = git3 ? [
       {
@@ -95639,11 +95811,11 @@ var Sidebar = class {
       label: `#${e.ref.number} ${e.pr?.title ?? e.ref.repository}`,
       ...optional2("warning", e.pr?.state === "open" && e.pr.mergeable === "conflicting" ? "Conflicts with its base branch" : void 0)
     })) : [{ disabled: "Hermes links each PR it opens; the branch\u2019s PR shows here too.", id: "no-prs", label: "None yet" }];
-    const fileRows = files.length ? files.slice(0, MAX_FILES).map((f) => ({
+    const fileRows = files.length ? files.slice(0, MAX_FILES).map((f2) => ({
       control: { act: "diff", k: "action", label: "Diff" },
-      hint: `${f.status}${f.staged ? ", staged" : ""} \xB7 +${f.additions} \u2212${f.deletions}`,
-      id: `file:${f.path}`,
-      label: f.path
+      hint: `${f2.status}${f2.staged ? ", staged" : ""} \xB7 +${f2.additions} \u2212${f2.deletions}`,
+      id: `file:${f2.path}`,
+      label: f2.path
     })) : git3 ? [{ disabled: "Nothing changed since the last commit.", id: "no-files", label: "Clean" }] : [];
     return /* @__PURE__ */ jsx(
       "prefs",
@@ -99415,7 +99587,7 @@ function splitPrompt(raw2) {
       const end = context.indexOf("\n", m2.index);
       const line = context.slice(m2.index, end < 0 ? void 0 : end);
       const disk = /available on disk at `([^`]+)`/.exec(line)?.[1];
-      if (!text18.includes(ref) && !files.some((f) => f.ref === ref)) {
+      if (!text18.includes(ref) && !files.some((f2) => f2.ref === ref)) {
         files.push({ ref, ...disk ? { path: disk } : {} });
       }
     }
@@ -101249,7 +101421,7 @@ var App = class {
     this.laneFeed = s2.laneFeed;
     if (this.#tern.caps.features.includes("blobs")) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion);
-      if (s2.laneFeed) this.#lanes = new LaneStrip(s2.laneFeed, this.#tern, this.#surface.motion);
+      if (s2.laneFeed) this.#lanes = new LaneStrip(s2.laneFeed, this.#tern, this.#surface.motion, (i) => void openLanesPopup(this, this.laneFeed, void 0, i));
     }
     this.#view = {
       ...s2,

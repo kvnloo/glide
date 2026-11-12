@@ -146,6 +146,8 @@ export class OrbActivity {
 export interface OrbScene {
   readonly w: number
   readonly h: number
+  /** False when only the orb inside it moves (its planets animate on the client): it then steps like the orb. */
+  readonly moves?: boolean
   key(): string
   svg(state: OrbState, seconds: number, dark: boolean, reduce: boolean): string
 }
@@ -241,7 +243,7 @@ export class ThinkingOrb {
       this.#visible &&
       !this.#reduce &&
       !this.#paused &&
-      (this.#scene !== undefined || (this.#state !== 'idle' && this.#state !== 'waiting' && this.#state !== 'error')) &&
+      ((this.#scene !== undefined && this.#scene.moves !== false) || (this.#state !== 'idle' && this.#state !== 'waiting' && this.#state !== 'error')) &&
       !this.#surface.closed
 
     if (!run) {

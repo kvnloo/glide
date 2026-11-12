@@ -5,11 +5,12 @@
 import { readFileSync } from 'node:fs'
 import { homedir, userInfo } from 'node:os'
 import { join } from 'node:path'
-import type { JSX, Session, Surface } from '@stencil-hq/tern'
+import { html, type JSX, type Session, type Surface } from '@stencil-hq/tern'
 
 import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
 import { laneModel, providerHue } from './catalog.js'
-import { laneSwatch, type OrbitLane, orbitScene, orbitSvg } from './orbit.js'
+import { laneSwatch, type OrbitLane, orbitBackdrop, orbitScene } from './orbit.js'
+import { badgeSvg, HIT, ORBIT_CLASS, ORBIT_SHEET, orbitCss, orbitSeats, planetSvg, tailSvg } from './orbitTargets.js'
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -201,17 +202,22 @@ export class LaneStrip {
   #live = false
   #orbit: ThinkingOrb | undefined
   readonly #swatches = new Map<string, string>()
+  readonly #select: ((index: number, lane: Lane) => void) | undefined
+  #sheet = ''
 
-  constructor(feed: LaneFeed, tern: Session, surface: Surface) {
+  /** `select` runs when a planet is clicked: the lane's index in lanes() (the popup's row order) and the lane. */
+  constructor(feed: LaneFeed, tern: Session, surface: Surface, select?: (index: number, lane: Lane) => void) {
     this.#feed = feed
     this.#tern = tern
     this.#surface = surface
+    this.#select = select
   }
 
-  /** A recovered surface gets fresh animators. */
+  /** A recovered surface gets fresh animators (and the orbit's stylesheet again). */
   surface(surface: Surface) {
     this.close()
     this.#surface = surface
+    this.#sheet = ''
   }
 
   environment(options: { dark?: boolean; reduce?: boolean; visible?: boolean }) {
@@ -249,11 +255,13 @@ export class LaneStrip {
       if (!this.#orbit) {
         const current = () => this.lanes()
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: `${LANES_ID}.orbit.scene`, label: 'Voice and lanes', scene: {
+          // The planets are pointer targets animated by the orbit's stylesheet; this image is the tracks and the orb.
+          node: `${LANES_ID}.orbit.scene.bg`, label: 'Voice and lanes', scene: {
             get w() { return orbitScene(current()).w },
             get h() { return orbitScene(current()).h },
-            key: () => this.lanes().map(l => `${l.role}=${l.model}=${l.state}`).join(','),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes().map(l => orbitLane(l, dark)), seconds, dark, reduce)
+            moves: false,
+            key: () => this.lanes().map(l => `${l.role}=${l.state === 'dead'}`).join(','),
+            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map(l => orbitLane(l, dark)), seconds, dark, reduce)
           }
         })
         this.#orbit.environment(this.#env)
@@ -271,6 +279,74 @@ export class LaneStrip {
       this.#orbs.push(orb)
     }
     lanes.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused))
+  }
+
+  #image(key: string, svg: () => string) {
+    let blob = this.#swatches.get(key)
+    if (!blob) {
+      blob = this.#tern.blob(Buffer.from(svg()), 'image/svg+xml')
+      this.#swatches.set(key, blob)
+    }
+    return blob
+  }
+
+  /**
+   * The orbit: the tracks-and-orb image with one native button per lane riding a CSS arm over it. Tern sends
+   * no hover events, so hovering is the stylesheet's (orbitTargets.ts): the arms stop, the planets wobble,
+   * and the one under the pointer names its lane. A click selects the lane (its row in the lanes popup).
+   */
+  #orbitNode(lanes: readonly Lane[]): JSX.Element | null {
+    if (!this.#orbit) return null
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
+    const reduce = Boolean(this.#env.reduce ?? this.#tern.caps.reduceMotion)
+    const drawn = lanes.map(l => orbitLane(l, dark))
+    const css = orbitCss(drawn, reduce)
+    if (css !== this.#sheet) {
+      this.#sheet = css
+      this.#surface.stylesheet(ORBIT_SHEET, css)
+    }
+    const seats = orbitSeats(drawn, reduce)
+    const badge = this.#image(`badge:${dark}`, () => badgeSvg(dark))
+    return (
+      <html.div class={ORBIT_CLASS + (reduce ? ` ${ORBIT_CLASS}-still` : '')} key="scene" role="glide.orbit">
+        <image key="bg" role="glide.orbit.bg" {...this.#orbit.props()} />
+        {lanes.map((lane, i) => {
+          const d = drawn[i]
+          const seat = seats[i]
+          if (!d || !seat) return null
+          const name = `${laneModel(lane.model, lane.resolved).label} · ${lane.role}`
+          const face = this.#image(`planet:${d.role}:${d.hue}:${d.state === 'thinking' ? 't' : d.state === 'dead' ? 'd' : 'i'}:${dark}`, () => planetSvg(d, dark))
+          const tail = seat.moving ? this.#image(`tail:${d.role}:${d.hue}:${Math.round(seat.arm)}:${dark}`, () => tailSvg(d, seat, dark)) : null
+          return (
+            <html.div class={`glide-orbit-arm glide-orbit-s${i}`} key={`p${i}`}>
+              <html.div class="glide-orbit-brake" key="b">
+                {tail ? <html.div class="glide-orbit-tail" key="tail"><image key="img" blob={tail} alt="" w={Math.round(seat.arm)} h={Math.round(seat.arm)} /></html.div> : null}
+                <html.button
+                  aria={`${name}${lane.state === 'dead' ? ', dead' : ''}: select this lane`}
+                  attrs={{ 'data-lane': lane.role, 'data-lane-index': i }}
+                  class="glide-orbit-planet"
+                  key="hit"
+                  onClick={() => this.#select?.(i, lane)}
+                  role="glide.orbit.planet"
+                >
+                  <html.div class="glide-orbit-face" key="f">
+                    <html.div class="glide-orbit-unbrake" key="u">
+                      <html.div class="glide-orbit-jiggle" key="j">
+                        <image alt={`${lane.role} lane`} blob={face} h={HIT} key="img" role="glide.orbit.face" w={HIT} />
+                        <html.span class="glide-orbit-ring" key="ring" />
+                        <html.div class="glide-orbit-badge" key="badge"><image alt="" blob={badge} h={11} key="img" w={11} /></html.div>
+                      </html.div>
+                      {/* The label is the hover name: no `title`, or Tern adds its own tooltip under it. */}
+                      <html.span class="glide-orbit-label" key="label" text={name} />
+                    </html.div>
+                  </html.div>
+                </html.button>
+              </html.div>
+            </html.div>
+          )
+        })}
+      </html.div>
+    )
   }
 
   #swatch(lane: Lane) {
@@ -321,7 +397,7 @@ export class LaneStrip {
         {this.#orbit
           // The orbit stands beside the lane list, centred on it: rows packed together, never spread to the orbit's height.
           ? <row key="orbit" align="center" gap="sm" role="omp.live.lanes.orbit">
-            <image key="scene" {...this.#orbit.props()} />
+            {this.#orbitNode(lanes)}
             <col gap="xs" grow={1} key="rows" min={{ w: 0 }}>{rows}</col>
           </row>
           : rows}

@@ -208,6 +208,11 @@ export function orbitSvg(main: OrbState, lanes: readonly OrbitLane[], seconds: n
     planets(lanes, seconds, dark, reduce, (_, s) => s.z >= 0))
 }
 
+/** The scene behind the planets when they are pointer targets (orbitTargets.ts): the tracks and the voice orb. */
+export function orbitBackdrop(main: OrbState, lanes: readonly OrbitLane[], seconds: number, dark: boolean, reduce = false): string {
+  return frame(lanes, tracks(lanes, dark) + core(main, lanes, seconds, dark, reduce))
+}
+
 /** A row's key beside its label, as on the orbit: the planet (provider hue) inside a ring of its role's tint, or its dead mark. */
 export function laneSwatch(lane: OrbitLane, dark: boolean, size = 14): string {
   const c = size / 2

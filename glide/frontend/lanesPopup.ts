@@ -84,7 +84,8 @@ const BILL_SHORT = { free: 'FREE', subscription: 'SUB', paid: 'PAID', unknown: '
 const BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 } as const
 
 /** The popup's card, as the same node data the ephemeral-ui sandbox produces. */
-export function lanesCard(src: LaneSource, bound: Record<string, string>, where: string, roles?: Record<string, string>): EuiNode {
+/** `focus` is the lane picked on the orbit (its index in sortLanes order): its row is marked selected. */
+export function lanesCard(src: LaneSource, bound: Record<string, string>, where: string, roles?: Record<string, string>, focus?: number): EuiNode {
   let next = 10
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
@@ -142,7 +143,11 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
       ...(info.via ? [badge([text('VOICE PLAN')], NIGHT.text2, NIGHT.border)] : []),
       ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba('#eccd8c', 0.4), { 'data-lane-rebound': lane.role })] : [])
     ]
-    return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : ''), [
+    // The lane picked on the orbit: its row lifts in its role's ring tint, says so, and leads the list
+    // (flex order only, so it opens in view and every picker keeps its id).
+    const picked = i === focus
+    const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : ''
+    return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : '') + lift, [
       el('div', 'display:flex;align-items:center;gap:9px', [
         swatch(lane.role, hue),
         el('span', `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(lane.role)]),
@@ -150,7 +155,8 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
         el('span', `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [
           el('span', `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone}` + (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
           text(waiting ? 'READY' : lane.state.toUpperCase())
-        ])
+        ]),
+        ...(picked ? [el('span', `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : [])
       ]),
       el('div', 'display:flex;flex-wrap:wrap;gap:5px;padding-left:23px', badges),
       ...(line ? [el('span', `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
@@ -202,7 +208,7 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, where:
 }
 
 /** Opens the lanes popup over `feed` (null: no broker token); Escape closes, a model chip rebinds its lane. */
-export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 'error'> | null | undefined, bindings: LaneBindings = fileBindings()): Overlay | undefined {
+export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 'error'> | null | undefined, bindings: LaneBindings = fileBindings(), focus?: number): Overlay | undefined {
   const eui = host.eui
   if (!eui) {
     host.transcript.notice('The lanes popup needs a pane with ephemeral-ui cards', 'warning')
@@ -221,7 +227,7 @@ export function openLanesPopup(host: CouncilHost, feed: Pick<LaneFeed, 'call' | 
       const lanes = sortLanes(src.call?.lanes ?? [])
       const view = {
         spec: { kind: 'lanes', app: APP }, app: APP, label: 'Voice lanes', identity: 'lanes',
-        node: lanesCard(src, bound, bindings.where),
+        node: lanesCard(src, bound, bindings.where, undefined, focus),
         activate: (n: number) => {
           if (n === CLOSE_ID) return host.close(overlay)
           const lane = lanes[Math.floor((n - PICK_BASE) / PICK_STRIDE)]
