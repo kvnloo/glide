@@ -49,7 +49,7 @@ export interface EuiApp {
 export interface EuiSandbox {
   readonly kinds: readonly string[]
   apps(): readonly EuiApp[]
-  mount(kind: string, app: string, onChange: () => void): EuiMounted
+  mount(kind: string, app: string, onChange: () => void, doc?: unknown, onIntent?: (detail: unknown) => void): EuiMounted
 }
 
 export function vendorDir(candidates: readonly string[]): string

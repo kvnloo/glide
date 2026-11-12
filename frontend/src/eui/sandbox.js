@@ -131,7 +131,14 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       const w = Number.parseFloat(el.getAttribute('width') ?? '') || box[2] || 16
       const h = Number.parseFloat(el.getAttribute('height') ?? '') || box[3] || 16
       const svg = svgInline(el, rules, K.theme.base ?? {})
-      return { t: 'svg', svg, w, h, cls: el.getAttribute('class') ?? '', style: el.getAttribute('style') ?? '' }
+      const image = { t: 'svg', svg, w, h, cls: el.getAttribute('class') ?? '', style: el.getAttribute('style') ?? '' }
+      // Tern displays SVG as an image. Keep the kit's graph controls reachable as native buttons.
+      const controls = [...el.querySelectorAll('[role="button"]')].filter(clickable).map(control => ({
+        t: 'el', tag: 'button', id: idOf(control), cls: 'eu-btn', style: '', click: true,
+        attrs: { title: control.getAttribute('aria-label') ?? '', 'data-fleet-svg-control': control.getAttribute('data-node') ?? '' },
+        kids: [{ t: 'text', text: control.getAttribute('aria-label') || control.textContent }]
+      }))
+      return controls.length ? { t: 'el', tag: 'div', id: idOf(el), cls: 'eui-svg-controls', style: '', attrs: {}, click: false, kids: [image, ...controls] } : image
     }
     if (el.localName === 'canvas' || el.localName === 'script' || el.localName === 'style' || el.localName === 'template') return null
     const attrs = {}
@@ -161,7 +168,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
   return {
     kinds: Object.keys(K.KINDS),
     apps: () => K.catalog.apps.map(a => ({ id: a.id, name: a.name, kinds: [...(a.kinds ?? [])] })),
-    mount(kind, appId, onChange) {
+    mount(kind, appId, onChange, doc, onIntent) {
       const k = K.KINDS[kind]
       if (!k) throw Error(`ephemeral-ui has no kind ${kind}`)
       const app = K.catalog.byId[appId] ?? K.catalog.apps.find(a => (a.kinds ?? []).includes(kind)) ?? { id: appId, name: appId, kinds: [kind] }
@@ -171,7 +178,10 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       root.setAttribute('data-eui-app', app.id)
       if (scheme === 'dark') root.classList.add('dark')
       document.body.append(root)
-      const c = k.make(app, K.rng(app.id + kind))
+      // Only host publications supply this callback. Model fences have no intent route.
+      const intent = event => onIntent?.(event.detail)
+      if (onIntent) root.addEventListener('eui:intent', intent)
+      const c = k.make(app, K.rng(app.id + kind), doc)
       root.append(c.el ?? c)
       const run = new K.Run()
       if (typeof c.play === 'function') Promise.resolve().then(() => c.play(run)).catch(e => { if (e !== K.Run.CANCEL) log(e) })
@@ -216,7 +226,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
           }
           return true
         },
-        dispose() { mo.disconnect(); run.stop(); clearTimeout(pending); root.remove() }
+        dispose() { mo.disconnect(); run.stop(); clearTimeout(pending); root.removeEventListener('eui:intent', intent); root.remove() }
       }
     }
   }

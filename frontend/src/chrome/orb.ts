@@ -146,6 +146,8 @@ export class OrbActivity {
 export interface OrbScene {
   readonly w: number
   readonly h: number
+  /** False when only the orb inside it moves (its planets animate on the client): it then steps like the orb. */
+  readonly moves?: boolean
   key(): string
   svg(state: OrbState, seconds: number, dark: boolean, reduce: boolean): string
 }
@@ -153,7 +155,9 @@ export interface OrbScene {
 const NODE_ID = 'dock.composer.line.orb'
 const FPS = 15
 // 9.6 s of frames, then the cached cycle repeats: bounded blobs per state and theme.
-const FRAMES = 144
+const CYCLE_S = 9.6
+// A scene (the lane orbit) moves planets across the pane, so it steps at 30 fps; 9.6 s is still a whole cycle.
+const SCENE_FPS = 30
 
 /** Finite cached SVG frames; no new blobs after a state's first animation cycle. */
 export class ThinkingOrb {
@@ -172,6 +176,7 @@ export class ThinkingOrb {
   #closed = false
   #timer: NodeJS.Timeout | undefined
   readonly #scene: OrbScene | undefined
+  readonly #fps: number
 
   /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
   constructor(tern: Session, surface: Surface, options: { node?: string; size?: number; label?: string; scene?: OrbScene } = {}) {
@@ -181,6 +186,7 @@ export class ThinkingOrb {
     this.#size = options.size ?? 34
     this.#label = options.label ?? 'Hermes agent'
     this.#scene = options.scene
+    this.#fps = options.scene ? SCENE_FPS : FPS
     this.#dark = Boolean(tern.caps.dark)
     this.#reduce = Boolean(tern.caps.reduceMotion)
   }
@@ -237,7 +243,7 @@ export class ThinkingOrb {
       this.#visible &&
       !this.#reduce &&
       !this.#paused &&
-      (this.#scene !== undefined || (this.#state !== 'idle' && this.#state !== 'waiting' && this.#state !== 'error')) &&
+      ((this.#scene !== undefined && this.#scene.moves !== false) || (this.#state !== 'idle' && this.#state !== 'waiting' && this.#state !== 'error')) &&
       !this.#surface.closed
 
     if (!run) {
@@ -255,9 +261,9 @@ export class ThinkingOrb {
           return
         }
 
-        this.#frame = (this.#frame + 1) % FRAMES
+        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps)
         this.#surface.send([['set', this.#node, { blob: this.#blob() }]])
-      }, 1000 / FPS)
+      }, 1000 / this.#fps)
       this.#timer.unref()
     }
   }
@@ -268,7 +274,7 @@ export class ThinkingOrb {
 
     if (!blob) {
       blob = this.#tern.blob(
-        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / FPS, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / FPS, this.#dark)),
+        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / this.#fps, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / this.#fps, this.#dark)),
         'image/svg+xml'
       )
       this.#frames.set(key, blob)

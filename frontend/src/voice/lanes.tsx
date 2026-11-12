@@ -5,10 +5,12 @@
 import { readFileSync } from 'node:fs'
 import { homedir, userInfo } from 'node:os'
 import { join } from 'node:path'
-import type { JSX, Session, Surface } from '@stencil-hq/tern'
+import { html, type JSX, type Session, type Surface } from '@stencil-hq/tern'
 
 import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
-import { laneSwatch, orbitScene, orbitSvg } from './orbit.js'
+import { laneModel, providerHue } from './catalog.js'
+import { laneSwatch, type OrbitLane, orbitBackdrop, orbitScene } from './orbit.js'
+import { badgeSvg, HIT, ORBIT_CLASS, ORBIT_SHEET, orbitCss, orbitSeats, planetSvg, tailSvg } from './orbitTargets.js'
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -157,6 +159,32 @@ export const LANE_ORB: Readonly<Record<LaneState, OrbState>> = {
 }
 
 const ROLE_ORDER = ['fast', 'small', 'large', 'council']
+
+/** The dock column holding the live-voice lines and the lanes, keyed without a role. */
+const LIVE_DOCK = 'dock.live'
+/** The lanes' node id inside it; the animators address their images under it. */
+export const LANES_ID = `${LIVE_DOCK}.lanes`
+
+/** The head's human summary, `3 fast · 2 small · 1 large`: the broker's revision id is never shown. */
+export function laneCounts(lanes: readonly { role: string }[]): string {
+  const n = new Map<string, number>()
+  for (const l of lanes) n.set(l.role, (n.get(l.role) ?? 0) + 1)
+  const order = [...ROLE_ORDER, ...[...n.keys()].filter(r => !ROLE_ORDER.includes(r))]
+  return order.flatMap(r => (n.get(r) ? [`${n.get(r)} ${r}`] : [])).join(' · ')
+}
+
+/**
+ * The live-voice lines and the lanes as one role-less dock column. Tern's chat reader centres a role-less
+ * dock column's children on the composer's own track (\`.sf-dock > .sf-col:not([data-role]) > *\`: centred,
+ * 100% - 32px, at most 720px), so they share the composer's left edge and width without any pixel numbers here.
+ */
+export function liveDock(voice: JSX.Element | null, lanes: JSX.Element | null): JSX.Element | null {
+  if (!voice && !lanes) return null
+  return <col gap="sm" key={LIVE_DOCK.slice('dock.'.length)}>{voice}{lanes}</col>
+}
+
+/** A lane as the orbit draws it: its planet wears its provider's hue. */
+export const orbitLane = (lane: Lane, dark: boolean): OrbitLane => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) })
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
 function entryLine(e: LaneEntry): string {
@@ -174,17 +202,22 @@ export class LaneStrip {
   #live = false
   #orbit: ThinkingOrb | undefined
   readonly #swatches = new Map<string, string>()
+  readonly #select: ((index: number, lane: Lane) => void) | undefined
+  #sheet = ''
 
-  constructor(feed: LaneFeed, tern: Session, surface: Surface) {
+  /** `select` runs when a planet is clicked: the lane's index in lanes() (the popup's row order) and the lane. */
+  constructor(feed: LaneFeed, tern: Session, surface: Surface, select?: (index: number, lane: Lane) => void) {
     this.#feed = feed
     this.#tern = tern
     this.#surface = surface
+    this.#select = select
   }
 
-  /** A recovered surface gets fresh animators. */
+  /** A recovered surface gets fresh animators (and the orbit's stylesheet again). */
   surface(surface: Surface) {
     this.close()
     this.#surface = surface
+    this.#sheet = ''
   }
 
   environment(options: { dark?: boolean; reduce?: boolean; visible?: boolean }) {
@@ -222,11 +255,13 @@ export class LaneStrip {
       if (!this.#orbit) {
         const current = () => this.lanes()
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: 'dock.live-lanes.orbit', label: 'Voice and lanes', scene: {
+          // The planets are pointer targets animated by the orbit's stylesheet; this image is the tracks and the orb.
+          node: `${LANES_ID}.orbit.scene.bg`, label: 'Voice and lanes', scene: {
             get w() { return orbitScene(current()).w },
             get h() { return orbitScene(current()).h },
-            key: () => this.lanes().map(l => `${l.role}=${l.state}`).join(','),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
+            moves: false,
+            key: () => this.lanes().map(l => `${l.role}=${l.state === 'dead'}`).join(','),
+            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map(l => orbitLane(l, dark)), seconds, dark, reduce)
           }
         })
         this.#orbit.environment(this.#env)
@@ -239,19 +274,88 @@ export class LaneStrip {
     for (const orb of this.#orbs.splice(lanes.length)) orb.close()
     while (this.#orbs.length < lanes.length) {
       const i = this.#orbs.length
-      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `dock.live-lanes.l${i}.orb`, size: 14, label: 'Lane' })
+      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `${LANES_ID}.l${i}.orb`, size: 14, label: 'Lane' })
       orb.environment(this.#env)
       this.#orbs.push(orb)
     }
     lanes.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused))
   }
 
-  #swatch(lane: Lane) {
-    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
-    const key = `${lane.role}:${lane.state === 'dead'}:${dark}`
+  #image(key: string, svg: () => string) {
     let blob = this.#swatches.get(key)
     if (!blob) {
-      blob = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), 'image/svg+xml')
+      blob = this.#tern.blob(Buffer.from(svg()), 'image/svg+xml')
+      this.#swatches.set(key, blob)
+    }
+    return blob
+  }
+
+  /**
+   * The orbit: the tracks-and-orb image with one native button per lane riding a CSS arm over it. Tern sends
+   * no hover events, so hovering is the stylesheet's (orbitTargets.ts): the arms stop, the planets wobble,
+   * and the one under the pointer names its lane. A click selects the lane (its row in the lanes popup).
+   */
+  #orbitNode(lanes: readonly Lane[]): JSX.Element | null {
+    if (!this.#orbit) return null
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
+    const reduce = Boolean(this.#env.reduce ?? this.#tern.caps.reduceMotion)
+    const drawn = lanes.map(l => orbitLane(l, dark))
+    const css = orbitCss(drawn, reduce)
+    if (css !== this.#sheet) {
+      this.#sheet = css
+      this.#surface.stylesheet(ORBIT_SHEET, css)
+    }
+    const seats = orbitSeats(drawn, reduce)
+    const badge = this.#image(`badge:${dark}`, () => badgeSvg(dark))
+    return (
+      <html.div class={ORBIT_CLASS + (reduce ? ` ${ORBIT_CLASS}-still` : '')} key="scene" role="glide.orbit">
+        <image key="bg" role="glide.orbit.bg" {...this.#orbit.props()} />
+        {lanes.map((lane, i) => {
+          const d = drawn[i]
+          const seat = seats[i]
+          if (!d || !seat) return null
+          const name = `${laneModel(lane.model, lane.resolved).label} · ${lane.role}`
+          const face = this.#image(`planet:${d.role}:${d.hue}:${d.state === 'thinking' ? 't' : d.state === 'dead' ? 'd' : 'i'}:${dark}`, () => planetSvg(d, dark))
+          const tail = seat.moving ? this.#image(`tail:${d.role}:${d.hue}:${Math.round(seat.arm)}:${dark}`, () => tailSvg(d, seat, dark)) : null
+          return (
+            <html.div class={`glide-orbit-arm glide-orbit-s${i}`} key={`p${i}`}>
+              <html.div class="glide-orbit-brake" key="b">
+                {tail ? <html.div class="glide-orbit-tail" key="tail"><image key="img" blob={tail} alt="" w={Math.round(seat.arm)} h={Math.round(seat.arm)} /></html.div> : null}
+                <html.button
+                  aria={`${name}${lane.state === 'dead' ? ', dead' : ''}: select this lane`}
+                  attrs={{ 'data-lane': lane.role, 'data-lane-index': i }}
+                  class="glide-orbit-planet"
+                  key="hit"
+                  onClick={() => this.#select?.(i, lane)}
+                  role="glide.orbit.planet"
+                >
+                  <html.div class="glide-orbit-face" key="f">
+                    <html.div class="glide-orbit-unbrake" key="u">
+                      <html.div class="glide-orbit-jiggle" key="j">
+                        <image alt={`${lane.role} lane`} blob={face} h={HIT} key="img" role="glide.orbit.face" w={HIT} />
+                        <html.span class="glide-orbit-ring" key="ring" />
+                        <html.div class="glide-orbit-badge" key="badge"><image alt="" blob={badge} h={11} key="img" w={11} /></html.div>
+                      </html.div>
+                      {/* The label is the hover name: no `title`, or Tern adds its own tooltip under it. */}
+                      <html.span class="glide-orbit-label" key="label" text={name} />
+                    </html.div>
+                  </html.div>
+                </html.button>
+              </html.div>
+            </html.div>
+          )
+        })}
+      </html.div>
+    )
+  }
+
+  #swatch(lane: Lane) {
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark)
+    const drawn = orbitLane(lane, dark)
+    const key = `${lane.role}:${drawn.hue}:${lane.state === 'dead'}:${dark}`
+    let blob = this.#swatches.get(key)
+    if (!blob) {
+      blob = this.#tern.blob(Buffer.from(laneSwatch(drawn, dark)), 'image/svg+xml')
       this.#swatches.set(key, blob)
     }
     return { blob, alt: `${lane.role} lane${lane.state === 'dead' ? ', dead' : ''}`, w: 14, h: 14 }
@@ -263,7 +367,7 @@ export class LaneStrip {
     const lanes = this.lanes()
     if (!lanes.length && !this.#live) return null
     const head = lanes.length
-      ? `Lanes · ${call?.revision ?? ''}${call?.open ? '' : ' · no open call'}`
+      ? `Lanes · ${laneCounts(lanes)}${call?.open ? '' : ' · no open call'}`
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
         : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
@@ -275,29 +379,28 @@ export class LaneStrip {
         <col key="text">
           <text key="who" spans={[
             { s: 'strong', t: lane.role },
-            { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
+            { s: 'muted', t: ' · ' + laneModel(lane.model, lane.resolved).label + ' · ' },
             lane.state === 'dead'
               ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
               : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
                 : lane.state === 'verified' ? { s: 'success', t: 'verified' }
                   : { t: lane.state }
           ]} wrap="none" />
-          {lane.researching ? <text key="doing" spans={[{ s: 'dim', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
+          {lane.researching ? <text key="doing" spans={[{ s: 'muted', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
           {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
         </col>
       </row>
     ))
     return (
-      <col gap={this.#orbit ? 'sm' : 'none'} key="live-lanes" role="omp.live.lanes">
+      <col gap={this.#orbit ? 'sm' : 'none'} key="lanes" role="omp.live.lanes">
         <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
         {this.#orbit
-          // The orbit stands beside the lane list, which spreads to its height: top and bottom aligned, then a gap above the composer.
-          ? <row key="orbit" align="stretch" gap="md" role="omp.live.lanes.orbit">
-            <image key="scene" {...this.#orbit.props()} />
-            <col grow={1} justify="between" key="rows" min={{ w: 0 }}>{rows}</col>
+          // The orbit stands beside the lane list, centred on it: rows packed together, never spread to the orbit's height.
+          ? <row key="orbit" align="center" gap="sm" role="omp.live.lanes.orbit">
+            {this.#orbitNode(lanes)}
+            <col gap="xs" grow={1} key="rows" min={{ w: 0 }}>{rows}</col>
           </row>
           : rows}
-        {this.#orbit ? <spacer key="gap" size="lg" /> : null}
       </col>
     )
   }

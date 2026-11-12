@@ -18,7 +18,8 @@ import { record } from '../wire/json.js'
 
 import { must, tree } from './fakes.js'
 
-import { fileBindings, openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+import { fileBindings, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
+import { PROVIDERS, ROLE_MODELS } from '../voice/catalog.js'
 import { glideLanes } from '../commands/glide.js'
 
 // Synthetic lane call: the broker's /v1/lanes/status shape with sample models.
@@ -114,16 +115,85 @@ describe('voice lanes popup', () => {
   it('a picked model rebinds its lane and is saved locally', () => {
     const { host, feed, bindings, draw, changed } = setup()
     const overlay = must(openLanesPopup(host, feed, bindings))
-    expect(draw()).toContain('"data-lane-pick":"fast=sample-fast","data-lane-bound":"true"')
+    expect(draw()).toMatch(/"data-lane-pick":"fast=sample-fast"[^}]*"data-lane-bound":"true"/)
     expect(bindings.get()).toEqual({})
-    click(overlay.node('layer.overlay-1'), 'fast=sample-large')
-    expect(bindings.get()).toEqual({ fast: 'sample-large' })
-    expect(readFileSync(bindings.where, 'utf8')).toContain('"fast": "sample-large"')
-    expect(fileBindings(bindings.where).get()).toEqual({ fast: 'sample-large' })
+    click(overlay.node('layer.overlay-1'), 'fast=qwen3-1.7b')
+    expect(bindings.get()).toEqual({ fast: 'qwen3-1.7b' })
+    expect(readFileSync(bindings.where, 'utf8')).toContain('"fast": "qwen3-1.7b"')
+    expect(fileBindings(bindings.where).get()).toEqual({ fast: 'qwen3-1.7b' })
     expect(changed).toHaveBeenCalled()
-    expect(draw()).toContain('"data-lane-pick":"fast=sample-large","data-lane-bound":"true"')
-    expect(draw()).not.toContain('"data-lane-pick":"fast=sample-fast","data-lane-bound":"true"')
-    expect(draw()).toContain('BOUND LOCALLY → SAMPLE-LARGE')
+    expect(draw()).toMatch(/"data-lane-pick":"fast=qwen3-1.7b"[^}]*"data-lane-bound":"true"/)
+    expect(draw()).not.toMatch(/"data-lane-pick":"fast=sample-fast"[^}]*"data-lane-bound"/)
+    expect(draw()).toContain('"data-lane-model":"fast=qwen3-1.7b"')
+    expect(draw()).toContain('"text":"Qwen3 1.7B"')
+    expect(draw()).toContain('"data-lane-rebound":"fast"')
+    expect(draw()).toContain('"data-lane-billing":"fast=free"')
+  })
+
+  it('offers each role only its realistic models, never another role\'s, and keeps ids in tooltips', () => {
+    const real = must(parseLaneStatus({ session_id: 'c', open: false, revision: 'preset-D', lanes: [
+      { role: 'fast', model: 'qwen3-0.6b-q8', resolved: null, state: 'idle' },
+      { role: 'small', model: 'smol', resolved: null, state: 'idle' },
+      { role: 'large', model: 'slow', resolved: null, state: 'idle' }
+    ] }))
+    const out = JSON.stringify(lanesCard({ call: real, error: '' }, {}, '/tmp/b.json', { smol: 'claude-haiku-4-5', slow: 'claude-opus-5-5' }))
+    const picks = (role: string) => [...out.matchAll(new RegExp(`"data-lane-pick":"${role}=([^"]+)"`, 'g'))].map(m => m[1])
+    for (const role of ['fast', 'small', 'large']) expect(picks(role)).toEqual(must(ROLE_MODELS[role]).map(x => x.id))
+    expect(picks('fast')).not.toContain('slow')
+    expect(picks('large')).not.toContain('qwen3-0.6b-q8')
+    // Role aliases are named by the model they resolve to; the alias and id ride only in tooltips, never as text.
+    expect(out).toContain('"text":"Claude Haiku 4.5"')
+    expect(out).toContain('"text":"Claude Opus 5.5"')
+    expect(out).toContain('"title":"smol → claude-haiku-4-5"')
+    expect(out).toContain('"text":"VOICE PLAN"')
+    expect(out).not.toMatch(/"text":"[^"]*\b(smol|slow)\b/)
+    expect(out).toContain('"title":"qwen3-0.6b-q8"')
+    // Every row is badged: provider, billing, effort, route.
+    expect(out).toContain('"data-lane-provider":"fast=local"')
+    expect(out).toContain('"data-lane-provider":"small=anthropic"')
+    expect(out).toContain('"data-lane-billing":"small=subscription"')
+    expect(out).toContain('"data-lane-effort":"large=high"')
+    expect(out).toContain('"data-lane-route":"fast=local"')
+    expect(out).toContain('"text":"ON DEVICE"')
+    expect(out).toContain('"text":"CLOUD"')
+    expect(out).toContain('"text":"Haiku 4.5"')
+  })
+
+  it('never shows the broker revision id as text, only in the status tooltip', () => {
+    const { feed, bindings } = setup()
+    const out = JSON.stringify(lanesCard(feed, {}, bindings.where, {}))
+    expect(out).toContain('"text":"LIVE CALL"')
+    expect(out).not.toMatch(/"text":"[^"]*\br7\b/i)
+    expect(out).toContain('broker preset r7')
+  })
+
+  it('marks the lane picked on the orbit, and only that one', () => {
+    const { host, feed, bindings, draw } = setup()
+    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}))).not.toContain('data-lane-focus')
+    const role = sortLanes(feed.call?.lanes ?? [])[1]?.role ?? 'none'
+    openLanesPopup(host, feed, bindings, 1)
+    const out = draw()
+    expect(out.match(/data-lane-focus/g)).toHaveLength(1)
+    expect(out).toContain(`"data-lane-focus":"${role}"`)
+    expect(out).toContain('"text":"SELECTED"')
+    expect(JSON.stringify(lanesCard(feed, {}, bindings.where, {}, 1)).match(/order:-1/g)).toHaveLength(1) // it leads the list, so it opens in view
+  })
+
+  it('shows a legend: provider hues, effort pips and what the orbit means', () => {
+    const { host, feed, bindings, draw } = setup()
+    openLanesPopup(host, feed, bindings)
+    expect(draw()).toContain('"data-lanes-legend":"true"')
+    const out = JSON.stringify(lanesCard(feed, {}, bindings.where, {}))
+    for (const p of ['local', 'anthropic', 'openai', 'opencode', 'groq'] as const) {
+      expect(out).toContain(`"text":"${PROVIDERS[p].label}"`)
+      expect(out).toContain(`background-color:${PROVIDERS[p].hue}`)
+    }
+    for (const e of ['Min', 'Standard', 'High', 'Max']) expect(out).toContain(`"text":"${e}"`)
+    expect(out).toContain('"text":"fast 2.4 s"')
+    expect(out).toContain('"text":"small 4.8 s"')
+    expect(out).toContain('"text":"large 9.6 s"')
+    expect(out).toContain('one dot per lane')
+    expect(out).toContain('hue = provider · pips = effort · ring = role')
   })
 })
 

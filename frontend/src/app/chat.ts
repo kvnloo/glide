@@ -16,6 +16,7 @@ import type { BtwThreads } from '../btw.js'
 import type { Agents } from '../agents/store.js'
 import { OrbActivity, type OrbState, ThinkingOrb } from '../chrome/orb.js'
 import { type LaneFeed, LaneStrip } from '../voice/lanes.js'
+import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
 import { focusBlock } from '../voice/orbit.js'
 import { refreshFocusBlock } from '../commands/glide.js'
 import { noticeReport } from '../chrome/notices.js'
@@ -212,7 +213,8 @@ export class App implements ChatPorts {
     this.laneFeed = s.laneFeed
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
-      if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion)
+      // A clicked planet opens the lanes popup on its lane's row.
+      if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion, i => void openLanesPopup(this, this.laneFeed, undefined, i))
     }
     this.#view = {
       ...s,

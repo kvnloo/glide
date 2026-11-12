@@ -10,6 +10,8 @@ import { basename, dirname, join } from 'node:path'
 import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '../../frontend/src/hermes/theme.js'
 import { parseJson, record } from '../../frontend/src/wire/json.js'
 
+import { glassCss, pickGlow } from './glass.js'
+
 /** Tern's program palette (`t`), as @stencil-hq/tern's Palette. */
 export interface TernPalette {
   dark: Record<string, string>
@@ -36,6 +38,8 @@ export interface WalPalette {
   fg: string
   accent: string
   accentInk: string
+  /** The accent's partner hue for glass rims and halos (glass.ts). */
+  glow: string
   muted: string
   dim: string
   error: string
@@ -121,6 +125,7 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
     fg,
     accent,
     accentInk: readableOn(accent),
+    glow: text(pickGlow(wal, accent), accent),
     muted: text(wal.colors['color7'], fg),
     dim: text(wal.colors['color8'], fg),
     error: text(wal.colors['color1'], fg),
@@ -147,12 +152,14 @@ export function walCss(p: WalPalette): string {
   const vars = [
     `--accent: ${p.accent}`, `--sf-p-accent: ${p.accent}`, `--accent-ink: ${p.accentInk}`,
     `--text: ${p.fg}`, `--muted: ${p.muted}`, `--t1: ${p.fg}`, `--t2: ${p.muted}`, `--t3: ${p.dim}`,
-    `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`
+    `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--raise: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`
   ]
   // Only plugin blocks carry [data-surface]; a program pane (hermes tern) is a bare .sf-region, and
   // Tern binds these variables on :root, so the region (and each card) must rebind them itself.
+  // Tern scopes the sheet inside the region, so `.sf-region` matches only in other hosts: in a
+  // program pane its .sf descendants take the variables (no background: they would all paint).
   // The kit's primary buttons read --h-primary-ink, which its host binding leaves unset.
-  return `.sf-region, [data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { ${vars.join('; ')}; --h-primary-ink: ${p.accentInk}; }\n`
+  return `.sf-region, [data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n.sf { ${vars.join('; ')}; }\n[data-eui='card'] { ${vars.join('; ')}; --h-primary-ink: ${p.accentInk}; }\n${glassCss(p)}`
 }
 
 /** Writes the resolved palette JSON for other tools (the fframes film); returns the path. */

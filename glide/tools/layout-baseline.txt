@@ -85,6 +85,21 @@ frontend/openui/schema/card.v0.json
 frontend/PLAN-REVIEW.md
 frontend/scripts/vendor-ephemeral-ui.mjs
 frontend/SHORTCUTS.md
+frontend/e2e/JOURNEYS.md
+frontend/e2e/REPORT.md
+frontend/e2e/features.json
+frontend/scripts/features-gate.mjs
+frontend/scripts/fleet-kit-fixture.mjs  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend esbuild resolution
+frontend/scripts/fleet-python.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend producer-test setup
+frontend/scripts/fleet-verify.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend fleet verification
+frontend/src/__tests__/euiKitHost.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
+frontend/src/__tests__/fleetActions.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
+frontend/src/__tests__/fleetCommand.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
+frontend/src/__tests__/fleetSandbox.test.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend Vitest discovery
+frontend/src/commands/fleet.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend dependency resolution
+frontend/src/eui/kitSnapshot.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, existing inline renderer
+frontend/src/wire/euiKit.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend zod resolution
+frontend/src/wire/fleet.ts  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend zod resolution
 frontend/src/__tests__/factoryApp.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/factoryCommand.test.ts  # same
 frontend/src/__tests__/factoryPane.test.ts  # same
@@ -308,6 +323,11 @@ frontend/src/__tests__/skillStub.test.ts
 frontend/src/__tests__/__snapshots__/golden/agent-wait-solo.json
 frontend/src/__tests__/__snapshots__/golden/agent-wait-tiles.json
 frontend/src/__tests__/__snapshots__/golden/context-meter.json
+frontend/src/__tests__/compactCommand.test.ts
+frontend/src/__tests__/glideTheme.test.ts
+frontend/src/__tests__/intentCards.test.ts
+frontend/src/__tests__/intentFixtures.ts
+frontend/src/__tests__/features-gate.test.ts
 frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
@@ -410,6 +430,9 @@ gateway_operations.py
 .github/workflows/bundle-candidate.yml
 .github/workflows/fettl.yml
 frontend/src/__tests__/lanes.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/orbit.test.ts
+frontend/src/__tests__/subagentTranscript.test.ts
+frontend/src/__tests__/transcriptCardActions.test.ts
 frontend/src/voice/lanes.tsx  # esbuild and tsc resolve @stencil-hq/tern only from frontend/
 media_backend.py
 plan_gateway.py
@@ -436,3 +459,55 @@ tests/test_plan_gateway_dispatch.py
 tests/test_table_chart_gateway.py
 tests/test_table_chart_planner.py
 tests/test_talk_backend.py
+frontend/src/voice/catalog.ts
+frontend/src/voice/orbit.ts
+frontend/e2e/army/.gitignore
+frontend/e2e/army/DESIGN.md
+frontend/e2e/army/JOURNEY.md
+frontend/e2e/army/README.md
+frontend/e2e/army/REPORT.md
+frontend/e2e/army/SWEEPS-DESIGN.md
+frontend/e2e/army/agent.ts
+frontend/e2e/army/army.config.ts
+frontend/e2e/army/audit_run.py
+frontend/e2e/army/boat/capture.mjs
+frontend/e2e/army/boat/diagnose.py
+frontend/e2e/army/boat/gpu-probe.mjs
+frontend/e2e/army/boat/lane.py
+frontend/e2e/army/boat/lane.sh
+frontend/e2e/army/boat/seed_session.py
+frontend/e2e/army/boat/setup.sh
+frontend/e2e/army/boat/sweep_lane.py
+frontend/e2e/army/boat/sweeps_up.py
+frontend/e2e/army/boat/tern.py
+frontend/e2e/army/boat/up.py
+frontend/e2e/army/boat/up.sh
+frontend/e2e/army/browser.ts
+frontend/e2e/army/canary.py
+frontend/e2e/army/compose_run.py
+frontend/e2e/army/decisions-w5.tsv
+frontend/e2e/army/findings.py
+frontend/e2e/army/goals.tsv
+frontend/e2e/army/ledger.py
+frontend/e2e/army/package-lock.json
+frontend/e2e/army/package.json
+frontend/e2e/army/paired-lane.json
+frontend/e2e/army/probe.py
+frontend/e2e/army/run.sh
+frontend/e2e/army/sanity.py
+frontend/e2e/army/sweep-audit.mjs
+frontend/e2e/army/sweep-navigation.mjs
+frontend/e2e/army/sweeps.mjs
+frontend/e2e/army/tests/smoke.e2e.ts
+frontend/e2e/army/tests/sweep-audit.test.mjs
+frontend/e2e/army/tests/sweep-browser-contract.mjs
+frontend/e2e/army/tests/test_army.py
+frontend/e2e/army/tests/test_audit_run.py
+frontend/e2e/army/tests/test_compose_run.py
+frontend/e2e/army/tests/test_ledger.py
+frontend/e2e/army/tests/test_sweeps.py
+frontend/e2e/army/tests/test_tern_launch.py
+frontend/src/__tests__/glass.test.ts
+frontend/src/__tests__/orbitTargets.test.ts
+frontend/src/voice/orbitTargets.ts
+frontend/e2e/army/tests/test_runs_dir.py

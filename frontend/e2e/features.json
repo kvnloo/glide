@@ -1,0 +1,1981 @@
+{
+  "about": "Owner-visible inventory for the shipped Glide checkout. Test references describe existing source coverage, not execution receipts or native acceptance. Empty tests are uncovered. Army receipts are external and must match HEAD for strict promotion. Text-plugin /glide verbs are not all handled by the native card interceptor.",
+  "features": [
+    {
+      "id": "install-plugin",
+      "title": "Install the combined Tern and Glide plugin",
+      "surface": "cli",
+      "entry": "hermes plugins install kvnloo/glide, then enable hermes-tern",
+      "journey": "install",
+      "expect": "One install registers hermes tern and /glide; scanner consent is explicit",
+      "tests": [
+        "glide/tests/test_fresh_install.py",
+        "tests/test_plugin_registration.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "tern-launch",
+      "title": "Launch native chat in a Tern pane",
+      "surface": "cli",
+      "entry": "hermes tern [session and prompt flags]",
+      "journey": "install",
+      "expect": "A native chat attaches to Hermes; a non-TSP terminal visibly refuses",
+      "tests": [
+        "tests/test_launcher.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "glide-launch",
+      "title": "Launch Glide with the available frontend",
+      "surface": "cli",
+      "entry": "hermes glide",
+      "journey": "install",
+      "expect": "The launcher selects Tern when available and the regular TUI otherwise",
+      "tests": [
+        "glide/tests/test_launch.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "glide-onboard-cli",
+      "title": "Run guided memory onboarding from the CLI",
+      "surface": "cli",
+      "entry": "hermes glide onboard",
+      "journey": "install",
+      "expect": "Build, review, and self-test corrections memory in the active profile",
+      "tests": [
+        "glide/tests/test_onboarding.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "frontend-channels",
+      "title": "Choose or switch a frontend channel",
+      "surface": "cli",
+      "entry": "hermes tern --channel NAME or hermes tern switch NAME",
+      "journey": "install",
+      "expect": "The pane runs the selected frontend channel; configured CLI aliases use their channel",
+      "tests": [
+        "tests/test_channels.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "pane-auto-resume",
+      "title": "Resume the conversation after a pane restart",
+      "surface": "cli",
+      "entry": "Restart hermes tern in the same pane without session flags; use --new to opt out",
+      "journey": "install",
+      "expect": "The same pane restores its stored session rather than silently starting over",
+      "tests": [
+        "tests/test_panes.py",
+        "frontend/src/__tests__/paneRestore.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "chat-send",
+      "title": "Send a prompt and read the streamed answer",
+      "surface": "pane",
+      "entry": "Type in the composer and press Enter or native Send",
+      "journey": "install",
+      "expect": "The prompt and streamed thinking, tools, and answer appear in the current transcript",
+      "tests": [
+        "frontend/src/__tests__/app.test.ts",
+        "frontend/src/__tests__/golden.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "slash-completion",
+      "title": "Complete commands, skills, and references",
+      "surface": "pane",
+      "entry": "Type / or a supported reference prefix, then use Tab or Enter in completion",
+      "journey": "install",
+      "expect": "Matching completion fills the composer; ambiguous command prefixes ask for more text",
+      "tests": [
+        "frontend/src/__tests__/completion.test.ts",
+        "frontend/src/__tests__/slashResolve.test.ts",
+        "frontend/src/__tests__/slashRouting.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "glide-detect",
+      "title": "Inspect this machine before onboarding",
+      "surface": "slash",
+      "entry": "/glide; gateway glide.detect; text-plugin /glide help, -h, or --help shows usage",
+      "journey": "memory",
+      "expect": "Hardware, optional runtimes, z0 health, and memory status appear without installation",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "memory-build",
+      "title": "Approve building or refreshing corrections memory",
+      "surface": "card",
+      "entry": "Tap Build memory or Refresh after /glide; glide.sync; text-plugin /glide build",
+      "journey": "memory",
+      "expect": "A bounded recent eligible-session scan excludes the caller and reports counts",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py",
+        "glide/tests/test_memory.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "memory-enable",
+      "title": "Opt in to quoting corrections",
+      "surface": "card",
+      "entry": "Tap Turn on after memory build; glide.enable with on:true; text-plugin /glide on",
+      "journey": "memory",
+      "expect": "A receipt confirms recall is enabled; text mode refuses an unbuilt store without a reader",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "memory-recall",
+      "title": "Inspect corrections matching a query",
+      "surface": "slash",
+      "entry": "/glide recall WORDS; gateway glide.recall",
+      "journey": "memory",
+      "expect": "Matching history or an honest no-match result appears; z0 matches take precedence when available",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "memory-disable",
+      "title": "Turn automatic quoting off",
+      "surface": "slash",
+      "entry": "/glide off; glide.enable with on:false",
+      "journey": "memory",
+      "expect": "The receipt reports quoting off without deleting the derived store",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "memory-hook",
+      "title": "Quote matching corrections into an opted-in turn",
+      "surface": "gateway",
+      "entry": "Send a matching prompt after enabling the pre_llm_call hook",
+      "journey": "memory",
+      "expect": "Up to three past corrections enter context as history; current instructions still win",
+      "tests": [
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "glide-setup",
+      "title": "Run the text plugin's guided first-run flow",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide setup",
+      "journey": "memory",
+      "expect": "The plugin builds memory, shows retained corrections, and self-tests recall",
+      "tests": [
+        "glide/tests/test_onboarding.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "glide-json-fallback",
+      "title": "Use card verbs on cores without plugin methods",
+      "surface": "gateway",
+      "entry": "command.dispatch glide with arg json VERB PARAMS; text-plugin /glide json VERB PARAMS",
+      "journey": "memory",
+      "expect": "The same checked operation returns JSON bound to the caller's session",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_core.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "router-card",
+      "title": "Approve the native skill catalog step",
+      "surface": "card",
+      "entry": "/glide router, then Install; gateway glide.skill_router",
+      "journey": "memory",
+      "expect": "A local category-to-skills catalog receipt appears; no referenced skill is installed",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_skill_router.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "router-install",
+      "title": "Install or replace the text plugin's skill catalog",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide skill-router install [--force]",
+      "journey": "memory",
+      "expect": "The profile stores ranking metadata, or reports the catalog is already installed",
+      "tests": [
+        "glide/tests/test_skill_router.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "router-list",
+      "title": "List catalog categories or a category's skills",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide skill-router list [CATEGORY]",
+      "journey": "memory",
+      "expect": "The stored category and skill metadata appears",
+      "tests": [
+        "glide/tests/test_skill_router.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "router-rank",
+      "title": "Rank catalog skills for a query",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide skill-router rank WORDS",
+      "journey": "memory",
+      "expect": "Deterministic matching returns ranked skill metadata without a model call",
+      "tests": [
+        "glide/tests/test_skill_router.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "hill-climb-card",
+      "title": "Approve one paired benchmark round",
+      "surface": "card",
+      "entry": "/glide climb, then Run one round; glide.hill_climb with run:true",
+      "journey": "memory",
+      "expect": "The metric card reports baseline, candidate, noise, and KEEP, REVERT, or INCONCLUSIVE",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_hill_climb.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "hill-climb-scaffold",
+      "title": "Create the text plugin's benchmark configuration",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide hill-climb scaffold [--force]",
+      "journey": "memory",
+      "expect": "The local kernel configuration and state are created explicitly",
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "hill-climb-run",
+      "title": "Run a configured text-plugin benchmark round",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide hill-climb run [--samples N]",
+      "journey": "memory",
+      "expect": "Intended to print the round and verdict; native card coverage does not certify this text formatter",
+      "tests": [],
+      "army": []
+    },
+    {
+      "id": "hill-climb-status",
+      "title": "Inspect recorded benchmark state",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide hill-climb status; glide.hill_climb with run:false",
+      "journey": "memory",
+      "expect": "The configured target, rounds, stop state, and last verdict are reported",
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "hill-climb-stop-resume",
+      "title": "Stop or resume benchmark admission",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide hill-climb stop or /glide hill-climb resume",
+      "journey": "memory",
+      "expect": "The explicit STOP file is created or removed; no hidden loop starts",
+      "tests": [],
+      "army": []
+    },
+    {
+      "id": "offload-card",
+      "title": "Approve the native local-model sample",
+      "surface": "card",
+      "entry": "/glide savings, then Offload it; glide.offload with run:true",
+      "journey": "memory",
+      "expect": "One sample summary uses an existing Ollama model and reports estimated savings or an error",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_offload.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "offload-models",
+      "title": "Inspect available local offload models",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide offload models",
+      "journey": "memory",
+      "expect": "Ollama model inventory and a recommendation appear; no model is downloaded",
+      "tests": [
+        "glide/tests/test_offload.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "offload-task",
+      "title": "Send a bounded task to a local model",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide offload TASK_TYPE PROMPT",
+      "journey": "memory",
+      "expect": "The local completion, model, duration, and estimated tokens appear or an explicit failure",
+      "tests": [
+        "glide/tests/test_offload.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "offload-savings",
+      "title": "Inspect recorded offload estimates",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide offload savings; glide.offload with run:false",
+      "journey": "memory",
+      "expect": "Recorded tasks and estimated token and cost savings appear, not measured billing savings",
+      "tests": [
+        "glide/tests/test_offload.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "offload-reset",
+      "title": "Clear the offload accounting ledger",
+      "surface": "slash",
+      "entry": "In a text Hermes frontend, /glide offload reset",
+      "journey": "memory",
+      "expect": "The profile's offload counters reset explicitly",
+      "tests": [],
+      "army": []
+    },
+    {
+      "id": "focus-status",
+      "title": "Inspect the current attention phase",
+      "surface": "slash",
+      "entry": "/glide focus; glide.focus with action:show",
+      "journey": "focus-voice",
+      "expect": "A card shows phase, optional flow estimate, next window, bedtime, and held asks",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-start",
+      "title": "Start a deep-work block",
+      "surface": "slash",
+      "entry": "Tap Start block or /glide focus start; glide.focus action:start supports minutes; text mode accepts start MIN",
+      "journey": "focus-voice",
+      "expect": "A timed block holds non-critical asks and leaves critical alerts admitted",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-stop",
+      "title": "End a block and read its digest",
+      "surface": "slash",
+      "entry": "/glide focus stop, then End block; glide.focus action:stop",
+      "journey": "focus-voice",
+      "expect": "Held asks arrive together in one digest card",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-wind-down",
+      "title": "Save where the owner left off",
+      "surface": "slash",
+      "entry": "/glide focus wind-down; glide.focus action:wind_down",
+      "journey": "focus-voice",
+      "expect": "A receipt shows the saved session note and next-turn resume promise",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-hours",
+      "title": "Inspect learned deep-work hours",
+      "surface": "slash",
+      "entry": "/glide focus hours",
+      "journey": "focus-voice",
+      "expect": "The best two-hour windows and usual stop time come from local session activity",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-route",
+      "title": "Route an ask through the attention guard",
+      "surface": "gateway",
+      "entry": "glide.route or text-plugin /glide json route with title, body, and cls",
+      "journey": "focus-voice",
+      "expect": "Critical asks pass; guarded non-critical asks wait for the block digest",
+      "tests": [
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-morning-resume",
+      "title": "Resume from the saved wind-down note",
+      "surface": "gateway",
+      "entry": "Send the next day's first prompt after a wind-down",
+      "journey": "focus-voice",
+      "expect": "The hook quotes the saved note once and clears it",
+      "tests": [
+        "glide/tests/test_attention.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "voice-dictation",
+      "title": "Dictate into the unsent composer",
+      "surface": "voice",
+      "entry": "/voice on, /voice off, /voice status, then the configured record key or Alt+V; Esc cancels",
+      "journey": "focus-voice",
+      "expect": "STT text lands at the caret with undo; /voice tts explains the lack of spoken replies",
+      "tests": [
+        "frontend/src/__tests__/dictation.test.ts",
+        "frontend/src/__tests__/dictationKeys.test.ts",
+        "tests/test_dictation.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "live-voice-toggle",
+      "title": "Inspect or toggle opt-in live conversation",
+      "surface": "voice",
+      "entry": "/live or Alt+Shift+V; /live status; /live off",
+      "journey": "focus-voice",
+      "expect": "The phase is visible and the typed draft stays unsent; missing backend support is explicit",
+      "tests": [
+        "frontend/src/__tests__/liveVoice.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "live-voice-consent",
+      "title": "Approve microphone and automatic spoken turns",
+      "surface": "voice",
+      "entry": "Tap Allow microphone + automatic spoken turns in the live disclosure",
+      "journey": "focus-voice",
+      "expect": "Only explicit consent starts a session-scoped voice lease; activation errors remain visible",
+      "tests": [
+        "frontend/src/__tests__/liveVoice.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "live-voice-controls",
+      "title": "Mute, interrupt, or stop the active call",
+      "surface": "voice",
+      "entry": "Use Mute, Unmute, Barge in / silence reply, Stop, Esc, or Ctrl+C",
+      "journey": "focus-voice",
+      "expect": "Controls target the active lease; Send stays disabled until authoritative idle",
+      "tests": [
+        "frontend/src/__tests__/liveVoice.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "talk-call",
+      "title": "Start and stop a Hermes Talk call",
+      "surface": "voice",
+      "entry": "Ctrl+L; the adapter dispatches tern-talk start, status, or stop CALL_ID",
+      "journey": "focus-voice",
+      "expect": "The existing hermes-talk provider owns audio; unsupported setup fails visibly",
+      "tests": [
+        "frontend/src/__tests__/talkGateway.test.ts",
+        "frontend/src/__tests__/talkNative.test.ts",
+        "tests/test_talk_backend.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "hold-to-talk-unavailable",
+      "title": "Explain the SDK's hold-to-talk limitation",
+      "surface": "voice",
+      "entry": "/ptt or Alt+Shift+Space",
+      "journey": "focus-voice",
+      "expect": "The UI explains missing physical key-up support without a simulated hold",
+      "tests": [
+        "frontend/src/__tests__/holdVoice.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "voice-lane-strip",
+      "title": "Inspect broker-owned helper lanes during a call",
+      "surface": "voice",
+      "entry": "Start a live call with the local lane broker token configured",
+      "journey": "focus-voice",
+      "expect": "The strip shows real role, model, state, and newest entry; no token means no read",
+      "tests": [
+        "frontend/src/__tests__/lanes.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "voice-lanes-popup",
+      "title": "Inspect helper lanes in a popup",
+      "surface": "slash",
+      "entry": "/glide lanes or Open lanes on the subagents card",
+      "journey": "focus-voice",
+      "expect": "The popup displays broker data or a clear unavailable state",
+      "tests": [
+        "frontend/src/__tests__/lanesPopup.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "thinking-orb",
+      "title": "Read the agent's activity from the orb",
+      "surface": "pane",
+      "entry": "Send a prompt, wait for reasoning, tools, composing, and completion",
+      "journey": "focus-voice",
+      "expect": "The thinking-orbs image follows real activity and pauses for hidden or reduced-motion state",
+      "tests": [
+        "frontend/src/__tests__/orb.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "focus-orbit",
+      "title": "See voice lanes orbit during a focus block",
+      "surface": "pane",
+      "entry": "Run a focus block with live voice and helper lanes",
+      "journey": "focus-voice",
+      "expect": "Lane satellites represent broker states beside the main orb and respect reduced motion",
+      "tests": [
+        "frontend/src/__tests__/orbit.test.ts",
+        "frontend/src/__tests__/lanes.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "taste-pane",
+      "title": "Open the local Taste brainstorm beside chat",
+      "surface": "slash",
+      "entry": "/glide taste; gateway glide.taste",
+      "journey": "taste-intent",
+      "expect": "The newest board or Boards view opens only after a validated local response and confirmed pane open",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "glide/tests/test_taste.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "intent-declare",
+      "title": "Declare an ask in the owner's exact words",
+      "surface": "slash",
+      "entry": "/glide intent ASK",
+      "journey": "taste-intent",
+      "expect": "A declaration card quotes the ask and its explicit clauses",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "frontend/src/__tests__/intentCards.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "intent-contract",
+      "title": "Inspect an unevidenced AODL contract",
+      "surface": "card",
+      "entry": "Read the contract after /glide intent ASK",
+      "journey": "taste-intent",
+      "expect": "Acceptance, orchestration, hosts, gate, and budget are shown with sample and missing-proof labels",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "frontend/src/__tests__/intentCards.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "intent-work-preview",
+      "title": "Advance to an explicitly synthetic work rail",
+      "surface": "card",
+      "entry": "Tap Hold to approve on the native intent-contract card",
+      "journey": "taste-intent",
+      "expect": "A sample work rail appears; no agent or production execution is dispatched",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts",
+        "frontend/src/__tests__/intentCards.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "council-popup",
+      "title": "Inspect the council's seats and verdicts",
+      "surface": "slash",
+      "entry": "/council, then Enter to play and Esc to close",
+      "journey": "taste-intent",
+      "expect": "A configured live run or tagged demo plays rounds and reveals per-seat verdicts",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "council-card",
+      "title": "Open council inspection from a transcript card",
+      "surface": "slash",
+      "entry": "/council card, then the card's open button",
+      "journey": "taste-intent",
+      "expect": "A native council card opens its popup and keeps demo provenance visible",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-pane",
+      "title": "Toggle the nonmodal Factory aside",
+      "surface": "slash",
+      "entry": "/factory",
+      "journey": "factory",
+      "expect": "Needs-attention runs, canonical suggestions, and a running count appear without taking composer focus",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts",
+        "frontend/src/__tests__/factoryPane.test.ts",
+        "frontend/src/__tests__/factoryApp.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-text-status",
+      "title": "Inspect the Factory text interface",
+      "surface": "slash",
+      "entry": "/factory text or /factory status; bare /factory without aside capability",
+      "journey": "factory",
+      "expect": "An operational sheet shows the plugin's text output, without needing the card kit",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-runs",
+      "title": "List recent Factory runs",
+      "surface": "slash",
+      "entry": "/factory runs",
+      "journey": "factory",
+      "expect": "The backend's recent run results appear in a text sheet",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-scenes",
+      "title": "Search Factory scene references",
+      "surface": "slash",
+      "entry": "/factory scenes WORDS",
+      "journey": "factory",
+      "expect": "The plugin returns matching reference scenes in a text sheet",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-suggest",
+      "title": "Request canonical Factory proposals",
+      "surface": "slash",
+      "entry": "/factory suggest",
+      "journey": "factory",
+      "expect": "Proposals or an explicit provenance blocker appear; no frontend contract ID is invented",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts",
+        "frontend/src/__tests__/factoryPane.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-render",
+      "title": "Request execution of an already approved intent",
+      "surface": "slash",
+      "entry": "/factory render RUN CONTRACT_ID, or Run approved intent for an eligible proposal",
+      "journey": "factory",
+      "expect": "The backend must verify an immutable matching approved intent; chat assent is not approval",
+      "tests": [
+        "frontend/src/__tests__/factoryCommand.test.ts",
+        "frontend/src/__tests__/factoryApp.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "factory-review-blocked",
+      "title": "Explain why canonical review is unavailable",
+      "surface": "pane",
+      "entry": "Inspect a pending proposal in the Factory aside",
+      "journey": "factory",
+      "expect": "Missing machine-proposal provenance and review-existing support remain visibly blocked",
+      "tests": [
+        "frontend/src/__tests__/factoryPane.test.ts",
+        "frontend/src/__tests__/factoryApp.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "ephemeral-chat-cards",
+      "title": "Read data-only ephemeral-ui fences in chat",
+      "surface": "card",
+      "entry": "Receive an assistant ephemeral-ui fence containing one card.v0 document",
+      "journey": "cards",
+      "expect": "A pinned native card renders; untrusted content cannot register host operations",
+      "tests": [
+        "frontend/src/__tests__/euiCards.test.ts",
+        "frontend/src/__tests__/euiApp.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "host-card-approval",
+      "title": "Execute a host-owned card approval once",
+      "surface": "card",
+      "entry": "Tap an enabled approval button on a trusted host publication",
+      "journey": "cards",
+      "expect": "Exactly the reviewed revision can run once; stale, hidden, modal, and restored callbacks cannot run",
+      "tests": [
+        "frontend/src/__tests__/euiHostCards.test.ts",
+        "frontend/src/__tests__/euiHostApp.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "cards-offline",
+      "title": "Read packaged cards without remote fixture fetches",
+      "surface": "card",
+      "entry": "Open a pinned card whose local capture file is absent",
+      "journey": "cards",
+      "expect": "Only allowed local catalogs load; missing captures show unavailable rather than fabricated data",
+      "tests": [
+        "frontend/src/__tests__/euiOffline.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "visual-picker",
+      "title": "Inspect and open prepared scoped previews",
+      "surface": "slash",
+      "entry": "/visual or /visual /absolute/path/to/file.hvisual.json",
+      "journey": "cards",
+      "expect": "Completed terminal candidates are re-read and validated against the session, branch, and source bytes",
+      "tests": [
+        "frontend/src/__tests__/visuals.test.ts",
+        "frontend/src/__tests__/visualOverlay.test.ts",
+        "frontend/src/__tests__/visual-discovery.test.ts",
+        "frontend/src/__tests__/openuiPackaged.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prepare-openui",
+      "title": "Prepare a repository OpenUI preview explicitly",
+      "surface": "cli",
+      "entry": "node frontend/openui/prepare.mjs prepare PROGRAM DOCUMENT SCOPE OUTPUT --json",
+      "journey": "cards",
+      "expect": "A content-addressed read-only candidate notice appears without models, installs, or automatic rendering",
+      "tests": [
+        "frontend/src/__tests__/openuiPackaged.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prepare-intent-board",
+      "title": "Prepare a host-valued intent board",
+      "surface": "cli",
+      "entry": "node frontend/openui/prepare.mjs prepare-intent PROGRAM DOCUMENT SCOPE OUTPUT --json",
+      "journey": "cards",
+      "expect": "The host owns all board values; the prepared sections remain an inspection preview",
+      "tests": [
+        "frontend/src/__tests__/openuiPackaged.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prepare-architecture",
+      "title": "Prepare an authored architecture board",
+      "surface": "cli",
+      "entry": "node frontend/openui/prepare.mjs prepare-architecture PROGRAM DOCUMENT SCOPE OUTPUT --json",
+      "journey": "cards",
+      "expect": "The scoped preview labels edges as intent, not verified infrastructure",
+      "tests": [
+        "frontend/src/__tests__/architectureBoard.test.ts",
+        "frontend/src/__tests__/openuiPackaged.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prepare-card-preview",
+      "title": "Prepare an inert card summary",
+      "surface": "cli",
+      "entry": "node frontend/openui/prepare.mjs prepare-card DOCUMENT SCOPE OUTPUT --json",
+      "journey": "cards",
+      "expect": "The candidate shows native text and disabled button labels, never executable card actions",
+      "tests": [
+        "frontend/src/__tests__/ephemeralCard.test.ts",
+        "frontend/src/__tests__/openuiPackaged.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "native-visual-route",
+      "title": "Opt in to the separate native OpenUI file route",
+      "surface": "cli",
+      "entry": "Explicitly link the shipped hermes-openui Tern plugin and open a legacy candidate file",
+      "journey": "cards",
+      "expect": "The optional Luau route requires native acceptance; the chat picker does not install or certify it",
+      "tests": [],
+      "army": []
+    },
+    {
+      "id": "image-attachments",
+      "title": "Attach images to the owning draft",
+      "surface": "slash",
+      "entry": "/image PATH, /paste, Ctrl+V, native paste/drop, or launcher --image; hermes-tern.media.attach_bytes stages native bytes",
+      "journey": "cards",
+      "expect": "Gateway-owned images remain bound to the exact draft owner, with 8-image and 40-MiB limits",
+      "tests": [
+        "frontend/src/__tests__/artifactAttachments.test.ts",
+        "frontend/src/__tests__/images.test.ts",
+        "frontend/src/__tests__/mediaAttachments.test.ts",
+        "tests/test_media_backend.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "artifact-links",
+      "title": "Open verified host-local artifact and source links",
+      "surface": "card",
+      "entry": "Click a local artifact link after a completed write or a host-local source result",
+      "journey": "cards",
+      "expect": "Only proven local session paths become openable links; remote paths remain text",
+      "tests": [
+        "frontend/src/__tests__/artifactLinks.test.ts",
+        "frontend/src/__tests__/writtenArtifacts.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "written-media",
+      "title": "Read verified SVG, Mermaid, and 3D artifacts",
+      "surface": "card",
+      "entry": "Receive a completed matching write or use /view3d PATH_OR_URL",
+      "journey": "cards",
+      "expect": "Verified media is displayed or opened with Tern support; generated code is never executed",
+      "tests": [
+        "frontend/src/__tests__/writtenArtifacts.test.ts",
+        "frontend/src/__tests__/read-media.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "lsp-results",
+      "title": "Inspect structured language-server results",
+      "surface": "card",
+      "entry": "Open a tool card with lsp_result",
+      "journey": "cards",
+      "expect": "References, symbols, and hover ranges remain literal or verified host-local file links",
+      "tests": [
+        "frontend/src/__tests__/lspResults.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "lsp-edit-diagnostics",
+      "title": "Read diagnostics beside an edit or write",
+      "surface": "card",
+      "entry": "Open a patch or write card containing lsp_diagnostics_data",
+      "journey": "cards",
+      "expect": "Severity groups preserve real file and range data without converting enrichment into tool failure",
+      "tests": [
+        "frontend/src/__tests__/files.test.ts",
+        "frontend/src/__tests__/lspResults.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "tool-cards",
+      "title": "Inspect tools, warnings, and subagent work in the transcript",
+      "surface": "card",
+      "entry": "Expand a terminal, file, search, browser, web, eval, task, or generic tool card",
+      "journey": "cards",
+      "expect": "Native details retain actual output, status, warnings, omitted counts, and available actions",
+      "tests": [
+        "frontend/src/__tests__/toolRegistry.test.ts",
+        "frontend/src/__tests__/tools.test.ts",
+        "frontend/src/__tests__/transcriptCardActions.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "table-charts",
+      "title": "Append charts to eligible settled tables",
+      "surface": "card",
+      "entry": "Set tableCharts to off, always, or smart in the owning frontend settings, then receive a table",
+      "journey": "cards",
+      "expect": "Always stays local; smart uses the redacted auxiliary route with a bounded local-bar fallback; Copy stays Markdown",
+      "tests": [
+        "frontend/src/__tests__/tableCharts.test.ts",
+        "frontend/src/__tests__/tableChartHelper.test.ts",
+        "tests/test_table_chart_planner.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "tool-results-sheet",
+      "title": "Page retained generic and web tool text",
+      "surface": "slash",
+      "entry": "/tool-results",
+      "journey": "cards",
+      "expect": "A bounded read-only sheet pages retained text and labels unavailable oversized content",
+      "tests": [
+        "frontend/src/__tests__/toolResults.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "gateway-prompts",
+      "title": "Answer approval, clarification, and masked prompts",
+      "surface": "pane",
+      "entry": "Respond to a gateway approval, ask, clarify, or masked-input sheet",
+      "journey": "cards",
+      "expect": "The current prompt receives the response; cancellation and replacement retire old controls",
+      "tests": [
+        "frontend/src/__tests__/prompts.test.ts",
+        "frontend/src/__tests__/mask.test.ts",
+        "frontend/src/__tests__/askPreview.test.ts",
+        "frontend/src/__tests__/overlayOwnership.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "new-session",
+      "title": "Start a named or fresh conversation",
+      "surface": "slash",
+      "entry": "/new [TITLE], /reset, or /clear",
+      "journey": "sessions",
+      "expect": "A new session starts only when the active turn permits it",
+      "tests": [
+        "frontend/src/__tests__/commands.test.ts",
+        "frontend/src/__tests__/sessionReset.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "session-picker",
+      "title": "Browse, search, resume, or delete stored sessions",
+      "surface": "slash",
+      "entry": "/sessions; aliases /resume, /session, /switch; select Browse, Resume, Copy id, or confirmed Delete",
+      "journey": "sessions",
+      "expect": "Profile-owned history and previews remain separate from the unsent current draft",
+      "tests": [
+        "frontend/src/__tests__/sessionsPicker.test.ts",
+        "frontend/src/__tests__/sessionPreview.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "session-sidebar",
+      "title": "Inspect branch, PRs, and working-tree changes",
+      "surface": "slash",
+      "entry": "/sidebar or /side; Alt+S; Copy branch, Open PR, Diff, or Show all",
+      "journey": "sessions",
+      "expect": "A session aside shows gateway-backed repository state without moving composer focus",
+      "tests": [
+        "frontend/src/__tests__/sidebar.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "pull-requests",
+      "title": "Review a linked pull request beside chat",
+      "surface": "slash",
+      "entry": "/prs [NUMBER], /pr, /pulls, or Alt+P",
+      "journey": "sessions",
+      "expect": "The PR pane shows checks, files, and conversation for the selected linked PR",
+      "tests": [
+        "frontend/src/__tests__/prs.test.ts",
+        "frontend/src/__tests__/github.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "pr-link-tools",
+      "title": "Link or unlink a PR for the conversation",
+      "surface": "gateway",
+      "entry": "Ask the agent to use link_pull_request, unlink_pull_request, or list_pull_requests",
+      "journey": "sessions",
+      "expect": "The registered plugin tools update or report the conversation's linked PRs",
+      "tests": [
+        "tests/test_pull_requests.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "working-changes",
+      "title": "Inspect file-by-file working-tree changes",
+      "surface": "slash",
+      "entry": "/changes or /diff",
+      "journey": "sessions",
+      "expect": "The Changes sheet shows diffs and offers Copy path, Refresh, and Review split",
+      "tests": [
+        "frontend/src/__tests__/git.test.ts",
+        "frontend/src/__tests__/codeReview.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "code-review-note",
+      "title": "Insert a changed-line review note without sending",
+      "surface": "pane",
+      "entry": "Choose Review split from Changes; navigate a changed line and Insert into draft",
+      "journey": "sessions",
+      "expect": "The note names the selected file and line while preserving unsent input",
+      "tests": [
+        "frontend/src/__tests__/codeReview.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fork-pane",
+      "title": "Fork the conversation into another Tern pane",
+      "surface": "slash",
+      "entry": "/fork [DURABLE_MESSAGE_ID] or its configured fixed chord",
+      "journey": "sessions",
+      "expect": "A separate pane opens the requested branch without rerouting later callbacks",
+      "tests": [
+        "frontend/src/__tests__/forkPane.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "rewind-picker",
+      "title": "Select a prior prompt to rewind or branch",
+      "surface": "slash",
+      "entry": "/rewind, then Rewind or Branch here",
+      "journey": "sessions",
+      "expect": "The exact selected history point is confirmed before changing the conversation",
+      "tests": [
+        "frontend/src/__tests__/rewind.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "branch-tree",
+      "title": "Navigate the conversation's branch family",
+      "surface": "slash",
+      "entry": "/tree",
+      "journey": "sessions",
+      "expect": "The native tree opens the selected conversation, preserving branch identity",
+      "tests": [
+        "frontend/src/__tests__/sessionTree.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "undo-turns",
+      "title": "Rewind one or more prompts",
+      "surface": "slash",
+      "entry": "/undo [N]",
+      "journey": "sessions",
+      "expect": "The gateway rewinds N prompts and reloads the owning transcript",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts",
+        "frontend/src/__tests__/undoHistory.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "retry-turn",
+      "title": "Retry the gateway's newest prompt",
+      "surface": "slash",
+      "entry": "/retry",
+      "journey": "sessions",
+      "expect": "The newest persisted prompt is rewound and resent, not replaced by the last local draft",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "compress-context",
+      "title": "Preview or compact session context",
+      "surface": "slash",
+      "entry": "/compress [here [N], focus, or --preview]; alias /compact",
+      "journey": "sessions",
+      "expect": "Preview stays read-only; real compaction shows owner token counts and reloads the transcript",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts",
+        "frontend/src/__tests__/compaction.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "branch-session",
+      "title": "Create and enter a conversation branch",
+      "surface": "slash",
+      "entry": "/branch [TITLE]",
+      "journey": "sessions",
+      "expect": "A gateway-created child opens while the original conversation stays intact",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "save-session",
+      "title": "Save the current conversation",
+      "surface": "slash",
+      "entry": "/save",
+      "journey": "sessions",
+      "expect": "The gateway's saved path or an explicit failure appears",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "rollback-checkpoint",
+      "title": "Inspect or restore a filesystem checkpoint",
+      "surface": "slash",
+      "entry": "/rollback [list], /rollback diff CHECKPOINT, or /rollback CHECKPOINT [FILE]",
+      "journey": "sessions",
+      "expect": "The selected checkpoint diff or restore result appears; whole-tree restore can rewind history",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "context-snapshot",
+      "title": "Inspect the current context breakdown",
+      "surface": "pane",
+      "entry": "Open the context meter; /context opens the command's read-only report",
+      "journey": "sessions",
+      "expect": "A read-only owner-scoped snapshot distinguishes provider usage from estimates",
+      "tests": [
+        "frontend/src/__tests__/contextMeter.test.ts",
+        "frontend/src/__tests__/generalReportSheets.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "session-info",
+      "title": "Inspect identity, model, and session counters",
+      "surface": "slash",
+      "entry": "/info",
+      "journey": "sessions",
+      "expect": "A native read-only snapshot shows session identity, context, and token/tool counters",
+      "tests": [
+        "frontend/src/__tests__/sessionInfo.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "agents-hub",
+      "title": "Inspect subagents and their timelines",
+      "surface": "slash",
+      "entry": "/agents, /tasks, or Alt+A",
+      "journey": "control",
+      "expect": "The hub lists real children, details, events, Steer, and Stop controls",
+      "tests": [
+        "frontend/src/__tests__/agents.test.ts",
+        "frontend/src/__tests__/subagentEvents.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "agents-spawn-gate",
+      "title": "Pause or resume new subagent spawns",
+      "surface": "slash",
+      "entry": "/agents pause, /agents resume, /agents unpause, /agents status, or the hub gate control",
+      "journey": "control",
+      "expect": "The gateway-wide spawn gate changes without stopping existing children",
+      "tests": [
+        "frontend/src/__tests__/commands.test.ts",
+        "frontend/src/__tests__/agents.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "agent-watch",
+      "title": "Watch and steer a child in a separate pane",
+      "surface": "pane",
+      "entry": "Select Open beside from the agents hub",
+      "journey": "control",
+      "expect": "The Watch pane follows the same child and accepts Send or Stop while rejecting stale actions",
+      "tests": [
+        "frontend/src/__tests__/watch.test.ts",
+        "frontend/src/__tests__/watchRecovery.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "background-processes",
+      "title": "Inspect and stop background processes",
+      "surface": "slash",
+      "entry": "/ps; aliases /bashes, /shells, /processes; Alt+J",
+      "journey": "control",
+      "expect": "The hub shows output and command copy, with confirmed Stop or Stop all",
+      "tests": [
+        "frontend/src/__tests__/processes.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "cron-jobs",
+      "title": "Inspect, pause, resume, or remove cron jobs",
+      "surface": "slash",
+      "entry": "/cron or the Cron tab in /ps",
+      "journey": "control",
+      "expect": "Gateway-owned jobs show status and require confirmation before removal",
+      "tests": [
+        "frontend/src/__tests__/cron.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prompt-queue",
+      "title": "Queue work behind the active turn",
+      "surface": "slash",
+      "entry": "/queue TEXT or /q TEXT; bare /queue counts pending prompts",
+      "journey": "control",
+      "expect": "The current session admits FIFO work without losing text or attachments",
+      "tests": [
+        "frontend/src/__tests__/queue.test.ts",
+        "frontend/src/__tests__/serverQueue.test.ts",
+        "frontend/src/__tests__/commands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "queue-edit-steer",
+      "title": "Edit or steer an already queued prompt",
+      "surface": "shortcut",
+      "entry": "Alt+Up edits the oldest pending prompt; Alt+Enter steers it while busy",
+      "journey": "control",
+      "expect": "Queue actions target the selected owning item, not an unrelated newer session",
+      "tests": [
+        "frontend/src/__tests__/appQueue.test.ts",
+        "frontend/src/__tests__/keys.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "steer-turn",
+      "title": "Give guidance to the active turn",
+      "surface": "slash",
+      "entry": "/steer TEXT or /s TEXT",
+      "journey": "control",
+      "expect": "The gateway steers the running turn or retains the text as the next prompt",
+      "tests": [
+        "frontend/src/__tests__/controlCommands.test.ts",
+        "frontend/src/__tests__/steer.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "stop-turn-processes",
+      "title": "Interrupt the turn and stop background processes",
+      "surface": "slash",
+      "entry": "/stop; Esc twice interrupts through the existing turn controls",
+      "journey": "control",
+      "expect": "The current turn stops and process-stop results are reported honestly",
+      "tests": [
+        "frontend/src/__tests__/controlCommands.test.ts",
+        "frontend/src/__tests__/keys.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "background-question",
+      "title": "Run a side agent without changing the main turn",
+      "surface": "slash",
+      "entry": "/bg PROMPT or /background PROMPT",
+      "journey": "control",
+      "expect": "The gateway starts a background task and later reports its completion",
+      "tests": [
+        "frontend/src/__tests__/controlCommands.test.ts",
+        "frontend/src/__tests__/sideGateway.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "btw-threads",
+      "title": "Ask and follow up in a separate side-thread editor",
+      "surface": "slash",
+      "entry": "/btw [QUESTION]; Tab changes panes, Ctrl+N/P selects, Alt+Enter sends, Ctrl+X cancels",
+      "journey": "control",
+      "expect": "The main draft stays untouched; an unsupported history API leaves the question visible and unsent",
+      "tests": [
+        "frontend/src/__tests__/btwSheets.test.ts",
+        "frontend/src/__tests__/btwNativeInput.test.ts",
+        "frontend/src/__tests__/btwPty.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "btw-notices",
+      "title": "Open or dismiss a completed side-thread notice",
+      "surface": "pane",
+      "entry": "Choose View or Dismiss on a gateway-confirmed BTW completion",
+      "journey": "control",
+      "expect": "The notice addresses the exact thread and cannot resurrect after dismissal or session change",
+      "tests": [
+        "frontend/src/__tests__/btwNotices.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "goal-loop-controls",
+      "title": "Inspect and control standing goals and loops",
+      "surface": "pane",
+      "entry": "Open a live goal or loop pill; use Pause, Resume, Stop waiting, Clear, or Stop",
+      "journey": "control",
+      "expect": "Controls target the gateway-owned automation and confirm destructive changes",
+      "tests": [
+        "frontend/src/__tests__/automation.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "retained-notices",
+      "title": "Inspect retained gateway notices",
+      "surface": "slash",
+      "entry": "/notices",
+      "journey": "control",
+      "expect": "A report shows retained notices without submitting another gateway command",
+      "tests": [
+        "frontend/src/__tests__/commands.test.ts",
+        "frontend/src/__tests__/btwNotices.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "session-reports",
+      "title": "Read usage, status, and transcript history reports",
+      "surface": "slash",
+      "entry": "/usage, bare /status, or /history [CHARS]",
+      "journey": "control",
+      "expect": "A scoped native report supports scrolling and exact report-only Copy without new chat panels",
+      "tests": [
+        "frontend/src/__tests__/generalReportSheets.test.ts",
+        "frontend/src/__tests__/commands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "tools-inventory",
+      "title": "Inspect the session's available tools",
+      "surface": "slash",
+      "entry": "/tools [list]",
+      "journey": "control",
+      "expect": "The real tools.show inventory appears; unsupported mutation forms are explicitly refused",
+      "tests": [
+        "frontend/src/__tests__/controlCommands.test.ts",
+        "frontend/src/__tests__/generalReportSheets.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "mcp-reports",
+      "title": "Read configured MCP inventory and cached status",
+      "surface": "slash",
+      "entry": "/mcp [list, status, tools, or catalog]; hermes-tern.operations.report",
+      "journey": "control",
+      "expect": "Only backend-owned read-only reports appear; unsupported tool-name ownership is unavailable, not empty",
+      "tests": [
+        "frontend/src/__tests__/operationalSheets.test.ts",
+        "tests/test_gateway_operations.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "ssh-report",
+      "title": "Explain effective SSH inventory availability",
+      "surface": "slash",
+      "entry": "/ssh [list]; hermes-tern.operations.report with ssh-list",
+      "journey": "control",
+      "expect": "The missing public ownership API is explicit; no remote probe or management action occurs",
+      "tests": [
+        "frontend/src/__tests__/operationalSheets.test.ts",
+        "tests/test_gateway_operations.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "native-settings",
+      "title": "Edit supported owning-profile settings",
+      "surface": "slash",
+      "entry": "/settings or /prefs; choose a profile row and confirm policy changes",
+      "journey": "settings",
+      "expect": "Persistent defaults stay separate from live pins, with readback and session-owner guards",
+      "tests": [
+        "frontend/src/__tests__/nativeSettings.test.ts",
+        "frontend/src/__tests__/settingsKeyboard.test.ts",
+        "frontend/src/__tests__/nativeSettingsPty.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "model-hub",
+      "title": "Inspect providers and model-management limits",
+      "surface": "slash",
+      "entry": "/models or Model hub in settings",
+      "journey": "settings",
+      "expect": "Profile-bound inventory appears; auxiliary roles, fallback changes, and credentials remain unavailable",
+      "tests": [
+        "frontend/src/__tests__/nativeSettings.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "model-picker",
+      "title": "Choose the live session's model",
+      "surface": "slash",
+      "entry": "/model [MODEL] or Alt+M",
+      "journey": "settings",
+      "expect": "The native picker uses authorized inventory and preserves the expensive-model confirmation",
+      "tests": [
+        "frontend/src/__tests__/sessionControls.test.ts",
+        "frontend/src/shortcuts/__tests__/model-cycle.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "model-cycle",
+      "title": "Cycle recent accepted model selections",
+      "surface": "shortcut",
+      "entry": "Ctrl+P or Ctrl+Alt+P",
+      "journey": "settings",
+      "expect": "The existing guarded switch path changes the live model without changing configured defaults",
+      "tests": [
+        "frontend/src/shortcuts/__tests__/model-cycle.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "reasoning-effort",
+      "title": "Change or save reasoning effort",
+      "surface": "slash",
+      "entry": "/effort [LEVEL] [--global], /reasoning LEVEL [--global], Shift+Tab, or the effort chip; other /reasoning forms dispatch to Hermes",
+      "journey": "settings",
+      "expect": "The live effort changes, or an explicit global choice saves a default",
+      "tests": [
+        "frontend/src/__tests__/sessionControls.test.ts",
+        "frontend/src/shortcuts/__tests__/actions.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fast-mode",
+      "title": "Toggle a supported model's fast mode",
+      "surface": "slash",
+      "entry": "/fast or the fast control in the model picker",
+      "journey": "settings",
+      "expect": "The shared session fast flag updates or an unsupported-model reason appears",
+      "tests": [
+        "frontend/src/__tests__/fastMode.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "theme-picker",
+      "title": "Choose Tern, Nous, skin, or wallpaper colors",
+      "surface": "slash",
+      "entry": "/theme [tern, nous, skin, or auto]",
+      "journey": "settings",
+      "expect": "The current palette repaints native chat and cards without rearming approvals",
+      "tests": [
+        "frontend/src/__tests__/theme.test.ts",
+        "frontend/src/__tests__/styles.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "hermes-skin",
+      "title": "Inspect or set the Hermes profile skin",
+      "surface": "slash",
+      "entry": "/skin [NAME], then /theme skin to wear it",
+      "journey": "settings",
+      "expect": "The profile skin is reported or changed through config RPCs",
+      "tests": [
+        "frontend/src/__tests__/sessionControls.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "wallpaper-theme",
+      "title": "Follow live wallpaper colors",
+      "surface": "slash",
+      "entry": "/glide theme auto",
+      "journey": "settings",
+      "expect": "The pywal palette tints the surface and retints on file changes with readable text contrast",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "wallpaper-default",
+      "title": "Return from wallpaper colors to Tern",
+      "surface": "slash",
+      "entry": "/glide theme default",
+      "journey": "settings",
+      "expect": "The wallpaper stylesheet is removed and the default palette is restored",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "wallpaper-export",
+      "title": "Export the resolved wallpaper palette",
+      "surface": "slash",
+      "entry": "/glide theme export",
+      "journey": "settings",
+      "expect": "A palette file and JSON receipt appear, or missing colors are reported",
+      "tests": [
+        "frontend/src/__tests__/glideCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "profile-keybindings",
+      "title": "Use profile-owned shortcut preferences",
+      "surface": "shortcut",
+      "entry": "Set display.tern_keybindings and optional display.tern_profile_identity in the owning Hermes profile, then adopt",
+      "journey": "settings",
+      "expect": "Validated custom bindings and the optional label replace defaults only for that exact owner",
+      "tests": [
+        "frontend/src/shortcuts/__tests__/binding-preferences.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "vim-composer",
+      "title": "Use optional modal composer editing",
+      "surface": "shortcut",
+      "entry": "Set display.vim_mode true in the owning Hermes profile and reattach; Esc enters Normal mode",
+      "journey": "settings",
+      "expect": "The supported Vim motions, operators, selection, yank, and undo preserve literal paste provenance",
+      "tests": [
+        "frontend/src/__tests__/vim.test.ts",
+        "frontend/src/__tests__/vimApp.test.ts",
+        "frontend/src/__tests__/vimPreference.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "external-editor",
+      "title": "Edit an unsent draft externally",
+      "surface": "slash",
+      "entry": "/editor or Ctrl+G",
+      "journey": "settings",
+      "expect": "A private temporary file round-trips through Tern or VISUAL/EDITOR without sending or overwriting newer work",
+      "tests": [
+        "frontend/src/__tests__/externalEditor.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "composer-readline",
+      "title": "Edit, undo, and paste literal draft text",
+      "surface": "shortcut",
+      "entry": "Use composer movement, kill/yank, undo/redo, Shift+Enter, and bracketed paste",
+      "journey": "settings",
+      "expect": "Text and caret update without executing pasted shell syntax",
+      "tests": [
+        "frontend/src/__tests__/composer.test.ts",
+        "frontend/src/__tests__/keys.test.ts",
+        "frontend/src/__tests__/historyLiteralPersistence.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "prompt-history-search",
+      "title": "Recall a prior prompt into the draft",
+      "surface": "shortcut",
+      "entry": "Ctrl+R; search, Enter to fill, or Esc to cancel; Up/Down uses prompt history",
+      "journey": "settings",
+      "expect": "The owning profile's literal prompt fills without sending; cancel preserves text and attachments",
+      "tests": [
+        "frontend/src/__tests__/historySearch.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "copy-text",
+      "title": "Copy an answer, draft, or caret line",
+      "surface": "slash",
+      "entry": "/copy [N], Alt+C for the draft, or Alt+Shift+C for its line",
+      "journey": "settings",
+      "expect": "The requested exact text goes to the existing clipboard channel without editing the draft",
+      "tests": [
+        "frontend/src/__tests__/commands.test.ts",
+        "frontend/src/__tests__/artifactClipboard.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "command-palette",
+      "title": "Search, run, or insert a command",
+      "surface": "slash",
+      "entry": "/palette or Alt+K; Enter runs, Tab inserts, Esc cancels",
+      "journey": "maintenance",
+      "expect": "Local and gateway commands appear once, excluding hidden commands and stale catalogs",
+      "tests": [
+        "frontend/src/shortcuts/__tests__/palette.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "help-bindings",
+      "title": "Read commands and current shortcuts",
+      "surface": "slash",
+      "entry": "/help, F1, or Alt+/; /help COMMAND reads detailed usage",
+      "journey": "maintenance",
+      "expect": "Native help reflects current bindings; detailed usage opens an operational report",
+      "tests": [
+        "frontend/src/shortcuts/__tests__/help.test.ts",
+        "frontend/src/__tests__/generalReportSheets.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "config-command",
+      "title": "Inspect or change Hermes configuration through its CLI",
+      "surface": "slash",
+      "entry": "/config [show, get KEY, set KEY VALUE, path, or check]",
+      "journey": "maintenance",
+      "expect": "The existing CLI runs with argv and reports output or an explicit refusal",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "plugins-list",
+      "title": "Inspect installed plugins",
+      "surface": "slash",
+      "entry": "/plugins [list or all]",
+      "journey": "maintenance",
+      "expect": "Plugin status appears without frontend installation or enable/disable mutations",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "subscription-report",
+      "title": "Inspect the Nous subscription and portal link",
+      "surface": "slash",
+      "entry": "/subscription or /upgrade",
+      "journey": "maintenance",
+      "expect": "The current plan and credits or login failure appear; plan changes use the existing portal",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "browser-manage",
+      "title": "Inspect or request the configured CDP browser",
+      "surface": "slash",
+      "entry": "/browser [status, connect URL, or disconnect]",
+      "journey": "maintenance",
+      "expect": "The backend confirms status or explains shared-gateway refusal; the UI invents no connection",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "browser-blocks",
+      "title": "Inspect, hand over, focus, release, or select a native evaluation frame",
+      "surface": "slash",
+      "entry": "/browser-blocks or Alt+Shift+B; hermes-tern.browser.blocks, adopt, focus, release, frame",
+      "journey": "maintenance",
+      "expect": "Discovery grants no drive permission; consented original-owner operations are checked, with busy fences and honest cleanup failures",
+      "tests": [
+        "frontend/src/__tests__/browserBlocks.test.ts",
+        "frontend/src/__tests__/browserOverlay.test.ts",
+        "tests/test_browser_gateway_dispatch.py",
+        "tests/test_browser_native.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "reload-integrations",
+      "title": "Reload environment, skills, or MCP configuration",
+      "surface": "slash",
+      "entry": "/reload, /reload-skills or /reload_skills, /reload-mcp or /reload_mcp",
+      "journey": "maintenance",
+      "expect": "The gateway reports changes; skills invalidate completion and MCP reload requires explicit typed intent",
+      "tests": [
+        "frontend/src/__tests__/sessionCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "worktree-command",
+      "title": "Inspect or prune session-repository worktrees",
+      "surface": "slash",
+      "entry": "/worktree [list, status, show, audit, or prune --dry-run]",
+      "journey": "maintenance",
+      "expect": "The CLI targets the session repo; /worktree new explicitly redirects to the classic CLI",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "snapshot-create",
+      "title": "Create a quick Hermes backup",
+      "surface": "slash",
+      "entry": "/snapshot create [LABEL] or /snap create [LABEL]",
+      "journey": "maintenance",
+      "expect": "The existing backup --quick CLI returns a result; list, restore, and prune are refused here",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "update-split",
+      "title": "Run the existing Hermes updater in a split",
+      "surface": "slash",
+      "entry": "/update",
+      "journey": "maintenance",
+      "expect": "An owned split runs hermes update or the UI tells the owner to run it in a terminal",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts",
+        "frontend/src/__tests__/hermesSplit.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "unsupported-commands",
+      "title": "Explain commands owned by other frontends",
+      "surface": "slash",
+      "entry": "Type /battery, /density, /details or /detail, /focus, /indicator, /journey or /learning or /memory-graph, /logs, /mouse or /scroll, /pet, /hatch or /generate-pet, /prompt or /compose, /redraw, /statusbar or /sb, /timestamps or /ts, /wake, /pause, /platform, /restart, /sethome or /set-home, /start, /topic, /handoff, /export, or /import",
+      "journey": "maintenance",
+      "expect": "A specific Ink, messaging, or classic-CLI explanation replaces a generic backend failure; hidden names stay out of help",
+      "tests": [
+        "frontend/src/__tests__/refusedCommands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "plan-review-boundary",
+      "title": "Inspect plan authority without inventing approval",
+      "surface": "slash",
+      "entry": "Bare /plan inspects; /plan TASK uses Hermes generation; hermes-tern.plan.status, mode, edit, annotate, decide",
+      "journey": "maintenance",
+      "expect": "The plugin status names missing public authority and refuses mutations; unsupported UI can continue only as an ordinary prompt",
+      "tests": [
+        "frontend/src/__tests__/plan-review.test.ts",
+        "frontend/src/__tests__/plan-editor.test.ts",
+        "tests/test_plan_gateway_dispatch.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "table-gateway-boundary",
+      "title": "Keep unregistered table gateway verbs distinct from working charts",
+      "surface": "gateway",
+      "entry": "Contributor integration calls hermes-tern.table.policy or hermes-tern.table.plan only after explicit registration",
+      "journey": "maintenance",
+      "expect": "The module has checked profile policy and budgets but root registration is absent; the shipped UI uses its Python helper",
+      "tests": [
+        "tests/test_table_chart_gateway.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "media-preview-gateway",
+      "title": "Read only an authorized current raster image",
+      "surface": "gateway",
+      "entry": "hermes-tern.media.image with session_id and the exact attachment path",
+      "journey": "maintenance",
+      "expect": "The backend proves profile, byte identity, and retained native-input ownership before returning image bytes",
+      "tests": [
+        "tests/test_media_backend.py",
+        "frontend/src/__tests__/media-delivery.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "transcript-history-pages",
+      "title": "Restore older settled transcript pages",
+      "surface": "shortcut",
+      "entry": "Choose Load older history or press Ctrl+Home after Tern settles older turns",
+      "journey": "sessions",
+      "expect": "Up to 40 evicted entries return in order; running, failed, interrupted, and warned work stays available",
+      "tests": [
+        "frontend/src/__tests__/retention.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "connection-surface-recovery",
+      "title": "Recover a lost gateway or native surface without losing the draft",
+      "surface": "pane",
+      "entry": "Reconnect the attached gateway or restore visibility after an explicit native surface gone event",
+      "journey": "install",
+      "expect": "The redial notice reflects gateway state; bounded surface replacement preserves the conversation and unsent draft, and exhausted recovery reports failure",
+      "tests": [
+        "frontend/src/__tests__/chrome.test.ts",
+        "frontend/src/__tests__/surfaceRecovery.test.ts",
+        "frontend/src/__tests__/watchRecovery.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "background-live-charts",
+      "title": "Inspect a background process's live output chart",
+      "surface": "pane",
+      "entry": "Open a long-running process with output in the background hub; plugin.hermes-tern.charts.author uses the tern_charts auxiliary task",
+      "journey": "control",
+      "expect": "Validated chart rules visualize actual process output; unavailable or rejected model rules never execute arbitrary code",
+      "tests": [
+        "frontend/src/__tests__/jobCharts.test.ts",
+        "frontend/src/__tests__/chartAuthor.test.ts",
+        "frontend/src/__tests__/widgetCheck.test.ts",
+        "tests/test_charts.py"
+      ],
+      "army": []
+    },
+    {
+      "id": "quit-chat",
+      "title": "Close the frontend without confusing /q with quit",
+      "surface": "slash",
+      "entry": "/quit or /exit; Ctrl+D on an empty composer",
+      "journey": "maintenance",
+      "expect": "The surface closes normally; /q remains the prompt-queue alias",
+      "tests": [
+        "frontend/src/__tests__/keys.test.ts",
+        "frontend/src/__tests__/commands.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-hosts",
+      "title": "Trusted inline hosts and agents",
+      "surface": "slash",
+      "entry": "/hosts",
+      "journey": "fleet",
+      "expect": "Real fleet payload reaches the kit; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
+      "tests": [
+        "frontend/src/__tests__/fleetCommand.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-portfolio",
+      "title": "Portfolio task cards",
+      "surface": "slash",
+      "entry": "/portfolio [key]",
+      "journey": "fleet",
+      "expect": "Optional portfolio key reaches glide.fleet; Task URLs open safely; Set next drafts without sending",
+      "tests": [
+        "frontend/src/__tests__/fleetCommand.test.ts",
+        "frontend/src/__tests__/fleetActions.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-factory",
+      "title": "Factory graph and fixes",
+      "surface": "slash",
+      "entry": "/factory graph",
+      "journey": "fleet",
+      "expect": "Graph uses the existing inline kit renderer; SVG nodes have native click controls; Queue fix drafts without sending; Other factory commands retain their existing path",
+      "tests": [
+        "frontend/src/__tests__/fleetCommand.test.ts",
+        "frontend/src/__tests__/fleetActions.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts",
+        "frontend/src/__tests__/factoryCommand.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-sessions",
+      "title": "Resume trusted Hermes sessions",
+      "surface": "card",
+      "entry": "/hosts → Open chat",
+      "journey": "fleet",
+      "expect": "Hermes agent ids resume sessions; Process ids and other harnesses produce a visible note",
+      "tests": [
+        "frontend/src/__tests__/fleetActions.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-pods",
+      "title": "Read-only pod descriptions",
+      "surface": "card",
+      "entry": "/hosts → k3s pods → Open pod",
+      "journey": "fleet",
+      "expect": "glide.fleet_pod returns text to a transcript panel; Late replies cannot appear in a replacement session",
+      "tests": [
+        "frontend/src/__tests__/fleetActions.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts"
+      ],
+      "army": []
+    },
+    {
+      "id": "fleet-authority",
+      "title": "Owner-scoped fleet actions",
+      "surface": "card",
+      "entry": "Trusted fleet card taps",
+      "journey": "fleet",
+      "expect": "Only fixed action ids route; Unknown or invalid actions produce a note; Stale native callbacks are inert; Model fences cannot grant host authority",
+      "tests": [
+        "frontend/src/__tests__/euiKitHost.test.ts",
+        "frontend/src/__tests__/fleetActions.test.ts",
+        "frontend/src/__tests__/fleetSandbox.test.ts"
+      ],
+      "army": []
+    }
+  ],
+  "removed": []
+}

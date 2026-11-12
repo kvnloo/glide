@@ -36,6 +36,7 @@ import { councilCommand } from '../../../glide/frontend/councilPopup.js'
 
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
+import { fleetCommand } from './fleet.js'
 import { glideCommand, glideLanes } from './glide.js'
 import { REFUSED_COMMANDS, type RefusedHost } from './refused.js'
 import { SESSION_COMMANDS } from './session.js'
@@ -381,9 +382,19 @@ const COMMANDS: readonly LocalCommand[] = [
     run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },
   {
-    help: 'Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
+    help: 'Content factory: toggle the optional pane [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
-    run: (host, arg) => factoryCommand(host, arg)
+    run: (host, arg) => arg.trim() === 'graph' ? fleetCommand(host, 'factory') : factoryCommand(host, arg)
+  },
+  {
+    name: 'hosts',
+    help: 'Local fleet hosts, agents, gauges and k3s pods',
+    run: (host, arg) => arg.trim() ? host.transcript.notice('Usage: /hosts', 'warning') : fleetCommand(host, 'hosts')
+  },
+  {
+    name: 'portfolio',
+    help: 'Local work portfolios, products and tasks [key]',
+    run: (host, arg) => /\s/.test(arg.trim()) ? host.transcript.notice('Usage: /portfolio [key]', 'warning') : fleetCommand(host, 'portfolio', arg.trim() || undefined)
   },
   {
     help: 'The Socratic council as a popup: seats as minerals, rounds as rings, a verdict per seat [card]',

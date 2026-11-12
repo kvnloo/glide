@@ -929,8 +929,8 @@ var require_util = __commonJS({
     }
     var KEEPALIVE_TIMEOUT_EXPR = /timeout=(\d+)/;
     function parseKeepAliveTimeout(val) {
-      const m = val.toString().match(KEEPALIVE_TIMEOUT_EXPR);
-      return m ? parseInt(m[1], 10) * 1e3 : null;
+      const m2 = val.toString().match(KEEPALIVE_TIMEOUT_EXPR);
+      return m2 ? parseInt(m2[1], 10) * 1e3 : null;
     }
     function headerNameToString(value) {
       return typeof value === "string" ? headerNameLowerCasedRecord[value] ?? value.toLowerCase() : tree.lookup(value) ?? value.toString("latin1").toLowerCase();
@@ -1132,11 +1132,11 @@ var require_util = __commonJS({
     }
     function parseRangeHeader(range2) {
       if (range2 == null || range2 === "") return { start: 0, end: null, size: null };
-      const m = range2 ? range2.match(/^bytes (\d+)-(\d+)\/(\d+)?$/) : null;
-      return m ? {
-        start: parseInt(m[1]),
-        end: m[2] ? parseInt(m[2]) : null,
-        size: m[3] ? parseInt(m[3]) : null
+      const m2 = range2 ? range2.match(/^bytes (\d+)-(\d+)\/(\d+)?$/) : null;
+      return m2 ? {
+        start: parseInt(m2[1]),
+        end: m2[2] ? parseInt(m2[2]) : null,
+        size: m2[3] ? parseInt(m2[3]) : null
       } : null;
     }
     function addListener(obj3, name, listener) {
@@ -5230,7 +5230,7 @@ var require_body = __commonJS({
       } else {
         stream = new ReadableStream({
           async pull(controller) {
-            const buffer = typeof source3 === "string" ? textEncoder.encode(source3) : source3;
+            const buffer = typeof source2 === "string" ? textEncoder.encode(source2) : source2;
             if (buffer.byteLength) {
               controller.enqueue(buffer);
             }
@@ -5243,19 +5243,19 @@ var require_body = __commonJS({
       }
       assert(isReadableStreamLike(stream));
       let action = null;
-      let source3 = null;
+      let source2 = null;
       let length = null;
       let type = null;
       if (typeof object2 === "string") {
-        source3 = object2;
+        source2 = object2;
         type = "text/plain;charset=UTF-8";
       } else if (object2 instanceof URLSearchParams) {
-        source3 = object2.toString();
+        source2 = object2.toString();
         type = "application/x-www-form-urlencoded;charset=UTF-8";
       } else if (isArrayBuffer(object2)) {
-        source3 = new Uint8Array(object2.slice());
+        source2 = new Uint8Array(object2.slice());
       } else if (ArrayBuffer.isView(object2)) {
-        source3 = new Uint8Array(object2.buffer.slice(object2.byteOffset, object2.byteOffset + object2.byteLength));
+        source2 = new Uint8Array(object2.buffer.slice(object2.byteOffset, object2.byteOffset + object2.byteLength));
       } else if (util.isFormDataLike(object2)) {
         const boundary = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
         const prefix2 = `--${boundary}\r
@@ -5294,7 +5294,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
         if (hasUnknownSizeValue) {
           length = null;
         }
-        source3 = object2;
+        source2 = object2;
         action = async function* () {
           for (const part of blobParts) {
             if (part.stream) {
@@ -5306,7 +5306,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
         };
         type = `multipart/form-data; boundary=${boundary}`;
       } else if (isBlobLike(object2)) {
-        source3 = object2;
+        source2 = object2;
         length = object2.size;
         if (object2.type) {
           type = object2.type;
@@ -5322,8 +5322,8 @@ Content-Type: ${value.type || "application/octet-stream"}\r
         }
         stream = object2 instanceof ReadableStream ? object2 : ReadableStreamFrom(object2);
       }
-      if (typeof source3 === "string" || util.isBuffer(source3)) {
-        length = Buffer.byteLength(source3);
+      if (typeof source2 === "string" || util.isBuffer(source2)) {
+        length = Buffer.byteLength(source2);
       }
       if (action != null) {
         let iterator;
@@ -5354,7 +5354,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
           type: "bytes"
         });
       }
-      const body = { stream, source: source3, length };
+      const body = { stream, source: source2, length };
       return [body, type];
     }
     function safelyExtractBody(object2, keepalive = false) {
@@ -6792,8 +6792,8 @@ var require_client_h2 = __commonJS({
       this[kSocket][kError] = err;
       this[kClient][kOnError](err);
     }
-    function onHttp2FrameError(type, code7, id) {
-      if (id === 0) {
+    function onHttp2FrameError(type, code7, id2) {
+      if (id2 === 0) {
         const err = new InformationalError(`HTTP/2: "frameError" received - type ${type}, code ${code7}`);
         this[kSocket][kError] = err;
         this[kClient][kOnError](err);
@@ -8151,7 +8151,7 @@ var require_pool = __commonJS({
     var Pool = class extends PoolBase {
       constructor(origin, {
         connections,
-        factory = defaultFactory,
+        factory: factory2 = defaultFactory,
         connect: connect2,
         connectTimeout,
         tls,
@@ -8165,7 +8165,7 @@ var require_pool = __commonJS({
         if (connections != null && (!Number.isFinite(connections) || connections < 0)) {
           throw new InvalidArgumentError("invalid connections");
         }
-        if (typeof factory !== "function") {
+        if (typeof factory2 !== "function") {
           throw new InvalidArgumentError("factory must be a function.");
         }
         if (connect2 != null && typeof connect2 !== "function" && typeof connect2 !== "object") {
@@ -8188,7 +8188,7 @@ var require_pool = __commonJS({
         this[kUrl] = util.parseOrigin(origin);
         this[kOptions] = { ...util.deepClone(options), connect: connect2, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
-        this[kFactory] = factory;
+        this[kFactory] = factory2;
         this.on("connectionError", (origin2, targets, error) => {
           for (const target2 of targets) {
             const idx = this[kClients].indexOf(target2);
@@ -8255,7 +8255,7 @@ var require_balanced_pool = __commonJS({
       return new Pool(origin, opts);
     }
     var BalancedPool = class extends PoolBase {
-      constructor(upstreams = [], { factory = defaultFactory, ...opts } = {}) {
+      constructor(upstreams = [], { factory: factory2 = defaultFactory, ...opts } = {}) {
         super();
         this[kOptions] = opts;
         this[kIndex] = -1;
@@ -8265,11 +8265,11 @@ var require_balanced_pool = __commonJS({
         if (!Array.isArray(upstreams)) {
           upstreams = [upstreams];
         }
-        if (typeof factory !== "function") {
+        if (typeof factory2 !== "function") {
           throw new InvalidArgumentError("factory must be a function.");
         }
         this[kInterceptors] = opts.interceptors?.BalancedPool && Array.isArray(opts.interceptors.BalancedPool) ? opts.interceptors.BalancedPool : [];
-        this[kFactory] = factory;
+        this[kFactory] = factory2;
         for (const upstream of upstreams) {
           this.addUpstream(upstream);
         }
@@ -8381,8 +8381,8 @@ var require_agent = __commonJS({
       return opts && opts.connections === 1 ? new Client(origin, opts) : new Pool(origin, opts);
     }
     var Agent2 = class extends DispatcherBase {
-      constructor({ factory = defaultFactory, maxRedirections = 0, connect: connect2, ...options } = {}) {
-        if (typeof factory !== "function") {
+      constructor({ factory: factory2 = defaultFactory, maxRedirections = 0, connect: connect2, ...options } = {}) {
+        if (typeof factory2 !== "function") {
           throw new InvalidArgumentError("factory must be a function.");
         }
         if (connect2 != null && typeof connect2 !== "function" && typeof connect2 !== "object") {
@@ -8399,7 +8399,7 @@ var require_agent = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect: connect2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kMaxRedirections] = maxRedirections;
-        this[kFactory] = factory;
+        this[kFactory] = factory2;
         this[kClients] = /* @__PURE__ */ new Map();
         this[kOnDrain] = (origin, targets) => {
           this.emit("drain", origin, [this, ...targets]);
@@ -8491,14 +8491,14 @@ var require_proxy_agent = __commonJS({
     }
     var Http1ProxyWrapper = class extends DispatcherBase {
       #client;
-      constructor(proxyUrl, { headers = {}, connect: connect2, factory }) {
+      constructor(proxyUrl, { headers = {}, connect: connect2, factory: factory2 }) {
         super();
         if (!proxyUrl) {
           throw new InvalidArgumentError("Proxy URL is mandatory");
         }
         this[kProxyHeaders] = headers;
-        if (factory) {
-          this.#client = factory(proxyUrl, { connect: connect2 });
+        if (factory2) {
+          this.#client = factory2(proxyUrl, { connect: connect2 });
         } else {
           this.#client = new Client(proxyUrl, { connect: connect2 });
         }
@@ -8565,7 +8565,7 @@ var require_proxy_agent = __commonJS({
         const connect2 = buildConnector({ ...opts.proxyTls });
         this[kConnectEndpoint] = buildConnector({ ...opts.requestTls });
         const agentFactory = opts.factory || defaultAgentFactory;
-        const factory = (origin2, options) => {
+        const factory2 = (origin2, options) => {
           const { protocol: protocol2 } = new URL2(origin2);
           if (!this[kTunnelProxy] && protocol2 === "http:" && this[kProxy].protocol === "http:") {
             return new Http1ProxyWrapper(this[kProxy].uri, {
@@ -8579,7 +8579,7 @@ var require_proxy_agent = __commonJS({
         this[kClient] = clientFactory(url, { connect: connect2 });
         this[kAgent] = new Agent2({
           ...opts,
-          factory,
+          factory: factory2,
           connect: async (opts2, callback) => {
             let requestedPath = opts2.host;
             if (!opts2.port) {
@@ -9802,7 +9802,7 @@ var require_api_stream = __commonJS({
     var { AsyncResource } = __require("node:async_hooks");
     var { addSignal, removeSignal } = require_abort_signal();
     var StreamHandler = class extends AsyncResource {
-      constructor(opts, factory, callback) {
+      constructor(opts, factory2, callback) {
         if (!opts || typeof opts !== "object") {
           throw new InvalidArgumentError("invalid opts");
         }
@@ -9811,7 +9811,7 @@ var require_api_stream = __commonJS({
           if (typeof callback !== "function") {
             throw new InvalidArgumentError("invalid callback");
           }
-          if (typeof factory !== "function") {
+          if (typeof factory2 !== "function") {
             throw new InvalidArgumentError("invalid factory");
           }
           if (signal && typeof signal.on !== "function" && typeof signal.addEventListener !== "function") {
@@ -9832,7 +9832,7 @@ var require_api_stream = __commonJS({
         }
         this.responseHeaders = responseHeaders || null;
         this.opaque = opaque || null;
-        this.factory = factory;
+        this.factory = factory2;
         this.callback = callback;
         this.res = null;
         this.abort = null;
@@ -9858,7 +9858,7 @@ var require_api_stream = __commonJS({
         this.context = context;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { factory, opaque, context, callback, responseHeaders } = this;
+        const { factory: factory2, opaque, context, callback, responseHeaders } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9879,10 +9879,10 @@ var require_api_stream = __commonJS({
             { callback, body: res, contentType, statusCode, statusMessage, headers }
           );
         } else {
-          if (factory === null) {
+          if (factory2 === null) {
             return;
           }
-          res = this.runInAsyncScope(factory, null, {
+          res = this.runInAsyncScope(factory2, null, {
             statusCode,
             headers,
             opaque,
@@ -9941,16 +9941,16 @@ var require_api_stream = __commonJS({
         }
       }
     };
-    function stream(opts, factory, callback) {
+    function stream(opts, factory2, callback) {
       if (callback === void 0) {
         return new Promise((resolve11, reject) => {
-          stream.call(this, opts, factory, (err, data) => {
+          stream.call(this, opts, factory2, (err, data) => {
             return err ? reject(err) : resolve11(data);
           });
         });
       }
       try {
-        this.dispatch(opts, new StreamHandler(opts, factory, callback));
+        this.dispatch(opts, new StreamHandler(opts, factory2, callback));
       } catch (err) {
         if (typeof callback !== "function") {
           throw err;
@@ -10996,9 +10996,9 @@ var require_pluralizer = __commonJS({
         this.plural = plural2;
       }
       pluralize(count5) {
-        const one7 = count5 === 1;
-        const keys3 = one7 ? singulars : plurals;
-        const noun = one7 ? this.singular : this.plural;
+        const one6 = count5 === 1;
+        const keys3 = one6 ? singulars : plurals;
+        const noun = one6 ? this.singular : this.plural;
         return { ...keys3, count: count5, noun };
       }
     };
@@ -16372,7 +16372,7 @@ var require_events = __commonJS({
         }
         return this.#eventInit.ports;
       }
-      initMessageEvent(type, bubbles = false, cancelable = false, data = null, origin = "", lastEventId = "", source3 = null, ports = []) {
+      initMessageEvent(type, bubbles = false, cancelable = false, data = null, origin = "", lastEventId = "", source2 = null, ports = []) {
         webidl.brandCheck(this, _MessageEvent);
         webidl.argumentLengthCheck(arguments, 1, "MessageEvent.initMessageEvent");
         return new _MessageEvent(type, {
@@ -16381,7 +16381,7 @@ var require_events = __commonJS({
           data,
           origin,
           lastEventId,
-          source: source3,
+          source: source2,
           ports
         });
       }
@@ -16806,8 +16806,8 @@ var require_util7 = __commonJS({
           return false;
         }
       }
-      const num7 = Number.parseInt(value, 10);
-      return num7 >= 8 && num7 <= 15;
+      const num6 = Number.parseInt(value, 10);
+      return num6 >= 8 && num6 <= 15;
     }
     var hasIntl = typeof process.versions.icu === "string";
     var fatalDecoder = hasIntl ? new TextDecoder("utf-8", { fatal: true }) : void 0;
@@ -16987,8 +16987,8 @@ var require_connection = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest2 = crypto2.createHash("sha1").update(keyValue + uid).digest("base64");
-          if (secWSAccept !== digest2) {
+          const digest = crypto2.createHash("sha1").update(keyValue + uid).digest("base64");
+          if (secWSAccept !== digest) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
           }
@@ -17031,19 +17031,19 @@ var require_connection = __commonJS({
         ws[kReadyState] = states.CLOSING;
       } else if (ws[kSentClose] === sentCloseFrameState.NOT_SENT) {
         ws[kSentClose] = sentCloseFrameState.PROCESSING;
-        const frame = new WebsocketFrameSend();
+        const frame2 = new WebsocketFrameSend();
         if (code7 !== void 0 && reason2 === void 0) {
-          frame.frameData = Buffer.allocUnsafe(2);
-          frame.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData = Buffer.allocUnsafe(2);
+          frame2.frameData.writeUInt16BE(code7, 0);
         } else if (code7 !== void 0 && reason2 !== void 0) {
-          frame.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
-          frame.frameData.writeUInt16BE(code7, 0);
-          frame.frameData.write(reason2, 2, "utf-8");
+          frame2.frameData = Buffer.allocUnsafe(2 + reasonByteLength);
+          frame2.frameData.writeUInt16BE(code7, 0);
+          frame2.frameData.write(reason2, 2, "utf-8");
         } else {
-          frame.frameData = emptyBuffer;
+          frame2.frameData = emptyBuffer;
         }
         const socket = ws[kResponse].socket;
-        socket.write(frame.createFrame(opcodes.CLOSE));
+        socket.write(frame2.createFrame(opcodes.CLOSE));
         ws[kSentClose] = sentCloseFrameState.SENT;
         ws[kReadyState] = states.CLOSING;
       } else {
@@ -17527,8 +17527,8 @@ var require_receiver = __commonJS({
           return false;
         } else if (opcode === opcodes.PING) {
           if (!this.ws[kReceivedClose]) {
-            const frame = new WebsocketFrameSend(body);
-            this.ws[kResponse].socket.write(frame.createFrame(opcodes.PONG));
+            const frame2 = new WebsocketFrameSend(body);
+            this.ws[kResponse].socket.write(frame2.createFrame(opcodes.PONG));
             if (channels.ping.hasSubscribers) {
               channels.ping.publish({
                 payload: body
@@ -17578,14 +17578,14 @@ var require_sender = __commonJS({
       }
       add(item3, cb, hint) {
         if (hint !== sendHints.blob) {
-          const frame = createFrame(item3, hint);
+          const frame2 = createFrame(item3, hint);
           if (!this.#running) {
-            this.#socket.write(frame, cb);
+            this.#socket.write(frame2, cb);
           } else {
             const node4 = {
               promise: null,
               callback: cb,
-              frame
+              frame: frame2
             };
             this.#queue.push(node4);
           }
@@ -18985,13 +18985,13 @@ var require_CSSStyleRule = __commonJS({
     CSSOM.CSSStyleRule.prototype.type = 1;
     Object.defineProperty(CSSOM.CSSStyleRule.prototype, "cssText", {
       get: function() {
-        var text19;
+        var text18;
         if (this.selectorText) {
-          text19 = this.selectorText + " {" + this.style.cssText + "}";
+          text18 = this.selectorText + " {" + this.style.cssText + "}";
         } else {
-          text19 = "";
+          text18 = "";
         }
-        return text19;
+        return text18;
       },
       set: function(cssText) {
         var rule = CSSOM.CSSStyleRule.parse(cssText);
@@ -19549,9 +19549,9 @@ var require_CSSValue = __commonJS({
     CSSOM.CSSValue.prototype = {
       constructor: CSSOM.CSSValue,
       // @see: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSValue
-      set cssText(text19) {
+      set cssText(text18) {
         var name = this._getConstructorName();
-        throw new Error('DOMException: property "cssText" of "' + name + '" is readonly and can not be replaced with "' + text19 + '"!');
+        throw new Error('DOMException: property "cssText" of "' + name + '" is readonly and can not be replaced with "' + text18 + '"!');
       },
       get cssText() {
         var name = this._getConstructorName();
@@ -19645,7 +19645,7 @@ var require_CSSValueExpression = __commonJS({
       return ret;
     };
     CSSOM.CSSValueExpression.prototype._parseJSComment = function(token, idx) {
-      var nextChar = token.charAt(idx + 1), text19;
+      var nextChar = token.charAt(idx + 1), text18;
       if (nextChar === "/" || nextChar === "*") {
         var startIdx = idx, endIdx, commentEndChar;
         if (nextChar === "/") {
@@ -19656,10 +19656,10 @@ var require_CSSValueExpression = __commonJS({
         endIdx = token.indexOf(commentEndChar, startIdx + 1 + 1);
         if (endIdx !== -1) {
           endIdx = endIdx + commentEndChar.length - 1;
-          text19 = token.substring(idx, endIdx + 1);
+          text18 = token.substring(idx, endIdx + 1);
           return {
             idx: endIdx,
-            text: text19
+            text: text18
           };
         } else {
           var error = "css expression error: unfinished comment in expression!";
@@ -19672,14 +19672,14 @@ var require_CSSValueExpression = __commonJS({
       }
     };
     CSSOM.CSSValueExpression.prototype._parseJSString = function(token, idx, sep) {
-      var endIdx = this._findMatchedIdx(token, idx, sep), text19;
+      var endIdx = this._findMatchedIdx(token, idx, sep), text18;
       if (endIdx === -1) {
         return false;
       } else {
-        text19 = token.substring(idx, endIdx + sep.length);
+        text18 = token.substring(idx, endIdx + sep.length);
         return {
           idx: endIdx,
-          text: text19
+          text: text18
         };
       }
     };
@@ -19729,7 +19729,7 @@ var require_CSSValueExpression = __commonJS({
           endIdx = NOT_FOUND;
           break;
         } else {
-          var text19 = token.substring(idx + 1, endIdx), matched2 = text19.match(/\\+$/);
+          var text18 = token.substring(idx + 1, endIdx), matched2 = text18.match(/\\+$/);
           if (!matched2 || matched2[0] % 2 === 0) {
             break;
           } else {
@@ -20314,7 +20314,7 @@ var require_CSSStyleDeclaration = __commonJS({
         }
         return properties2.join(" ");
       },
-      set cssText(text19) {
+      set cssText(text18) {
         var i, name;
         for (i = this.length; i--; ) {
           name = this[i];
@@ -20322,7 +20322,7 @@ var require_CSSStyleDeclaration = __commonJS({
         }
         Array.prototype.splice.call(this, 0, this.length);
         this._importants = {};
-        var dummyRule = CSSOM.parse("#bogus{" + text19 + "}").cssRules[0].style;
+        var dummyRule = CSSOM.parse("#bogus{" + text18 + "}").cssRules[0].style;
         var length = dummyRule.length;
         for (i = 0; i < length; ++i) {
           name = dummyRule[i];
@@ -20585,12 +20585,12 @@ function encodeMessage(verb, body, options = {}) {
   const limit = options.limit ?? DEFAULT_APC;
   if (bytes.length <= limit)
     return apc(verb, params, bytes);
-  const id = options.chunk ? options.chunk() : "0";
+  const id2 = options.chunk ? options.chunk() : "0";
   const pieces2 = chunks(bytes, limit);
   const out = [];
   pieces2.forEach((piece, i) => {
     const last = i === pieces2.length - 1;
-    const head2 = i === 0 ? [...params, ["c", id]] : [["c", id]];
+    const head2 = i === 0 ? [...params, ["c", id2]] : [["c", id2]];
     if (!last)
       head2.push(["m", "1"]);
     out.push(apc(verb, head2, piece));
@@ -20607,12 +20607,12 @@ function encodeBlob(bytes, mime, options = {}) {
   if (bytes.length > MAX_BLOB) {
     throw new RangeError(`a blob is at most ${MAX_BLOB} bytes, got ${bytes.length}`);
   }
-  const id = blobId(bytes);
-  const params = [["id", id]];
+  const id2 = blobId(bytes);
+  const params = [["id", id2]];
   if (mime !== void 0)
     params.push(["mime", mime]);
   const body = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.length).toString("base64");
-  return { id, params, body, bytes: encodeMessage("b", body, { ...options, params }) };
+  return { id: id2, params, body, bytes: encodeMessage("b", body, { ...options, params }) };
 }
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -20668,7 +20668,7 @@ function mods(raw2) {
   const list10 = strings(raw2, "mods");
   if (!list10)
     return void 0;
-  return list10.filter((m) => m === "shift" || m === "ctrl" || m === "alt" || m === "meta");
+  return list10.filter((m2) => m2 === "shift" || m2 === "ctrl" || m2 === "alt" || m2 === "meta");
 }
 function defined(target2, fields) {
   for (const key3 in fields) {
@@ -20681,7 +20681,7 @@ function defined(target2, fields) {
 function decodeEvent(raw2) {
   const ev = str(raw2, "ev");
   const sf = str(raw2, "sf");
-  const id = str(raw2, "id");
+  const id2 = str(raw2, "id");
   const unknown4 = () => defined({ ev: "unknown", raw: raw2 }, { sf });
   switch (ev) {
     case "ack": {
@@ -20708,27 +20708,27 @@ function decodeEvent(raw2) {
     }
     case "toggle": {
       const collapsed = bool(raw2, "collapsed");
-      if (sf === void 0 || id === void 0 || collapsed === void 0)
+      if (sf === void 0 || id2 === void 0 || collapsed === void 0)
         return unknown4();
-      return defined({ ev, sf, id, collapsed, raw: raw2 }, { key: str(raw2, "key") });
+      return defined({ ev, sf, id: id2, collapsed, raw: raw2 }, { key: str(raw2, "key") });
     }
     case "select":
     case "activate": {
-      const item3 = str(raw2, "item") ?? id;
-      if (sf === void 0 || id === void 0 || item3 === void 0)
+      const item3 = str(raw2, "item") ?? id2;
+      if (sf === void 0 || id2 === void 0 || item3 === void 0)
         return unknown4();
-      return defined({ ev, sf, id, item: item3, raw: raw2 }, { values: formValues(raw2) });
+      return defined({ ev, sf, id: id2, item: item3, raw: raw2 }, { values: formValues(raw2) });
     }
     case "action": {
       const act = str(raw2, "act");
-      if (sf === void 0 || id === void 0 || act === void 0)
+      if (sf === void 0 || id2 === void 0 || act === void 0)
         return unknown4();
-      return defined({ ev, sf, id, act, raw: raw2 }, { value: str(raw2, "value"), mods: mods(raw2), values: formValues(raw2) });
+      return defined({ ev, sf, id: id2, act, raw: raw2 }, { value: str(raw2, "value"), mods: mods(raw2), values: formValues(raw2) });
     }
     case "change": {
-      if (sf === void 0 || id === void 0)
+      if (sf === void 0 || id2 === void 0)
         return unknown4();
-      return defined({ ev, sf, id, raw: raw2 }, {
+      return defined({ ev, sf, id: id2, raw: raw2 }, {
         value: raw2["value"],
         checked: bool(raw2, "checked"),
         name: str(raw2, "name"),
@@ -20738,24 +20738,24 @@ function decodeEvent(raw2) {
     }
     case "focus":
     case "undo":
-      return sf !== void 0 && id !== void 0 ? { ev, sf, id, raw: raw2 } : unknown4();
+      return sf !== void 0 && id2 !== void 0 ? { ev, sf, id: id2, raw: raw2 } : unknown4();
     case "edit": {
       const from = num(raw2, "from");
       const to = num(raw2, "to");
-      const text19 = str(raw2, "text");
+      const text18 = str(raw2, "text");
       const cursor = num(raw2, "cursor");
       const len = num(raw2, "len");
-      if (sf === void 0 || id === void 0 || from === void 0 || to === void 0 || text19 === void 0 || cursor === void 0 || len === void 0) {
+      if (sf === void 0 || id2 === void 0 || from === void 0 || to === void 0 || text18 === void 0 || cursor === void 0 || len === void 0) {
         return unknown4();
       }
-      return { ev, sf, id, from, to, text: text19, cursor, len, raw: raw2 };
+      return { ev, sf, id: id2, from, to, text: text18, cursor, len, raw: raw2 };
     }
     case "send": {
-      const text19 = str(raw2, "text");
-      return sf !== void 0 && id !== void 0 && text19 !== void 0 ? { ev, sf, id, text: text19, raw: raw2 } : unknown4();
+      const text18 = str(raw2, "text");
+      return sf !== void 0 && id2 !== void 0 && text18 !== void 0 ? { ev, sf, id: id2, text: text18, raw: raw2 } : unknown4();
     }
     case "error":
-      return defined({ ev, msg: str(raw2, "msg") ?? "", raw: raw2 }, { sf, s: num(raw2, "s"), op: num(raw2, "op"), sheet: str(raw2, "sheet"), id });
+      return defined({ ev, msg: str(raw2, "msg") ?? "", raw: raw2 }, { sf, s: num(raw2, "s"), op: num(raw2, "op"), sheet: str(raw2, "sheet"), id: id2 });
     case "gone":
       return defined({ ev, ids: strings(raw2, "ids") ?? [], raw: raw2 }, { sf });
     default:
@@ -21073,8 +21073,8 @@ function modsOf(param) {
     meta: (bits & 8) !== 0
   };
 }
-function key(name, mods2, text19) {
-  return text19 === void 0 ? { name, ...mods2 } : { name, text: text19, ...mods2 };
+function key(name, mods2, text18) {
+  return text18 === void 0 ? { name, ...mods2 } : { name, text: text18, ...mods2 };
 }
 var LETTER_KEYS = {
   A: "up",
@@ -21346,20 +21346,20 @@ var KeyDecoder = class {
       j++;
     while (j < bytes.length && (bytes[j] ?? 0) >= 32 && (bytes[j] ?? 0) <= 47)
       j++;
-    const f = bytes[j];
-    if (f === void 0) {
+    const f2 = bytes[j];
+    if (f2 === void 0) {
       if (!final)
         return 0;
       return bytes.length - start;
     }
-    if (f < 64 || f > 126)
+    if (f2 < 64 || f2 > 126)
       return j - start;
     const params = decoder3.decode(bytes.subarray(at2 + 2, j));
-    if (intro === 91 && params === "200" && f === 126) {
+    if (intro === 91 && params === "200" && f2 === 126) {
       this.#paste = [];
       return j + 1 - start;
     }
-    const found = csiKey(params, String.fromCharCode(f));
+    const found = csiKey(params, String.fromCharCode(f2));
     if (found && alt) {
       out.push(key(found.name, { ctrl: found.ctrl, alt: true, shift: found.shift, meta: found.meta }));
     } else if (found)
@@ -21694,21 +21694,21 @@ function createNode(kind, input2, children3) {
     if (run8.length > 0)
       Object.assign(props2, textProps(run8));
   } else if (kind === "el") {
-    let text19 = "";
+    let text18 = "";
     for (const part of parts3) {
       if (part instanceof Span)
         throw new TypeError("el takes no spans; use html.span");
       if (typeof part === "string") {
         if (nodes.length === 0)
-          text19 += part;
+          text18 += part;
         else
           nodes.push(new Node("el", { tag: "span", text: part }));
       } else {
         nodes.push(part);
       }
     }
-    if (text19 !== "")
-      props2["text"] = text19;
+    if (text18 !== "")
+      props2["text"] = text18;
   } else {
     nodes = containerChildren(parts3);
   }
@@ -21887,17 +21887,17 @@ var Tree = class _Tree {
   id;
   node;
   children;
-  constructor(id, node3) {
-    this.id = id;
+  constructor(id2, node3) {
+    this.id = id2;
     this.node = node3;
     const seen = /* @__PURE__ */ new Set();
     const children3 = [];
     node3.children.forEach((child, i) => {
       const key3 = child.props["key"];
       const name = typeof key3 === "string" ? key3 : typeof key3 === "number" ? String(key3) : String(i);
-      const childId = `${id}.${name}`;
+      const childId = `${id2}.${name}`;
       if (seen.has(childId))
-        throw new ViewError(`${id}: duplicate child key ${JSON.stringify(name)}`);
+        throw new ViewError(`${id2}: duplicate child key ${JSON.stringify(name)}`);
       seen.add(childId);
       children3.push(new _Tree(childId, child));
     });
@@ -21984,7 +21984,7 @@ var View = class _View {
     }));
   }
   /** The node with id `id`, if the view has it. */
-  find(id) {
+  find(id2) {
     if (!this.#index) {
       const index2 = /* @__PURE__ */ new Map();
       const visit2 = (tree) => {
@@ -21997,7 +21997,7 @@ var View = class _View {
           visit2(region);
       this.#index = index2;
     }
-    return this.#index.get(id);
+    return this.#index.get(id2);
   }
   /** The ops turning this view into `next` in surface `surface`. */
   ops(next2, surface) {
@@ -22019,11 +22019,11 @@ var View = class _View {
   }
 };
 function diff(old, now, ops) {
-  const text19 = isTextKind(now.kind);
+  const text18 = isTextKind(now.kind);
   const set = {};
   let changed = false;
   for (const key3 in now.props) {
-    if (text19 && key3 === "text")
+    if (text18 && key3 === "text")
       continue;
     const value = now.props[key3];
     if (value === void 0 || jsonEqual(old.props[key3], value))
@@ -22032,14 +22032,14 @@ function diff(old, now, ops) {
     changed = true;
   }
   for (const key3 in old.props) {
-    if (!(text19 && key3 === "text") && !(key3 in now.props)) {
+    if (!(text18 && key3 === "text") && !(key3 in now.props)) {
       set[key3] = null;
       changed = true;
     }
   }
   if (changed)
     ops.push(["set", now.id, set]);
-  if (text19) {
+  if (text18) {
     const before2 = old.props["text"];
     const after2 = now.props["text"];
     if (!jsonEqual(before2, after2)) {
@@ -22137,9 +22137,9 @@ var Surface = class {
   #closed = false;
   #resetMain = false;
   forwardActions;
-  constructor(link3, id, options, previous3) {
+  constructor(link3, id2, options, previous3) {
     this.#link = link3;
-    this.id = id;
+    this.id = id2;
     this.mode = options.mode ?? "inline";
     this.listen = options.listen ?? true;
     this.forwardActions = options.forwardActions ?? [];
@@ -22190,20 +22190,20 @@ var Surface = class {
     this.#link.send({ verb: "t", body: { sf: this.id, ...palette } });
   }
   /** Gives the caret to an `editor` or `input`, or to none. */
-  focus(id) {
-    this.send([["focus", id]]);
+  focus(id2) {
+    this.send([["focus", id2]]);
   }
   /** Scrolls a node into view. */
-  reveal(id, at2 = "nearest") {
-    this.send([["reveal", id, at2]]);
+  reveal(id2, at2 = "nearest") {
+    this.send([["reveal", id2, at2]]);
   }
   /** Scrolls the scroll container at or above a node. */
-  scroll(id, to) {
-    this.send([["scroll", id, to]]);
+  scroll(id2, to) {
+    this.send([["scroll", id2, to]]);
   }
   /** Hints that a subtree is unlikely to change soon. */
-  settle(id) {
-    this.send([["settle", id]]);
+  settle(id2) {
+    this.send([["settle", id2]]);
   }
   /** Hands the pane back to the grid. */
   suspend() {
@@ -22472,7 +22472,7 @@ var Session = class {
     if (this.#closed)
       throw new Error("the session is closed");
     this.#surfaceCount += 1;
-    const id = options.id ?? `s${this.#surfaceCount}`;
+    const id2 = options.id ?? `s${this.#surfaceCount}`;
     const surface = new Surface({
       send: (message) => this.#send(message),
       credits: () => this.#caps.credits,
@@ -22482,11 +22482,11 @@ var Session = class {
           this.#retired.set(closed.id, closed);
         }
       }
-    }, id, options, options.adopt ? this.#retired.get(id) : void 0);
+    }, id2, options, options.adopt ? this.#retired.get(id2) : void 0);
     this.#send({
       verb: "o",
       body: {
-        id,
+        id: id2,
         mode: surface.mode,
         ...options.title === void 0 ? {} : { title: options.title },
         ...options.role === void 0 ? {} : { role: options.role },
@@ -22494,19 +22494,19 @@ var Session = class {
         ...options.adopt ? { adopt: true } : {}
       }
     });
-    this.#surfaces.set(id, surface);
-    this.#retired.delete(id);
+    this.#surfaces.set(id2, surface);
+    this.#retired.delete(id2);
     return surface;
   }
   /** The open surface with id `id`. */
-  surface(id) {
-    return this.#surfaces.get(id);
+  surface(id2) {
+    return this.#surfaces.get(id2);
   }
   /** Sends a blob once per session (`b`) and returns its id for `image` nodes. */
   blob(bytes, mime) {
-    const id = blobId(bytes);
-    if (this.#blobsSent.has(id) || this.#closed)
-      return id;
+    const id2 = blobId(bytes);
+    if (this.#blobsSent.has(id2) || this.#closed)
+      return id2;
     const encoded = encodeBlob(bytes, mime, {
       limit: this.#caps.apc,
       chunk: () => this.#chunkId()
@@ -22516,8 +22516,8 @@ var Session = class {
       params[key3] = value;
     this.#recordLine("out", "b", params, encoded.body);
     this.#output.write(encoded.bytes);
-    this.#blobsSent.add(id);
-    return id;
+    this.#blobsSent.add(id2);
+    return id2;
   }
   /** Asks which of these blobs Tern still holds. */
   blobs(ids) {
@@ -22781,8 +22781,8 @@ var Session = class {
         this.#caps = { ...this.#caps, reduceMotion: event.reduce };
         break;
       case "gone":
-        for (const id of event.ids)
-          this.#surfaces.get(id)?.gone();
+        for (const id2 of event.ids)
+          this.#surfaces.get(id2)?.gone();
         break;
       default: {
         const sf = "sf" in event ? event.sf : void 0;
@@ -22837,8 +22837,8 @@ import { pathToFileURL } from "node:url";
 
 // src/artifacts/display-text.ts
 import { stripVTControlCharacters } from "node:util";
-function displayText(text19) {
-  return stripVTControlCharacters(text19).replace(
+function displayText(text18) {
+  return stripVTControlCharacters(text18).replace(
     /[\x00-\x08\x0b-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]/g,
     (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`
   );
@@ -23016,8 +23016,8 @@ function G(n3, s2) {
   const t = Math.floor(n3), r = Math.floor(s2);
   let a2 = n3 - t, o = s2 - r;
   a2 = a2 * a2 * (3 - 2 * a2), o = o * o * (3 - 2 * o);
-  const c = E(t, r), M = E(t + 1, r), h2 = E(t, r + 1), m = E(t + 1, r + 1);
-  return c + (M - c) * a2 + (h2 - c) * o + (c - M - h2 + m) * a2 * o;
+  const c = E(t, r), M = E(t + 1, r), h2 = E(t, r + 1), m2 = E(t + 1, r + 1);
+  return c + (M - c) * a2 + (h2 - c) * o + (c - M - h2 + m2) * a2 * o;
 }
 function E(n3, s2) {
   const t = Math.sin(n3 * 12.9898 + s2 * 78.233) * 43758.5453;
@@ -23032,8 +23032,8 @@ function et(n3, s2) {
 }
 function _(n3, s2, t, r, a2) {
   const o = Math.sin(s2), c = Math.cos(s2), M = Math.sin(n3), h2 = Math.cos(n3);
-  return (m, D2, p3) => {
-    const e = m * h2 + p3 * M, l = -m * M + p3 * h2, R = D2 * c - l * o, w = D2 * o + l * c;
+  return (m2, D2, p3) => {
+    const e = m2 * h2 + p3 * M, l = -m2 * M + p3 * h2, R = D2 * c - l * o, w = D2 * o + l * c;
     return [t + e * a2, r - R * a2, w];
   };
 }
@@ -23062,16 +23062,16 @@ function $(n3, s2) {
   return (n3 / 300) ** s2;
 }
 var Mt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.ghostN ?? 150;
-  for (let e = 0; e < m; e++) {
-    const l = J(e, m), [R, w, i] = c(l[0] * o, l[1] * o, l[2] * o), u = (i / o + 1) / 2;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.ghostN ?? 150;
+  for (let e = 0; e < m2; e++) {
+    const l = J(e, m2), [R, w, i] = c(l[0] * o, l[1] * o, l[2] * o), u = (i / o + 1) / 2;
     h2.push({ x: R, y: w, z: i, r: 0.8 * M, white: 0.78, a: 0.1 + 0.22 * u });
   }
   const D2 = t.strandN ?? 52, p3 = t.turns ?? 3;
   for (let e = 0; e < 3; e++) {
     const l = e / 3 * 2 * Math.PI;
     for (let R = 0; R < D2; R++) {
-      const w = (nt(R / D2 + s2 * 0.045) * 2 - 1) * 0.96, i = Math.sqrt(Math.max(0, 1 - w * w)), u = Math.min(1, (1 - Math.abs(w)) / 0.1), y = w * Math.PI * p3 + l, b = 1 + 0.075 * Math.sin(w * Math.PI * p3 * 2 + l * 2 + s2 * 0.8), f = i * o * b, [P, x, g] = c(Math.cos(y) * f, w * o * b, Math.sin(y) * f), d = (g / o + 1) / 2;
+      const w = (nt(R / D2 + s2 * 0.045) * 2 - 1) * 0.96, i = Math.sqrt(Math.max(0, 1 - w * w)), u = Math.min(1, (1 - Math.abs(w)) / 0.1), y = w * Math.PI * p3 + l, b = 1 + 0.075 * Math.sin(w * Math.PI * p3 * 2 + l * 2 + s2 * 0.8), f2 = i * o * b, [P, x, g] = c(Math.cos(y) * f2, w * o * b, Math.sin(y) * f2), d = (g / o + 1) / 2;
       h2.push({
         x: P,
         y: x,
@@ -23088,7 +23088,7 @@ function lt(n3, s2, t, r) {
   const a2 = 2 * s2 * t + r, o = n3 % a2, c = new Array(s2).fill(0);
   let M = -1;
   if (o < 2 * s2 * t) {
-    const h2 = Math.floor(o / t), m = (o - h2 * t) / t, p3 = 1 - (1 - Math.min(1, m / 0.7)) ** 3;
+    const h2 = Math.floor(o / t), m2 = (o - h2 * t) / t, p3 = 1 - (1 - Math.min(1, m2 / 0.7)) ** 3;
     if (h2 < s2) {
       for (let e = 0; e < h2; e++) c[e] = 1;
       c[h2] = p3, M = h2;
@@ -23104,8 +23104,8 @@ function pt(n3, s2, t) {
   let [r, a2, o] = n3, c = false;
   for (let M = 0; M < s2.length; M++) {
     if (t.amount[M] <= 0) continue;
-    const h2 = s2[M], m = h2.axis === 0 ? r : h2.axis === 1 ? a2 : o;
-    if (m < h2.lo || m >= h2.hi) continue;
+    const h2 = s2[M], m2 = h2.axis === 0 ? r : h2.axis === 1 ? a2 : o;
+    if (m2 < h2.lo || m2 >= h2.hi) continue;
     M === t.active && (c = true);
     const D2 = h2.ang * t.amount[M], p3 = Math.cos(D2), e = Math.sin(D2);
     if (h2.axis === 0) {
@@ -23130,11 +23130,11 @@ function ut(n3) {
   return s2;
 }
 var ft = (n3, s2, t) => {
-  const a2 = n3 / 2, o = n3 / 2, c = n3 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n3, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
+  const a2 = n3 / 2, o = n3 / 2, c = n3 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m2 = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n3, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
   for (let w = 0; w <= l; w++) {
     const i = -Math.PI / 2 + w / l * Math.PI, u = Math.cos(i), y = Math.sin(i), b = Math.max(1, Math.round(Math.abs(u) * R));
-    for (let f = 0; f < b; f++) {
-      const P = f / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
+    for (let f2 = 0; f2 < b; f2++) {
+      const P = f2 / b * 2 * Math.PI, [x, g, d] = h2(u * Math.cos(P), y, u * Math.sin(P)), v = (d + 1) / 2, k = et(P + s2 * 0.5, m2), N = Math.exp(-(k * k) / 0.18) * Math.max(0, d);
       e.push({
         x,
         y: g,
@@ -23149,11 +23149,11 @@ var ft = (n3, s2, t) => {
   return L(e, [], t.rMin);
 };
 var dt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m2 = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
   for (let R = 0; R <= e; R++) {
     const w = -Math.PI / 2 + R / e * Math.PI, i = Math.cos(w), u = Math.sin(w), y = Math.max(1, Math.round(Math.abs(i) * l));
     for (let b = 0; b < y; b++) {
-      const f = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f), u, i * Math.sin(f)], m, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
+      const f2 = b / y * 2 * Math.PI, [P, x, g, d] = pt([i * Math.cos(f2), u, i * Math.sin(f2)], m2, D2), [v, k, N] = c(P, x, g), z = (N + 1) / 2;
       p3.push({
         x: v,
         y: k,
@@ -23166,13 +23166,13 @@ var dt = (n3, s2, t) => {
   return L(p3, [], t.rMin);
 };
 var bt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.rings ?? 15, D2 = t.lonDensity ?? 40;
-  for (let p3 = 0; p3 <= m; p3++) {
-    const e = -Math.PI / 2 + p3 / m * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.rings ?? 15, D2 = t.lonDensity ?? 40;
+  for (let p3 = 0; p3 <= m2; p3++) {
+    const e = -Math.PI / 2 + p3 / m2 * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
     for (let y = 0; y < u; y++) {
-      const b = y / u * 2 * Math.PI, [f, P, x] = c(l * Math.cos(b) * i, R * i, l * Math.sin(b) * i), g = (x / o + 1) / 2, d = Math.max(0, w);
+      const b = y / u * 2 * Math.PI, [f2, P, x] = c(l * Math.cos(b) * i, R * i, l * Math.sin(b) * i), g = (x / o + 1) / 2, d = Math.max(0, w);
       h2.push({
-        x: f,
+        x: f2,
         y: P,
         z: x,
         r: ((t.rBase ?? 0.6) + (t.rDepth ?? 1.7) * g) * (1 + 0.4 * d) * M,
@@ -23196,8 +23196,8 @@ function st(n3) {
     let o = a2 * r, c = 0;
     for (; o > t[c] && c < s2 - 1; )
       o -= t[c], c++;
-    const M = n3[c], h2 = n3[(c + 1) % s2], m = t[c] ? Math.min(1, o / t[c]) : 0;
-    return [M[0] + (h2[0] - M[0]) * m, M[1] + (h2[1] - M[1]) * m];
+    const M = n3[c], h2 = n3[(c + 1) % s2], m2 = t[c] ? Math.min(1, o / t[c]) : 0;
+    return [M[0] + (h2[0] - M[0]) * m2, M[1] + (h2[1] - M[1]) * m2];
   };
 }
 var yt = (n3) => {
@@ -23224,9 +23224,9 @@ var V = 1.4;
 var ot = 0.9;
 var Q = V + ot;
 var Pt = (n3, s2, t) => {
-  const r = H.length, a2 = s2 % (Q * r), o = Math.floor(a2 / Q), c = a2 - o * Q, M = c > V ? xt((c - V) / ot) : 0, h2 = t.spread ?? 1, m = H[o], D2 = H[(o + 1) % r], p3 = 160, e = [];
+  const r = H.length, a2 = s2 % (Q * r), o = Math.floor(a2 / Q), c = a2 - o * Q, M = c > V ? xt((c - V) / ot) : 0, h2 = t.spread ?? 1, m2 = H[o], D2 = H[(o + 1) % r], p3 = 160, e = [];
   for (let x = 0; x < p3; x++) {
-    const g = x / p3, d = m(g), v = D2(g);
+    const g = x / p3, d = m2(g), v = D2(g);
     e.push([(d[0] + (v[0] - d[0]) * M) * h2, (d[1] + (v[1] - d[1]) * M) * h2]);
   }
   const l = [];
@@ -23236,12 +23236,12 @@ var Pt = (n3, s2, t) => {
     l.push(v), R += v;
   }
   const w = wt(t.iconD ?? 1), i = (t.rDot ?? 0.021) * 1.35 * h2, u = 1 + 0.02 * Math.sin(c * 3.1), y = [], b = n3 / 2;
-  let f = 0, P = 0;
+  let f2 = 0, P = 0;
   for (let x = 0; x < w; x++) {
     const g = x / w * R;
-    for (; P + l[f] < g && f < p3 - 1; )
-      P += l[f], f++;
-    const d = e[f], v = e[(f + 1) % p3], k = l[f] ? Math.min(1, (g - P) / l[f]) : 0, N = (d[0] + (v[0] - d[0]) * k) * u, z = (d[1] + (v[1] - d[1]) * k) * u;
+    for (; P + l[f2] < g && f2 < p3 - 1; )
+      P += l[f2], f2++;
+    const d = e[f2], v = e[(f2 + 1) % p3], k = l[f2] ? Math.min(1, (g - P) / l[f2]) : 0, N = (d[0] + (v[0] - d[0]) * k) * u, z = (d[1] + (v[1] - d[1]) * k) * u;
     y.push({
       x: b + N * n3,
       y: b + z * n3,
@@ -23253,13 +23253,13 @@ var Pt = (n3, s2, t) => {
   return L(y, [], t.rMin);
 };
 var Rt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
-  for (let e = 0; e < m; e++) {
-    const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f = Math.cos(y), P = Math.sin(y) * Math.sin(u);
-    let x = -f, g = b;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n3, t.rsPow ?? 0.6), h2 = [], m2 = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
+  for (let e = 0; e < m2; e++) {
+    const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f2 = Math.cos(y), P = Math.sin(y) * Math.sin(u);
+    let x = -f2, g = b;
     const d = 0, v = Math.max(1e-6, Math.sqrt(x * x + g * g));
     x /= v, g /= v;
-    const k = f * d - P * g, N = P * x - b * d, z = b * g - f * x, O = (0.25 + 0.55 * w) * (w > 0.5 ? 1 : -1);
+    const k = f2 * d - P * g, N = P * x - b * d, z = b * g - f2 * x, O = (0.25 + 0.55 * w) * (w > 0.5 ? 1 : -1);
     for (let B = 0; B < D2; B++) {
       const I = B / D2 * 2 * Math.PI, [S, A, T] = c(
         (x * Math.cos(I) + k * Math.sin(I)) * i,
@@ -23293,21 +23293,21 @@ var Rt = (n3, s2, t) => {
   return L(h2, [], t.rMin);
 };
 var Z = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m = $(n3, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m2 = $(n3, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
   for (let z = 0; z < p3; z++) {
     const O = J(z, p3), [B, I, S] = h2(O[0] * o, O[1] * o, O[2] * o), A = (S / o + 1) / 2;
-    D2.push({ x: B, y: I, z: S, r: 0.8 * m, white: 0.78, a: 0.1 + 0.22 * A });
+    D2.push({ x: B, y: I, z: S, r: 0.8 * m2, white: 0.78, a: 0.1 + 0.22 * A });
   }
-  const e = s2 * 0.24 * c, l = t.faceOn ? -M : 0.55 + 0.3 * Math.sin(s2 * 0.18) * c, R = Math.cos(e), w = 0, i = Math.sin(e), u = -i * Math.sin(l), y = Math.cos(l), b = R * Math.sin(l), f = w * b - i * y, P = i * u - R * b, x = R * y - w * u, g = 0.23 * (t.wobMul ?? 1), d = t.faceOn ? o / (1 + 0.85 * g) : o, v = t.lanes ?? 5, k = t.segs ?? 88, N = Math.max(1, Math.round(v * (t.bandMul ?? 1)));
+  const e = s2 * 0.24 * c, l = t.faceOn ? -M : 0.55 + 0.3 * Math.sin(s2 * 0.18) * c, R = Math.cos(e), w = 0, i = Math.sin(e), u = -i * Math.sin(l), y = Math.cos(l), b = R * Math.sin(l), f2 = w * b - i * y, P = i * u - R * b, x = R * y - w * u, g = 0.23 * (t.wobMul ?? 1), d = t.faceOn ? o / (1 + 0.85 * g) : o, v = t.lanes ?? 5, k = t.segs ?? 88, N = Math.max(1, Math.round(v * (t.bandMul ?? 1)));
   for (let z = 0; z < N; z++) {
     const O = (z - (N - 1) / 2) * 0.075, B = Math.abs(z - (N - 1) / 2) / Math.max(1, (N - 1) / 2);
     for (let I = 0; I < k; I++) {
-      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
+      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K = (X / o + 1) / 2;
       D2.push({
         x: ct,
         y: at2,
         z: X,
-        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K) * (1 - 0.25 * B) * m,
+        r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K) * (1 - 0.25 * B) * m2,
         white: 0.52 - 0.44 * K + 0.18 * B,
         a: 0.4 + 0.6 * K
       });
@@ -23316,16 +23316,16 @@ var Z = (n3, s2, t) => {
   return L(D2, [], t.rMin);
 };
 var Dt = (n3, s2, t) => {
-  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
+  const r = n3 / 2, a2 = n3 / 2, o = n3 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n3, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m2 = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
   for (let i = 0; i < h2; i++) {
-    const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f * f);
-    e.push([y / P, b / P, f / P]);
+    const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f2 = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f2 * f2);
+    e.push([y / P, b / P, f2 / P]);
   }
   const l = [], R = [];
   for (let i = 0; i < h2; i++)
     for (let u = i + 1; u < h2; u++) {
-      const y = e[i][0] - e[u][0], b = e[i][1] - e[u][1], f = e[i][2] - e[u][2], P = Math.sqrt(y * y + b * b + f * f);
-      if (P >= m) continue;
+      const y = e[i][0] - e[u][0], b = e[i][1] - e[u][1], f2 = e[i][2] - e[u][2], P = Math.sqrt(y * y + b * b + f2 * f2);
+      if (P >= m2) continue;
       const [x, g, d] = c(e[i][0], e[i][1], e[i][2]), [v, k, N] = c(e[u][0], e[u][1], e[u][2]), z = ((d + N) / 2 + 1) / 2;
       l.push({
         x1: x,
@@ -23333,25 +23333,25 @@ var Dt = (n3, s2, t) => {
         x2: v,
         y2: k,
         white: 0.42,
-        a: (1 - P / m) * (0.3 + 0.55 * z),
+        a: (1 - P / m2) * (0.3 + 0.55 * z),
         w: Math.max(0.6, (t.lineW ?? 0.8) * M)
       });
     }
   for (let i = 0; i < h2; i++) {
-    const [u, y, b] = c(e[i][0], e[i][1], e[i][2]), f = (b + 1) / 2, P = 1 + 0.25 * Math.sin(s2 * 1.4 + i * 2.7);
+    const [u, y, b] = c(e[i][0], e[i][1], e[i][2]), f2 = (b + 1) / 2, P = 1 + 0.25 * Math.sin(s2 * 1.4 + i * 2.7);
     R.push({
       x: u,
       y,
       z: b,
-      r: (D2 + p3 * f) * P * M,
-      white: 0.55 - 0.45 * f
+      r: (D2 + p3 * f2) * P * M,
+      white: 0.55 - 0.45 * f2
     });
   }
   const w = t.signals ?? 5;
   for (let i = 0; i < w; i++) {
     const u = Math.floor(s2 * 0.55 + i * 7.31), y = Math.floor(E(u, i * 3.1 + 1.7) * h2), b = Math.floor(E(u, i * 5.7 + 4.2) * h2);
     if (y === b) continue;
-    const f = nt(s2 * 0.55 + i * 7.31), P = U(e[y][0], e[b][0], f), x = U(e[y][1], e[b][1], f), g = U(e[y][2], e[b][2], f), d = Math.max(1e-6, Math.sqrt(P * P + x * x + g * g)), [v, k, N] = c(P / d, x / d, g / d), z = (N + 1) / 2;
+    const f2 = nt(s2 * 0.55 + i * 7.31), P = U(e[y][0], e[b][0], f2), x = U(e[y][1], e[b][1], f2), g = U(e[y][2], e[b][2], f2), d = Math.max(1e-6, Math.sqrt(P * P + x * x + g * g)), [v, k, N] = c(P / d, x / d, g / d), z = (N + 1) / 2;
     R.push({
       x: v,
       y: k,
@@ -23656,7 +23656,8 @@ var OrbActivity = class {
 };
 var NODE_ID = "dock.composer.line.orb";
 var FPS = 15;
-var FRAMES = 144;
+var CYCLE_S = 9.6;
+var SCENE_FPS = 30;
 var ThinkingOrb = class {
   #tern;
   #surface;
@@ -23673,6 +23674,7 @@ var ThinkingOrb = class {
   #closed = false;
   #timer;
   #scene;
+  #fps;
   /** `node` and `size` place smaller orbs elsewhere (the live lane strip); the composer orb uses the defaults. */
   constructor(tern, surface, options = {}) {
     this.#tern = tern;
@@ -23681,6 +23683,7 @@ var ThinkingOrb = class {
     this.#size = options.size ?? 34;
     this.#label = options.label ?? "Hermes agent";
     this.#scene = options.scene;
+    this.#fps = options.scene ? SCENE_FPS : FPS;
     this.#dark = Boolean(tern.caps.dark);
     this.#reduce = Boolean(tern.caps.reduceMotion);
   }
@@ -23721,7 +23724,7 @@ var ThinkingOrb = class {
     this.#timer = void 0;
   }
   #sync() {
-    const run8 = this.#visible && !this.#reduce && !this.#paused && (this.#scene !== void 0 || this.#state !== "idle" && this.#state !== "waiting" && this.#state !== "error") && !this.#surface.closed;
+    const run8 = this.#visible && !this.#reduce && !this.#paused && (this.#scene !== void 0 && this.#scene.moves !== false || this.#state !== "idle" && this.#state !== "waiting" && this.#state !== "error") && !this.#surface.closed;
     if (!run8) {
       this.#stop();
     } else if (!this.#timer) {
@@ -23733,9 +23736,9 @@ var ThinkingOrb = class {
         if (this.#surface.blocked) {
           return;
         }
-        this.#frame = (this.#frame + 1) % FRAMES;
+        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps);
         this.#surface.send([["set", this.#node, { blob: this.#blob() }]]);
-      }, 1e3 / FPS);
+      }, 1e3 / this.#fps);
       this.#timer.unref();
     }
   }
@@ -23744,7 +23747,7 @@ var ThinkingOrb = class {
     let blob2 = this.#frames.get(key3);
     if (!blob2) {
       blob2 = this.#tern.blob(
-        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / FPS, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / FPS, this.#dark)),
+        Buffer.from(this.#scene ? this.#scene.svg(this.#state, this.#frame / this.#fps, this.#dark, this.#reduce) : orbSvg(this.#state, this.#frame / this.#fps, this.#dark)),
         "image/svg+xml"
       );
       this.#frames.set(key3, blob2);
@@ -23772,7 +23775,7 @@ var STILL = 0.6;
 function orbSvg(state, seconds, dark) {
   const preset = Lt(LIBRARY_STATE[state], SOURCE);
   const animated = state !== "idle" && state !== "waiting" && state !== "error";
-  const frame = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, white));
     const level = Math.round((dark ? 1 - ink2 : ink2) * 255);
@@ -23780,19 +23783,140 @@ function orbSvg(state, seconds, dark) {
   };
   const n3 = (v) => v.toFixed(1);
   const alpha = (v) => (v ?? 1).toFixed(2);
-  const marks2 = frame.lines.map(
+  const marks2 = frame2.lines.map(
     (l) => `<line x1="${n3(l.x1)}" y1="${n3(l.y1)}" x2="${n3(l.x2)}" y2="${n3(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n3(l.w)}" stroke-opacity="${alpha(l.a)}"/>`
   );
-  for (const d of frame.dots) {
+  for (const d of frame2.dots) {
     marks2.push(`<circle cx="${n3(d.x)}" cy="${n3(d.y)}" r="${n3(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks2.join("")}</svg>`;
 }
 
 // src/voice/lanes.tsx
+import { readFileSync as readFileSync2 } from "node:fs";
+import { homedir as homedir2, userInfo as userInfo2 } from "node:os";
+import { join as join2 } from "node:path";
+
+// src/voice/catalog.ts
 import { readFileSync } from "node:fs";
 import { homedir, userInfo } from "node:os";
 import { join } from "node:path";
+
+// src/wire/json.ts
+function record(v) {
+  if (typeof v === "string") {
+    try {
+      return record(JSON.parse(v));
+    } catch {
+      return void 0;
+    }
+  }
+  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
+}
+function parseJson(text18) {
+  try {
+    return JSON.parse(text18);
+  } catch {
+    return void 0;
+  }
+}
+function decodeJson(text18) {
+  return JSON.parse(text18);
+}
+function commandReply(output) {
+  const reply2 = record(output);
+  if (!reply2) throw new Error("the command did not answer with JSON");
+  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
+  return reply2;
+}
+
+// src/voice/catalog.ts
+var PROVIDERS = {
+  local: { label: "Local", hue: "#b3bfd4" },
+  anthropic: { label: "Anthropic", hue: "#e6b86f" },
+  openai: { label: "OpenAI", hue: "#54d7c2" },
+  opencode: { label: "OpenCode", hue: "#3dd68c" },
+  groq: { label: "Groq", hue: "#f0794a" },
+  multi: { label: "Multi-provider", hue: "#d875ef" },
+  unknown: { label: "Unspecified", hue: "#9ca39a" }
+};
+var EFFORTS = {
+  min: { label: "Min", orbits: 1, accent: "#92a198" },
+  standard: { label: "Standard", orbits: 2, accent: "#7ee3a0" },
+  high: { label: "High", orbits: 3, accent: "#68dfff" },
+  max: { label: "Max", orbits: 4, accent: "#ffd34c" },
+  unknown: { label: "Unspecified", orbits: 0, accent: "#9ca39a" }
+};
+var BILLING = { free: "Free", subscription: "Subscription", paid: "Paid", unknown: "Unknown" };
+var m = (id2, label, provider, billing, effort2, extra = {}) => ({ id: id2, label, provider, billing, route: provider === "local" ? "local" : "cloud", effort: effort2, ...extra });
+var ROLE_MODELS = {
+  fast: [
+    m("qwen3-0.6b-q8", "Qwen3 0.6B Q8", "local", "free", "min"),
+    m("qwen3-1.7b", "Qwen3 1.7B", "local", "free", "min"),
+    m("claude-haiku-4-5", "Claude Haiku 4.5", "anthropic", "subscription", "min"),
+    m("llama-3.1-8b-instant", "Llama 3.1 8B", "groq", "free", "min", { note: "Groq free tier" })
+  ],
+  small: [
+    m("smol", "smol role", "anthropic", "subscription", "standard", { alias: true }),
+    m("qwen3.5-4b", "Qwen3.5 4B", "local", "free", "standard"),
+    m("luna", "GPT Luna", "openai", "subscription", "standard", { note: "via fx" }),
+    m("deepseek-v4.1-flash-free", "DeepSeek V4.1 Flash", "opencode", "free", "standard")
+  ],
+  large: [
+    m("slow", "slow role", "anthropic", "subscription", "high", { alias: true }),
+    m("claude-sonnet-5", "Claude Sonnet 5", "anthropic", "subscription", "high"),
+    m("gpt-6.1-sol", "GPT-6.1 Sol", "openai", "subscription", "high", { note: "via fx" })
+  ],
+  council: [
+    m("socratic-council", "Socratic council", "multi", "subscription", "max", { note: "seats Opus 5.5 \xB7 Sol \xB7 Argon" })
+  ]
+};
+var RESOLVED = [
+  m("claude-opus-5-5", "Claude Opus 5.5", "anthropic", "subscription", "high")
+];
+var BY_ID = new Map([...RESOLVED, ...Object.values(ROLE_MODELS).flat()].map((x) => [x.id, x]));
+var PLAN_PATH = ".z0int/config/z0live-voice-plan.json";
+var plan;
+function voicePlanRoles(env2 = process.env, now = Date.now()) {
+  if (plan && now - plan.at < 1e4) return plan.roles;
+  const real = (() => {
+    try {
+      return userInfo().homedir;
+    } catch {
+      return "";
+    }
+  })();
+  const files = env2["Z0LIVE_VOICE_PLAN"] ? [env2["Z0LIVE_VOICE_PLAN"]] : [...new Set([homedir(), real].filter(Boolean))].map((h2) => join(h2, PLAN_PATH));
+  let roles = {};
+  for (const file2 of files) {
+    try {
+      const v = record(readFileSync(file2, "utf8"));
+      if (!v) continue;
+      roles = Object.fromEntries(Object.entries(record(v["roles"]) ?? {}).flatMap(([k, r]) => {
+        const model = record(r)?.["model"];
+        return typeof model === "string" ? [[k, model]] : [];
+      }));
+      break;
+    } catch {
+    }
+  }
+  plan = { at: now, roles };
+  return roles;
+}
+function laneModel(id2, resolved = null, roles = voicePlanRoles()) {
+  const known3 = BY_ID.get(id2);
+  if (!known3) return m(id2, id2, "unknown", "unknown", "unknown");
+  if (!known3.alias) return known3;
+  const target2 = resolved ?? roles[id2];
+  const real = target2 ? BY_ID.get(target2) : void 0;
+  return { ...known3, label: real?.label ?? target2 ?? `${id2} role (unresolved)`, provider: real?.provider ?? (target2 ? "unknown" : known3.provider), via: id2, ...target2 ? { target: target2 } : {} };
+}
+function roleChoices(role, current = []) {
+  const ids = (ROLE_MODELS[role] ?? []).map((x) => x.id);
+  return [.../* @__PURE__ */ new Set([...ids, ...current.filter(Boolean)])];
+}
+var deepen = (hex2) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex2.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
+var providerHue = (id2, dark) => dark ? PROVIDERS[id2].hue : deepen(PROVIDERS[id2].hue);
 
 // src/voice/orbit.ts
 var ORBIT_R = { fast: 46, small: 62, large: 78, council: 94 };
@@ -23814,6 +23938,7 @@ var deadTint = (dark) => dark ? "#ff6b6b" : "#c62828";
 var PERIOD = 9.6;
 var ROLE_PERIOD = { fast: 2.4, small: 4.8, large: 9.6, council: 9.6 };
 var lanePeriod = (role) => ROLE_PERIOD[role] ?? PERIOD;
+var ROLE_PHASE = { fast: 0, small: Math.PI / 2, large: Math.PI, council: 3 * Math.PI / 2 };
 var TILT = 1;
 var PLANET = 5;
 var HALO = 8;
@@ -23822,14 +23947,22 @@ var SOURCE2 = 64;
 var CORE = 60;
 var ORB_R = CORE * 28.4 / SOURCE2;
 var orbitRadius = (role) => ORBIT_R[role] ?? FALLBACK_R;
-function orbitScene(lanes2) {
+var ORBIT_SCALE = 1.3;
+function orbitUnits(lanes2) {
   const r = Math.max(orbitRadius("fast"), ...lanes2.map((l) => orbitRadius(l.role)));
   return { w: Math.ceil(2 * (r * TILT + PAD)), h: Math.ceil(2 * (r + PAD)) };
 }
+function orbitScene(lanes2) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return { w: Math.round(w * ORBIT_SCALE), h: Math.round(h2 * ORBIT_SCALE) };
+}
 function orbitLayout(lanes2, seconds, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
-  const moving = lanes2.filter((l) => l.state !== "dead").length;
+  const { w, h: h2 } = orbitUnits(lanes2);
+  const moving = /* @__PURE__ */ new Map();
+  for (const l of lanes2) if (l.state !== "dead") moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1);
+  const total = [...moving.values()].reduce((a2, b) => a2 + b, 0);
   let k = 0;
+  const seat = /* @__PURE__ */ new Map();
   const parkedAt = /* @__PURE__ */ new Map();
   return lanes2.map((lane) => {
     const r = orbitRadius(lane.role);
@@ -23840,7 +23973,9 @@ function orbitLayout(lanes2, seconds, reduce = false) {
       parkedAt.set(r, j + 1);
       theta = Math.PI + j * 0.45;
     } else {
-      theta = reduce ? Math.PI * (k + 0.5) / moving : Math.PI / 4 + 2 * Math.PI * k / moving + 2 * Math.PI * seconds / lanePeriod(lane.role);
+      const j = seat.get(r) ?? 0;
+      seat.set(r, j + 1);
+      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds / lanePeriod(lane.role);
       k++;
     }
     const z = parked ? 0 : Math.sin(theta);
@@ -23862,38 +23997,17 @@ function orbitLayout(lanes2, seconds, reduce = false) {
 var n = (v) => v.toFixed(1);
 function marks(state, seconds, animated, dark) {
   const preset = Lt(state, SOURCE2);
-  const frame = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
   const grey = (white) => {
     const ink2 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink2 : ink2) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   };
   const a2 = (v) => (v ?? 1).toFixed(2);
-  const out = frame.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
-  for (const d of frame.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
+  const out = frame2.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
+  for (const d of frame2.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a2(d.a)}"/>`);
   return out.join("");
 }
 var still = (s2) => s2 === "idle" || s2 === "waiting" || s2 === "error";
-function stipple(cx, cy, a2, b, step) {
-  const N = 720;
-  const pts2 = [];
-  for (let i = 0; i <= N; i++) {
-    const t = i * 2 * Math.PI / N;
-    pts2.push([cx + a2 * Math.sin(t), cy + b * Math.cos(t)]);
-  }
-  const len = [0];
-  for (let i = 1; i <= N; i++) len.push((len[i - 1] ?? 0) + Math.hypot((pts2[i]?.[0] ?? 0) - (pts2[i - 1]?.[0] ?? 0), (pts2[i]?.[1] ?? 0) - (pts2[i - 1]?.[1] ?? 0)));
-  const total = len[N] ?? 0;
-  const count5 = Math.round(total / step);
-  const out = [];
-  let j = 0;
-  for (let k = 0; k < count5; k++) {
-    const s2 = k * total / count5;
-    while ((len[j + 1] ?? total) < s2) j++;
-    const f = (s2 - (len[j] ?? 0)) / ((len[j + 1] ?? total) - (len[j] ?? 0) || 1);
-    out.push([(pts2[j]?.[0] ?? 0) + f * ((pts2[j + 1]?.[0] ?? 0) - (pts2[j]?.[0] ?? 0)), (pts2[j]?.[1] ?? 0) + f * ((pts2[j + 1]?.[1] ?? 0) - (pts2[j]?.[1] ?? 0))]);
-  }
-  return out;
-}
 function deadMark(x, y, r, dark) {
   const red = deadTint(dark);
   const strike = [];
@@ -23903,60 +24017,163 @@ function deadMark(x, y, r, dark) {
   }
   return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join("")}</g>`;
 }
-function orbitSvg(main, lanes2, seconds, dark, reduce = false) {
-  const { w, h: h2 } = orbitScene(lanes2);
-  const CX = w / 2;
-  const CY = h2 / 2;
-  const sats = orbitLayout(lanes2, seconds, reduce);
-  const t = reduce ? 0 : seconds;
-  const edge = dark ? "#000000" : "#ffffff";
-  const planet = (s2, lane) => {
-    const r = PLANET * s2.scale;
-    const c = tint(lane.role, dark);
-    const tail = s2.parked || reduce ? "" : Array.from({ length: 6 }, (_2, i) => {
-      const lag = (i + 1) / 6 * (2 * Math.PI * 0.35 / lanePeriod(lane.role));
-      const th = s2.theta - lag;
-      const k = 1 - (i + 1) / 7;
-      return `<circle cx="${n(CX + s2.r * TILT * Math.sin(th))}" cy="${n(CY + s2.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
-    }).join("");
-    const trail2 = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : "";
-    const body = s2.parked ? deadMark(s2.x, s2.y, r, dark) : (lane.state === "thinking" ? `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(HALO * s2.scale)}" fill="${c}" fill-opacity="0.2"/>` : "") + `<circle cx="${n(s2.x)}" cy="${n(s2.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n(s2.x - r * 0.3)}" cy="${n(s2.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
-    return `<g data-lane="${lane.role}" opacity="${s2.alpha.toFixed(2)}">${trail2}${body}</g>`;
-  };
-  const order2 = sats.flatMap((s2, i) => lanes2[i] ? [{ s: s2, lane: lanes2[i] }] : []).sort((a2, b) => a2.s.z - b.s.z);
-  const back = order2.filter((o) => o.s.z < 0).map((o) => planet(o.s, o.lane)).join("");
-  const front = order2.filter((o) => o.s.z >= 0).map((o) => planet(o.s, o.lane)).join("");
-  const radii = [...new Set(lanes2.map((l) => orbitRadius(l.role)))];
-  const rings = radii.map((r) => {
+var frame = (lanes2, body) => {
+  const u = orbitUnits(lanes2);
+  const px = orbitScene(lanes2);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px.w}" height="${px.h}" viewBox="0 0 ${u.w} ${u.h}">${body}</svg>`;
+};
+function tracks(lanes2, dark) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return [...new Set(lanes2.map((l) => orbitRadius(l.role)))].map((r) => {
     const on = lanes2.filter((l) => orbitRadius(l.role) === r);
     const dead = on.every((l) => l.state === "dead");
-    const dots = stipple(CX, CY, r * TILT, r, 2);
-    const dot = ([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="0.7"/>`;
-    if (dead) {
-      const dash2 = dots.filter((_2, i) => i % 4 < 2).map(dot).join("");
-      return `<g data-ring="${r}" fill="${dark ? "#9a9a9a" : "#6a6a6a"}" fill-opacity="0.6">${dash2}</g>`;
-    }
-    const near = dots.filter(([x]) => x >= CX).map(dot).join("");
-    const far = dots.filter(([x]) => x < CX).map(dot).join("");
-    return `<g data-ring="${r}" fill="${tint(on[0]?.role ?? "", dark)}"><g fill-opacity="${TILT < 1 ? 0.7 : 0.38}">${far}</g><g fill-opacity="${TILT < 1 ? 1 : 0.38}">${near}</g></g>`;
+    const stroke = dead ? dark ? "#9a9a9a" : "#6a6a6a" : tint(on[0]?.role ?? "", dark);
+    const alpha = dead ? 0.6 : dark ? 0.72 : 0.78;
+    return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h2 / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ""}/>`;
   }).join("");
-  const core = `<g transform="translate(${n(CX - CORE / 2)} ${n(CY - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], t, !reduce && !still(main), dark)}</g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${rings}${back}${core}${front}</svg>`;
+}
+function core(main, lanes2, seconds, dark, reduce) {
+  const { w, h: h2 } = orbitUnits(lanes2);
+  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
+}
+function orbitBackdrop(main, lanes2, seconds, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds, dark, reduce));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
-  const body = lane.state === "dead" ? deadMark(c, c, 4.6, dark) : `<circle cx="${c}" cy="${c}" r="4.6" fill="${tint(lane.role, dark)}" stroke="${dark ? "#000000" : "#ffffff"}" stroke-width="0.8"/>`;
+  const body = lane.state === "dead" ? deadMark(c, c, 4.6, dark) : `<circle cx="${c}" cy="${c}" r="${n(c - 0.9)}" fill="none" stroke="${tint(lane.role, dark)}" stroke-width="1.2"/><circle cx="${c}" cy="${c}" r="3.4" fill="${lane.hue ?? tint(lane.role, dark)}"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`;
 }
 var focusBlock = {
   until: 0,
-  note(f, now = Date.now()) {
-    this.until = f.block && f.block.minutes_left > 0 ? now + f.block.minutes_left * 6e4 : 0;
+  note(f2, now = Date.now()) {
+    this.until = f2.block && f2.block.minutes_left > 0 ? now + f2.block.minutes_left * 6e4 : 0;
   },
   active(now = Date.now()) {
     return now < this.until;
   }
 };
+
+// src/voice/orbitTargets.ts
+var ORBIT_SHEET = "glide-orbit";
+var ORBIT_CLASS = "glide-orbit";
+var BRAKE_S = 0.3;
+var BRAKE_EASE = "cubic-bezier(0.3333, 0.6667, 0.6667, 1)";
+var JIGGLE_DEG = 2.5;
+var JIGGLE_PX = 0.8;
+var JIGGLE_S = 0.14;
+var HIT = 26;
+var HOVER_SCALE = 1.35;
+var LABEL_GAP = Math.ceil(HIT * (HOVER_SCALE - 1) / 2) + 5;
+var TAU = 2 * Math.PI;
+var f = (v, d = 3) => Number(v.toFixed(d)).toString();
+var orbitPx = (lanes2) => orbitScene(lanes2).w / orbitUnits(lanes2).w;
+function orbitSeats(lanes2, reduce = false) {
+  const px = orbitPx(lanes2);
+  return orbitLayout(lanes2, 0, reduce).map((s2, i) => {
+    const period = lanePeriod(s2.role);
+    const moving = !s2.parked && !reduce;
+    const turn2 = (s2.theta % TAU + TAU) % TAU;
+    return {
+      role: s2.role,
+      moving,
+      theta: s2.theta,
+      period,
+      arm: 2 * s2.r * px,
+      delay: moving ? -(turn2 / TAU) * period : 0,
+      brake: moving ? 360 / period * BRAKE_S / 2 : 0,
+      // A golden-ratio step spreads the phases evenly over one wobble.
+      jiggleDelay: -(i * 0.618034 % 1) * JIGGLE_S
+    };
+  });
+}
+var n2 = (v) => v.toFixed(1);
+function planetSvg(lane, dark) {
+  const u = HIT / ORBIT_SCALE;
+  const c = u / 2;
+  const r = PLANET * 1.1;
+  const hue = lane.hue ?? tint(lane.role, dark);
+  const edge = dark ? "#000000" : "#ffffff";
+  const body = lane.state === "dead" ? deadMark(c, c, r, dark) : (lane.state === "thinking" ? `<circle cx="${n2(c)}" cy="${n2(c)}" r="${n2(HALO * 1.1)}" fill="${hue}" fill-opacity="0.2"/>` : "") + `<circle cx="${n2(c)}" cy="${n2(c)}" r="${n2(r)}" fill="${hue}" stroke="${edge}" stroke-width="0.8"/><circle cx="${n2(c - r * 0.3)}" cy="${n2(c - r * 0.3)}" r="${n2(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${HIT}" height="${HIT}" viewBox="0 0 ${n2(u)} ${n2(u)}">${body}</svg>`;
+}
+function tailSvg(lane, seat, dark) {
+  const u = seat.arm / ORBIT_SCALE;
+  const c = u / 2;
+  const rr = c;
+  const r = PLANET * 1.1;
+  const hue = lane.hue ?? tint(lane.role, dark);
+  const dots = Array.from({ length: 6 }, (_2, i) => {
+    const th = -((i + 1) / 6) * (TAU * 0.35 / seat.period);
+    const k = 1 - (i + 1) / 7;
+    return `<circle cx="${n2(c + rr * Math.sin(th))}" cy="${n2(c + rr * Math.cos(th))}" r="${n2(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`;
+  }).join("");
+  const px = Math.round(seat.arm);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${n2(u)} ${n2(u)}"><g data-tail="${lane.role}" fill="${hue}">${dots}</g></svg>`;
+}
+function badgeSvg(dark) {
+  const fill = dark ? "#ece8df" : "#2a2724";
+  const ink2 = dark ? "#1a1917" : "#ffffff";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11"><circle cx="5.5" cy="5.5" r="5" fill="${fill}" stroke="${ink2}" stroke-width="0.8"/>` + [3.2, 5.5, 7.8].map((x) => `<circle cx="${x}" cy="5.5" r="0.85" fill="${ink2}"/>`).join("") + "</svg>";
+}
+function orbitCss(lanes2, reduce = false) {
+  const { w, h: h2 } = orbitScene(lanes2);
+  const seats = orbitSeats(lanes2, reduce);
+  const O = `.${ORBIT_CLASS}`;
+  const half = HIT / 2;
+  const rules = [
+    `${O} { position: relative; flex: none; width: ${w}px; height: ${h2}px; }`,
+    `${O} [data-role='glide.orbit.bg'] { position: absolute; left: 0; top: 0; }`,
+    // Tern opens an image viewer on a click on any image (`.sf-zoom`): here clicks belong to the planets' buttons.
+    `${O} .sf-image { pointer-events: none; cursor: default; }`,
+    `${O} .glide-orbit-arm { position: absolute; pointer-events: none; animation-name: glide-orbit-turn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
+    `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake, ${O} .glide-orbit-jiggle { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }`,
+    `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake { transition: transform ${BRAKE_S}s ${BRAKE_EASE}; }`,
+    `${O} .glide-orbit-tail { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity ${BRAKE_S}s; }`,
+    `${O} .glide-orbit-planet { position: absolute; left: 50%; top: 100%; width: ${HIT}px; height: ${HIT}px; margin: -${half}px 0 0 -${half}px; padding: 0; border: 0; border-radius: 50%; background: transparent; pointer-events: auto; cursor: pointer; }`,
+    `${O} .glide-orbit-face { position: absolute; left: 0; top: 0; right: 0; bottom: 0; animation-name: glide-orbit-unturn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
+    `${O} .glide-orbit-jiggle { transition: transform .18s ease-out; }`,
+    `${O} .glide-orbit-jiggle [data-role='glide.orbit.face'] { position: absolute; left: 0; top: 0; }`,
+    // The badge overlaps the planet's upper-left rim, as iOS's edit badge does an icon's corner.
+    `${O} .glide-orbit-badge { position: absolute; left: 3px; top: 3px; opacity: 0; transition: opacity .2s; }`,
+    `${O} .glide-orbit-ring { position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px; border-radius: 50%; border: 1.5px dashed var(--t2, #888888); opacity: 0; transition: opacity .2s; }`,
+    `${O} .glide-orbit-label { position: absolute; left: 50%; bottom: 100%; margin-bottom: ${LABEL_GAP}px; translate: -50% 0; padding: 2px 7px; border-radius: 999px; white-space: nowrap; font: 500 11px var(--sans, sans-serif); color: var(--t1, #ece8df); background: var(--pop-bg, rgba(20,19,18,.92)); border: 1px solid var(--l2, rgba(236,232,223,.18)); box-shadow: 0 3px 10px rgba(0,0,0,.28); opacity: 0; pointer-events: none; transition: opacity .15s; }`,
+    // Hover: the arms and faces stop where they are; the brake carries each on to rest.
+    `${O}:hover .glide-orbit-arm, ${O}:hover .glide-orbit-face { animation-play-state: paused; }`,
+    `${O}:hover .glide-orbit-badge { opacity: 1; }`,
+    // A stopped planet leaves no comet tail.
+    `${O}:hover .glide-orbit-tail { opacity: 0; }`,
+    `${O}:hover .glide-orbit-jiggle { animation-name: glide-orbit-jiggle; animation-duration: ${JIGGLE_S}s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`,
+    `${O}:hover .glide-orbit-arm:hover { z-index: 3; }`,
+    `${O} .glide-orbit-planet:hover .glide-orbit-jiggle { animation-name: none; transform: scale(${HOVER_SCALE}); }`,
+    `${O} .glide-orbit-planet:hover .glide-orbit-label, ${O} .glide-orbit-planet:focus-visible .glide-orbit-label { opacity: 1; }`,
+    // Reduced motion: nothing moves; a dashed ring says the planets can be picked.
+    `${O}.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }`,
+    `${O}.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }`,
+    `${O}.glide-orbit-still .glide-orbit-planet:hover .glide-orbit-jiggle { transform: scale(1.2); }`,
+    `@keyframes glide-orbit-turn { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }`,
+    `@keyframes glide-orbit-unturn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`,
+    `@keyframes glide-orbit-jiggle { 0%, 100% { transform: translate(-${JIGGLE_PX}px, ${JIGGLE_PX / 2}px) rotate(-${JIGGLE_DEG}deg); } 50% { transform: translate(${JIGGLE_PX}px, -${JIGGLE_PX / 2}px) rotate(${JIGGLE_DEG}deg); } }`
+  ];
+  seats.forEach((s2, i) => {
+    const L2 = `${O} .glide-orbit-s${i}`;
+    const at2 = `left: ${f(w / 2 - s2.arm / 2)}px; top: ${f(h2 / 2 - s2.arm / 2)}px; width: ${f(s2.arm)}px; height: ${f(s2.arm)}px;`;
+    if (s2.moving) {
+      const timing = `animation-duration: ${f(s2.period)}s; animation-delay: ${f(s2.delay, 4)}s;`;
+      rules.push(
+        `${L2} { ${at2} ${timing} }`,
+        `${L2} .glide-orbit-face { ${timing} }`,
+        `${O}:hover .glide-orbit-s${i} > .glide-orbit-brake { transform: rotate(-${f(s2.brake)}deg); }`,
+        `${O}:hover .glide-orbit-s${i} .glide-orbit-unbrake { transform: rotate(${f(s2.brake)}deg); }`
+      );
+    } else {
+      const deg = f(s2.theta * 180 / Math.PI);
+      rules.push(`${L2} { ${at2} animation-name: none; transform: rotate(-${deg}deg); }`, `${L2} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`);
+    }
+    rules.push(`${L2} .glide-orbit-jiggle { animation-delay: ${f(s2.jiggleDelay, 4)}s; }`);
+  });
+  return rules.join("\n");
+}
 
 // src/voice/lanes.tsx
 var LANE_STATES = ["idle", "thinking", "answered", "verified", "corrected", "dead"];
@@ -24039,15 +24256,15 @@ var TOKEN_PATH = ".config/z0live/hermes-mobile-relay.token";
 function laneToken(env2 = process.env) {
   const real = (() => {
     try {
-      return userInfo().homedir;
+      return userInfo2().homedir;
     } catch {
       return "";
     }
   })();
-  const files = env2["GLIDE_LANES_TOKEN_FILE"] ? [env2["GLIDE_LANES_TOKEN_FILE"]] : [...new Set([homedir(), real].filter(Boolean))].map((h2) => join(h2, TOKEN_PATH));
+  const files = env2["GLIDE_LANES_TOKEN_FILE"] ? [env2["GLIDE_LANES_TOKEN_FILE"]] : [...new Set([homedir2(), real].filter(Boolean))].map((h2) => join2(h2, TOKEN_PATH));
   for (const file2 of files) {
     try {
-      const token = readFileSync(file2, "utf8").trim();
+      const token = readFileSync2(file2, "utf8").trim();
       if (token) return token;
     } catch {
     }
@@ -24069,6 +24286,22 @@ var LANE_ORB = {
   dead: "error"
 };
 var ROLE_ORDER = ["fast", "small", "large", "council"];
+var LIVE_DOCK = "dock.live";
+var LANES_ID = `${LIVE_DOCK}.lanes`;
+function laneCounts(lanes2) {
+  const n3 = /* @__PURE__ */ new Map();
+  for (const l of lanes2) n3.set(l.role, (n3.get(l.role) ?? 0) + 1);
+  const order2 = [...ROLE_ORDER, ...[...n3.keys()].filter((r) => !ROLE_ORDER.includes(r))];
+  return order2.flatMap((r) => n3.get(r) ? [`${n3.get(r)} ${r}`] : []).join(" \xB7 ");
+}
+function liveDock(voice, lanes2) {
+  if (!voice && !lanes2) return null;
+  return /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
+    voice,
+    lanes2
+  ] }, LIVE_DOCK.slice("dock.".length));
+}
+var orbitLane = (lane, dark) => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) });
 var clip = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
 function entryLine(e) {
   const what = e.kind === "intent" ? "intent" : e.status === "draft" ? `draft ${e.confidence.toFixed(2)}` : e.status;
@@ -24083,15 +24316,20 @@ var LaneStrip = class {
   #live = false;
   #orbit;
   #swatches = /* @__PURE__ */ new Map();
-  constructor(feed, tern, surface) {
+  #select;
+  #sheet = "";
+  /** `select` runs when a planet is clicked: the lane's index in lanes() (the popup's row order) and the lane. */
+  constructor(feed, tern, surface, select2) {
     this.#feed = feed;
     this.#tern = tern;
     this.#surface = surface;
+    this.#select = select2;
   }
-  /** A recovered surface gets fresh animators. */
+  /** A recovered surface gets fresh animators (and the orbit's stylesheet again). */
   surface(surface) {
     this.close();
     this.#surface = surface;
+    this.#sheet = "";
   }
   environment(options) {
     this.#env = { ...this.#env, ...options };
@@ -24114,17 +24352,18 @@ var LaneStrip = class {
     return [...lanes2].sort((a2, b) => ROLE_ORDER.indexOf(a2.role) - ROLE_ORDER.indexOf(b.role));
   }
   /** Per frame: lane orb states follow the newest status. In a focus block with live voice, one scene orbits them around `main`. */
-  update(liveVoice, paused = false, main = "idle", focus2 = false) {
+  update(liveVoice, paused = false, main = "idle", focus = false) {
     this.#live = liveVoice;
     this.#feed.active = liveVoice;
     const lanes2 = this.lanes();
-    if (focus2 && liveVoice && lanes2.length) {
+    if (focus && liveVoice && lanes2.length) {
       for (const orb of this.#orbs) orb.close();
       this.#orbs = [];
       if (!this.#orbit) {
         const current = () => this.lanes();
         this.#orbit = new ThinkingOrb(this.#tern, this.#surface, {
-          node: "dock.live-lanes.orbit",
+          // The planets are pointer targets animated by the orbit's stylesheet; this image is the tracks and the orb.
+          node: `${LANES_ID}.orbit.scene.bg`,
           label: "Voice and lanes",
           scene: {
             get w() {
@@ -24133,8 +24372,9 @@ var LaneStrip = class {
             get h() {
               return orbitScene(current()).h;
             },
-            key: () => this.lanes().map((l) => `${l.role}=${l.state}`).join(","),
-            svg: (state, seconds, dark, reduce) => orbitSvg(state, this.lanes(), seconds, dark, reduce)
+            moves: false,
+            key: () => this.lanes().map((l) => `${l.role}=${l.state === "dead"}`).join(","),
+            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
           }
         });
         this.#orbit.environment(this.#env);
@@ -24147,18 +24387,78 @@ var LaneStrip = class {
     for (const orb of this.#orbs.splice(lanes2.length)) orb.close();
     while (this.#orbs.length < lanes2.length) {
       const i = this.#orbs.length;
-      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `dock.live-lanes.l${i}.orb`, size: 14, label: "Lane" });
+      const orb = new ThinkingOrb(this.#tern, this.#surface, { node: `${LANES_ID}.l${i}.orb`, size: 14, label: "Lane" });
       orb.environment(this.#env);
       this.#orbs.push(orb);
     }
     lanes2.forEach((lane, i) => this.#orbs[i]?.update(LANE_ORB[lane.state], paused));
   }
-  #swatch(lane) {
-    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
-    const key3 = `${lane.role}:${lane.state === "dead"}:${dark}`;
+  #image(key3, svg3) {
     let blob2 = this.#swatches.get(key3);
     if (!blob2) {
-      blob2 = this.#tern.blob(Buffer.from(laneSwatch(lane, dark)), "image/svg+xml");
+      blob2 = this.#tern.blob(Buffer.from(svg3()), "image/svg+xml");
+      this.#swatches.set(key3, blob2);
+    }
+    return blob2;
+  }
+  /**
+   * The orbit: the tracks-and-orb image with one native button per lane riding a CSS arm over it. Tern sends
+   * no hover events, so hovering is the stylesheet's (orbitTargets.ts): the arms stop, the planets wobble,
+   * and the one under the pointer names its lane. A click selects the lane (its row in the lanes popup).
+   */
+  #orbitNode(lanes2) {
+    if (!this.#orbit) return null;
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
+    const reduce = Boolean(this.#env.reduce ?? this.#tern.caps.reduceMotion);
+    const drawn = lanes2.map((l) => orbitLane(l, dark));
+    const css2 = orbitCss(drawn, reduce);
+    if (css2 !== this.#sheet) {
+      this.#sheet = css2;
+      this.#surface.stylesheet(ORBIT_SHEET, css2);
+    }
+    const seats = orbitSeats(drawn, reduce);
+    const badge = this.#image(`badge:${dark}`, () => badgeSvg(dark));
+    return /* @__PURE__ */ jsxs(html.div, { class: ORBIT_CLASS + (reduce ? ` ${ORBIT_CLASS}-still` : ""), role: "glide.orbit", children: [
+      /* @__PURE__ */ jsx("image", { role: "glide.orbit.bg", ...this.#orbit.props() }, "bg"),
+      lanes2.map((lane, i) => {
+        const d = drawn[i];
+        const seat = seats[i];
+        if (!d || !seat) return null;
+        const name = `${laneModel(lane.model, lane.resolved).label} \xB7 ${lane.role}`;
+        const face = this.#image(`planet:${d.role}:${d.hue}:${d.state === "thinking" ? "t" : d.state === "dead" ? "d" : "i"}:${dark}`, () => planetSvg(d, dark));
+        const tail = seat.moving ? this.#image(`tail:${d.role}:${d.hue}:${Math.round(seat.arm)}:${dark}`, () => tailSvg(d, seat, dark)) : null;
+        return /* @__PURE__ */ jsx(html.div, { class: `glide-orbit-arm glide-orbit-s${i}`, children: /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-brake", children: [
+          tail ? /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-tail", children: /* @__PURE__ */ jsx("image", { blob: tail, alt: "", w: Math.round(seat.arm), h: Math.round(seat.arm) }, "img") }, "tail") : null,
+          /* @__PURE__ */ jsx(
+            html.button,
+            {
+              aria: `${name}${lane.state === "dead" ? ", dead" : ""}: select this lane`,
+              attrs: { "data-lane": lane.role, "data-lane-index": i },
+              class: "glide-orbit-planet",
+              onClick: () => this.#select?.(i, lane),
+              role: "glide.orbit.planet",
+              children: /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-face", children: /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-unbrake", children: [
+                /* @__PURE__ */ jsxs(html.div, { class: "glide-orbit-jiggle", children: [
+                  /* @__PURE__ */ jsx("image", { alt: `${lane.role} lane`, blob: face, h: HIT, role: "glide.orbit.face", w: HIT }, "img"),
+                  /* @__PURE__ */ jsx(html.span, { class: "glide-orbit-ring" }, "ring"),
+                  /* @__PURE__ */ jsx(html.div, { class: "glide-orbit-badge", children: /* @__PURE__ */ jsx("image", { alt: "", blob: badge, h: 11, w: 11 }, "img") }, "badge")
+                ] }, "j"),
+                /* @__PURE__ */ jsx(html.span, { class: "glide-orbit-label", text: name }, "label")
+              ] }, "u") }, "f")
+            },
+            "hit"
+          )
+        ] }, "b") }, `p${i}`);
+      })
+    ] }, "scene");
+  }
+  #swatch(lane) {
+    const dark = Boolean(this.#env.dark ?? this.#tern.caps.dark);
+    const drawn = orbitLane(lane, dark);
+    const key3 = `${lane.role}:${drawn.hue}:${lane.state === "dead"}:${dark}`;
+    let blob2 = this.#swatches.get(key3);
+    if (!blob2) {
+      blob2 = this.#tern.blob(Buffer.from(laneSwatch(drawn, dark)), "image/svg+xml");
       this.#swatches.set(key3, blob2);
     }
     return { blob: blob2, alt: `${lane.role} lane${lane.state === "dead" ? ", dead" : ""}`, w: 14, h: 14 };
@@ -24168,29 +24468,1251 @@ var LaneStrip = class {
     const call = this.#feed.call;
     const lanes2 = this.lanes();
     if (!lanes2.length && !this.#live) return null;
-    const head2 = lanes2.length ? `Lanes \xB7 ${call?.revision ?? ""}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
+    const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 no open lane call (the lane broker runs the Hermes app Live path)";
     const rows = lanes2.map((lane, i) => /* @__PURE__ */ jsxs("row", { align: "start", gap: "sm", role: "omp.live.lane", children: [
       this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
       /* @__PURE__ */ jsxs("col", { children: [
         /* @__PURE__ */ jsx("text", { spans: [
           { s: "strong", t: lane.role },
-          { s: "muted", t: " \xB7 " + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}\u2192${lane.resolved}` : lane.model) + " \xB7 " },
+          { s: "muted", t: " \xB7 " + laneModel(lane.model, lane.resolved).label + " \xB7 " },
           lane.state === "dead" ? { s: "error", t: "dead" + (lane.error ? ` (${clip(lane.error, 60)})` : "") } : lane.state === "corrected" ? { s: "warning", t: "corrected" } : lane.state === "verified" ? { s: "success", t: "verified" } : { t: lane.state }
         ], wrap: "none" }, "who"),
-        lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
+        lane.researching ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: (lane.state === "thinking" ? "researching: " : "last: ") + clip(lane.researching, 100) }], wrap: "none" }, "doing") : null,
         lane.entry ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: entryLine(lane.entry) }], wrap: "none" }, "entry") : null
       ] }, "text")
     ] }, `l${i}`));
     return /* @__PURE__ */ jsxs("col", { gap: this.#orbit ? "sm" : "none", role: "omp.live.lanes", children: [
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
-      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "stretch", gap: "md", role: "omp.live.lanes.orbit", children: [
-        /* @__PURE__ */ jsx("image", { ...this.#orbit.props() }, "scene"),
-        /* @__PURE__ */ jsx("col", { grow: 1, justify: "between", min: { w: 0 }, children: rows }, "rows")
-      ] }, "orbit") : rows,
-      this.#orbit ? /* @__PURE__ */ jsx("spacer", { size: "lg" }, "gap") : null
-    ] }, "live-lanes");
+      this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
+        this.#orbitNode(lanes2),
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows }, "rows")
+      ] }, "orbit") : rows
+    ] }, "lanes");
   }
 };
+
+// ../glide/frontend/lanesPopup.ts
+import { mkdirSync, readFileSync as readFileSync3, writeFileSync } from "node:fs";
+import { homedir as homedir3 } from "node:os";
+import { dirname, join as join3 } from "node:path";
+
+// src/overlays/identity.ts
+var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
+function nativeOverlayKey(root7) {
+  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
+  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
+    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
+  }
+  return key3;
+}
+function withinOverlayRoot(id2, root7) {
+  return id2 === root7 || id2.startsWith(root7 + ".");
+}
+
+// src/eui/ternCss.js
+var TERN_DROP = /* @__PURE__ */ new Set([
+  "aspect-ratio",
+  "text-anchor",
+  "vector-effect",
+  "-webkit-appearance",
+  "appearance",
+  "-webkit-touch-callout",
+  "scroll-margin-top",
+  "grid-template-areas",
+  "grid-area",
+  "resize",
+  "offset-rotate",
+  "offset-anchor",
+  "text-underline-offset",
+  "text-decoration-thickness"
+]);
+var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
+var TERN_ATTR = "data-eui-a-";
+function ternDecl(decl) {
+  const at2 = decl.indexOf(":");
+  if (at2 < 0) {
+    return decl;
+  }
+  const prop2 = decl.slice(0, at2).trim().toLowerCase();
+  let value = decl.slice(at2 + 1).trim();
+  if (prop2.startsWith("--")) {
+    return decl;
+  }
+  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
+    return void 0;
+  }
+  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
+  if (prop2 === "position" && value === "fixed") {
+    return `${decl.slice(0, at2)}:absolute`;
+  }
+  if (prop2 === "border-block") {
+    return `border-top:${value};border-bottom:${value}`;
+  }
+  if (prop2 === "border-inline-start") {
+    return `border-left:${value}`;
+  }
+  return `${decl.slice(0, at2)}:${value}`;
+}
+function ternBody(body) {
+  const out = [];
+  let depth = 0;
+  let quote2 = "";
+  let start = 0;
+  for (let i = 0; i <= body.length; i++) {
+    const ch = body[i];
+    if (quote2) {
+      if (ch === quote2 && body[i - 1] !== "\\") {
+        quote2 = "";
+      }
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote2 = ch;
+    } else if (ch === "(") {
+      depth++;
+    } else if (ch === ")") {
+      depth--;
+    } else if (ch === ";" && depth === 0 || i === body.length) {
+      const decl = body.slice(start, i).trim();
+      const kept = decl ? ternDecl(decl) : void 0;
+      if (kept) {
+        out.push(kept);
+      }
+      start = i + 1;
+    }
+  }
+  return out.join(";");
+}
+
+// src/view/euiCard.tsx
+var TAGS = new Set(EL_TAGS);
+var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
+var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
+function isTag(tag3) {
+  return TAGS.has(tag3);
+}
+function ternTag(tag3, attrs) {
+  if (tag3 === "input") {
+    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
+  }
+  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
+}
+function convert(n3, key3, eui, activate) {
+  if (n3.t === "text") {
+    return n3.text;
+  }
+  if (n3.t === "svg") {
+    const blob2 = eui.svg(n3.svg);
+    const attrs2 = { "data-eui-svg": "" };
+    if (n3.style) {
+      attrs2["data-eui-s"] = eui.style(n3.style);
+    }
+    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
+  }
+  const tag3 = ternTag(n3.tag, n3.attrs);
+  const attrs = {};
+  for (const [k, v] of Object.entries(n3.attrs)) {
+    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
+      attrs[k] = v;
+    }
+    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
+      attrs[`${TERN_ATTR}${k}`] = v;
+    }
+  }
+  if (tag3 !== n3.tag) {
+    attrs["data-eui-tag"] = n3.tag;
+  }
+  if (n3.style) {
+    attrs["data-eui-s"] = eui.style(n3.style);
+  }
+  const kids = n3.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
+  if (n3.tag === "input" && tag3 === "span") {
+    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
+  }
+  return ui.el({
+    key: key3,
+    tag: tag3,
+    attrs,
+    class: n3.cls,
+    ...n3.attrs["hidden"] ? { hidden: true } : {},
+    ...n3.attrs["disabled"] ? { disabled: true } : {},
+    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
+    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
+    ...n3.click ? { onClick: () => {
+      activate(n3.id);
+    } } : {}
+  }, kids);
+}
+function euiCardNode(card, view, eui, popup = false) {
+  if (view.error !== void 0 || !view.node) {
+    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
+  }
+  const root7 = view.node;
+  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
+  const activate = view.activate ?? ((id2) => {
+    eui.click(card, id2);
+  });
+  return html.div(
+    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
+    root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
+  );
+}
+function euiPopupNode(key3, head2, view, eui) {
+  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
+}
+
+// ../glide/frontend/council.ts
+var MINERAL = {
+  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
+  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
+  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
+  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
+  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
+  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
+  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
+  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
+};
+var FAMILY = {
+  anthropic: ["citrine", "rose", "smoky"],
+  openai: ["labradorite", "moonstone", "lapis"],
+  google: ["malachite"],
+  free: ["clear"]
+};
+var NIGHT = {
+  canvas: "#0c0c0a",
+  text: "#ECE8DF",
+  text2: "#B4AFA3",
+  text3: "#837F74",
+  faint: "#5e5b52",
+  action: "#d7b986",
+  strong: "#eccd8c",
+  muted: "#99835c",
+  danger: "#e37f65",
+  agree: "#98cf8b",
+  border: "rgba(236,232,223,0.10)",
+  borderStrong: "rgba(236,232,223,0.16)"
+};
+var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
+var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
+var COUNCIL_SCHEMA = "glide.council-run/v1";
+var MINERALS = new Set(Object.keys(MINERAL));
+var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
+var KEYS = {
+  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
+  seat: ["id", "name", "family", "mineral", "crew"],
+  turn: ["type", "seat", "round", "cites"],
+  spawn: ["type", "seat"],
+  verdict: ["seat", "stance", "text"]
+};
+var Bad = class extends Error {
+};
+var fail = (where, what) => {
+  throw new Bad(`${where}: ${what}`);
+};
+function obj2(v, where, keys3) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
+  const extra = Object.keys(v).find((k) => !keys3.includes(k));
+  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
+}
+function str3(v, where, max) {
+  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
+}
+function int(v, where, min, max) {
+  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
+}
+function list(v, where, min, max) {
+  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
+}
+function mineral(v, where) {
+  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
+}
+function parseCouncilRun(raw2) {
+  try {
+    return readRun(raw2);
+  } catch (e) {
+    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
+    throw e;
+  }
+}
+function readRun(raw2) {
+  const d = obj2(raw2, "run", KEYS.run);
+  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
+  const rounds = int(d["rounds"], "rounds", 1, 8);
+  const used = /* @__PURE__ */ new Map();
+  const index2 = /* @__PURE__ */ new Map();
+  const seats = list(d["seats"], "seats", 2, 6).map((v, i) => {
+    const s2 = obj2(v, `seats.${i}`, KEYS.seat);
+    const id2 = str3(s2["id"], `seats.${i}.id`, 40);
+    if (!SEAT_ID.test(id2)) fail(`seats.${i}.id`, "expected a lowercase id");
+    if (index2.has(id2)) fail(`seats.${i}.id`, "two seats share an id");
+    index2.set(id2, i);
+    const family = str3(s2["family"], `seats.${i}.family`, 24);
+    const key3 = family.trim().toLowerCase();
+    const pool = FAMILY[key3] ?? ["clear"];
+    const n3 = used.get(key3) ?? 0;
+    used.set(key3, n3 + 1);
+    return Object.freeze({
+      id: id2,
+      family,
+      name: str3(s2["name"], `seats.${i}.name`, 24),
+      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
+      crew: Object.freeze(s2["crew"] === void 0 ? [] : list(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
+    });
+  });
+  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
+  const events = list(d["events"], "events", 0, 400).map((v, i) => {
+    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
+    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS.spawn)["seat"], `events.${i}.seat`) });
+    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
+    const e = obj2(v, `events.${i}`, KEYS.turn);
+    const cites = e["cites"] === void 0 ? [] : list(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
+    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
+  });
+  const heard = /* @__PURE__ */ new Set();
+  const verdicts = list(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
+    const e = obj2(v, `verdicts.${i}`, KEYS.verdict);
+    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
+    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
+    heard.add(s2);
+    const stance = e["stance"];
+    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
+    return Object.freeze({ seat: s2, stance, text: str3(e["text"], `verdicts.${i}.text`, 240) });
+  });
+  return Object.freeze({
+    brief: str3(d["brief"], "brief", 280),
+    rounds,
+    seats: Object.freeze(seats),
+    events: Object.freeze(events),
+    verdicts: Object.freeze(verdicts),
+    ...d["outcome"] === void 0 ? {} : { outcome: str3(d["outcome"], "outcome", 160) }
+  });
+}
+function demoRun() {
+  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
+  const seats = [
+    { id: "argon", name: "Argon", family: "Google", crew: CREW },
+    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
+    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
+    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
+  ];
+  const ids = seats.map((s2) => s2.id);
+  const events = [];
+  for (const id2 of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id2 });
+  for (let round = 1; round <= 4; round++) {
+    ids.forEach((id2, i) => {
+      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id2 });
+      const peers = ids.filter((p3) => p3 !== id2);
+      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
+      events.push({ type: "turn", seat: id2, round, cites });
+    });
+  }
+  for (const id2 of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id2 });
+  const run8 = parseCouncilRun({
+    schema: COUNCIL_SCHEMA,
+    brief: "Should a small team ship a plugin before its launcher?",
+    rounds: 4,
+    seats,
+    events,
+    verdicts: [
+      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
+      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
+      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
+      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
+    ],
+    outcome: "Ship the plugin first"
+  });
+  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
+  return run8;
+}
+var TURN_MS = 520;
+var SPAWN_MS = 90;
+var FLY_MS = 220;
+var THREAD_MS = 360;
+var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+function schedule(run8) {
+  const at2 = [];
+  let t = 0;
+  for (const e of run8.events) {
+    at2.push(t);
+    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
+  }
+  return { at: at2, total: t };
+}
+function moment(run8, frame2) {
+  const { at: at2, total } = schedule(run8);
+  const t = frame2.t;
+  const done = t !== null && t >= total;
+  let idx = -1;
+  if (t !== null) {
+    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
+  }
+  const running2 = t !== null && !done;
+  const lit2 = run8.seats.map(() => 0);
+  const born = /* @__PURE__ */ new Map();
+  const lastTurn = run8.seats.map(() => -1);
+  run8.events.forEach((e, i) => {
+    if (e.type === "turn") lastTurn[e.seat] = i;
+  });
+  let round = 0;
+  for (let i = 0; i <= idx; i++) {
+    const e = run8.events[i];
+    if (!e) continue;
+    if (e.type === "spawn") {
+      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
+      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
+    } else round = e.round;
+  }
+  const cur = idx >= 0 ? run8.events[idx] : void 0;
+  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
+  const closed = /* @__PURE__ */ new Set();
+  run8.seats.forEach((_2, s2) => {
+    const last = lastTurn[s2] ?? -1;
+    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
+  });
+  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
+}
+function narration(run8, frame2) {
+  const m2 = moment(run8, frame2);
+  const nm = (i) => run8.seats[i]?.name ?? "?";
+  const helpers = run8.events.filter((e) => e.type === "spawn").length;
+  if (frame2.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
+  if (m2.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
+  const cur = run8.events[m2.idx];
+  if (!cur) return "The council takes its seats";
+  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
+  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
+  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
+  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
+}
+function closedSeats(run8, frame2) {
+  return moment(run8, frame2).closed;
+}
+var n22 = (v) => (Math.round(v * 10) / 10).toString();
+var esc = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function tag2(name, attrs, kids = "") {
+  let a2 = "";
+  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n22(v) : esc(v)}"`;
+  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
+}
+var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
+var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
+var toHex = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+var mix = (a2, b, t) => {
+  const x = hex(a2), y = hex(b);
+  return toHex(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
+};
+var D = Math.PI / 180;
+var KEY = 225 * D;
+function lit(phi, tilt, az) {
+  const el = 52 * D;
+  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
+}
+var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
+var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
+var pts = (p3) => p3.map(([x, y]) => `${n22(x)},${n22(y)}`).join(" ");
+function brilliant(cx, cy, r) {
+  const f2 = [];
+  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
+  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
+  const g = (deg) => at(cx, cy, r, deg * D);
+  f2.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
+  for (let k = 0; k < 8; k++) {
+    const a2 = 22.5 + 45 * k;
+    f2.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
+    f2.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
+    f2.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
+    f2.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
+  }
+  return f2;
+}
+function gem(id2, kind, cx, cy, r, opts = {}) {
+  const m2 = MINERAL[kind];
+  const glint = opts.glint ?? null;
+  const g = glint ?? 0.5;
+  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
+  const az = KEY + (g - 0.5) * 70 * D;
+  const hl = at(cx, cy, r * 0.42, az);
+  const far = at(cx, cy, r * 0.38, az + Math.PI);
+  const op = opts.dim ? 0.55 : void 0;
+  if (opts.low) {
+    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m2.base, "fill-opacity": 0.16, stroke: m2.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m2.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id2}b)` });
+    return tag2(
+      "g",
+      { opacity: op },
+      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id2}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m2.light) + stop(0.45, m2.base) + stop(1, m2.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
+    );
+  }
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let defs = tag2("clipPath", { id: `${id2}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id2}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m2.glow, 0.75 + 0.2 * shine) + stop(1, m2.glow, 0)) + tag2("radialGradient", { id: `${id2}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m2.light) + stop(0.42, m2.base) + stop(1, m2.deep)) + tag2("radialGradient", { id: `${id2}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id2}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
+  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id2}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
+  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id2}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
+  let body = tag2("circle", { cx, cy, r, fill: m2.base });
+  if (m2.cut === "brilliant") {
+    body += brilliant(cx, cy, r).map((f2, k) => {
+      const b = Math.min(1, lit(f2.phi, f2.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
+      let fill = mix(m2.deep, m2.base, b * 1.35);
+      if (b > 0.72) fill = mix(fill, m2.light, (b - 0.72) * 3 + shine * 0.25);
+      return tag2("path", { d: `M ${pts(f2.p).replace(/ /g, " L ")} Z`, fill, stroke: m2.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
+    }).join("");
+    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
+    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n22(cx + r * 0.18)} ${n22(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
+    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
+    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
+  } else {
+    body += tag2("circle", { cx, cy, r, fill: `url(#${id2}d)` });
+    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
+      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
+      const distance = Math.hypot(bx - cx, by - cy);
+      const angle = Math.atan2(cy - by, cx - bx);
+      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
+      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
+      return tag2("path", {
+        d: `M ${pts([start])} A ${n22(radius)} ${n22(radius)} 0 0 1 ${pts([end])}`,
+        fill: "none",
+        stroke: k % 2 ? "#0c3a26" : "#5cc893",
+        "stroke-opacity": k % 2 ? 0.75 : 0.45,
+        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
+      });
+    }).join("");
+    if (kind === "labradorite") body += tag2("ellipse", {
+      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
+      cy: cy + r * 0.05,
+      rx: r * 0.95,
+      ry: r * 0.42,
+      transform: `rotate(${n22(-32 + (g - 0.5) * 50)} ${n22(cx)} ${n22(cy)})`,
+      fill: `url(#${id2}f)`,
+      "fill-opacity": 0.5 + 0.45 * shine
+    });
+    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id2}a)`, "fill-opacity": 0.55 + 0.4 * shine });
+    if (kind === "lapis") {
+      body += tag2("path", { d: `M ${n22(cx - r)} ${n22(cy + r * 0.35)} Q ${n22(cx - r * 0.1)} ${n22(cy + r * 0.05)} ${n22(cx + r)} ${n22(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
+      for (let k = 0; k < 14; k++) {
+        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
+        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
+      }
+    }
+  }
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id2}s)`, "fill-opacity": m2.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
+  body += tag2("circle", { cx, cy, r, fill: `url(#${id2}r)` });
+  const [hx, hy] = hl;
+  body += m2.cut === "brilliant" ? tag2("path", {
+    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n22(hx + r * dx)} ${n22(hy + r * dy)}`).join(" ") + " Z",
+    fill: "#ffffff",
+    "fill-opacity": 0.55 + 0.45 * shine
+  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n22(az / D + 90)} ${n22(hx)} ${n22(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
+  return tag2(
+    "g",
+    { opacity: op },
+    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id2}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id2}c)` }, body)
+  );
+}
+function swatchSvg(kind, size) {
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
+}
+var STARS = (() => {
+  let seed = 11;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
+})();
+function instrumentSvg(run8, frame2, size = 480) {
+  const m2 = moment(run8, frame2);
+  const c = size / 2;
+  const orbit = size * 0.335;
+  const R = Math.max(18, size * 0.064);
+  const table3 = orbit + R + size * 0.06;
+  const ringMin = size * 0.085;
+  const ringMax = orbit - R * 0.35;
+  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
+  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
+  const n3 = run8.seats.length;
+  const pos = run8.seats.map((_2, i) => {
+    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
+    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
+  });
+  const t = frame2.t ?? 0;
+  const cur = m2.idx >= 0 ? run8.events[m2.idx] : void 0;
+  const user = { gradientUnits: "userSpaceOnUse" };
+  let s2 = tag2(
+    "defs",
+    {},
+    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
+  );
+  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
+  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
+  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
+  for (let i = 0; i < 72; i++) {
+    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
+    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
+  }
+  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
+  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
+  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
+  for (let i = 0; i < run8.rounds; i++) {
+    const r = ringR(i);
+    const now = m2.running && m2.round === i + 1;
+    const past = frame2.t !== null && (m2.round > i + 1 || m2.done);
+    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
+    if (ringGap >= 12 || i % 2 === 1 || now) {
+      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
+      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
+    }
+  }
+  if (m2.speaking >= 0 && cur?.type === "turn") {
+    const p3 = pos[m2.speaking];
+    const k = ease(m2.since / THREAD_MS);
+    const targets = cur.cites.filter((j) => j !== m2.speaking);
+    if (p3 && !targets.length) {
+      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
+    }
+    for (const j of targets) {
+      const q2 = pos[j];
+      if (!p3 || !q2) continue;
+      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
+      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
+      s2 += tag2("path", { d: `M ${n22(p3.x)} ${n22(p3.y)} Q ${n22(mx)} ${n22(my)} ${n22(q2.x)} ${n22(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n22(len)} ${n22(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
+      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
+    }
+  }
+  if (m2.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
+  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
+  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
+  run8.seats.forEach((seat, i) => {
+    const p3 = pos[i];
+    if (!p3) return;
+    const talk = m2.speaking === i;
+    const crew = seat.crew;
+    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
+    crew.forEach((stone, k) => {
+      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
+      const on = frame2.t === null || k < (m2.lit[i] ?? 0);
+      const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
+      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
+      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
+    });
+    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
+    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m2.since / TURN_MS) : null, dim: m2.running && !talk });
+    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
+    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc(seat.name));
+    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc(MINERAL[seat.mineral].label.toUpperCase()));
+  });
+  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
+}
+
+// ../glide/frontend/lanesPopup.ts
+var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
+var CLOSE_ID = 2;
+var PICK_BASE = 100;
+var PICK_STRIDE = 32;
+var APP = "glide";
+var ROLE_ORDER2 = ["fast", "small", "large", "council"];
+function fileBindings(path2 = process.env[BINDINGS_ENV] || join3(homedir3(), ".config/glide/lane-bindings.json")) {
+  const get = () => {
+    try {
+      const v = JSON.parse(readFileSync3(path2, "utf8"));
+      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
+    } catch {
+      return {};
+    }
+  };
+  return {
+    where: path2,
+    get,
+    set: (role, model) => {
+      mkdirSync(dirname(path2), { recursive: true });
+      writeFileSync(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
+    }
+  };
+}
+var DOT = {
+  idle: NIGHT.text3,
+  thinking: NIGHT.strong,
+  answered: NIGHT.action,
+  verified: NIGHT.agree,
+  corrected: NIGHT.muted,
+  dead: NIGHT.danger
+};
+var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
+var laneChoices = (lane, bound2) => roleChoices(lane.role, [lane.model, bound2[lane.role] ?? ""]).slice(0, PICK_STRIDE);
+var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
+var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
+var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
+var ROLES_SHOWN = ["fast", "small", "large", "council"];
+var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
+var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
+var BILL_SHORT = { free: "FREE", subscription: "SUB", paid: "PAID", unknown: "?" };
+var BILL_TONE = { free: NIGHT.agree, subscription: NIGHT.text2, paid: NIGHT.danger, unknown: NIGHT.text3 };
+function lanesCard(src, bound2, where, roles, focus) {
+  let next2 = 10;
+  const text18 = (value) => ({ t: "text", text: value });
+  const el = (tag3, style2, kids, opts = {}) => ({
+    t: "el",
+    tag: tag3,
+    id: opts.id ?? next2++,
+    cls: "",
+    style: style2,
+    attrs: opts.attrs ?? {},
+    click: opts.id !== void 0,
+    kids
+  });
+  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
+  const dot = (hue, size = 8) => el("span", `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, []);
+  const swatch = (role, hue) => el("span", `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)]);
+  const pips = (effort2) => el("span", "display:flex;align-items:center;gap:2px", [0, 1, 2, 3].map((i) => el("span", `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort2].orbits ? EFFORTS[effort2].accent : NIGHT.faint}`, [])));
+  const badge = (kids, color2, border, attrs = {}) => el("span", `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color2}`, kids, { attrs });
+  const lanes2 = sortLanes(src.call?.lanes ?? []);
+  const live = Boolean(src.call?.open && lanes2.length);
+  const dead = lanes2.filter((l) => l.state === "dead").length;
+  const status = live ? "LIVE CALL" : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
+  const ready = lanes2.length - dead;
+  const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
+  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
+    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
+      el("span", `${micro};letter-spacing:2px`, [text18("LANE BROKER")]),
+      el(
+        "span",
+        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
+        [text18(status)],
+        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {} } }
+      )
+    ]),
+    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text18("Helper lanes")]),
+    el(
+      "span",
+      `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`,
+      [text18(summary4)],
+      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } }
+    )
+  ]);
+  const rows = lanes2.map((lane, i) => {
+    const binding = bound2[lane.role];
+    const current = binding ?? lane.model;
+    const info = laneModel(current, binding ? null : lane.resolved, roles);
+    const hue = PROVIDERS[info.provider].hue;
+    const isDead = lane.state === "dead";
+    const waiting5 = !live && lane.state === "idle";
+    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
+    const id2 = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
+    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
+    const badges = [
+      badge([dot(hue, 6), text18(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` }),
+      badge([text18(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` }),
+      badge([pips(info.effort), text18(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { "data-lane-effort": `${lane.role}=${info.effort}`, title: "effort: orbit pips, as in the zerOS agent-core key" }),
+      badge([text18(info.route === "local" ? "ON DEVICE" : "CLOUD")], NIGHT.text2, NIGHT.border, { "data-lane-route": `${lane.role}=${info.route}` }),
+      ...info.via ? [badge([text18("VOICE PLAN")], NIGHT.text2, NIGHT.border)] : [],
+      ...binding && binding !== lane.model ? [badge([text18("BOUND LOCALLY")], NIGHT.strong, rgba("#eccd8c", 0.4), { "data-lane-rebound": lane.role })] : []
+    ];
+    const picked = i === focus;
+    const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : "";
+    return el("div", `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : "") + lift, [
+      el("div", "display:flex;align-items:center;gap:9px", [
+        swatch(lane.role, hue),
+        el("span", `font-family:${SERIF};font-size:19px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text18(lane.role)]),
+        el("span", `font-size:13.5px;color:${NIGHT.text}`, [text18(info.label)], { attrs: { title: [id2, info.note].filter(Boolean).join(" \xB7 "), "data-lane-model": `${lane.role}=${current}` } }),
+        el("span", `margin-left:auto;display:flex;align-items:center;gap:6px;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [
+          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+          text18(waiting5 ? "READY" : lane.state.toUpperCase())
+        ]),
+        ...picked ? [el("span", `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text18("SELECTED")], { attrs: { "data-lane-focus": lane.role } })] : []
+      ]),
+      el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:23px", badges),
+      ...line ? [el("span", `padding-left:23px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text18(line)], { attrs: { "data-lane-line": lane.role } })] : [],
+      el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:23px", [
+        el("span", `${micro};font-size:8.5px`, [text18("REBIND")]),
+        ...laneChoices(lane, bound2).map((m2, j) => {
+          const on = current === m2;
+          const c = laneModel(m2, null, roles);
+          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
+          const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
+          const label = twin ? `${short} \xB7 plan` : short;
+          return el(
+            "button",
+            `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
+            [
+              dot(PROVIDERS[c.provider].hue, 6),
+              el("span", `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text18(label)]),
+              el("span", `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text18(BILL_SHORT[c.billing])])
+            ],
+            { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m2}`, title: [c.via ? `${c.via} \u2192 ${c.target ?? "unresolved"}` : m2, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(" \xB7 "), ...on ? { "data-lane-bound": "true" } : {} } }
+          );
+        })
+      ])
+    ]);
+  });
+  const keyRow = (title2, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
+    el("span", `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text18(title2)]),
+    ...items
+  ]);
+  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark2, text18(label)]);
+  const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, []);
+  const legend = el("div", `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+    el("div", "display:flex;align-items:center;justify-content:space-between", [
+      el("span", `${micro};letter-spacing:2px`, [text18("KEY")]),
+      el("span", `font-size:11px;color:${NIGHT.text2}`, [text18("hue = provider \xB7 pips = effort \xB7 ring = role")])
+    ]),
+    keyRow("PROVIDER", PROVIDERS_SHOWN.map((p3) => item3(dot(PROVIDERS[p3].hue), PROVIDERS[p3].label))),
+    keyRow("EFFORT", EFFORTS_SHOWN.map((e) => item3(pips(e), EFFORTS[e].label))),
+    keyRow("ORBIT", [...ROLES_SHOWN.map((r) => item3(ringMark(r), `${r} ${lanePeriod(r)} s`)), item3(dot(NIGHT.text2, 7), "one dot per lane")]),
+    keyRow("BILLING", [item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text18("FREE")]), "local or free tier"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text18("SUB")]), "subscription"), item3(el("span", `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text18("PAID")]), "metered")])
+  ], { attrs: { "data-lanes-legend": "true" } });
+  const close = el(
+    "button",
+    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+    [el("span", `color:${NIGHT.text2};font-size:13px`, [text18("Close")])],
+    { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
+  );
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+    header,
+    el("div", "display:flex;flex-direction:column", rows),
+    legend,
+    el("div", "display:flex;justify-content:flex-end", [close])
+  ])]);
+}
+function openLanesPopup(host, feed, bindings = fileBindings(), focus) {
+  const eui = host.eui;
+  if (!eui) {
+    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
+    return void 0;
+  }
+  const source2 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token." };
+  const overlay2 = {
+    key: "glide-lanes",
+    modal: true,
+    focus: () => null,
+    node: (id2) => {
+      const src = source2();
+      const bound2 = bindings.get();
+      const lanes2 = sortLanes(src.call?.lanes ?? []);
+      const view = {
+        spec: { kind: "lanes", app: APP },
+        app: APP,
+        label: "Voice lanes",
+        identity: "lanes",
+        node: lanesCard(src, bound2, bindings.where, void 0, focus),
+        activate: (n3) => {
+          if (n3 === CLOSE_ID) return host.close(overlay2);
+          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
+          const model = lane && laneChoices(lane, bound2)[(n3 - PICK_BASE) % PICK_STRIDE];
+          if (n3 < PICK_BASE || !lane || !model) return;
+          try {
+            bindings.set(lane.role, model);
+          } catch (e) {
+            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
+          }
+          host.changed();
+        }
+      };
+      return euiPopupNode(nativeOverlayKey(id2), "Voice lanes", view, eui);
+    },
+    onKey: (key3) => {
+      if (key3.name === "escape") host.close(overlay2);
+      return true;
+    }
+  };
+  host.open(overlay2);
+  return overlay2;
+}
+
+// ../glide/frontend/wal.ts
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, watch, writeFileSync as writeFileSync2 } from "node:fs";
+import { homedir as homedir4 } from "node:os";
+import { basename as basename2, dirname as dirname2, join as join4 } from "node:path";
+
+// node_modules/@hermes/shared/src/color.ts
+var HEX6_RE = /^#?([0-9a-f]{6})$/i;
+var HEX3_RE = /^#?([0-9a-f]{3})$/i;
+var RGB_FN_RE = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i;
+var clampChannel = (v) => Math.max(0, Math.min(255, Math.round(v)));
+function parseColor(input2) {
+  const value = input2.trim();
+  let m2 = HEX6_RE.exec(value);
+  if (m2) {
+    const n3 = parseInt(m2[1], 16);
+    return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255];
+  }
+  m2 = HEX3_RE.exec(value);
+  if (m2) {
+    const [r, g, b] = m2[1];
+    return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
+  }
+  m2 = RGB_FN_RE.exec(value);
+  if (m2) {
+    return [clampChannel(Number(m2[1])), clampChannel(Number(m2[2])), clampChannel(Number(m2[3]))];
+  }
+  return null;
+}
+var toHex2 = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
+function mix2(a2, b, t) {
+  const pa = parseColor(a2);
+  const pb = parseColor(b);
+  if (!pa || !pb) {
+    return a2;
+  }
+  return toHex2([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
+}
+function channelLuminance(value) {
+  const normalized = value / 255;
+  return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+}
+function relativeLuminance(color2) {
+  const rgb = parseColor(color2);
+  return rgb ? 0.2126 * channelLuminance(rgb[0]) + 0.7152 * channelLuminance(rgb[1]) + 0.0722 * channelLuminance(rgb[2]) : null;
+}
+function contrastRatio(a2, b) {
+  const la = relativeLuminance(a2);
+  const lb = relativeLuminance(b);
+  if (la === null || lb === null) {
+    return null;
+  }
+  const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+var DEFAULT_INKS = ["#000000", "#ffffff"];
+function readableOn(bg, inks = DEFAULT_INKS) {
+  let best = inks[inks.length - 1];
+  let bestRatio = -1;
+  for (const ink2 of inks) {
+    const ratio = contrastRatio(bg, ink2);
+    if (ratio !== null && ratio >= bestRatio) {
+      best = ink2;
+      bestRatio = ratio;
+    }
+  }
+  return best;
+}
+function ensureContrast(color2, bg, min, step = 0.2) {
+  const bgLuminance = relativeLuminance(bg);
+  if (bgLuminance === null || parseColor(color2) === null) {
+    return color2;
+  }
+  const ratio = contrastRatio(color2, bg);
+  if (ratio === null || ratio >= min) {
+    return color2;
+  }
+  const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
+  let best = color2;
+  const rung = Number.isFinite(step) && step >= 1e-3 ? Math.min(step, 1) : 0.2;
+  for (let amount = rung; amount <= 1.0001; amount += rung) {
+    best = mix2(color2, pole, Math.min(amount, 1));
+    const stepRatio = contrastRatio(best, bg);
+    if (stepRatio !== null && stepRatio >= min) {
+      return best;
+    }
+  }
+  return best;
+}
+
+// src/hermes/theme.ts
+var SEEDS = {
+  dark: { accent: "#FFBF00", bg: "#101014", error: "#ef5350", ok: "#4caf50", warn: "#ffa726" },
+  light: { accent: "#956E00", bg: "#ffffff", error: "#C14240", ok: "#367E39", warn: "#956115" }
+};
+var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
+var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
+function background(raw2) {
+  const value = (raw2 ?? "").trim();
+  const hex2 = value.startsWith("#") ? value : `#${value}`;
+  return value && relativeLuminance(hex2) !== null ? hex2 : void 0;
+}
+function skinColors(colors, polarity) {
+  const seeds = SEEDS[polarity];
+  const bg = background(colors["background"]) ?? seeds.bg;
+  const lift = (color2, floor) => ensureContrast(color2, bg, floor);
+  return {
+    accent: lift(colors["ui_accent"] ?? colors["banner_accent"] ?? seeds.accent, ACCENT_FLOOR[polarity]),
+    error: lift(colors["ui_error"] ?? seeds.error, STATUS_FLOOR[polarity]),
+    ok: lift(colors["ui_ok"] ?? seeds.ok, STATUS_FLOOR[polarity]),
+    warn: lift(colors["ui_warn"] ?? seeds.warn, STATUS_FLOOR[polarity])
+  };
+}
+
+// ../glide/frontend/glass.ts
+var HEX = /^#[0-9a-f]{6}$/i;
+function hsl(hex2) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  const l = (max + min) / 2;
+  if (d === 0) return { h: 0, s: 0, l };
+  const s2 = d / (1 - Math.abs(2 * l - 1));
+  const h2 = max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: (h2 * 60 + 360) % 360, s: s2, l };
+}
+function pickGlow(wal, accent) {
+  if (!HEX.test(accent)) return accent;
+  const a2 = hsl(accent);
+  let best = accent;
+  let top = 0;
+  for (let i = 1; i <= 6; i++) {
+    const c = wal.colors[`color${i}`] ?? "";
+    if (!HEX.test(c)) continue;
+    const { h: h2, s: s2, l } = hsl(c);
+    const apart = Math.min(Math.abs(h2 - a2.h), 360 - Math.abs(h2 - a2.h));
+    const score = apart * s2 * l;
+    if (score > top) {
+      best = c;
+      top = score;
+    }
+  }
+  return best;
+}
+function glassCss(p3) {
+  const shade = mix2(p3.bg, "#000000", 0.7);
+  const vars = `--g-a: ${p3.accent}; --g-b: ${p3.glow}; --g-shade: ${shade}; --g-glass: ${p3.bg}; --g-ease: cubic-bezier(.2, .7, .2, 1)`;
+  const a2 = (pct2) => `color-mix(in srgb, var(--g-a) ${pct2}%, transparent)`;
+  const b = (pct2) => `color-mix(in srgb, var(--g-b) ${pct2}%, transparent)`;
+  const glass = (pct2) => `color-mix(in srgb, var(--g-glass) ${pct2}%, transparent)`;
+  const shadow = (pct2) => `color-mix(in srgb, var(--g-shade) ${pct2}%, transparent)`;
+  const hi = (pct2) => `color-mix(in srgb, var(--t1) ${pct2}%, transparent)`;
+  const rim = `linear-gradient(180deg, var(--g-a), ${a2(70)} 30%, ${b(70)} 62%, var(--g-b))`;
+  const mask = "-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude";
+  const mote = (size, x, y, c) => `radial-gradient(${size * 2}px ${size * 2}px at ${x}% ${y}%, ${c}, ${c} 25%, transparent 70%)`;
+  const motes = [
+    mote(3, 4, 12, "var(--g-a)"),
+    mote(2.5, 96, 8, "var(--g-b)"),
+    mote(3.5, 2, 58, b(80)),
+    mote(3, 98, 46, a2(90)),
+    mote(2.5, 6, 92, a2(80)),
+    mote(3, 94, 88, b(85)),
+    mote(2, 12, 34, a2(70)),
+    mote(2.5, 89, 26, b(75)),
+    mote(2, 9, 74, b(70)),
+    mote(2, 91, 66, a2(70)),
+    mote(1.5, 7, 4, b(60)),
+    mote(1.5, 93, 97, a2(60)),
+    mote(2, 3, 40, a2(55)),
+    mote(2, 97, 30, b(55))
+  ].join(", ");
+  const sparks = [mote(2.5, 28, 2, "var(--g-a)"), mote(2, 74, 2, "var(--g-a)"), mote(2.5, 99, 46, "var(--g-b)"), mote(2, 62, 98, "var(--g-b)"), mote(1.5, 1, 64, "var(--g-b)")].join(", ");
+  const k = "[data-eui][data-eui='card']";
+  const card = `${k} .eu-card`;
+  const editor = ".sf-col[data-role^='omp.editor']";
+  return `
+.sf, [data-eui='card'] { ${vars}; }
+${k}:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }
+${k}:not([data-eui-popup])::before { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: ${motes}; opacity: .85; animation: glide-drift 40s steps(200) infinite alternate, glide-twinkle 6s steps(24) infinite alternate; }
+@keyframes glide-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -26px); } }
+@keyframes glide-twinkle { from { opacity: .45; } to { opacity: .95; } }
+${card} { background: ${glass(40)}; -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); border-color: transparent; border-radius: 16px; box-shadow: 0 22px 48px -26px ${shadow(90)}, 0 0 34px -12px ${b(60)}, 0 0 64px -28px ${a2(55)}, inset 0 1px 0 ${hi(8)}; transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }
+${card}::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: ${rim}; ${mask}; opacity: .7; transition: opacity .2s var(--g-ease); }
+${card}::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; z-index: 2; background: ${sparks}; opacity: 0; transform: translateY(4px); transition: opacity .25s var(--g-ease), transform .25s var(--g-ease); }
+${card}:hover { transform: translateY(-1px); box-shadow: 0 28px 60px -24px ${shadow(95)}, 0 0 52px -8px ${b(80)}, 0 0 90px -22px ${a2(75)}, inset 0 1px 0 ${hi(10)}; }
+${card}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
+${card}:hover::before { opacity: 1; transform: translateY(0); }
+@keyframes glide-shimmer { from { opacity: .85; } to { opacity: 1; } }
+${k} .ih-hero { background: linear-gradient(180deg, ${hi(5)}, transparent), ${glass(26)}; border-color: ${a2(22)}; transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }
+${k} .ih-hero:hover { border-color: ${b(45)}; box-shadow: 0 0 22px -12px ${b(70)}, inset 0 1px 0 ${hi(9)}; }
+${k} .ih-lane, ${k} .ih-flow, ${k} .ih-host, ${k} .ih-gate, ${k} .ih-budget { background: ${glass(24)}; border-color: ${a2(26)}; transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }
+${k} .ih-sample { background: ${glass(45)}; border-color: ${a2(45)}; color: var(--g-a); }
+${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover { transform: translateY(-1px); border-color: ${a2(60)}; box-shadow: 0 0 14px -6px ${a2(60)}; }
+${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }
+${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a2(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a2(55)}; }
+${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
+${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
+${k} .ih-l-council .ih-lrole b { color: var(--g-b); }
+${k} .ih-flowlink.ih-gated { background: var(--g-b); }
+${k} .eu-btn { background: ${glass(45)}; border-color: ${a2(30)}; }
+${k} .eu-btn:hover { border-color: ${a2(70)}; box-shadow: 0 0 16px -6px ${a2(70)}; transform: translateY(-1px); }
+${k} .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }
+${editor} { background: ${glass(78)} !important; -webkit-backdrop-filter: blur(24px) saturate(150%) !important; backdrop-filter: blur(24px) saturate(150%) !important; box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 36px -12px ${b(65)}, 0 0 64px -28px ${a2(50)}, inset 0 1px 0 ${hi(8)} !important; transition: box-shadow .22s var(--g-ease); }
+${editor}::after { background: ${rim} !important; opacity: .9; transition: opacity .22s var(--g-ease); }
+${editor}:hover { box-shadow: 0 24px 56px -22px ${shadow(95)}, 0 0 38px -10px ${b(75)}, 0 0 20px -8px ${a2(60)}, inset 0 1px 0 ${hi(10)} !important; }
+${editor}:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }
+.hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }
+.hermes-press:hover { background-color: ${a2(16)}; box-shadow: 0 0 14px -6px ${a2(70)}; }
+@media (prefers-reduced-motion: reduce) {
+  ${k}:not([data-eui-popup])::before, ${card}:hover::after, ${editor}:hover::after { animation: none; }
+  ${card}:hover, ${k} .ih-lane:hover, ${k} .ih-host:hover, ${k} .ih-gate:hover, ${k} .ih-budget:hover, ${k} .ih-key:hover, ${k} .eu-chip:hover, ${k} .eu-btn:hover { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  ${card} { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  ${editor} { background: var(--card) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+`;
+}
+
+// ../glide/frontend/wal.ts
+var TEXT_FLOOR = 4.5;
+var WAL_SHEET = "glide-auto-theme";
+var HEX2 = /^#[0-9a-f]{6}$/i;
+function walFile(env2 = process.env) {
+  return env2["GLIDE_WAL_COLORS"] || join4(env2["XDG_CACHE_HOME"] || join4(homedir4(), ".cache"), "wal", "colors.json");
+}
+function exportFile(env2 = process.env) {
+  return env2["GLIDE_THEME_EXPORT"] || join4(env2["XDG_CACHE_HOME"] || join4(homedir4(), ".cache"), "glide", "theme.json");
+}
+function readWal(file2) {
+  let text18;
+  try {
+    text18 = readFileSync4(file2, "utf8");
+  } catch {
+    return void 0;
+  }
+  const raw2 = record(parseJson(text18));
+  const special = record(raw2?.["special"]);
+  const palette = record(raw2?.["colors"]);
+  const background2 = special?.["background"];
+  const foreground = special?.["foreground"];
+  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX2.test(background2) || !HEX2.test(foreground) || !palette) {
+    return void 0;
+  }
+  const colors = {};
+  for (const [k, v] of Object.entries(palette)) {
+    if (typeof v === "string") colors[k] = v;
+  }
+  return { special: { background: background2, foreground }, colors };
+}
+function saturation(hex2) {
+  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+  const [r, g, b] = [channel(1), channel(3), channel(5)];
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
+}
+function pickAccent(wal) {
+  let best = wal.special.foreground;
+  let top = -1;
+  for (let i = 1; i <= 6; i++) {
+    const c = wal.colors[`color${i}`] ?? "";
+    if (HEX2.test(c) && saturation(c) > top) {
+      best = c;
+      top = saturation(c);
+    }
+  }
+  return best;
+}
+function walPalette(wal, source2 = "") {
+  const bg = wal.special.background;
+  const text18 = (c, fallback) => {
+    const lifted = ensureContrast(c && HEX2.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
+    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
+  };
+  const fg = text18(wal.special.foreground, wal.special.foreground);
+  const accent = text18(pickAccent(wal), fg);
+  return {
+    source: source2,
+    dark: (relativeLuminance(bg) ?? 0) < 0.5,
+    bg,
+    fg,
+    accent,
+    accentInk: readableOn(accent),
+    glow: text18(pickGlow(wal, accent), accent),
+    muted: text18(wal.colors["color7"], fg),
+    dim: text18(wal.colors["color8"], fg),
+    error: text18(wal.colors["color1"], fg),
+    success: text18(wal.colors["color2"], fg),
+    warning: text18(wal.colors["color3"], fg),
+    selectedBg: mix2(bg, accent, 0.18),
+    layers: [mix2(bg, fg, 0.06), mix2(bg, fg, 0.12), mix2(bg, fg, 0.2)]
+  };
+}
+function walTernPalette(p3) {
+  const tokens2 = {
+    accent: p3.accent,
+    borderAccent: p3.accent,
+    dim: p3.dim,
+    error: p3.error,
+    mdLink: p3.accent,
+    mdListBullet: p3.accent,
+    muted: p3.muted,
+    selectedBg: p3.selectedBg,
+    statusLineModel: p3.accent,
+    statusLinePath: p3.muted,
+    success: p3.success,
+    text: p3.fg,
+    warning: p3.warning
+  };
+  return { dark: tokens2, light: tokens2, name: { dark: "auto", light: "auto" } };
+}
+function walCss(p3) {
+  const [l1, l2, l3] = p3.layers;
+  const vars = [
+    `--accent: ${p3.accent}`,
+    `--sf-p-accent: ${p3.accent}`,
+    `--accent-ink: ${p3.accentInk}`,
+    `--text: ${p3.fg}`,
+    `--muted: ${p3.muted}`,
+    `--t1: ${p3.fg}`,
+    `--t2: ${p3.muted}`,
+    `--t3: ${p3.dim}`,
+    `--l1: ${l1}`,
+    `--l2: ${l2}`,
+    `--l3: ${l3}`,
+    `--card: ${l1}`,
+    `--raise: ${l1}`,
+    `--panel: ${p3.bg}`,
+    `--sf-c-error: ${p3.error}`
+  ];
+  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
+.sf { ${vars.join("; ")}; }
+[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
+${glassCss(p3)}`;
+}
+function exportPalette(p3, file2 = exportFile()) {
+  mkdirSync2(dirname2(file2), { recursive: true });
+  writeFileSync2(file2, `${JSON.stringify(p3, null, 2)}
+`);
+  return file2;
+}
+function watchWal(file2, changed, debounceMs = 50) {
+  let timer;
+  let watcher;
+  try {
+    watcher = watch(dirname2(file2), (_event, name) => {
+      if (name && name.toString() !== basename2(file2)) return;
+      clearTimeout(timer);
+      timer = setTimeout(changed, debounceMs);
+    });
+    watcher.on("error", () => watcher?.close());
+  } catch {
+    watcher = void 0;
+  }
+  return () => {
+    clearTimeout(timer);
+    watcher?.close();
+  };
+}
+
+// ../glide/frontend/taste.ts
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+function tasteBoard(raw2) {
+  const value = record(raw2);
+  const url = value?.["url"];
+  const title2 = value?.["title"];
+  if (typeof url !== "string" || typeof title2 !== "string") {
+    throw new Error("Invalid Taste Atlas board reply");
+  }
+  const parsed2 = new URL(url);
+  if (parsed2.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsed2.hostname) || parsed2.username || parsed2.password || parsed2.search || parsed2.hash || !/^\/(?:boards|s\/[a-z0-9-]{4,40}\/)$/.test(parsed2.pathname)) {
+    throw new Error("Taste Atlas requires a loopback board URL");
+  }
+  return { url, title: title2 };
+}
+async function openTastePane(board) {
+  const owner2 = process.env["TERN_PANE"] ?? "";
+  if (!/^[1-9][0-9]*$/.test(owner2) || !Number.isSafeInteger(Number(owner2))) {
+    throw new Error("Taste pane needs a local Tern pane. Open the board URL in your browser instead.");
+  }
+  const { stdout } = await promisify(execFile)("tern", ["browser", JSON.stringify({
+    op: "open",
+    owner: Number(owner2),
+    url: board.url,
+    how: "beside"
+  }), "--timeout", "15"], { timeout: 2e4, shell: false });
+  const result = record(record(stdout)?.["ok"]);
+  const block = result?.["block"];
+  if (typeof block !== "number" || !Number.isSafeInteger(block) || block <= 0) {
+    throw new Error("Tern did not confirm opening the Taste pane");
+  }
+  return block;
+}
 
 // node_modules/zod/v4/core/core.js
 var _a;
@@ -24292,10 +25814,10 @@ function cached(getter) {
 function nullish(input2) {
   return input2 === null || input2 === void 0;
 }
-function cleanRegex(source3) {
-  const start = source3.startsWith("^") ? 1 : 0;
-  const end = source3.endsWith("$") ? source3.length - 1 : source3.length;
-  return source3.slice(start, end);
+function cleanRegex(source2) {
+  const start = source2.startsWith("^") ? 1 : 0;
+  const end = source2.endsWith("$") ? source2.length - 1 : source2.length;
+  return source2.slice(start, end);
 }
 var EVALUATING = /* @__PURE__ */ Symbol("evaluating");
 function defineLazy(object2, key3, getter) {
@@ -25188,6 +26710,73 @@ var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
     });
   };
 });
+var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
+  def.inclusive = false;
+  $ZodUnion.init(inst, def);
+  const _super = inst._zod.parse;
+  defineLazy(inst._zod, "propValues", () => {
+    const propValues = {};
+    for (const option of def.options) {
+      const pv = option._zod.propValues;
+      if (!pv || Object.keys(pv).length === 0)
+        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
+      for (const [k, v] of Object.entries(pv)) {
+        if (!propValues[k])
+          propValues[k] = /* @__PURE__ */ new Set();
+        for (const val of v) {
+          propValues[k].add(val);
+        }
+      }
+    }
+    return propValues;
+  });
+  const disc = cached(() => {
+    const opts = def.options;
+    const map4 = /* @__PURE__ */ new Map();
+    for (const o of opts) {
+      const values = o._zod.propValues?.[def.discriminator];
+      if (!values || values.size === 0)
+        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
+      for (const v of values) {
+        if (map4.has(v)) {
+          throw new Error(`Duplicate discriminator value "${String(v)}"`);
+        }
+        map4.set(v, o);
+      }
+    }
+    return map4;
+  });
+  inst._zod.parse = (payload, ctx) => {
+    const input2 = payload.value;
+    if (!isObject(input2)) {
+      payload.issues.push({
+        code: "invalid_type",
+        expected: "object",
+        input: input2,
+        inst
+      });
+      return payload;
+    }
+    const opt = disc.value.get(input2?.[def.discriminator]);
+    if (opt) {
+      return opt._zod.run(payload, ctx);
+    }
+    if (def.unionFallback || ctx.direction === "backward") {
+      return _super(payload, ctx);
+    }
+    payload.issues.push({
+      code: "invalid_union",
+      errors: [],
+      note: "No matching discriminator",
+      discriminator: def.discriminator,
+      options: Array.from(disc.value.keys()),
+      input: input2,
+      path: [def.discriminator],
+      inst
+    });
+    return payload;
+  };
+});
 var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
   $ZodType.init(inst, def);
   const items = def.items;
@@ -25739,7 +27328,7 @@ var ZodMiniNumberFormat = /* @__PURE__ */ $constructor("ZodMiniNumberFormat", (i
   ZodMiniNumber.init(inst, def);
 });
 // @__NO_SIDE_EFFECTS__
-function int(params) {
+function int2(params) {
   return _int(ZodMiniNumberFormat, params);
 }
 var ZodMiniBoolean = /* @__PURE__ */ $constructor("ZodMiniBoolean", (inst, def) => {
@@ -25813,6 +27402,19 @@ function union(options, params) {
     ...normalizeParams(params)
   });
 }
+var ZodMiniDiscriminatedUnion = /* @__PURE__ */ $constructor("ZodMiniDiscriminatedUnion", (inst, def) => {
+  $ZodDiscriminatedUnion.init(inst, def);
+  ZodMiniType.init(inst, def);
+});
+// @__NO_SIDE_EFFECTS__
+function discriminatedUnion(discriminator, options, params) {
+  return new ZodMiniDiscriminatedUnion({
+    type: "union",
+    options,
+    discriminator,
+    ...normalizeParams(params)
+  });
+}
 var ZodMiniTuple = /* @__PURE__ */ $constructor("ZodMiniTuple", (inst, def) => {
   $ZodTuple.init(inst, def);
   ZodMiniType.init(inst, def);
@@ -25834,7 +27436,7 @@ var ZodMiniRecord = /* @__PURE__ */ $constructor("ZodMiniRecord", (inst, def) =>
   ZodMiniType.init(inst, def);
 });
 // @__NO_SIDE_EFFECTS__
-function record(keyType, valueType, params) {
+function record2(keyType, valueType, params) {
   if (!valueType || !valueType._zod) {
     return new ZodMiniRecord({
       type: "record",
@@ -25938,1299 +27540,6 @@ function pipe(in_, out) {
   });
 }
 
-// src/wire/euiHostCard.ts
-var MAX_HOST_CARD_BYTES = 16 * 1024;
-var MAX_HOST_ROWS = 32;
-var text = (max) => string2().check(_minLength(1), _maxLength(max));
-var hostCard = strictObject({
-  kind: string2().check(_regex(/^[a-z][a-z0-9-]{0,39}$/)),
-  app: string2().check(_regex(/^[a-z0-9][a-z0-9.-]{0,63}$/)),
-  title: text(200),
-  summary: optional(text(2048)),
-  rows: array(strictObject({
-    label: text(80),
-    value: union([string2().check(_maxLength(2048)), number2(), boolean2()])
-  })).check(_maxLength(MAX_HOST_ROWS)),
-  approval: optional(strictObject({ label: text(80), description: text(2048) }))
-});
-function decodeEuiHostCard(value, kinds) {
-  const parsed2 = hostCard.safeParse(value);
-  if (!parsed2.success) throw new TypeError("Invalid host card data");
-  const data = parsed2.data;
-  if (!kinds.includes(data.kind)) throw new TypeError("Unknown host card kind");
-  if (data.approval && data.kind !== "approve" && data.kind !== "intent-contract") throw new TypeError("Only approve and intent-contract cards accept an operation");
-  if (!data.title.trim() || data.rows.some((row2) => !row2.label.trim()) || data.approval && (!data.approval.label.trim() || !data.approval.description.trim())) {
-    throw new TypeError("Host card labels and operation descriptions must not be blank");
-  }
-  if (new TextEncoder().encode(JSON.stringify(data)).byteLength > MAX_HOST_CARD_BYTES) {
-    throw new TypeError("Host card exceeds the UTF-8 byte limit");
-  }
-  return Object.freeze({
-    kind: data.kind,
-    app: data.app,
-    title: data.title,
-    rows: Object.freeze(data.rows.map((row2) => Object.freeze({ label: row2.label, value: row2.value }))),
-    ...data.summary === void 0 ? {} : { summary: data.summary },
-    ...data.approval === void 0 ? {} : { approval: Object.freeze({ ...data.approval }) }
-  });
-}
-
-// ../glide/frontend/attentionCards.ts
-var FOCUS_APP = "glide.focus";
-var DIGEST_APP = "glide.digest";
-var WIND_APP = "glide.wind";
-var text2 = (value) => ({ t: "text", text: value });
-var one = (d, label) => String(d.rows.find((r) => r.label === label)?.value ?? "");
-var num2 = (v) => {
-  const n3 = Number(v);
-  return Number.isFinite(n3) && v !== "" ? n3 : void 0;
-};
-var svg = (w, h2, cls, body) => ({ t: "svg", w, h: h2, cls, style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}">${body}</svg>` });
-function ringSvg(left, total) {
-  const s2 = 132, r = 56, c = 2 * Math.PI * r;
-  const frac = left !== void 0 && total ? Math.max(0, Math.min(1, left / total)) : 0;
-  const track2 = `<circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--h-border)" stroke-width="10"${total ? "" : ' stroke-dasharray="4 7"'}/>`;
-  const arc = frac > 0 ? `<circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--h-primary)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(c * frac).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 66 66)"/>` : "";
-  return svg(s2, s2, "ah-ringsvg", track2 + arc);
-}
-function focus(d, el) {
-  const on = one(d, "block") === "on";
-  const left = num2(one(d, "left")), total = num2(one(d, "length"));
-  const held = num2(one(d, "held")) ?? 0;
-  const fact = (k, v) => el("div", [el("small", [text2(k)], "ah-k"), el("b", [text2(v)], "ah-v")], "ah-fact");
-  return el("div", [
-    el("div", [
-      ringSvg(on ? left : void 0, on ? total : void 0),
-      el("div", [
-        el("b", [text2(String(on ? left ?? "\u2014" : total ?? 50))], "ah-big"),
-        el("small", [text2(on ? "min left" : "min block")], "ah-cap")
-      ], "ah-ringlabel")
-    ], "ah-ring"),
-    el("div", [
-      el("div", [el("i", [], on ? "ah-led ah-on" : "ah-led"), text2(on ? `Deep work until ${one(d, "until")}` : `Next deep work ${one(d, "next") || "not learned yet"}`)], "ah-status"),
-      el("div", [fact("phase", one(d, "phase")), fact("flow", one(d, "flow")), fact("bedtime", one(d, "bedtime"))], "ah-facts"),
-      el("span", [text2(on ? `${held} ${held === 1 ? "ask" : "asks"} held for the digest` : "Asks are delivered as they come")], held ? "ah-pill ah-held" : "ah-pill")
-    ], "ah-side")
-  ], `ah-hero ah-focus${on ? " ah-live" : ""}`);
-}
-function digest(d, el) {
-  const items = d.rows.filter((r) => r.label !== "count");
-  const n3 = num2(one(d, "count")) ?? items.length;
-  const top = items[0];
-  const stack = top ? [
-    ...items.slice(1, 4).map((_2, i) => el("div", [], `ah-ask ah-a${i + 1}`)).reverse(),
-    el("div", [
-      el("small", [text2(top.label)], `ah-cls ah-c-${top.label.replace(/[^a-z]/g, "")}`),
-      el("span", [text2(String(top.value))], "ah-title")
-    ], "ah-ask ah-a0")
-  ] : [];
-  return el("div", [
-    el("div", [
-      el("div", stack.length ? stack : [el("div", [el("span", [text2("nothing held")], "ah-title")], "ah-ask ah-empty")], "ah-stack"),
-      el("i", [], "ah-arrow"),
-      el("div", [
-        el("b", [text2(String(n3))], "ah-big"),
-        el("small", [text2(n3 === 1 ? "held ask" : "held asks")], "ah-cap"),
-        el("span", [text2("1 digest")], "ah-pill ah-held")
-      ], n3 ? "ah-tile" : "ah-tile ah-none")
-    ], "ah-collapse"),
-    ...items.length ? [el("ol", items.map((r) => el("li", [
-      el("small", [text2(r.label)], `ah-cls ah-c-${r.label.replace(/[^a-z]/g, "")}`),
-      el("span", [text2(String(r.value))], "ah-title")
-    ], "ah-item")), "ah-list")] : []
-  ], "ah-hero ah-digest");
-}
-var hourOf = (clock4) => {
-  const m = /(\d{1,2}):(\d\d)/.exec(clock4);
-  return m ? Number(m[1]) + Number(m[2]) / 60 : void 0;
-};
-var BAND_W = 480;
-var BAND_X = (h2) => ((h2 - 6) % 24 + 24) % 24 / 24 * BAND_W;
-function daySvg(best, now, stop3, bed) {
-  const parts3 = [`<rect x="0" y="22" width="${BAND_W}" height="16" rx="8" fill="var(--h-border)" opacity="0.55"/>`];
-  if (stop3 !== void 0 && bed !== void 0) {
-    const a2 = BAND_X(stop3), b = BAND_X(bed) || BAND_W;
-    if (b > a2) parts3.push(`<rect x="${a2.toFixed(1)}" y="22" width="${(b - a2).toFixed(1)}" height="16" fill="var(--h-mutedFg)" opacity="0.45"/>`);
-  }
-  for (const [s2, e] of best) {
-    const a2 = BAND_X(s2), b = BAND_X(e) || BAND_W;
-    if (b > a2) parts3.push(`<rect x="${a2.toFixed(1)}" y="20" width="${(b - a2).toFixed(1)}" height="20" rx="4" fill="var(--h-primary)"/>`);
-  }
-  if (bed !== void 0) parts3.push(`<circle cx="${BAND_X(bed).toFixed(1)}" cy="30" r="6" fill="none" stroke="var(--h-fg)" stroke-width="2"/>`);
-  if (now !== void 0) parts3.push(`<rect x="${(BAND_X(now) - 1).toFixed(1)}" y="12" width="2" height="36" fill="var(--h-fg)"/>`);
-  for (const h2 of [6, 12, 18, 0]) parts3.push(`<text x="${(BAND_X(h2) + 2).toFixed(1)}" y="60" font-family="monospace" font-size="13" fill="var(--h-fg)" opacity="0.8">${String(h2).padStart(2, "0")}</text>`);
-  return svg(BAND_W, 64, "ah-daysvg", parts3.join(""));
-}
-function wind(d, el) {
-  const best = one(d, "best").split(",").map((s2) => /(\d+)-(\d+)/.exec(s2)).filter((m) => m !== null).map((m) => [Number(m[1]), Number(m[2])]);
-  const asks = d.rows.filter((r) => r.label === "ask").map((r) => String(r.value));
-  const legend = (cls, label) => el("span", [el("i", [], `ah-sw ${cls}`), text2(label)], "ah-leg");
-  return el("div", [
-    daySvg(best, hourOf(one(d, "now")), num2(one(d, "stop")), hourOf(one(d, "bedtime"))),
-    el("div", [
-      legend("ah-sw-best", "best hours"),
-      legend("ah-sw-wind", "wind-down"),
-      legend("ah-sw-now", `now ${one(d, "now")}`),
-      legend("ah-sw-bed", `bed ${one(d, "bedtime")}`)
-    ], "ah-legend"),
-    el("div", [
-      el("small", [text2("Tomorrow starts here")], "ah-k"),
-      ...asks.length ? asks.map((a2) => el("p", [text2(`\u201C${a2}\u201D`)], "ah-quote")) : [el("p", [text2("Nothing open: tomorrow starts fresh.")], "ah-quote")],
-      el("small", [text2(`first turn quotes this once \xB7 next deep work ${one(d, "next") || "not learned yet"}`)], "ah-cap")
-    ], "ah-note")
-  ], "ah-hero ah-wind");
-}
-function attentionHero(d, el) {
-  return d.app === FOCUS_APP ? focus(d, el) : d.app === DIGEST_APP ? digest(d, el) : d.app === WIND_APP ? wind(d, el) : void 0;
-}
-var ATTENTION_CSS = `
-[data-eui='card'] .ah-hero { position: relative; margin: 0 0 12px; padding: 14px; border: 1px solid var(--h-border); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), var(--h-muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
-[data-eui='card'] .ah-focus { display: flex; align-items: center; gap: 18px; }
-[data-eui='card'] .ah-ring { position: relative; flex: none; width: 132px; height: 132px; }
-[data-eui='card'] .ah-ringsvg { position: absolute; left: 0; top: 0; }
-[data-eui='card'] .ah-ringlabel { position: absolute; left: 0; right: 0; top: 34px; display: flex; flex-direction: column; align-items: center; }
-[data-eui='card'] .ah-big { font-size: 44px; line-height: 48px; font-weight: 600; letter-spacing: -.04em; color: var(--h-primary); }
-[data-eui='card'] .ah-cap { font: 11px/1.4 var(--h-mono); color: var(--h-fg); opacity: .85; }
-[data-eui='card'] .ah-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-[data-eui='card'] .ah-status { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--h-fg); }
-[data-eui='card'] .ah-led { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--h-mutedFg); }
-[data-eui='card'] .ah-led.ah-on { background: var(--h-primary); animation: ah-pulse 1.6s ease-in-out infinite; }
-[data-eui='card'] .ah-facts { display: flex; gap: 6px; }
-[data-eui='card'] .ah-fact { flex: 1 1 0; min-width: 0; padding: 6px 8px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-bg); overflow: hidden; }
-[data-eui='card'] .ah-k { display: block; font: 700 10px/1.3 var(--h-mono); color: var(--h-fg); opacity: .8; text-transform: uppercase; letter-spacing: .08em; }
-[data-eui='card'] .ah-v { display: block; font-size: 13px; line-height: 1.35; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-[data-eui='card'] .ah-pill { align-self: flex-start; font: 600 11px/1.4 var(--h-mono); padding: 2px 10px; border: 1px solid var(--h-border); border-radius: 999px; color: var(--h-fg); }
-[data-eui='card'] .ah-pill.ah-held { border-color: var(--h-primary); color: var(--h-primary); }
-[data-eui='card'] .ah-collapse { display: flex; align-items: center; gap: 12px; }
-[data-eui='card'] .ah-stack { position: relative; flex: 1; min-width: 0; height: 58px; }
-[data-eui='card'] .ah-ask { position: absolute; left: 0; right: 0; display: flex; align-items: center; gap: 8px; height: 34px; box-sizing: border-box; padding: 0 10px; border: 1px solid var(--h-border); border-radius: 8px; background: var(--h-bg); overflow: hidden; animation: ah-fold .9s ease-out both; }
-[data-eui='card'] .ah-a0 { top: 0; box-shadow: 0 6px 14px rgba(0,0,0,.35); }
-[data-eui='card'] .ah-a1 { top: 8px; left: 8px; right: 8px; animation-delay: .08s; }
-[data-eui='card'] .ah-a2 { top: 16px; left: 16px; right: 16px; animation-delay: .16s; }
-[data-eui='card'] .ah-a3 { top: 24px; left: 24px; right: 24px; animation-delay: .24s; }
-[data-eui='card'] .ah-empty { top: 12px; border-style: dashed; }
-[data-eui='card'] .ah-title { flex: 1; min-width: 0; font-size: 13px; color: var(--h-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-[data-eui='card'] .ah-cls { flex: none; font: 700 9px/1.2 var(--h-mono); padding: 2px 6px; border-radius: 999px; border: 1px solid var(--h-mutedFg); color: var(--h-fg); text-transform: uppercase; letter-spacing: .06em; }
-[data-eui='card'] .ah-c-decision { border-color: var(--h-primary); color: var(--h-primary); }
-[data-eui='card'] .ah-arrow { flex: none; width: 22px; height: 2px; background: var(--h-primary); }
-[data-eui='card'] .ah-tile { flex: none; width: 112px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0 12px; border: 2px solid var(--h-primary); border-radius: 10px; background: var(--h-bg); animation: ah-land .9s ease-out both; }
-[data-eui='card'] .ah-tile .ah-pill { align-self: center; }
-[data-eui='card'] .ah-tile.ah-none { border: 1px dashed var(--h-border); }
-[data-eui='card'] .ah-tile.ah-none .ah-big { color: var(--h-mutedFg); }
-[data-eui='card'] .ah-list { margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-[data-eui='card'] .ah-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid var(--h-border); }
-[data-eui='card'] .ah-daysvg { display: block; width: 100%; }
-[data-eui='card'] .ah-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
-[data-eui='card'] .ah-leg { display: flex; align-items: center; gap: 5px; font: 12px/1.3 var(--h-mono); color: var(--h-fg); }
-[data-eui='card'] .ah-sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
-[data-eui='card'] .ah-sw-best { background: var(--h-primary); }
-[data-eui='card'] .ah-sw-wind { background: var(--h-mutedFg); opacity: .6; }
-[data-eui='card'] .ah-sw-now { width: 2px; background: var(--h-fg); }
-[data-eui='card'] .ah-sw-bed { border: 2px solid var(--h-fg); border-radius: 50%; box-sizing: border-box; }
-[data-eui='card'] .ah-note { padding: 10px 12px; border: 1px solid var(--h-border); border-left: 3px solid var(--h-primary); border-radius: 8px; background: var(--h-bg); }
-[data-eui='card'] .ah-quote { margin: 6px 0; font-size: 15px; line-height: 1.4; font-weight: 600; color: var(--h-fg); }
-@keyframes ah-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
-@keyframes ah-fold { 0% { transform: translateY(-18px); opacity: 0 } 100% { transform: translateY(0) } }
-@keyframes ah-land { 0%, 50% { transform: scale(.85); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
-@media (prefers-reduced-motion: reduce) {
-  [data-eui='card'] .ah-hero * { animation: none; }
-}
-`;
-
-// src/wire/json.ts
-function record2(v) {
-  if (typeof v === "string") {
-    try {
-      return record2(JSON.parse(v));
-    } catch {
-      return void 0;
-    }
-  }
-  return v && typeof v === "object" && !Array.isArray(v) ? v : void 0;
-}
-function parseJson(text19) {
-  try {
-    return JSON.parse(text19);
-  } catch {
-    return void 0;
-  }
-}
-function decodeJson(text19) {
-  return JSON.parse(text19);
-}
-function commandReply(output) {
-  const reply2 = record2(output);
-  if (!reply2) throw new Error("the command did not answer with JSON");
-  if (typeof reply2["error"] === "string") throw new Error(reply2["error"]);
-  return reply2;
-}
-
-// ../glide/frontend/wal.ts
-import { mkdirSync, readFileSync as readFileSync2, watch, writeFileSync } from "node:fs";
-import { homedir as homedir2 } from "node:os";
-import { basename as basename2, dirname, join as join2 } from "node:path";
-
-// node_modules/@hermes/shared/src/color.ts
-var HEX6_RE = /^#?([0-9a-f]{6})$/i;
-var HEX3_RE = /^#?([0-9a-f]{3})$/i;
-var RGB_FN_RE = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i;
-var clampChannel = (v) => Math.max(0, Math.min(255, Math.round(v)));
-function parseColor(input2) {
-  const value = input2.trim();
-  let m = HEX6_RE.exec(value);
-  if (m) {
-    const n3 = parseInt(m[1], 16);
-    return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255];
-  }
-  m = HEX3_RE.exec(value);
-  if (m) {
-    const [r, g, b] = m[1];
-    return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
-  }
-  m = RGB_FN_RE.exec(value);
-  if (m) {
-    return [clampChannel(Number(m[1])), clampChannel(Number(m[2])), clampChannel(Number(m[3]))];
-  }
-  return null;
-}
-var toHex = (rgb) => "#" + rgb.map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("");
-function mix(a2, b, t) {
-  const pa = parseColor(a2);
-  const pb = parseColor(b);
-  if (!pa || !pb) {
-    return a2;
-  }
-  return toHex([pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t, pa[2] + (pb[2] - pa[2]) * t]);
-}
-function channelLuminance(value) {
-  const normalized = value / 255;
-  return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-}
-function relativeLuminance(color2) {
-  const rgb = parseColor(color2);
-  return rgb ? 0.2126 * channelLuminance(rgb[0]) + 0.7152 * channelLuminance(rgb[1]) + 0.0722 * channelLuminance(rgb[2]) : null;
-}
-function contrastRatio(a2, b) {
-  const la = relativeLuminance(a2);
-  const lb = relativeLuminance(b);
-  if (la === null || lb === null) {
-    return null;
-  }
-  const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
-  return (hi + 0.05) / (lo + 0.05);
-}
-var DEFAULT_INKS = ["#000000", "#ffffff"];
-function readableOn(bg, inks = DEFAULT_INKS) {
-  let best = inks[inks.length - 1];
-  let bestRatio = -1;
-  for (const ink2 of inks) {
-    const ratio = contrastRatio(bg, ink2);
-    if (ratio !== null && ratio >= bestRatio) {
-      best = ink2;
-      bestRatio = ratio;
-    }
-  }
-  return best;
-}
-function ensureContrast(color2, bg, min, step = 0.2) {
-  const bgLuminance = relativeLuminance(bg);
-  if (bgLuminance === null || parseColor(color2) === null) {
-    return color2;
-  }
-  const ratio = contrastRatio(color2, bg);
-  if (ratio === null || ratio >= min) {
-    return color2;
-  }
-  const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
-  let best = color2;
-  const rung = Number.isFinite(step) && step >= 1e-3 ? Math.min(step, 1) : 0.2;
-  for (let amount = rung; amount <= 1.0001; amount += rung) {
-    best = mix(color2, pole, Math.min(amount, 1));
-    const stepRatio = contrastRatio(best, bg);
-    if (stepRatio !== null && stepRatio >= min) {
-      return best;
-    }
-  }
-  return best;
-}
-
-// src/hermes/theme.ts
-var SEEDS = {
-  dark: { accent: "#FFBF00", bg: "#101014", error: "#ef5350", ok: "#4caf50", warn: "#ffa726" },
-  light: { accent: "#956E00", bg: "#ffffff", error: "#C14240", ok: "#367E39", warn: "#956115" }
-};
-var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
-var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
-function background(raw2) {
-  const value = (raw2 ?? "").trim();
-  const hex2 = value.startsWith("#") ? value : `#${value}`;
-  return value && relativeLuminance(hex2) !== null ? hex2 : void 0;
-}
-function skinColors(colors, polarity) {
-  const seeds = SEEDS[polarity];
-  const bg = background(colors["background"]) ?? seeds.bg;
-  const lift = (color2, floor) => ensureContrast(color2, bg, floor);
-  return {
-    accent: lift(colors["ui_accent"] ?? colors["banner_accent"] ?? seeds.accent, ACCENT_FLOOR[polarity]),
-    error: lift(colors["ui_error"] ?? seeds.error, STATUS_FLOOR[polarity]),
-    ok: lift(colors["ui_ok"] ?? seeds.ok, STATUS_FLOOR[polarity]),
-    warn: lift(colors["ui_warn"] ?? seeds.warn, STATUS_FLOOR[polarity])
-  };
-}
-
-// ../glide/frontend/wal.ts
-var TEXT_FLOOR = 4.5;
-var WAL_SHEET = "glide-auto-theme";
-var HEX = /^#[0-9a-f]{6}$/i;
-function walFile(env2 = process.env) {
-  return env2["GLIDE_WAL_COLORS"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "wal", "colors.json");
-}
-function exportFile(env2 = process.env) {
-  return env2["GLIDE_THEME_EXPORT"] || join2(env2["XDG_CACHE_HOME"] || join2(homedir2(), ".cache"), "glide", "theme.json");
-}
-function readWal(file2) {
-  let text19;
-  try {
-    text19 = readFileSync2(file2, "utf8");
-  } catch {
-    return void 0;
-  }
-  const raw2 = record2(parseJson(text19));
-  const special = record2(raw2?.["special"]);
-  const palette = record2(raw2?.["colors"]);
-  const background2 = special?.["background"];
-  const foreground = special?.["foreground"];
-  if (typeof background2 !== "string" || typeof foreground !== "string" || !HEX.test(background2) || !HEX.test(foreground) || !palette) {
-    return void 0;
-  }
-  const colors = {};
-  for (const [k, v] of Object.entries(palette)) {
-    if (typeof v === "string") colors[k] = v;
-  }
-  return { special: { background: background2, foreground }, colors };
-}
-function saturation(hex2) {
-  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
-  const [r, g, b] = [channel(1), channel(3), channel(5)];
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
-}
-function pickAccent(wal) {
-  let best = wal.special.foreground;
-  let top = -1;
-  for (let i = 1; i <= 6; i++) {
-    const c = wal.colors[`color${i}`] ?? "";
-    if (HEX.test(c) && saturation(c) > top) {
-      best = c;
-      top = saturation(c);
-    }
-  }
-  return best;
-}
-function walPalette(wal, source3 = "") {
-  const bg = wal.special.background;
-  const text19 = (c, fallback) => {
-    const lifted = ensureContrast(c && HEX.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05);
-    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg);
-  };
-  const fg = text19(wal.special.foreground, wal.special.foreground);
-  const accent = text19(pickAccent(wal), fg);
-  return {
-    source: source3,
-    dark: (relativeLuminance(bg) ?? 0) < 0.5,
-    bg,
-    fg,
-    accent,
-    accentInk: readableOn(accent),
-    muted: text19(wal.colors["color7"], fg),
-    dim: text19(wal.colors["color8"], fg),
-    error: text19(wal.colors["color1"], fg),
-    success: text19(wal.colors["color2"], fg),
-    warning: text19(wal.colors["color3"], fg),
-    selectedBg: mix(bg, accent, 0.18),
-    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)]
-  };
-}
-function walTernPalette(p3) {
-  const tokens2 = {
-    accent: p3.accent,
-    borderAccent: p3.accent,
-    dim: p3.dim,
-    error: p3.error,
-    mdLink: p3.accent,
-    mdListBullet: p3.accent,
-    muted: p3.muted,
-    selectedBg: p3.selectedBg,
-    statusLineModel: p3.accent,
-    statusLinePath: p3.muted,
-    success: p3.success,
-    text: p3.fg,
-    warning: p3.warning
-  };
-  return { dark: tokens2, light: tokens2, name: { dark: "auto", light: "auto" } };
-}
-function walCss(p3) {
-  const [l1, l2, l3] = p3.layers;
-  const vars = [
-    `--accent: ${p3.accent}`,
-    `--sf-p-accent: ${p3.accent}`,
-    `--accent-ink: ${p3.accentInk}`,
-    `--text: ${p3.fg}`,
-    `--muted: ${p3.muted}`,
-    `--t1: ${p3.fg}`,
-    `--t2: ${p3.muted}`,
-    `--t3: ${p3.dim}`,
-    `--l1: ${l1}`,
-    `--l2: ${l2}`,
-    `--l3: ${l3}`,
-    `--card: ${l1}`,
-    `--panel: ${p3.bg}`,
-    `--sf-c-error: ${p3.error}`
-  ];
-  return `.sf-region, [data-surface] { ${vars.join("; ")}; background: ${p3.bg}; color: ${p3.fg}; }
-[data-eui='card'] { ${vars.join("; ")}; --h-primary-ink: ${p3.accentInk}; }
-`;
-}
-function exportPalette(p3, file2 = exportFile()) {
-  mkdirSync(dirname(file2), { recursive: true });
-  writeFileSync(file2, `${JSON.stringify(p3, null, 2)}
-`);
-  return file2;
-}
-function watchWal(file2, changed, debounceMs = 50) {
-  let timer;
-  let watcher;
-  try {
-    watcher = watch(dirname(file2), (_event, name) => {
-      if (name && name.toString() !== basename2(file2)) return;
-      clearTimeout(timer);
-      timer = setTimeout(changed, debounceMs);
-    });
-    watcher.on("error", () => watcher?.close());
-  } catch {
-    watcher = void 0;
-  }
-  return () => {
-    clearTimeout(timer);
-    watcher?.close();
-  };
-}
-
-// ../glide/frontend/taste.ts
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-function tasteBoard(raw2) {
-  const value = record2(raw2);
-  const url = value?.["url"];
-  const title = value?.["title"];
-  if (typeof url !== "string" || typeof title !== "string") {
-    throw new Error("Invalid Taste Atlas board reply");
-  }
-  const parsed2 = new URL(url);
-  if (parsed2.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsed2.hostname) || parsed2.username || parsed2.password || parsed2.search || parsed2.hash || !/^\/(?:boards|s\/[a-z0-9-]{4,40}\/)$/.test(parsed2.pathname)) {
-    throw new Error("Taste Atlas requires a loopback board URL");
-  }
-  return { url, title };
-}
-async function openTastePane(board) {
-  const owner2 = process.env["TERN_PANE"] ?? "";
-  if (!/^[1-9][0-9]*$/.test(owner2) || !Number.isSafeInteger(Number(owner2))) {
-    throw new Error("Taste pane needs a local Tern pane. Open the board URL in your browser instead.");
-  }
-  const { stdout } = await promisify(execFile)("tern", ["browser", JSON.stringify({
-    op: "open",
-    owner: Number(owner2),
-    url: board.url,
-    how: "beside"
-  }), "--timeout", "15"], { timeout: 2e4, shell: false });
-  const result = record2(record2(stdout)?.["ok"]);
-  const block = result?.["block"];
-  if (typeof block !== "number" || !Number.isSafeInteger(block) || block <= 0) {
-    throw new Error("Tern did not confirm opening the Taste pane");
-  }
-  return block;
-}
-
-// ../glide/frontend/lanesPopup.ts
-import { mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir as homedir3 } from "node:os";
-import { dirname as dirname2, join as join3 } from "node:path";
-
-// src/overlays/identity.ts
-var NATIVE_OVERLAY_PREFIX = "layer.overlay-";
-function nativeOverlayKey(root7) {
-  const key3 = root7.startsWith("layer.") ? root7.slice("layer.".length) : "";
-  if (!/^overlay-[1-9][0-9]*$/.test(key3) || root7 !== `layer.${key3}`) {
-    throw new Error(`Expected an assigned overlay root, got ${JSON.stringify(root7)}`);
-  }
-  return key3;
-}
-function withinOverlayRoot(id, root7) {
-  return id === root7 || id.startsWith(root7 + ".");
-}
-
-// src/eui/ternCss.js
-var TERN_DROP = /* @__PURE__ */ new Set([
-  "aspect-ratio",
-  "text-anchor",
-  "vector-effect",
-  "-webkit-appearance",
-  "appearance",
-  "-webkit-touch-callout",
-  "scroll-margin-top",
-  "grid-template-areas",
-  "grid-area",
-  "resize",
-  "offset-rotate",
-  "offset-anchor",
-  "text-underline-offset",
-  "text-decoration-thickness"
-]);
-var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
-var TERN_ATTR = "data-eui-a-";
-function ternDecl(decl) {
-  const at2 = decl.indexOf(":");
-  if (at2 < 0) {
-    return decl;
-  }
-  const prop2 = decl.slice(0, at2).trim().toLowerCase();
-  let value = decl.slice(at2 + 1).trim();
-  if (prop2.startsWith("--")) {
-    return decl;
-  }
-  if (!value || TERN_DROP.has(prop2) || TERN_BAD_VALUE.test(value)) {
-    return void 0;
-  }
-  value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
-  if (prop2 === "position" && value === "fixed") {
-    return `${decl.slice(0, at2)}:absolute`;
-  }
-  if (prop2 === "border-block") {
-    return `border-top:${value};border-bottom:${value}`;
-  }
-  if (prop2 === "border-inline-start") {
-    return `border-left:${value}`;
-  }
-  return `${decl.slice(0, at2)}:${value}`;
-}
-function ternBody(body) {
-  const out = [];
-  let depth = 0;
-  let quote2 = "";
-  let start = 0;
-  for (let i = 0; i <= body.length; i++) {
-    const ch = body[i];
-    if (quote2) {
-      if (ch === quote2 && body[i - 1] !== "\\") {
-        quote2 = "";
-      }
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote2 = ch;
-    } else if (ch === "(") {
-      depth++;
-    } else if (ch === ")") {
-      depth--;
-    } else if (ch === ";" && depth === 0 || i === body.length) {
-      const decl = body.slice(start, i).trim();
-      const kept = decl ? ternDecl(decl) : void 0;
-      if (kept) {
-        out.push(kept);
-      }
-      start = i + 1;
-    }
-  }
-  return out.join(";");
-}
-
-// src/view/euiCard.tsx
-var TAGS = new Set(EL_TAGS);
-var BOOLEAN = /* @__PURE__ */ new Set(["checked", "open", "hidden", "disabled"]);
-var INLINE = /* @__PURE__ */ new Set(["a", "small", "sup", "sub", "abbr", "time", "s", "u", "var", "cite", "q", "output", "bdi", "textarea", "select", "option"]);
-function isTag(tag3) {
-  return TAGS.has(tag3);
-}
-function ternTag(tag3, attrs) {
-  if (tag3 === "input") {
-    return attrs["type"] === "checkbox" || attrs["type"] === "radio" ? "input" : "span";
-  }
-  return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
-}
-function convert(n3, key3, eui, activate) {
-  if (n3.t === "text") {
-    return n3.text;
-  }
-  if (n3.t === "svg") {
-    const blob2 = eui.svg(n3.svg);
-    const attrs2 = { "data-eui-svg": "" };
-    if (n3.style) {
-      attrs2["data-eui-s"] = eui.style(n3.style);
-    }
-    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n3.cls }, ui.image({ blob: blob2, w: Math.round(n3.w), h: Math.round(n3.h) }));
-  }
-  const tag3 = ternTag(n3.tag, n3.attrs);
-  const attrs = {};
-  for (const [k, v] of Object.entries(n3.attrs)) {
-    if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
-      attrs[k] = v;
-    }
-    if (!k.startsWith("data-") && (v !== "" || !BOOLEAN.has(k))) {
-      attrs[`${TERN_ATTR}${k}`] = v;
-    }
-  }
-  if (tag3 !== n3.tag) {
-    attrs["data-eui-tag"] = n3.tag;
-  }
-  if (n3.style) {
-    attrs["data-eui-s"] = eui.style(n3.style);
-  }
-  const kids = n3.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
-  if (n3.tag === "input" && tag3 === "span") {
-    kids.push(n3.attrs["value"] || n3.attrs["placeholder"] || "");
-  }
-  return ui.el({
-    key: key3,
-    tag: tag3,
-    attrs,
-    class: n3.cls,
-    ...n3.attrs["hidden"] ? { hidden: true } : {},
-    ...n3.attrs["disabled"] ? { disabled: true } : {},
-    ...tag3 === "input" ? { type: n3.attrs["type"] ?? "checkbox", checked: Boolean(n3.attrs["checked"]) } : {},
-    ...n3.attrs["title"] ? { title: n3.attrs["title"] } : {},
-    ...n3.click ? { onClick: () => {
-      activate(n3.id);
-    } } : {}
-  }, kids);
-}
-function euiCardNode(card, view, eui, popup = false) {
-  if (view.error !== void 0 || !view.node) {
-    return /* @__PURE__ */ jsx("col", { role: "eui.card.pending", children: /* @__PURE__ */ jsx("text", { role: view.error === void 0 ? "eui.pending" : "eui.error", text: view.error === void 0 ? `ephemeral-ui \xB7 ${view.spec.kind} \xB7 ${view.spec.app}\u2026` : `ephemeral-ui ${view.spec.kind}: ${view.error}` }, "t") }, card);
-  }
-  const root7 = view.node;
-  const key3 = view.identity === void 0 ? card : `${card}.${view.identity}`;
-  const activate = view.activate ?? ((id) => {
-    eui.click(card, id);
-  });
-  return html.div(
-    { key: key3, attrs: { "data-eui": "card", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
-    root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
-  );
-}
-function euiPopupNode(key3, head2, view, eui) {
-  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
-}
-
-// ../glide/frontend/council.ts
-var MINERAL = {
-  citrine: { label: "Citrine", cut: "brilliant", base: "#dc9a32", light: "#ffe6a6", deep: "#5a3108", glow: "#ffb24a" },
-  rose: { label: "Rose quartz", cut: "brilliant", base: "#d99a9c", light: "#ffe6e2", deep: "#5c2e36", glow: "#f7b4aa" },
-  smoky: { label: "Smoky quartz", cut: "brilliant", base: "#8b735b", light: "#eadcc6", deep: "#231c15", glow: "#c99a5a" },
-  clear: { label: "Clear quartz", cut: "brilliant", base: "#c9d2d0", light: "#ffffff", deep: "#3d4645", glow: "#e9f2ef" },
-  malachite: { label: "Malachite", cut: "cabochon", base: "#2f8a5c", light: "#8fe0b4", deep: "#0b3322", glow: "#49b27c" },
-  labradorite: { label: "Labradorite", cut: "cabochon", base: "#3a424b", light: "#9fb3c4", deep: "#14181d", glow: "#4fa8d8" },
-  moonstone: { label: "Moonstone", cut: "cabochon", base: "#c4c8d0", light: "#f6f7fa", deep: "#5d6270", glow: "#8fb8ff" },
-  lapis: { label: "Lapis lazuli", cut: "cabochon", base: "#25418f", light: "#7f9be0", deep: "#0b1647", glow: "#3d62c9" }
-};
-var FAMILY = {
-  anthropic: ["citrine", "rose", "smoky"],
-  openai: ["labradorite", "moonstone", "lapis"],
-  google: ["malachite"],
-  free: ["clear"]
-};
-var NIGHT = {
-  canvas: "#0c0c0a",
-  text: "#ECE8DF",
-  text2: "#B4AFA3",
-  text3: "#837F74",
-  faint: "#5e5b52",
-  action: "#d7b986",
-  strong: "#eccd8c",
-  muted: "#99835c",
-  danger: "#e37f65",
-  agree: "#98cf8b",
-  border: "rgba(236,232,223,0.10)",
-  borderStrong: "rgba(236,232,223,0.16)"
-};
-var SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif";
-var MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace";
-var COUNCIL_SCHEMA = "glide.council-run/v1";
-var MINERALS = new Set(Object.keys(MINERAL));
-var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
-var KEYS = {
-  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
-  seat: ["id", "name", "family", "mineral", "crew"],
-  turn: ["type", "seat", "round", "cites"],
-  spawn: ["type", "seat"],
-  verdict: ["seat", "stance", "text"]
-};
-var Bad = class extends Error {
-};
-var fail = (where, what) => {
-  throw new Bad(`${where}: ${what}`);
-};
-function obj2(v, where, keys3) {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return fail(where, "expected an object");
-  const extra = Object.keys(v).find((k) => !keys3.includes(k));
-  return extra === void 0 ? v : fail(where, `unknown field "${extra}"`);
-}
-function str3(v, where, max) {
-  return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
-}
-function int2(v, where, min, max) {
-  return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
-}
-function list(v, where, min, max) {
-  return Array.isArray(v) && v.length >= min && v.length <= max ? v : fail(where, `expected a list of ${min}-${max}`);
-}
-function mineral(v, where) {
-  return typeof v === "string" && MINERALS.has(v) ? v : fail(where, "not a known mineral");
-}
-function parseCouncilRun(raw2) {
-  try {
-    return readRun(raw2);
-  } catch (e) {
-    if (e instanceof Bad) return { error: `not a ${COUNCIL_SCHEMA} run (${e.message})` };
-    throw e;
-  }
-}
-function readRun(raw2) {
-  const d = obj2(raw2, "run", KEYS.run);
-  if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
-  const rounds = int2(d["rounds"], "rounds", 1, 8);
-  const used = /* @__PURE__ */ new Map();
-  const index2 = /* @__PURE__ */ new Map();
-  const seats = list(d["seats"], "seats", 2, 6).map((v, i) => {
-    const s2 = obj2(v, `seats.${i}`, KEYS.seat);
-    const id = str3(s2["id"], `seats.${i}.id`, 40);
-    if (!SEAT_ID.test(id)) fail(`seats.${i}.id`, "expected a lowercase id");
-    if (index2.has(id)) fail(`seats.${i}.id`, "two seats share an id");
-    index2.set(id, i);
-    const family = str3(s2["family"], `seats.${i}.family`, 24);
-    const key3 = family.trim().toLowerCase();
-    const pool = FAMILY[key3] ?? ["clear"];
-    const n3 = used.get(key3) ?? 0;
-    used.set(key3, n3 + 1);
-    return Object.freeze({
-      id,
-      family,
-      name: str3(s2["name"], `seats.${i}.name`, 24),
-      mineral: s2["mineral"] === void 0 ? pool[n3 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
-      crew: Object.freeze(s2["crew"] === void 0 ? [] : list(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
-    });
-  });
-  const seat = (v, where) => index2.get(typeof v === "string" ? v : "") ?? fail(where, "names an unknown seat");
-  const events = list(d["events"], "events", 0, 400).map((v, i) => {
-    const type = v && typeof v === "object" && "type" in v ? v.type : void 0;
-    if (type === "spawn") return Object.freeze({ type, seat: seat(obj2(v, `events.${i}`, KEYS.spawn)["seat"], `events.${i}.seat`) });
-    if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
-    const e = obj2(v, `events.${i}`, KEYS.turn);
-    const cites = e["cites"] === void 0 ? [] : list(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
-    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int2(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
-  });
-  const heard = /* @__PURE__ */ new Set();
-  const verdicts = list(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
-    const e = obj2(v, `verdicts.${i}`, KEYS.verdict);
-    const s2 = seat(e["seat"], `verdicts.${i}.seat`);
-    if (heard.has(s2)) fail(`verdicts.${i}.seat`, "seat already has a verdict");
-    heard.add(s2);
-    const stance = e["stance"];
-    if (stance !== "agree" && stance !== "dissent" && stance !== "abstain") return fail(`verdicts.${i}.stance`, "expected agree, dissent or abstain");
-    return Object.freeze({ seat: s2, stance, text: str3(e["text"], `verdicts.${i}.text`, 240) });
-  });
-  return Object.freeze({
-    brief: str3(d["brief"], "brief", 280),
-    rounds,
-    seats: Object.freeze(seats),
-    events: Object.freeze(events),
-    verdicts: Object.freeze(verdicts),
-    ...d["outcome"] === void 0 ? {} : { outcome: str3(d["outcome"], "outcome", 160) }
-  });
-}
-function demoRun() {
-  const CREW = ["clear", "clear", "clear", "clear", "clear", "moonstone", "moonstone", "smoky", "smoky"];
-  const seats = [
-    { id: "argon", name: "Argon", family: "Google", crew: CREW },
-    { id: "astra", name: "Astra", family: "OpenAI", crew: CREW },
-    { id: "fable", name: "Fable", family: "Anthropic", mineral: "rose", crew: CREW },
-    { id: "opus", name: "Opus", family: "Anthropic", mineral: "citrine", crew: CREW }
-  ];
-  const ids = seats.map((s2) => s2.id);
-  const events = [];
-  for (const id of ids) for (let k = 0; k < 4; k++) events.push({ type: "spawn", seat: id });
-  for (let round = 1; round <= 4; round++) {
-    ids.forEach((id, i) => {
-      if (round === 2) for (let k = 0; k < 3; k++) events.push({ type: "spawn", seat: id });
-      const peers = ids.filter((p3) => p3 !== id);
-      const cites = round === 1 ? [] : round === 4 ? [peers[i % 3]] : peers.slice(0, round === 2 ? 3 : 2);
-      events.push({ type: "turn", seat: id, round, cites });
-    });
-  }
-  for (const id of ids) for (let k = 0; k < 2; k++) events.push({ type: "spawn", seat: id });
-  const run8 = parseCouncilRun({
-    schema: COUNCIL_SCHEMA,
-    brief: "Should a small team ship a plugin before its launcher?",
-    rounds: 4,
-    seats,
-    events,
-    verdicts: [
-      { seat: "argon", stance: "agree", text: "Ship the plugin; the launcher only wraps what already works." },
-      { seat: "astra", stance: "dissent", text: "Without the launcher nobody finds the plugin; ship both together." },
-      { seat: "fable", stance: "agree", text: "Ship it, and measure who installs it by hand before building more." },
-      { seat: "opus", stance: "agree", text: "Agree with Fable: the plugin first, the launcher once installs prove demand." }
-    ],
-    outcome: "Ship the plugin first"
-  });
-  if ("error" in run8) throw new Error(`demo run: ${run8.error}`);
-  return run8;
-}
-var TURN_MS = 520;
-var SPAWN_MS = 90;
-var FLY_MS = 220;
-var THREAD_MS = 360;
-var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
-function schedule(run8) {
-  const at2 = [];
-  let t = 0;
-  for (const e of run8.events) {
-    at2.push(t);
-    t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
-  }
-  return { at: at2, total: t };
-}
-function moment(run8, frame) {
-  const { at: at2, total } = schedule(run8);
-  const t = frame.t;
-  const done = t !== null && t >= total;
-  let idx = -1;
-  if (t !== null) {
-    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
-  }
-  const running2 = t !== null && !done;
-  const lit2 = run8.seats.map(() => 0);
-  const born = /* @__PURE__ */ new Map();
-  const lastTurn = run8.seats.map(() => -1);
-  run8.events.forEach((e, i) => {
-    if (e.type === "turn") lastTurn[e.seat] = i;
-  });
-  let round = 0;
-  for (let i = 0; i <= idx; i++) {
-    const e = run8.events[i];
-    if (!e) continue;
-    if (e.type === "spawn") {
-      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
-      lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
-    } else round = e.round;
-  }
-  const cur = idx >= 0 ? run8.events[idx] : void 0;
-  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
-  const closed = /* @__PURE__ */ new Set();
-  run8.seats.forEach((_2, s2) => {
-    const last = lastTurn[s2] ?? -1;
-    if (done || t !== null && last >= 0 && (idx > last || idx === last && since >= TURN_MS)) closed.add(s2);
-  });
-  return { idx, since, running: running2, done, round, speaking: running2 && cur?.type === "turn" ? cur.seat : -1, lit: lit2, born, closed };
-}
-function narration(run8, frame) {
-  const m = moment(run8, frame);
-  const nm = (i) => run8.seats[i]?.name ?? "?";
-  const helpers = run8.events.filter((e) => e.type === "spawn").length;
-  if (frame.t === null) return `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers. Convene to watch it sit.`;
-  if (m.done) return `Council complete \xB7 ${run8.rounds} rounds \xB7 ${helpers} helpers`;
-  const cur = run8.events[m.idx];
-  if (!cur) return "The council takes its seats";
-  if (cur.type === "spawn") return `${nm(cur.seat)} sends a helper out`;
-  if (cur.round === 1) return `Round 1 \xB7 ${nm(cur.seat)} answers the brief, alone`;
-  if (cur.round === run8.rounds) return `Round ${cur.round} \xB7 ${nm(cur.seat)} closes`;
-  return `Round ${cur.round} \xB7 ${nm(cur.seat)} questions ${cur.cites.length} peer${cur.cites.length === 1 ? "" : "s"}`;
-}
-function closedSeats(run8, frame) {
-  return moment(run8, frame).closed;
-}
-var n2 = (v) => (Math.round(v * 10) / 10).toString();
-var esc2 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-function tag2(name, attrs, kids = "") {
-  let a2 = "";
-  for (const [k, v] of Object.entries(attrs)) if (v !== void 0) a2 += ` ${k}="${typeof v === "number" ? n2(v) : esc2(v)}"`;
-  return kids ? `<${name}${a2}>${kids}</${name}>` : `<${name}${a2}/>`;
-}
-var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
-var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
-var toHex2 = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
-var mix2 = (a2, b, t) => {
-  const x = hex(a2), y = hex(b);
-  return toHex2(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
-};
-var D = Math.PI / 180;
-var KEY = 225 * D;
-function lit(phi, tilt, az) {
-  const el = 52 * D;
-  return Math.max(0, Math.sin(tilt) * Math.cos(phi) * Math.sin(el) * Math.cos(az) + Math.sin(tilt) * Math.sin(phi) * Math.sin(el) * Math.sin(az) + Math.cos(tilt) * Math.cos(el));
-}
-var jitter = (k) => (Math.sin(k * 12.9898) * 43758.5453 % 1 + 1) % 1 - 0.5;
-var at = (cx, cy, r, a2) => [cx + r * Math.cos(a2), cy + r * Math.sin(a2)];
-var pts = (p3) => p3.map(([x, y]) => `${n2(x)},${n2(y)}`).join(" ");
-function brilliant(cx, cy, r) {
-  const f = [];
-  const v = (k) => at(cx, cy, r * 0.5, (22.5 + 45 * k) * D);
-  const s2 = (k) => at(cx, cy, r * 0.74, (45 + 45 * k) * D);
-  const g = (deg) => at(cx, cy, r, deg * D);
-  f.push({ p: Array.from({ length: 8 }, (_2, k) => v(k)), phi: 0, tilt: 0 });
-  for (let k = 0; k < 8; k++) {
-    const a2 = 22.5 + 45 * k;
-    f.push({ p: [v(k), v(k + 1), s2(k)], phi: (a2 + 22.5) * D, tilt: 0.42 });
-    f.push({ p: [s2(k - 1), v(k), s2(k), g(a2)], phi: a2 * D, tilt: 0.66 });
-    f.push({ p: [s2(k), g(a2), g(a2 + 22.5)], phi: (a2 + 13) * D, tilt: 0.95 });
-    f.push({ p: [s2(k), g(a2 + 22.5), g(a2 + 45)], phi: (a2 + 32) * D, tilt: 0.95 });
-  }
-  return f;
-}
-function gem(id, kind, cx, cy, r, opts = {}) {
-  const m = MINERAL[kind];
-  const glint = opts.glint ?? null;
-  const g = glint ?? 0.5;
-  const shine = glint === null ? 0 : Math.sin(Math.PI * Math.max(0, Math.min(1, glint)));
-  const az = KEY + (g - 0.5) * 70 * D;
-  const hl = at(cx, cy, r * 0.42, az);
-  const far = at(cx, cy, r * 0.38, az + Math.PI);
-  const op = opts.dim ? 0.55 : void 0;
-  if (opts.low) {
-    const body2 = kind === "clear" ? tag2("circle", { cx, cy, r: r * 0.86, fill: m.base, "fill-opacity": 0.16, stroke: m.light, "stroke-opacity": 0.85, "stroke-width": r * 0.28 }) : tag2("circle", { cx, cy, r, fill: m.base }) + tag2("circle", { cx, cy, r, fill: `url(#${id}b)` });
-    return tag2(
-      "g",
-      { opacity: op },
-      (kind === "clear" ? "" : tag2("defs", {}, tag2("radialGradient", { id: `${id}b`, cx: "36%", cy: "32%", r: "72%" }, stop(0, m.light) + stop(0.45, m.base) + stop(1, m.deep)))) + body2 + tag2("circle", { cx: cx - r * 0.35, cy: cy - r * 0.38, r: r * 0.26, fill: "#fff", "fill-opacity": 0.8 })
-    );
-  }
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let defs = tag2("clipPath", { id: `${id}c` }, tag2("circle", { cx, cy, r })) + tag2("radialGradient", { id: `${id}s`, cx: far[0], cy: far[1], r: r * 0.85, ...user }, stop(0, m.glow, 0.75 + 0.2 * shine) + stop(1, m.glow, 0)) + tag2("radialGradient", { id: `${id}d`, cx: cx + (hl[0] - cx) * 0.6, cy: cy + (hl[1] - cy) * 0.6, r: r * 1.25, ...user }, stop(0, m.light) + stop(0.42, m.base) + stop(1, m.deep)) + tag2("radialGradient", { id: `${id}r`, cx, cy, r, ...user }, stop(0.7, "#000", 0) + stop(1, "#000", 0.55)) + tag2("linearGradient", { id: `${id}z`, x1: cx - r, y1: cy - r, x2: cx + r, y2: cy + r, ...user }, stop(0, "#f3dcaa") + stop(0.5, "#a8854c") + stop(1, "#4a3818"));
-  if (kind === "labradorite") defs += tag2("linearGradient", { id: `${id}f`, x1: 0, y1: 0, x2: 1, y2: 0.35 }, stop(0, "#2a6fb8", 0) + stop(0.3, "#3f8fe0") + stop(0.55, "#46cdb4") + stop(0.78, "#d8c05a") + stop(1, "#d8c05a", 0));
-  if (kind === "moonstone") defs += tag2("radialGradient", { id: `${id}a`, cx: "50%", cy: "50%", r: "50%" }, stop(0, "#a9c8ff", 0.95) + stop(1, "#7fa6ff", 0));
-  let body = tag2("circle", { cx, cy, r, fill: m.base });
-  if (m.cut === "brilliant") {
-    body += brilliant(cx, cy, r).map((f, k) => {
-      const b = Math.min(1, lit(f.phi, f.tilt, az) * 1.15 + jitter(k + kind.length) * 0.32);
-      let fill = mix2(m.deep, m.base, b * 1.35);
-      if (b > 0.72) fill = mix2(fill, m.light, (b - 0.72) * 3 + shine * 0.25);
-      return tag2("path", { d: `M ${pts(f.p).replace(/ /g, " L ")} Z`, fill, stroke: m.light, "stroke-opacity": 0.22, "stroke-width": 0.5 });
-    }).join("");
-    if (kind === "smoky") body += [[-0.55, 0.15, 0.35, 0.55], [-0.2, -0.45, 0.5, 0.2], [0.05, 0.3, 0.6, -0.05]].map(([x1 = 0, y1 = 0, x2 = 0, y2 = 0]) => tag2("line", { x1: cx + x1 * r, y1: cy + y1 * r, x2: cx + x2 * r, y2: cy + y2 * r, stroke: "#e2bb63", "stroke-opacity": 0.55, "stroke-width": 0.6 })).join("");
-    if (kind === "citrine") body += tag2("ellipse", { cx: cx + r * 0.18, cy: cy + r * 0.22, rx: r * 0.32, ry: r * 0.1, transform: `rotate(-28 ${n2(cx + r * 0.18)} ${n2(cy + r * 0.22)})`, fill: "#fff6dc", "fill-opacity": 0.18 });
-    if (kind === "rose") body += tag2("circle", { cx: cx + r * 0.1, cy: cy + r * 0.15, r: r * 0.55, fill: "#fff0ee", "fill-opacity": 0.16 });
-    if (kind === "clear") body += tag2("line", { x1: cx - r * 0.3, y1: cy + r * 0.45, x2: cx + r * 0.35, y2: cy - r * 0.2, stroke: "#ffffff", "stroke-opacity": 0.35, "stroke-width": 0.5 });
-  } else {
-    body += tag2("circle", { cx, cy, r, fill: `url(#${id}d)` });
-    if (kind === "malachite") body += Array.from({ length: 9 }, (_2, k) => {
-      const bx = cx + r * 0.62, by = cy + r * 0.82, radius = r * (0.28 + k * 0.2);
-      const distance = Math.hypot(bx - cx, by - cy);
-      const angle = Math.atan2(cy - by, cx - bx);
-      const half = Math.acos(Math.max(-1, Math.min(1, (distance * distance + radius * radius - r * r) / (2 * distance * radius))));
-      const start = at(bx, by, radius, angle - half), end = at(bx, by, radius, angle + half);
-      return tag2("path", {
-        d: `M ${pts([start])} A ${n2(radius)} ${n2(radius)} 0 0 1 ${pts([end])}`,
-        fill: "none",
-        stroke: k % 2 ? "#0c3a26" : "#5cc893",
-        "stroke-opacity": k % 2 ? 0.75 : 0.45,
-        "stroke-width": r * (k % 3 === 0 ? 0.1 : 0.055)
-      });
-    }).join("");
-    if (kind === "labradorite") body += tag2("ellipse", {
-      cx: cx + r * (0.05 + (g - 0.5) * 0.35),
-      cy: cy + r * 0.05,
-      rx: r * 0.95,
-      ry: r * 0.42,
-      transform: `rotate(${n2(-32 + (g - 0.5) * 50)} ${n2(cx)} ${n2(cy)})`,
-      fill: `url(#${id}f)`,
-      "fill-opacity": 0.5 + 0.45 * shine
-    });
-    if (kind === "moonstone") body += tag2("ellipse", { cx: cx - r * 0.05, cy: cy - r * (0.05 + (g - 0.5) * 0.5), rx: r * 0.62, ry: r * 0.4, fill: `url(#${id}a)`, "fill-opacity": 0.55 + 0.4 * shine });
-    if (kind === "lapis") {
-      body += tag2("path", { d: `M ${n2(cx - r)} ${n2(cy + r * 0.35)} Q ${n2(cx - r * 0.1)} ${n2(cy + r * 0.05)} ${n2(cx + r)} ${n2(cy + r * 0.55)}`, stroke: "#d9dfee", "stroke-opacity": 0.35, "stroke-width": r * 0.09, fill: "none" });
-      for (let k = 0; k < 14; k++) {
-        const [x, y] = at(cx, cy, r * Math.sqrt((k + 0.5) / 14) * 0.85, k * 2.399);
-        body += tag2("circle", { cx: x, cy: y, r: r * (0.035 + 0.02 * (k % 3)), fill: "#f0cd6e", "fill-opacity": 0.55 + 0.45 * (shine * (k % 4 / 3)) });
-      }
-    }
-  }
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}s)`, "fill-opacity": m.cut === "brilliant" ? 0.55 : kind === "moonstone" ? 0.5 : 0.28 });
-  body += tag2("circle", { cx, cy, r, fill: `url(#${id}r)` });
-  const [hx, hy] = hl;
-  body += m.cut === "brilliant" ? tag2("path", {
-    d: [[0, -0.22], [0.05, -0.05], [0.22, 0], [0.05, 0.05], [0, 0.22], [-0.05, 0.05], [-0.22, 0], [-0.05, -0.05]].map(([dx = 0, dy = 0], i) => `${i ? "L" : "M"} ${n2(hx + r * dx)} ${n2(hy + r * dy)}`).join(" ") + " Z",
-    fill: "#ffffff",
-    "fill-opacity": 0.55 + 0.45 * shine
-  }) : tag2("ellipse", { cx: hx, cy: hy, rx: r * 0.34, ry: r * 0.16, transform: `rotate(${n2(az / D + 90)} ${n2(hx)} ${n2(hy)})`, fill: "#ffffff", "fill-opacity": 0.32 + 0.35 * shine });
-  return tag2(
-    "g",
-    { opacity: op },
-    tag2("defs", {}, defs) + tag2("circle", { cx, cy, r: r + 2.2, fill: "none", stroke: `url(#${id}z)`, "stroke-width": 2.4 }) + tag2("g", { "clip-path": `url(#${id}c)` }, body)
-  );
-}
-function swatchSvg(kind, size) {
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, gem(`w${kind}`, kind, size / 2, size / 2, size / 2 - 3.5));
-}
-var STARS = (() => {
-  let seed = 11;
-  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
-})();
-function instrumentSvg(run8, frame, size = 480) {
-  const m = moment(run8, frame);
-  const c = size / 2;
-  const orbit = size * 0.335;
-  const R = Math.max(18, size * 0.064);
-  const table3 = orbit + R + size * 0.06;
-  const ringMin = size * 0.085;
-  const ringMax = orbit - R * 0.35;
-  const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
-  const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
-  const n3 = run8.seats.length;
-  const pos = run8.seats.map((_2, i) => {
-    const a2 = -Math.PI / 2 + Math.PI / n3 + i * 2 * Math.PI / n3;
-    return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
-  });
-  const t = frame.t ?? 0;
-  const cur = m.idx >= 0 ? run8.events[m.idx] : void 0;
-  const user = { gradientUnits: "userSpaceOnUse" };
-  let s2 = tag2(
-    "defs",
-    {},
-    tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
-  );
-  s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
-  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
-  s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
-  for (let i = 0; i < 72; i++) {
-    const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
-    s2 += tag2("line", { x1: c + r1 * Math.cos(a2), y1: c + r1 * Math.sin(a2), x2: c + r2 * Math.cos(a2), y2: c + r2 * Math.sin(a2), stroke: NIGHT.muted, "stroke-opacity": i % 6 === 0 ? 0.6 : 0.3, "stroke-width": 0.6 });
-  }
-  s2 += tag2("circle", { cx: c, cy: c, r: table3, fill: "url(#tb)", stroke: "url(#br)", "stroke-width": 1.2, "stroke-opacity": 0.85 });
-  s2 += tag2("circle", { cx: c, cy: c, r: table3 - 5, fill: "none", stroke: NIGHT.muted, "stroke-opacity": 0.25, "stroke-width": 0.5 });
-  s2 += tag2("circle", { cx: c, cy: c, r: orbit, fill: "none", stroke: NIGHT.action, "stroke-opacity": 0.18, "stroke-width": 0.6, "stroke-dasharray": "1 5" });
-  for (let i = 0; i < run8.rounds; i++) {
-    const r = ringR(i);
-    const now = m.running && m.round === i + 1;
-    const past = frame.t !== null && (m.round > i + 1 || m.done);
-    s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
-    if (ringGap >= 12 || i % 2 === 1 || now) {
-      s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
-      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
-    }
-  }
-  if (m.speaking >= 0 && cur?.type === "turn") {
-    const p3 = pos[m.speaking];
-    const k = ease(m.since / THREAD_MS);
-    const targets = cur.cites.filter((j) => j !== m.speaking);
-    if (p3 && !targets.length) {
-      s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
-    }
-    for (const j of targets) {
-      const q2 = pos[j];
-      if (!p3 || !q2) continue;
-      const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
-      const len = Math.hypot(mx - p3.x, my - p3.y) + Math.hypot(q2.x - mx, q2.y - my);
-      s2 += tag2("path", { d: `M ${n2(p3.x)} ${n2(p3.y)} Q ${n2(mx)} ${n2(my)} ${n2(q2.x)} ${n2(q2.y)}`, stroke: NIGHT.strong, "stroke-opacity": 0.75, "stroke-width": 1, "stroke-dasharray": `${n2(len)} ${n2(len)}`, "stroke-dashoffset": len * (1 - k), fill: "none" });
-      if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
-    }
-  }
-  if (m.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
-  s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
-  s2 += tag2("text", { x: c, y: c + 5, fill: "#2e1e06", "font-size": Math.max(12, size * 0.03), "font-style": "italic", "font-family": SERIF, "text-anchor": "middle" }, "brief");
-  run8.seats.forEach((seat, i) => {
-    const p3 = pos[i];
-    if (!p3) return;
-    const talk = m.speaking === i;
-    const crew = seat.crew;
-    const step = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
-    crew.forEach((stone, k) => {
-      const ang = p3.a + (k - (crew.length - 1) / 2) * step;
-      const on = frame.t === null || k < (m.lit[i] ?? 0);
-      const born = m.running ? m.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
-      const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
-      s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
-    });
-    if (talk) s2 += tag2("circle", { cx: p3.x, cy: p3.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.9, "stroke-width": 1.4 });
-    s2 += gem(`s${i}`, seat.mineral, p3.x, p3.y, R, { glint: talk ? Math.min(1, m.since / TURN_MS) : null, dim: m.running && !talk });
-    const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
-    s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
-  });
-  return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
-}
-
-// ../glide/frontend/lanesPopup.ts
-var BINDINGS_ENV = "GLIDE_LANES_BINDINGS_FILE";
-var MODELS_ENV = "GLIDE_LANE_MODELS";
-var CLOSE_ID = 2;
-var PICK_BASE = 100;
-var PICK_STRIDE = 32;
-var APP = "glide";
-var ROLE_ORDER2 = ["fast", "small", "large", "council"];
-function fileBindings(path2 = process.env[BINDINGS_ENV] || join3(homedir3(), ".config/glide/lane-bindings.json")) {
-  const get = () => {
-    try {
-      const v = JSON.parse(readFileSync3(path2, "utf8"));
-      if (!v || typeof v !== "object" || Array.isArray(v)) return {};
-      return Object.fromEntries(Object.entries(v).filter((e) => typeof e[1] === "string"));
-    } catch {
-      return {};
-    }
-  };
-  return {
-    where: path2,
-    get,
-    set: (role, model) => {
-      mkdirSync2(dirname2(path2), { recursive: true });
-      writeFileSync2(path2, JSON.stringify({ ...get(), [role]: model }, null, 2) + "\n");
-    }
-  };
-}
-var DOT = {
-  idle: NIGHT.text3,
-  thinking: NIGHT.strong,
-  answered: NIGHT.action,
-  verified: NIGHT.agree,
-  corrected: NIGHT.muted,
-  dead: NIGHT.danger
-};
-var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
-function modelChoices(lanes2, bound2, extra = process.env[MODELS_ENV] ?? "") {
-  const all8 = [...lanes2.flatMap((l) => [l.model, l.resolved ?? ""]), ...Object.values(bound2), ...extra.split(",")].map((s2) => s2.trim()).filter(Boolean);
-  return [...new Set(all8)].slice(0, PICK_STRIDE);
-}
-var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
-var clip2 = (s2, n3) => s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
-function lanesCard(src, bound2, where, extra) {
-  let next2 = 10;
-  const text19 = (value) => ({ t: "text", text: value });
-  const el = (tag3, style2, kids, opts = {}) => ({
-    t: "el",
-    tag: tag3,
-    id: opts.id ?? next2++,
-    cls: "",
-    style: style2,
-    attrs: opts.attrs ?? {},
-    click: opts.id !== void 0,
-    kids
-  });
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`;
-  const lanes2 = sortLanes(src.call?.lanes ?? []);
-  const live = Boolean(src.call?.open && lanes2.length);
-  const choices = modelChoices(lanes2, bound2, extra);
-  const dead = lanes2.filter((l) => l.state === "dead").length;
-  const revision = (src.call?.revision || "call").toUpperCase();
-  const badge = live ? `LIVE \xB7 ${revision}` : lanes2.length ? "NO CALL OPEN" : "NOT CONNECTED";
-  const ready = lanes2.length - dead;
-  const summary4 = lanes2.length ? live ? `${lanes2.length} lanes \xB7 ${dead ? `${dead} dead \xB7 ` : ""}pick a model to rebind a lane` : `${ready} of ${lanes2.length} lanes ready for the next call${dead ? ` \xB7 ${dead} dead` : ""} \xB7 pick a model to rebind a lane` : src.error || "the lane broker has no lanes configured";
-  const header = el("div", "display:flex;flex-direction:column;gap:4px", [
-    el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text19("LANE BROKER")]),
-      el(
-        "span",
-        `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
-        [text19(badge)],
-        { attrs: { "data-lanes-source": live ? "live" : lanes2.length ? "configured" : "none", ...src.call?.revision && !live ? { title: `broker preset ${src.call.revision}` } : {} } }
-      )
-    ]),
-    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text19("Helper lanes")]),
-    el(
-      "span",
-      `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`,
-      [text19(summary4)],
-      { attrs: { title: `Lane state comes from the lane broker; a model pick is saved locally to ${where} (the broker has no binding endpoint)` } }
-    )
-  ]);
-  const rows = lanes2.map((lane, i) => {
-    const binding = bound2[lane.role];
-    const isDead = lane.state === "dead";
-    const waiting5 = !live && lane.state === "idle";
-    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
-    const model = lane.resolved && lane.resolved !== lane.model ? `${lane.model} \u2192 ${lane.resolved}` : "";
-    const line = isDead ? `dead${lane.error ? ` \xB7 ${clip2(lane.error, 80)}` : ""}` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `researching: ${clip2(lane.researching, 100)}` : live ? "no blackboard entry yet" : "";
-    return el("div", `display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ";opacity:0.85" : ""), [
-      el("div", "display:flex;align-items:center;gap:8px", [
-        el("span", `width:8px;height:8px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
-        el("span", `font-family:${SERIF};font-size:18px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text19(lane.role)]),
-        ...model ? [el("span", `${micro};font-size:9px`, [text19(model)])] : [],
-        ...binding && binding !== lane.model ? [el("span", `font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${NIGHT.strong}`, [text19(`BOUND LOCALLY \u2192 ${binding.toUpperCase()}`)], { attrs: { "data-lane-rebound": lane.role } })] : [],
-        el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone2}`, [text19(waiting5 ? "READY" : lane.state.toUpperCase())])
-      ]),
-      ...line ? [el("span", `font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text19(line)], { attrs: { "data-lane-line": lane.role } })] : [],
-      el("div", "display:flex;flex-wrap:wrap;gap:6px", choices.map((m, j) => {
-        const on = (binding ?? lane.model) === m;
-        return el(
-          "button",
-          `padding:3px 10px;border-radius:999px;border:1px solid ${on ? "#f0d7a0" : NIGHT.borderStrong};background-color:${on ? "#cfae74" : "transparent"}`,
-          [el("span", `font-family:${MONO};font-size:10px;color:${on ? "#1d160b" : NIGHT.text}`, [text19(m)])],
-          { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m}`, ...on ? { "data-lane-bound": "true" } : {} } }
-        );
-      }))
-    ]);
-  });
-  const close = el(
-    "button",
-    `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", `color:${NIGHT.text2};font-size:13px`, [text19("Close")])],
-    { id: CLOSE_ID, attrs: { "data-eui-action": "close" } }
-  );
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
-    header,
-    el("div", "display:flex;flex-direction:column", rows),
-    el("div", "display:flex;justify-content:flex-end", [close])
-  ])]);
-}
-function openLanesPopup(host, feed, bindings = fileBindings()) {
-  const eui = host.eui;
-  if (!eui) {
-    host.transcript.notice("The lanes popup needs a pane with ephemeral-ui cards", "warning");
-    return void 0;
-  }
-  const source3 = () => feed ? { call: feed.call, error: feed.error } : { call: null, error: "Lane broker not connected: point GLIDE_LANES_TOKEN_FILE at the z0live relay token." };
-  const overlay2 = {
-    key: "glide-lanes",
-    modal: true,
-    focus: () => null,
-    node: (id) => {
-      const src = source3();
-      const bound2 = bindings.get();
-      const lanes2 = sortLanes(src.call?.lanes ?? []);
-      const choices = modelChoices(lanes2, bound2);
-      const view = {
-        spec: { kind: "lanes", app: APP },
-        app: APP,
-        label: "Voice lanes",
-        identity: "lanes",
-        node: lanesCard(src, bound2, bindings.where),
-        activate: (n3) => {
-          if (n3 === CLOSE_ID) return host.close(overlay2);
-          const lane = lanes2[Math.floor((n3 - PICK_BASE) / PICK_STRIDE)];
-          const model = choices[(n3 - PICK_BASE) % PICK_STRIDE];
-          if (n3 < PICK_BASE || !lane || !model) return;
-          try {
-            bindings.set(lane.role, model);
-          } catch (e) {
-            host.transcript.notice(`lanes: could not save the binding (${e instanceof Error ? e.message : String(e)})`, "error");
-          }
-          host.changed();
-        }
-      };
-      return euiPopupNode(nativeOverlayKey(id), "Voice lanes", view, eui);
-    },
-    onKey: (key3) => {
-      if (key3.name === "escape") host.close(overlay2);
-      return true;
-    }
-  };
-  host.open(overlay2);
-  return overlay2;
-}
-
 // src/commands/glide.ts
 function glideLanes(host) {
   openLanesPopup(host, host.laneFeed);
@@ -27307,7 +27616,7 @@ var glideFocus = object({
   flow: nullable(object({ flow: number2(), confidence: number2() })),
   next_window: nullable(string2()),
   bedtime: nullable(string2()),
-  block: nullable(object({ until: string2(), minutes_left: number2(), minutes: optional(nullable(number2())) })),
+  block: nullable(object({ until: string2(), minutes_left: number2() })),
   guarded: boolean2(),
   queued: number2(),
   learned: object({
@@ -27325,10 +27634,10 @@ var glideFocus = object({
 var NS = "glide";
 var APP2 = "glide";
 var SESSIONS = 100;
-var memoryRows = (m) => [
-  { label: "Sessions read", value: m.sessions },
-  { label: "Corrections kept", value: m.corrections },
-  { label: "Quoted into turns", value: m.on ? "on" : "off" }
+var memoryRows = (m2) => [
+  { label: "Sessions read", value: m2.sessions },
+  { label: "Corrections kept", value: m2.corrections },
+  { label: "Quoted into turns", value: m2.on ? "on" : "off" }
 ];
 function glideCall(gw2, sid) {
   return async (verb, params = {}) => {
@@ -27386,9 +27695,9 @@ async function glideCommand(host, arg) {
     }
     if (verb === "focus") {
       await focusCommand(cards, async (params) => {
-        const f = glideFocus.parse(await call("focus", params));
-        focusBlock.note(f);
-        return f;
+        const f2 = glideFocus.parse(await call("focus", params));
+        focusBlock.note(f2);
+        return f2;
       }, rest[0] ?? "", fail2);
       return;
     }
@@ -27399,8 +27708,8 @@ async function glideCommand(host, arg) {
       return;
     }
     if (verb === "off") {
-      const m = glideMemory.parse(await call("enable", { on: false }));
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m) });
+      const m2 = glideMemory.parse(await call("enable", { on: false }));
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is off", rows: memoryRows(m2) });
       return;
     }
     if (verb === "recall") {
@@ -27530,9 +27839,9 @@ async function glideCommand(host, arg) {
         description: "Before each turn, Hermes searches your local corrections and quotes up to three that match. Current instructions still win."
       }
     }, async ({ signal }) => {
-      const m = glideMemory.parse(await call("enable", { on: true }));
+      const m2 = glideMemory.parse(await call("enable", { on: true }));
       if (signal.aborted) return;
-      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m) });
+      cards.publish({ kind: "receipt", app: APP2, title: "Glide memory is on", rows: memoryRows(m2) });
       router();
     });
     cards.publish({
@@ -27546,10 +27855,10 @@ async function glideCommand(host, arg) {
       }
     }, async ({ signal }) => {
       try {
-        const m = glideMemory.parse(await call("sync", { limit: SESSIONS }));
+        const m2 = glideMemory.parse(await call("sync", { limit: SESSIONS }));
         if (signal.aborted) return;
-        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m), { label: "Messages scanned", value: m.scanned ?? 0 }] });
-        if (m.on) router();
+        cards.publish({ kind: "intent-proof", app: APP2, title: "Local memory built", rows: [...memoryRows(m2), { label: "Messages scanned", value: m2.scanned ?? 0 }] });
+        if (m2.on) router();
         else enable();
       } catch (error) {
         fail2(error);
@@ -27632,19 +27941,7 @@ var PHASE = {
 };
 var phaseName = (p3) => PHASE[p3] ?? p3.replace(/_/g, " ").toLowerCase();
 var clock = (t) => t ? /T(\d\d:\d\d)/.exec(t)?.[1] ?? t : "unknown";
-var hours = (f) => f.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
-var liveFocus = /* @__PURE__ */ new WeakMap();
-var BLOCK = 50;
-var focusRows = (f) => [
-  { label: "phase", value: phaseName(f.phase) },
-  { label: "flow", value: f.flow ? `${Math.round(f.flow.flow * 100)}% est.` : "no signal" },
-  { label: "next", value: f.next_window ?? "" },
-  { label: "bedtime", value: clock(f.bedtime) },
-  { label: "block", value: f.block ? "on" : "off" },
-  ...f.block ? [{ label: "left", value: f.block.minutes_left }, { label: "length", value: f.block.minutes ?? f.block.minutes_left }, { label: "until", value: f.block.until }] : [{ label: "length", value: BLOCK }],
-  { label: "held", value: f.queued }
-];
-var source = (f) => f.phase_source === "circadian" ? "From your circadian schedule." : `From ${f.learned.source}.`;
+var hours = (f2) => f2.learned.windows.map((w) => `${String(w.start).padStart(2, "0")}:00\u2013${String(w.end).padStart(2, "0")}:00`);
 async function focusCommand(cards, call, sub, fail2) {
   const guarded3 = (run8) => async (ctx) => {
     try {
@@ -27653,102 +27950,104 @@ async function focusCommand(cards, call, sub, fail2) {
       fail2(error);
     }
   };
-  const digest2 = (f2) => {
-    const held = f2.digest ?? [];
+  const stopCard = () => cards.publish({
+    kind: "approve",
+    app: APP2,
+    title: "End the deep-work block",
+    rows: [{ label: "Then", value: "everything held arrives as one digest" }],
+    approval: { label: "End block", description: "Ends the block and shows the asks Glide held while you worked." }
+  }, guarded3(async ({ signal }) => {
+    const f3 = await call({ action: "stop" });
+    if (signal.aborted) return;
+    const held = f3.digest ?? [];
     cards.publish({
       kind: "receipt",
-      app: DIGEST_APP,
+      app: APP2,
       title: held.length ? `While you were in deep work: ${held.length} held` : "Block ended, nothing held",
-      rows: [{ label: "count", value: held.length }, ...held.slice(0, MAX_HOST_ROWS - 1).map((i) => ({ label: i.cls.slice(0, 80) || "ask", value: i.title.slice(0, 2048) }))]
+      rows: held.length ? held.map((i) => ({ label: i.cls, value: i.title })) : [{ label: "Held", value: "nothing" }]
     });
+  }));
+  const blockOn = (f3) => {
+    cards.publish({
+      kind: "receipt",
+      app: APP2,
+      title: `Deep-work block on until ${f3.block?.until ?? "\u2014"}`,
+      rows: [
+        { label: "Agent asks", value: "held until the block ends" },
+        { label: "Critical", value: "still passes" },
+        { label: "Held so far", value: f3.queued }
+      ]
+    });
+    stopCard();
   };
-  const ended = (f2) => ({
-    kind: "receipt",
-    app: FOCUS_APP,
-    title: "Deep-work block ended",
-    summary: source(f2),
-    rows: focusRows({ ...f2, block: null, queued: 0 })
-  });
-  const settle2 = (f2) => {
-    const live = liveFocus.get(cards);
-    liveFocus.delete(cards);
-    live?.update(ended(f2));
-  };
-  const card = (f2) => f2.block ? [{
+  const startCard = () => cards.publish({
     kind: "approve",
-    app: FOCUS_APP,
-    title: `Deep-work block on until ${f2.block.until}`,
-    summary: "Agent asks are held for one digest. Critical alerts still pass.",
-    rows: focusRows(f2),
-    approval: { label: "End block", description: "Ends the block and hands back everything Glide held as one digest." }
+    app: APP2,
+    title: "Start a deep-work block",
+    rows: [{ label: "Length", value: "50 min" }, { label: "Holds", value: "non-critical agent asks" }],
+    approval: { label: "Start block", description: "For the next 50 minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass." }
   }, guarded3(async ({ signal }) => {
-    const done = await call({ action: "stop" });
+    const on = await call({ action: "start", minutes: 50 });
     if (signal.aborted) return;
-    settle2(done);
-    digest2(done);
-  })] : [{
-    kind: "approve",
-    app: FOCUS_APP,
-    title: "Your attention",
-    summary: source(f2),
-    rows: focusRows(f2),
-    approval: { label: "Start block", description: `For the next ${BLOCK} minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.` }
-  }, guarded3(async ({ signal }) => {
-    const on = await call({ action: "start", minutes: BLOCK });
-    if (signal.aborted) return;
-    liveFocus.get(cards)?.update(...card(on));
-  })];
-  const show = (f2) => {
-    liveFocus.get(cards)?.revoke();
-    liveFocus.set(cards, cards.publish(...card(f2)));
-  };
+    blockOn(on);
+  }));
   if (sub === "stop") {
-    const done = await call({ action: "stop" });
-    try {
-      settle2(done);
-    } catch {
-    }
-    digest2(done);
+    stopCard();
     return;
   }
   if (/^\d+$/.test(sub)) {
-    show(await call({ action: "start", minutes: Math.max(5, Math.min(240, Number(sub))) }));
+    blockOn(await call({ action: "start", minutes: Math.max(5, Math.min(240, Number(sub))) }));
     return;
   }
   if (sub === "wind-down") {
-    const f2 = await call({ action: "wind_down" });
-    const asks = f2.wind_down?.resume?.last_asks ?? [];
-    const now = /* @__PURE__ */ new Date();
+    const f3 = await call({ action: "wind_down" });
+    const asks = f3.wind_down?.resume?.last_asks ?? [];
     cards.publish({
       kind: "receipt",
-      app: WIND_APP,
+      app: APP2,
       title: "Time to wrap: here's where you left off",
       rows: [
-        { label: "now", value: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}` },
-        { label: "bedtime", value: clock(f2.bedtime) },
-        { label: "stop", value: f2.learned.stop ?? "" },
-        { label: "best", value: f2.learned.windows.map((w) => `${w.start}-${w.end}`).join(", ") },
-        { label: "next", value: f2.next_window ?? "" },
-        ...asks.slice(0, 5).map((a2) => ({ label: "ask", value: a2.slice(0, 2048) }))
+        { label: "Bedtime", value: clock(f3.bedtime) },
+        { label: "Left off", value: asks.join(" \xB7 ") || "nothing yet" },
+        { label: "Tomorrow", value: "your first turn starts from this note" }
       ]
     });
     return;
   }
-  const f = await call(sub === "start" ? { action: "start" } : {});
+  const f2 = await call(sub === "start" ? { action: "start" } : {});
   if (sub === "hours") {
     cards.publish({
       kind: "metric",
       app: APP2,
       title: "Your best deep-work hours",
-      summary: `Learned from ${f.learned.days} days of ${f.learned.source}. An hour counts when you sent three or more messages in it.`,
+      summary: `Learned from ${f2.learned.days} days of ${f2.learned.source}. An hour counts when you sent three or more messages in it.`,
       rows: [
-        ...hours(f).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
-        { label: "Usual stop", value: f.learned.stop === null ? "unknown" : `${String(f.learned.stop).padStart(2, "0")}:00` }
+        ...hours(f2).map((h2, i) => ({ label: i ? "Also good" : "Best", value: h2 })),
+        { label: "Usual stop", value: f2.learned.stop === null ? "unknown" : `${String(f2.learned.stop).padStart(2, "0")}:00` }
       ]
     });
     return;
   }
-  show(f);
+  if (sub === "start") {
+    blockOn(f2);
+    return;
+  }
+  cards.publish({
+    kind: "metric",
+    app: APP2,
+    title: "Your attention",
+    summary: f2.phase_source === "circadian" ? "From your circadian schedule." : `From ${f2.learned.source}.`,
+    rows: [
+      { label: "Phase", value: phaseName(f2.phase) },
+      { label: "Flow likelihood", value: f2.flow ? `${Math.round(f2.flow.flow * 100)}% (estimate)` : "no wearable signal" },
+      { label: "Next deep work", value: f2.next_window ?? "not learned yet" },
+      { label: "Bedtime", value: clock(f2.bedtime) },
+      { label: "Deep-work block", value: f2.block ? `on until ${f2.block.until}` : "off" },
+      { label: "Held for later", value: f2.queued }
+    ]
+  });
+  if (f2.block) stopCard();
+  else startCard();
 }
 
 // src/chrome/attention.ts
@@ -27772,8 +28071,8 @@ var Dispatches = class {
   #held = /* @__PURE__ */ new Map();
   #serial = 0;
   show(payload, now = Date.now(), hidden2 = false) {
-    const text19 = payload.text?.trim();
-    if (!text19) {
+    const text18 = payload.text?.trim();
+    if (!text18) {
       return;
     }
     const key3 = payload.key?.trim() || payload.id?.trim() || `anonymous:${++this.#serial}`;
@@ -27791,7 +28090,7 @@ var Dispatches = class {
     const note = {
       key: key3,
       serial: existing?.serial ?? ++this.#serial,
-      text: text19,
+      text: text18,
       level,
       expiresAt: payload.kind === "sticky" ? null : now + ttl
     };
@@ -27993,24 +28292,24 @@ function sessionHost(cx, literal3 = false) {
     get busy() {
       return cx.activity.busy !== null;
     },
-    draft: (text19) => {
-      cx.draft(text19);
+    draft: (text18) => {
+      cx.draft(text18);
       cx.changed();
     },
     // A steer that fell back to the queue: steering carries no images.
-    enqueue: (text19) => cx.router.behind({ images: [], kind: "app", text: text19 }),
+    enqueue: (text18) => cx.router.behind({ images: [], kind: "app", text: text18 }),
     gw: cx.gw,
-    notice: (text19, tone2) => {
-      cx.transcript.notice(text19, tone2);
+    notice: (text18, tone2) => {
+      cx.transcript.notice(text18, tone2);
       cx.changed();
     },
     // The shared gateway (the one /branch runs on) answers a resume with one id for both kinds.
-    open: async (id) => {
-      await cx.life.resume(id);
-      return durable(cx.state.ref) === id;
+    open: async (id2) => {
+      await cx.life.resume(id2);
+      return durable(cx.state.ref) === id2;
     },
-    panel: (title, text19) => {
-      cx.transcript.panel(title, text19);
+    panel: (title2, text18) => {
+      cx.transcript.panel(title2, text18);
       cx.changed();
     },
     compressing: (state) => {
@@ -28034,21 +28333,21 @@ function sessionHost(cx, literal3 = false) {
         await cx.life.reload(sid);
       }
     },
-    send: (text19) => cx.router.send({ images: [], kind: "app", text: text19 }),
+    send: (text18) => cx.router.send({ images: [], kind: "app", text: text18 }),
     sid,
     stale: () => !ticket.isCurrent(),
-    steered: (text19) => {
-      cx.transcript.steer(text19);
+    steered: (text18) => {
+      cx.transcript.steer(text18);
       cx.changed();
     },
     // /queue: behind the turn whatever busy_input_mode says.
-    submit: (text19) => cx.submit(text19, literal3)
+    submit: (text18) => cx.submit(text18, literal3)
   };
 }
 
 // src/hermes/connect.ts
 import { execFile as execFile2 } from "node:child_process";
-var command = object({ argv: tuple([string2()], string2()), env: _catch(record(string2(), string2()), {}) });
+var command = object({ argv: tuple([string2()], string2()), env: _catch(record2(string2(), string2()), {}) });
 function readHermesCommand(raw2) {
   return raw2 ? command.safeParse(parseJson(raw2)).data : void 0;
 }
@@ -28073,7 +28372,7 @@ var runFile = (file2, args, env2) => new Promise((resolve11) => {
     resolve11({ code: code7, stderr: stderr || (error && !stdout ? error.message : ""), stdout });
   });
 });
-var lastJson = (text19) => text19.split("\n").reverse().map((line) => line.trim()).filter(Boolean).map((line) => parseJson(line)).find((value) => value !== void 0);
+var lastJson = (text18) => text18.split("\n").reverse().map((line) => line.trim()).filter(Boolean).map((line) => parseJson(line)).find((value) => value !== void 0);
 function attachGateway(hermes, run8 = runFile, env2 = process.env) {
   return async (start, recover) => {
     const [file2, ...args] = hermes.argv;
@@ -28181,10 +28480,10 @@ var KEYS2 = {
 };
 var EXTERNAL_EDITOR_KEY = { label: "ctrl+g", name: "g", with: ["ctrl"], without: ["alt", "meta", "shift"] };
 function matches(key3, match) {
-  return key3.name === match.name && match.with.every((m) => key3[m]) && !match.without?.some((m) => key3[m]);
+  return key3.name === match.name && match.with.every((m2) => key3[m2]) && !match.without?.some((m2) => key3[m2]);
 }
-function bound(cx, id, key3, fallback) {
-  return cx.shortcut ? cx.shortcut(id, key3) : matches(key3, fallback);
+function bound(cx, id2, key3, fallback) {
+  return cx.shortcut ? cx.shortcut(id2, key3) : matches(key3, fallback);
 }
 function hasDraft(cx) {
   return Boolean(cx.composer.text || cx.attachments.any);
@@ -28274,7 +28573,7 @@ var appShortcuts = (key3, cx) => {
     ["app.history.search", cx.openHistorySearch],
     ["app.help", cx.openHelp]
   ];
-  const found = actions.find(([id, run8]) => Boolean(run8 && cx.shortcut?.(id, key3)));
+  const found = actions.find(([id2, run8]) => Boolean(run8 && cx.shortcut?.(id2, key3)));
   found?.[1]?.();
   return found !== void 0;
 };
@@ -28311,8 +28610,8 @@ var SHEETS = [
 var sheets = (key3, cx) => {
   const ids = ["app.agents.hub", "app.jobs", void 0, "app.sidebar", "app.prs"];
   const hit = SHEETS.find(([match], index2) => {
-    const id = ids[index2];
-    return id ? bound(cx, id, key3, match) : matches(key3, match);
+    const id2 = ids[index2];
+    return id2 ? bound(cx, id2, key3, match) : matches(key3, match);
   });
   hit?.[1](cx);
   return hit !== void 0;
@@ -28394,19 +28693,19 @@ function onKey(key3, cx, top) {
 }
 var graphemes = new Intl.Segmenter(void 0, { granularity: "grapheme" });
 var WORD = /[\p{L}\p{N}_]/u;
-function lineStart(text19, at2) {
-  return at2 <= 0 ? 0 : text19.lastIndexOf("\n", at2 - 1) + 1;
+function lineStart(text18, at2) {
+  return at2 <= 0 ? 0 : text18.lastIndexOf("\n", at2 - 1) + 1;
 }
-function lineEnd(text19, at2) {
-  const i = text19.indexOf("\n", at2);
-  return i < 0 ? text19.length : i;
+function lineEnd(text18, at2) {
+  const i = text18.indexOf("\n", at2);
+  return i < 0 ? text18.length : i;
 }
-function boundaryAt(text19, at2) {
-  if (at2 >= text19.length) {
-    return text19.length;
+function boundaryAt(text18, at2) {
+  if (at2 >= text18.length) {
+    return text18.length;
   }
   let floor = 0;
-  for (const { index: index2 } of graphemes.segment(text19)) {
+  for (const { index: index2 } of graphemes.segment(text18)) {
     if (index2 > at2) {
       break;
     }
@@ -28414,9 +28713,9 @@ function boundaryAt(text19, at2) {
   }
   return floor;
 }
-function prevGrapheme(text19, at2) {
+function prevGrapheme(text18, at2) {
   let prev = 0;
-  for (const { index: index2 } of graphemes.segment(text19)) {
+  for (const { index: index2 } of graphemes.segment(text18)) {
     if (index2 >= at2) {
       break;
     }
@@ -28424,30 +28723,30 @@ function prevGrapheme(text19, at2) {
   }
   return prev;
 }
-function nextGrapheme(text19, at2) {
-  for (const { index: index2, segment } of graphemes.segment(text19)) {
+function nextGrapheme(text18, at2) {
+  for (const { index: index2, segment } of graphemes.segment(text18)) {
     if (index2 >= at2) {
       return index2 + segment.length;
     }
   }
-  return text19.length;
+  return text18.length;
 }
-function prevWord(text19, at2) {
+function prevWord(text18, at2) {
   let i = at2;
-  while (i > 0 && !WORD.test(text19[i - 1] ?? "")) {
+  while (i > 0 && !WORD.test(text18[i - 1] ?? "")) {
     i--;
   }
-  while (i > 0 && WORD.test(text19[i - 1] ?? "")) {
+  while (i > 0 && WORD.test(text18[i - 1] ?? "")) {
     i--;
   }
   return i;
 }
-function nextWord(text19, at2) {
+function nextWord(text18, at2) {
   let i = at2;
-  while (i < text19.length && !WORD.test(text19[i] ?? "")) {
+  while (i < text18.length && !WORD.test(text18[i] ?? "")) {
     i++;
   }
-  while (i < text19.length && WORD.test(text19[i] ?? "")) {
+  while (i < text18.length && WORD.test(text18[i] ?? "")) {
     i++;
   }
   return i;
@@ -28457,7 +28756,7 @@ function nextWord(text19, at2) {
 import { spawnSync } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join as join4 } from "node:path";
+import { join as join5 } from "node:path";
 function editorArgv(command2) {
   const args = [];
   let word = "";
@@ -28509,9 +28808,9 @@ var openDraftFile = (file2) => {
   }
 };
 async function editTextExternal(initial, opener = openDraftFile) {
-  const dir2 = await mkdtemp(join4(tmpdir(), "hermes-tern-edit-"));
+  const dir2 = await mkdtemp(join5(tmpdir(), "hermes-tern-edit-"));
   try {
-    const file2 = join4(dir2, "draft.txt");
+    const file2 = join5(dir2, "draft.txt");
     await writeFile(file2, initial, { mode: 384 });
     await opener(file2);
     return await readFile(file2, "utf8");
@@ -28675,11 +28974,11 @@ var chromeHandlers = {
   },
   // What the background self-improvement review saved to memory or skills.
   "review.summary": (ev, cx) => {
-    const text19 = String(ev.payload?.text ?? "").trim();
-    if (!text19) {
+    const text18 = String(ev.payload?.text ?? "").trim();
+    if (!text18) {
       return "quiet";
     }
-    cx.transcript.notice(text19);
+    cx.transcript.notice(text18);
     return "render";
   },
   notice: (ev, cx) => {
@@ -28884,8 +29183,8 @@ function actionsRow(buttons) {
 
 // src/prompts/ask.tsx
 var isCtrlC = (k) => k.ctrl && !k.alt && !k.meta && !k.shift && k.name === "c";
-function optionList(listKey, id, options, selected, select2, pick2) {
-  const at2 = (item3) => options.findIndex((o) => `${id}.${o.id}` === item3);
+function optionList(listKey, id2, options, selected, select2, pick2) {
+  const at2 = (item3) => options.findIndex((o) => `${id2}.${o.id}` === item3);
   return /* @__PURE__ */ jsx(
     "list",
     {
@@ -28902,7 +29201,7 @@ function optionList(listKey, id, options, selected, select2, pick2) {
         }
       },
       role: "omp.ask.options",
-      ...optional2("selected", options[selected] ? `${id}.${options[selected].id}` : void 0),
+      ...optional2("selected", options[selected] ? `${id2}.${options[selected].id}` : void 0),
       children: options.map((o) => /* @__PURE__ */ jsx(
         "item",
         {
@@ -28970,7 +29269,7 @@ function moved(key3, at2, count5) {
 
 // src/prompts/sheets.ts
 var PREFIX = "prompt:";
-var promptKey = (id) => overlayKey(`${PREFIX}${id}`);
+var promptKey = (id2) => overlayKey(`${PREFIX}${id2}`);
 var PromptSheets = class {
   #host;
   /** Open approval sheets' keys → their approval-queue `request_id` (what approval.cancelled names). */
@@ -28990,16 +29289,16 @@ var PromptSheets = class {
     this.#approvals.delete(overlay2.key);
   }
   /** Whether the sheet for request `id` is open. */
-  shows(id) {
-    const key3 = promptKey(String(id));
+  shows(id2) {
+    const key3 = promptKey(String(id2));
     return this.#host.overlays.some((o) => o.key === key3);
   }
   /**
    * Closes the sheet for request `id`: request.cancel's, or a shared prompt's `sharedPromptId`
    * (approval.settled, clarify.settled).
    */
-  drop(id) {
-    const key3 = promptKey(String(id));
+  drop(id2) {
+    const key3 = promptKey(String(id2));
     this.#drop((k) => k === key3);
   }
   /** Closes every shared prompt's sheet: a resume re-hydrates those still pending. */
@@ -29050,7 +29349,7 @@ function approvalOverlay(host, prompt) {
     key: key3,
     modal: true,
     cancel: decline,
-    node: (id) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
+    node: (id2) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: "Allow this command?" }, "question"),
       description || smartDenied ? /* @__PURE__ */ jsxs("row", { align: "start", gap: "xs", children: [
         /* @__PURE__ */ jsx("icon", { name: "shield", tone: smartDenied ? "error" : "warning" }, "icon"),
@@ -29074,7 +29373,7 @@ function approvalOverlay(host, prompt) {
           ...c.id === "once" ? { kind: "primary" } : {}
         }))
       )
-    ] }, "body") }, nativeOverlayKey(id)),
+    ] }, "body") }, nativeOverlayKey(id2)),
     onKey: (k) => {
       if (isCtrlC(k) || k.name === "escape" && unmodified(k)) {
         decline();
@@ -29093,12 +29392,12 @@ function approvalOverlay(host, prompt) {
 }
 
 // node_modules/@hermes/shared/src/node/prompt-history.ts
-import { appendFileSync as appendFileSync2, existsSync, mkdirSync as mkdirSync3, readFileSync as readFileSync4 } from "node:fs";
-import { homedir as homedir4 } from "node:os";
-import { join as join5 } from "node:path";
+import { appendFileSync as appendFileSync2, existsSync, mkdirSync as mkdirSync3, readFileSync as readFileSync5 } from "node:fs";
+import { homedir as homedir5 } from "node:os";
+import { join as join6 } from "node:path";
 var MAX = 1e3;
-var dir = process.env.HERMES_HOME ?? join5(homedir4(), ".hermes");
-var file = join5(dir, ".hermes_history");
+var dir = process.env.HERMES_HOME ?? join6(homedir5(), ".hermes");
+var file = join6(dir, ".hermes_history");
 var cache = null;
 function load() {
   if (cache) {
@@ -29111,7 +29410,7 @@ function load() {
     }
     const entries2 = [];
     let current = [];
-    for (const line of readFileSync4(file, "utf8").split("\n")) {
+    for (const line of readFileSync5(file, "utf8").split("\n")) {
       if (line.startsWith("+")) {
         current.push(line.slice(1));
       } else if (current.length) {
@@ -29167,11 +29466,11 @@ var ITALIC_STAR = /(?<![*\\])\*(?=[^\s*])([^\n*]*?[^\s*\\])\*(?!\*)/g;
 var ITALIC_UNDERSCORE = /(?<![\w\\])_(?=[^\s_])([^\n_]*?[^\s_\\])_(?![\w])/g;
 var STRIKE = /~~(?=\S)([^\n]*?\S)~~/g;
 var LINK = /\[(?<label>[^\]\n]+)\]\(([^)\s]+)\)/g;
-function markdownDecor(text19) {
-  if (!text19) {
+function markdownDecor(text18) {
+  if (!text18) {
     return [];
   }
-  const marks2 = Array.from({ length: text19.length }, () => []);
+  const marks2 = Array.from({ length: text18.length }, () => []);
   const mark2 = (from, to, s2) => {
     for (const tokens2 of marks2.slice(from, to)) {
       if (!tokens2.includes(s2)) {
@@ -29181,7 +29480,7 @@ function markdownDecor(text19) {
   };
   let at2 = 0;
   let fenced = false;
-  for (const line of text19.split("\n")) {
+  for (const line of text18.split("\n")) {
     const end = at2 + line.length;
     if (FENCE.test(line)) {
       mark2(at2, end, "dim");
@@ -29231,28 +29530,28 @@ function inlineMarks(line, from, at2, mark2) {
   const take = (start, len) => {
     rest = rest.slice(0, start) + "\0".repeat(len) + rest.slice(start + len);
   };
-  for (const m of [...rest.matchAll(CODE_SPAN)]) {
-    const tick2 = m.groups?.["ticks"]?.length ?? 0;
-    mark2(at2 + m.index, at2 + m.index + tick2, "dim");
-    mark2(at2 + m.index + tick2, at2 + m.index + m[0].length - tick2, "code");
-    mark2(at2 + m.index + m[0].length - tick2, at2 + m.index + m[0].length, "dim");
-    take(m.index, m[0].length);
+  for (const m2 of [...rest.matchAll(CODE_SPAN)]) {
+    const tick2 = m2.groups?.["ticks"]?.length ?? 0;
+    mark2(at2 + m2.index, at2 + m2.index + tick2, "dim");
+    mark2(at2 + m2.index + tick2, at2 + m2.index + m2[0].length - tick2, "code");
+    mark2(at2 + m2.index + m2[0].length - tick2, at2 + m2.index + m2[0].length, "dim");
+    take(m2.index, m2[0].length);
   }
-  for (const m of [...rest.matchAll(LINK)]) {
-    const label = m.groups?.["label"]?.length ?? 0;
-    mark2(at2 + m.index, at2 + m.index + 1, "dim");
-    mark2(at2 + m.index + 1, at2 + m.index + 1 + label, "link");
-    mark2(at2 + m.index + 1 + label, at2 + m.index + m[0].length, "dim");
-    take(m.index + 2 + label, m[0].length - 2 - label);
+  for (const m2 of [...rest.matchAll(LINK)]) {
+    const label = m2.groups?.["label"]?.length ?? 0;
+    mark2(at2 + m2.index, at2 + m2.index + 1, "dim");
+    mark2(at2 + m2.index + 1, at2 + m2.index + 1 + label, "link");
+    mark2(at2 + m2.index + 1 + label, at2 + m2.index + m2[0].length, "dim");
+    take(m2.index + 2 + label, m2[0].length - 2 - label);
   }
   const pair3 = (re2, marker, s2) => {
-    for (const m of [...rest.matchAll(re2)]) {
-      const len = m[0].length;
-      mark2(at2 + m.index, at2 + m.index + marker, "dim");
-      mark2(at2 + m.index + marker, at2 + m.index + len - marker, s2);
-      mark2(at2 + m.index + len - marker, at2 + m.index + len, "dim");
-      take(m.index, marker);
-      take(m.index + len - marker, marker);
+    for (const m2 of [...rest.matchAll(re2)]) {
+      const len = m2[0].length;
+      mark2(at2 + m2.index, at2 + m2.index + marker, "dim");
+      mark2(at2 + m2.index + marker, at2 + m2.index + len - marker, s2);
+      mark2(at2 + m2.index + len - marker, at2 + m2.index + len, "dim");
+      take(m2.index, marker);
+      take(m2.index + len - marker, marker);
     }
   };
   pair3(BOLD, 2, "strong");
@@ -29275,78 +29574,78 @@ function runs(marks2) {
   }
   return out;
 }
-function listNewline(text19, cursor) {
-  const start = text19.lastIndexOf("\n", cursor - 1) + 1;
-  const nl = text19.indexOf("\n", cursor);
-  const end = nl < 0 ? text19.length : nl;
-  const line = text19.slice(start, end);
-  const m = LIST.exec(line);
-  if (!m || cursor - start < m[0].length) {
+function listNewline(text18, cursor) {
+  const start = text18.lastIndexOf("\n", cursor - 1) + 1;
+  const nl = text18.indexOf("\n", cursor);
+  const end = nl < 0 ? text18.length : nl;
+  const line = text18.slice(start, end);
+  const m2 = LIST.exec(line);
+  if (!m2 || cursor - start < m2[0].length) {
     return void 0;
   }
-  if (!line.slice(m[0].length).trim()) {
+  if (!line.slice(m2[0].length).trim()) {
     return { cursor: start, from: start, text: "", to: end };
   }
-  const [, indent2 = "", bullet = "", gap = " ", box] = m;
+  const [, indent2 = "", bullet = "", gap = " ", box] = m2;
   const n3 = /^\d+/.exec(bullet)?.[0];
   const next2 = n3 ? `${Number(n3) + 1}${bullet.slice(n3.length)}` : bullet;
   const insert2 = `
 ${indent2}${next2}${gap}${box ? "[ ] " : ""}`;
   return { cursor: cursor + insert2.length, from: cursor, text: insert2, to: cursor };
 }
-function toggleMark(text19, from, to, marker) {
+function toggleMark(text18, from, to, marker) {
   const n3 = marker.length;
   if (from !== to) {
-    if (text19.slice(from - n3, from) === marker && text19.slice(to, to + n3) === marker && !doubled(text19, from - n3, to + n3, marker)) {
-      return { anchor: from - n3, cursor: to - n3, from: from - n3, text: text19.slice(from, to), to: to + n3 };
+    if (text18.slice(from - n3, from) === marker && text18.slice(to, to + n3) === marker && !doubled(text18, from - n3, to + n3, marker)) {
+      return { anchor: from - n3, cursor: to - n3, from: from - n3, text: text18.slice(from, to), to: to + n3 };
     }
-    const inner = text19.slice(from, to);
+    const inner = text18.slice(from, to);
     if (inner.length > 2 * n3 && inner.startsWith(marker) && inner.endsWith(marker)) {
       return { anchor: from, cursor: to - 2 * n3, from, text: inner.slice(n3, -n3), to };
     }
     return { anchor: from + n3, cursor: to + n3, from, text: `${marker}${inner}${marker}`, to };
   }
   const at2 = from;
-  if (text19.slice(at2 - n3, at2) === marker && text19.slice(at2, at2 + n3) === marker) {
+  if (text18.slice(at2 - n3, at2) === marker && text18.slice(at2, at2 + n3) === marker) {
     return { cursor: at2 - n3, from: at2 - n3, text: "", to: at2 + n3 };
   }
-  const run8 = markedRun(text19, at2, marker);
+  const run8 = markedRun(text18, at2, marker);
   if (run8 && at2 === run8.close) {
     return { cursor: at2 + n3, from: at2, text: "", to: at2 };
   }
   if (run8) {
-    const inner = text19.slice(run8.open + n3, run8.close);
+    const inner = text18.slice(run8.open + n3, run8.close);
     return { cursor: at2 - n3, from: run8.open, text: inner, to: run8.close + n3 };
   }
-  const word = wordAt(text19, at2);
+  const word = wordAt(text18, at2);
   if (word) {
-    return { cursor: at2 + n3, from: word.from, text: `${marker}${text19.slice(word.from, word.to)}${marker}`, to: word.to };
+    return { cursor: at2 + n3, from: word.from, text: `${marker}${text18.slice(word.from, word.to)}${marker}`, to: word.to };
   }
   return { cursor: at2 + n3, from: at2, text: `${marker}${marker}`, to: at2 };
 }
 var WORD2 = /[\p{L}\p{N}'’-]/u;
-function wordAt(text19, at2) {
+function wordAt(text18, at2) {
   let from = at2;
   let to = at2;
-  while (from > 0 && WORD2.test(text19[from - 1] ?? "")) {
+  while (from > 0 && WORD2.test(text18[from - 1] ?? "")) {
     from--;
   }
-  while (to < text19.length && WORD2.test(text19[to] ?? "")) {
+  while (to < text18.length && WORD2.test(text18[to] ?? "")) {
     to++;
   }
   return from < to ? { from, to } : void 0;
 }
-function doubled(text19, open5, close, marker) {
-  return marker.length === 1 && (text19[open5 - 1] === marker || text19[close] === marker);
+function doubled(text18, open5, close, marker) {
+  return marker.length === 1 && (text18[open5 - 1] === marker || text18[close] === marker);
 }
-function markedRun(text19, at2, marker) {
-  const start = text19.lastIndexOf("\n", at2 - 1) + 1;
-  const nl = text19.indexOf("\n", at2);
-  const line = text19.slice(start, nl < 0 ? text19.length : nl);
+function markedRun(text18, at2, marker) {
+  const start = text18.lastIndexOf("\n", at2 - 1) + 1;
+  const nl = text18.indexOf("\n", at2);
+  const line = text18.slice(start, nl < 0 ? text18.length : nl);
   const re2 = marker === "**" ? /\*\*(?=\S)([^\n]*?\S)\*\*/g : /(?<![\w_])_(?=[^\s_])([^\n_]*?[^\s_])_(?![\w_])/g;
-  for (const m of line.matchAll(re2)) {
-    const open5 = start + m.index;
-    const close = open5 + m[0].length - marker.length;
+  for (const m2 of line.matchAll(re2)) {
+    const open5 = start + m2.index;
+    const close = open5 + m2[0].length - marker.length;
     if (at2 > open5 + marker.length - 1 && at2 <= close) {
       return { close, open: open5 };
     }
@@ -29415,9 +29714,9 @@ var VIM_ACTIONS = [
   { id: "0", keys: ["0", "home"] },
   { id: "^", keys: ["shift+6"] },
   { id: "$", keys: ["shift+4", "end"] },
-  ...["w", "b", "e", "g", "i", "a", "o", "v", "d", "c", "y", "x", "r", "u", "p"].map((id) => ({ id, keys: [id] })),
-  ...["g", "i", "a", "o", "v", "d", "c", "p"].map((id) => ({ id: id.toUpperCase(), keys: [`shift+${id}`] })),
-  ...["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((id) => ({ id, keys: [id] })),
+  ...["w", "b", "e", "g", "i", "a", "o", "v", "d", "c", "y", "x", "r", "u", "p"].map((id2) => ({ id: id2, keys: [id2] })),
+  ...["g", "i", "a", "o", "v", "d", "c", "p"].map((id2) => ({ id: id2.toUpperCase(), keys: [`shift+${id2}`] })),
+  ...["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((id2) => ({ id: id2, keys: [id2] })),
   { id: "redo", keys: ["ctrl+r"] }
 ];
 var VIM_MODIFIERS = ["ctrl", "alt", "shift", "meta"];
@@ -29432,7 +29731,7 @@ function vimActionForKey(key3) {
 
 // src/draft/vim.ts
 var segments = new Intl.Segmenter(void 0, { granularity: "grapheme" });
-var wordClass = (text19) => /\s/u.test(text19) ? 0 : /[\p{L}\p{N}_]/u.test(text19) ? 1 : 2;
+var wordClass = (text18) => /\s/u.test(text18) ? 0 : /[\p{L}\p{N}_]/u.test(text18) ? 1 : 2;
 var MAX_COUNT = 1e4;
 var VimComposer = class {
   constructor(composer2) {
@@ -29583,67 +29882,67 @@ var VimComposer = class {
     }
   }
   #clamp() {
-    const { text: text19, cursor } = this.composer;
-    const start = lineStart2(text19, cursor);
-    const end = lineEnd2(text19, cursor);
-    this.composer.move(end > start ? Math.min(cursor, prevGrapheme2(text19, end)) : start);
+    const { text: text18, cursor } = this.composer;
+    const start = lineStart2(text18, cursor);
+    const end = lineEnd2(text18, cursor);
+    this.composer.move(end > start ? Math.min(cursor, prevGrapheme2(text18, end)) : start);
   }
   #line(n3) {
     const lines = this.composer.text.split("\n");
     return lines.slice(0, Math.max(0, Math.min(n3, lines.length - 1))).reduce((sum, line) => sum + line.length + 1, 0);
   }
   #vertical(delta) {
-    const { text: text19, cursor } = this.composer;
-    const start = lineStart2(text19, cursor);
-    const line = text19.slice(0, start).split("\n").length - 1;
-    this.#column ??= [...segments.segment(text19.slice(start, cursor))].length;
+    const { text: text18, cursor } = this.composer;
+    const start = lineStart2(text18, cursor);
+    const line = text18.slice(0, start).split("\n").length - 1;
+    this.#column ??= [...segments.segment(text18.slice(start, cursor))].length;
     const target2 = this.#line(line + delta);
-    const graphemes3 = [...segments.segment(text19.slice(target2, lineEnd2(text19, target2)))];
-    return target2 + (graphemes3[this.#column]?.index ?? lineEnd2(text19, target2) - target2);
+    const graphemes3 = [...segments.segment(text18.slice(target2, lineEnd2(text18, target2)))];
+    return target2 + (graphemes3[this.#column]?.index ?? lineEnd2(text18, target2) - target2);
   }
   #step(at2, count5, dir2) {
-    const { text: text19 } = this.composer;
-    const boundaries2 = [...segments.segment(text19)].map((part) => part.index);
-    boundaries2.push(text19.length);
+    const { text: text18 } = this.composer;
+    const boundaries2 = [...segments.segment(text18)].map((part) => part.index);
+    boundaries2.push(text18.length);
     const index2 = Math.max(0, boundaries2.indexOf(at2));
     return boundaries2[Math.max(0, Math.min(boundaries2.length - 1, index2 + dir2 * count5))] ?? 0;
   }
   #word(at2, dir2, end = false) {
-    const { text: text19 } = this.composer;
+    const { text: text18 } = this.composer;
     if (dir2 < 0) {
-      at2 = prevGrapheme2(text19, at2);
-      while (at2 > 0 && wordClass(text19.slice(at2, nextGrapheme2(text19, at2))) === 0) {
-        at2 = prevGrapheme2(text19, at2);
+      at2 = prevGrapheme2(text18, at2);
+      while (at2 > 0 && wordClass(text18.slice(at2, nextGrapheme2(text18, at2))) === 0) {
+        at2 = prevGrapheme2(text18, at2);
       }
-      const cls2 = wordClass(text19.slice(at2, nextGrapheme2(text19, at2)));
-      while (at2 > 0 && wordClass(text19.slice(prevGrapheme2(text19, at2), at2)) === cls2) {
-        at2 = prevGrapheme2(text19, at2);
+      const cls2 = wordClass(text18.slice(at2, nextGrapheme2(text18, at2)));
+      while (at2 > 0 && wordClass(text18.slice(prevGrapheme2(text18, at2), at2)) === cls2) {
+        at2 = prevGrapheme2(text18, at2);
       }
       return at2;
     }
     if (end) {
-      at2 = nextGrapheme2(text19, at2);
+      at2 = nextGrapheme2(text18, at2);
     }
-    const cls = wordClass(text19.slice(at2, nextGrapheme2(text19, at2)));
+    const cls = wordClass(text18.slice(at2, nextGrapheme2(text18, at2)));
     if (!end) {
-      while (at2 < text19.length && wordClass(text19.slice(at2, nextGrapheme2(text19, at2))) === cls) {
-        at2 = nextGrapheme2(text19, at2);
+      while (at2 < text18.length && wordClass(text18.slice(at2, nextGrapheme2(text18, at2))) === cls) {
+        at2 = nextGrapheme2(text18, at2);
       }
     }
-    while (at2 < text19.length && wordClass(text19.slice(at2, nextGrapheme2(text19, at2))) === 0) {
-      at2 = nextGrapheme2(text19, at2);
+    while (at2 < text18.length && wordClass(text18.slice(at2, nextGrapheme2(text18, at2))) === 0) {
+      at2 = nextGrapheme2(text18, at2);
     }
     if (end) {
-      const target2 = wordClass(text19.slice(at2, nextGrapheme2(text19, at2)));
-      while (at2 < text19.length && wordClass(text19.slice(at2, nextGrapheme2(text19, at2))) === target2) {
-        at2 = nextGrapheme2(text19, at2);
+      const target2 = wordClass(text18.slice(at2, nextGrapheme2(text18, at2)));
+      while (at2 < text18.length && wordClass(text18.slice(at2, nextGrapheme2(text18, at2))) === target2) {
+        at2 = nextGrapheme2(text18, at2);
       }
-      at2 = prevGrapheme2(text19, at2);
+      at2 = prevGrapheme2(text18, at2);
     }
     return at2;
   }
   #motions(count5) {
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     const word = (dir2, end = false) => {
       let to = cursor;
       for (let i = 0; i < count5; i++) {
@@ -29652,37 +29951,37 @@ var VimComposer = class {
       return { to, inclusive: end };
     };
     return {
-      h: () => ({ to: Math.max(lineStart2(text19, cursor), this.#step(cursor, count5, -1)) }),
-      l: () => ({ to: Math.min(lineEnd2(text19, cursor), this.#step(cursor, count5, 1)) }),
+      h: () => ({ to: Math.max(lineStart2(text18, cursor), this.#step(cursor, count5, -1)) }),
+      l: () => ({ to: Math.min(lineEnd2(text18, cursor), this.#step(cursor, count5, 1)) }),
       j: () => ({ to: this.#vertical(count5), linewise: true }),
       k: () => ({ to: this.#vertical(-count5), linewise: true }),
-      "0": () => ({ to: lineStart2(text19, cursor) }),
+      "0": () => ({ to: lineStart2(text18, cursor) }),
       "^": () => ({
-        to: lineStart2(text19, cursor) + (text19.slice(lineStart2(text19, cursor)).match(/^\s*/u)?.[0].replace(/\n.*$/s, "").length ?? 0)
+        to: lineStart2(text18, cursor) + (text18.slice(lineStart2(text18, cursor)).match(/^\s*/u)?.[0].replace(/\n.*$/s, "").length ?? 0)
       }),
-      $: () => ({ to: lineEnd2(text19, cursor), inclusive: true }),
-      w: () => this.#operator === "c" && wordClass(text19.slice(cursor, nextGrapheme2(text19, cursor))) !== 0 ? this.#changeWord(count5) : word(1),
+      $: () => ({ to: lineEnd2(text18, cursor), inclusive: true }),
+      w: () => this.#operator === "c" && wordClass(text18.slice(cursor, nextGrapheme2(text18, cursor))) !== 0 ? this.#changeWord(count5) : word(1),
       b: () => word(-1),
       e: () => word(1, true),
-      G: () => ({ to: this.#count ? this.#line(count5 - 1) : this.#line(text19.split("\n").length - 1), linewise: true })
+      G: () => ({ to: this.#count ? this.#line(count5 - 1) : this.#line(text18.split("\n").length - 1), linewise: true })
     };
   }
   #changeWord(count5) {
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     let to = cursor;
     for (let n3 = 0; n3 < count5; n3++) {
       if (n3 > 0) {
         to = this.#word(to, 1);
       }
-      const cls = wordClass(text19.slice(to, nextGrapheme2(text19, to)));
-      while (to < text19.length && wordClass(text19.slice(to, nextGrapheme2(text19, to))) === cls) {
-        to = nextGrapheme2(text19, to);
+      const cls = wordClass(text18.slice(to, nextGrapheme2(text18, to)));
+      while (to < text18.length && wordClass(text18.slice(to, nextGrapheme2(text18, to))) === cls) {
+        to = nextGrapheme2(text18, to);
       }
     }
     return { to };
   }
   #motion(motion) {
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     const operator = this.#operator;
     if (!operator) {
       this.composer.move(motion.to);
@@ -29692,38 +29991,38 @@ var VimComposer = class {
     let from = Math.min(cursor, motion.to);
     let to = Math.max(cursor, motion.to);
     if (motion.linewise) {
-      from = lineStart2(text19, from);
-      to = lineEnd2(text19, to);
-    } else if (motion.inclusive && to < lineEnd2(text19, to)) {
-      to = nextGrapheme2(text19, to);
+      from = lineStart2(text18, from);
+      to = lineEnd2(text18, to);
+    } else if (motion.inclusive && to < lineEnd2(text18, to)) {
+      to = nextGrapheme2(text18, to);
     }
     this.#operate(operator, { from, to, linewise: motion.linewise === true });
   }
   #range() {
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     let from = Math.min(this.anchor ?? cursor, cursor);
     let to = Math.max(this.anchor ?? cursor, cursor);
     if (this.mode === "visual-line") {
-      from = lineStart2(text19, from);
-      to = Math.min(text19.length, lineEnd2(text19, to) + 1);
+      from = lineStart2(text18, from);
+      to = Math.min(text18.length, lineEnd2(text18, to) + 1);
     } else {
-      to = nextGrapheme2(text19, to);
+      to = nextGrapheme2(text18, to);
     }
     return { from, to, linewise: this.mode === "visual-line" };
   }
   #operate(operator, range2) {
-    const { text: text19 } = this.composer;
+    const { text: text18 } = this.composer;
     let { from, to } = range2;
-    if (range2.linewise && operator === "c" && text19[to - 1] === "\n") {
+    if (range2.linewise && operator === "c" && text18[to - 1] === "\n") {
       to--;
     }
     if (range2.linewise && operator !== "c") {
-      to = Math.min(text19.length, lineEnd2(text19, Math.max(from, to - (text19[to - 1] === "\n" ? 1 : 0))) + 1);
+      to = Math.min(text18.length, lineEnd2(text18, Math.max(from, to - (text18[to - 1] === "\n" ? 1 : 0))) + 1);
     }
-    this.#register = text19.slice(from, to);
+    this.#register = text18.slice(from, to);
     this.#linewise = range2.linewise === true;
     if (operator !== "y") {
-      if (range2.linewise && operator === "d" && to === text19.length && from > 0 && (text19[to - 1] !== "\n" || from === to)) {
+      if (range2.linewise && operator === "d" && to === text18.length && from > 0 && (text18[to - 1] !== "\n" || from === to)) {
         from--;
       }
       this.composer.splice(from, to, "");
@@ -29738,10 +30037,10 @@ var VimComposer = class {
       return;
     }
     if (this.#operator === operator) {
-      const { text: text19, cursor } = this.composer;
-      const start = lineStart2(text19, cursor);
-      const line = text19.slice(0, start).split("\n").length - 1;
-      this.#operate(operator, { from: start, to: lineEnd2(text19, this.#line(line + count5 - 1)), linewise: true });
+      const { text: text18, cursor } = this.composer;
+      const start = lineStart2(text18, cursor);
+      const line = text18.slice(0, start).split("\n").length - 1;
+      this.#operate(operator, { from: start, to: lineEnd2(text18, this.#line(line + count5 - 1)), linewise: true });
       return;
     }
     this.#operator = operator;
@@ -29750,14 +30049,14 @@ var VimComposer = class {
   }
   #replace(value) {
     const chars = [...segments.segment(value)];
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     const count5 = Number(this.#count || 1);
     if (chars.length !== 1) {
       this.#clear();
       return;
     }
-    const range2 = this.visual ? this.#range() : { from: cursor, to: Math.min(lineEnd2(text19, cursor), this.#step(cursor, count5, 1)) };
-    const replacement = [...segments.segment(text19.slice(range2.from, range2.to))].map((part) => part.segment === "\n" ? "\n" : value).join("");
+    const range2 = this.visual ? this.#range() : { from: cursor, to: Math.min(lineEnd2(text18, cursor), this.#step(cursor, count5, 1)) };
+    const replacement = [...segments.segment(text18.slice(range2.from, range2.to))].map((part) => part.segment === "\n" ? "\n" : value).join("");
     this.composer.splice(range2.from, range2.to, replacement, range2.from);
     this.#mode("normal");
   }
@@ -29766,27 +30065,27 @@ var VimComposer = class {
       this.#clear();
       return;
     }
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     if (this.visual) {
       const range2 = this.#range();
       this.composer.splice(range2.from, range2.to, this.#register.repeat(count5), range2.from);
     } else if (this.#linewise) {
-      const at2 = after2 ? lineEnd2(text19, cursor) : lineStart2(text19, cursor);
+      const at2 = after2 ? lineEnd2(text18, cursor) : lineStart2(text18, cursor);
       const value = this.#register.replace(/\n$/, "").concat("\n").repeat(count5);
-      if (after2 && at2 === text19.length) {
+      if (after2 && at2 === text18.length) {
         this.composer.splice(at2, at2, "\n" + value.slice(0, -1), at2 + 1);
       } else {
         const from = after2 ? at2 + 1 : at2;
         this.composer.splice(from, from, value, from);
       }
     } else {
-      const at2 = after2 ? Math.min(lineEnd2(text19, cursor), nextGrapheme2(text19, cursor)) : cursor;
+      const at2 = after2 ? Math.min(lineEnd2(text18, cursor), nextGrapheme2(text18, cursor)) : cursor;
       this.composer.splice(at2, at2, this.#register.repeat(count5), at2);
     }
     this.#mode("normal");
   }
   #commands(count5) {
-    const { text: text19, cursor } = this.composer;
+    const { text: text18, cursor } = this.composer;
     const insert2 = (at2) => {
       this.composer.move(at2);
       this.#mode("insert");
@@ -29804,16 +30103,16 @@ var VimComposer = class {
         this.#prefix = "g";
       },
       i: () => insert2(cursor),
-      a: () => insert2(Math.min(lineEnd2(text19, cursor), nextGrapheme2(text19, cursor))),
-      I: () => insert2(lineStart2(text19, cursor)),
-      A: () => insert2(lineEnd2(text19, cursor)),
+      a: () => insert2(Math.min(lineEnd2(text18, cursor), nextGrapheme2(text18, cursor))),
+      I: () => insert2(lineStart2(text18, cursor)),
+      A: () => insert2(lineEnd2(text18, cursor)),
       o: () => {
-        const at2 = lineEnd2(text19, cursor);
+        const at2 = lineEnd2(text18, cursor);
         this.composer.splice(at2, at2, "\n");
         this.#mode("insert");
       },
       O: () => {
-        const at2 = lineStart2(text19, cursor);
+        const at2 = lineStart2(text18, cursor);
         this.composer.splice(at2, at2, "\n", at2);
         this.#mode("insert");
       },
@@ -29824,10 +30123,10 @@ var VimComposer = class {
       y: () => this.#operatorKey("y", count5),
       x: () => this.#operate(
         "d",
-        this.visual ? this.#range() : { from: cursor, to: Math.min(lineEnd2(text19, cursor), this.#step(cursor, count5, 1)) }
+        this.visual ? this.#range() : { from: cursor, to: Math.min(lineEnd2(text18, cursor), this.#step(cursor, count5, 1)) }
       ),
-      D: () => this.#operate("d", { from: cursor, to: lineEnd2(text19, cursor) }),
-      C: () => this.#operate("c", { from: cursor, to: lineEnd2(text19, cursor) }),
+      D: () => this.#operate("d", { from: cursor, to: lineEnd2(text18, cursor) }),
+      C: () => this.#operate("c", { from: cursor, to: lineEnd2(text18, cursor) }),
       r: () => {
         this.#prefix = "r";
       },
@@ -29844,26 +30143,26 @@ var VimComposer = class {
     };
   }
 };
-function lineStart2(text19, at2) {
-  return at2 <= 0 ? 0 : text19.lastIndexOf("\n", at2 - 1) + 1;
+function lineStart2(text18, at2) {
+  return at2 <= 0 ? 0 : text18.lastIndexOf("\n", at2 - 1) + 1;
 }
-function lineEnd2(text19, at2) {
-  const end = text19.indexOf("\n", at2);
-  return end === -1 ? text19.length : end;
+function lineEnd2(text18, at2) {
+  const end = text18.indexOf("\n", at2);
+  return end === -1 ? text18.length : end;
 }
-function prevGrapheme2(text19, at2) {
+function prevGrapheme2(text18, at2) {
   let prev = 0;
-  for (const { index: index2 } of segments.segment(text19)) {
+  for (const { index: index2 } of segments.segment(text18)) {
     if (index2 >= at2) break;
     prev = index2;
   }
   return prev;
 }
-function nextGrapheme2(text19, at2) {
-  for (const { index: index2, segment } of segments.segment(text19)) {
+function nextGrapheme2(text18, at2) {
+  for (const { index: index2, segment } of segments.segment(text18)) {
     if (index2 >= at2) return index2 + segment.length;
   }
-  return text19.length;
+  return text18.length;
 }
 
 // src/draft/composer.ts
@@ -29933,12 +30232,12 @@ var Composer = class {
    * last draft held go with it: `pasted` names the ones `text` holds (a prompt back in the
    * composer, with the draft it went in front of).
    */
-  set(text19, { cursor = text19.length, pasted = [], literal: literal3 = false } = {}) {
+  set(text18, { cursor = text18.length, pasted = [], literal: literal3 = false } = {}) {
     this.#record({ merge: false });
-    this.#text = text19;
-    this.#cursor = clamp(cursor, text19.length);
+    this.#text = text18;
+    this.#cursor = clamp(cursor, text18.length);
     this.#pasted = [...pasted];
-    this.#literal = Boolean(text19) && (literal3 || pasted.length > 0);
+    this.#literal = Boolean(text18) && (literal3 || pasted.length > 0);
   }
   /** Modal transitions end a typing burst without changing the text or cursor. */
   undoBoundary() {
@@ -29957,9 +30256,9 @@ var Composer = class {
   }
   /** Clears the draft after a submit, remembering it in the prompt history. */
   take() {
-    const text19 = this.text;
+    const text18 = this.text;
     this.#revision++;
-    append(text19);
+    append(text18);
     this.#pasted = [];
     this.#literal = false;
     this.#steps.clear();
@@ -29969,7 +30268,7 @@ var Composer = class {
     this.#text = "";
     this.#cursor = 0;
     this.#anchor = void 0;
-    return text19;
+    return text18;
   }
   /** Types `s` at the caret, over the selection if there is one. */
   insert(s2) {
@@ -30180,8 +30479,8 @@ var Composer = class {
     return true;
   }
   /** Applies a Markdown edit as one undo step, with the selection it leaves. */
-  #apply({ anchor, cursor, from, text: text19, to }) {
-    this.#replace({ cursor, from, merge: false, s: text19, to });
+  #apply({ anchor, cursor, from, text: text18, to }) {
+    this.#replace({ cursor, from, merge: false, s: text18, to });
     this.#anchor = anchor !== void 0 && anchor !== this.cursor ? anchor : void 0;
     return true;
   }
@@ -30216,13 +30515,13 @@ var Composer = class {
     this.#browse = at2;
     this.#revision++;
     const draft = at2 === items.length ? this.#draft : void 0;
-    const text19 = draft?.text ?? items[at2] ?? "";
+    const text18 = draft?.text ?? items[at2] ?? "";
     if (at2 === items.length) {
       this.#browse = -1;
     }
     ++this.#revision;
-    this.#text = text19;
-    this.#cursor = draft?.cursor ?? text19.length;
+    this.#text = text18;
+    this.#cursor = draft?.cursor ?? text18.length;
     this.#anchor = draft?.anchor;
     this.#pasted = draft ? [...draft.pasted] : [];
     this.#literal = draft ? draft.literal === true : true;
@@ -30269,8 +30568,8 @@ var Composer = class {
 function clamp(n3, max) {
   return Math.max(0, Math.min(max, n3));
 }
-function pastedCommand(text19) {
-  return text19.includes("{!") || text19.trimStart().startsWith("!");
+function pastedCommand(text18) {
+  return text18.includes("{!") || text18.trimStart().startsWith("!");
 }
 
 // src/prompts/clarify.tsx
@@ -30380,16 +30679,16 @@ function clarifyOverlay(host, prompt) {
     modal: true,
     // Every question at once: an empty answer is the contract's cancel ('' skips on the shared wire).
     cancel: cancel2,
-    focus: (id) => {
+    focus: (id2) => {
       const q2 = questions[step];
       const d = drafts[step];
-      return q2 && d && (d.typing || !q2.choices.length) ? `${id}.body.answer` : null;
+      return q2 && d && (d.typing || !q2.choices.length) ? `${id2}.body.answer` : null;
     },
-    node: (id) => {
+    node: (id2) => {
       const q2 = questions[step];
       const d = drafts[step];
       if (!q2 || !d) {
-        return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md" }, nativeOverlayKey(id));
+        return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md" }, nativeOverlayKey(id2));
       }
       const freeText = !q2.choices.length;
       const last = questions.every((other, i) => i === step || other.qid in answers2);
@@ -30421,7 +30720,7 @@ function clarifyOverlay(host, prompt) {
         /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: q2.question }, "question"),
         freeText ? null : optionList(
           `q${step}`,
-          `${id}.body.q${step}`,
+          `${id2}.body.q${step}`,
           optionsOf(q2, d),
           d.selected,
           (i) => {
@@ -30474,7 +30773,7 @@ function clarifyOverlay(host, prompt) {
             onClick: submit
           }
         ])
-      ] }, "body") }, nativeOverlayKey(id));
+      ] }, "body") }, nativeOverlayKey(id2));
     },
     onKey: (k) => {
       if (sending.busy) {
@@ -30581,7 +30880,7 @@ function maskedOverlay(host, prompt) {
     { id: "password", label: "Password", masked: true, value: new Composer() }
   ] : [{ id: "value", label: code7 ? "Type the code" : "Hidden while you type", masked: !code7, value: new Composer() }];
   let at2 = 0;
-  const title = method === "sudo" ? "Password for sudo" : method === "secret" ? prompt.prompt || `Value for ${prompt.envVar || "a secret"}` : method === "vault.unlock_prompt" ? `Master password for ${prompt.manager || "the password manager"}` : login ? `Save a login for ${site || "this site"}` : `Code for ${site || "this site"}`;
+  const title2 = method === "sudo" ? "Password for sudo" : method === "secret" ? prompt.prompt || `Value for ${prompt.envVar || "a secret"}` : method === "vault.unlock_prompt" ? `Master password for ${prompt.manager || "the password manager"}` : login ? `Save a login for ${site || "this site"}` : `Code for ${site || "this site"}`;
   const note = method === "secret" ? prompt.envVar : code7 ? [prompt.hint, "typed into the page only \xB7 never shown to the model"].filter(Boolean).join(" \xB7 ") : "";
   const sending = { busy: false, error: "" };
   const finish = (cancel2) => {
@@ -30597,20 +30896,20 @@ function maskedOverlay(host, prompt) {
     key: key3,
     modal: true,
     cancel: () => finish(true),
-    focus: (id) => `${id}.body.${fields[at2]?.id ?? "value"}`,
-    node: (id) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
-      /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title }, "question"),
+    focus: (id2) => `${id2}.body.${fields[at2]?.id ?? "value"}`,
+    node: (id2) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
+      /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title2 }, "question"),
       note ? /* @__PURE__ */ jsx("text", { spans: [{ s: method === "secret" ? "mono dim" : "muted", t: note }], wrap: "word" }, "note") : null,
       prompt.command ? /* @__PURE__ */ jsx("code", { lang: "bash", text: prompt.command }, "command") : null,
-      fields.map((f, i) => /* @__PURE__ */ jsx(
+      fields.map((f2, i) => /* @__PURE__ */ jsx(
         "input",
         {
-          cursor: f.masked ? maskedOffset(f.value.text, f.value.cursor) : f.value.cursor,
+          cursor: f2.masked ? maskedOffset(f2.value.text, f2.value.cursor) : f2.value.cursor,
           onEdit: (ev) => {
             at2 = i;
-            const edit = f.masked ? unmaskEdit(f.value.text, ev) : ev;
+            const edit = f2.masked ? unmaskEdit(f2.value.text, ev) : ev;
             if (edit) {
-              f.value.edit(edit);
+              f2.value.edit(edit);
             }
             host.changed();
           },
@@ -30618,11 +30917,11 @@ function maskedOverlay(host, prompt) {
             at2 = i;
             host.changed();
           },
-          placeholder: f.label,
+          placeholder: f2.label,
           role: "omp.ask.input",
-          text: f.masked ? maskOf(f.value.text) : f.value.text
+          text: f2.masked ? maskOf(f2.value.text) : f2.value.text
         },
-        f.id
+        f2.id
       )),
       sendingLine(sending),
       actionsRow([
@@ -30636,7 +30935,7 @@ function maskedOverlay(host, prompt) {
           onClick: () => finish(false)
         }
       ])
-    ] }, "body") }, nativeOverlayKey(id)),
+    ] }, "body") }, nativeOverlayKey(id2)),
     onKey: (k) => {
       if (k.name === "escape" && unmodified(k) || isCtrlC(k)) {
         finish(true);
@@ -30705,7 +31004,7 @@ function confirmOverlay(host, ask) {
       alive = false;
     },
     cancel: () => answer(false),
-    node: (id) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
+    node: (id2) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: ask.title }, "question"),
       ask.detail ? /* @__PURE__ */ jsx("text", { text: ask.detail, wrap: "word" }, "detail") : null,
       actionsRow([
@@ -30719,7 +31018,7 @@ function confirmOverlay(host, ask) {
           onClick: () => answer(true)
         }
       ])
-    ] }, "body") }, nativeOverlayKey(id)),
+    ] }, "body") }, nativeOverlayKey(id2)),
     onKey: (k) => {
       if (affirmative(k)) {
         answer(true);
@@ -30749,11 +31048,11 @@ function settled(ev, cx) {
 }
 var promptHandlers = {
   "request.cancel": (ev, cx) => {
-    const id = ev.payload?.id;
+    const id2 = ev.payload?.id;
     const notice = promptTimeoutNotice(ev.payload?.method, ev.payload?.reason);
-    const held = cx.life.unhold(id);
-    const shown3 = held || cx.sheets.shows(id);
-    cx.sheets.drop(id);
+    const held = cx.life.unhold(id2);
+    const shown3 = held || cx.sheets.shows(id2);
+    cx.sheets.drop(id2);
     if (notice && shown3) {
       cx.transcript.notice(notice, "warning");
     }
@@ -30770,7 +31069,7 @@ var promptHandlers = {
 };
 
 // node_modules/@hermes/shared/src/usage-tick.ts
-var num3 = (value) => value !== null && value !== void 0 && Number.isFinite(value) ? value : void 0;
+var num2 = (value) => value !== null && value !== void 0 && Number.isFinite(value) ? value : void 0;
 var round1 = (value) => Math.round(value * 10) / 10;
 var pct = (part, whole) => Math.max(0, Math.min(100, Math.round(part / whole * 100)));
 var COUNTERS = [
@@ -30783,31 +31082,31 @@ var COUNTERS = [
   ["total", ["total_tokens"]]
 ];
 function contextFields(p3) {
-  const used = num3(p3.last_prompt_tokens) ?? 0;
-  const max = num3(p3.context_length) ?? 0;
-  const compressions = num3(p3.compression_count);
+  const used = num2(p3.last_prompt_tokens) ?? 0;
+  const max = num2(p3.context_length) ?? 0;
+  const compressions = num2(p3.compression_count);
   const fields = p3.context_source == null || compressions === void 0 ? {} : { compressions };
   if (!used || !max) {
     return fields;
   }
-  const source3 = p3.context_source || "provider_usage";
+  const source2 = p3.context_source || "provider_usage";
   const clamped = Math.min(used, max);
   return {
     ...fields,
-    context_estimated: source3 !== "provider_usage",
+    context_estimated: source2 !== "provider_usage",
     context_max: max,
     context_percent: pct(clamped, max),
-    context_source: source3,
+    context_source: source2,
     context_used: clamped
   };
 }
 function rateFields(p3) {
   const fields = {};
-  const promptTotal = num3(p3.prompt_tokens) ?? 0;
-  const cacheRead = num3(p3.cache_read_tokens) ?? 0;
-  const latency = num3(p3.avg_latency_s);
-  const tps = num3(p3.tokens_per_s);
-  const subagents = num3(p3.active_subagents);
+  const promptTotal = num2(p3.prompt_tokens) ?? 0;
+  const cacheRead = num2(p3.cache_read_tokens) ?? 0;
+  const latency = num2(p3.avg_latency_s);
+  const tps = num2(p3.tokens_per_s);
+  const subagents = num2(p3.active_subagents);
   if (promptTotal > 0 && cacheRead > 0) {
     fields.cache_hit_pct = pct(cacheRead, promptTotal);
   }
@@ -30831,7 +31130,7 @@ function usageFromTick(payload) {
   }
   const usage = {};
   for (const [key3, sources] of COUNTERS) {
-    const values = sources.map((source3) => num3(payload[source3]));
+    const values = sources.map((source2) => num2(payload[source2]));
     const value = values.find(Boolean) ?? values.find((v) => v !== void 0);
     if (value !== void 0) {
       usage[key3] = value;
@@ -30852,9 +31151,9 @@ var IMAGE_ONLY_PROMPT = "What do you see in this image?";
 function shownText(prompt) {
   return (prompt.kind === "command" ? prompt.display : void 0) ?? prompt.text;
 }
-function userText(text19, images) {
+function userText(text18, images) {
   const count5 = images.length ? `\u{1F4CE} ${images.length} image${images.length === 1 ? "" : "s"}` : "";
-  return [text19, count5].filter(Boolean).join("\n\n");
+  return [text18, count5].filter(Boolean).join("\n\n");
 }
 function userImages(images) {
   return images.map((i) => ({ kind: "image", name: i.name, ...i.preview ? { source: i.preview } : {} }));
@@ -30900,8 +31199,8 @@ function pendingRows(info) {
 }
 var settle = _catch(object({ admission_id: loose(string2()), outcome: optional(unknown()) }), {});
 function cancelledAdmission(payload) {
-  const { admission_id: id, outcome: outcome2 } = settle.parse(payload ?? {});
-  return outcome2 === "cancelled" && id !== void 0 ? admissionId(id) : void 0;
+  const { admission_id: id2, outcome: outcome2 } = settle.parse(payload ?? {});
+  return outcome2 === "cancelled" && id2 !== void 0 ? admissionId(id2) : void 0;
 }
 var counter = pipe(optional(unknown()), transform((value) => Number(value ?? 0)));
 var tick = _catch(
@@ -30982,19 +31281,19 @@ var sessionHandlers = {
 
 // src/hermes/sessionTranscript.ts
 var NOTICE_KINDS = /* @__PURE__ */ new Set(["async_delegation_complete", "internal_notification", "model_switch", "process_complete"]);
-function readTranscript(gw2, id, cursor, limit) {
-  return rpc(gw2, "session.transcript", { cursor, limit, order: "latest", session_id: id });
+function readTranscript(gw2, id2, cursor, limit) {
+  return rpc(gw2, "session.transcript", { cursor, limit, order: "latest", session_id: id2 });
 }
 function compactionOf(row2) {
-  const { compacted_messages: messages, text: text19, timestamp } = row2;
+  const { compacted_messages: messages, text: text18, timestamp } = row2;
   if (row2.row_kind !== "compaction" || timestamp === null || timestamp === void 0) {
     return void 0;
   }
-  return { at: timestamp * 1e3, ...optional2("summary", text19 || void 0), ...optional2("messages", messages ?? void 0) };
+  return { at: timestamp * 1e3, ...optional2("summary", text18 || void 0), ...optional2("messages", messages ?? void 0) };
 }
 function previewRows(r) {
-  const text19 = (r.text ?? "").trim();
-  const key3 = r.row_id === null || r.row_id === void 0 ? `${r.role}|${r.timestamp ?? ""}|${r.tool_call_id ?? text19}` : `row${r.row_id}`;
+  const text18 = (r.text ?? "").trim();
+  const key3 = r.row_id === null || r.row_id === void 0 ? `${r.role}|${r.timestamp ?? ""}|${r.tool_call_id ?? text18}` : `row${r.row_id}`;
   if (r.row_kind === "compaction") {
     const covered = r.compacted_messages === null || r.compacted_messages === void 0 ? "" : ` (${r.compacted_messages} messages)`;
     return [{ key: key3, kind: "note", text: `Context compacted${covered}: the agent continued from a summary.`, tone: "muted" }];
@@ -31002,31 +31301,31 @@ function previewRows(r) {
   switch (r.role) {
     case "user":
       if (r.display_kind && NOTICE_KINDS.has(r.display_kind)) {
-        return [{ key: key3, kind: "note", text: noticeLine(text19), tone: "muted" }];
+        return [{ key: key3, kind: "note", text: noticeLine(text18), tone: "muted" }];
       }
-      return text19 ? [{ key: key3, kind: "user", steer: r.display_kind === "steer", text: text19 }] : [];
+      return text18 ? [{ key: key3, kind: "user", steer: r.display_kind === "steer", text: text18 }] : [];
     case "assistant":
       if (r.display_kind === "failed_turn") {
-        return [{ key: key3, kind: "note", text: firstLine(text19) || "The turn failed.", tone: "error" }];
+        return [{ key: key3, kind: "note", text: firstLine(text18) || "The turn failed.", tone: "error" }];
       }
-      return text19 ? [{ key: key3, kind: "assistant", text: text19 }] : [];
+      return text18 ? [{ key: key3, kind: "assistant", text: text18 }] : [];
     case "tool":
       return [{ args: r.args ?? {}, key: key3, kind: "tool", name: r.name ?? "tool" }];
     default:
       return [];
   }
 }
-function noticeLine(text19) {
-  const line = firstLine(text19);
+function noticeLine(text18) {
+  const line = firstLine(text18);
   return /^\[[A-Z][A-Z -]*:\s*(?<said>[^\]]*)\]?$/.exec(line)?.groups?.["said"]?.trim() || line;
 }
-function firstLine(text19) {
-  return (text19.split("\n").find((l) => l.trim()) ?? "").trim();
+function firstLine(text18) {
+  return (text18.split("\n").find((l) => l.trim()) ?? "").trim();
 }
 function gatewayTranscripts(gw2) {
   return {
-    page: async (id, cursor, limit) => {
-      const r = await readTranscript(gw2, id, cursor, limit);
+    page: async (id2, cursor, limit) => {
+      const r = await readTranscript(gw2, id2, cursor, limit);
       return { next: r.next_cursor, reset: r.reset, rows: r.rows.flatMap(previewRows).reverse() };
     }
   };
@@ -31058,40 +31357,40 @@ async function allCompactions(gw2, sid, wanted) {
   } while (cursor && calls < WHOLE_PAGES);
   return pages.flat();
 }
-function lineTokens(text19) {
-  const num7 = (s2) => Number(s2.replace(/,/g, ""));
-  const pair3 = /~(?<before>[\d,]+)\s*→\s*~(?<after>[\d,]+)\s*tok/.exec(text19)?.groups;
+function lineTokens(text18) {
+  const num6 = (s2) => Number(s2.replace(/,/g, ""));
+  const pair3 = /~(?<before>[\d,]+)\s*→\s*~(?<after>[\d,]+)\s*tok/.exec(text18)?.groups;
   if (pair3) {
-    return { after: num7(pair3["after"] ?? ""), before: num7(pair3["before"] ?? "") };
+    return { after: num6(pair3["after"] ?? ""), before: num6(pair3["before"] ?? "") };
   }
-  const one7 = /~(?<before>[\d,]+)\s*tok/.exec(text19)?.groups;
-  return one7 ? { before: num7(one7["before"] ?? "") } : {};
+  const one6 = /~(?<before>[\d,]+)\s*tok/.exec(text18)?.groups;
+  return one6 ? { before: num6(one6["before"] ?? "") } : {};
 }
 
 // src/status.ts
 var COMPACTING_LABEL = "Compacting context\u2026";
 function statusEffect(payload, last) {
-  const text19 = payload?.text?.trim();
+  const text18 = payload?.text?.trim();
   const kind = payload?.kind ?? "";
-  if (!text19) {
+  if (!text18) {
     return kind === "ready" ? { compacting: false } : {};
   }
   if (kind === "goal") {
-    return { notice: { text: text19, tone: text19.startsWith("\u2713") ? "success" : "info" } };
+    return { notice: { text: text18, tone: text18.startsWith("\u2713") ? "success" : "info" } };
   }
   if (kind === "compacting" || kind === "compressing") {
-    return { compacting: true, label: COMPACTING_LABEL, ...counted(text19) };
+    return { compacting: true, label: COMPACTING_LABEL, ...counted(text18) };
   }
   if (kind === "compacted" || kind === "ready") {
-    return { compacting: false, label: text19, ...counted(text19) };
+    return { compacting: false, label: text18, ...counted(text18) };
   }
   if (kind === "warn" || kind === "approval" || kind === "error") {
-    return text19 === last ? {} : { note: text19, notice: { text: text19, tone: kind === "error" ? "error" : "warning" } };
+    return text18 === last ? {} : { note: text18, notice: { text: text18, tone: kind === "error" ? "error" : "warning" } };
   }
-  return { label: text19 };
+  return { label: text18 };
 }
-function counted(text19) {
-  const tokens2 = lineTokens(text19);
+function counted(text18) {
+  const tokens2 = lineTokens(text18);
   return tokens2.before || tokens2.after ? { tokens: tokens2 } : {};
 }
 
@@ -31127,15 +31426,15 @@ function todosOf({ merge: merge2, todos: todos2 }, current) {
 function mergeTodos(current, patch6) {
   const out = current.map((t) => ({ ...t }));
   for (const item3 of patch6) {
-    const r = record2(item3);
-    const id = String(r?.["id"] ?? "").trim();
-    if (!r || !id) {
+    const r = record(item3);
+    const id2 = String(r?.["id"] ?? "").trim();
+    if (!r || !id2) {
       continue;
     }
-    const cur = out.find((t) => t.id === id);
+    const cur = out.find((t) => t.id === id2);
     if (!cur) {
       if (String(r["content"] ?? "").trim()) {
-        out.push(...toTodos([{ ...r, id }]));
+        out.push(...toTodos([{ ...r, id: id2 }]));
       }
       continue;
     }
@@ -31149,7 +31448,7 @@ function mergeTodos(current, patch6) {
     }
     if ("parent" in r) {
       const parent = String(r["parent"] ?? "").trim();
-      if (parent && parent !== id) {
+      if (parent && parent !== id2) {
         cur.parent = parent;
       } else {
         delete cur.parent;
@@ -31164,13 +31463,13 @@ function toTodos(raw2) {
     if (!item3 || typeof item3 !== "object") {
       continue;
     }
-    const id = "id" in item3 ? String(item3.id) : String(out.length);
+    const id2 = "id" in item3 ? String(item3.id) : String(out.length);
     const content5 = "content" in item3 ? String(item3.content) : "";
     const status = "status" in item3 ? String(item3.status) : "pending";
     const parent = "parent" in item3 && item3.parent ? String(item3.parent) : void 0;
     out.push({
       content: content5,
-      id,
+      id: id2,
       ...parent && { parent },
       status: status === "completed" || status === "in_progress" || status === "cancelled" ? status : "pending"
     });
@@ -31210,8 +31509,8 @@ function appTitle(slug) {
 }
 function actionPhrase(tool, app2 = "") {
   const prefix2 = `${app2.replace(/-/g, "_").toUpperCase()}_`;
-  const text19 = app2 && tool.toUpperCase().startsWith(prefix2) ? tool.slice(prefix2.length) : tool;
-  return text19.split(/[-_\s]+/).filter(Boolean).join(" ").toLowerCase();
+  const text18 = app2 && tool.toUpperCase().startsWith(prefix2) ? tool.slice(prefix2.length) : tool;
+  return text18.split(/[-_\s]+/).filter(Boolean).join(" ").toLowerCase();
 }
 function appOf(name, args) {
   const [prefix2, connector, ...tool] = name.split("__");
@@ -31225,9 +31524,9 @@ function appOf(name, args) {
 function entriesOf(args) {
   const list10 = Array.isArray(args["calls"]) ? args["calls"] : [args];
   return list10.flatMap((e) => {
-    const r = record2(e);
+    const r = record(e);
     const name = r?.["name"];
-    return typeof name === "string" && name ? [{ args: record2(r?.["arguments"]) ?? {}, name }] : [];
+    return typeof name === "string" && name ? [{ args: record(r?.["arguments"]) ?? {}, name }] : [];
   });
 }
 function unwrap(name, args) {
@@ -31250,14 +31549,14 @@ function batchOf(call) {
   return call.via.kind === "batch" ? call.via.entries : void 0;
 }
 function batchResults(result) {
-  const results = record2(result)?.["results"];
+  const results = record(result)?.["results"];
   if (!Array.isArray(results)) {
     return void 0;
   }
   return results.map((e) => {
-    const r = record2(e) ?? {};
+    const r = record(e) ?? {};
     const err = r["error"];
-    return err === void 0 || err === null ? { result: r["response"] } : { error: typeof err === "string" ? err : String(record2(err)?.["message"] ?? "") || JSON.stringify(err) };
+    return err === void 0 || err === null ? { result: r["response"] } : { error: typeof err === "string" ? err : String(record(err)?.["message"] ?? "") || JSON.stringify(err) };
   });
 }
 function settleBridge(call) {
@@ -31281,16 +31580,16 @@ function settleBridge(call) {
   return Boolean(o?.error);
 }
 function appsOf(call) {
-  const apps = (batchOf(call) ?? [call]).map((e) => appOf(e.name, e.args)?.app);
-  const named2 = apps.filter((a2) => Boolean(a2));
-  return named2.length === apps.length ? [...new Set(named2)] : [];
+  const apps2 = (batchOf(call) ?? [call]).map((e) => appOf(e.name, e.args)?.app);
+  const named2 = apps2.filter((a2) => Boolean(a2));
+  return named2.length === apps2.length ? [...new Set(named2)] : [];
 }
 function callApp(call) {
   const batch = batchOf(call);
   if (batch) {
-    const apps = batch.map((e) => appOf(e.name, e.args));
-    const first = apps[0];
-    return first && apps.every((a2) => a2?.app === first.app) ? { ...first, action: `${batch.length} calls` } : void 0;
+    const apps2 = batch.map((e) => appOf(e.name, e.args));
+    const first = apps2[0];
+    return first && apps2.every((a2) => a2?.app === first.app) ? { ...first, action: `${batch.length} calls` } : void 0;
   }
   return appOf(call.name, call.args);
 }
@@ -31300,41 +31599,41 @@ var CONNECT_TOOL = "manage_connections";
 var POLL_MS = 2e3;
 function parseTargets(targets) {
   return targets.flatMap((t) => {
-    const r = record2(t);
+    const r = record(t);
     const name = typeof r?.["name"] === "string" ? r["name"].trim() : "";
-    const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f) => envField(f)) : [];
-    const env2 = Object.fromEntries(fields.flatMap((f) => f.default ? [[f.name, f.default]] : []));
-    const needs = fields.filter((f) => f.required && !f.default).map((f) => f.name);
+    const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f2) => envField(f2)) : [];
+    const env2 = Object.fromEntries(fields.flatMap((f2) => f2.default ? [[f2.name, f2.default]] : []));
+    const needs = fields.filter((f2) => f2.required && !f2.default).map((f2) => f2.name);
     return name ? [
       {
-        alias: text3(r?.["alias"]),
-        detail: text3(r?.["detail"]),
+        alias: text(r?.["alias"]),
+        detail: text(r?.["detail"]),
         env: Object.keys(env2).length ? env2 : void 0,
-        kind: text3(r?.["kind"]),
+        kind: text(r?.["kind"]),
         launch: launchOf(r?.["launch"]),
         name,
         needs: needs.length ? needs : void 0,
         state: typeof r?.["state"] === "string" ? r["state"] : "pending",
         title: appTitle(name),
-        url: text3(r?.["connect_url"])
+        url: text(r?.["connect_url"])
       }
     ] : [];
   });
 }
 function launchOf(raw2) {
-  const r = record2(raw2);
+  const r = record(raw2);
   const kind = r?.["kind"];
-  const target2 = text3(r?.["target"]);
+  const target2 = text(r?.["target"]);
   if (kind !== "remote" && kind !== "stdio" || !target2) {
     return void 0;
   }
   const env2 = Array.isArray(r?.["env"]) ? r["env"].filter((k) => typeof k === "string" && k !== "") : [];
-  return { cwd: text3(r?.["cwd"]), env: env2.length ? env2 : void 0, kind, target: target2 };
+  return { cwd: text(r?.["cwd"]), env: env2.length ? env2 : void 0, kind, target: target2 };
 }
-var text3 = (v) => typeof v === "string" && v ? v : void 0;
+var text = (v) => typeof v === "string" && v ? v : void 0;
 function envField(raw2) {
-  const r = record2(raw2);
-  const name = text3(r?.["name"]);
+  const r = record(raw2);
+  const name = text(r?.["name"]);
   return name ? [{ default: typeof r?.["default"] === "string" ? r["default"] : "", name, required: r?.["required"] === true }] : [];
 }
 var waiting = (t) => t.state === "initiated" || t.state === "pending";
@@ -31360,7 +31659,7 @@ function settleReason(r) {
   }
 }
 function resultCard(call) {
-  const r = call.name === CONNECT_TOOL ? record2(call.result) : void 0;
+  const r = call.name === CONNECT_TOOL ? record(call.result) : void 0;
   const settled2 = r && r["status"] === "settled" && typeof r["op_id"] === "string" ? settleReason(r) : void 0;
   const targets = settled2 && Array.isArray(r?.["targets"]) ? parseTargets(r["targets"]) : [];
   return targets.length ? { opened: [], settled: settled2, targets } : void 0;
@@ -31375,7 +31674,7 @@ var LINK_TOOLS = /* @__PURE__ */ new Set(["link_pull_request", "list_pull_reques
 var LINKED_METHOD = "plugin.hermes-tern.pull_requests.linked";
 var LINKS_CHANGED = "plugin.hermes-tern.pull_requests.changed";
 function refOf(v) {
-  const r = record2(v);
+  const r = record(v);
   const host = typeof r?.["host"] === "string" ? r["host"] : "";
   const repository = typeof r?.["repository"] === "string" ? r["repository"] : "";
   const number4 = typeof r?.["number"] === "number" ? r["number"] : 0;
@@ -31385,11 +31684,11 @@ function linkedFromResult(call) {
   if (!LINK_TOOLS.has(call.name) || call.outcome.kind !== "done") {
     return void 0;
   }
-  const linked = record2(call.result)?.["linked"];
+  const linked = record(call.result)?.["linked"];
   return Array.isArray(linked) ? linked.map(refOf).filter((r) => Boolean(r)) : void 0;
 }
 async function linkedPullRequests(gw2, sid) {
-  const linked = record2(await gw2.request(LINKED_METHOD, { session_id: sid }))?.["linked"];
+  const linked = record(await gw2.request(LINKED_METHOD, { session_id: sid }))?.["linked"];
   return Array.isArray(linked) ? linked.map(refOf).filter((r) => Boolean(r)) : [];
 }
 
@@ -31442,8 +31741,8 @@ function moaReferenceLabel(label, index2, count5) {
 }
 
 // src/gateway/handlers/turn.ts
-function kaomojiLabel(text19) {
-  const word = text19.match(/([A-Za-z][A-Za-z ]*[A-Za-z])\.{2,}\s*$/)?.[1];
+function kaomojiLabel(text18) {
+  const word = text18.match(/([A-Za-z][A-Za-z ]*[A-Za-z])\.{2,}\s*$/)?.[1];
   return word ? `${word.charAt(0).toUpperCase()}${word.slice(1)}\u2026` : "";
 }
 function moaStep(ev, cx) {
@@ -31643,10 +31942,10 @@ import { existsSync as existsSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 // src/wire/files.ts
-import { readFileSync as readFileSync5 } from "node:fs";
+import { readFileSync as readFileSync6 } from "node:fs";
 function readJsonFile(file2) {
   try {
-    return parseJson(readFileSync5(file2, "utf8"));
+    return parseJson(readFileSync6(file2, "utf8"));
   } catch {
     return void 0;
   }
@@ -31789,7 +32088,7 @@ function hermesRecorder(env2 = process.env) {
 async function configuredRecordKey(gw2, sid) {
   try {
     const r = await rpc(gw2, "config.get", { key: "full", ...sid ? { session_id: sid } : {} });
-    return record2(record2(r.config)?.["voice"])?.["record_key"];
+    return record(record(r.config)?.["voice"])?.["record_key"];
   } catch {
     return void 0;
   }
@@ -31834,7 +32133,7 @@ function recordKey(raw2) {
     label: `${modifier === "meta" ? "cmd" : modifier}+${name}`,
     name,
     with: [modifier],
-    without: ["alt", "ctrl", "meta"].filter((m) => m !== modifier)
+    without: ["alt", "ctrl", "meta"].filter((m2) => m2 !== modifier)
   };
 }
 
@@ -31886,19 +32185,19 @@ import { createHash as createHash2 } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { mkdir, open, readFile as readFile2, rename, rm as rm2, stat, writeFile as writeFile2 } from "node:fs/promises";
 import { isIP } from "node:net";
-import { homedir as homedir5 } from "node:os";
-import { dirname as dirname3, extname as extname2, join as join6, resolve as resolve2 } from "node:path";
+import { homedir as homedir6 } from "node:os";
+import { dirname as dirname3, extname as extname2, join as join7, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { promisify as promisify2 } from "node:util";
 var run2 = promisify2(execFile3);
 var MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i;
 var MAX_BYTES = 128 * 1024 * 1024;
-var CACHE = join6(process.env["XDG_CACHE_HOME"] || join6(homedir5(), ".cache"), "hermes-tern", "artifacts");
-function extension(source3) {
+var CACHE = join7(process.env["XDG_CACHE_HOME"] || join7(homedir6(), ".cache"), "hermes-tern", "artifacts");
+function extension(source2) {
   try {
-    return extname2(new URL(source3).pathname).toLowerCase();
+    return extname2(new URL(source2).pathname).toLowerCase();
   } catch {
-    return extname2(source3).toLowerCase();
+    return extname2(source2).toLowerCase();
   }
 }
 function modelSources(value) {
@@ -31908,17 +32207,17 @@ function modelSources(value) {
       return;
     }
     if (typeof v === "string") {
-      const text19 = v.trim();
-      if (MODEL.test(extension(text19)) && !/[\n\r]/.test(text19) && (!/\s/.test(text19) || /^(?:\/|\.{1,2}\/|~\/|file:\/\/)/.test(text19))) {
-        found.add(text19);
+      const text18 = v.trim();
+      if (MODEL.test(extension(text18)) && !/[\n\r]/.test(text18) && (!/\s/.test(text18) || /^(?:\/|\.{1,2}\/|~\/|file:\/\/)/.test(text18))) {
+        found.add(text18);
         return;
       }
-      const parsed2 = parseJson(text19);
+      const parsed2 = parseJson(text18);
       if (parsed2 !== void 0) {
         walk(parsed2, depth + 1);
         return;
       }
-      for (const match of text19.matchAll(/(?:https?:\/\/|file:\/\/|\/|\.\.?\/|~\/)[^\s<>"'`]*?\.(?:glb|gltf|obj|fbx|usdz)(?:\?[^\s<>"'`)]*)?(?=$|[\s<>"'`)\],;])/gi)) {
+      for (const match of text18.matchAll(/(?:https?:\/\/|file:\/\/|\/|\.\.?\/|~\/)[^\s<>"'`]*?\.(?:glb|gltf|obj|fbx|usdz)(?:\?[^\s<>"'`)]*)?(?=$|[\s<>"'`)\],;])/gi)) {
         found.add(match[0]);
       }
     } else if (Array.isArray(v)) {
@@ -31958,8 +32257,8 @@ var network = new import_undici.Agent({
     }
   }
 });
-async function remoteURL(source3) {
-  const url = new URL(source3);
+async function remoteURL(source2) {
+  const url = new URL(source2);
   if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) {
     throw new Error("Model downloads require an HTTP(S) URL without credentials");
   }
@@ -31969,8 +32268,8 @@ async function remoteURL(source3) {
   }
   return url;
 }
-async function download(source3, target2) {
-  let url = await remoteURL(source3);
+async function download(source2, target2) {
+  let url = await remoteURL(source2);
   const signal = AbortSignal.timeout(6e4);
   for (let redirects = 0; redirects <= 5; redirects++) {
     const response = await (0, import_undici.fetch)(url, { dispatcher: network, redirect: "manual", signal });
@@ -32009,25 +32308,25 @@ async function download(source3, target2) {
   }
   throw new Error("Too many model download redirects");
 }
-async function companions(source3, path2) {
-  const ext = extension(source3);
+async function companions(source2, path2) {
+  const ext = extension(source2);
   if (ext !== ".gltf" && ext !== ".obj") {
     return;
   }
-  const text19 = await readFile2(path2, "utf8");
+  const text18 = await readFile2(path2, "utf8");
   let refs3;
   if (ext === ".gltf") {
-    const doc = record2(parseJson(text19));
+    const doc = record(parseJson(text18));
     if (!doc) {
       throw new Error("Invalid glTF document");
     }
     const resources = [doc["buffers"], doc["images"]].flatMap((items) => Array.isArray(items) ? items : []);
     refs3 = resources.flatMap((item3) => {
-      const uri = record2(item3)?.["uri"];
+      const uri = record(item3)?.["uri"];
       return typeof uri === "string" && !uri.startsWith("data:") ? [uri] : [];
     });
   } else {
-    refs3 = [...text19.matchAll(/^mtllib\s+(.+)$/gm)].map((m) => (m[1] ?? "").trim()).filter(Boolean);
+    refs3 = [...text18.matchAll(/^mtllib\s+(.+)$/gm)].map((m2) => (m2[1] ?? "").trim()).filter(Boolean);
   }
   if (refs3.length > 64) {
     throw new Error("Model has more than 64 companion files. Use an embedded GLB instead.");
@@ -32038,37 +32337,37 @@ async function companions(source3, path2) {
     }
     const target2 = resolve2(dirname3(path2), ref);
     await mkdir(dirname3(target2), { recursive: true, mode: 448 });
-    await download(new URL(ref, source3).href, target2);
+    await download(new URL(ref, source2).href, target2);
   }
 }
-async function openArtifact(source3, cwd = process.cwd()) {
+async function openArtifact(source2, cwd = process.cwd()) {
   if (!process.env["TERN_PANE"]) {
     throw new Error("Open 3D models from a Hermes chat inside Tern");
   }
   let path2;
-  if (/^https?:\/\//i.test(source3)) {
-    const ext = extension(source3);
+  if (/^https?:\/\//i.test(source2)) {
+    const ext = extension(source2);
     if (!MODEL.test(ext)) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz URL");
     }
-    const dir2 = join6(CACHE, createHash2("sha256").update(source3).digest("hex"));
-    path2 = join6(dir2, `model${ext}`);
+    const dir2 = join7(CACHE, createHash2("sha256").update(source2).digest("hex"));
+    path2 = join7(dir2, `model${ext}`);
     try {
-      await stat(join6(dir2, ".complete"));
+      await stat(join7(dir2, ".complete"));
     } catch {
       await mkdir(dir2, { recursive: true, mode: 448 });
       const temp = `${path2}.${process.pid}.part`;
       try {
-        await download(source3, temp);
-        await companions(source3, temp);
+        await download(source2, temp);
+        await companions(source2, temp);
         await rename(temp, path2);
-        await writeFile2(join6(dir2, ".complete"), "", { mode: 384 });
+        await writeFile2(join7(dir2, ".complete"), "", { mode: 384 });
       } finally {
         await rm2(temp, { force: true });
       }
     }
   } else {
-    path2 = source3.startsWith("file://") ? fileURLToPath2(source3) : resolve2(cwd, source3.replace(/^~(?=\/)/, homedir5()));
+    path2 = source2.startsWith("file://") ? fileURLToPath2(source2) : resolve2(cwd, source2.replace(/^~(?=\/)/, homedir6()));
     if (!MODEL.test(extension(path2))) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz file");
     }
@@ -32082,16 +32381,16 @@ async function openArtifact(source3, cwd = process.cwd()) {
 var Artifacts = class {
   #seen = /* @__PURE__ */ new Set();
   show(call, cwd, notice) {
-    if (!call || call.outcome.kind !== "done" || record2(call.result)?.["success"] === false || record2(call.result)?.["isError"] === true) {
+    if (!call || call.outcome.kind !== "done" || record(call.result)?.["success"] === false || record(call.result)?.["isError"] === true) {
       return;
     }
-    for (const source3 of modelSources([call.result, call.resultText])) {
-      if (this.#seen.has(source3)) {
+    for (const source2 of modelSources([call.result, call.resultText])) {
+      if (this.#seen.has(source2)) {
         continue;
       }
-      this.#seen.add(source3);
-      void openArtifact(source3, cwd).catch(() => {
-        this.#seen.delete(source3);
+      this.#seen.add(source2);
+      void openArtifact(source2, cwd).catch(() => {
+        this.#seen.delete(source2);
         notice("Could not open the 3D artifact. Use /view3d with a local model file to retry.");
       });
     }
@@ -32100,13 +32399,13 @@ var Artifacts = class {
 
 // src/clipboard.ts
 import { spawn as spawn2 } from "node:child_process";
-function copyToClipboard(text19, env2 = process.env) {
-  process.stdout.write(`\x1B]52;c;${Buffer.from(text19).toString("base64")}\x07`);
+function copyToClipboard(text18, env2 = process.env) {
+  process.stdout.write(`\x1B]52;c;${Buffer.from(text18).toString("base64")}\x07`);
   if (process.platform === "darwin" && !env2["SSH_CONNECTION"] && !env2["SSH_TTY"]) {
     const child = spawn2("pbcopy", [], { stdio: ["pipe", "ignore", "ignore"] });
     child.on("error", () => {
     });
-    child.stdin.end(text19);
+    child.stdin.end(text18);
   }
 }
 
@@ -32368,8 +32667,8 @@ function compact(n3) {
     const k = n3 / 1e3;
     return `${k < 10 ? k.toFixed(1).replace(/\.0$/, "") : Math.round(k)}K`;
   }
-  const m = n3 / 1e6;
-  return `${m < 10 ? m.toFixed(1).replace(/\.0$/, "") : Math.round(m)}M`;
+  const m2 = n3 / 1e6;
+  return `${m2 < 10 ? m2.toFixed(1).replace(/\.0$/, "") : Math.round(m2)}M`;
 }
 
 // src/agents/look.ts
@@ -32401,7 +32700,7 @@ function ownersOf(calls) {
 }
 var byTask = (x, y) => x.index - y.index || (x.depth ?? 0) - (y.depth ?? 0);
 function dispatchOf(result) {
-  const { delegation_id: delegationId, goals, status, subagent_ids: ids } = record2(result) ?? {};
+  const { delegation_id: delegationId, goals, status, subagent_ids: ids } = record(result) ?? {};
   if (status !== "dispatched" || typeof delegationId !== "string") {
     return void 0;
   }
@@ -32414,10 +32713,10 @@ function dispatchOf(result) {
 function dispatchRows(list10, d, at2) {
   d.goals.forEach((goal, i) => {
     const named2 = d.ids[i];
-    const id = typeof named2 === "string" && named2 ? named2 : `task-${i}`;
-    let a2 = list10.find((x) => x.id === id);
+    const id2 = typeof named2 === "string" && named2 ? named2 : `task-${i}`;
+    let a2 = list10.find((x) => x.id === id2);
     if (!a2) {
-      a2 = { calls: 0, goal, id, index: i, key: subagentKey(`p${i}`), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
+      a2 = { calls: 0, goal, id: id2, index: i, key: subagentKey(`p${i}`), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
       list10.push(a2);
     }
     a2.delegationId = d.delegationId;
@@ -32521,21 +32820,21 @@ function endUnseen(a2) {
   a2.duration = Date.now() - a2.startedAt;
   a2.tool = void 0;
 }
-function completionOutcomes(text19) {
-  const head2 = /^\[ASYNC DELEGATION (BATCH COMPLETE|COMPLETE|TASK FAILED) — ([^\],]+)(?:, task (\d+)\/\d+)?\]/.exec(text19.trim());
+function completionOutcomes(text18) {
+  const head2 = /^\[ASYNC DELEGATION (BATCH COMPLETE|COMPLETE|TASK FAILED) — ([^\],]+)(?:, task (\d+)\/\d+)?\]/.exec(text18.trim());
   if (!head2) {
     return void 0;
   }
   const [, kind, delegationId = "", task] = head2;
   const outcomes = /* @__PURE__ */ new Map();
   if (kind === "BATCH COMPLETE") {
-    for (const [, n3, status] of text19.matchAll(/^--- \S+ TASK (\d+)\/\d+.*\(status=([^,)\s]+)/gm)) {
+    for (const [, n3, status] of text18.matchAll(/^--- \S+ TASK (\d+)\/\d+.*\(status=([^,)\s]+)/gm)) {
       if (status) {
         outcomes.set(Number(n3) - 1, status);
       }
     }
   } else {
-    const status = /^Status: (\S+)/m.exec(text19)?.[1];
+    const status = /^Status: (\S+)/m.exec(text18)?.[1];
     if (status) {
       outcomes.set(kind === "TASK FAILED" ? Number(task) - 1 : 0, status);
     }
@@ -32567,8 +32866,8 @@ function endedStatus(status) {
 }
 function foldEvent(call, { type, event, at: at2 }) {
   const list10 = call.subagents ??= [];
-  const id = event.subagent_id ?? `task-${event.task_index}`;
-  let agent = list10.find((a2) => a2.id === id);
+  const id2 = event.subagent_id ?? `task-${event.task_index}`;
+  let agent = list10.find((a2) => a2.id === id2);
   if (!agent && event.subagent_id && event.parent_id) {
     agent = nestedChild(ownersOf([call]), {
       ...optional2("delegation_id", event.delegation_id),
@@ -32582,7 +32881,7 @@ function foldEvent(call, { type, event, at: at2 }) {
     }
   }
   if (!agent) {
-    agent = { calls: 0, goal: event.goal, id, index: event.task_index, key: subagentKey(id), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
+    agent = { calls: 0, goal: event.goal, id: id2, index: event.task_index, key: subagentKey(id2), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
     list10.push(agent);
     list10.sort(byTask);
   }
@@ -32628,7 +32927,7 @@ function taskGoals(call) {
   const tasks = typeof raw2 === "string" ? parseJson(raw2) : raw2;
   if (Array.isArray(tasks) && tasks.length) {
     return tasks.map((t) => {
-      const { goal: task } = record2(t) ?? {};
+      const { goal: task } = record(t) ?? {};
       return typeof task === "string" ? task.trim() : "";
     });
   }
@@ -32639,9 +32938,9 @@ function taskGoals(call) {
 function agentNode(a2, now, solo) {
   const status = SUBAGENT_LOOK[a2.status].row;
   const running2 = a2.status === "running";
-  const title = `Open ${solo ? "the agent" : agentName(a2)} beside the chat`;
+  const title2 = `Open ${solo ? "the agent" : agentName(a2)} beside the chat`;
   return pressable(
-    { action: `open-agent=${a2.id}`, key: solo?.key ?? a2.key, menu: [`open-agent=${a2.id}`], name: title },
+    { action: `open-agent=${a2.id}`, key: solo?.key ?? a2.key, menu: [`open-agent=${a2.id}`], name: title2 },
     /* @__PURE__ */ jsx(
       "agent",
       {
@@ -32660,7 +32959,7 @@ function agentNode(a2, now, solo) {
         },
         status,
         task: a2.goal,
-        title,
+        title: title2,
         ...running2 && a2.tool ? {
           tool: {
             ...optional2("age", a2.toolSince ? age(a2.toolSince, a2.toolSince.at, now) : void 0),
@@ -32713,13 +33012,13 @@ function rank(items, query2, textOf, { scattered = true } = {}) {
   }
   const scored = [];
   items.forEach((item3, index2) => {
-    const text19 = textOf(item3).toLowerCase();
+    const text18 = textOf(item3).toLowerCase();
     const positions = /* @__PURE__ */ new Set();
     let score = 0;
     for (const word of words3) {
-      const at2 = text19.indexOf(word);
+      const at2 = text18.indexOf(word);
       if (at2 >= 0) {
-        const boundary = at2 === 0 || /[\s/_.:-]/.test(text19[at2 - 1] ?? "");
+        const boundary = at2 === 0 || /[\s/_.:-]/.test(text18[at2 - 1] ?? "");
         score += 100 - Math.min(at2, 50) + (boundary ? 25 : 0);
         for (let i = at2; i < at2 + word.length; i++) {
           positions.add(i);
@@ -32731,7 +33030,7 @@ function rank(items, query2, textOf, { scattered = true } = {}) {
       }
       let from = 0;
       for (const ch of word) {
-        const i = text19.indexOf(ch, from);
+        const i = text18.indexOf(ch, from);
         if (i < 0) {
           return;
         }
@@ -32761,7 +33060,7 @@ function hitRuns(positions, limit) {
 }
 
 // node_modules/@hermes/shared/src/json-rpc-channel.ts
-var isServerRequestFrame = (frame) => typeof frame.id === "string" && typeof frame.method === "string" && frame.method !== "event";
+var isServerRequestFrame = (frame2) => typeof frame2.id === "string" && typeof frame2.method === "string" && frame2.method !== "event";
 var JsonRpcGatewayError = class extends Error {
   code;
   data;
@@ -32874,7 +33173,7 @@ var JsonRpcRequestChannel = class {
     if (signal?.aborted) {
       return Promise.reject(new DOMException("Aborted", "AbortError"));
     }
-    const id = this.options.createRequestId(++this.nextId);
+    const id2 = this.options.createRequestId(++this.nextId);
     return new Promise((resolve11, reject) => {
       let onAbort;
       const detachAbort = () => {
@@ -32894,7 +33193,7 @@ var JsonRpcRequestChannel = class {
       };
       if (timeoutMs > 0) {
         pending2.timer = setTimeout(() => {
-          if (this.pending.delete(id)) {
+          if (this.pending.delete(id2)) {
             detachAbort();
             const seconds = Math.round(timeoutMs / 1e3);
             reject(new Error(`request timed out after ${seconds}s: ${method}`));
@@ -32906,17 +33205,17 @@ var JsonRpcRequestChannel = class {
       }
       if (signal) {
         onAbort = () => {
-          this.clearPending(id);
+          this.clearPending(id2);
           detachAbort();
           reject(new DOMException("Aborted", "AbortError"));
         };
         signal.addEventListener("abort", onAbort, { once: true });
       }
-      this.pending.set(id, pending2);
+      this.pending.set(id2, pending2);
       try {
-        transport.send(JSON.stringify({ jsonrpc: "2.0", id, method, params }));
+        transport.send(JSON.stringify({ jsonrpc: "2.0", id: id2, method, params }));
       } catch (error) {
-        this.clearPending(id);
+        this.clearPending(id2);
         detachAbort();
         reject(error instanceof Error ? error : new Error(String(error)));
       }
@@ -32943,20 +33242,20 @@ var JsonRpcRequestChannel = class {
    * reconnect replay (`replayed: true`) so an unanswered question survives a
    * dropped socket.
    */
-  deliverRequest(id, method, params, replayed = false) {
+  deliverRequest(id2, method, params, replayed = false) {
     let settled2 = false;
-    const send2 = (frame) => {
+    const send2 = (frame2) => {
       if (settled2) {
         return;
       }
       settled2 = true;
       try {
-        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id, ...frame }));
+        this.transport?.send(JSON.stringify({ jsonrpc: "2.0", id: id2, ...frame2 }));
       } catch {
       }
     };
     const request = {
-      id,
+      id: id2,
       method,
       params,
       replayed,
@@ -32975,7 +33274,7 @@ var JsonRpcRequestChannel = class {
       } catch (error) {
         request.fail(JSON_RPC_INTERNAL_ERROR, `server request handler crashed: ${method}`);
         this.options.onRequestHandlerError?.(error instanceof Error ? error : new Error(String(error)), {
-          id,
+          id: id2,
           method,
           params
         });
@@ -32986,7 +33285,7 @@ var JsonRpcRequestChannel = class {
       }
     }
     request.fail(JSON_RPC_METHOD_NOT_FOUND, `no handler for server request: ${method}`);
-    this.options.onUnhandledRequest?.({ id, method, params });
+    this.options.onUnhandledRequest?.({ id: id2, method, params });
     return false;
   }
   deliverOpenRequests(result) {
@@ -33002,23 +33301,23 @@ var JsonRpcRequestChannel = class {
     }
   }
   /** Settle the ping or pending call this response answers; an unknown id is ignored. */
-  settleResponse(id, frame) {
-    if (typeof id === "string" && this.outstandingPings.delete(id)) {
+  settleResponse(id2, frame2) {
+    if (typeof id2 === "string" && this.outstandingPings.delete(id2)) {
       this.lastLivenessAt = Date.now();
       return;
     }
-    const call = this.pending.get(id);
+    const call = this.pending.get(id2);
     if (!call) {
       return;
     }
     this.lastLivenessAt = Date.now();
-    this.clearPending(id);
-    if (frame.error) {
-      call.reject(jsonRpcErrorFromFrame(frame.error));
+    this.clearPending(id2);
+    if (frame2.error) {
+      call.reject(jsonRpcErrorFromFrame(frame2.error));
       return;
     }
-    this.deliverOpenRequests(frame.result);
-    call.resolve(frame.result);
+    this.deliverOpenRequests(frame2.result);
+    call.resolve(frame2.result);
   }
   /**
    * Route one inbound frame: a response settles its pending call, an error
@@ -33028,39 +33327,39 @@ var JsonRpcRequestChannel = class {
    * on it too (mirror it, record seq, …) or `null` when the text was not
    * JSON or not a JSON object (`null`, a scalar).
    */
-  handleFrame(text19) {
-    let frame;
+  handleFrame(text18) {
+    let frame2;
     try {
-      frame = JSON.parse(text19);
+      frame2 = JSON.parse(text18);
     } catch {
       return null;
     }
-    if (!frame || typeof frame !== "object") {
+    if (!frame2 || typeof frame2 !== "object") {
       return null;
     }
     if (this.options.heartbeatLiveness === "any-inbound") {
       this.lastLivenessAt = Date.now();
     }
-    if (isServerRequestFrame(frame)) {
-      const params = frame.params && typeof frame.params === "object" ? frame.params : {};
-      this.deliverRequest(frame.id, frame.method, params);
-      return frame;
+    if (isServerRequestFrame(frame2)) {
+      const params = frame2.params && typeof frame2.params === "object" ? frame2.params : {};
+      this.deliverRequest(frame2.id, frame2.method, params);
+      return frame2;
     }
-    if (frame.id !== void 0 && frame.id !== null) {
-      this.settleResponse(frame.id, frame);
-      return frame;
+    if (frame2.id !== void 0 && frame2.id !== null) {
+      this.settleResponse(frame2.id, frame2);
+      return frame2;
     }
-    if (frame.error) {
-      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame.error));
-      return frame;
+    if (frame2.error) {
+      this.options.onUncorrelatedError?.(jsonRpcErrorFromFrame(frame2.error));
+      return frame2;
     }
-    if (frame.method === "event" && frame.params && typeof frame.params.type === "string") {
-      if (frame.params.type === "gateway.ready") {
+    if (frame2.method === "event" && frame2.params && typeof frame2.params.type === "string") {
+      if (frame2.params.type === "gateway.ready") {
         this.advertiseCapabilities();
       }
-      this.options.onEvent?.(frame.params);
+      this.options.onEvent?.(frame2.params);
     }
-    return frame;
+    return frame2;
   }
   /**
    * Tell the backend, once per connection generation, that this client answers
@@ -33116,14 +33415,14 @@ var JsonRpcRequestChannel = class {
         }
         graceProbeSent = true;
       }
-      const id = `heartbeat-${++this.heartbeatSequence}`;
-      this.outstandingPings.add(id);
+      const id2 = `heartbeat-${++this.heartbeatSequence}`;
+      this.outstandingPings.add(id2);
       if (this.outstandingPings.size > MAX_OUTSTANDING_PINGS) {
         this.outstandingPings.delete(this.outstandingPings.values().next().value);
       }
       lastPingAt = now;
       try {
-        transport.send(JSON.stringify({ jsonrpc: "2.0", id, method: "gateway.ping", params: {} }));
+        transport.send(JSON.stringify({ jsonrpc: "2.0", id: id2, method: "gateway.ping", params: {} }));
       } catch (error) {
         this.failHeartbeat(error instanceof Error ? error : new Error(String(error)));
       }
@@ -33143,19 +33442,19 @@ var JsonRpcRequestChannel = class {
     this.stopHeartbeat();
     this.options.onHeartbeatFailure?.(error);
   }
-  clearPending(id) {
-    const call = this.pending.get(id);
+  clearPending(id2) {
+    const call = this.pending.get(id2);
     if (call?.timer) {
       clearTimeout(call.timer);
     }
-    this.pending.delete(id);
+    this.pending.delete(id2);
   }
   rejectAllPending(error) {
-    for (const [id, call] of this.pending) {
+    for (const [id2, call] of this.pending) {
       if (call.timer) {
         clearTimeout(call.timer);
       }
-      this.pending.delete(id);
+      this.pending.delete(id2);
       call.reject(error);
     }
   }
@@ -33236,20 +33535,20 @@ function stepsOf(rows) {
   const steps = [];
   for (const row2 of rows) {
     const at2 = ms(row2.timestamp);
-    const text19 = row2.text?.trim() ?? "";
+    const text18 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
       steps.push({ args: row2.context ?? "", at: at2, kind: "tool", name: row2.name ?? "tool", running: false, ...optional2("call", row2.args ?? void 0) });
     } else if (row2.row_kind === "message" && row2.role === "assistant") {
       if (row2.reasoning?.trim()) {
         steps.push({ at: at2, kind: "think", text: row2.reasoning.trim() });
       }
-      if (text19) {
-        steps.push({ at: at2, kind: "assistant", text: text19 });
+      if (text18) {
+        steps.push({ at: at2, kind: "assistant", text: text18 });
       }
     } else if (row2.row_kind === "message" && row2.role === "user" && !steps.some((s2) => s2.kind === "kickoff")) {
-      steps.push({ at: at2, kind: "kickoff", text: text19 });
-    } else if (text19) {
-      steps.push({ at: at2, kind: "note", text: text19 });
+      steps.push({ at: at2, kind: "kickoff", text: text18 });
+    } else if (text18) {
+      steps.push({ at: at2, kind: "note", text: text18 });
     }
   }
   return steps;
@@ -33263,17 +33562,17 @@ function agentSteps(a2) {
 // src/agents/hub.ts
 var NONE = { kind: "none" };
 var LIST2 = { kind: "list" };
-function initialHub(agents2, focus2) {
+function initialHub(agents2, focus) {
   return {
     ask: NONE,
-    selected: focus2 ?? agents2.find(isRunning)?.id ?? agents2[0]?.id,
+    selected: focus ?? agents2.find(isRunning)?.id ?? agents2[0]?.id,
     tab: agents2.some(isRunning) ? "running" : "all",
     view: LIST2
   };
 }
 function currentAgent(state, agents2) {
-  const id = state.view.kind === "timeline" ? state.view.agent : state.selected;
-  return agents2.find((a2) => a2.id === id);
+  const id2 = state.view.kind === "timeline" ? state.view.agent : state.selected;
+  return agents2.find((a2) => a2.id === id2);
 }
 function shownAgents(state, agents2) {
   return state.tab === "running" ? agents2.filter(isRunning) : [...agents2];
@@ -33299,7 +33598,7 @@ function reduceHub(state, action, agents2) {
       return { state: { ...state, view: { ...state.view, step } } };
     }
     case "listed":
-      return action.ids.some((id) => id === state.selected) ? { state } : {
+      return action.ids.some((id2) => id2 === state.selected) ? { state } : {
         state: { ...state, selected: action.ids[0], ask: state.ask.kind === "confirmStop" ? NONE : state.ask }
       };
     case "watch": {
@@ -33307,8 +33606,8 @@ function reduceHub(state, action, agents2) {
       return picked ? { state: { ...state, view: { agent: picked.id, kind: "timeline", step: void 0 } } } : { state };
     }
     case "beside": {
-      const id = action.id ?? state.selected;
-      return id ? { effect: { id, kind: "beside" }, state } : { state };
+      const id2 = action.id ?? state.selected;
+      return id2 ? { effect: { id: id2, kind: "beside" }, state } : { state };
     }
     case "pause":
       return { effect: { kind: "pause" }, state };
@@ -33319,9 +33618,9 @@ function reduceHub(state, action, agents2) {
     case "steerCancel":
       return { state: state.ask.kind === "steering" ? { ...state, ask: NONE } : state };
     case "steerSend": {
-      const text19 = state.ask.kind === "steering" ? state.ask.text.trim() : "";
+      const text18 = state.ask.kind === "steering" ? state.ask.text.trim() : "";
       const next2 = { ...state, ask: state.ask.kind === "steering" ? NONE : state.ask };
-      return a2 && text19 ? { effect: { agent: a2, kind: "steer", text: text19 }, state: next2 } : { state: next2 };
+      return a2 && text18 ? { effect: { agent: a2, kind: "steer", text: text18 }, state: next2 } : { state: next2 };
     }
     case "stop":
       return running(a2) ? { state: { ...state, ask: { kind: "confirmStop" } } } : { state };
@@ -33342,8 +33641,8 @@ function hubKey(state, k, agents2) {
     if (k.name === "enter") {
       return { type: "steerSend" };
     }
-    const text19 = editQuery(k, ask.text);
-    return text19 === void 0 ? void 0 : { text: text19, type: "steerEdit" };
+    const text18 = editQuery(k, ask.text);
+    return text18 === void 0 ? void 0 : { text: text18, type: "steerEdit" };
   }
   if (ask.kind === "confirmStop") {
     return affirmative(k) ? { type: "stopConfirm" } : negative(k) ? { type: "stopCancel" } : void 0;
@@ -33401,8 +33700,8 @@ var HUB_CLICKS = {
 function nonEmpty(v) {
   return typeof v === "string" && v ? v : void 0;
 }
-function flat(text19) {
-  return text19.replace(/\s+/g, " ").trim();
+function flat(text18) {
+  return text18.replace(/\s+/g, " ").trim();
 }
 function duration2(ms2) {
   if (ms2 < 1e3) {
@@ -33412,11 +33711,11 @@ function duration2(ms2) {
   if (s2 < 60) {
     return `${s2 < 10 ? s2.toFixed(1) : Math.round(s2)}s`;
   }
-  const m = Math.floor(s2 / 60);
-  if (m < 60) {
-    return `${m}m ${String(Math.round(s2 % 60)).padStart(2, "0")}s`;
+  const m2 = Math.floor(s2 / 60);
+  if (m2 < 60) {
+    return `${m2}m ${String(Math.round(s2 % 60)).padStart(2, "0")}s`;
   }
-  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
+  return `${Math.floor(m2 / 60)}h ${String(m2 % 60).padStart(2, "0")}m`;
 }
 function durationCompact(ms2) {
   if (!Number.isFinite(ms2) || ms2 < 0) {
@@ -33434,20 +33733,20 @@ function durationCompact(ms2) {
   }
   const total = Math.round(ms2 / 1e3);
   const h2 = Math.floor(total / 3600);
-  const m = Math.floor(total % 3600 / 60);
+  const m2 = Math.floor(total % 3600 / 60);
   const s2 = total % 60;
-  return [h2 ? `${h2}h` : "", m ? `${m}m` : "", s2 ? `${s2}s` : ""].filter(Boolean).join(" ");
+  return [h2 ? `${h2}h` : "", m2 ? `${m2}m` : "", s2 ? `${s2}s` : ""].filter(Boolean).join(" ");
 }
 function durationWhole(ms2) {
   const s2 = Math.max(0, Math.round(ms2 / 1e3));
   return s2 < 60 ? `${s2}s` : s2 < 3600 ? `${Math.floor(s2 / 60)}m ${s2 % 60}s` : `${Math.floor(s2 / 3600)}h ${Math.floor(s2 % 3600 / 60)}m`;
 }
 function ageShort(ms2) {
-  const m = Math.max(0, Math.round(ms2 / 6e4));
-  if (m < 60) {
-    return `${Math.max(1, m)}m`;
+  const m2 = Math.max(0, Math.round(ms2 / 6e4));
+  if (m2 < 60) {
+    return `${Math.max(1, m2)}m`;
   }
-  const h2 = Math.round(m / 60);
+  const h2 = Math.round(m2 / 60);
   if (h2 < 24) {
     return `${h2}h`;
   }
@@ -33499,14 +33798,14 @@ function jobTile(o) {
 // src/agents/tiles.tsx
 var PROGRESS_CHARS = 160;
 var PROGRESS_LINES = 2;
-function compact2(text19) {
-  const line = text19.replace(/\s+/g, " ").trim();
+function compact2(text18) {
+  const line = text18.replace(/\s+/g, " ").trim();
   return line.length > PROGRESS_CHARS ? `${line.slice(0, PROGRESS_CHARS - 1)}\u2026` : line;
 }
-function intent(text19) {
-  const args = record2(text19);
+function intent(text18) {
+  const args = record(text18);
   const label = args?.["i"] ?? args?.["intent"];
-  return compact2(typeof label === "string" && label.trim() ? label : text19);
+  return compact2(typeof label === "string" && label.trim() ? label : text18);
 }
 function agentProgress(a2) {
   const lines = [];
@@ -33585,47 +33884,47 @@ function agentTile(a2, now) {
 }
 
 // src/core/text.ts
-function plural(n3, one7, many = `${one7}s`) {
-  return `${n3} ${n3 === 1 ? one7 : many}`;
+function plural(n3, one6, many = `${one6}s`) {
+  return `${n3} ${n3 === 1 ? one6 : many}`;
 }
-function clip3(text19, o) {
-  if (text19.length <= o.max) {
-    return text19;
+function clip3(text18, o) {
+  if (text18.length <= o.max) {
+    return text18;
   }
-  return o.mark === "line" ? `${text19.slice(0, o.max)}
-\u2026` : `${text19.slice(0, o.max - 1)}\u2026`;
+  return o.mark === "line" ? `${text18.slice(0, o.max)}
+\u2026` : `${text18.slice(0, o.max - 1)}\u2026`;
 }
 var ESCAPES = /\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-_]/g;
-function withoutEscapes(text19) {
-  return text19.replace(ESCAPES, "");
+function withoutEscapes(text18) {
+  return text18.replace(ESCAPES, "");
 }
 
 // src/tools/fields.ts
-function text4(v) {
+function text2(v) {
   return typeof v === "string" && v ? v : void 0;
 }
-function num4(v) {
+function num3(v) {
   return typeof v === "number" ? v : void 0;
 }
 function list2(v) {
   return Array.isArray(v) ? v : void 0;
 }
 function records(v) {
-  return Array.isArray(v) ? v.map((i) => record2(i)) : [];
+  return Array.isArray(v) ? v.map((i) => record(i)) : [];
 }
 function objects(v) {
   return records(v).filter((r) => r !== void 0);
 }
 function texts(v) {
-  return Array.isArray(v) ? v.map((i) => text4(i)).filter((t) => t !== void 0) : [];
+  return Array.isArray(v) ? v.map((i) => text2(i)).filter((t) => t !== void 0) : [];
 }
 
 // src/tools/ask.ts
 function askDetail({ args, result }) {
-  const asked2 = list2(args["questions"]) ?? (text4(args["question"]) ? [args] : []);
+  const asked2 = list2(args["questions"]) ?? (text2(args["question"]) ? [args] : []);
   return {
     answered: result !== void 0,
-    questions: objects(asked2).map((q2) => ({ choices: texts(q2["choices"]), question: text4(q2["question"]) })),
+    questions: objects(asked2).map((q2) => ({ choices: texts(q2["choices"]), question: text2(q2["question"]) })),
     responses: records(result?.["responses"]).map((r) => {
       if (!r) {
         return void 0;
@@ -33659,7 +33958,7 @@ function diagnosticsOf(value) {
   const files = /* @__PURE__ */ new Map();
   const unavailable = [];
   for (const candidate of value) {
-    const file2 = record2(candidate);
+    const file2 = record(candidate);
     const path2 = file2?.["path"];
     if (!file2 || typeof path2 !== "string" || !path2) {
       return void 0;
@@ -33673,7 +33972,7 @@ function diagnosticsOf(value) {
     }
     const group = files.get(path2) ?? { path: path2, diagnostics: [], omitted: 0 };
     for (const candidateRow of file2["diagnostics"]) {
-      const row2 = record2(candidateRow);
+      const row2 = record(candidateRow);
       const tone2 = severity(row2?.["severity"]);
       const line = row2?.["line"];
       const col = row2?.["col"];
@@ -33687,14 +33986,14 @@ function diagnosticsOf(value) {
       if (hasEnd && (!positive2(endLine) || !positive2(endCol) || endLine < line || endLine === line && endCol < col)) {
         return void 0;
       }
-      const source3 = row2?.["source"];
+      const source2 = row2?.["source"];
       group.diagnostics.push({
         col,
         line,
         message,
         severity: tone2,
         ...hasEnd && positive2(endLine) && positive2(endCol) ? { end: { col: endCol, line: endLine } } : {},
-        ...typeof source3 === "string" && source3 ? { source: source3 } : {}
+        ...typeof source2 === "string" && source2 ? { source: source2 } : {}
       });
     }
     const omitted = file2["omitted"];
@@ -33705,9 +34004,9 @@ function diagnosticsOf(value) {
 }
 function lintEntry(lint) {
   if (!lint || typeof lint !== "object" || Array.isArray(lint)) return void 0;
-  const data = record2(lint);
+  const data = record(lint);
   if (!data || !Object.hasOwn(data, "status") || data["status"] !== "error" || !Object.hasOwn(data, "output") || typeof data["output"] !== "string" || Object.hasOwn(data, "message") && typeof data["message"] !== "string") return void 0;
-  return { output: data["output"], ...optional2("message", Object.hasOwn(data, "message") ? text4(data["message"]) : void 0) };
+  return { output: data["output"], ...optional2("message", Object.hasOwn(data, "message") ? text2(data["message"]) : void 0) };
 }
 function lintError(result) {
   return result && Object.hasOwn(result, "lint") ? lintEntry(result["lint"]) : void 0;
@@ -33721,7 +34020,7 @@ function v4aLint({ args, result }) {
   if (!failure5 && (result["success"] !== true || result["error"] !== void 0 && result["error"] !== null && result["error"] !== "")) return void 0;
   const map4 = Object.hasOwn(result, "lint") ? result["lint"] : void 0;
   if (!map4 || typeof map4 !== "object" || Array.isArray(map4)) return failure5 ? { errors: [], uninspected: false, failure: failure5 } : void 0;
-  const entries2 = record2(map4);
+  const entries2 = record(map4);
   if (!entries2) return failure5 ? { errors: [], uninspected: false, failure: failure5 } : void 0;
   const errors = [];
   let inspected = 0;
@@ -33760,11 +34059,11 @@ function readDetail({ args, result }) {
   const next2 = result?.["next_offset"];
   const nextOffset = truncated && result?.["truncated_by"] === "bytes" && typeof next2 === "number" && Number.isSafeInteger(next2) && next2 > 0 ? next2 : void 0;
   return {
-    content: text4(result?.["content"]),
+    content: text2(result?.["content"]),
     ...optional2("nextOffset", nextOffset),
-    path: text4(args["path"]),
+    path: text2(args["path"]),
     tool: "read_file",
-    totalLines: num4(result?.["total_lines"]),
+    totalLines: num3(result?.["total_lines"]),
     ...optional2("truncated", truncated ? true : void 0),
     ...optional2("truncatedLines", result?.["truncated_lines"] === true ? true : void 0),
     ...optional2("unchanged", unchanged ? true : void 0)
@@ -33772,14 +34071,14 @@ function readDetail({ args, result }) {
 }
 function editDetail(tool) {
   return ({ args, result }) => ({
-    content: text4(args["content"]),
+    content: text2(args["content"]),
     ...optional2("diagnostics", diagnosticsOf(result?.["lsp_diagnostics_data"])),
-    ...optional2("diagnosticsText", text4(result?.["lsp_diagnostics"])),
+    ...optional2("diagnosticsText", text2(result?.["lsp_diagnostics"])),
     ...optional2("lintError", tool === "write_file" ? lintError(result) : replaceLintError({ args, result })),
     ...optional2("v4aLint", tool === "patch" ? v4aLint({ args, result }) : void 0),
     ...optional2("writeRefusal", tool === "write_file" ? writeRefusal({ args, result }) : void 0),
-    diff: text4(result?.["diff"]),
-    path: text4(args["path"]),
+    diff: text2(result?.["diff"]),
+    path: text2(args["path"]),
     tool
   });
 }
@@ -33787,11 +34086,11 @@ function editDetail(tool) {
 // src/tools/misc.ts
 function genericFields({ args, result }) {
   return {
-    prompt: text4(args["prompt"]),
-    query: text4(args["query"]),
-    question: text4(args["question"]),
-    said: text4(result?.["analysis"]) ?? text4(result?.["text_summary"]),
-    url: text4(args["url"])
+    prompt: text2(args["prompt"]),
+    query: text2(args["query"]),
+    question: text2(args["question"]),
+    said: text2(result?.["analysis"]) ?? text2(result?.["text_summary"]),
+    url: text2(args["url"])
   };
 }
 function plainDetail(tool) {
@@ -33825,33 +34124,33 @@ function stdoutTruncated(result) {
 }
 function evalDetail({ args, result }) {
   return {
-    code: text4(args["code"]),
-    error: text4(result?.["error"]) ?? text4(result?.["stderr"]),
-    output: text4(result?.["output"]) ?? text4(result?.["stdout"]),
+    code: text2(args["code"]),
+    error: text2(result?.["error"]) ?? text2(result?.["stderr"]),
+    output: text2(result?.["output"]) ?? text2(result?.["stdout"]),
     stdoutTruncated: stdoutTruncated(result),
     tool: "execute_code"
   };
 }
 function memoryDetail({ args, result }) {
-  return { action: text4(args["action"]), tool: "memory", usage: text4(result?.["usage"]) };
+  return { action: text2(args["action"]), tool: "memory", usage: text2(result?.["usage"]) };
 }
 function skillsDetail({ result }) {
   const skills = list2(result?.["skills"]) ?? [];
   return {
-    message: text4(result?.["message"]),
-    names: skills.map((s2) => text4(record2(s2)?.["name"]) ?? text4(s2)).filter((n3) => n3 !== void 0),
+    message: text2(result?.["message"]),
+    names: skills.map((s2) => text2(record(s2)?.["name"]) ?? text2(s2)).filter((n3) => n3 !== void 0),
     tool: "skills_list"
   };
 }
 function skillDetail({ args, result }) {
-  return { content: text4(result?.["content"]), name: text4(args["name"]), tool: "skill_view" };
+  return { content: text2(result?.["content"]), name: text2(args["name"]), tool: "skill_view" };
 }
 function toolSearchDetail(raw2) {
   const { args } = raw2;
   const queries = list2(args["queries"]);
   return {
     ...genericFields(raw2),
-    queries: queries ? queries.filter((q2) => typeof q2 === "string") : texts([text4(args["queries"]) ?? text4(args["query"])]),
+    queries: queries ? queries.filter((q2) => typeof q2 === "string") : texts([text2(args["queries"]) ?? text2(args["query"])]),
     tool: "tool_search"
   };
 }
@@ -33860,7 +34159,7 @@ function toolDescribeDetail(raw2) {
   return { ...genericFields(raw2), names: texts(Array.isArray(names) ? names : [names]), tool: "tool_describe" };
 }
 function pullRequestDetail(tool) {
-  return (raw2) => ({ ...genericFields(raw2), number: num4(raw2.args["number"]), repository: text4(raw2.args["repository"]), tool });
+  return (raw2) => ({ ...genericFields(raw2), number: num3(raw2.args["number"]), repository: text2(raw2.args["repository"]), tool });
 }
 
 // src/tools/lsp-result.ts
@@ -33869,9 +34168,9 @@ function operation(value) {
   return value === "references" || value === "symbols" || value === "hover";
 }
 function range(value) {
-  const row2 = record2(value);
-  const start = record2(row2?.["start"]);
-  const end = record2(row2?.["end"]);
+  const row2 = record(value);
+  const start = record(row2?.["start"]);
+  const end = record(row2?.["end"]);
   if (!start || !end || !positive3(start["line"]) || !positive3(start["col"]) || !positive3(end["line"]) || !positive3(end["col"]) || end["line"] < start["line"] || end["line"] === start["line"] && end["col"] < start["col"]) {
     return void 0;
   }
@@ -33881,7 +34180,7 @@ function range(value) {
   };
 }
 function location(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const span2 = range(row2?.["range"]);
   const path2 = row2?.["path"];
   return typeof path2 === "string" && span2 ? { path: path2, range: span2 } : void 0;
@@ -33906,36 +34205,36 @@ function symbols(value, seen, depth = 0) {
   }
   const out = [];
   for (const item3 of value) {
-    const row2 = record2(item3);
-    const id = row2?.["id"];
+    const row2 = record(item3);
+    const id2 = row2?.["id"];
     const name = row2?.["name"];
     const kind = row2?.["kind"];
     const target2 = location(row2?.["location"]);
     const selection = range(row2?.["selection"]);
-    if (typeof id !== "string" || !id || seen.has(id) || typeof name !== "string" || !positive3(kind) || kind > 26 || !target2 || !selection) {
+    if (typeof id2 !== "string" || !id2 || seen.has(id2) || typeof name !== "string" || !positive3(kind) || kind > 26 || !target2 || !selection) {
       return void 0;
     }
-    seen.add(id);
+    seen.add(id2);
     const children3 = symbols(row2?.["children"], seen, depth + 1);
     if (!children3) {
       return void 0;
     }
-    out.push({ id, name, kind, location: target2, selection, children: children3 });
+    out.push({ id: id2, name, kind, location: target2, selection, children: children3 });
   }
   return out;
 }
 function hoverContent(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const format = row2?.["format"];
-  const text19 = row2?.["text"];
+  const text18 = row2?.["text"];
   const language = row2?.["language"];
-  if (format !== "markdown" && format !== "plaintext" && format !== "code" || typeof text19 !== "string" || language !== null && language !== void 0 && typeof language !== "string") {
+  if (format !== "markdown" && format !== "plaintext" && format !== "code" || typeof text18 !== "string" || language !== null && language !== void 0 && typeof language !== "string") {
     return void 0;
   }
-  return { format, text: text19, language: language ?? null };
+  return { format, text: text18, language: language ?? null };
 }
 function parseLspResult(value) {
-  const row2 = record2(value);
+  const row2 = record(value);
   const path2 = row2?.["path"];
   const server = row2?.["server"];
   if (!row2 || typeof path2 !== "string" || server !== null && typeof server !== "string" || row2["position_encoding"] !== "utf-16") {
@@ -33995,21 +34294,21 @@ function readCounts(value) {
 }
 function searchDetail({ args, result }) {
   const matches3 = list2(result?.["matches"]);
-  const total = num4(result?.["total_count"]);
+  const total = num3(result?.["total_count"]);
   return {
     countMode: args["output_mode"] === "count",
     counts: readCounts(result?.["counts"]),
     countsMalformed: result?.["counts"] !== void 0 && (!result["counts"] || typeof result["counts"] !== "object" || Array.isArray(result["counts"])),
     files: list2(result?.["files"]) ? texts(result?.["files"]) : void 0,
     filesOnly: args["target"] === "files",
-    matches: matches3 ? objects(matches3).map((m) => ({
-      line: num4(m["line"]) ?? 0,
-      path: text4(m["path"]) ?? "",
-      text: typeof m["content"] === "string" ? m["content"] : ""
+    matches: matches3 ? objects(matches3).map((m2) => ({
+      line: num3(m2["line"]) ?? 0,
+      path: text2(m2["path"]) ?? "",
+      text: typeof m2["content"] === "string" ? m2["content"] : ""
     })) : void 0,
-    matchesText: text4(result?.["matches_text"]),
-    path: text4(args["path"]),
-    pattern: text4(args["pattern"]),
+    matchesText: text2(result?.["matches_text"]),
+    path: text2(args["path"]),
+    pattern: text2(args["pattern"]),
     resultPresent: result !== void 0,
     omitted: typeof result?.["_omitted"] === "string" && /\S/.test(result["_omitted"]),
     tool: "search_files",
@@ -34022,7 +34321,7 @@ function searchDetail({ args, result }) {
 // src/tools/task.ts
 function iterationLimit(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const r = record2(value);
+  const r = record(value);
   if (!r) return false;
   if (!["status", "exit_reason", "truncated", "summary"].every((key3) => Object.hasOwn(r, key3))) return false;
   return r["status"] === "completed" && r["exit_reason"] === "max_iterations" && r["truncated"] === true && (r["error"] === void 0 || r["error"] === null || r["error"] === "") && typeof r["summary"] === "string" && Boolean(r["summary"].trim()) && r["summary"].trim() !== "(empty)";
@@ -34032,18 +34331,18 @@ function taskDetail({ args, result }) {
   const finalResult = result !== void 0 && !["status", "mode", "success", "error"].some((key3) => key3 in result);
   return {
     background: result?.["mode"] === "background",
-    briefs: records(args["tasks"]).map((t) => text4(t?.["context"])),
-    context: text4(args["context"]),
+    briefs: records(args["tasks"]).map((t) => text2(t?.["context"])),
+    context: text2(args["context"]),
     dispatched: result?.["status"] === "dispatched",
     failed: Boolean(result?.["error"]),
-    goal: text4(args["goal"]),
+    goal: text2(args["goal"]),
     results: records(rawResults).map((r, i) => r && {
-      error: text4(r["error"]),
+      error: text2(r["error"]),
       iterationLimit: finalResult && iterationLimit(rawResults[i]),
-      status: text4(r["status"]),
-      summary: text4(r["summary"])
+      status: text2(r["status"]),
+      summary: text2(r["summary"])
     }),
-    tasks: objects(args["tasks"]).map((t) => ({ context: text4(t["context"]), goal: text4(t["goal"]) })),
+    tasks: objects(args["tasks"]).map((t) => ({ context: text2(t["context"]), goal: text2(t["goal"]) })),
     tool: "delegate_task"
   };
 }
@@ -34082,12 +34381,12 @@ function terminalDetail({ args, result }) {
   return {
     asyncNotifyUnavailable: asyncNotifyUnavailable(result),
     background: args["background"] === true || typeof result?.["session_id"] === "string",
-    command: text4(args["command"]),
-    error: text4(result?.["error"]),
+    command: text2(args["command"]),
+    error: text2(result?.["error"]),
     environmentRecreated: recreation(result),
-    exit: num4(result?.["exit_code"]),
+    exit: num3(result?.["exit_code"]),
     maskedSuccess: maskedSuccess(args, result),
-    output: text4(result?.["output"]),
+    output: text2(result?.["output"]),
     tool: "terminal"
   };
 }
@@ -34102,18 +34401,18 @@ function terminalMaskedNeedsAttention(call, detail) {
 }
 
 // src/tools/web.ts
-function source2(r) {
-  return { content: text4(r["content"]), title: text4(r["title"]), url: text4(r["url"]) };
+function source(r) {
+  return { content: text2(r["content"]), title: text2(r["title"]), url: text2(r["url"]) };
 }
 function webSearchDetail({ args, result }) {
-  const web = list2(record2(result?.["data"])?.["web"]);
-  return { hits: objects(web ?? result?.["results"]).map(source2), query: text4(args["query"]), tool: "web_search" };
+  const web = list2(record(result?.["data"])?.["web"]);
+  return { hits: objects(web ?? result?.["results"]).map(source), query: text2(args["query"]), tool: "web_search" };
 }
 function fetchDetail({ args, result }) {
   return {
-    pages: objects(result?.["results"]).map((r) => ({ ...source2(r), error: typeof r["error"] === "string" && /\S/.test(r["error"]) ? r["error"] : void 0 })),
+    pages: objects(result?.["results"]).map((r) => ({ ...source(r), error: typeof r["error"] === "string" && /\S/.test(r["error"]) ? r["error"] : void 0 })),
     tool: "web_extract",
-    url: text4(args["url"]),
+    url: text2(args["url"]),
     urls: (list2(args["urls"]) ?? []).filter((u) => typeof u === "string")
   };
 }
@@ -34168,7 +34467,7 @@ function parsedOf(call) {
   if (hit?.name === call.name && hit.args === call.args && hit.result === call.result) {
     return hit;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   const fresh = { args: call.args, detail: PARSERS[toolKeyOf(call.name)]({ args: call.args, result }), name: call.name, record: result, result: call.result };
   parsed.set(call, fresh);
   return fresh;
@@ -34188,9 +34487,9 @@ function taskNeedsAttention(call) {
 }
 
 // src/view/tools/steps.ts
-import { homedir as homedir6 } from "node:os";
+import { homedir as homedir7 } from "node:os";
 function shortPath(path2) {
-  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir6() });
+  return relativePath(path2, { cwd: launchEnv().cwd, home: homedir7() });
 }
 function namedStep(call) {
   const name = call.name.replace(/_/g, " ");
@@ -34300,12 +34599,12 @@ function briefOf(call, index2) {
   const d = detailOf(call);
   return d.tool === "delegate_task" ? d.briefs[index2] ?? d.context : void 0;
 }
-function briefNode(head2, text19) {
-  return /* @__PURE__ */ jsx("section", { collapsed: true, collapsible: true, head: head2, role: "hermes.task.brief", children: /* @__PURE__ */ jsx("md", { children: text19 }, "md") }, "brief");
+function briefNode(head2, text18) {
+  return /* @__PURE__ */ jsx("section", { collapsed: true, collapsible: true, head: head2, role: "hermes.task.brief", children: /* @__PURE__ */ jsx("md", { children: text18 }, "md") }, "brief");
 }
 
 // src/media.ts
-import { homedir as homedir7 } from "node:os";
+import { homedir as homedir8 } from "node:os";
 import { isAbsolute as isAbsolute2 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
@@ -34385,7 +34684,7 @@ function shownImage(call) {
   if (call.outcome.kind === "error" || call.outcome.kind === "cancelled") {
     return void 0;
   }
-  const r = record2(call.result);
+  const r = record(call.result);
   if (r?.["success"] === false) {
     return void 0;
   }
@@ -34394,7 +34693,7 @@ function shownImage(call) {
   }
   if (call.name.startsWith("browser")) {
     const summary4 = call.resultText ?? str4(r?.["text_summary"]) ?? "";
-    return str4(record2(r?.["meta"])?.["screenshot_path"]) ?? str4(r?.["screenshot_path"]) ?? /Screenshot path: (\S+)/.exec(summary4)?.[1];
+    return str4(record(r?.["meta"])?.["screenshot_path"]) ?? str4(r?.["screenshot_path"]) ?? /Screenshot path: (\S+)/.exec(summary4)?.[1];
   }
   return void 0;
 }
@@ -34406,7 +34705,7 @@ function localSource(src) {
       return void 0;
     }
   }
-  const path2 = src.replace(/^~(?=\/)/, homedir7());
+  const path2 = src.replace(/^~(?=\/)/, homedir8());
   return isAbsolute2(path2) ? { path: path2 } : void 0;
 }
 var Media = class {
@@ -34513,7 +34812,7 @@ function toneStyle(tone2) {
   }
 }
 var sp = (t, s2) => s2 ? { s: s2, t } : { t };
-var plain = (text19) => text19.replace(/\s+/g, " ").trim();
+var plain = (text18) => text18.replace(/\s+/g, " ").trim();
 var fraction = (value, max) => !(max > 0) || !Number.isFinite(value) ? 0 : Math.min(1, Math.max(0, value / max));
 function glance(view) {
   const h2 = view.headline;
@@ -34535,12 +34834,12 @@ function latest(entries2) {
 }
 function summary(view) {
   const g = glance(view);
-  const title = plain(view.title);
+  const title2 = plain(view.title);
   if (!g || view.state !== "live") {
-    return title;
+    return title2;
   }
   const figure = [g.label, g.text, g.trend?.text].filter(Boolean).join(" ");
-  return title ? `${title} \u2014 ${figure}` : figure;
+  return title2 ? `${title2} \u2014 ${figure}` : figure;
 }
 function glanceSpans(g) {
   return [...g.label ? [sp(`${g.label} `, "muted")] : [], sp(g.text, "num strong"), ...g.trend ? [sp(` ${g.trend.text}`, toneStyle(g.trend.tone))] : []];
@@ -34557,7 +34856,7 @@ function primarySpark(view, points = MINI_SPARK_POINTS) {
   return { ...spark, values: spark.values.slice(from), ...spark.tips ? { tips: spark.tips.slice(from) } : {} };
 }
 function sparkProps(b) {
-  const marks2 = (b.marks ?? []).map((m) => ({ value: m.value, ...m.tone ? { tone: m.tone } : {}, ...m.label ? { title: plain(m.label) } : {} }));
+  const marks2 = (b.marks ?? []).map((m2) => ({ value: m2.value, ...m2.tone ? { tone: m2.tone } : {}, ...m2.label ? { title: plain(m2.label) } : {} }));
   return {
     kind: "bars",
     max: b.max,
@@ -34589,9 +34888,9 @@ function tilesNode(entries2, key3 = "tiles") {
 }
 var FIGURE_NUMBER = /^([-+]?(?:\d[\d,]*(?:\.\d+)?|\.\d+)[kKMGT]?%?)(?:\s+|(?=\/)|$)(.*)$/;
 function figureSpans(g) {
-  const m = FIGURE_NUMBER.exec(g.text);
-  const value = m?.[1] ?? g.text;
-  const unit = (m?.[2] ?? "").replace(/^\/\s*/, "/ ");
+  const m2 = FIGURE_NUMBER.exec(g.text);
+  const value = m2?.[1] ?? g.text;
+  const unit = (m2?.[2] ?? "").replace(/^\/\s*/, "/ ");
   const label = g.label && !unit.toLowerCase().includes(g.label.toLowerCase()) ? g.label : "";
   return [
     ...label ? [sp(`${label} `, "dim")] : [],
@@ -34603,7 +34902,7 @@ function figureSpans(g) {
 function tile({ process: p3, view }) {
   const live = view.state === "live" ? view : void 0;
   const g = live && glance(live);
-  const title = plain(live?.title ?? "") || plain(p3.command.split(/\r?\n/, 1)[0] ?? "") || p3.id;
+  const title2 = plain(live?.title ?? "") || plain(p3.command.split(/\r?\n/, 1)[0] ?? "") || p3.id;
   const visual = tileVisual(live?.blocks[0]);
   const look2 = PROCESS_LOOK[p3.state.status];
   return jobTile({
@@ -34614,7 +34913,7 @@ function tile({ process: p3, view }) {
     ],
     dot: { ...optional2("s", toneStyle(look2.tone)), t: look2.glyph, ...p3.state.status === "running" ? { fx: "pulse" } : {} },
     key: p3.id,
-    title,
+    title: title2,
     tone: look2.tone,
     trailing: /* @__PURE__ */ jsx("text", { role: "omp.job.tile.id", spans: [sp(p3.id, "dim")], wrap: "none" }, "id")
   });
@@ -34747,7 +35046,7 @@ function sparkNode(b, key3) {
     /* @__PURE__ */ jsxs("col", { gap: "none", role: "omp.job.widget.side", children: [
       /* @__PURE__ */ jsx("text", { spans: [sp(last, "num strong")], wrap: "none" }, "last"),
       label && !last.endsWith(label) ? /* @__PURE__ */ jsx("text", { spans: [sp(label, "muted")], truncate: "end", wrap: "none" }, "label") : null,
-      (b.marks ?? []).map((m, i) => /* @__PURE__ */ jsx("text", { spans: [sp("\u2504 ", toneStyle(m.tone ?? "muted")), sp(plain(m.label), "dim")], truncate: "end", wrap: "none" }, `mark-${i}`))
+      (b.marks ?? []).map((m2, i) => /* @__PURE__ */ jsx("text", { spans: [sp("\u2504 ", toneStyle(m2.tone ?? "muted")), sp(plain(m2.label), "dim")], truncate: "end", wrap: "none" }, `mark-${i}`))
     ] }, "side")
   ] }, key3);
 }
@@ -34765,8 +35064,8 @@ function waiting2() {
 var RESULT_PREVIEW_LIMIT = 4e3;
 var RESULT_CANDIDATE_LIMIT = 80;
 var RESULT_PAGE_LIMIT = 256;
-function safeResultText(text19) {
-  return Array.from(text19, (char) => {
+function safeResultText(text18) {
+  return Array.from(text18, (char) => {
     const point5 = char.codePointAt(0) ?? 0;
     return point5 < 32 && point5 !== 9 && point5 !== 10 || point5 >= 127 && point5 <= 159 || point5 >= 55296 && point5 <= 57343 || point5 === 1564 || point5 === 8206 || point5 === 8207 || point5 >= 8232 && point5 <= 8238 || point5 >= 8294 && point5 <= 8303 ? "\uFFFD" : char;
   }).join("");
@@ -34775,8 +35074,8 @@ function retainedGenericText(call) {
   if (call.outcome.kind === "running" || toolKeyOf(call.name) !== "other" || callApp(call) || batchOf(call)) {
     return void 0;
   }
-  const text19 = call.resultText ?? (typeof call.result === "string" ? call.result : void 0);
-  return text19 && text19.length > RESULT_PREVIEW_LIMIT ? text19 : void 0;
+  const text18 = call.resultText ?? (typeof call.result === "string" ? call.result : void 0);
+  return text18 && text18.length > RESULT_PREVIEW_LIMIT ? text18 : void 0;
 }
 function webPage(call, index2) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return void 0;
@@ -34784,7 +35083,7 @@ function webPage(call, index2) {
   if (!Array.isArray(rows)) return void 0;
   const row2 = rows[index2];
   if (!row2 || typeof row2 !== "object" || Array.isArray(row2)) return void 0;
-  const value = record2(row2)?.["content"];
+  const value = record(row2)?.["content"];
   return typeof value === "string" && value.length > RESULT_PREVIEW_LIMIT ? { row: row2, text: value } : void 0;
 }
 function hasRetainedWeb(call) {
@@ -34816,8 +35115,8 @@ function retainedResults(entries2) {
           out.shift();
         }
       };
-      const text19 = retainedGenericText(call);
-      if (text19 !== void 0) add2({ call, text: text19, turn: entry, rev: entry.rev });
+      const text18 = retainedGenericText(call);
+      if (text18 !== void 0) add2({ call, text: text18, turn: entry, rev: entry.rev });
       if (call.name !== "web_extract") continue;
       const ordinal = ++webOrdinal;
       if (call.outcome.kind === "running") continue;
@@ -34837,13 +35136,13 @@ function retainedResults(entries2) {
   }
   return out;
 }
-function resultPage(text19, start) {
-  if (start < 0 || start >= text19.length) {
+function resultPage(text18, start) {
+  if (start < 0 || start >= text18.length) {
     return void 0;
   }
   const limit = RESULT_PREVIEW_LIMIT;
-  const part = text19.slice(start, start + limit + 512);
-  const complete = start + part.length === text19.length;
+  const part = text18.slice(start, start + limit + 512);
+  const complete = start + part.length === text18.length;
   let end = 0;
   for (const segment of new Intl.Segmenter(void 0, { granularity: "grapheme" }).segment(part)) {
     const next2 = segment.index + segment.segment.length;
@@ -34893,10 +35192,10 @@ function isWatchCall(call) {
   return isProcessTool(call.name) && ["log", "poll", "wait"].includes(String(call.args["action"])) && typeof call.args["session_id"] === "string";
 }
 function isBackgroundCall(call) {
-  return call.name === "terminal" && (call.args["background"] === true || typeof record2(call.result)?.["session_id"] === "string");
+  return call.name === "terminal" && (call.args["background"] === true || typeof record(call.result)?.["session_id"] === "string");
 }
 function isToolError(p3) {
-  const r = record2(p3.result);
+  const r = record(p3.result);
   if (r?.["error"]) {
     return true;
   }
@@ -34914,8 +35213,8 @@ var MAX_SSH_DEPTH = 8;
 function words(segment) {
   const out = [];
   const re2 = /'([^']*)'|"((?:\\.|[^"\\])*)"|(\S+)/g;
-  for (const m of segment.matchAll(re2)) {
-    out.push(m[1] ?? m[2] ?? m[3] ?? "");
+  for (const m2 of segment.matchAll(re2)) {
+    out.push(m2[1] ?? m2[2] ?? m2[3] ?? "");
   }
   return out;
 }
@@ -35054,9 +35353,9 @@ function npmTitle(a2) {
   return sub === "test" ? "Run tests" : sub === "install" || sub === "i" || sub === "ci" ? "Install packages" : `npm ${sub ?? ""}`.trim();
 }
 function pythonTitle(a2) {
-  const m = a2.indexOf("-m");
-  if (m >= 0 && a2[m + 1]) {
-    return a2[m + 1] === "pytest" ? "Run tests" : `Run ${a2[m + 1]}`;
+  const m2 = a2.indexOf("-m");
+  if (m2 >= 0 && a2[m2 + 1]) {
+    return a2[m2 + 1] === "pytest" ? "Run tests" : `Run ${a2[m2 + 1]}`;
   }
   if (a2.includes("-c") || a2.includes("-")) {
     return "Run Python";
@@ -35081,21 +35380,21 @@ var CMDLETS = {
   "start-process": "start a process",
   "stop-process": "stop a process"
 };
-function powershellScript(text19) {
-  const used = [...new Set([...text19.matchAll(/\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b/g)].flatMap((m) => m[1]?.toLowerCase() ?? []))];
+function powershellScript(text18) {
+  const used = [...new Set([...text18.matchAll(/\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b/g)].flatMap((m2) => m2[1]?.toLowerCase() ?? []))];
   const said = [...new Set(used.map((c) => CMDLETS[c] ?? (c.startsWith("get-") ? `read ${c.slice(4)}` : void 0)).filter(Boolean))];
   return said.length ? said.slice(0, 2).join(" and ") : void 0;
 }
 function hostOf(target2) {
-  const m = /^(?:[^@\s]+@)?([A-Za-z0-9][\w.-]*):/.exec(target2) ?? /^[^@\s]+@([\w.-]+)$/.exec(target2);
-  return m?.[1];
+  const m2 = /^(?:[^@\s]+@)?([A-Za-z0-9][\w.-]*):/.exec(target2) ?? /^[^@\s]+@([\w.-]+)$/.exec(target2);
+  return m2?.[1];
 }
 function sections(script) {
   const out = [];
   for (const line of script.split("\n")) {
-    const m = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line);
-    if (m?.[1] && !/^!/.test(m[1])) {
-      out.push(m[1].replace(/\s+/g, " "));
+    const m2 = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line);
+    if (m2?.[1] && !/^!/.test(m2[1])) {
+      out.push(m2[1].replace(/\s+/g, " "));
     }
   }
   return out;
@@ -35146,12 +35445,12 @@ function describe3(command2, budget, depth) {
     return void 0;
   }
   budget.remaining -= command2.length;
-  const text19 = command2.trim();
-  if (!text19) {
+  const text18 = command2.trim();
+  if (!text18) {
     return "Run a command";
   }
   const docs = [];
-  const line = text19.replace(/<<-?\s*['"]?(\w+)['"]?([^\n]*)\n([\s\S]*?)\n\s*\1\s*(?=\n|$)/g, (_m, _tag, rest, body) => {
+  const line = text18.replace(/<<-?\s*['"]?(\w+)['"]?([^\n]*)\n([\s\S]*?)\n\s*\1\s*(?=\n|$)/g, (_m, _tag, rest, body) => {
     docs.push(body);
     return rest;
   });
@@ -35159,34 +35458,34 @@ function describe3(command2, budget, depth) {
   const steps = segments2(line).flatMap((s2) => head(s2) ?? []);
   const real = steps.filter((s2) => !SETUP.has(s2.cmd));
   const remote = real.find((s2) => s2.cmd === "ssh");
-  let title;
+  let title2;
   if (remote) {
     const host = operand(remote.args, /* @__PURE__ */ new Set(["-p", "-i", "-o", "-l", "-J", "-F"]))?.replace(/^[^@]+@/, "");
     const after2 = remote.args.slice(remote.args.findIndex((a2) => a2.replace(/^[^@]+@/, "") === host) + 1).join(" ");
     const inner = after2 ? describe3(after2, budget, depth + 1) : "Open a shell";
     if (inner === void 0) return void 0;
-    title = host ? `${inner} on ${host}` : inner;
+    title2 = host ? `${inner} on ${host}` : inner;
   } else {
     const main = real.find((s2) => !FILTERS.has(s2.cmd)) ?? real[0];
     const describe5 = main && Object.hasOwn(COMMANDS, main.cmd) ? COMMANDS[main.cmd] : void 0;
     const ps = main && !describe5 && /^\$|^[A-Z][a-z]+-[A-Z]/.test(main.raw) ? powershellScript(line) : void 0;
-    title = ps ? ps : main ? describe5?.(main.args) ?? `Run ${main.cmd}` : steps[0] ? `Run ${steps[0].cmd}` : void 0;
+    title2 = ps ? ps : main ? describe5?.(main.args) ?? `Run ${main.cmd}` : steps[0] ? `Run ${steps[0].cmd}` : void 0;
   }
-  title ??= "Run a command";
+  title2 ??= "Run a command";
   if (labels.length) {
-    const two = `${title}: ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` +${labels.length - 2}` : ""}`;
-    title = two.length <= MAX2 ? two : `${title}: ${clip3(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
-  } else if (docs.length && /^Read input|^Read /.test(title) && real[0]?.cmd === "cat") {
-    title = `Write ${base(operands(real[0].args).at(-1) ?? "a file")}`;
+    const two = `${title2}: ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` +${labels.length - 2}` : ""}`;
+    title2 = two.length <= MAX2 ? two : `${title2}: ${clip3(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
+  } else if (docs.length && /^Read input|^Read /.test(title2) && real[0]?.cmd === "cat") {
+    title2 = `Write ${base(operands(real[0].args).at(-1) ?? "a file")}`;
   }
-  return clip3(title.charAt(0).toUpperCase() + title.slice(1), { max: MAX2 });
+  return clip3(title2.charAt(0).toUpperCase() + title2.slice(1), { max: MAX2 });
 }
 function commandLine(command2, n3 = 96) {
   const flat2 = command2.replace(/<<-?\s*['"]?(\w+)['"]?[\s\S]*?\n\s*\1\s*(?=\n|$)/g, "<<'$1' \u2026").replace(/\s+/g, " ").trim();
   return clip3(flat2, { max: n3 });
 }
-function oneLine(text19) {
-  return text19.replace(/\s+/g, " ").trim();
+function oneLine(text18) {
+  return text18.replace(/\s+/g, " ").trim();
 }
 
 // src/wire/browser.ts
@@ -35195,22 +35494,22 @@ var PREFIX2 = "hermes-tern.browser.";
 var ALL = ["blocks", "adopt", "focus", "release", "frame"].map((method) => PREFIX2 + method);
 function browserCaller(session2) {
   const ref = session2.ref;
-  const id = ref.live;
+  const id2 = ref.live;
   const profile = session2.info?.profile_name;
-  if (typeof id !== "string" || !id || typeof profile !== "string" || !PROFILE.test(profile)) {
+  if (typeof id2 !== "string" || !id2 || typeof profile !== "string" || !PROFILE.test(profile)) {
     return void 0;
   }
   return {
-    sessionId: id,
+    sessionId: id2,
     profile,
-    current: () => session2.ref === ref && session2.ref.live === id && session2.info?.profile_name === profile
+    current: () => session2.ref === ref && session2.ref.live === id2 && session2.info?.profile_name === profile
   };
 }
-function validBrowserId(id) {
-  return /^[1-9][0-9]*$/.test(id);
+function validBrowserId(id2) {
+  return /^[1-9][0-9]*$/.test(id2);
 }
-function validBrowserFrame(frame) {
-  return frame === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame);
+function validBrowserFrame(frame2) {
+  return frame2 === "main" || /^(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))*$/.test(frame2);
 }
 function requireCaller(caller) {
   if (!caller || !caller.current() || !caller.sessionId || !PROFILE.test(caller.profile)) {
@@ -35225,30 +35524,30 @@ async function ensureMethod(gw2, caller, method) {
     profile: caller.profile
   });
   requireCaller(caller);
-  if (!record2(profileReply)) {
+  if (!record(profileReply)) {
     throw new Error("Hermes did not confirm a profile-qualified configuration read");
   }
   const capabilities2 = await gw2.request("gateway.capabilities", { session_id: caller.sessionId });
   requireCaller(caller);
-  const methods = record2(capabilities2)?.["plugin_methods"];
-  if (!Array.isArray(methods) || !methods.every((m) => typeof m === "string") || !ALL.every((name) => methods.includes(name)) || !methods.includes(method)) {
+  const methods = record(capabilities2)?.["plugin_methods"];
+  if (!Array.isArray(methods) || !methods.every((m2) => typeof m2 === "string") || !ALL.every((name) => methods.includes(name)) || !methods.includes(method)) {
     throw new Error("Native browser requires Hermes plugin gateway methods and operator drive consent");
   }
 }
 function blockOf(input2) {
-  const r = record2(input2);
-  const id = r?.["target_id"];
-  const title = r?.["title"];
+  const r = record(input2);
+  const id2 = r?.["target_id"];
+  const title2 = r?.["title"];
   const url = r?.["url"];
   const owned = r?.["owned"];
   const available = r?.["available"];
   const owner2 = r?.["owner"];
-  if (typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || typeof owned !== "boolean" || typeof available !== "boolean" || owner2 !== void 0 && owner2 !== null && (typeof owner2 !== "number" || !Number.isSafeInteger(owner2))) {
+  if (typeof id2 !== "string" || !validBrowserId(id2) || typeof title2 !== "string" || typeof url !== "string" || typeof owned !== "boolean" || typeof available !== "boolean" || owner2 !== void 0 && owner2 !== null && (typeof owner2 !== "number" || !Number.isSafeInteger(owner2))) {
     throw new Error("Invalid native browser blocks reply from Hermes");
   }
   return {
-    target_id: id,
-    title,
+    target_id: id2,
+    title: title2,
     url,
     owned,
     available,
@@ -35259,7 +35558,7 @@ async function listBrowserBlocks(gw2, caller) {
   await ensureMethod(gw2, caller, "hermes-tern.browser.blocks");
   const raw2 = await gw2.request("hermes-tern.browser.blocks", { session_id: caller.sessionId });
   requireCaller(caller);
-  const data = record2(raw2);
+  const data = record(raw2);
   if (!data || typeof data["available"] !== "boolean" || !Array.isArray(data["blocks"])) {
     throw new Error("Invalid native browser blocks reply from Hermes");
   }
@@ -35270,31 +35569,31 @@ async function listBrowserBlocks(gw2, caller) {
     ...typeof reason2 === "string" ? { reason: reason2 } : {}
   };
 }
-async function browserTarget(gw2, action, caller, targetId, frame) {
+async function browserTarget(gw2, action, caller, targetId, frame2) {
   if (!validBrowserId(targetId)) {
     throw new Error("Invalid Tern browser block id");
   }
-  if (action === "hermes-tern.browser.frame" && (!frame || !validBrowserFrame(frame))) {
+  if (action === "hermes-tern.browser.frame" && (!frame2 || !validBrowserFrame(frame2))) {
     throw new Error("Use main or an exact frame index path (for example 0 or 1.0)");
   }
   await ensureMethod(gw2, caller, action);
   const raw2 = await gw2.request(action, {
     session_id: caller.sessionId,
     target_id: targetId,
-    ...action === "hermes-tern.browser.frame" ? { frame } : {}
+    ...action === "hermes-tern.browser.frame" ? { frame: frame2 } : {}
   });
   requireCaller(caller);
-  const data = record2(raw2);
+  const data = record(raw2);
   const returned = data?.["target_id"];
-  const title = data?.["title"];
+  const title2 = data?.["title"];
   const url = data?.["url"];
   const selectedFrame = data?.["frame"];
-  if (returned !== targetId || typeof title !== "string" || typeof url !== "string" || data?.["in_tern"] !== true || selectedFrame !== void 0 && selectedFrame !== null && typeof selectedFrame !== "string") {
+  if (returned !== targetId || typeof title2 !== "string" || typeof url !== "string" || data?.["in_tern"] !== true || selectedFrame !== void 0 && selectedFrame !== null && typeof selectedFrame !== "string") {
     throw new Error("Invalid native browser target confirmation from Hermes");
   }
   return {
     target_id: returned,
-    title,
+    title: title2,
     url,
     in_tern: true,
     ...typeof selectedFrame === "string" ? { frame: selectedFrame } : {}
@@ -35310,7 +35609,7 @@ async function releaseBrowserBlock(gw2, caller, targetId) {
     target_id: targetId
   });
   requireCaller(caller);
-  const result = record2(raw2);
+  const result = record(raw2);
   if (result?.["target_id"] !== targetId || result["released"] !== true) {
     throw new Error("Hermes did not confirm native browser block release");
   }
@@ -35321,19 +35620,19 @@ function ternTargetOf(call) {
   if (!call.name.startsWith("browser")) {
     return void 0;
   }
-  const target2 = record2(resultOf(call)?.["tern_target"]);
-  const id = target2?.["target_id"];
-  const title = target2?.["title"];
+  const target2 = record(resultOf(call)?.["tern_target"]);
+  const id2 = target2?.["target_id"];
+  const title2 = target2?.["title"];
   const url = target2?.["url"];
-  const frame = target2?.["frame"];
-  if (target2?.["in_tern"] !== true || typeof id !== "string" || !validBrowserId(id) || typeof title !== "string" || typeof url !== "string" || frame !== void 0 && frame !== null && typeof frame !== "string") {
+  const frame2 = target2?.["frame"];
+  if (target2?.["in_tern"] !== true || typeof id2 !== "string" || !validBrowserId(id2) || typeof title2 !== "string" || typeof url !== "string" || frame2 !== void 0 && frame2 !== null && typeof frame2 !== "string") {
     return void 0;
   }
   return {
-    target_id: id,
-    title,
+    target_id: id2,
+    title: title2,
     url,
-    ...typeof frame === "string" ? { frame } : {}
+    ...typeof frame2 === "string" ? { frame: frame2 } : {}
   };
 }
 
@@ -35357,8 +35656,8 @@ function browserBlockCard(card, call) {
     folded: false
   };
 }
-function bindBrowserFocus(host, source3) {
-  const sid = source3.live;
+function bindBrowserFocus(host, source2) {
+  const sid = source2.live;
   if (!sid) {
     return void 0;
   }
@@ -35366,7 +35665,7 @@ function bindBrowserFocus(host, source3) {
   if (!caller || !caller.current()) {
     return void 0;
   }
-  const live = () => host.session.ref === source3 && host.session.ref.live === sid && caller.current();
+  const live = () => host.session.ref === source2 && host.session.ref.live === sid && caller.current();
   return (call, target2) => {
     if (!live() || call.outcome.kind !== "done" || !host.transcript.entries.some((entry) => entry.kind === "turn" && entry.blocks.some((block) => block.kind === "tool" && block.call === call))) {
       return;
@@ -35382,15 +35681,15 @@ function bindBrowserFocus(host, source3) {
     });
   };
 }
-function browserFocusButton(call, focus2) {
+function browserFocusButton(call, focus) {
   const target2 = ternTargetOf(call);
-  if (!focus2 || !target2 || call.outcome.kind !== "done") {
+  if (!focus || !target2 || call.outcome.kind !== "done") {
     return void 0;
   }
   return button({
     key: "browser-focus",
     label: `Focus Tern block ${target2.target_id}`,
-    onClick: () => focus2(call, target2)
+    onClick: () => focus(call, target2)
   });
 }
 
@@ -35462,44 +35761,44 @@ function readMedia(path2, cwd, reportedMime2, native, local) {
   }
   return family === "image" ? node("image", { alt: path2, key: "media", path: absolute }) : void 0;
 }
-function text5(value) {
+function text3(value) {
   return typeof value === "string" && value.trim() ? value : void 0;
 }
 function reportedMime(result) {
-  return text5(result?.["mime"]) ?? text5(result?.["mime_type"]) ?? text5(result?.["mimetype"]);
+  return text3(result?.["mime"]) ?? text3(result?.["mime_type"]) ?? text3(result?.["mimetype"]);
 }
-function writableFigure(path2, source3, call, mime) {
+function writableFigure(path2, source2, call, mime) {
   const extension3 = extname3(path2).slice(1).toLowerCase();
   const language = Object.hasOwn(FIGURE_LANGUAGES, extension3) ? FIGURE_LANGUAGES[extension3] : void 0;
   if (!language || mime && mime !== "application/octet-stream" && !(language === "svg" ? mime === "image/svg+xml" : ["text/plain", "text/vnd.mermaid", "text/x-mermaid"].includes(mime))) {
     return void 0;
   }
-  if (Buffer.byteLength(source3, "utf8") > 1024 * 1024) {
+  if (Buffer.byteLength(source2, "utf8") > 1024 * 1024) {
     return void 0;
   }
-  const hash = createHash3("sha256").update(JSON.stringify([call.id, path2, source3, call.result])).digest("hex");
-  const tickCount = [...source3.matchAll(/`+/g)].reduce((longest, match) => Math.max(longest, match[0].length + 1), 3);
+  const hash = createHash3("sha256").update(JSON.stringify([call.id, path2, source2, call.result])).digest("hex");
+  const tickCount = [...source2.matchAll(/`+/g)].reduce((longest, match) => Math.max(longest, match[0].length + 1), 3);
   const ticks = "`".repeat(tickCount);
   return node("md", { key: `figure-${call.id}-${hash}`, role: "omp.tool.write.figure", text: `${ticks}${language}
-${source3}
+${source2}
 ${ticks}` });
 }
 function confirmedWriteArtifact(call, cx) {
   if (call.name !== "write_file" || call.outcome.kind !== "done") {
     return void 0;
   }
-  const result = record2(call.result);
-  const source3 = text5(call.args["content"]) ?? text5(call.args["contents"]);
-  if (!result || !source3 || result["verified"] !== true || result["success"] === false || result["partial"] === true || result["truncated"] === true || result["error"] || result["bytes_written"] !== Buffer.byteLength(source3, "utf8")) {
+  const result = record(call.result);
+  const source2 = text3(call.args["content"]) ?? text3(call.args["contents"]);
+  if (!result || !source2 || result["verified"] !== true || result["success"] === false || result["partial"] === true || result["truncated"] === true || result["error"] || result["bytes_written"] !== Buffer.byteLength(source2, "utf8")) {
     return void 0;
   }
-  const path2 = text5(result["resolved_path"]) ?? text5(call.args["path"]) ?? text5(call.args["file_path"]);
+  const path2 = text3(result["resolved_path"]) ?? text3(call.args["path"]) ?? text3(call.args["file_path"]);
   const absolute = path2 && localMediaPath(path2, cx.cwd);
   if (!path2 || !absolute) {
     return void 0;
   }
   const mime = reportedMime(result)?.split(";")[0]?.trim().toLowerCase();
-  const figure = writableFigure(path2, source3, call, mime);
+  const figure = writableFigure(path2, source2, call, mime);
   if (figure) {
     return { kind: "node", node: figure };
   }
@@ -35512,7 +35811,7 @@ function confirmedWriteArtifact(call, cx) {
   if (!cx.native) {
     return void 0;
   }
-  const hash = createHash3("sha256").update(JSON.stringify([call.id, absolute, source3, call.result])).digest("hex");
+  const hash = createHash3("sha256").update(JSON.stringify([call.id, absolute, source2, call.result])).digest("hex");
   return { kind: "node", node: mediaNode({ path: absolute }, `figure-${call.id}-${hash}`) };
 }
 function projectToolMedia(call, cx) {
@@ -35522,11 +35821,11 @@ function projectToolMedia(call, cx) {
   if (call.name !== "read_file" || call.outcome.kind !== "done") {
     return void 0;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   if (result?.["content_returned"] === false || result?.["success"] === false || result?.["error"] || result?.["partial"] === true || result?.["truncated"] === true) {
     return void 0;
   }
-  const path2 = text5(result?.["resolved_path"]) ?? text5(call.args["path"]) ?? text5(call.args["file_path"]);
+  const path2 = text3(result?.["resolved_path"]) ?? text3(call.args["path"]) ?? text3(call.args["file_path"]);
   const absolute = path2 && localMediaPath(path2, cx.cwd);
   const mime = reportedMime(result);
   const family = path2 && mediaFamily(path2, mime);
@@ -35563,8 +35862,8 @@ function attachmentImagePath(path2, delivery) {
   const host = delivery.deps.gw.attached ? "gateway" : delivery.context().remoteHost;
   return absolute && (host === "frontend" || host === "gateway") ? { host, id: "attachment:" + absolute, kind: "path", path: absolute, scope: "attachment" } : void 0;
 }
-function imagePreviewNode(source3, delivery, alt, key3 = "media") {
-  const state = delivery.preview(source3);
+function imagePreviewNode(source2, delivery, alt, key3 = "media") {
+  const state = delivery.preview(source2);
   if (state.status === "ready") {
     return /* @__PURE__ */ jsx("image", { alt, blob: state.blob, role: "omp.media.preview" }, key3);
   }
@@ -35578,7 +35877,7 @@ function imagePreviewNode(source3, delivery, alt, key3 = "media") {
         label: state.label,
         onClick: () => {
           if (session2 === delivery.deps.session() && token === delivery.token()) {
-            void delivery.load(source3);
+            void delivery.load(source2);
           }
         }
       })
@@ -35602,21 +35901,21 @@ function imageCard(call, d, look2, src, media2) {
   };
 }
 function imageNode(call, d, src, media2) {
-  const source3 = localSource(src) ?? call.image;
+  const source2 = localSource(src) ?? call.image;
   const alt = d.prompt ?? "Image";
-  if (source3 && "path" in source3 && media2 && !media2.context().local) {
+  if (source2 && "path" in source2 && media2 && !media2.context().local) {
     if (call.name === "image_generate") {
       return /* @__PURE__ */ jsx("text", { role: "omp.media.notice", text: "Generated image is on a remote host; this gateway cannot authorize its file path." }, "image");
     }
-    const path2 = localMediaPath(source3.path, media2.context().cwd);
+    const path2 = localMediaPath(source2.path, media2.context().cwd);
     const host = media2.context().remoteHost;
     if (!path2 || host !== "gateway" && host !== "frontend") {
       return /* @__PURE__ */ jsx("text", { role: "omp.media.notice", text: "Screenshot is not host-local; preview is unavailable." }, "image");
     }
     return imagePreviewNode({ host, id: String(call.id), kind: "path", path: path2, toolCallId: String(call.id) }, media2, clip3(alt, { mark: "line", max: 200 }), "image");
   }
-  if (source3) {
-    return /* @__PURE__ */ jsx("image", { alt: clip3(alt, { mark: "line", max: 200 }), role: "hermes.tool.image", ...source3 }, "image");
+  if (source2) {
+    return /* @__PURE__ */ jsx("image", { alt: clip3(alt, { mark: "line", max: 200 }), role: "hermes.tool.image", ...source2 }, "image");
   }
   const link3 = /^https?:\/\//i.test(src) ? [{ href: src, t: clip3(src, { mark: "line", max: 120 }) }] : [];
   return /* @__PURE__ */ jsx(
@@ -35702,12 +36001,12 @@ function genericCard(call, d, look2, media2) {
   };
 }
 function genericBody(call) {
-  const text19 = call.resultText ?? (call.result === void 0 ? void 0 : pretty(call.result));
-  if (!text19 || call.outcome.kind === "running") {
+  const text18 = call.resultText ?? (call.result === void 0 ? void 0 : pretty(call.result));
+  if (!text18 || call.outcome.kind === "running") {
     return [];
   }
   return [
-    /* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(text19) ? "json" : "text", text: clip3(text19, { mark: "line", max: 4e3 }) }, "out"),
+    /* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(text18) ? "json" : "text", text: clip3(text18, { mark: "line", max: 4e3 }) }, "out"),
     ...retainedGenericText(call) ? [/* @__PURE__ */ jsx("text", { role: "hermes.tool.retained-hint", text: "/tool-results inspects the 80 most recent long generic results.", wrap: "word" }, "more")] : []
   ];
 }
@@ -35725,7 +36024,7 @@ function errorOf(call) {
   return errorIn(call, resultOf(call));
 }
 function plainErrorOf(call) {
-  return errorIn(call, record2(call.result));
+  return errorIn(call, record(call.result));
 }
 function errorIn(call, result) {
   return nonEmpty(result?.["error"]) ?? nonEmpty(call.outcome.kind === "running" ? void 0 : call.outcome.summary) ?? (typeof call.result === "string" && !result ? call.result : void 0);
@@ -35752,16 +36051,16 @@ function appCard(call, app2) {
   };
 }
 function batchCard(call, batch) {
-  const apps = appsOf(call);
+  const apps2 = appsOf(call);
   return {
-    badges: apps.length ? [{ text: "connectors" }] : void 0,
+    badges: apps2.length ? [{ text: "connectors" }] : void 0,
     body: batchBody(call, batch),
     folded: true,
     frame: "inline",
     name: "plug",
     target: `${batch.length} calls`,
     targetKind: "text",
-    title: apps.length ? apps.join(", ") : "Tool calls"
+    title: apps2.length ? apps2.join(", ") : "Tool calls"
   };
 }
 function appBody(call) {
@@ -35819,39 +36118,39 @@ function askCard(call, d) {
     title: "Ask"
   };
 }
-function answerRow(key3, text19, picked) {
+function answerRow(key3, text18, picked) {
   return /* @__PURE__ */ jsxs("row", { role: picked ? "omp.tool.answer" : "omp.tool.answer.off", children: [
     /* @__PURE__ */ jsx("text", { spans: [picked ? { s: "success", t: "\u2713" } : { s: "dim", t: "\xB7" }] }, "c"),
-    /* @__PURE__ */ jsx("text", { spans: [{ t: text19 }] }, "t")
+    /* @__PURE__ */ jsx("text", { spans: [{ t: text18 }] }, "t")
   ] }, key3);
 }
 
 // src/connections/live.ts
-var num5 = (v) => typeof v === "number" && Number.isFinite(v) ? v : void 0;
+var num4 = (v) => typeof v === "number" && Number.isFinite(v) ? v : void 0;
 function liveCard(payload, session2) {
-  const r = record2(payload);
-  const id = typeof r?.["op_id"] === "string" ? r["op_id"] : "";
-  const seq = num5(r?.["seq"]);
-  const deadlineAt = num5(r?.["deadline_at"]);
+  const r = record(payload);
+  const id2 = typeof r?.["op_id"] === "string" ? r["op_id"] : "";
+  const seq = num4(r?.["seq"]);
+  const deadlineAt = num4(r?.["deadline_at"]);
   const targets = parseTargets(Array.isArray(r?.["targets"]) ? r["targets"] : []);
-  if (!r || !id || seq === void 0 || !deadlineAt || !targets.length || targets.some((t) => t.kind === "plugin" || t.kind === "skill")) {
+  if (!r || !id2 || seq === void 0 || !deadlineAt || !targets.length || targets.some((t) => t.kind === "plugin" || t.kind === "skill")) {
     return void 0;
   }
   const callId = typeof r["tool_call_id"] === "string" && r["tool_call_id"] ? r["tool_call_id"] : void 0;
-  const op = { deadlineAt, id, seq, session: session2 };
+  const op = { deadlineAt, id: id2, seq, session: session2 };
   return { callId, card: { op, opened: [], settled: settleReason(r), targets } };
 }
-function applyFrame(card, frame) {
-  const r = record2(frame);
+function applyFrame(card, frame2) {
+  const r = record(frame2);
   const op = card.op;
-  const seq = num5(r?.["seq"]);
+  const seq = num4(r?.["seq"]);
   if (!r || !op || card.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
     return void 0;
   }
   const rows = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
   const before2 = new Map(card.targets.map((t) => [t.name, t]));
   const targets = rows.length ? rows.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card.targets;
-  return { ...card, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets };
+  return { ...card, op: { ...op, deadlineAt: num4(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets };
 }
 function verbOf(t) {
   switch (t.state) {
@@ -35919,8 +36218,8 @@ var NOTE = {
   interrupt: "The turn stopped before every app connected.",
   stopped: "Hermes stopped watching these links."
 };
-function button2(key3, label, role, act, title, name = label) {
-  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional2("role", act ? void 0 : "hermes.connect.busy"), ...optional2("title", title), children: /* @__PURE__ */ jsx("text", { text: label, wrap: "none" }, "t") }, act ? "face" : key3);
+function button2(key3, label, role, act, title2, name = label) {
+  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional2("role", act ? void 0 : "hermes.connect.busy"), ...optional2("title", title2), children: /* @__PURE__ */ jsx("text", { text: label, wrap: "none" }, "t") }, act ? "face" : key3);
   return act ? pressable({ action: act, key: key3, name, role }, face) : face;
 }
 var SENDING = { approve: "Connecting\u2026", retry: "Retrying\u2026", skip: "Skipping\u2026" };
@@ -36241,8 +36540,8 @@ function lspFileHref(path2, context, range2) {
 // src/view/tools/cards/lsp.tsx
 import { stripVTControlCharacters as stripVTControlCharacters2 } from "node:util";
 var LOCAL_LINK_NOTICE = "File targets are not confirmed host-local; links disabled.";
-function visible(text19) {
-  return stripVTControlCharacters2(text19).replace(
+function visible(text18) {
+  return stripVTControlCharacters2(text18).replace(
     /[\x00-\x08\x0b-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]/g,
     (char) => "\\u" + char.charCodeAt(0).toString(16).padStart(4, "0")
   );
@@ -36336,23 +36635,23 @@ function resultBody(result, context) {
         );
       }
       body.push(...result.contents.map((content5, i) => {
-        const text19 = visible(content5.text);
+        const text18 = visible(content5.text);
         switch (content5.format) {
           case "markdown":
-            return /* @__PURE__ */ jsx("md", { role: "omp.tool.hover", text: text19 }, "h" + i);
+            return /* @__PURE__ */ jsx("md", { role: "omp.tool.hover", text: text18 }, "h" + i);
           case "code":
             return /* @__PURE__ */ jsx(
               "code",
               {
                 role: "omp.tool.hover",
-                text: text19,
+                text: text18,
                 wrap: true,
                 ...content5.language ? { lang: content5.language } : {}
               },
               "h" + i
             );
           case "plaintext":
-            return /* @__PURE__ */ jsx("text", { role: "omp.tool.hover", text: text19, wrap: "word" }, "h" + i);
+            return /* @__PURE__ */ jsx("text", { role: "omp.tool.hover", text: text18, wrap: "word" }, "h" + i);
         }
       }));
       if (!result.contents.length) {
@@ -36423,15 +36722,15 @@ var DIAGNOSTIC_STYLES = {
   hint: { label: "hint", marker: "\xB7", style: "dim" }
 };
 var SEVERITIES = ["error", "warn", "info", "hint"];
-function lintText(text19, limit = 2e3, singleLine = false) {
-  let end = Math.min(text19.length, limit);
-  if (end < text19.length && end > 0 && /[\uD800-\uDBFF]/.test(text19[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(text19[end] ?? "")) end--;
-  const prefix2 = text19.slice(0, end);
+function lintText(text18, limit = 2e3, singleLine = false) {
+  let end = Math.min(text18.length, limit);
+  if (end < text18.length && end > 0 && /[\uD800-\uDBFF]/.test(text18[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(text18[end] ?? "")) end--;
+  const prefix2 = text18.slice(0, end);
   const value = Array.from(prefix2, (char) => {
     const n3 = char.codePointAt(0) ?? 0;
     return n3 < 32 && (singleLine || n3 !== 9 && n3 !== 10) || n3 >= 127 && n3 <= 159 || n3 === 1564 || n3 === 8206 || n3 === 8207 || n3 >= 8232 && n3 <= 8238 || n3 >= 8294 && n3 <= 8303 || n3 >= 55296 && n3 <= 57343 ? `\\u${n3.toString(16).padStart(4, "0")}` : char;
   }).join("");
-  return { value, clipped: end < text19.length, escaped: value !== prefix2 };
+  return { value, clipped: end < text18.length, escaped: value !== prefix2 };
 }
 function v4aLintNodes(d, call) {
   if (!v4aLintNeedsAttention(call) || !d.v4aLint) return [];
@@ -36621,13 +36920,13 @@ function editCard(call, d, _now, context) {
     };
   }
   if (write && content5 && (!diff2 || diff2.startsWith("@@ -0,0 "))) {
-    const text19 = content5.replace(/\n$/, "");
-    const lines = text19.split("\n").length;
+    const text18 = content5.replace(/\n$/, "");
+    const lines = text18.split("\n").length;
     const failedCandidate = writeWarning && call.outcome.kind === "error" && !refusal;
     return {
       ...head2,
       badges: diff2 && !failedCandidate ? [{ text: "new file", tone: "success" }] : void 0,
-      body: [...refusalNodes, ...warning, ...lint, ...refusal ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Candidate content; write refused" }, "candidate")] : [], ...failedCandidate ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Candidate content; Hermes reported a write error. Inspect the result." }, "candidate")] : [], /* @__PURE__ */ jsx("code", { lang: lang ?? "text", numbers: true, text: text19 }, "code"), ...diagnostics],
+      body: [...refusalNodes, ...warning, ...lint, ...refusal ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Candidate content; write refused" }, "candidate")] : [], ...failedCandidate ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Candidate content; Hermes reported a write error. Inspect the result." }, "candidate")] : [], /* @__PURE__ */ jsx("code", { lang: lang ?? "text", numbers: true, text: text18 }, "code"), ...diagnostics],
       folded: lint.length || refusal || warning.length ? false : true,
       meta: [plural(lines, "line"), ...refusal ? ["Write refused"] : [], ...warning.length ? [warningMeta] : [], ...lintMeta],
       preview: { lines: 8 }
@@ -36688,8 +36987,8 @@ function evalCard(call, d) {
     title: firstLine2(code7)?.startsWith("#") ? firstLine2(code7)?.replace(/^#+\s*/, "") ?? "Eval" : "Eval"
   };
 }
-function firstLine2(text19) {
-  return text19?.split("\n").find((l) => l.trim())?.trim();
+function firstLine2(text18) {
+  return text18?.split("\n").find((l) => l.trim())?.trim();
 }
 
 // src/tools/memory-staged.ts
@@ -36697,7 +36996,7 @@ var STAGED_KEYS = /* @__PURE__ */ new Set(["success", "staged", "pending_id", "m
 function memoryStagingReported(call) {
   if (call.name !== "memory" || call.outcome.kind !== "done") return false;
   try {
-    const result = record2(call.result);
+    const result = record(call.result);
     if (!result || Object.keys(result).some((key3) => !STAGED_KEYS.has(key3))) return false;
     return Object.hasOwn(result, "success") && result["success"] === true && Object.hasOwn(result, "staged") && result["staged"] === true && Object.hasOwn(result, "pending_id") && typeof result["pending_id"] === "string" && /^[0-9a-f]{8}$/.test(result["pending_id"]) && Object.hasOwn(result, "message") && typeof result["message"] === "string" && (!Object.hasOwn(result, "proposal_staged") || result["proposal_staged"] === true);
   } catch {
@@ -36868,7 +37167,7 @@ function planStep(before2, after2) {
 function readConflictCount(call) {
   if (call.name !== "read_file" || call.outcome.kind !== "done") return void 0;
   try {
-    const result = record2(call.result);
+    const result = record(call.result);
     if (!result || !Object.hasOwn(result, "conflict_blocks") || !Object.hasOwn(result, "content")) return void 0;
     const count5 = result["conflict_blocks"];
     const content5 = result["content"];
@@ -36889,11 +37188,11 @@ function safeError(error) {
   let end = Math.min(error.length, 2e3);
   if (end < error.length && end > 0 && /[\uD800-\uDBFF]/.test(error[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(error[end] ?? "")) end--;
   const prefix2 = error.slice(0, end);
-  const text19 = Array.from(prefix2, (c) => {
+  const text18 = Array.from(prefix2, (c) => {
     const n3 = c.codePointAt(0) ?? 0;
     return n3 < 32 && n3 !== 9 && n3 !== 10 || n3 >= 127 && n3 <= 159 || n3 === 1564 || n3 === 8206 || n3 === 8207 || n3 >= 8232 && n3 <= 8238 || n3 >= 8294 && n3 <= 8303 || n3 >= 55296 && n3 <= 57343 ? `\\u${n3.toString(16).padStart(4, "0")}` : c;
   }).join("");
-  return { text: text19, clipped: end < error.length, escaped: text19 !== prefix2 };
+  return { text: text18, clipped: end < error.length, escaped: text18 !== prefix2 };
 }
 var readView = {
   action: "read",
@@ -36942,15 +37241,15 @@ function readCard(call, d) {
 var DENSE_LIMIT = 4e3;
 var FILE_LIMIT = 200;
 var COUNT_PATH_LIMIT = 256;
-function densePrefix(text19) {
-  let end = Math.min(text19.length, DENSE_LIMIT);
-  if (end < text19.length && end > 0 && /[\uD800-\uDBFF]/.test(text19[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(text19[end] ?? "")) {
+function densePrefix(text18) {
+  let end = Math.min(text18.length, DENSE_LIMIT);
+  if (end < text18.length && end > 0 && /[\uD800-\uDBFF]/.test(text18[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(text18[end] ?? "")) {
     end--;
   }
-  return text19.slice(0, end);
+  return text18.slice(0, end);
 }
-function safeDense(text19) {
-  return Array.from(text19, (c) => {
+function safeDense(text18) {
+  return Array.from(text18, (c) => {
     const n3 = c.codePointAt(0) ?? 0;
     return n3 < 32 && n3 !== 9 && n3 !== 10 || n3 >= 127 && n3 <= 159 || n3 >= 8234 && n3 <= 8238 || n3 >= 8294 && n3 <= 8297 || n3 === 1564 || n3 === 8206 || n3 === 8207 || n3 >= 55296 && n3 <= 57343 ? `\\u${n3.toString(16).padStart(4, "0")}` : c;
   }).join("");
@@ -36995,8 +37294,8 @@ function countCard(call, d, pattern) {
     title: "Grep"
   };
 }
-function count(n3, lower, one7, many) {
-  return `${lower ? "At least " : ""}${plural(n3, one7, many)}`;
+function count(n3, lower, one6, many) {
+  return `${lower ? "At least " : ""}${plural(n3, one6, many)}`;
 }
 function disclosures(labels) {
   return labels.map((label, i) => /* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: label }] }, `search-notice-${i}`));
@@ -37028,7 +37327,7 @@ function searchCard(call, d) {
   const inPath = where && where !== "." ? ` \xB7 in ${where}` : "";
   const files = d.files;
   if (files || d.filesOnly) {
-    const list10 = (files ?? []).map((f) => f.replace(/^\.\//, ""));
+    const list10 = (files ?? []).map((f2) => f2.replace(/^\.\//, ""));
     const total2 = d.total ?? list10.length;
     const notices2 = [
       ...d.total !== void 0 && (d.totalLowerBound || d.truncated) ? [`${d.omitted ? "Hermes total: " : ""}${count(total2, true, "file")}`] : [],
@@ -37037,9 +37336,9 @@ function searchCard(call, d) {
       ...list10.length > FILE_LIMIT ? [`Showing ${FILE_LIMIT} of ${list10.length} retained files`] : []
     ];
     return {
-      body: [...list10.slice(0, FILE_LIMIT).map((f, i) => {
-        const slash = f.lastIndexOf("/");
-        return /* @__PURE__ */ jsx("row", { role: "omp.tool.file", ...optional2("title", slash > 0 ? f.slice(0, slash + 1) : void 0), children: /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: slash > 0 ? f.slice(slash + 1) : f }] }, "p") }, `f${i}`);
+      body: [...list10.slice(0, FILE_LIMIT).map((f2, i) => {
+        const slash = f2.lastIndexOf("/");
+        return /* @__PURE__ */ jsx("row", { role: "omp.tool.file", ...optional2("title", slash > 0 ? f2.slice(0, slash + 1) : void 0), children: /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: slash > 0 ? f2.slice(slash + 1) : f2 }] }, "p") }, `f${i}`);
       }), ...disclosures(notices2), ...errorNotice(call)],
       folded: list10.length > 20,
       frame: "inline",
@@ -37058,29 +37357,29 @@ function searchCard(call, d) {
   if (d.countMode && !d.matches?.length && !d.matchesText) return countCard(call, d, pattern);
   const matches3 = d.matches?.length ? d.matches : void 0;
   const byFile = /* @__PURE__ */ new Map();
-  for (const m of matches3 ?? []) {
-    const path2 = m.path.replace(/^\.\//, "");
+  for (const m2 of matches3 ?? []) {
+    const path2 = m2.path.replace(/^\.\//, "");
     const list10 = byFile.get(path2) ?? [];
-    list10.push({ line: m.line, text: m.text });
+    list10.push({ line: m2.line, text: m2.text });
     byFile.set(path2, list10);
   }
   const total = d.total ?? matches3?.length ?? 0;
   const body = [];
   let fileIndex = 0;
   for (const [path2, hits] of byFile) {
-    const f = `f${fileIndex++}`;
+    const f2 = `f${fileIndex++}`;
     body.push(
       /* @__PURE__ */ jsxs("row", { role: "omp.tool.file", children: [
         /* @__PURE__ */ jsx("text", { spans: [{ s: "path", t: path2 }] }, "p"),
         /* @__PURE__ */ jsx("text", { role: "omp.tool.chip", spans: [{ t: String(hits.length) }] }, "n")
-      ] }, f)
+      ] }, f2)
     );
     let run8 = [];
     let runIndex = 0;
     const flush = () => {
       const start = run8[0]?.line ?? 1;
       if (runIndex > 0) {
-        body.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.context", spans: [{ s: "muted", t: "\u2026" }] }, `${f}.g${runIndex}`));
+        body.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.context", spans: [{ s: "muted", t: "\u2026" }] }, `${f2}.g${runIndex}`));
       }
       body.push(
         /* @__PURE__ */ jsx(
@@ -37092,7 +37391,7 @@ function searchCard(call, d) {
             start,
             text: run8.map((h2) => h2.text).join("\n")
           },
-          `${f}.c${runIndex++}`
+          `${f2}.c${runIndex++}`
         )
       );
       run8 = [];
@@ -37349,7 +37648,7 @@ pytest, \`tests/test_api.py::test_login PASSED [ 12%]\`:
 var byteLength = (s2) => Buffer.byteLength(s2) + 1;
 function promptSources(sources) {
   let budget = MAX_SAMPLE_BYTES;
-  return sources.map((source3, index2) => {
+  return sources.map((source2, index2) => {
     const share = Math.floor(budget / (sources.length - index2));
     const take = (lines, limit) => {
       const out = [];
@@ -37376,15 +37675,15 @@ function promptSources(sources) {
       budget -= used;
       return out;
     };
-    const tail = take(source3.tail.slice().reverse(), source3.head.length ? Math.floor(share * 2 / 3) : share).reverse();
-    const head2 = take(source3.head, share - tail.reduce((n3, l) => n3 + byteLength(l), 0));
+    const tail = take(source2.tail.slice().reverse(), source2.head.length ? Math.floor(share * 2 / 3) : share).reverse();
+    const head2 = take(source2.head, share - tail.reduce((n3, l) => n3 + byteLength(l), 0));
     return {
       head: head2,
-      id: source3.id,
-      label: source3.label,
-      lines: source3.lines,
-      omitted: Math.max(0, source3.lines - head2.length - tail.length),
-      size: source3.size,
+      id: source2.id,
+      label: source2.label,
+      lines: source2.lines,
+      omitted: Math.max(0, source2.lines - head2.length - tail.length),
+      size: source2.size,
       tail
     };
   });
@@ -37476,28 +37775,28 @@ function gatewayAuthor(gw2, sid) {
 
 // src/processes/widgets/files.ts
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { homedir as homedir8 } from "node:os";
-import { isAbsolute as isAbsolute5, join as join7, normalize } from "node:path";
+import { homedir as homedir9 } from "node:os";
+import { isAbsolute as isAbsolute5, join as join8, normalize } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 var TARGET = /(?:^|[\s;&|(])(?:1|&)?>>?\s*([^\s;&|)<>]+)|\btee\s+(?:-a\s+)?([^\s;&|)<>-][^\s;&|)<>]*)/g;
 var CD = /^\s*cd\s+([^\s;&|]+)\s*(?:&&|;)/;
 var SKIP = /^\/dev\/|^&/;
 var unquote = (s2) => s2.replace(/^(['"])(.*)\1$/, "$2");
 function expand(path2, env2) {
-  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir8()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
+  const out = unquote(path2).replace(/^~(?=\/|$)/, env2["HOME"] || homedir9()).replace(/\$\{?(HOME|TMPDIR|USER)\}?/g, (_2, name) => env2[name]?.replace(/\/$/, "") ?? `$${name}`);
   return out.includes("$") ? void 0 : out;
 }
 function outputFiles(command2, env2 = process.env) {
   const cd = CD.exec(command2)?.[1];
   const base3 = cd ? expand(cd, env2) : void 0;
   const files = [];
-  for (const m of command2.matchAll(TARGET)) {
-    const raw2 = m[1] ?? m[2];
+  for (const m2 of command2.matchAll(TARGET)) {
+    const raw2 = m2[1] ?? m2[2];
     if (!raw2 || SKIP.test(raw2)) {
       continue;
     }
     const path2 = expand(raw2, env2);
-    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join7(base3, path2) : void 0);
+    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join8(base3, path2) : void 0);
     if (full && !files.includes(normalize(full))) {
       files.push(normalize(full));
     }
@@ -37506,8 +37805,8 @@ function outputFiles(command2, env2 = process.env) {
 }
 var CAPACITY = 256 * 1024;
 var FileTap = class {
-  constructor(id, path2) {
-    this.id = id;
+  constructor(id2, path2) {
+    this.id = id2;
     this.path = path2;
   }
   id;
@@ -37563,8 +37862,8 @@ var FileTap = class {
     const start = Math.min(Math.max(from, this.#start), end);
     return { end, open: this.#open, start, text: this.#text.slice(start - this.#start) };
   }
-  #append(text19) {
-    this.#text += text19;
+  #append(text18) {
+    this.#text += text18;
     const excess = this.#text.length - CAPACITY;
     if (excess > CAPACITY / 4) {
       this.#text = this.#text.slice(excess);
@@ -37611,26 +37910,26 @@ function formatNumber(value, unit, digits) {
   }
   const scaled = unitStep(value, unit);
   if (scaled) {
-    const text20 = formatNumber(value / scaled.step, scaled.unit, digits ?? (Math.abs(value / scaled.step) >= 100 ? 0 : 1));
-    return digits === void 0 ? text20.replace(/\.0(?= )/, "") : text20;
+    const text19 = formatNumber(value / scaled.step, scaled.unit, digits ?? (Math.abs(value / scaled.step) >= 100 ? 0 : 1));
+    return digits === void 0 ? text19.replace(/\.0(?= )/, "") : text19;
   }
   const magnitude = Math.abs(value);
-  let text19;
+  let text18;
   if (magnitude >= COMPACT_FROM) {
     for (const [step, suffix] of COMPACT_STEPS) {
       if (magnitude < step) {
         continue;
       }
       const scaled2 = value / step;
-      text19 = `${scaled2.toFixed(digits ?? (Math.abs(scaled2) >= 100 ? 0 : 1))}${suffix}`;
+      text18 = `${scaled2.toFixed(digits ?? (Math.abs(scaled2) >= 100 ? 0 : 1))}${suffix}`;
       break;
     }
   }
-  text19 ??= Number.isInteger(value) && digits === void 0 ? String(value) : value.toFixed(digits ?? (magnitude >= 100 ? 0 : magnitude >= 10 ? 1 : 2));
+  text18 ??= Number.isInteger(value) && digits === void 0 ? String(value) : value.toFixed(digits ?? (magnitude >= 100 ? 0 : magnitude >= 10 ? 1 : 2));
   if (!unit) {
-    return text19;
+    return text18;
   }
-  return unit === "%" ? `${text19}%` : `${text19} ${unit}`;
+  return unit === "%" ? `${text18}%` : `${text18} ${unit}`;
 }
 function formatTrend(first, last, better, unit) {
   const delta = last - first;
@@ -37661,7 +37960,7 @@ import { setFlagsFromString } from "node:v8";
 
 // src/processes/widgets/check.ts
 var FIELD_NAME = /^[a-z][a-z0-9_]{0,23}$/;
-var cut = (text19, max) => text19.length > max ? `${text19.slice(0, max - 1)}\u2026` : text19;
+var cut = (text18, max) => text18.length > max ? `${text18.slice(0, max - 1)}\u2026` : text18;
 function list3(value, where, errors, min, max) {
   if (!Array.isArray(value)) {
     errors.push(`${where}: expected an array`);
@@ -37698,10 +37997,10 @@ function str5(value, where, errors, o = {}) {
   return o.cut === void 0 ? trimmed : cut(unescape(trimmed), o.cut);
 }
 var ENTITIES = { "&#39;": "'", "&amp;": "&", "&gt;": ">", "&lt;": "<", "&quot;": '"' };
-function unescape(text19) {
-  return text19.replace(/&(?:amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e] ?? e);
+function unescape(text18) {
+  return text18.replace(/&(?:amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e] ?? e);
 }
-function num6(value, where, errors) {
+function num5(value, where, errors) {
   if (value === void 0 || value === null) {
     return void 0;
   }
@@ -37793,10 +38092,10 @@ function nestedQuantifier(pattern) {
   return false;
 }
 function compilePattern(pattern) {
-  const source3 = pattern.replace(/\(\?P</g, "(?<");
+  const source2 = pattern.replace(/\(\?P</g, "(?<");
   if (linearEngine()) {
     try {
-      return new RegExp(source3, "l");
+      return new RegExp(source2, "l");
     } catch (error) {
       const message = errorText(error);
       throw new Error(
@@ -37804,13 +38103,13 @@ function compilePattern(pattern) {
       );
     }
   }
-  if (LOOKAROUND.test(source3)) {
+  if (LOOKAROUND.test(source2)) {
     throw new Error(`\`${pattern}\` uses lookaround or backreferences, which are not allowed`);
   }
-  if (nestedQuantifier(source3)) {
+  if (nestedQuantifier(source2)) {
     throw new Error(`\`${pattern}\` repeats a group that repeats (like (\\d+,?)+); quantify one level only`);
   }
-  return new RegExp(source3);
+  return new RegExp(source2);
 }
 var LineMatcher = class {
   #patterns;
@@ -37826,11 +38125,11 @@ var LineMatcher = class {
   /** Every hit: the line's index, the pattern's index and its captures by group position. */
   matchLines(lines) {
     const hits = [];
-    lines.forEach((text19, line) => {
+    lines.forEach((text18, line) => {
       this.#patterns.forEach((re2, pattern) => {
-        const m = re2.exec(text19);
-        if (m) {
-          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m.groups?.[name]), line, pattern });
+        const m2 = re2.exec(text18);
+        if (m2) {
+          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m2.groups?.[name]), line, pattern });
         }
       });
     });
@@ -37841,14 +38140,14 @@ var isRecord = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
 function specSkip(value) {
   return isRecord(value) && typeof value["skip"] === "string" && value["skip"].trim() ? value["skip"].trim() : void 0;
 }
-function ruleReadsSource(from, id) {
+function ruleReadsSource(from, id2) {
   if (from === "*") {
     return true;
   }
-  return from.endsWith("*") ? id.startsWith(from.slice(0, -1)) : from === id;
+  return from.endsWith("*") ? id2.startsWith(from.slice(0, -1)) : from === id2;
 }
 function patternGroupNames(pattern) {
-  return new Set([...pattern.matchAll(NAMED_GROUP)].flatMap((m) => m[1] ?? []));
+  return new Set([...pattern.matchAll(NAMED_GROUP)].flatMap((m2) => m2[1] ?? []));
 }
 function ruleFields(rule) {
   const fields = [];
@@ -37867,15 +38166,15 @@ function aggNeedsValue(agg) {
 }
 var NUMBER_PREFIX = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/;
 var SUFFIX_SCALE = { G: 1e9, K: 1e3, M: 1e6, k: 1e3 };
-function parseValue(text19) {
-  const first = text19.charCodeAt(0);
-  if (first >= 48 && first <= 57 && !/[xXbBoO]/.test(text19.charAt(1))) {
-    const plain5 = Number(text19);
+function parseValue(text18) {
+  const first = text18.charCodeAt(0);
+  if (first >= 48 && first <= 57 && !/[xXbBoO]/.test(text18.charAt(1))) {
+    const plain5 = Number(text18);
     if (Number.isFinite(plain5)) {
       return plain5;
     }
   }
-  const compact3 = text19.trim().replace(/[,_]/g, "");
+  const compact3 = text18.trim().replace(/[,_]/g, "");
   const match = NUMBER_PREFIX.exec(compact3);
   if (!match) {
     return Number.NaN;
@@ -37906,9 +38205,9 @@ function validateSpec(value, samples, brief) {
 var WRITTEN_NUMBER = /\d[\d,_]*(?:\.\d+)?[kKMG]?/g;
 function checkStatedNumbers(spec, samples, brief, errors) {
   const stated = /* @__PURE__ */ new Set();
-  const collect = (text19) => {
-    for (const m of text19.matchAll(WRITTEN_NUMBER)) {
-      stated.add(parseValue(m[0]));
+  const collect = (text18) => {
+    for (const m2 of text18.matchAll(WRITTEN_NUMBER)) {
+      stated.add(parseValue(m2[0]));
     }
   };
   collect(brief);
@@ -37967,10 +38266,10 @@ function dryRun(spec, matcher, samples, numeric, errors) {
 function fieldFeeds(spec) {
   const fields = /* @__PURE__ */ new Map();
   for (const rule of spec.rules) {
-    for (const { count: count5, field, text: text19 } of ruleFields(rule)) {
+    for (const { count: count5, field, text: text18 } of ruleFields(rule)) {
       const feed = fields.get(field) ?? { keyGroups: /* @__PURE__ */ new Set(), text: false, value: false };
-      feed.value ||= !text19 && !count5;
-      feed.text ||= text19;
+      feed.value ||= !text18 && !count5;
+      feed.text ||= text18;
       if (rule.key !== void 0) {
         feed.keyGroups.add(rule.key);
       }
@@ -38047,7 +38346,7 @@ function parseSpec(value, errors) {
     errors.push("spec: expected an object");
     return void 0;
   }
-  const title = str5(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
+  const title2 = str5(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
   const rules = list3(value["rules"], "rules", errors, 1, MAX_RULES)?.map((r, i) => parseRule(r, `rules[${i}]`, errors));
   const blocks2 = list3(value["blocks"], "blocks", errors, 1, MAX_BLOCKS)?.map((b, i) => parseBlock(b, `blocks[${i}]`, errors));
   let headline;
@@ -38059,10 +38358,10 @@ function parseSpec(value, errors) {
     }
   }
   const stage = value["stage"] === void 0 ? void 0 : fieldName(value["stage"], "stage", errors);
-  if (errors.length || title === void 0 || !rules?.every(isDefined) || !blocks2?.every(isDefined)) {
+  if (errors.length || title2 === void 0 || !rules?.every(isDefined) || !blocks2?.every(isDefined)) {
     return void 0;
   }
-  return { blocks: blocks2, rules, title, ...headline ? { headline } : {}, ...stage ? { stage } : {} };
+  return { blocks: blocks2, rules, title: title2, ...headline ? { headline } : {}, ...stage ? { stage } : {} };
 }
 function parseRule(value, where, errors) {
   if (!isRecord(value)) {
@@ -38082,19 +38381,19 @@ function parseRule(value, where, errors) {
     return raw2;
   };
   const key3 = group("key");
-  const text19 = group("text");
+  const text18 = group("text");
   const count5 = value["count"] === void 0 ? void 0 : fieldName(value["count"], `${where}.count`, errors);
-  const scale = num6(value["scale"], `${where}.scale`, errors);
+  const scale = num5(value["scale"], `${where}.scale`, errors);
   if (from === void 0 || match === void 0) {
     return void 0;
   }
   const groups = patternGroupNames(match);
-  const wrap4 = text19 !== void 0 && FIELD_NAME.test(text19) && groups.size === 0;
+  const wrap4 = text18 !== void 0 && FIELD_NAME.test(text18) && groups.size === 0;
   const keyGroup = key3 !== void 0 && groups.has(key3) ? key3 : void 0;
-  const textGroup = text19 !== void 0 && (wrap4 || groups.has(text19)) ? text19 : void 0;
+  const textGroup = text18 !== void 0 && (wrap4 || groups.has(text18)) ? text18 : void 0;
   return {
     from,
-    match: wrap4 ? `(?P<${text19}>${match})` : match,
+    match: wrap4 ? `(?P<${text18}>${match})` : match,
     ...keyGroup !== void 0 ? { key: keyGroup } : {},
     ...textGroup !== void 0 ? { text: textGroup } : {},
     ...count5 !== void 0 ? { count: count5 } : {},
@@ -38110,7 +38409,7 @@ function parseValueRef(value, where, errors) {
   const key3 = str5(value["key"], `${where}.key`, errors, { max: 120 });
   const agg = choice(value["agg"], AGGS, `${where}.agg`, errors);
   const unit = str5(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
-  const digits = num6(value["digits"], `${where}.digits`, errors);
+  const digits = num5(value["digits"], `${where}.digits`, errors);
   if (digits !== void 0 && (!Number.isInteger(digits) || digits < 0 || digits > 4)) {
     errors.push(`${where}.digits: expected an integer 0\u20134`);
   }
@@ -38147,10 +38446,10 @@ function parseBlock(value, where, errors) {
         ...optional3(str5(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
         ...optional3(unit(), "unit"),
         ...optional3(betterValue(value["better"], `${where}.better`, errors), "better"),
-        ...optional3(num6(value["target"], `${where}.target`, errors), "target"),
+        ...optional3(num5(value["target"], `${where}.target`, errors), "target"),
         ...optional3(str5(value["targetLabel"], `${where}.targetLabel`, errors, { cut: MAX_LABEL_CHARS }), "targetLabel"),
-        ...optional3(num6(value["min"], `${where}.min`, errors), "min"),
-        ...optional3(num6(value["max"], `${where}.max`, errors), "max")
+        ...optional3(num5(value["min"], `${where}.min`, errors), "min"),
+        ...optional3(num5(value["max"], `${where}.max`, errors), "max")
       };
       break;
     case "bars":
@@ -38160,7 +38459,7 @@ function parseBlock(value, where, errors) {
         kind: "bars",
         label: label(),
         ...optional3(unit(), "unit"),
-        ...optional3(num6(value["max"], `${where}.max`, errors), "max"),
+        ...optional3(num5(value["max"], `${where}.max`, errors), "max"),
         ...optional3(betterValue(value["better"], `${where}.better`, errors), "better")
       };
       break;
@@ -38244,12 +38543,12 @@ var MAX_STAGE_CHARS = 200;
 var MAX_TEXT_CHARS = 200;
 var MAX_BAR_ITEMS = 16;
 var MAX_GRID_ITEMS = 48;
-var cut2 = (text19, max) => text19.length > max ? `${text19.slice(0, max - 1)}\u2026` : text19;
+var cut2 = (text18, max) => text18.length > max ? `${text18.slice(0, max - 1)}\u2026` : text18;
 var CONTROLS = /[\x00-\x08\x0b-\x1f\x7f]/g;
 var clean = (line) => withoutEscapes(line.replace(/\t/g, " ")).replace(CONTROLS, "");
 var SourceLineReader = class {
-  constructor(source3) {
-    this.source = source3;
+  constructor(source2) {
+    this.source = source2;
   }
   source;
   #cursor = 0;
@@ -38258,22 +38557,22 @@ var SourceLineReader = class {
   /** New complete lines; `flush` also ends the line in progress (the process exited). */
   read(flush) {
     const chunk = this.source.read(this.#cursor);
-    let text19 = chunk.text;
+    let text18 = chunk.text;
     if (chunk.start > this.#cursor) {
       this.#partial = "";
       this.#torn = true;
     }
     this.#cursor = Math.max(this.#cursor, chunk.end);
     if (this.#torn) {
-      const lineEnd3 = text19.search(/[\r\n]/);
+      const lineEnd3 = text18.search(/[\r\n]/);
       if (lineEnd3 === -1) {
-        text19 = "";
+        text18 = "";
       } else {
-        text19 = text19.slice(lineEnd3 + 1);
+        text18 = text18.slice(lineEnd3 + 1);
         this.#torn = false;
       }
     }
-    const raw2 = (this.#partial + text19).replace(/\r\n?/g, "\n").split("\n");
+    const raw2 = (this.#partial + text18).replace(/\r\n?/g, "\n").split("\n");
     this.#partial = (raw2.pop() ?? "").slice(0, MAX_LINE_CHARS * 2);
     if ((flush || !chunk.open) && this.#partial) {
       raw2.push(this.#partial);
@@ -38285,7 +38584,7 @@ var SourceLineReader = class {
 function emptySeries() {
   return { count: 0, first: 0, last: 0, max: -Infinity, min: Infinity, recent: [], ring: [], sum: 0, updatedAt: 0, values: 0 };
 }
-function pushMatch(s2, value, text19, line, t) {
+function pushMatch(s2, value, text18, line, t) {
   s2.count++;
   const bucket = s2.recent.at(-1);
   if (bucket?.t === t) {
@@ -38309,8 +38608,8 @@ function pushMatch(s2, value, text19, line, t) {
       s2.ring.splice(0, s2.ring.length - RING_POINTS);
     }
   }
-  if (text19) {
-    s2.text = text19;
+  if (text18) {
+    s2.text = text18;
   }
   s2.line = line;
   s2.updatedAt = t;
@@ -38381,7 +38680,7 @@ var ChartRuntime = class {
     this.now = now;
     for (const rule of spec?.rules ?? []) {
       if (rule.key !== void 0) {
-        ruleFields(rule).forEach((f) => this.#keyedFields.add(f.field));
+        ruleFields(rule).forEach((f2) => this.#keyedFields.add(f2.field));
       }
     }
   }
@@ -38415,17 +38714,17 @@ var ChartRuntime = class {
   ingest(sources, flush) {
     const t = this.now();
     let changed = false;
-    for (const source3 of sources) {
-      let reader = this.#readers.get(source3.id);
-      if (!reader || reader.source !== source3) {
-        reader = new SourceLineReader(source3);
-        this.#readers.set(source3.id, reader);
+    for (const source2 of sources) {
+      let reader = this.#readers.get(source2.id);
+      if (!reader || reader.source !== source2) {
+        reader = new SourceLineReader(source2);
+        this.#readers.set(source2.id, reader);
       }
       const { end, lines } = reader.read(flush);
-      let stats = this.#stats.get(source3.id);
+      let stats = this.#stats.get(source2.id);
       if (!stats) {
-        stats = { head: [], id: source3.id, label: source3.label, lastActiveAt: 0, lines: 0, recent: [], size: 0, tail: [] };
-        this.#stats.set(source3.id, stats);
+        stats = { head: [], id: source2.id, label: source2.label, lastActiveAt: 0, lines: 0, recent: [], size: 0, tail: [] };
+        this.#stats.set(source2.id, stats);
       }
       stats.size = end;
       if (!lines.length) {
@@ -38433,7 +38732,7 @@ var ChartRuntime = class {
       }
       changed = true;
       this.#recordLines(stats, lines, t);
-      this.#matchLines(source3.id, lines, t);
+      this.#matchLines(source2.id, lines, t);
     }
     return changed;
   }
@@ -38476,19 +38775,19 @@ var ChartRuntime = class {
     }
   }
   /** The matcher of the rules reading source `id`, compiled on first use. */
-  #sourceMatcher(id) {
-    const known3 = this.#matchers.get(id);
+  #sourceMatcher(id2) {
+    const known3 = this.#matchers.get(id2);
     if (known3 !== void 0) {
       return known3 ?? void 0;
     }
     const byPattern = /* @__PURE__ */ new Map();
     for (const rule of this.spec?.rules ?? []) {
-      if (ruleReadsSource(rule.from, id)) {
+      if (ruleReadsSource(rule.from, id2)) {
         byPattern.set(rule.match, [...byPattern.get(rule.match) ?? [], rule]);
       }
     }
     if (!byPattern.size) {
-      this.#matchers.set(id, null);
+      this.#matchers.set(id2, null);
       return void 0;
     }
     const matcher = new LineMatcher([...byPattern.keys()]);
@@ -38497,7 +38796,7 @@ var ChartRuntime = class {
       matcher,
       rules: [...byPattern.values()].map((rules, i) => rules.map((r) => compileRule(r, groups[i] ?? [])))
     };
-    this.#matchers.set(id, entry);
+    this.#matchers.set(id2, entry);
     return entry;
   }
   #matchLines(sourceId, lines, t) {
@@ -38543,7 +38842,7 @@ var ChartRuntime = class {
       }
     }
   }
-  #push(name, key3, value, text19, line, t) {
+  #push(name, key3, value, text18, line, t) {
     let field = this.#fields.get(name);
     if (!field) {
       const all8 = emptySeries();
@@ -38555,9 +38854,9 @@ var ChartRuntime = class {
       series = emptySeries();
       field.keys.set(key3, series);
     }
-    pushMatch(series, value, text19, line, t);
+    pushMatch(series, value, text18, line, t);
     if (series !== field.all) {
-      pushMatch(field.all, value, text19, line, t);
+      pushMatch(field.all, value, text18, line, t);
     }
   }
   /** First and last lines per source, most active first, for the author and the dry run. */
@@ -38618,8 +38917,8 @@ var ChartRuntime = class {
   }
   #specStage() {
     const field = this.spec?.stage ? this.#fields.get(this.spec.stage) : void 0;
-    const text19 = (field?.all.text ?? field?.all.line)?.trim();
-    return text19 ? cut2(text19, MAX_STAGE_CHARS) : void 0;
+    const text18 = (field?.all.text ?? field?.all.line)?.trim();
+    return text18 ? cut2(text18, MAX_STAGE_CHARS) : void 0;
   }
   /** The last non-empty line of the most recently active source. */
   #lastLine() {
@@ -38642,13 +38941,13 @@ var ChartRuntime = class {
     const series = this.#series(ref.field, ref.key);
     const value = aggregate(series, ref.agg, now, this.startTime);
     const unit = ref.agg === "change" ? "%" : ref.unit;
-    const text19 = value === void 0 ? "\u2014" : formatNumber(value, unit, ref.digits);
+    const text18 = value === void 0 ? "\u2014" : formatNumber(value, unit, ref.digits);
     const trend = ref.better && TREND_AGGS.has(ref.agg) && series.values >= 2 ? formatTrend(series.first, series.last, ref.better, ref.unit) : void 0;
-    return { text: text19, value, ...trend ? { trend } : {} };
+    return { text: text18, value, ...trend ? { trend } : {} };
   }
   #headline(ref, now) {
-    const { text: text19, trend, value } = this.#value(ref, now);
-    return value === void 0 ? void 0 : { text: text19, ...ref.label ? { label: ref.label } : {}, ...trend ? { trend } : {} };
+    const { text: text18, trend, value } = this.#value(ref, now);
+    return value === void 0 ? void 0 : { text: text18, ...ref.label ? { label: ref.label } : {}, ...trend ? { trend } : {} };
   }
   #block(block, now) {
     switch (block.kind) {
@@ -38688,8 +38987,8 @@ var ChartRuntime = class {
       case "stat":
         return {
           items: block.items.map((item3) => {
-            const { text: text19, trend } = this.#value(item3, now);
-            return { label: item3.label, text: text19, ...trend ? { trend } : {} };
+            const { text: text18, trend } = this.#value(item3, now);
+            return { label: item3.label, text: text18, ...trend ? { trend } : {} };
           }),
           kind: "stat"
         };
@@ -38699,8 +38998,8 @@ var ChartRuntime = class {
         const labels = keyLabels(entries2.map(([k]) => k));
         return {
           items: entries2.map(([k, s2], i) => {
-            const text19 = cut2(s2.text ?? (s2.values ? formatNumber(s2.last) : s2.line?.trim() ?? ""), MAX_TEXT_CHARS);
-            return { label: labels[i] || k || block.label, text: text19, tone: gridTone(block.tones, text19) };
+            const text18 = cut2(s2.text ?? (s2.values ? formatNumber(s2.last) : s2.line?.trim() ?? ""), MAX_TEXT_CHARS);
+            return { label: labels[i] || k || block.label, text: text18, tone: gridTone(block.tones, text18) };
           }),
           kind: "grid",
           label: block.label
@@ -38718,7 +39017,7 @@ var ChartRuntime = class {
     const points = downsample(ring, SPARK_POINTS);
     const values = points.map((p3) => p3.v);
     const marks2 = block.target === void 0 ? void 0 : [{ label: block.targetLabel ?? `target ${formatNumber(block.target, block.unit)}`, tone: "muted", value: block.target }];
-    const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m) => m.value)], block.min, block.max);
+    const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m2) => m2.value)], block.min, block.max);
     let tone2;
     if (block.better && block.target !== void 0 && series.values) {
       const reached = block.better === "higher" ? series.last >= block.target : series.last <= block.target;
@@ -38774,8 +39073,8 @@ function keyLabels(keys3) {
   const short = keys3.map((k) => k.slice(k.lastIndexOf("/") + 1));
   return short.every(Boolean) && new Set(short).size === short.length ? short : keys3.slice();
 }
-function gridTone(tones, text19) {
-  const lower = text19.toLowerCase();
+function gridTone(tones, text18) {
+  const lower = text18.toLowerCase();
   for (const [status, tone2] of Object.entries(tones)) {
     if (lower.includes(status.toLowerCase())) {
       return tone2;
@@ -38842,8 +39141,8 @@ var OutputTap = class {
     const start = Math.min(Math.max(from, this.#start), end);
     return { end, open: this.#open, start, text: this.#text.slice(start - this.#start) };
   }
-  #append(text19) {
-    this.#text += text19;
+  #append(text18) {
+    this.#text += text18;
     const excess = this.#text.length - TAP_CAPACITY;
     if (excess > TAP_CAPACITY / 4) {
       this.#text = this.#text.slice(excess);
@@ -38917,15 +39216,15 @@ var Charts = class {
     return entry.view;
   }
   /** A chunk process `id` printed, for its chart's exact stream. */
-  output(id, chunk) {
-    this.#entries.get(id)?.tap.append(chunk);
+  output(id2, chunk) {
+    this.#entries.get(id2)?.tap.append(chunk);
   }
   /** Drops the charts of processes no longer listed. */
   retain(ids) {
-    for (const [id, entry] of this.#entries) {
-      if (!ids.has(id)) {
+    for (const [id2, entry] of this.#entries) {
+      if (!ids.has(id2)) {
         abortRequest(entry);
-        this.#entries.delete(id);
+        this.#entries.delete(id2);
       }
     }
   }
@@ -38942,10 +39241,10 @@ var Charts = class {
     const now = this.#now();
     const settled2 = entry.process.state.status !== "running";
     entry.tap.update(entry.process.output);
-    entry.files.forEach((f) => f.update());
+    entry.files.forEach((f2) => f2.update());
     if (settled2) {
       entry.tap.close();
-      entry.files.forEach((f) => f.close());
+      entry.files.forEach((f2) => f2.close());
     }
     entry.runtime.ingest([entry.tap, ...entry.files], settled2);
     if (settled2) {
@@ -39083,9 +39382,9 @@ function lastLine(output) {
   const lines = withoutEscapes(output).split("\n");
   for (const line of lines.toReversed()) {
     const draws = line.split("\r");
-    const text19 = (draws.findLast((d) => d.trim()) ?? "").replace(/\s+/g, " ").trim();
-    if (text19) {
-      return text19;
+    const text18 = (draws.findLast((d) => d.trim()) ?? "").replace(/\s+/g, " ").trim();
+    if (text18) {
+      return text18;
     }
   }
   return "";
@@ -39154,7 +39453,7 @@ function processVerdict(p3) {
 }
 var strings2 = (v) => Array.isArray(v) ? v.filter((x) => typeof x === "string" && x !== "") : [];
 function watchersOf(call) {
-  const r = record2(call.result);
+  const r = record(call.result);
   if (typeof r?.["session_id"] === "string") {
     return {
       heartbeat: typeof r["heartbeat_seconds"] === "number" ? r["heartbeat_seconds"] : 0,
@@ -39177,8 +39476,8 @@ function watchersOf(call) {
   return { heartbeat: beat, notify, patterns: notify ? [] : patterns };
 }
 function processIdOf(call) {
-  const id = record2(call.result)?.["session_id"];
-  return typeof id === "string" && id ? id : void 0;
+  const id2 = record(call.result)?.["session_id"];
+  return typeof id2 === "string" && id2 ? id2 : void 0;
 }
 var Processes = class {
   #host;
@@ -39213,13 +39512,13 @@ var Processes = class {
   recent(now = Date.now()) {
     return this.all().filter((p3) => isRecent(p3, now));
   }
-  get(id) {
-    return this.#byId.get(id);
+  get(id2) {
+    return this.#byId.get(id2);
   }
   /** A stop was sent for `id` and it has not ended yet. */
-  stopping(id) {
-    const p3 = this.#byId.get(id);
-    return this.#stopping.has(id) && Boolean(p3 && isRunning2(p3));
+  stopping(id2) {
+    const p3 = this.#byId.get(id2);
+    return this.#stopping.has(id2) && Boolean(p3 && isRunning2(p3));
   }
   /** Polls now (a background command just started, the sheet opened, a stop landed). */
   poke() {
@@ -39230,41 +39529,41 @@ var Processes = class {
     return this.#poller.watch();
   }
   /** A chunk `id` printed (`agent.terminal.output`); a process the store does not know yet polls. */
-  output(id, chunk) {
-    const p3 = this.#byId.get(id);
+  output(id2, chunk) {
+    const p3 = this.#byId.get(id2);
     if (!p3) {
       return this.poke();
     }
     p3.output = (p3.output + chunk).slice(-OUTPUT_MAX);
     p3.lastLine = lastLine(p3.output);
-    this.#charts.output(id, chunk);
+    this.#charts.output(id2, chunk);
     this.#chart([p3]);
     this.#link(/* @__PURE__ */ new Set([p3]));
     this.#host.changed();
   }
   /** Stops one process (`process.kill`); the registry's answer status (`killed`, `already_exited`, …). */
-  async kill(id) {
-    this.#stopping.add(id);
+  async kill(id2) {
+    this.#stopping.add(id2);
     this.#host.changed();
     try {
       const sid = this.#host.sid;
-      const r = sid ? await rpc(this.#host.gw, "process.kill", { process_id: id, session_id: sid }) : void 0;
+      const r = sid ? await rpc(this.#host.gw, "process.kill", { process_id: id2, session_id: sid }) : void 0;
       return r?.status;
     } finally {
-      this.#stopping.delete(id);
+      this.#stopping.delete(id2);
       this.poke();
     }
   }
   /** Stops every process of the session (`process.stop`); how many it stopped. */
   async stopAll() {
     const ids = this.running().map((p3) => p3.id);
-    ids.forEach((id) => this.#stopping.add(id));
+    ids.forEach((id2) => this.#stopping.add(id2));
     this.#host.changed();
     try {
       const r = await rpc(this.#host.gw, "process.stop", { session_id: this.#host.sid });
       return typeof r?.killed === "number" ? r.killed : 0;
     } finally {
-      ids.forEach((id) => this.#stopping.delete(id));
+      ids.forEach((id2) => this.#stopping.delete(id2));
       this.poke();
     }
   }
@@ -40500,8 +40799,8 @@ var CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/gu;
 function commandDisplayText(command2) {
   return withVisibleControlCharacters(withoutShellWrapper(command2));
 }
-function withVisibleControlCharacters(text19) {
-  return text19.replace(
+function withVisibleControlCharacters(text18) {
+  return text18.replace(
     CONTROL_CHARACTERS,
     (character) => character === "\x7F" ? "\u2421" : String.fromCharCode(9216 + character.charCodeAt(0))
   );
@@ -40571,8 +40870,8 @@ function bashCard(call, d, instead) {
 }
 function backgroundCard(call, d, now) {
   const w = watchersOf(call);
-  const id = processIdOf(call) ?? call.process?.id;
-  const line = id ? processLine(call, id, now) : void 0;
+  const id2 = processIdOf(call) ?? call.process?.id;
+  const line = id2 ? processLine(call, id2, now) : void 0;
   const chart = call.process?.chart && primaryNode(call.process.chart);
   const card = bashCard(call, d, line && chart ? /* @__PURE__ */ jsxs("col", { gap: "xs", children: [
     line,
@@ -40589,12 +40888,12 @@ function backgroundCard(call, d, now) {
     folded: line ? false : card.folded
   };
 }
-function processLine(call, id, now) {
+function processLine(call, id2, now) {
   const p3 = call.process;
   const live = !p3 || isRunning2(p3);
   const tone2 = p3 ? processTone(p3.state.status) : "muted";
   return pressable(
-    { action: `open-process=${id}`, key: "process", menu: [`open-process=${id}`], name: `Process ${p3 ? processVerdict(p3) : "starting"}: open in the Background sheet` },
+    { action: `open-process=${id2}`, key: "process", menu: [`open-process=${id2}`], name: `Process ${p3 ? processVerdict(p3) : "starting"}: open in the Background sheet` },
     /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "omp.tool.process", title: "Open in the Background sheet  \u2325J", children: [
       p3 && live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "state-icon") : /* @__PURE__ */ jsx("icon", { name: p3 ? PROCESS_LOOK[p3.state.status].icon : "pending", tone: tone2 }, "state-icon"),
       /* @__PURE__ */ jsx("text", { spans: [{ s: tone2, t: p3 ? processVerdict(p3) : "starting" }], wrap: "none" }, "state"),
@@ -40687,7 +40986,7 @@ function fetchCard(call, d) {
     title: "Fetch"
   };
 }
-function sourceRow(key3, title, url) {
+function sourceRow(key3, title2, url) {
   let host = "";
   try {
     host = url ? new URL(url).hostname.replace(/^www\./, "") : "";
@@ -40696,7 +40995,7 @@ function sourceRow(key3, title, url) {
   }
   return /* @__PURE__ */ jsxs("row", { role: "omp.tool.source", children: [
     /* @__PURE__ */ jsx("text", { role: "omp.tool.chip", spans: [{ t: (host.charAt(0) || "\xB7").toUpperCase() }] }, "d"),
-    /* @__PURE__ */ jsx("text", { spans: [url ? { href: url, t: title } : { t: title }] }, "t"),
+    /* @__PURE__ */ jsx("text", { spans: [url ? { href: url, t: title2 } : { t: title2 }] }, "t"),
     host ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: host }] }, "m") : null
   ] }, key3);
 }
@@ -40847,14 +41146,14 @@ function countSummary(items, tallies) {
 var KEY2 = "agents";
 var TICK_MS = 1e3;
 var RECENT = 6;
-function openAgents(host, focus2) {
+function openAgents(host, focus) {
   const agents2 = () => host.agents.all();
-  let state = initialHub(agents2(), focus2?.id);
+  let state = initialHub(agents2(), focus?.id);
   const stopTicking = tickWhileOpen(host, TICK_MS);
   const close = () => host.close(overlay2);
-  const sendSteer = async (a2, text19) => {
+  const sendSteer = async (a2, text18) => {
     await reportError(host.transcript, async () => {
-      const queued = await host.agents.steer(a2, text19);
+      const queued = await host.agents.steer(a2, text18);
       host.transcript.notice(
         queued ? `Steering queued for ${agentName(a2)}.` : `${agentName(a2)} is not taking steering now.`,
         queued ? "info" : "warning"
@@ -40907,7 +41206,7 @@ function openAgents(host, focus2) {
     host.changed();
   };
   const handlers3 = Object.fromEntries(
-    Object.entries(HUB_CLICKS).map(([id, action]) => [id, (ev) => click(action(ev))])
+    Object.entries(HUB_CLICKS).map(([id2, action]) => [id2, (ev) => click(action(ev))])
   );
   const overlay2 = {
     key: KEY2,
@@ -40918,11 +41217,11 @@ function openAgents(host, focus2) {
       stopTicking();
       host.agents.follow(void 0);
     },
-    node: (id) => {
+    node: (id2) => {
       const now = Date.now();
       const watched = state.view.kind === "timeline" ? currentAgent(state, agents2()) : void 0;
       host.agents.follow(currentAgent(state, agents2()));
-      return watched ? timelineNode(watched, now, id) : hubNode(now, id);
+      return watched ? timelineNode(watched, now, id2) : hubNode(now, id2);
     },
     onKey: (k) => {
       act(hubKey(state, k, agents2()));
@@ -40953,7 +41252,7 @@ function openAgents(host, focus2) {
     ];
   };
   const stopping = () => state.ask.kind === "confirmStop";
-  function hubNode(now, id) {
+  function hubNode(now, id2) {
     const all8 = agents2();
     const list10 = shownAgents(state, all8);
     const running2 = all8.filter(isRunning).length;
@@ -40995,10 +41294,10 @@ function openAgents(host, focus2) {
         ...steerProps(a2),
         children: a2 ? hubPreview(a2, now, briefFor(host, a2)) : null
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     );
   }
-  function timelineNode(a2, now, id) {
+  function timelineNode(a2, now, id2) {
     const entries2 = agentSteps(a2);
     const ids = stepIds(a2);
     const step = state.view.kind === "timeline" ? state.view.step : void 0;
@@ -41027,11 +41326,11 @@ function openAgents(host, focus2) {
         ...steerProps(a2),
         children: shown3 ? stepPreview(shown3, a2, now, entries2[at2 - 1]?.at, briefFor(host, a2)) : [agentNode(a2, now)]
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     );
   }
   host.open(overlay2);
-  if (focus2?.watch) {
+  if (focus?.watch) {
     act({ type: "watch" });
   }
 }
@@ -41108,26 +41407,26 @@ function hubPreview(a2, now, brief) {
     ] : []
   ];
 }
-function stepItem(e, id, a2) {
+function stepItem(e, id2, a2) {
   if (e.kind === "tool") {
     return {
       // The call's own command over the gateway's compact preview (`git log … + 1 command`).
-      detail: typeof e.call?.command === "string" ? compactCommand(e.call.command) : e.args,
+      detail: typeof e.call?.["command"] === "string" ? compactCommand(e.call["command"]) : e.args,
       ...optional2("dot", e.running && isRunning(a2) ? "accent" : void 0),
       facts: { at: clock2(e.at) },
       icon: hubIconOf(e.name),
-      id,
+      id: id2,
       label: e.name,
       mono: true,
       node: "tool"
     };
   }
   if (e.kind === "kickoff" || e.kind === "assistant") {
-    return { detail: plain3(e.text), facts: { at: clock2(e.at) }, id, label: e.kind === "kickoff" ? "Task" : "Answer", node: e.kind === "kickoff" ? "user" : "assistant" };
+    return { detail: plain3(e.text), facts: { at: clock2(e.at) }, id: id2, label: e.kind === "kickoff" ? "Task" : "Answer", node: e.kind === "kickoff" ? "user" : "assistant" };
   }
   return {
     facts: { at: clock2(e.at) },
-    id,
+    id: id2,
     label: plain3(e.kind === "think" ? `Thinking: ${e.text}` : e.text),
     node: "assistant",
     ...optional2("tone", e.kind === "think" || e.kind === "note" ? "muted" : void 0)
@@ -41201,11 +41500,11 @@ function callNodes(e) {
 function compactCommand(command2) {
   return oneLine2(command2).replace(/^cd\s+\S+\s*&&\s*/, "").replace(/(?:\/[^\s/'"]+){3,}(\/[^\s/'"]+\/[^\s/'"]+)/g, "\u2026$1");
 }
-function plain3(text19) {
-  return oneLine2(text19.replace(/[`*_]+/g, ""));
+function plain3(text18) {
+  return oneLine2(text18.replace(/[`*_]+/g, ""));
 }
-function oneLine2(text19) {
-  return text19.replace(/\s+/g, " ").trim();
+function oneLine2(text18) {
+  return text18.replace(/\s+/g, " ").trim();
 }
 
 // src/core/flash.ts
@@ -41256,11 +41555,11 @@ function jobTone(job) {
 function ownJobs(calls) {
   const ids = /* @__PURE__ */ new Set();
   for (const c of calls) {
-    const r = record2(c.result);
-    const job = record2(r?.["job"]);
-    const id = r?.["job_id"] ?? job?.["job_id"] ?? job?.["id"];
-    if (c.name === "cronjob_manage" && typeof id === "string" && id) {
-      ids.add(id);
+    const r = record(c.result);
+    const job = record(r?.["job"]);
+    const id2 = r?.["job_id"] ?? job?.["job_id"] ?? job?.["id"];
+    if (c.name === "cronjob_manage" && typeof id2 === "string" && id2) {
+      ids.add(id2);
     }
   }
   return ids;
@@ -41296,8 +41595,8 @@ var Cron = class {
     return this.#loaded;
   }
   /** An action is in flight for `id`. */
-  busy(id) {
-    return this.#busy.has(id);
+  busy(id2) {
+    return this.#busy.has(id2);
   }
   /** Polls while the returned release has not run (the Cron tab shows). */
   watch() {
@@ -41308,16 +41607,16 @@ var Cron = class {
     this.#poller.dispose();
   }
   /** Pauses, resumes or removes job `id`; throws the gateway's error. */
-  async act(action, id) {
-    this.#busy.add(id);
+  async act(action, id2) {
+    this.#busy.add(id2);
     this.#host.changed();
     try {
-      const r = await rpc(this.#host.gw, "cron.manage", { action, name: id });
+      const r = await rpc(this.#host.gw, "cron.manage", { action, name: id2 });
       if (r?.success === false || r?.error) {
         throw new Error(r.error || `Could not ${action} the job`);
       }
     } finally {
-      this.#busy.delete(id);
+      this.#busy.delete(id2);
       await this.refresh();
     }
   }
@@ -41341,14 +41640,14 @@ var Cron = class {
 // src/processes/sheet.ts
 var SHEET_TABS = ["running", "all", "cron"];
 function initialSheet(processes, at2) {
-  const focus2 = typeof at2 === "string" ? at2 : void 0;
-  const focused = focus2 ? processes.find((p3) => p3.id === focus2) : void 0;
+  const focus = typeof at2 === "string" ? at2 : void 0;
+  const focused = focus ? processes.find((p3) => p3.id === focus) : void 0;
   const tab2 = typeof at2 === "object" ? at2.tab : focused ? isRunning2(focused) ? "running" : "all" : processes.some(isRunning2) ? "running" : "all";
   return {
     confirm: void 0,
     expanded: false,
     job: void 0,
-    selected: focus2 ?? processes.find(isRunning2)?.id ?? processes[0]?.id,
+    selected: focus ?? processes.find(isRunning2)?.id ?? processes[0]?.id,
     tab: tab2
   };
 }
@@ -41376,11 +41675,11 @@ function reduceSheet(state, action, facts2) {
     case "selectJob":
       return { state: { ...settled2, job: action.id } };
     case "listed":
-      return action.ids.some((id) => id === state.selected) ? { state } : {
+      return action.ids.some((id2) => id2 === state.selected) ? { state } : {
         state: { ...state, selected: action.ids[0], confirm: state.confirm === "one" ? void 0 : state.confirm }
       };
     case "jobsListed":
-      return action.ids.some((id) => id === state.job) ? { state } : {
+      return action.ids.some((id2) => id2 === state.job) ? { state } : {
         state: { ...state, job: action.ids[0], confirm: state.confirm === "job" ? void 0 : state.confirm }
       };
     case "expand":
@@ -41499,10 +41798,10 @@ function openBackground(host, at2) {
   const stopTicking = tickWhileOpen(host, TICK_MS2);
   const close = () => host.close(overlay2);
   const sheetFacts = () => ({
-    busy: (id) => host.cron.busy(id),
+    busy: (id2) => host.cron.busy(id2),
     jobs: host.cron.jobs(),
     processes: procs(),
-    stopping: (id) => host.processes.stopping(id)
+    stopping: (id2) => host.processes.stopping(id2)
   });
   const stopOne = async (p3) => {
     await reportError(host.transcript, async () => {
@@ -41524,9 +41823,9 @@ function openBackground(host, at2) {
     await reportError(host.transcript, () => host.cron.act(action, j.job_id));
     host.changed();
   };
-  const copy = (command2, id) => {
+  const copy = (command2, id2) => {
     copyToClipboard(command2);
-    copied.set(id);
+    copied.set(id2);
   };
   const run8 = (effect) => {
     switch (effect.kind) {
@@ -41557,7 +41856,7 @@ function openBackground(host, at2) {
     host.changed();
   };
   const handlers3 = Object.fromEntries(
-    Object.entries(SHEET_CLICKS).map(([id, action]) => [id, (ev) => click(action(ev))])
+    Object.entries(SHEET_CLICKS).map(([id2, action]) => [id2, (ev) => click(action(ev))])
   );
   const overlay2 = {
     key: KEY3,
@@ -41570,21 +41869,21 @@ function openBackground(host, at2) {
       release();
       releaseCron();
     },
-    node: (id) => sheetNode(Date.now(), id),
+    node: (id2) => sheetNode(Date.now(), id2),
     onKey: (k) => {
       act(sheetKey(state, k, sheetFacts()));
       return true;
     }
   };
-  function sheetNode(now, id) {
-    return state.tab === "cron" ? cronNode(now, id) : processNode(now, id);
+  function sheetNode(now, id2) {
+    return state.tab === "cron" ? cronNode(now, id2) : processNode(now, id2);
   }
   const tabs = () => [
     { count: host.processes.running().length, id: "running", label: "Running" },
     { count: procs().length, id: "all", label: "All" },
     { ...optional2("count", host.cron.loaded ? host.cron.jobs().length : void 0), id: "cron", label: "Cron" }
   ];
-  function cronNode(now, id) {
+  function cronNode(now, id2) {
     const jobs = host.cron.jobs();
     const own14 = ownJobs(host.transcript.calls("cronjob_manage"));
     act({ ids: jobs.map((x) => x.job_id), type: "jobsListed" });
@@ -41628,10 +41927,10 @@ function openBackground(host, at2) {
         total: jobs.length,
         children: j ? jobPreview(j, now, own14.has(j.job_id)) : null
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     );
   }
-  function processNode(now, id) {
+  function processNode(now, id2) {
     const all8 = procs();
     const list10 = shownProcesses(state, all8);
     const running2 = all8.filter(isRunning2).length;
@@ -41684,7 +41983,7 @@ function openBackground(host, at2) {
         total: all8.length,
         children: p3 ? expanded ? outputView(p3, now) : preview(p3, call, now) : null
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     );
   }
   host.open(overlay2);
@@ -41748,8 +42047,8 @@ function jobPreview(j, now, own14) {
     ] : []
   ];
 }
-function callOf(host, id) {
-  return host.transcript.backgroundCalls().find((c) => isBackgroundCall(c) && (processIdOf(c) ?? c.process?.id) === id);
+function callOf(host, id2) {
+  return host.transcript.backgroundCalls().find((c) => isBackgroundCall(c) && (processIdOf(c) ?? c.process?.id) === id2);
 }
 function summary3(all8) {
   return countSummary(all8, [
@@ -41845,8 +42144,8 @@ function openBrowserBlocks(host) {
   let message = caller ? "Loading Tern browser blocks\u2026" : "Native browser unavailable: verified canonical profile identity is missing from this session.";
   let selected;
   let editing;
-  const frame = new Composer();
-  frame.set("main");
+  const frame2 = new Composer();
+  frame2.set("main");
   const live = () => host.session.ref === sessionRef && host.session.ref.live === sid && host.overlays.at(-1) === overlay2;
   const refresh = async () => {
     if (!live() || working || loading) {
@@ -41887,14 +42186,14 @@ function openBrowserBlocks(host) {
   const present = (block) => blocks2.find((item3) => item3.target_id === block.target_id) === block;
   const mayChoose = (block) => !!caller?.current() && available && !working && !loading && (block.owned || block.available && !host.busy);
   const mayModify = (block) => !!caller?.current() && available && block.owned && !working && !loading && !host.busy;
-  const choose = async (block, intent2) => {
-    if (!live() || !caller?.current() || !block || !present(block) || !available || working || intent2 === "frame" && editing !== block || (intent2 === "use" ? !mayChoose(block) : !mayModify(block))) {
+  const choose = async (block, intent3) => {
+    if (!live() || !caller?.current() || !block || !present(block) || !available || working || intent3 === "frame" && editing !== block || (intent3 === "use" ? !mayChoose(block) : !mayModify(block))) {
       return;
     }
     working = true;
     host.changed();
     try {
-      if (intent2 === "release") {
+      if (intent3 === "release") {
         await releaseBrowserBlock(host.gw, caller, block.target_id);
         if (live()) {
           if (editing === block) {
@@ -41903,8 +42202,8 @@ function openBrowserBlocks(host) {
           working = false;
           await refresh();
         }
-      } else if (intent2 === "frame") {
-        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame.text.trim());
+      } else if (intent3 === "frame") {
+        const result = await browserTarget(host.gw, "hermes-tern.browser.frame", caller, block.target_id, frame2.text.trim());
         if (live()) {
           message = `Block ${result.target_id} \xB7 evaluation frame ${result.frame ?? "main"}`;
           if (editing === block) {
@@ -41933,13 +42232,13 @@ function openBrowserBlocks(host) {
       return;
     }
     editing = block;
-    frame.set("main");
+    frame2.set("main");
     host.changed();
   };
   const overlay2 = {
     key: KEY4,
     modal: true,
-    focus: (id) => editing && present(editing) ? `${id}.body.block-${editing.target_id}.frame-form.frame-path` : null,
+    focus: (id2) => editing && present(editing) ? `${id2}.body.block-${editing.target_id}.frame-form.frame-path` : null,
     node: () => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Tern browser blocks", modal: true, role: "omp.overlay.browser", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
       /* @__PURE__ */ jsx("text", { text: "Discovery does not grant control. Hand over an undriven block explicitly; Focus only targets blocks Hermes owns.", wrap: "word" }, "intro"),
       /* @__PURE__ */ jsx("text", { text: "Release keeps adopted pages and closes agent-created pages. Child frames allow evaluation only. Recording, console buffering and annotated captures are unavailable.", wrap: "word" }, "limits"),
@@ -41981,15 +42280,15 @@ function openBrowserBlocks(host) {
             "input",
             {
               aria: "Evaluation frame path",
-              cursor: frame.cursor,
+              cursor: frame2.cursor,
               onEdit: (ev) => {
                 if (live() && present(block) && editing === block && !working) {
-                  frame.edit(ev);
+                  frame2.edit(ev);
                   host.changed();
                 }
               },
               role: "omp.ask.input",
-              text: frame.text
+              text: frame2.text
             },
             "frame-path"
           ),
@@ -42018,7 +42317,7 @@ function openBrowserBlocks(host) {
           editing = void 0;
         } else if (key3.name === "up" || key3.name === "down") {
           selected = moveSelection(key3, blocks2.map((block) => block.target_id), selected) ?? selected;
-        } else if (frame.key(key3) === "submit") {
+        } else if (frame2.key(key3) === "submit") {
           void choose(editing, "frame");
         }
         host.changed();
@@ -42057,9 +42356,9 @@ async function git(cwd, ...args) {
   return stdout;
 }
 var KIND = { A: "added", C: "copied", D: "deleted", M: "modified", R: "renamed", T: "modified" };
-function parseStatus(text19) {
+function parseStatus(text18) {
   const state = { ahead: 0, behind: 0, files: [] };
-  const records2 = text19.split("\0");
+  const records2 = text18.split("\0");
   for (let i = 0; i < records2.length; i++) {
     const line = records2[i] ?? "";
     if (line.startsWith("# branch.head ")) {
@@ -42086,9 +42385,9 @@ function parseStatus(text19) {
   }
   return state;
 }
-function applyNumstat(files, text19) {
-  const byPath = new Map(files.map((f) => [f.path, f]));
-  const records2 = text19.split("\0");
+function applyNumstat(files, text18) {
+  const byPath = new Map(files.map((f2) => [f2.path, f2]));
+  const records2 = text18.split("\0");
   for (let i = 0; i < records2.length; i++) {
     const [add2, del2, ...rest] = (records2[i] ?? "").split("	");
     let path2 = rest.join("	");
@@ -42096,10 +42395,10 @@ function applyNumstat(files, text19) {
       path2 = records2[i + 2] ?? "";
       i += 2;
     }
-    const f = byPath.get(path2);
-    if (f) {
-      f.additions = Number(add2) || 0;
-      f.deletions = Number(del2) || 0;
+    const f2 = byPath.get(path2);
+    if (f2) {
+      f2.additions = Number(add2) || 0;
+      f2.deletions = Number(del2) || 0;
     }
   }
 }
@@ -42109,20 +42408,20 @@ async function gitState(cwd) {
     const state = parseStatus(await git(root7, "status", "--porcelain=2", "--branch", "--untracked-files=all", "-z"));
     const numstat = await git(root7, "diff", "--numstat", "-z", "-M", "HEAD").catch(() => "");
     applyNumstat(state.files, numstat);
-    for (const f of state.files.filter((x) => x.status === "untracked").slice(0, 50)) {
-      const out = await git(root7, "diff", "--no-index", "--numstat", "-z", "--", "/dev/null", f.path).catch((e) => e.stdout ?? "");
-      applyNumstat([f], out);
+    for (const f2 of state.files.filter((x) => x.status === "untracked").slice(0, 50)) {
+      const out = await git(root7, "diff", "--no-index", "--numstat", "-z", "--", "/dev/null", f2.path).catch((e) => e.stdout ?? "");
+      applyNumstat([f2], out);
     }
     return { root: root7, ...state };
   } catch {
     return void 0;
   }
 }
-async function fileDiff(root7, f) {
-  if (f.status === "untracked") {
-    return git(root7, "diff", "--no-index", "--", "/dev/null", f.path).catch((e) => e.stdout ?? "");
+async function fileDiff(root7, f2) {
+  if (f2.status === "untracked") {
+    return git(root7, "diff", "--no-index", "--", "/dev/null", f2.path).catch((e) => e.stdout ?? "");
   }
-  return git(root7, "diff", "-M", "HEAD", "--", ...f.from ? [f.from, f.path] : [f.path]).catch(() => "");
+  return git(root7, "diff", "-M", "HEAD", "--", ...f2.from ? [f2.from, f2.path] : [f2.path]).catch(() => "");
 }
 
 // src/code/review.ts
@@ -42156,10 +42455,10 @@ function reviewHunks(raw2) {
       result.push(current);
     } else if (current && line.startsWith(" ")) {
       flush();
-      const text19 = line.slice(1);
+      const text18 = line.slice(1);
       current.pairs.push({
-        old: { change: "context", line: oldLine++, text: text19 },
-        next: { change: "context", line: newLine++, text: text19 }
+        old: { change: "context", line: oldLine++, text: text18 },
+        next: { change: "context", line: newLine++, text: text18 }
       });
     } else if (current && line.startsWith("-")) {
       removed.push({ change: "removed", line: oldLine++, text: line.slice(1) });
@@ -42201,9 +42500,9 @@ function splitView(hunk, index2, language) {
     ] }, "sides")
   ] }, "hunk-" + index2);
 }
-function openCodeReview(host, source3, focus2) {
+function openCodeReview(host, source2, focus) {
   const control = host.control();
-  let selected = source3.files.some((file3) => file3.path === focus2) ? focus2 : source3.files[0]?.path;
+  let selected = source2.files.some((file3) => file3.path === focus) ? focus : source2.files[0]?.path;
   let targetIndex = 0;
   let editing = false;
   let version2 = 0;
@@ -42211,10 +42510,10 @@ function openCodeReview(host, source3, focus2) {
   const note = new Composer();
   const active2 = () => !closed && !control.stale() && host.overlays.at(-1) === overlay2;
   const current = (stamp) => active2() && stamp === version2;
-  const file2 = () => source3.files.find((item3) => item3.path === selected);
-  const targets = () => reviewTargets(reviewHunks(selected ? source3.diffs.get(selected) ?? "" : ""));
+  const file2 = () => source2.files.find((item3) => item3.path === selected);
+  const targets = () => reviewTargets(reviewHunks(selected ? source2.diffs.get(selected) ?? "" : ""));
   const choose = (path2, stamp) => {
-    if (!current(stamp) || selected === path2 || !source3.files.some((item3) => item3.path === path2)) return;
+    if (!current(stamp) || selected === path2 || !source2.files.some((item3) => item3.path === path2)) return;
     selected = path2;
     targetIndex = 0;
     editing = false;
@@ -42243,17 +42542,17 @@ function openCodeReview(host, source3, focus2) {
     if (!current(stamp) || !editing) return;
     const target2 = targets()[targetIndex];
     const picked = file2();
-    const text19 = note.text.trim();
-    if (!target2 || !picked || !text19) return;
-    control.draft(picked.path + ":" + target2.line + ": " + text19);
+    const text18 = note.text.trim();
+    if (!target2 || !picked || !text18) return;
+    control.draft(picked.path + ":" + target2.line + ": " + text18);
     host.close(overlay2);
-    host.close(source3.parent);
+    host.close(source2.parent);
   };
-  const render4 = (id) => {
+  const render4 = (id2) => {
     const stamp = version2;
     const picked = file2();
-    if (picked) source3.load(picked);
-    const diff2 = picked ? source3.diffs.get(picked.path) : void 0;
+    if (picked) source2.load(picked);
+    const diff2 = picked ? source2.diffs.get(picked.path) : void 0;
     const hunks2 = diff2 ? reviewHunks(diff2) : [];
     const anchors = reviewTargets(hunks2);
     const target2 = anchors[targetIndex];
@@ -42264,7 +42563,7 @@ function openCodeReview(host, source3, focus2) {
       /* @__PURE__ */ jsxs("row", { gap: "md", role: "omp.review.layout", children: [
         /* @__PURE__ */ jsxs("col", { gap: "xs", min: { w: 18 }, role: "omp.review.files", children: [
           /* @__PURE__ */ jsx("text", { text: "Files" }, "heading"),
-          source3.files.map((item3, index2) => pressable(
+          source2.files.map((item3, index2) => pressable(
             { key: "file-" + index2, name: "Review " + item3.path, onClick: () => choose(item3.path, stamp) },
             /* @__PURE__ */ jsx("row", { gap: "xs", ...optional2("mark", selected === item3.path ? "pick" : void 0), role: "omp.review.file", children: /* @__PURE__ */ jsx("text", { text: item3.path, wrap: "word" }, "path") }, "face")
           ))
@@ -42307,12 +42606,12 @@ function openCodeReview(host, source3, focus2) {
           ])
         ] }, "detail")
       ] }, "layout")
-    ] }, "body") }, nativeOverlayKey(id));
+    ] }, "body") }, nativeOverlayKey(id2));
   };
   const overlay2 = {
     key: "code-review",
     modal: true,
-    focus: (id) => editing ? id + ".body.layout.detail.editor.note-input" : null,
+    focus: (id2) => editing ? id2 + ".body.layout.detail.editor.note-input" : null,
     node: render4,
     onClose: () => {
       closed = true;
@@ -42330,9 +42629,9 @@ function openCodeReview(host, source3, focus2) {
         return true;
       }
       if (!key3.ctrl && !key3.alt && !key3.meta && (key3.name === "j" || key3.name === "k")) {
-        const index2 = source3.files.findIndex((item4) => item4.path === selected);
-        const next2 = Math.max(0, Math.min(source3.files.length - 1, index2 + (key3.name === "j" ? 1 : -1)));
-        const item3 = source3.files[next2];
+        const index2 = source2.files.findIndex((item4) => item4.path === selected);
+        const next2 = Math.max(0, Math.min(source2.files.length - 1, index2 + (key3.name === "j" ? 1 : -1)));
+        const item3 = source2.files[next2];
         if (item3) choose(item3.path, version2);
       } else if (!key3.ctrl && !key3.alt && !key3.meta && (key3.name === "up" || key3.name === "down")) {
         const count5 = targets().length;
@@ -42360,9 +42659,9 @@ var TONE = {
   renamed: "info",
   untracked: "success"
 };
-function openChanges(host, focus2) {
+function openChanges(host, focus) {
   let state = host.sidebar.state;
-  let selected = focus2;
+  let selected = focus;
   let failed = false;
   const diffs = /* @__PURE__ */ new Map();
   const read = async () => {
@@ -42372,19 +42671,19 @@ function openChanges(host, focus2) {
     diffs.clear();
     host.changed();
   };
-  const load2 = (f) => {
-    if (!f || !state || diffs.has(f.path)) {
+  const load2 = (f2) => {
+    if (!f2 || !state || diffs.has(f2.path)) {
       return;
     }
-    diffs.set(f.path, null);
-    void fileDiff(state.root, f).then((text19) => {
-      diffs.set(f.path, text19);
+    diffs.set(f2.path, null);
+    void fileDiff(state.root, f2).then((text18) => {
+      diffs.set(f2.path, text18);
       host.changed();
     });
   };
   void read();
   const files = () => state?.files ?? [];
-  const current = () => files().find((f) => f.path === selected);
+  const current = () => files().find((f2) => f2.path === selected);
   const review = () => {
     const picked = current();
     if (state && picked) {
@@ -42394,7 +42693,7 @@ function openChanges(host, focus2) {
   const overlay2 = {
     key: KEY5,
     modal: true,
-    node: (id) => sheetNode(id),
+    node: (id2) => sheetNode(id2),
     onKey: (k) => {
       const file2 = current();
       if (k.name === "escape") {
@@ -42408,29 +42707,29 @@ function openChanges(host, focus2) {
       } else {
         selected = moveSelection(
           k,
-          files().map((f) => f.path),
+          files().map((f2) => f2.path),
           selected
         ) ?? selected;
       }
       return true;
     }
   };
-  function sheetNode(id) {
+  function sheetNode(id2) {
     const list10 = files();
-    if (!list10.some((f2) => f2.path === selected)) {
+    if (!list10.some((f3) => f3.path === selected)) {
       selected = list10[0]?.path;
     }
-    const f = current();
-    load2(f);
-    const diff2 = f ? diffs.get(f.path) : void 0;
+    const f2 = current();
+    load2(f2);
+    const diff2 = f2 ? diffs.get(f2.path) : void 0;
     const added = list10.reduce((n3, x) => n3 + x.additions, 0);
     const removed = list10.reduce((n3, x) => n3 + x.deletions, 0);
     return /* @__PURE__ */ jsx(
       "picker",
       {
         actions: [
-          { ...optional2("disabled", f ? void 0 : "No file"), id: "copy", keys: ["c"], label: "Copy path" },
-          { ...optional2("disabled", f ? void 0 : "No file"), id: "review", keys: ["v"], label: "Review split" },
+          { ...optional2("disabled", f2 ? void 0 : "No file"), id: "copy", keys: ["c"], label: "Copy path" },
+          { ...optional2("disabled", f2 ? void 0 : "No file"), id: "review", keys: ["v"], label: "Review split" },
           { id: "refresh", keys: ["shift+r"], label: "Refresh" },
           { end: true, id: "close", keys: ["esc"], label: "Close", primary: true }
         ],
@@ -42441,7 +42740,7 @@ function openChanges(host, focus2) {
         noun: "files",
         onAction: {
           close: () => host.close(overlay2),
-          copy: () => f && copyToClipboard(f.path),
+          copy: () => f2 && copyToClipboard(f2.path),
           refresh: () => void read(),
           review
         },
@@ -42462,34 +42761,34 @@ function openChanges(host, focus2) {
         ],
         title: "Changes",
         total: list10.length,
-        children: f ? diffView(f, diff2) : null
+        children: f2 ? diffView(f2, diff2) : null
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     );
   }
   host.open(overlay2);
 }
-function item2(f) {
+function item2(f2) {
   return {
     badges: [
-      ...f.status !== "modified" ? [{ text: f.status, ...optional2("tone", TONE[f.status]) }] : [],
-      ...f.staged ? [{ text: "staged" }] : []
+      ...f2.status !== "modified" ? [{ text: f2.status, ...optional2("tone", TONE[f2.status]) }] : [],
+      ...f2.staged ? [{ text: "staged" }] : []
     ],
-    ...optional2("detail", f.from ? `from ${f.from}` : void 0),
-    facts: { changes: [{ s: "success", t: `+${f.additions}` }, { t: " " }, { s: "error", t: `\u2212${f.deletions}` }] },
-    id: f.path,
-    label: f.path,
+    ...optional2("detail", f2.from ? `from ${f2.from}` : void 0),
+    facts: { changes: [{ s: "success", t: `+${f2.additions}` }, { t: " " }, { s: "error", t: `\u2212${f2.deletions}` }] },
+    id: f2.path,
+    label: f2.path,
     mono: true
   };
 }
-function diffView(f, diff2) {
+function diffView(f2, diff2) {
   if (diff2 === void 0 || diff2 === null) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Reading the diff\u2026" }] }, "wait")];
   }
   if (!diff2.trim()) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "No line changed (a mode or a rename only)." }] }, "none")];
   }
-  return /^Binary files /m.test(diff2) ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary file." }] }, "bin")] : [/* @__PURE__ */ jsx("diff", { path: f.path, text: diff2 }, `d:${f.path}`)];
+  return /^Binary files /m.test(diff2) ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary file." }] }, "bin")] : [/* @__PURE__ */ jsx("diff", { path: f2.path, text: diff2 }, `d:${f2.path}`)];
 }
 
 // src/modelCaps.ts
@@ -42542,10 +42841,10 @@ function levelsFor(caps2) {
 }
 function nextEffort(current, caps2) {
   const offered = new Set(levelsFor(caps2).map((l) => l.id));
-  const cycle = CYCLE.filter((id) => offered.has(id));
-  const rank2 = (id) => LEVELS.findIndex((l) => l.id === id);
+  const cycle = CYCLE.filter((id2) => offered.has(id2));
+  const rank2 = (id2) => LEVELS.findIndex((l) => l.id === id2);
   const at2 = rank2(current || DEFAULT_EFFORT);
-  return cycle.find((id) => rank2(id) > at2) ?? cycle[0];
+  return cycle.find((id2) => rank2(id2) > at2) ?? cycle[0];
 }
 function effortText(effort2, wire) {
   const shown3 = effort2 === "none" ? "off" : effort2 || DEFAULT_EFFORT;
@@ -42614,17 +42913,17 @@ function openEffortPicker(host, global2 = false) {
       host.changed();
     });
   }
-  const pick2 = async (id) => {
-    if (!id || !levels.some((l) => l.id === id)) {
+  const pick2 = async (id2) => {
+    if (!id2 || !levels.some((l) => l.id === id2)) {
       return;
     }
     host.close(overlay2);
-    await host.setEffort(id, saveDefault ? "global" : "session");
+    await host.setEffort(id2, saveDefault ? "global" : "session");
   };
   const overlay2 = {
     key: KEY6,
     modal: true,
-    node: (id) => /* @__PURE__ */ jsx(
+    node: (id2) => /* @__PURE__ */ jsx(
       "picker",
       {
         actions: [
@@ -42668,7 +42967,7 @@ function openEffortPicker(host, global2 = false) {
         ],
         title: "Reasoning effort"
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     ),
     onKey: (k) => {
       if (k.name === "escape") {
@@ -42698,15 +42997,15 @@ var MODEL_SEARCH_ALIASES = {
   "x-preview-f-free": ["ox-alpha", "ox"]
 };
 function modelSearchText(model) {
-  const id = model.trim();
-  if (!id) {
+  const id2 = model.trim();
+  if (!id2) {
     return model;
   }
-  const aliases2 = MODEL_SEARCH_ALIASES[id.toLowerCase()];
+  const aliases2 = MODEL_SEARCH_ALIASES[id2.toLowerCase()];
   if (!aliases2?.length) {
-    return id;
+    return id2;
   }
-  return `${id} ${aliases2.join(" ")}`;
+  return `${id2} ${aliases2.join(" ")}`;
 }
 
 // node_modules/@hermes/shared/src/provider-names.ts
@@ -42904,8 +43203,8 @@ function openModelPicker(host) {
     }
     host.changed();
   };
-  const choose = async (id, confirmed2 = false) => {
-    const row2 = rows.find((r) => r.id === id);
+  const choose = async (id2, confirmed2 = false) => {
+    const row2 = rows.find((r) => r.id === id2);
     if (!row2 || busy) {
       return;
     }
@@ -42966,7 +43265,7 @@ function openModelPicker(host) {
   const overlay2 = {
     key: KEY7,
     modal: true,
-    node: (id) => {
+    node: (id2) => {
       const { hits, order: order2 } = view();
       const priced = rows.some((r) => r.provider.pricing?.[r.model]);
       const columns = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
@@ -43054,7 +43353,7 @@ function openModelPicker(host) {
           total: rows.length,
           children: row2 ? preview2(row2, row2.id === current) : null
         },
-        nativeOverlayKey(id)
+        nativeOverlayKey(id2)
       );
     },
     onKey: (k) => {
@@ -43317,17 +43616,17 @@ function planStatusOf(value) {
     return void 0;
   }
   const rawPlan = value["plan"];
-  let plan = null;
+  let plan2 = null;
   if (rawPlan !== null) {
     if (!isRecord2(rawPlan)) {
       return void 0;
     }
-    const id = rawPlan["id"];
+    const id2 = rawPlan["id"];
     const revision = rawPlan["revision"];
-    const text19 = rawPlan["text"];
+    const text18 = rawPlan["text"];
     const decision = rawPlan["decision"];
     const rawNotes = rawPlan["annotations"];
-    if (typeof id !== "string" || !id || typeof revision !== "number" || !Number.isSafeInteger(revision) || revision < 1 || typeof text19 !== "string" || decision !== "pending" && decision !== "approved" && decision !== "refined" || !Array.isArray(rawNotes)) {
+    if (typeof id2 !== "string" || !id2 || typeof revision !== "number" || !Number.isSafeInteger(revision) || revision < 1 || typeof text18 !== "string" || decision !== "pending" && decision !== "approved" && decision !== "refined" || !Array.isArray(rawNotes)) {
       return void 0;
     }
     const annotations = [];
@@ -43342,18 +43641,18 @@ function planStatusOf(value) {
       }
       annotations.push({ section, text: noteText });
     }
-    plan = { annotations, decision, id, revision, text: text19 };
+    plan2 = { annotations, decision, id: id2, revision, text: text18 };
   }
-  return { enabled: value["enabled"], generating: value["generating"], plan };
+  return { enabled: value["enabled"], generating: value["generating"], plan: plan2 };
 }
-function reviewPlanText(text19) {
-  return parsePlan(text19) ?? { preamble: "", sections: [{ level: 1, text: text19, title: "Plan" }], text: text19 };
+function reviewPlanText(text18) {
+  return parsePlan(text18) ?? { preamble: "", sections: [{ level: 1, text: text18, title: "Plan" }], text: text18 };
 }
-function parsePlan(text19) {
+function parsePlan(text18) {
   const headings = [];
   let fence;
   let offset = 0;
-  for (const line of text19.split("\n")) {
+  for (const line of text18.split("\n")) {
     const marker = line.match(/^ {0,3}((?:\x60{3,}|~{3,}))(.*)$/);
     if (fence) {
       if (marker && marker[1]?.[0] === fence.marker && (marker[1]?.length ?? 0) >= fence.length && !marker[2]?.trim()) {
@@ -43377,13 +43676,13 @@ function parsePlan(text19) {
     return void 0;
   }
   return {
-    preamble: text19.slice(0, headings[0]?.offset ?? 0),
+    preamble: text18.slice(0, headings[0]?.offset ?? 0),
     sections: headings.map((heading5, index2) => ({
       level: heading5.level,
-      text: text19.slice(heading5.offset, headings[index2 + 1]?.offset ?? text19.length),
+      text: text18.slice(heading5.offset, headings[index2 + 1]?.offset ?? text18.length),
       title: heading5.title
     })),
-    text: text19
+    text: text18
   };
 }
 function latestPlan(entries2) {
@@ -43392,11 +43691,11 @@ function latestPlan(entries2) {
     if (entry?.kind !== "turn" || entry.end.status !== "done") {
       continue;
     }
-    const plan = parsePlan(
+    const plan2 = parsePlan(
       entry.blocks.filter((block) => block.kind === "text").map((block) => block.text).join("\n\n")
     );
-    if (plan) {
-      return plan;
+    if (plan2) {
+      return plan2;
     }
   }
   return void 0;
@@ -43406,7 +43705,7 @@ function latestPlan(entries2) {
 import { spawnSync as spawnSync2 } from "node:child_process";
 import { mkdtemp as mkdtemp2, readFile as readFile3, rm as rm3, writeFile as writeFile3 } from "node:fs/promises";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join8 } from "node:path";
+import { join as join9 } from "node:path";
 var openPlanFile = (path2) => {
   const inTern = Boolean(process.env["TERN_WINDOW_KEY"]);
   const command2 = (process.env["VISUAL"] || process.env["EDITOR"] || "vi").trim().split(/\s+/);
@@ -43430,9 +43729,9 @@ var openPlanFile = (path2) => {
   }
 };
 async function editPlanExternal(initial, opener = openPlanFile) {
-  const dir2 = await mkdtemp2(join8(tmpdir2(), "hermes-plan-"));
+  const dir2 = await mkdtemp2(join9(tmpdir2(), "hermes-plan-"));
   try {
-    const path2 = join8(dir2, "plan.md");
+    const path2 = join9(dir2, "plan.md");
     await writeFile3(path2, initial, { mode: 384 });
     await opener(path2);
     return await readFile3(path2, "utf8");
@@ -43489,7 +43788,7 @@ function openPlanReview(host) {
     host.notice("Close the current question before opening plan review.", "warning");
     return;
   }
-  let plan = latestPlan(host.transcript.entries);
+  let plan2 = latestPlan(host.transcript.entries);
   let status;
   let planRpc;
   let loading = true;
@@ -43512,7 +43811,7 @@ function openPlanReview(host) {
   };
   const current = (stamp, expected) => active2() && stamp === version2 && (expected ? same(expected) : target2() === void 0);
   const canDecide = () => Boolean(status?.enabled && status.plan?.decision === "pending" && !status.generating && !host.busy && !busy && !submitted);
-  const canOrdinary = () => Boolean(plan && !loading && !status?.enabled && !status?.plan && !status?.generating && !busy && !submitted);
+  const canOrdinary = () => Boolean(plan2 && !loading && !status?.enabled && !status?.plan && !status?.generating && !busy && !submitted);
   const requestPlan = (method, params) => {
     if (!planRpc) {
       return Promise.reject(new Error("Plan authority is unavailable."));
@@ -43524,8 +43823,8 @@ function openPlanReview(host) {
       host.close(overlay2);
     }
   };
-  const decideOrdinary = (text19, stamp, expected) => {
-    if (!current(stamp, expected) || !canOrdinary() || !text19.trim()) {
+  const decideOrdinary = (text18, stamp, expected) => {
+    if (!current(stamp, expected) || !canOrdinary() || !text18.trim()) {
       return;
     }
     const control = host.control();
@@ -43535,9 +43834,9 @@ function openPlanReview(host) {
     submitted = true;
     host.close(overlay2);
     if (control.busy || host.busy || control.queued > 0) {
-      control.enqueue(text19);
+      control.enqueue(text18);
     } else {
-      control.send(text19);
+      control.send(text18);
     }
   };
   const update4 = (next2) => {
@@ -43546,9 +43845,9 @@ function openPlanReview(host) {
       throw new Error("The gateway returned an invalid plan status. No plan change was assumed.");
     }
     status = verified;
-    plan = verified.plan ? reviewPlanText(verified.plan.text) : latestPlan(host.transcript.entries);
+    plan2 = verified.plan ? reviewPlanText(verified.plan.text) : latestPlan(host.transcript.entries);
     version2++;
-    selected = Math.min(selected, Math.max(0, (plan?.sections.length ?? 1) - 1));
+    selected = Math.min(selected, Math.max(0, (plan2?.sections.length ?? 1) - 1));
     editing = void 0;
     note.set("");
   };
@@ -43581,7 +43880,7 @@ function openPlanReview(host) {
     }
   };
   const choose = (index2, stamp, expected) => {
-    if (!current(stamp, expected) || !plan?.sections[index2] || editing) {
+    if (!current(stamp, expected) || !plan2?.sections[index2] || editing) {
       return;
     }
     selected = index2;
@@ -43590,14 +43889,14 @@ function openPlanReview(host) {
     host.scroll(root7 + ".body.markdown", "start");
   };
   const startEdit = (kind, stamp, expected) => {
-    if (!current(stamp, expected) || !plan || !(canDecide() || kind === "refine" && canOrdinary())) {
+    if (!current(stamp, expected) || !plan2 || !(canDecide() || kind === "refine" && canOrdinary())) {
       return;
     }
     version2++;
     editing = kind;
     editingSection = selected;
     note.set(
-      kind === "plan" ? plan.text : kind === "annotation" ? status?.plan?.annotations.find((a2) => a2.section === selected)?.text ?? "" : ""
+      kind === "plan" ? plan2.text : kind === "annotation" ? status?.plan?.annotations.find((a2) => a2.section === selected)?.text ?? "" : ""
     );
     error = "";
     host.changed();
@@ -43606,10 +43905,10 @@ function openPlanReview(host) {
     if (!current(stamp, revision) || !editing) {
       return;
     }
-    const text19 = note.text.trim();
+    const text18 = note.text.trim();
     if (!revision) {
-      if (editing === "refine" && canOrdinary() && text19) {
-        decideOrdinary("Refine the plan: " + text19, stamp, revision);
+      if (editing === "refine" && canOrdinary() && text18) {
+        decideOrdinary("Refine the plan: " + text18, stamp, revision);
       }
       return;
     }
@@ -43617,7 +43916,7 @@ function openPlanReview(host) {
       return;
     }
     if (editing === "annotation") {
-      if (text19.length > 16e3) {
+      if (text18.length > 16e3) {
         error = "A section note must be at most 16,000 characters.";
         host.changed();
         return;
@@ -43625,24 +43924,24 @@ function openPlanReview(host) {
       void transact(() => requestPlan("annotate", {
         ...revision,
         section: editingSection,
-        text: text19
+        text: text18
       }));
     } else if (editing === "plan") {
-      if (!text19 || note.text.length > 2e5) {
+      if (!text18 || note.text.length > 2e5) {
         error = "The plan revision must contain 1 to 200,000 characters.";
         host.changed();
         return;
       }
       void transact(() => requestPlan("edit", { ...revision, text: note.text }));
     } else {
-      if (text19.length > 16e3) {
+      if (text18.length > 16e3) {
         error = "Refinement feedback must be at most 16,000 characters.";
         host.changed();
         return;
       }
-      if (text19 || status?.plan?.annotations.length) {
+      if (text18 || status?.plan?.annotations.length) {
         void transact(
-          () => requestPlan("decide", { ...revision, feedback: text19, intent: "refine" }),
+          () => requestPlan("decide", { ...revision, feedback: text18, intent: "refine" }),
           true
         );
       }
@@ -43676,23 +43975,23 @@ function openPlanReview(host) {
       return;
     }
     void transact(async () => {
-      const text19 = await editPlanExternal(initial);
+      const text18 = await editPlanExternal(initial);
       if (!current(stamp, revision) || !same(revision)) {
         throw new Error("Plan review was preempted or revised; external edit was discarded.");
       }
-      if (!text19.trim() || text19.length > 2e5) {
+      if (!text18.trim() || text18.length > 2e5) {
         throw new Error("The edited plan must contain 1 to 200,000 characters.");
       }
-      return requestPlan("edit", { ...revision, text: text19 });
+      return requestPlan("edit", { ...revision, text: text18 });
     });
   };
-  const render4 = (id) => {
-    root7 = id;
+  const render4 = (id2) => {
+    root7 = id2;
     const revision = target2();
     const stamp = version2;
     const allowed = canDecide();
     const ordinary = canOrdinary();
-    const section = plan?.sections[selected];
+    const section = plan2?.sections[selected];
     const annotations = status?.plan?.annotations.filter((item3) => item3.section === selected) ?? [];
     const actions = [];
     if (editing) {
@@ -43705,7 +44004,7 @@ function openPlanReview(host) {
         host.changed();
       } });
       actions.push({ key: "save", label: editing === "refine" ? "Send refinement" : "Save revision", onClick: () => write(revision, stamp) });
-    } else if (plan && (allowed || ordinary)) {
+    } else if (plan2 && (allowed || ordinary)) {
       actions.push({
         key: "approve",
         label: allowed && revision ? "Approve exact revision (no execution)" : "Continue (ordinary prompt)",
@@ -43728,14 +44027,14 @@ function openPlanReview(host) {
         label: status.enabled ? "Disable plan mode" : "Enable plan mode",
         onClick: () => toggleMode(stamp, revision)
       }) : null,
-      allowed && plan && revision ? /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.plan.tools", children: [
+      allowed && plan2 && revision ? /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.plan.tools", children: [
         button({ key: "annotate", label: "Annotate section", onClick: () => startEdit("annotation", stamp, revision) }),
         button({ key: "edit-plan", label: "Edit plan", onClick: () => startEdit("plan", stamp, revision) }),
-        button({ key: "external-editor", label: "Edit in $EDITOR", onClick: () => externalEdit(revision, plan?.text, stamp) })
+        button({ key: "external-editor", label: "Edit in $EDITOR", onClick: () => externalEdit(revision, plan2?.text, stamp) })
       ] }, "tools") : null,
-      !editing && plan ? /* @__PURE__ */ jsxs("col", { gap: "xs", role: "omp.plan.contents", children: [
-        /* @__PURE__ */ jsx("text", { text: "Section " + (selected + 1) + "/" + plan.sections.length + " \xB7 Up/Down to jump" }, "hint"),
-        plan.sections.map((part, index2) => button({
+      !editing && plan2 ? /* @__PURE__ */ jsxs("col", { gap: "xs", role: "omp.plan.contents", children: [
+        /* @__PURE__ */ jsx("text", { text: "Section " + (selected + 1) + "/" + plan2.sections.length + " \xB7 Up/Down to jump" }, "hint"),
+        plan2.sections.map((part, index2) => button({
           key: "section-" + index2,
           label: "  ".repeat(Math.max(0, part.level - 1)) + part.title,
           onClick: () => choose(index2, stamp, revision)
@@ -43777,18 +44076,18 @@ function openPlanReview(host) {
         "md",
         {
           role: "omp.plan.body",
-          text: plan ? (selected === 0 ? plan.preamble : "") + (section?.text ?? "") : status?.generating ? "Hermes is still generating this plan." : "No completed assistant plan found. Ask Hermes to make a plan first."
+          text: plan2 ? (selected === 0 ? plan2.preamble : "") + (section?.text ?? "") : status?.generating ? "Hermes is still generating this plan." : "No completed assistant plan found. Ask Hermes to make a plan first."
         },
         "markdown"
       ),
       actionsRow(actions)
-    ] }, "body") }, nativeOverlayKey(id));
+    ] }, "body") }, nativeOverlayKey(id2));
   };
   const overlay2 = {
     key: "plan",
     modal: true,
     cancel: close,
-    focus: (id) => editing ? id + ".body.edit.note" : null,
+    focus: (id2) => editing ? id2 + ".body.edit.note" : null,
     node: render4,
     onClose: () => {
       closed = true;
@@ -43888,55 +44187,55 @@ function batchQuery(refs3) {
   });
   return { query: `query(${decls.join(", ")}) { ${parts3.join("\n")} }`, variables };
 }
-var batchAnswers = _catch(record(string2(), unknown()), {});
-var text6 = _catch(string2(), "");
+var batchAnswers = _catch(record2(string2(), unknown()), {});
+var text4 = _catch(string2(), "");
 var count2 = _catch(number2(), 0);
 var flag = _catch(boolean2(), false);
 var orEmpty = (schema2) => _catch(schema2, () => schema2.parse({}));
 var nodesOf = (node3) => pipe(_catch(object({ nodes: _catch(array(unknown()), []) }), { nodes: [] }), transform((c) => rowsOf(node3, c.nodes)));
-var actor = orEmpty(object({ login: text6 }));
+var actor = orEmpty(object({ login: text4 }));
 var checkNode = object({
-  __typename: text6,
-  context: text6,
-  state: text6,
-  targetUrl: text6,
-  description: text6,
-  createdAt: text6,
-  name: text6,
-  status: text6,
-  conclusion: text6,
-  startedAt: text6,
-  completedAt: text6,
-  detailsUrl: text6,
-  checkSuite: orEmpty(object({ workflowRun: orEmpty(object({ workflow: orEmpty(object({ name: text6 })) })) }))
+  __typename: text4,
+  context: text4,
+  state: text4,
+  targetUrl: text4,
+  description: text4,
+  createdAt: text4,
+  name: text4,
+  status: text4,
+  conclusion: text4,
+  startedAt: text4,
+  completedAt: text4,
+  detailsUrl: text4,
+  checkSuite: orEmpty(object({ workflowRun: orEmpty(object({ workflow: orEmpty(object({ name: text4 })) })) }))
 });
 var prNode = object({
-  id: text6,
-  title: text6,
-  url: text6,
-  body: text6,
-  state: text6,
+  id: text4,
+  title: text4,
+  url: text4,
+  body: text4,
+  state: text4,
   isDraft: flag,
-  mergeable: text6,
-  mergeStateStatus: text6,
-  reviewDecision: text6,
+  mergeable: text4,
+  mergeStateStatus: text4,
+  reviewDecision: text4,
   additions: count2,
   deletions: count2,
   changedFiles: count2,
-  createdAt: text6,
-  updatedAt: text6,
-  mergedAt: text6,
-  closedAt: text6,
-  headRefName: text6,
-  baseRefName: text6,
-  headRefOid: text6,
+  createdAt: text4,
+  updatedAt: text4,
+  mergedAt: text4,
+  closedAt: text4,
+  headRefName: text4,
+  baseRefName: text4,
+  headRefOid: text4,
   viewerCanUpdate: flag,
   author: actor,
-  autoMergeRequest: orEmpty(object({ mergeMethod: text6 })),
+  autoMergeRequest: orEmpty(object({ mergeMethod: text4 })),
   baseRef: orEmpty(object({ compare: orEmpty(object({ behindBy: _catch(nullable(number2()), null) })) })),
-  labels: nodesOf(object({ name: text6 })),
-  reviewRequests: nodesOf(object({ requestedReviewer: orEmpty(object({ login: text6, name: text6 })) })),
-  latestReviews: nodesOf(object({ author: actor, state: text6 })),
+  labels: nodesOf(object({ name: text4 })),
+  reviewRequests: nodesOf(object({ requestedReviewer: orEmpty(object({ login: text4, name: text4 })) })),
+  latestReviews: nodesOf(object({ author: actor, state: text4 })),
   commits: nodesOf(object({ commit: orEmpty(object({ statusCheckRollup: orEmpty(object({ contexts: nodesOf(checkNode) })) })) }))
 });
 var repoNode = object({
@@ -44100,24 +44399,24 @@ var ACTIVITY_QUERY = `query($o: String!, $r: String!, $n: Int!) {
       comments(first: 20) { nodes { author { login } body createdAt url } } } }
     commits(last: 30) { nodes { commit { oid messageHeadline committedDate url author { name user { login } } } } }
   } } }`;
-var commentNode = object({ author: actor, body: text6, createdAt: text6, url: text6 });
+var commentNode = object({ author: actor, body: text4, createdAt: text4, url: text4 });
 var activityAnswer = object({
   repository: object({
     pullRequest: object({
       comments: nodesOf(commentNode),
-      reviews: nodesOf(object({ author: actor, state: text6, body: text6, submittedAt: text6, url: text6 })),
+      reviews: nodesOf(object({ author: actor, state: text4, body: text4, submittedAt: text4, url: text4 })),
       reviewThreads: nodesOf(
         object({
           isResolved: flag,
           isOutdated: flag,
-          path: text6,
+          path: text4,
           line: _catch(nullable(number2()), null),
           comments: nodesOf(commentNode)
         })
       ),
       commits: nodesOf(
         object({
-          commit: orEmpty(object({ messageHeadline: text6, committedDate: text6, url: text6, author: orEmpty(object({ name: text6, user: actor })) }))
+          commit: orEmpty(object({ messageHeadline: text4, committedDate: text4, url: text4, author: orEmpty(object({ name: text4, user: actor })) }))
         })
       )
     })
@@ -44160,7 +44459,7 @@ function parseActivity(data) {
   ];
   return items.sort((a2, b) => Date.parse(a2.at) - Date.parse(b.at));
 }
-var fileRow = object({ filename: text6, previous_filename: text6, status: text6, additions: count2, deletions: count2, patch: text6 });
+var fileRow = object({ filename: text4, previous_filename: text4, status: text4, additions: count2, deletions: count2, patch: text4 });
 function parseFiles(rows) {
   return rowsOf(fileRow, Array.isArray(rows) ? rows : []).map((r) => ({
     additions: r.additions,
@@ -44174,9 +44473,9 @@ function parseFiles(rows) {
 function failedRuns(checks2) {
   const ids = /* @__PURE__ */ new Set();
   for (const c of checks2) {
-    const id = c.status === "failure" || c.status === "cancelled" ? c.url?.match(/\/actions\/runs\/(\d+)/)?.[1] : void 0;
-    if (id) {
-      ids.add(Number(id));
+    const id2 = c.status === "failure" || c.status === "cancelled" ? c.url?.match(/\/actions\/runs\/(\d+)/)?.[1] : void 0;
+    if (id2) {
+      ids.add(Number(id2));
     }
   }
   return [...ids];
@@ -44325,8 +44624,8 @@ var deserializer = ($3, _2) => {
       case DATE:
         return as(new Date(value), index2);
       case REGEXP: {
-        const { source: source3, flags } = value;
-        return as(new RegExp(source3, flags), index2);
+        const { source: source2, flags } = value;
+        return as(new RegExp(source2, flags), index2);
       }
       case MAP: {
         const map4 = as(/* @__PURE__ */ new Map(), index2);
@@ -44471,8 +44770,8 @@ var serializer = (strict, json, $3, _2) => {
       case DATE:
         return as([TYPE, isNaN(value.getTime()) ? EMPTY3 : value.toISOString()], value);
       case REGEXP: {
-        const { source: source3, flags } = value;
-        return as([TYPE, { source: source3, flags }], value);
+        const { source: source2, flags } = value;
+        return as([TYPE, { source: source2, flags }], value);
       }
       case MAP: {
         const entries2 = [];
@@ -45078,8 +45377,8 @@ function visitParents(tree, test, visitor, reverse) {
   }
   const is5 = convert2(check2);
   const step = reverse ? -1 : 1;
-  factory(tree, void 0, [])();
-  function factory(node3, index2, parents) {
+  factory2(tree, void 0, [])();
+  function factory2(node3, index2, parents) {
     const value = (
       /** @type {Record<string, unknown>} */
       node3 && typeof node3 === "object" ? node3 : {}
@@ -45118,7 +45417,7 @@ function visitParents(tree, test, visitor, reverse) {
           grandparents = parents.concat(nodeAsParent);
           while (offset > -1 && offset < nodeAsParent.children.length) {
             const child = nodeAsParent.children[offset];
-            subresult = factory(child, offset, grandparents)();
+            subresult = factory2(child, offset, grandparents)();
             if (subresult[0] === EXIT) {
               return subresult;
             }
@@ -45494,15 +45793,15 @@ function collectText(node3, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join19;
+  let join20;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join19 = void 0;
+      join20 = void 0;
     } else if (lines[index2]) {
-      if (typeof join19 === "number") result.push(join19);
+      if (typeof join20 === "number") result.push(join20);
       result.push(lines[index2]);
-      join19 = 0;
+      join20 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -45780,14 +46079,14 @@ function hr(state, node3) {
 // node_modules/hast-util-to-mdast/lib/handlers/iframe.js
 function iframe(state, node3) {
   const properties2 = node3.properties || {};
-  const source3 = String(properties2.src || "");
-  const title = String(properties2.title || "");
-  if (source3 && title) {
+  const source2 = String(properties2.src || "");
+  const title2 = String(properties2.title || "");
+  if (source2 && title2) {
     const result = {
       type: "link",
       title: null,
-      url: state.resolve(source3),
-      children: [{ type: "text", value: title }]
+      url: state.resolve(source2),
+      children: [{ type: "text", value: title2 }]
     };
     state.patch(node3, result);
     return result;
@@ -46091,9 +46390,9 @@ function toString2(value, options) {
   const settings2 = options || emptyOptions2;
   const includeImageAlt = typeof settings2.includeImageAlt === "boolean" ? settings2.includeImageAlt : true;
   const includeHtml = typeof settings2.includeHtml === "boolean" ? settings2.includeHtml : true;
-  return one2(value, includeImageAlt, includeHtml);
+  return one(value, includeImageAlt, includeHtml);
 }
-function one2(value, includeImageAlt, includeHtml) {
+function one(value, includeImageAlt, includeHtml) {
   if (node2(value)) {
     if ("value" in value) {
       return value.type === "html" && !includeHtml ? "" : value.value;
@@ -46114,7 +46413,7 @@ function all2(values, includeImageAlt, includeHtml) {
   const result = [];
   let index2 = -1;
   while (++index2 < values.length) {
-    result[index2] = one2(values[index2], includeImageAlt, includeHtml);
+    result[index2] = one(values[index2], includeImageAlt, includeHtml);
   }
   return result.join("");
 }
@@ -46237,7 +46536,7 @@ function cloneWithoutChildren(node3) {
 function media(state, node3) {
   const properties2 = node3.properties || {};
   const poster = node3.tagName === "video" ? String(properties2.poster || "") : "";
-  let source3 = String(properties2.src || "");
+  let source2 = String(properties2.src || "");
   let index2 = -1;
   let linkInFallbackContent = false;
   let nodes = state.all(node3);
@@ -46251,10 +46550,10 @@ function media(state, node3) {
   if (linkInFallbackContent || wrapNeeded(nodes)) {
     return nodes;
   }
-  while (!source3 && ++index2 < node3.children.length) {
+  while (!source2 && ++index2 < node3.children.length) {
     const child = node3.children[index2];
     if (child.type === "element" && child.tagName === "source" && child.properties) {
-      source3 = String(child.properties.src || "");
+      source2 = String(child.properties.src || "");
     }
   }
   if (poster) {
@@ -46274,7 +46573,7 @@ function media(state, node3) {
   const result = {
     type: "link",
     title: properties2.title ? String(properties2.title) : null,
-    url: state.resolve(source3),
+    url: state.resolve(source2),
     children: children3
   };
   state.patch(node3, result);
@@ -46506,7 +46805,7 @@ function createRow() {
 }
 
 // node_modules/hast-util-to-mdast/lib/handlers/text.js
-function text7(state, node3) {
+function text5(state, node3) {
   const result = { type: "text", value: node3.value };
   state.patch(node3, result);
   return result;
@@ -46531,7 +46830,7 @@ var nodeHandlers = {
   comment,
   doctype: ignore,
   root,
-  text: text7
+  text: text5
 };
 var handlers = {
   // Ignore:
@@ -46706,7 +47005,7 @@ function createState(options) {
     handlers: { ...handlers, ...options.handlers },
     inTable: false,
     nodeHandlers: { ...nodeHandlers, ...options.nodeHandlers },
-    one: one3,
+    one: one2,
     options,
     patch,
     qNesting: 0,
@@ -46733,7 +47032,7 @@ function all4(parent) {
   }
   return results;
 }
-function one3(node3, parent) {
+function one2(node3, parent) {
   if (node3.type === "element") {
     if (node3.properties && node3.properties.dataMdast === "ignore") {
       return;
@@ -46818,9 +47117,9 @@ function toMdast(tree, options) {
   transformWhitespace(cleanTree);
   visit(cleanTree, function(node3) {
     if (node3 && node3.type === "element" && node3.properties) {
-      const id = String(node3.properties.id || "") || void 0;
-      if (id && !state.elementById.has(id)) {
-        state.elementById.set(id, node3);
+      const id2 = String(node3.properties.id || "") || void 0;
+      if (id2 && !state.elementById.has(id2)) {
+        state.elementById.set(id2, node3);
       }
     }
   });
@@ -46985,15 +47284,15 @@ function toFunction(replace3) {
 
 // node_modules/ccount/index.js
 function ccount(value, character) {
-  const source3 = String(value);
+  const source2 = String(value);
   if (typeof character !== "string") {
     throw new TypeError("Expected character");
   }
   let count5 = 0;
-  let index2 = source3.indexOf(character);
+  let index2 = source2.indexOf(character);
   while (index2 !== -1) {
     count5++;
-    index2 = source3.indexOf(character, index2 + character.length);
+    index2 = source2.indexOf(character, index2 + character.length);
   }
   return count5;
 }
@@ -47504,21 +47803,21 @@ function toAlignment(value) {
 var own4 = {}.hasOwnProperty;
 function zwitch(key3, options) {
   const settings2 = options || {};
-  function one7(value, ...parameters) {
-    let fn = one7.invalid;
-    const handlers3 = one7.handlers;
+  function one6(value, ...parameters) {
+    let fn = one6.invalid;
+    const handlers3 = one6.handlers;
     if (value && own4.call(value, key3)) {
-      const id = String(value[key3]);
-      fn = own4.call(handlers3, id) ? handlers3[id] : one7.unknown;
+      const id2 = String(value[key3]);
+      fn = own4.call(handlers3, id2) ? handlers3[id2] : one6.unknown;
     }
     if (fn) {
       return fn.call(this, value, ...parameters);
     }
   }
-  one7.handlers = settings2.handlers || {};
-  one7.invalid = settings2.invalid;
-  one7.unknown = settings2.unknown;
-  return one7;
+  one6.handlers = settings2.handlers || {};
+  one6.invalid = settings2.invalid;
+  one6.unknown = settings2.unknown;
+  return one6;
 }
 
 // node_modules/mdast-util-to-markdown/lib/configure.js
@@ -47620,8 +47919,8 @@ function hardBreak(_2, _1, state, info) {
 
 // node_modules/longest-streak/index.js
 function longestStreak(value, substring) {
-  const source3 = String(value);
-  let index2 = source3.indexOf(substring);
+  const source2 = String(value);
+  let index2 = source2.indexOf(substring);
   let expected = index2;
   let count5 = 0;
   let max = 0;
@@ -47637,7 +47936,7 @@ function longestStreak(value, substring) {
       count5 = 1;
     }
     expected = index2 + substring.length;
-    index2 = source3.indexOf(substring, expected);
+    index2 = source2.indexOf(substring, expected);
   }
   return max;
 }
@@ -48117,12 +48416,12 @@ function linkReference(node3, _2, state, info) {
   let subexit = state.enter("label");
   const tracker = state.createTracker(info);
   let value = tracker.move("[");
-  const text19 = state.containerPhrasing(node3, {
+  const text18 = state.containerPhrasing(node3, {
     before: value,
     after: "]",
     ...tracker.current()
   });
-  value += tracker.move(text19 + "][");
+  value += tracker.move(text18 + "][");
   subexit();
   const stack = state.stack;
   state.stack = stack.filter(function(d) {
@@ -48137,7 +48436,7 @@ function linkReference(node3, _2, state, info) {
   subexit();
   state.stack = stack;
   exit3();
-  if (type === "full" || !text19 || text19 !== reference) {
+  if (type === "full" || !text18 || text18 !== reference) {
     value += tracker.move(reference + "]");
   } else if (type === "shortcut") {
     value = value.slice(0, -1);
@@ -48338,7 +48637,7 @@ function peek2(_2, _1, state) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/handle/text.js
-function text8(node3, parent, state, info) {
+function text6(node3, parent, state, info) {
   const siblings = parent ? parent.children : [];
   const index2 = siblings.indexOf(node3);
   return state.safe(node3.value, {
@@ -48385,7 +48684,7 @@ var handle2 = {
   paragraph,
   root: root2,
   strong: strong2,
-  text: text8,
+  text: text6,
   thematicBreak
 };
 
@@ -48484,7 +48783,7 @@ function htmlKind(value) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/join.js
-var join9 = [joinDefaults];
+var join10 = [joinDefaults];
 function joinDefaults(left, right, parent, state) {
   if (right.type === "code" && formatCodeAsIndented(right, state) && (left.type === "list" || left.type === right.type && formatCodeAsIndented(left, state))) {
     return false;
@@ -51288,14 +51587,14 @@ function indentLines(value, map4) {
   let line = 0;
   let match;
   while (match = eol.exec(value)) {
-    one7(value.slice(start, match.index));
+    one6(value.slice(start, match.index));
     result.push(match[0]);
     start = match.index + match[0].length;
     line++;
   }
-  one7(value.slice(start));
+  one6(value.slice(start));
   return result.join("");
-  function one7(value2) {
+  function one6(value2) {
     result.push(map4(value2, line, !value2));
   }
 }
@@ -51461,7 +51760,7 @@ function toMarkdown(tree, options) {
     handle: void 0,
     indentLines,
     indexStack: [],
-    join: [...join9],
+    join: [...join10],
     options: {},
     safe: safeBound,
     stack: [],
@@ -52360,7 +52659,7 @@ var html3 = create4({
 });
 
 // node_modules/property-information/lib/svg.js
-var svg2 = create4({
+var svg = create4({
   attributes: {
     accentHeight: "accent-height",
     alignmentBaseline: "alignment-baseline",
@@ -52995,7 +53294,7 @@ function camelcase($0) {
 
 // node_modules/property-information/index.js
 var html4 = merge([aria, html3, xlink, xmlns, xml], "html");
-var svg3 = merge([aria, svg2, xlink, xmlns, xml], "svg");
+var svg2 = merge([aria, svg, xlink, xmlns, xml], "svg");
 
 // node_modules/comma-separated-tokens/index.js
 function parse2(value) {
@@ -53270,7 +53569,7 @@ var svgCaseSensitiveTagNames = [
 
 // node_modules/hastscript/lib/index.js
 var h = createH(html4, "div");
-var s = createH(svg3, "g", svgCaseSensitiveTagNames);
+var s = createH(svg2, "g", svgCaseSensitiveTagNames);
 
 // node_modules/vfile-location/lib/index.js
 function location2(file2) {
@@ -53335,17 +53634,17 @@ var own8 = {}.hasOwnProperty;
 var proto = Object.prototype;
 function fromParse5(tree, options) {
   const settings2 = options || {};
-  return one4(
+  return one3(
     {
       file: settings2.file || void 0,
       location: false,
-      schema: settings2.space === "svg" ? svg3 : html4,
+      schema: settings2.space === "svg" ? svg2 : html4,
       verbose: settings2.verbose || false
     },
     tree
   );
 }
-function one4(state, node3) {
+function one3(state, node3) {
   let result;
   switch (node3.nodeName) {
     case "#comment": {
@@ -53415,7 +53714,7 @@ function all5(state, nodes) {
   while (++index2 < nodes.length) {
     const result = (
       /** @type {RootContent} */
-      one4(state, nodes[index2])
+      one3(state, nodes[index2])
     );
     results.push(result);
   }
@@ -53423,7 +53722,7 @@ function all5(state, nodes) {
 }
 function element2(state, node3) {
   const schema2 = state.schema;
-  state.schema = node3.namespaceURI === webNamespaces.svg ? svg3 : html4;
+  state.schema = node3.namespaceURI === webNamespaces.svg ? svg2 : html4;
   let index2 = -1;
   const properties2 = {};
   while (++index2 < node3.attrs.length) {
@@ -53446,7 +53745,7 @@ function element2(state, node3) {
     const endTag2 = pos && pos.endTag && position2(pos.endTag);
     const content5 = (
       /** @type {Root} */
-      one4(state, reference.content)
+      one3(state, reference.content)
     );
     if (startTag2 && endTag2 && state.file) {
       content5.position = { start: startTag2.end, end: endTag2.start };
@@ -53515,11 +53814,11 @@ function point2(point5) {
 // node_modules/hast-util-to-parse5/lib/index.js
 var emptyOptions4 = {};
 var own9 = {}.hasOwnProperty;
-var one5 = zwitch("type", { handlers: { root: root3, element: element3, text: text9, comment: comment2, doctype } });
+var one4 = zwitch("type", { handlers: { root: root3, element: element3, text: text7, comment: comment2, doctype } });
 function toParse5(tree, options) {
   const settings2 = options || emptyOptions4;
   const space2 = settings2.space;
-  return one5(tree, space2 === "svg" ? svg3 : html4);
+  return one4(tree, space2 === "svg" ? svg2 : html4);
 }
 function root3(node3, schema2) {
   const result = {
@@ -53549,7 +53848,7 @@ function doctype(node3) {
   patch3(node3, result);
   return result;
 }
-function text9(node3) {
+function text7(node3) {
   const result = {
     nodeName: "#text",
     value: node3.value,
@@ -53571,7 +53870,7 @@ function element3(node3, schema2) {
   const parentSchema = schema2;
   let currentSchema = parentSchema;
   if (node3.type === "element" && node3.tagName.toLowerCase() === "svg" && parentSchema.space === "html") {
-    currentSchema = svg3;
+    currentSchema = svg2;
   }
   const attrs = [];
   let prop2;
@@ -53636,7 +53935,7 @@ function all6(children3, parentNode, schema2) {
   const results = [];
   if (children3) {
     while (++index2 < children3.length) {
-      const child = one5(children3[index2], schema2);
+      const child = one4(children3[index2], schema2);
       child.parentNode = parentNode;
       results.push(child);
     }
@@ -58081,22 +58380,22 @@ var defaultTreeAdapter = {
       node3.parentNode = null;
     }
   },
-  insertText(parentNode, text19) {
+  insertText(parentNode, text18) {
     if (parentNode.childNodes.length > 0) {
       const prevNode = parentNode.childNodes[parentNode.childNodes.length - 1];
       if (defaultTreeAdapter.isTextNode(prevNode)) {
-        prevNode.value += text19;
+        prevNode.value += text18;
         return;
       }
     }
-    defaultTreeAdapter.appendChild(parentNode, defaultTreeAdapter.createTextNode(text19));
+    defaultTreeAdapter.appendChild(parentNode, defaultTreeAdapter.createTextNode(text18));
   },
-  insertTextBefore(parentNode, text19, referenceNode) {
+  insertTextBefore(parentNode, text18, referenceNode) {
     const prevNode = parentNode.childNodes[parentNode.childNodes.indexOf(referenceNode) - 1];
     if (prevNode && defaultTreeAdapter.isTextNode(prevNode)) {
-      prevNode.value += text19;
+      prevNode.value += text18;
     } else {
-      defaultTreeAdapter.insertBefore(parentNode, defaultTreeAdapter.createTextNode(text19), referenceNode);
+      defaultTreeAdapter.insertBefore(parentNode, defaultTreeAdapter.createTextNode(text18), referenceNode);
     }
   },
   adoptAttributes(recipient, attrs) {
@@ -59063,9 +59362,9 @@ var Parser = class {
   }
   //Special elements
   /** @protected */
-  _isSpecialElement(element6, id) {
+  _isSpecialElement(element6, id2) {
     const ns = this.treeAdapter.getNamespaceURI(element6);
-    return SPECIAL_ELEMENTS[ns].has(id);
+    return SPECIAL_ELEMENTS[ns].has(id2);
   }
   /** @internal */
   onCharacter(token) {
@@ -61564,19 +61863,19 @@ var knownMdxNames = /* @__PURE__ */ new Set([
 var parseOptions = { sourceCodeLocationInfo: true, scriptingEnabled: false };
 function raw(tree, options) {
   const document3 = documentMode(tree);
-  const one7 = zwitch("type", {
-    handlers: { root: root4, element: element4, text: text10, comment: comment3, doctype: doctype2, raw: handleRaw },
+  const one6 = zwitch("type", {
+    handlers: { root: root4, element: element4, text: text8, comment: comment3, doctype: doctype2, raw: handleRaw },
     unknown: unknown3
   });
   const state = {
     parser: document3 ? new Parser(parseOptions) : Parser.getFragmentParser(void 0, parseOptions),
     handle(node3) {
-      one7(node3, state);
+      one6(node3, state);
     },
     stitches: false,
     options: options || {}
   };
-  one7(tree, state);
+  one6(tree, state);
   resetTokenizer(state, pointStart());
   const p5 = document3 ? state.parser.document : state.parser.getFragment();
   const result = fromParse5(p5, {
@@ -61618,7 +61917,7 @@ function element4(node3, state) {
   all7(node3.children, state);
   endTag(node3, state);
 }
-function text10(node3, state) {
+function text8(node3, state) {
   if (state.parser.tokenizer.state > 4) {
     state.parser.tokenizer.state = 0;
   }
@@ -62082,7 +62381,7 @@ function transform2(state, node3) {
         return root5(state, unsafe2);
       }
       case "text": {
-        return text11(state, unsafe2);
+        return text9(state, unsafe2);
       }
       default:
     }
@@ -62149,7 +62448,7 @@ function root5(state, unsafe2) {
   patch4(node3, unsafe2);
   return node3;
 }
-function text11(_2, unsafe2) {
+function text9(_2, unsafe2) {
   const value = typeof unsafe2.value === "string" ? unsafe2.value : "";
   const node3 = { type: "text", value };
   patch4(node3, unsafe2);
@@ -62427,27 +62726,27 @@ var emailAutolink = {
   tokenize: tokenizeEmailAutolink,
   previous: previousEmail
 };
-var text12 = {};
+var text10 = {};
 function gfmAutolinkLiteral() {
   return {
-    text: text12
+    text: text10
   };
 }
 var code4 = 48;
 while (code4 < 123) {
-  text12[code4] = emailAutolink;
+  text10[code4] = emailAutolink;
   code4++;
   if (code4 === 58) code4 = 65;
   else if (code4 === 91) code4 = 97;
 }
-text12[43] = emailAutolink;
-text12[45] = emailAutolink;
-text12[46] = emailAutolink;
-text12[95] = emailAutolink;
-text12[72] = [emailAutolink, protocolAutolink];
-text12[104] = [emailAutolink, protocolAutolink];
-text12[87] = [emailAutolink, wwwAutolink];
-text12[119] = [emailAutolink, wwwAutolink];
+text10[43] = emailAutolink;
+text10[45] = emailAutolink;
+text10[46] = emailAutolink;
+text10[95] = emailAutolink;
+text10[72] = [emailAutolink, protocolAutolink];
+text10[104] = [emailAutolink, protocolAutolink];
+text10[87] = [emailAutolink, wwwAutolink];
+text10[119] = [emailAutolink, wwwAutolink];
 function tokenizeEmailAutolink(effects, ok3, nok) {
   const self2 = this;
   let dot;
@@ -62827,7 +63126,7 @@ function resolveAllAttention(events, context) {
             },
             end
           };
-          const text19 = {
+          const text18 = {
             type: use > 1 ? "strongText" : "emphasisText",
             start: {
               ...events[open5][1].end
@@ -62855,9 +63154,9 @@ function resolveAllAttention(events, context) {
           if (events[open5][1].end.offset - events[open5][1].start.offset) {
             nextEvents = push(nextEvents, [["enter", events[open5][1], context], ["exit", events[open5][1], context]]);
           }
-          nextEvents = push(nextEvents, [["enter", group, context], ["enter", openingSequence, context], ["exit", openingSequence, context], ["enter", text19, context]]);
+          nextEvents = push(nextEvents, [["enter", group, context], ["enter", openingSequence, context], ["exit", openingSequence, context], ["enter", text18, context]]);
           nextEvents = push(nextEvents, resolveAll(context.parser.constructs.insideSpan.null, events.slice(open5 + 1, index2), context));
-          nextEvents = push(nextEvents, [["exit", text19, context], ["enter", closingSequence, context], ["exit", closingSequence, context], ["exit", group, context]]);
+          nextEvents = push(nextEvents, [["exit", text18, context], ["enter", closingSequence, context], ["exit", closingSequence, context], ["exit", group, context]]);
           let offset = 0;
           if (events[index2][1].end.offset - events[index2][1].start.offset) {
             offset = 2;
@@ -64359,13 +64658,13 @@ function resolveHeadingAtx(events, context) {
       start: events[contentStart][1].start,
       end: events[contentEnd][1].end
     };
-    const text19 = {
+    const text18 = {
       type: "chunkText",
       start: events[contentStart][1].start,
       end: events[contentEnd][1].end,
       contentType: "text"
     };
-    splice(events, contentStart, contentEnd - contentStart + 1, [["enter", content5, context], ["enter", text19, context], ["exit", text19, context], ["exit", content5, context]]);
+    splice(events, contentStart, contentEnd - contentStart + 1, [["enter", content5, context], ["enter", text18, context], ["exit", text18, context], ["exit", content5, context]]);
   }
   return events;
 }
@@ -65167,7 +65466,7 @@ function resolveToLabelEnd(events, context) {
       ...events[close][1].end
     }
   };
-  const text19 = {
+  const text18 = {
     type: "labelText",
     start: {
       ...events[open5 + offset + 2][1].end
@@ -65178,9 +65477,9 @@ function resolveToLabelEnd(events, context) {
   };
   media2 = [["enter", group, context], ["enter", label, context]];
   media2 = push(media2, events.slice(open5 + 1, open5 + offset + 3));
-  media2 = push(media2, [["enter", text19, context]]);
+  media2 = push(media2, [["enter", text18, context]]);
   media2 = push(media2, resolveAll(context.parser.constructs.insideSpan.null, events.slice(open5 + offset + 4, close - 3), context));
-  media2 = push(media2, [["exit", text19, context], events[close - 2], events[close - 1], ["exit", label, context]]);
+  media2 = push(media2, [["exit", text18, context], events[close - 2], events[close - 1], ["exit", label, context]]);
   media2 = push(media2, events.slice(close + 1));
   media2 = push(media2, [["exit", group, context]]);
   splice(events, open5, events.length, media2);
@@ -65672,7 +65971,7 @@ function resolveToSetextUnderline(events, context) {
   const editMap = new EditMap();
   let index2 = events.length;
   let content5;
-  let text19;
+  let text18;
   let definition3;
   while (index2--) {
     if (events[index2][0] === "enter") {
@@ -65681,7 +65980,7 @@ function resolveToSetextUnderline(events, context) {
         break;
       }
       if (events[index2][1].type === "paragraph") {
-        text19 = index2;
+        text18 = index2;
       }
     } else {
       if (events[index2][1].type === "content") {
@@ -65701,9 +66000,9 @@ function resolveToSetextUnderline(events, context) {
       ...events[events.length - 1][1].end
     }
   };
-  events[text19][1].type = "setextHeadingText";
+  events[text18][1].type = "setextHeadingText";
   if (definition3) {
-    editMap.add(text19, 0, [["enter", heading5, context]]);
+    editMap.add(text18, 0, [["enter", heading5, context]]);
     editMap.add(definition3 + 1, 0, [["exit", events[content5][1], context]]);
     events[content5][1].end = {
       ...events[definition3][1].end
@@ -65807,11 +66106,11 @@ function tokenizePotentialGfmFootnoteCall(effects, ok3, nok) {
     if (!labelStart || !labelStart._balanced) {
       return nok(code7);
     }
-    const id = normalizeIdentifier(self2.sliceSerialize({
+    const id2 = normalizeIdentifier(self2.sliceSerialize({
       start: labelStart.end,
       end: self2.now()
     }));
-    if (id.codePointAt(0) !== 94 || !defined2.includes(id.slice(1))) {
+    if (id2.codePointAt(0) !== 94 || !defined2.includes(id2.slice(1))) {
       return nok(code7);
     }
     effects.enter("gfmFootnoteCallLabelMarker");
@@ -66069,17 +66368,17 @@ function gfmStrikethrough(options) {
               start: Object.assign({}, events[open5][1].start),
               end: Object.assign({}, events[index2][1].end)
             };
-            const text19 = {
+            const text18 = {
               type: "strikethroughText",
               start: Object.assign({}, events[open5][1].end),
               end: Object.assign({}, events[index2][1].start)
             };
-            const nextEvents = [["enter", strikethrough2, context], ["enter", events[open5][1], context], ["exit", events[open5][1], context], ["enter", text19, context]];
+            const nextEvents = [["enter", strikethrough2, context], ["enter", events[open5][1], context], ["exit", events[open5][1], context], ["enter", text18, context]];
             const insideSpan2 = context.parser.constructs.insideSpan.null;
             if (insideSpan2) {
               splice(nextEvents, nextEvents.length, 0, resolveAll(insideSpan2, events.slice(open5 + 1, index2), context));
             }
-            splice(nextEvents, nextEvents.length, 0, [["exit", text19, context], ["enter", events[index2][1], context], ["exit", events[index2][1], context], ["exit", strikethrough2, context]]);
+            splice(nextEvents, nextEvents.length, 0, [["exit", text18, context], ["enter", events[index2][1], context], ["exit", events[index2][1], context], ["exit", strikethrough2, context]]);
             splice(events, open5 - 1, index2 - open5 + 3, nextEvents);
             index2 = open5 + nextEvents.length - 2;
             break;
@@ -67018,7 +67317,7 @@ var resolver = {
   resolveAll: createResolver()
 };
 var string3 = initializeFactory("string");
-var text13 = initializeFactory("text");
+var text11 = initializeFactory("text");
 function initializeFactory(field) {
   return {
     resolveAll: createResolver(field === "text" ? resolveAllLineSuffixes : void 0),
@@ -67027,10 +67326,10 @@ function initializeFactory(field) {
   function initializeText(effects) {
     const self2 = this;
     const constructs2 = this.parser.constructs[field];
-    const text19 = effects.attempt(constructs2, start, notText);
+    const text18 = effects.attempt(constructs2, start, notText);
     return start;
     function start(code7) {
-      return atBreak(code7) ? text19(code7) : notText(code7);
+      return atBreak(code7) ? text18(code7) : notText(code7);
     }
     function notText(code7) {
       if (code7 === null) {
@@ -67044,7 +67343,7 @@ function initializeFactory(field) {
     function data(code7) {
       if (atBreak(code7)) {
         effects.exit("data");
-        return text19(code7);
+        return text18(code7);
       }
       effects.consume(code7);
       return data;
@@ -67166,7 +67465,7 @@ __export(constructs_exports, {
   flowInitial: () => flowInitial,
   insideSpan: () => insideSpan,
   string: () => string4,
-  text: () => text14
+  text: () => text12
 });
 var document2 = {
   [42]: list8,
@@ -67206,7 +67505,7 @@ var string4 = {
   [38]: characterReference,
   [92]: characterEscape
 };
-var text14 = {
+var text12 = {
   [-5]: lineEnding,
   [-4]: lineEnding,
   [-3]: lineEnding,
@@ -67571,7 +67870,7 @@ function parse4(options) {
     flow: create7(flow2),
     lazy: {},
     string: create7(string3),
-    text: create7(text13)
+    text: create7(text11)
   };
   return parser;
   function create7(initial) {
@@ -68119,7 +68418,7 @@ function compiler(options) {
     const siblings = node3.children;
     let tail = siblings[siblings.length - 1];
     if (!tail || tail.type !== "text") {
-      tail = text19();
+      tail = text18();
       tail.position = {
         start: point4(token.start),
         // @ts-expect-error: we’ll add `end` later.
@@ -68378,7 +68677,7 @@ function compiler(options) {
       position: void 0
     };
   }
-  function text19() {
+  function text18() {
     return {
       type: "text",
       value: "",
@@ -68552,20 +68851,20 @@ function emphasis2(state, node3) {
 // node_modules/mdast-util-to-hast/lib/handlers/footnote-reference.js
 function footnoteReference2(state, node3) {
   const clobberPrefix = typeof state.options.clobberPrefix === "string" ? state.options.clobberPrefix : "user-content-";
-  const id = String(node3.identifier).toUpperCase();
-  const safeId = normalizeUri(id.toLowerCase());
-  const index2 = state.footnoteOrder.indexOf(id);
+  const id2 = String(node3.identifier).toUpperCase();
+  const safeId = normalizeUri(id2.toLowerCase());
+  const index2 = state.footnoteOrder.indexOf(id2);
   let counter2;
-  let reuseCounter = state.footnoteCounts.get(id);
+  let reuseCounter = state.footnoteCounts.get(id2);
   if (reuseCounter === void 0) {
     reuseCounter = 0;
-    state.footnoteOrder.push(id);
+    state.footnoteOrder.push(id2);
     counter2 = state.footnoteOrder.length;
   } else {
     counter2 = index2 + 1;
   }
   reuseCounter += 1;
-  state.footnoteCounts.set(id, reuseCounter);
+  state.footnoteCounts.set(id2, reuseCounter);
   const link3 = {
     type: "element",
     tagName: "a",
@@ -68640,8 +68939,8 @@ function revert(state, node3) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/image-reference.js
 function imageReference2(state, node3) {
-  const id = String(node3.identifier).toUpperCase();
-  const definition3 = state.definitionById.get(id);
+  const id2 = String(node3.identifier).toUpperCase();
+  const definition3 = state.definitionById.get(id2);
   if (!definition3) {
     return revert(state, node3);
   }
@@ -68670,13 +68969,13 @@ function image2(state, node3) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/inline-code.js
 function inlineCode3(state, node3) {
-  const text19 = { type: "text", value: node3.value.replace(/\r?\n|\r/g, " ") };
-  state.patch(node3, text19);
+  const text18 = { type: "text", value: node3.value.replace(/\r?\n|\r/g, " ") };
+  state.patch(node3, text18);
   const result = {
     type: "element",
     tagName: "code",
     properties: {},
-    children: [text19]
+    children: [text18]
   };
   state.patch(node3, result);
   return state.applyData(node3, result);
@@ -68684,8 +68983,8 @@ function inlineCode3(state, node3) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/link-reference.js
 function linkReference2(state, node3) {
-  const id = String(node3.identifier).toUpperCase();
-  const definition3 = state.definitionById.get(id);
+  const id2 = String(node3.identifier).toUpperCase();
+  const definition3 = state.definitionById.get(id2);
   if (!definition3) {
     return revert(state, node3);
   }
@@ -68926,20 +69225,20 @@ function tableCell2(state, node3) {
 var tab = 9;
 var space = 32;
 function trimLines(value) {
-  const source3 = String(value);
+  const source2 = String(value);
   const search3 = /\r?\n|\r/g;
-  let match = search3.exec(source3);
+  let match = search3.exec(source2);
   let last = 0;
   const lines = [];
   while (match) {
     lines.push(
-      trimLine(source3.slice(last, match.index), last > 0, true),
+      trimLine(source2.slice(last, match.index), last > 0, true),
       match[0]
     );
     last = match.index + match[0].length;
-    match = search3.exec(source3);
+    match = search3.exec(source2);
   }
-  lines.push(trimLine(source3.slice(last), last > 0, false));
+  lines.push(trimLine(source2.slice(last), last > 0, false));
   return lines.join("");
 }
 function trimLine(value, start, end) {
@@ -68963,7 +69262,7 @@ function trimLine(value, start, end) {
 }
 
 // node_modules/mdast-util-to-hast/lib/handlers/text.js
-function text15(state, node3) {
+function text13(state, node3) {
   const result = { type: "text", value: trimLines(String(node3.value)) };
   state.patch(node3, result);
   return state.applyData(node3, result);
@@ -69005,7 +69304,7 @@ var handlers2 = {
   table: table2,
   tableCell: tableCell2,
   tableRow: tableRow2,
-  text: text15,
+  text: text13,
   thematicBreak: thematicBreak3,
   toml: ignore2,
   yaml: ignore2,
@@ -69051,11 +69350,11 @@ function footer(state) {
       continue;
     }
     const content5 = state.all(definition3);
-    const id = String(definition3.identifier).toUpperCase();
-    const safeId = normalizeUri(id.toLowerCase());
+    const id2 = String(definition3.identifier).toUpperCase();
+    const safeId = normalizeUri(id2.toLowerCase());
     let rereferenceIndex = 0;
     const backReferences = [];
-    const counts = state.footnoteCounts.get(id);
+    const counts = state.footnoteCounts.get(id2);
     while (counts !== void 0 && ++rereferenceIndex <= counts) {
       if (backReferences.length > 0) {
         backReferences.push({ type: "text", value: " " });
@@ -69143,7 +69442,7 @@ function createState2(tree, options) {
     footnoteCounts,
     footnoteOrder: [],
     handlers: handlers3,
-    one: one7,
+    one: one6,
     options: settings2,
     patch: patch5,
     wrap: wrap2
@@ -69151,14 +69450,14 @@ function createState2(tree, options) {
   visit(tree, function(node3) {
     if (node3.type === "definition" || node3.type === "footnoteDefinition") {
       const map4 = node3.type === "definition" ? definitionById : footnoteById;
-      const id = String(node3.identifier).toUpperCase();
-      if (!map4.has(id)) {
-        map4.set(id, node3);
+      const id2 = String(node3.identifier).toUpperCase();
+      if (!map4.has(id2)) {
+        map4.set(id2, node3);
       }
     }
   });
   return state;
-  function one7(node3, parent) {
+  function one6(node3, parent) {
     const type = node3.type;
     const handle3 = state.handlers[type];
     if (own12.call(state.handlers, type) && handle3) {
@@ -70695,7 +70994,7 @@ function holdsDetails(n3) {
 }
 function autolink2(mdast, links) {
   const host = links.repo?.match(/^https?:\/\/[^/]+/)?.[0] ?? "https://github.com";
-  const link3 = (text19, url) => ({ children: [{ type: "text", value: text19 }], type: "link", url });
+  const link3 = (text18, url) => ({ children: [{ type: "text", value: text18 }], type: "link", url });
   const list10 = [
     ...links.repo ? [[/(?<![\w&/#])#(\d+)\b/g, (_2, n3) => link3(`#\u2060${n3}`, `${links.repo}/issues/${n3}`)]] : [],
     [/(?<![\w/@.])@([a-z\d](?:[a-z\d-]{0,38}))\b(?!\.\w)/gi, (all8, login) => link3(all8, `${host}/${login}`)]
@@ -70726,9 +71025,9 @@ function parts(nodes, links) {
   const out = [];
   let run8 = [];
   const flush = () => {
-    const text19 = run8.length ? markdown(run8, links) : "";
-    if (text19) {
-      out.push({ kind: "md", text: text19 });
+    const text18 = run8.length ? markdown(run8, links) : "";
+    if (text18) {
+      out.push({ kind: "md", text: text18 });
     }
     run8 = [];
   };
@@ -70882,7 +71181,7 @@ function commitRun(commits, last, key3, now) {
 
 // src/prs/files.tsx
 var LONG_DIFF = 400;
-function filesTab(e, pr, id, density, reveal) {
+function filesTab(e, pr, id2, density, reveal) {
   const { error, value: files } = shown2(e.files);
   if (!files) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: error ? "error" : "muted", t: error ?? "Reading the files\u2026" }] }, "load")];
@@ -70890,28 +71189,28 @@ function filesTab(e, pr, id, density, reveal) {
   if (!files.length) {
     return [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "No files changed." }] }, "none")];
   }
-  const cards = files.map((f, i) => fileCard(f, `f${i}`));
+  const cards = files.map((f2, i) => fileCard(f2, `f${i}`));
   if (density === "narrow") {
     return cards;
   }
   const list10 = /* @__PURE__ */ jsxs("col", { gap: "none", role: "hermes.pr.filelist", children: [
-    files.map((f, i) => {
-      const slash = f.path.lastIndexOf("/");
+    files.map((f2, i) => {
+      const slash = f2.path.lastIndexOf("/");
       return pressable(
-        { key: `l${i}`, name: f.path, onClick: () => reveal?.(`${id}.diffs.f${i}`), role: "hermes.pr.fileitem" },
-        /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", title: f.path, children: [
-          /* @__PURE__ */ jsx("icon", { name: "file", ...optional2("tone", FILE_TONE[f.status]) }, "i"),
+        { key: `l${i}`, name: f2.path, onClick: () => reveal?.(`${id2}.diffs.f${i}`), role: "hermes.pr.fileitem" },
+        /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", title: f2.path, children: [
+          /* @__PURE__ */ jsx("icon", { name: "file", ...optional2("tone", FILE_TONE[f2.status]) }, "i"),
           /* @__PURE__ */ jsx(
             "text",
             {
               grow: 1,
-              spans: [...slash > 0 ? [{ s: "dim", t: f.path.slice(0, slash + 1) }] : [], { t: f.path.slice(slash + 1) }],
+              spans: [...slash > 0 ? [{ s: "dim", t: f2.path.slice(0, slash + 1) }] : [], { t: f2.path.slice(slash + 1) }],
               truncate: "start",
               wrap: "none"
             },
             "p"
           ),
-          /* @__PURE__ */ jsx("text", { shrink: 0, spans: [{ s: "success", t: `+${f.additions}` }, { t: " " }, { s: "error", t: `\u2212${f.deletions}` }], wrap: "none" }, "n")
+          /* @__PURE__ */ jsx("text", { shrink: 0, spans: [{ s: "success", t: `+${f2.additions}` }, { t: " " }, { s: "error", t: `\u2212${f2.deletions}` }], wrap: "none" }, "n")
         ] }, "face")
       );
     }),
@@ -70926,24 +71225,24 @@ function filesTab(e, pr, id, density, reveal) {
 }
 var FILE_TONE = { added: "success", removed: "error", renamed: "info" };
 var FILE_TITLE = { added: "Added", copied: "Copied", modified: "Changed", removed: "Deleted", renamed: "Renamed" };
-function fileCard(f, key3) {
-  const lines = f.patch ? f.patch.split("\n").length : 0;
+function fileCard(f2, key3) {
+  const lines = f2.patch ? f2.patch.split("\n").length : 0;
   return node(
     "tool",
     {
-      badges: f.previous ? [{ text: `from ${f.previous}` }] : void 0,
-      collapsed: f.status === "removed" || lines > LONG_DIFF,
+      badges: f2.previous ? [{ text: `from ${f2.previous}` }] : void 0,
+      collapsed: f2.status === "removed" || lines > LONG_DIFF,
       collapsible: true,
       key: key3,
-      meta: [`+${f.additions} \u2212${f.deletions}`],
-      name: f.status === "added" ? "write" : "edit",
+      meta: [`+${f2.additions} \u2212${f2.deletions}`],
+      name: f2.status === "added" ? "write" : "edit",
       role: "hermes.pr.file",
       status: "done",
-      target: f.path,
+      target: f2.path,
       targetKind: "path",
-      title: FILE_TITLE[f.status] ?? "Changed"
+      title: FILE_TITLE[f2.status] ?? "Changed"
     },
-    f.patch ? [/* @__PURE__ */ jsx("diff", { ...optional2("lang", langOf(f.path)), path: f.path, text: f.patch }, "d")] : [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary, or too large to show here." }] }, "none")]
+    f2.patch ? [/* @__PURE__ */ jsx("diff", { ...optional2("lang", langOf(f2.path)), path: f2.path, text: f2.patch }, "d")] : [/* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Binary, or too large to show here." }] }, "none")]
   );
 }
 
@@ -70964,9 +71263,9 @@ var PrView = class {
   #copied = new Flash(() => this.#host.changed());
   /** The node id the body's nodes sit under, from the last render (for scroll and reveal). */
   #bodyId = "";
-  constructor(host, focus2) {
+  constructor(host, focus) {
     this.#host = host;
-    this.#selected = focus2;
+    this.#selected = focus;
   }
   dispose() {
     this.#copied.dispose();
@@ -71258,8 +71557,8 @@ var PrView = class {
     ] }, "tabs");
   }
   /** The tab's content; `id` is the node id these nodes sit under. */
-  body(id, now, density = "wide") {
-    this.#bodyId = id;
+  body(id2, now, density = "wide") {
+    this.#bodyId = id2;
     this.#load();
     const s2 = this.selection();
     if (!s2) {
@@ -71273,7 +71572,7 @@ var PrView = class {
       case "checks":
         return checksTab(pr, now);
       case "files":
-        return filesTab(e, pr, id, density, (node3) => this.#host.reveal?.(node3));
+        return filesTab(e, pr, id2, density, (node3) => this.#host.reveal?.(node3));
       case "conversation":
         return conversation(e, pr, now);
     }
@@ -71377,21 +71676,21 @@ function prsCommand(host, arg) {
   }
   openPullRequests(host, hit ? prKey(hit.ref) : void 0);
 }
-function openPullRequests(host, focus2) {
+function openPullRequests(host, focus) {
   const newest = host.prs.entries().at(-1);
-  host.openPrAside(focus2 ?? (newest ? prKey(newest.ref) : void 0));
+  host.openPrAside(focus ?? (newest ? prKey(newest.ref) : void 0));
 }
-function openPrSheet(host, focus2) {
+function openPrSheet(host, focus) {
   const view = new PrView(
     {
       changed: () => host.changed(),
-      notice: (text19, tone2) => host.notice(text19, tone2),
+      notice: (text18, tone2) => host.notice(text18, tone2),
       open: openUrl,
       prs: host.prs,
-      reveal: (id) => host.reveal(id),
-      scroll: (id, to) => host.scroll(id, to)
+      reveal: (id2) => host.reveal(id2),
+      scroll: (id2, to) => host.scroll(id2, to)
     },
-    focus2
+    focus
   );
   host.prs.poke();
   const stopTicking = tickWhileOpen(host, TICK_MS3);
@@ -71405,9 +71704,9 @@ function openPrSheet(host, focus2) {
     },
     key: SHEET,
     modal: true,
-    node: (id) => {
+    node: (id2) => {
       const now = Date.now();
-      const body = `${id}.frame.body`;
+      const body = `${id2}.frame.body`;
       return /* @__PURE__ */ jsx("overlay", { anchor: "center", modal: true, role: "hermes.pr.sheet", size: "full", children: /* @__PURE__ */ jsxs("col", { gap: "none", role: "hermes.pr.frame", children: [
         /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "hermes.pr.top", children: [
           view.switcher() ?? /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: "Pull request" }] }, "title"),
@@ -71418,7 +71717,7 @@ function openPrSheet(host, focus2) {
         view.tabBar(),
         /* @__PURE__ */ jsx("col", { gap: "md", role: "hermes.pr.body", children: view.body(body, now, "wide") }, "body"),
         view.actions()
-      ] }, "frame") }, nativeOverlayKey(id));
+      ] }, "frame") }, nativeOverlayKey(id2));
     },
     onKey: (k) => {
       if (view.onKey(k)) {
@@ -71447,12 +71746,12 @@ function openPrMenu(host) {
   const overlay2 = {
     cancel: close,
     key: MENU,
-    node: (id) => {
+    node: (id2) => {
       const now = Date.now();
       return /* @__PURE__ */ jsxs("overlay", { anchor: { node: "dock.agents", side: "above" }, role: "hermes.pr.menu", children: [
         /* @__PURE__ */ jsx("col", { gap: "none", role: "hermes.pr.menu.list", children: entries2().map((e) => menuRow(e, now, prKey(e.ref) === selected, () => pick2(prKey(e.ref)))) }, "list"),
         /* @__PURE__ */ jsx("row", { align: "center", gap: "xs", role: "hermes.pr.menu.foot", children: /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: "Opens beside the chat \xB7 " }, { s: "dim", t: "/prs 22 opens #22" }], wrap: "none" }, "l") }, "foot")
-      ] }, nativeOverlayKey(id));
+      ] }, nativeOverlayKey(id2));
     },
     onKey: (k) => {
       const keys3 = entries2().map((e) => prKey(e.ref));
@@ -71526,23 +71825,23 @@ var undoRewind = (n3) => (snapshot4) => {
 };
 var lastTurnRewind = undoRewind(1);
 function rowBefore(snapshot4, rowId) {
-  const earlier = rowsOf2(snapshot4).map((row2) => row2.row_id).filter((id) => typeof id === "number" && Number.isSafeInteger(id) && id < rowId);
+  const earlier = rowsOf2(snapshot4).map((row2) => row2.row_id).filter((id2) => typeof id2 === "number" && Number.isSafeInteger(id2) && id2 < rowId);
   return earlier.length ? Math.max(...earlier) : null;
 }
 var textPart = strictObject({ type: _enum(["input_text", "output_text", "text"]), text: string2() });
 function promptText(content5) {
   const parts3 = typeof content5 === "string" ? [content5] : Array.isArray(content5) ? content5 : [null];
-  let text19 = "";
+  let text18 = "";
   let media2 = false;
   for (const part of parts3) {
     const textOf = typeof part === "string" ? part : textPart.safeParse(part).data?.text;
     if (textOf === void 0) {
       media2 = true;
     } else {
-      text19 += textOf;
+      text18 += textOf;
     }
   }
-  return { media: media2, text: text19.trim() ? text19 : "" };
+  return { media: media2, text: text18.trim() ? text18 : "" };
 }
 function promptRows(snapshot4) {
   const out = [];
@@ -71560,16 +71859,16 @@ function promptRows(snapshot4) {
   return out.map((p3, i) => ({ ...p3, after: out.length - 1 - i }));
 }
 function retryText(content5) {
-  const { media: media2, text: text19 } = promptText(content5);
-  return media2 ? null : text19;
+  const { media: media2, text: text18 } = promptText(content5);
+  return media2 ? null : text18;
 }
 function retryTurnRewind(snapshot4) {
   const target2 = userTurns(snapshot4).at(-1);
-  const text19 = target2 ? retryText(target2.content) : "";
-  if (text19 === null) {
+  const text18 = target2 ? retryText(target2.content) : "";
+  if (text18 === null) {
     throw new Error("/retry: retry does not support media or unknown content parts");
   }
-  return target2 && text19 ? { target_message_id: target2.row_id } : null;
+  return target2 && text18 ? { target_message_id: target2.row_id } : null;
 }
 
 // src/overlays/rewind.tsx
@@ -71823,8 +72122,8 @@ function contextShare(context) {
 
 // src/overlays/context.tsx
 var count3 = (n3) => contextCount(n3)?.toLocaleString() ?? "Unknown";
-function contextSource(source3) {
-  switch (source3) {
+function contextSource(source2) {
+  switch (source2) {
     case "provider_usage":
       return "Provider-reported";
     case "provider_usage_plus_estimate":
@@ -71833,7 +72132,7 @@ function contextSource(source3) {
     case "estimate":
       return "Local estimate";
     default:
-      return source3 || "Unknown";
+      return source2 || "Unknown";
   }
 }
 function contextFacts(usage, estimatedTotal) {
@@ -71944,7 +72243,7 @@ function openSessionInfo(host) {
     onClose: () => {
       closed = true;
     },
-    node: (id) => /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: "Session info", head: "Session info", modal: true, role: "omp.overlay.sessionInfo", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
+    node: (id2) => /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: "Session info", head: "Session info", modal: true, role: "omp.overlay.sessionInfo", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("text", { text: "Read-only snapshot \xB7 reopen to refresh", tone: "muted" }, "scope"),
       /* @__PURE__ */ jsx("section", { head: "Session", role: "omp.info.session", children: /* @__PURE__ */ jsx("kv", { items: sessionInfoFacts(info, sid) }, "facts") }, "identity"),
       /* @__PURE__ */ jsxs("section", { head: "Context", role: "omp.info.context", children: [
@@ -71964,7 +72263,7 @@ function openSessionInfo(host) {
       ] }, "stats"),
       /* @__PURE__ */ jsx("text", { text: status, tone: "muted" }, "status"),
       actionsRow([{ key: "close", label: "Close", keys: ["escape"], onClick: () => host.close(overlay2) }])
-    ] }, "body") }, nativeOverlayKey(id)),
+    ] }, "body") }, nativeOverlayKey(id2)),
     onKey: (key3) => {
       if (key3.name === "escape") host.close(overlay2);
       return true;
@@ -72082,7 +72381,7 @@ function webExtractNeedsAttention(call) {
   const entries2 = resultOf(call)?.["results"];
   if (!Array.isArray(entries2)) return false;
   return entries2.some((entry) => {
-    const error = record2(entry)?.["error"];
+    const error = record(entry)?.["error"];
     return typeof error === "string" && /\S/.test(error);
   });
 }
@@ -72314,7 +72613,7 @@ var needsAttention = (call) => call.outcome.kind === "error" || call.outcome.kin
 function pieces(blocks2, turn2 = blocks2) {
   const out = [];
   let items = [];
-  const plan = turn2.findLast((b) => b.kind === "tool" && isTodoName(b.call.name) && b.call.todos?.length);
+  const plan2 = turn2.findLast((b) => b.kind === "tool" && isTodoName(b.call.name) && b.call.todos?.length);
   for (const b of blocks2) {
     if (b.kind === "tool" && needsAttention(b.call)) {
       if (items.length) {
@@ -72324,7 +72623,7 @@ function pieces(blocks2, turn2 = blocks2) {
       out.push(ownsCard(b.call) || webExtractNeedsAttention(b.call) || evalNeedsAttention(b.call) || writeLintNeedsAttention(b.call) || patchLintNeedsAttention(b.call) || v4aLintNeedsAttention(b.call) || terminalNeedsAttention(b.call) || writeRefusalNeedsAttention(b.call) || memoryStagingReported(b.call) || v4aValidationFailure(b.call) || patchContextWarning(b.call) || writeContextWarning(b.call) ? { block: b, kind: "block" } : { items: [b], kind: "work" });
       continue;
     }
-    if (b.kind === "thinking" || b.kind === "tool" && (!ownsCard(b.call) || isTodoName(b.call.name) && b !== plan)) {
+    if (b.kind === "thinking" || b.kind === "tool" && (!ownsCard(b.call) || isTodoName(b.call.name) && b !== plan2)) {
       items.push(b);
       continue;
     }
@@ -72413,9 +72712,9 @@ var and = (words3) => words3.length < 3 ? words3.join(" and ") : `${words3.slice
 function actionLabel(action, n3, calls = []) {
   switch (action) {
     case "app": {
-      const apps = [...new Set(calls.flatMap(appsOf))];
+      const apps2 = [...new Set(calls.flatMap(appsOf))];
       const uses = calls.reduce((k, c) => k + (batchOf(c)?.length ?? 1), 0);
-      return apps.length === 1 ? `Used ${apps[0]}${uses > 1 ? ` ${uses} times` : ""}` : `Used ${and(apps)}`;
+      return apps2.length === 1 ? `Used ${apps2[0]}${uses > 1 ? ` ${uses} times` : ""}` : `Used ${and(apps2)}`;
     }
     case "command":
       return `Ran ${plural(n3, "command")}`;
@@ -72543,8 +72842,8 @@ function thoughtTitle(item3) {
 import { basename as basename3 } from "node:path";
 var DAY = 864e5;
 var SNIPPET = 160;
-function snippet(text19, max = SNIPPET) {
-  const flat2 = text19.replace(/```[\s\S]*?(```|$)/g, " [code] ").replace(/^@image:\S+/gm, "").replace(/\[The user attached [^\]]*\]/g, "").replace(/\[([^\]\n]+)\]\((?:[^)\s]+)\)/g, "$1").replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/gm, "").replace(/`([^`\n]+)`/g, "$1").replace(/(\*\*|__)(.+?)\1/g, "$2").replace(/\s+/g, " ").trim();
+function snippet(text18, max = SNIPPET) {
+  const flat2 = text18.replace(/```[\s\S]*?(```|$)/g, " [code] ").replace(/^@image:\S+/gm, "").replace(/\[The user attached [^\]]*\]/g, "").replace(/\[([^\]\n]+)\]\((?:[^)\s]+)\)/g, "$1").replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/gm, "").replace(/`([^`\n]+)`/g, "$1").replace(/(\*\*|__)(.+?)\1/g, "$2").replace(/\s+/g, " ").trim();
   return clip3(flat2, { max });
 }
 function rowDetail(s2) {
@@ -72719,35 +73018,35 @@ var PreviewLoader = class {
     this.#pageSize = pageSize;
   }
   /** The selection moved to `id`: its preview loads once the selection rests `delay` ms, unless it is held. */
-  select(id) {
+  select(id2) {
     clearTimeout(this.#timer);
     this.#timer = void 0;
-    if (id === void 0 || this.#disposed) {
+    if (id2 === void 0 || this.#disposed) {
       return;
     }
-    const held = this.#cache.get(id);
+    const held = this.#cache.get(id2);
     if (held && held.status !== "error") {
       return;
     }
     this.#timer = setTimeout(() => {
       this.#timer = void 0;
-      void this.#first(id);
+      void this.#first(id2);
     }, this.#delay);
   }
   /** Session `id`'s preview; undefined until its read starts. */
-  get(id) {
-    return this.#cache.get(id);
+  get(id2) {
+    return this.#cache.get(id2);
   }
   /** Reads `id`'s next page; a no-op at the end, before the first page, or while a page is on its way. */
-  more(id) {
-    const entry = this.#cache.get(id);
+  more(id2) {
+    const entry = this.#cache.get(id2);
     if (entry?.status === "ready" && entry.next !== null && !entry.loadingMore) {
-      void this.#more(id, entry);
+      void this.#more(id2, entry);
     }
   }
   /** Drops what is held of `id` (a deleted session). */
-  forget(id) {
-    this.#cache.delete(id);
+  forget(id2) {
+    this.#cache.delete(id2);
   }
   /** The picker closed: no timer left, and reads still on their way change nothing. */
   dispose() {
@@ -72755,12 +73054,12 @@ var PreviewLoader = class {
     this.#disposed = true;
     this.#cache.clear();
   }
-  async #first(id) {
+  async #first(id2) {
     const entry = { loadingMore: false, next: null, rows: [], seen: /* @__PURE__ */ new Set(), status: "loading" };
-    this.#cache.set(id, entry);
+    this.#cache.set(id2, entry);
     this.#changed();
     try {
-      const page = await this.#reader.page(id, null, this.#pageSize);
+      const page = await this.#reader.page(id2, null, this.#pageSize);
       entry.status = "ready";
       entry.next = page.next;
       this.#keep(entry, page.rows);
@@ -72768,15 +73067,15 @@ var PreviewLoader = class {
       entry.status = "error";
       entry.error = errorText(error);
     }
-    this.#done(id, entry);
+    this.#done(id2, entry);
   }
-  async #more(id, entry) {
+  async #more(id2, entry) {
     entry.loadingMore = true;
     entry.error = void 0;
     this.#changed();
     try {
       for (let i = 0; i < EMPTY_PAGES && entry.next !== null; i++) {
-        const page = await this.#reader.page(id, entry.next, this.#pageSize);
+        const page = await this.#reader.page(id2, entry.next, this.#pageSize);
         entry.next = page.next;
         if (page.reset) {
           entry.rows = [];
@@ -72790,7 +73089,7 @@ var PreviewLoader = class {
       entry.error = errorText(error);
     }
     entry.loadingMore = false;
-    this.#done(id, entry);
+    this.#done(id2, entry);
   }
   /** Appends the rows not seen yet; how many it kept. */
   #keep(entry, rows) {
@@ -72801,8 +73100,8 @@ var PreviewLoader = class {
     entry.rows.push(...fresh);
     return fresh.length;
   }
-  #done(id, entry) {
-    if (!this.#disposed && this.#cache.get(id) === entry) {
+  #done(id2, entry) {
+    if (!this.#disposed && this.#cache.get(id2) === entry) {
       this.#changed();
     }
   }
@@ -72820,13 +73119,13 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
   let selected;
   let deleting = null;
   let shown3 = [];
-  let focus2 = "list";
+  let focus = "list";
   let block;
   let blocks2 = [];
   let nodeId;
   let told2;
   const { live: currentLive, stored: currentStored } = host.session.ref;
-  const isCurrent = (s2) => [s2.id, s2.conversation].some((id) => id === currentLive || id === currentStored);
+  const isCurrent = (s2) => [s2.id, s2.conversation].some((id2) => id2 === currentLive || id2 === currentStored);
   const loader = new PreviewLoader(reader, () => host.changed());
   const copied = new Flash(() => host.changed());
   const load2 = async () => {
@@ -72848,8 +73147,8 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
   };
   const here = (s2) => inWorkspace(s2, workspace);
   const rows = () => tab2 === "here" ? sessions.filter(here) : sessions;
-  const resume = (id) => {
-    const s2 = sessions.find((x) => x.id === id);
+  const resume = (id2) => {
+    const s2 = sessions.find((x) => x.id === id2);
     if (!s2) {
       return;
     }
@@ -72861,12 +73160,12 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
       });
     }
   };
-  const remove2 = async (id) => {
+  const remove2 = async (id2) => {
     deleting = null;
     try {
-      await mutateSession(host.gw, id, "delete", {});
-      sessions = sessions.filter((s2) => s2.id !== id);
-      loader.forget(id);
+      await mutateSession(host.gw, id2, "delete", {});
+      sessions = sessions.filter((s2) => s2.id !== id2);
+      loader.forget(id2);
     } catch (error) {
       host.transcript.notice(errorText(error), "error");
     }
@@ -72891,13 +73190,13 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
   const setTab = (t) => {
     tab2 = t;
     deleting = null;
-    focus2 = "list";
+    focus = "list";
   };
   const focusBlock2 = (key3) => {
     if (!key3 || !selected) {
       return;
     }
-    focus2 = "preview";
+    focus = "preview";
     block = key3;
     if (nodeId) {
       host.reveal(`${nodeId}.${key3}`);
@@ -72917,7 +73216,7 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
     const bare = !k.ctrl && !k.alt && !k.meta;
     const at2 = block ? blocks2.indexOf(block) : -1;
     if (k.name === "escape" || bare && k.name === "left") {
-      focus2 = "list";
+      focus = "list";
     } else if (bare && (k.name === "down" || k.name === "j")) {
       focusBlock2(blocks2[Math.min(blocks2.length - 1, at2 + 1)]);
     } else if (bare && (k.name === "up" || k.name === "k")) {
@@ -72933,7 +73232,7 @@ function openSessionPicker(host, reader = gatewayTranscripts(host.gw)) {
     } else if (bare && k.name === "c") {
       copyId();
     } else {
-      focus2 = "list";
+      focus = "list";
       return false;
     }
     return true;
@@ -72949,7 +73248,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       order2.push({ count: ranked.length, group: "matches", label: "Matches" }, ...ranked.map((r) => r.item.id));
     } else {
       const groups = /* @__PURE__ */ new Map();
-      const add2 = (label, id) => groups.set(label, [...groups.get(label) ?? [], id]);
+      const add2 = (label, id2) => groups.set(label, [...groups.get(label) ?? [], id2]);
       for (const s2 of list10) {
         add2(s2.pinned ? "Pinned" : tab2 === "all" && here(s2) && workspace ? `In ${basename4(workspace)}` : dayOf(s2.lastActive, now), s2.id);
       }
@@ -72969,7 +73268,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
     if (selected !== told2) {
       told2 = selected;
       block = void 0;
-      focus2 = "list";
+      focus = "list";
       loader.select(selected);
     }
     return { hits, order: order2 };
@@ -72977,8 +73276,8 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
   const overlay2 = {
     key: KEY9,
     modal: true,
-    node: (id) => {
-      nodeId = id;
+    node: (id2) => {
+      nodeId = id2;
       const now = Date.now();
       const { hits, order: order2 } = view(now);
       const s2 = sessions.find((x) => x.id === selected);
@@ -72987,7 +73286,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const pane = s2 ? sessionDetail({
         copied: copied.value === s2.id,
         focus: (key3) => focusBlock2(key3),
-        focused: focus2 === "preview" ? block : void 0,
+        focused: focus === "preview" ? block : void 0,
         isCurrent: isCurrent(s2),
         more: () => loader.more(s2.id),
         now,
@@ -73001,7 +73300,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           actions: [
             { id: "delete", keys: ["backspace"], label: "Delete" },
             { ...optional2("disabled", s2 ? void 0 : "No session"), id: "copy", keys: ["alt+c"], label: "Copy id" },
-            focus2 === "preview" ? { id: "list", keys: ["left"], label: "Back to list" } : { ...optional2("disabled", s2 ? void 0 : "No session"), id: "browse", keys: ["right"], label: "Browse" },
+            focus === "preview" ? { id: "list", keys: ["left"], label: "Back to list" } : { ...optional2("disabled", s2 ? void 0 : "No session"), id: "browse", keys: ["right"], label: "Browse" },
             { end: true, id: "close", keys: ["esc"], label: "Close" },
             { ...optional2("disabled", s2 ? void 0 : "No session"), id: "resume", keys: ["enter"], label: s2 && isCurrent(s2) ? "Back to it" : "Resume", primary: true }
           ],
@@ -73012,7 +73311,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           ...optional2("confirm", deleting ? { act: "confirm", label: "Delete", text: `Delete \u201C${sessionLabel(sessions.find((x) => x.id === deleting) ?? { preview: "", title: "" })}\u201D?` } : void 0),
           current: sessions.filter(isCurrent).map((x) => x.id),
           empty: tab2 === "here" ? `No sessions in ${project} yet. Tab shows every folder.` : "No saved sessions yet",
-          focus: focus2,
+          focus,
           hits,
           icon: "history",
           items: rows().map((x) => itemOf3(x, now, tab2 === "all" && !here(x))),
@@ -73040,7 +73339,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
               host.changed();
             },
             list: () => {
-              focus2 = "list";
+              focus = "list";
               host.changed();
             },
             resume: () => resume(selected),
@@ -73074,7 +73373,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           total: rows().length,
           children: pane?.nodes ?? null
         },
-        nativeOverlayKey(id)
+        nativeOverlayKey(id2)
       );
     },
     onClose: () => {
@@ -73096,7 +73395,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
         resume(selected);
       } else if (k.name === "tab") {
         setTab(tab2 === "here" ? "all" : "here");
-      } else if (focus2 === "preview" && previewKey(k)) {
+      } else if (focus === "preview" && previewKey(k)) {
       } else if (k.name === "escape") {
         if (query2) {
           query2 = "";
@@ -73311,12 +73610,12 @@ var SettingsSheet = class {
     }
     this.#host.changed();
   }
-  async #save(intent2) {
+  async #save(intent3) {
     if (!this.#interactive() || this.#busy) {
       return;
     }
     this.#confirmation = void 0;
-    this.#busy = intent2.field.key;
+    this.#busy = intent3.field.key;
     this.#message = "Waiting for canonical Hermes readback\u2026";
     this.#host.changed();
     try {
@@ -73325,10 +73624,10 @@ var SettingsSheet = class {
         gw: this.#host.gw,
         sid: this.#sid,
         profile: this.#profileName
-      }, intent2.field, intent2.value, intent2.expected);
+      }, intent3.field, intent3.value, intent3.expected);
       if (this.#live()) {
-        this.#rows.set(receipt.key, { field: intent2.field, value: receipt.value });
-        this.#message = `Saved and verified by Hermes: ${intent2.field.label}. Session pins are unchanged.`;
+        this.#rows.set(receipt.key, { field: intent3.field, value: receipt.value });
+        this.#message = `Saved and verified by Hermes: ${intent3.field.label}. Session pins are unchanged.`;
       }
     } catch (error) {
       if (this.#live()) {
@@ -73341,24 +73640,24 @@ var SettingsSheet = class {
       }
     }
   }
-  #activate(id) {
+  #activate(id2) {
     if (!this.#interactive() || this.#busy || this.#confirmation) {
       return;
     }
-    this.#selected = id;
-    if (id === "session.model") {
+    this.#selected = id2;
+    if (id2 === "session.model") {
       openModelPicker(this.#host);
       return;
     }
-    if (id === "session.effort") {
+    if (id2 === "session.effort") {
       openEffortPicker(this.#host, false);
       return;
     }
-    if (id === "session.hub") {
+    if (id2 === "session.hub") {
       openModelHub(this.#host);
       return;
     }
-    const row2 = this.#rows.get(id);
+    const row2 = this.#rows.get(id2);
     if (!row2 || this.#status !== "ready") {
       return;
     }
@@ -73366,14 +73665,14 @@ var SettingsSheet = class {
       this.#edit(row2.field, row2.value !== "on");
       return;
     }
-    this.#editing = id;
+    this.#editing = id2;
     this.#choice = row2.field.kind === "choice" ? row2.value : void 0;
     this.#editor.set(row2.value);
     this.#host.changed();
   }
   #commitEditor() {
-    const id = this.#editing;
-    const row2 = id && this.#rows.get(id);
+    const id2 = this.#editing;
+    const row2 = id2 && this.#rows.get(id2);
     if (!row2) {
       return;
     }
@@ -73432,7 +73731,7 @@ var SettingsSheet = class {
   }
   #sections() {
     const query2 = this.#search.text.trim().toLowerCase();
-    const matching = (text19) => !query2 || text19.toLowerCase().includes(query2);
+    const matching = (text18) => !query2 || text18.toLowerCase().includes(query2);
     const session2 = this.#sessionRows().filter((row2) => matching(`${row2.id} ${row2.label} ${row2.hint ?? ""}`));
     const sections2 = [];
     if (this.#searching || this.#page === SESSION_PAGE) {
@@ -73457,7 +73756,7 @@ Confirmed profile value: ${row2.value}`,
     }
     return sections2;
   }
-  node(id) {
+  node(id2) {
     if (!this.#live()) {
       return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
         /* @__PURE__ */ jsx("text", { text: "This Settings sheet belongs to a previous session. Close and reopen it." }, "warning"),
@@ -73676,9 +73975,9 @@ function openSettings(host) {
 
 // src/overlays/toolResults.tsx
 function openToolResults(host) {
-  const source3 = host.session.ref;
+  const source2 = host.session.ref;
   const lifetime = host.transcript.lifetime;
-  const results = (source3.live ? retainedResults(host.transcript.entries) : []).map((result) => ({ ...result, outcome: result.call.outcome }));
+  const results = (source2.live ? retainedResults(host.transcript.entries) : []).map((result) => ({ ...result, outcome: result.call.outcome }));
   const candidates2 = new Map(results.map((result) => [result.call, result.turn]));
   let selected = results.length - 1;
   let starts = [0];
@@ -73686,7 +73985,7 @@ function openToolResults(host) {
   let alive = true;
   const current = () => results[selected];
   const top = () => alive && host.overlays.at(-1) === sheet;
-  const owns = () => Boolean(source3.live) && top() && host.session.ref === source3 && host.transcript.lifetime === lifetime;
+  const owns = () => Boolean(source2.live) && top() && host.session.ref === source2 && host.transcript.lifetime === lifetime;
   const membership = () => {
     const members = /* @__PURE__ */ new Set();
     if (!owns()) {
@@ -73762,7 +74061,7 @@ function openToolResults(host) {
     onClose: () => {
       alive = false;
     },
-    node: (id) => {
+    node: (id2) => {
       const stamp = revision;
       const members = membership();
       const selectedResult = current();
@@ -73781,7 +74080,7 @@ function openToolResults(host) {
             { ...!page || !candidate || page.end >= candidate.text.length ? { disabled: "Last page" } : starts.length >= RESULT_PAGE_LIMIT ? { disabled: "Page limit reached" } : {}, id: "next", keys: ["n"], label: "Next" },
             { end: true, id: "close", keys: ["esc"], label: "Close" }
           ],
-          empty: !source3.live ? "A live session is required." : results.length ? "This result is no longer available." : "No long retained text results in this session.",
+          empty: !source2.live ? "A live session is required." : results.length ? "This result is no longer available." : "No long retained text results in this session.",
           items,
           noun: "results",
           onAction: { previous: () => move(-1, stamp), next: () => move(1, stamp), close: () => close(stamp) },
@@ -73799,7 +74098,7 @@ function openToolResults(host) {
           ] }, "page") : null
         },
         `view-${stamp}`
-      ) }, nativeOverlayKey(id));
+      ) }, nativeOverlayKey(id2));
     },
     onKey: (key3) => {
       const stamp = revision;
@@ -73840,7 +74139,7 @@ var MODES = [
   { detail: "The wallpaper's pywal colors, live as the file changes (/glide theme auto)", icon: "image", id: "auto", label: "Wallpaper" }
 ];
 function isThemeMode(v) {
-  return MODES.some((m) => m.id === v);
+  return MODES.some((m2) => m2.id === v);
 }
 var modeOf = (item3) => item3 !== void 0 && isThemeMode(item3) ? item3 : void 0;
 function openThemePicker(host) {
@@ -73860,7 +74159,7 @@ function openThemePicker(host) {
       host.setTheme(before2);
       host.close(overlay2);
     },
-    node: (id) => /* @__PURE__ */ jsx(
+    node: (id2) => /* @__PURE__ */ jsx(
       "picker",
       {
         actions: [
@@ -73888,7 +74187,7 @@ function openThemePicker(host) {
         size: "md",
         title: "Theme"
       },
-      nativeOverlayKey(id)
+      nativeOverlayKey(id2)
     ),
     onKey: (k) => {
       if (k.name === "escape") {
@@ -73897,7 +74196,7 @@ function openThemePicker(host) {
       } else if (k.name === "enter") {
         host.close(overlay2);
       } else {
-        pick2(modeOf(moveSelection(k, MODES.map((m) => m.id), selected)));
+        pick2(modeOf(moveSelection(k, MODES.map((m2) => m2.id), selected)));
       }
       return true;
     }
@@ -73921,7 +74220,7 @@ function parseVisualCandidate(output, scope2, callId) {
   if (output.length > VISUAL_DISCOVERY_LIMITS.outputChars) {
     return void 0;
   }
-  const value = record2(parseJson(output));
+  const value = record(parseJson(output));
   if (!value || Object.keys(value).sort().join(",") !== "id,kind,path,scope,version" || value["kind"] !== "hermes.visual.candidate" || value["version"] !== 1 || typeof value["id"] !== "string" || !/^[a-f0-9]{64}$/.test(value["id"]) || typeof value["scope"] !== "string" || !scope2 || scope2.length > 256 || value["scope"] !== scope2 || typeof value["path"] !== "string" || value["path"].length > 4096 || !isAbsolute6(value["path"]) || !value["path"].endsWith(".hvisual.json") || /[\p{Cc}\u202a-\u202e\u2066-\u2069]/u.test(value["path"])) {
     return void 0;
   }
@@ -73939,7 +74238,7 @@ function completedOutput(call, budget) {
     budget.chars -= raw2.length;
     raw2 = parseJson(raw2);
   }
-  const result = record2(raw2);
+  const result = record(raw2);
   if (!result || result["exit_code"] !== 0 || result["error"] || result["isError"] || typeof result["output"] !== "string") {
     return void 0;
   }
@@ -73998,19 +74297,19 @@ import { isAbsolute as isAbsolute7 } from "node:path";
 import { pathToFileURL as pathToFileURL5 } from "node:url";
 
 // src/wire/card.ts
-import { basename as basename5, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
+import { basename as basename5, dirname as dirname4, join as join11, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL3 } from "node:url";
 function isCardContract(value) {
-  const module = record2(value);
+  const module = record(value);
   return Boolean(
     module && typeof module["validateCardDocument"] === "function" && typeof module["validatePreparedCard"] === "function"
   );
 }
 function packagedCardUrl() {
   const here = dirname4(fileURLToPath5(import.meta.url));
-  const source3 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
-  const frontend = source3 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL3(join10(frontend, "openui/card.mjs")).href;
+  const source2 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
+  const frontend = source2 ? resolve6(here, "../..") : resolve6(here, "..");
+  return pathToFileURL3(join11(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -74029,19 +74328,19 @@ async function openCardContract() {
 }
 
 // src/wire/openui.ts
-import { basename as basename6, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
+import { basename as basename6, dirname as dirname5, join as join12, resolve as resolve7 } from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 function isOpenUiContract(value) {
-  const module = record2(value);
+  const module = record(value);
   return Boolean(
     module && module["MAX_BYTES"] === 8 * 1024 * 1024 && typeof module["validateBundle"] === "function" && typeof module["fingerprints"] === "function" && typeof module["assertCurrent"] === "function"
   );
 }
 function packagedValidatorUrl() {
   const here = dirname5(fileURLToPath6(import.meta.url));
-  const source3 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
-  const frontend = source3 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL4(join11(frontend, "openui/openui-preview/src/bundle.mjs")).href;
+  const source2 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
+  const frontend = source2 ? resolve7(here, "../..") : resolve7(here, "..");
+  return pathToFileURL4(join12(frontend, "openui/openui-preview/src/bundle.mjs")).href;
 }
 async function openUiContract() {
   let loaded;
@@ -74134,7 +74433,7 @@ function summarizeRepository(bundle) {
     metrics: Object.freeze(metrics.map((key3) => Object.freeze({ key: key3, ...values[key3] })))
   });
 }
-function summarizeCard(card, id) {
+function summarizeCard(card, id2) {
   const labels = {
     text: "Text",
     summary: "Summary",
@@ -74154,7 +74453,7 @@ function summarizeCard(card, id) {
   const extra = Object.entries(card.fields ?? {}).map(([label, value]) => Object.freeze({ label, value }));
   const buttons = (card.buttons ?? []).map((button3) => typeof button3 === "string" ? button3 : button3.label);
   return Object.freeze({
-    id,
+    id: id2,
     title: card.title ?? card.kind + " \xB7 " + card.app,
     mode: "card",
     metrics: Object.freeze([]),
@@ -74211,7 +74510,7 @@ async function readVisualFile(path2, maxBytes, signal) {
 async function readPreparedVisual(path2, scope2, signal) {
   signal?.throwIfAborted();
   const loaded = await readVisualFile(path2, 8 * 1024 * 1024, signal);
-  if (record2(loaded.input)?.["kind"] === "hermes.visual.card") {
+  if (record(loaded.input)?.["kind"] === "hermes.visual.card") {
     const validator = await openCardContract();
     signal?.throwIfAborted();
     const prepared = validator.validatePreparedCard(loaded.input, scope2);
@@ -74417,9 +74716,9 @@ async function openVisualPicker(host, path2, load2 = readPreparedVisual) {
 
 // src/hermes/sessionTree.ts
 var BRANCH_LINEAGE_GAP = "The gateway does not expose branch lineage. Showing available conversations.";
-async function branchFamily(id, gw2) {
+async function branchFamily(id2, gw2) {
   const sessions = await listSessions(gw2);
-  const current = sessions.find((s2) => s2.id === id || s2.conversation === id);
+  const current = sessions.find((s2) => s2.id === id2 || s2.conversation === id2);
   const nodes = sessions.filter((s2) => s2.source !== "tool" && s2.source !== "subagent" && (s2.messages > 0 || s2 === current)).map((s2) => ({
     id: s2.id,
     lastActive: s2.lastActive,
@@ -74459,7 +74758,7 @@ function treeRows(nodes) {
 
 // src/overlays/tree.tsx
 var KEY11 = "tree";
-async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) {
+async function openBranchTree(host, family = (id2) => branchFamily(id2, host.gw)) {
   const ref = host.session.ref;
   const ticket = host.session.ownerTicket?.();
   const owns = () => (!ticket || ticket.isCurrent()) && host.session.ref.live === ref.live && host.session.ref.stored === ref.stored;
@@ -74470,8 +74769,8 @@ async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) 
   let tree = [];
   let order2 = [];
   let selected;
-  const open5 = (id) => {
-    const row2 = tree.find((r) => r.node.id === id);
+  const open5 = (id2) => {
+    const row2 = tree.find((r) => r.node.id === id2);
     if (!row2 || closed || !owns()) {
       return;
     }
@@ -74486,7 +74785,7 @@ async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) 
   const overlay2 = {
     key: KEY11,
     modal: true,
-    node: (id) => {
+    node: (id2) => {
       const now = Date.now();
       const row2 = tree.find((r) => r.node.id === selected);
       return /* @__PURE__ */ jsx(
@@ -74522,7 +74821,7 @@ async function openBranchTree(host, family = (id) => branchFamily(id, host.gw)) 
           total: tree.length,
           children: row2 ? preview3(row2, nodes, row2.node.id === current, now) : null
         },
-        nativeOverlayKey(id)
+        nativeOverlayKey(id2)
       );
     },
     onClose: () => {
@@ -74619,9 +74918,9 @@ var CLOSE_ID2 = 2;
 var realClock = {
   now: () => performance.now(),
   every: (tick2, ms2) => {
-    const id = setInterval(tick2, ms2);
+    const id2 = setInterval(tick2, ms2);
     return () => {
-      clearInterval(id);
+      clearInterval(id2);
     };
   }
 };
@@ -74646,9 +74945,9 @@ async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get = fetch) {
   }
 }
 var STANCE = { agree: { label: "AGREE", color: NIGHT.agree }, dissent: { label: "DISSENT", color: NIGHT.danger }, abstain: { label: "ABSTAIN", color: NIGHT.text3 } };
-function councilCard(src, frame, size = 480) {
+function councilCard(src, frame2, size = 480) {
   let next2 = 10;
-  const text19 = (value) => ({ t: "text", text: value });
+  const text18 = (value) => ({ t: "text", text: value });
   const el = (tag3, style2, kids, opts = {}) => ({
     t: "el",
     tag: tag3,
@@ -74659,70 +74958,70 @@ function councilCard(src, frame, size = 480) {
     click: opts.id !== void 0,
     kids
   });
-  const svg4 = (markup, w, style2 = "") => ({ t: "svg", svg: markup, w, h: w, cls: "", style: style2 });
+  const svg3 = (markup, w, style2 = "") => ({ t: "svg", svg: markup, w, h: w, cls: "", style: style2 });
   const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`;
   const { run: run8 } = src;
-  const done = frame.t !== null && frame.t >= schedule(run8).total;
-  const playing = frame.t !== null && !done;
-  const shown3 = closedSeats(run8, frame);
+  const done = frame2.t !== null && frame2.t >= schedule(run8).total;
+  const playing = frame2.t !== null && !done;
+  const shown3 = closedSeats(run8, frame2);
   const agree = run8.verdicts.filter((v) => v.stance === "agree").length;
   const dissent = run8.verdicts.filter((v) => v.stance === "dissent").length;
   const abstain = run8.verdicts.filter((v) => v.stance === "abstain").length;
   const header = el("div", "display:flex;flex-direction:column;gap:4px", [
     el("div", "display:flex;align-items:center;justify-content:space-between;gap:8px", [
-      el("span", `${micro};letter-spacing:2px`, [text19("COUNCIL \xB7 GLIDE \xB7 SOCRATIC")]),
+      el("span", `${micro};letter-spacing:2px`, [text18("COUNCIL \xB7 GLIDE \xB7 SOCRATIC")]),
       el(
         "span",
         `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` + (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-        [text19(src.live ? `LIVE \xB7 ${src.from.toUpperCase()}` : "DEMO")],
+        [text18(src.live ? `LIVE \xB7 ${src.from.toUpperCase()}` : "DEMO")],
         { attrs: { "data-council-source": src.live ? "live" : "demo" } }
       )
     ]),
-    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:30px;line-height:34px;color:${NIGHT.text}`, [text19("Socratic council")]),
-    el("span", `${micro};margin-top:6px`, [text19("THE BRIEF")]),
-    el("p", `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:14px;line-height:20px;color:${NIGHT.text}`, [text19(run8.brief)])
+    el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:30px;line-height:34px;color:${NIGHT.text}`, [text18("Socratic council")]),
+    el("span", `${micro};margin-top:6px`, [text18("THE BRIEF")]),
+    el("p", `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:14px;line-height:20px;color:${NIGHT.text}`, [text18(run8.brief)])
   ]);
   const verdictBox = el("div", `padding:10px 14px;border-radius:14px;border:1px solid ${dissent && done ? "rgba(227,127,101,0.45)" : "rgba(152,207,139,0.22)"};background-color:rgba(28,28,24,0.55)`, [
     el("div", "display:flex;align-items:center;gap:8px", [
       el("span", `width:7px;height:7px;border-radius:4px;background-color:${done ? dissent ? NIGHT.danger : NIGHT.agree : NIGHT.muted}`, []),
-      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text19(done ? run8.outcome ?? "The council has spoken" : frame.t === null ? "The council is seated" : "The council is sitting")])
+      el("span", `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text18(done ? run8.outcome ?? "The council has spoken" : frame2.t === null ? "The council is seated" : "The council is sitting")])
     ]),
-    el("span", `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text19(done ? `${agree} of ${run8.verdicts.length} agree \xB7 ${dissent} dissent${abstain ? ` \xB7 ${abstain} abstain` : ""}` : `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 verdicts appear as each seat closes`)])
+    el("span", `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text18(done ? `${agree} of ${run8.verdicts.length} agree \xB7 ${dissent} dissent${abstain ? ` \xB7 ${abstain} abstain` : ""}` : `${run8.seats.length} seats \xB7 ${run8.rounds} rounds \xB7 verdicts appear as each seat closes`)])
   ]);
   const seats = el("div", "display:flex;flex-direction:column;gap:2px", run8.seats.map((seat, i) => {
     const v = run8.verdicts.find((x) => x.seat === i);
     const open5 = v !== void 0 && shown3.has(i);
     return el("div", `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
-      svg4(swatchSvg(seat.mineral, 30), 30, "flex:none"),
+      svg3(swatchSvg(seat.mineral, 30), 30, "flex:none"),
       el("div", "display:flex;flex-direction:column;gap:2px;flex:1;min-width:0", [
         el("div", "display:flex;align-items:baseline;gap:8px", [
-          el("span", `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text19(seat.name)]),
-          el("span", `${micro};font-size:8.5px`, [text19(`${MINERAL[seat.mineral].label.toUpperCase()} \xB7 ${seat.family.toUpperCase()}`)]),
-          ...open5 ? [el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text19(STANCE[v.stance].label)], { attrs: { "data-council-stance": v.stance } })] : []
+          el("span", `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text18(seat.name)]),
+          el("span", `${micro};font-size:8.5px`, [text18(`${MINERAL[seat.mineral].label.toUpperCase()} \xB7 ${seat.family.toUpperCase()}`)]),
+          ...open5 ? [el("span", `margin-left:auto;font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text18(STANCE[v.stance].label)], { attrs: { "data-council-stance": v.stance } })] : []
         ]),
-        el("span", `font-size:12.5px;line-height:18px;color:${open5 ? NIGHT.text2 : NIGHT.faint}`, [text19(open5 ? v.text : v ? "\u2026" : "no verdict recorded")])
+        el("span", `font-size:12.5px;line-height:18px;color:${open5 ? NIGHT.text2 : NIGHT.faint}`, [text18(open5 ? v.text : v ? "\u2026" : "no verdict recorded")])
       ])
     ]);
   }));
-  const button3 = (id, label, gold) => el(
+  const button3 = (id2, label, gold) => el(
     "button",
     gold ? "flex:1;padding:11px 16px;border-radius:14px;border:1px solid #f0d7a0;border-bottom-color:#9c7a43;background-color:#cfae74" : `padding:11px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", gold ? `color:#1d160b;font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text19(label)])],
-    { id, attrs: { "data-eui-action": id === CONVENE_ID ? "convene" : "close" } }
+    [el("span", gold ? `color:#1d160b;font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text18(label)])],
+    { id: id2, attrs: { "data-eui-action": id2 === CONVENE_ID ? "convene" : "close" } }
   );
-  const convene = playing ? "Convening\u2026" : frame.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
+  const convene = playing ? "Convening\u2026" : frame2.t === null ? "Convene council  \u2192" : "Convene again  \u2192";
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     header,
     el("div", "display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start", [
-      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg4(instrumentSvg(run8, frame, size), size, "max-width:100%;height:auto")]),
+      el("div", "flex:1 1 340px;display:flex;justify-content:center", [svg3(instrumentSvg(run8, frame2, size), size, "max-width:100%;height:auto")]),
       el("div", "flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0", [
-        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text19(narration(run8, frame))]),
+        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text18(narration(run8, frame2))]),
         verdictBox,
         el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID2, "Close", false)]),
         seats
       ])
     ]),
-    el("span", `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`, [text19(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])
+    el("span", `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`, [text18(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])
   ])]);
 }
 function openCouncilPopup(host, src, clock4 = realClock) {
@@ -74734,7 +75033,7 @@ function openCouncilPopup(host, src, clock4 = realClock) {
   const total = schedule(src.run).total;
   let start = null;
   let stop3;
-  const frame = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
+  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
   const halt = () => {
     stop3?.();
     stop3 = void 0;
@@ -74752,20 +75051,20 @@ function openCouncilPopup(host, src, clock4 = realClock) {
     key: "glide-council",
     modal: true,
     focus: () => null,
-    node: (id) => {
-      const f = frame();
+    node: (id2) => {
+      const f2 = frame2();
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
         label: "Socratic council",
         identity: "council",
-        node: councilCard(src, f, 320),
+        node: councilCard(src, f2, 320),
         activate: (n3) => {
           if (n3 === CONVENE_ID && !stop3) convene();
           else if (n3 === CLOSE_ID2) host.close(overlay2);
         }
       };
-      return euiPopupNode(nativeOverlayKey(id), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui);
+      return euiPopupNode(nativeOverlayKey(id2), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui);
     },
     onKey: (key3) => {
       if (key3.name === "escape") host.close(overlay2);
@@ -74827,19 +75126,19 @@ async function interruptTurn(gw2, sid) {
   const execution_generation = await currentGeneration(gw2, sid);
   await rpc(gw2, "session.interrupt", { session_id: sid, execution_generation });
 }
-async function steerTurn(gw2, sid, text19) {
+async function steerTurn(gw2, sid, text18) {
   try {
     const execution_generation = await currentGeneration(gw2, sid);
-    const r = await rpc(gw2, "session.steer", { session_id: sid, execution_generation, text: text19 });
+    const r = await rpc(gw2, "session.steer", { session_id: sid, execution_generation, text: text18 });
     return r && "status" in r && r.status === "queued" ? { ok: true } : { ok: false };
   } catch (e) {
     return errorText(e).includes("stale_generation") ? { ok: false } : { error: errorText(e), ok: false };
   }
 }
-async function redirectTurn(gw2, sid, text19) {
+async function redirectTurn(gw2, sid, text18) {
   try {
     const execution_generation = await currentGeneration(gw2, sid);
-    const r = await rpc(gw2, "session.redirect", { session_id: sid, execution_generation, text: text19 });
+    const r = await rpc(gw2, "session.redirect", { session_id: sid, execution_generation, text: text18 });
     return r && "status" in r && (r.status === "redirected" || r.status === "queued") ? { ok: true } : { ok: false };
   } catch (e) {
     return errorText(e).includes("stale_generation") ? { ok: false } : { error: errorText(e), ok: false };
@@ -74847,30 +75146,30 @@ async function redirectTurn(gw2, sid, text19) {
 }
 
 // src/commands/control.ts
-var preview4 = (text19) => text19.length > 60 ? `${text19.slice(0, 57)}\u2026` : text19;
-async function steer2(host, text19) {
-  if (!text19) {
+var preview4 = (text18) => text18.length > 60 ? `${text18.slice(0, 57)}\u2026` : text18;
+async function steer2(host, text18) {
+  if (!text18) {
     return host.notice("Usage: /steer <guidance for the active turn>", "warning");
   }
   if (!host.busy || !host.sid) {
-    host.enqueue(text19);
-    return host.notice(`No active turn \u2014 queued as next prompt: ${preview4(text19)}`);
+    host.enqueue(text18);
+    return host.notice(`No active turn \u2014 queued as next prompt: ${preview4(text18)}`);
   }
-  const r = await steerTurn(host.gw, host.sid, text19);
+  const r = await steerTurn(host.gw, host.sid, text18);
   if (r.ok) {
-    return host.steered ? host.steered(text19) : host.notice(`Steer queued for the active turn: ${preview4(text19)}`);
+    return host.steered ? host.steered(text18) : host.notice(`Steer queued for the active turn: ${preview4(text18)}`);
   }
   if (r.error) {
     return host.notice(`/steer failed: ${r.error}`, "error");
   }
-  host.enqueue(text19);
+  host.enqueue(text18);
   host.notice("Turn ended before the steer landed \u2014 queued as next prompt", "warning");
 }
-function queue(host, text19) {
-  if (!text19) {
+function queue(host, text18) {
+  if (!text18) {
     return host.notice(`${host.queued} queued message${host.queued === 1 ? "" : "s"}`);
   }
-  host.submit(text19);
+  host.submit(text18);
 }
 async function stop2(host) {
   if (!host.sid) {
@@ -74913,8 +75212,8 @@ async function tools(host, arg) {
     host.notice(`/tools failed: ${errorText(e)}`, "error");
   }
 }
-async function side(host, text19, kind) {
-  if (!text19) {
+async function side(host, text18, kind) {
+  if (!text18) {
     return host.notice(kind === "bg" ? "Usage: /bg <prompt>" : "Usage: /btw <question>", "warning");
   }
   if (!host.sid) {
@@ -74923,11 +75222,11 @@ async function side(host, text19, kind) {
   try {
     const r = await rpc(host.gw, kind === "bg" ? "prompt.background" : "prompt.btw", {
       session_id: host.sid,
-      text: text19
+      text: text18
     });
     if (r?.task_id) {
       host.notice(
-        kind === "bg" ? `Background task ${r.task_id} started: ${preview4(text19)}` : `btw ${r.task_id}: answering from a snapshot of this conversation`
+        kind === "bg" ? `Background task ${r.task_id} started: ${preview4(text18)}` : `btw ${r.task_id}: answering from a snapshot of this conversation`
       );
     }
   } catch (e) {
@@ -74981,7 +75280,7 @@ var factoryAnswers = {
   suggest: object({
     runs: array(run6),
     suggestions: array(suggestion),
-    running_count: number2().check(int(), _gte(0)),
+    running_count: number2().check(int2(), _gte(0)),
     error: optional(string2()),
     fail_closed: optional(boolean2())
   })
@@ -75004,8 +75303,8 @@ function decodeFactory(schema2, output) {
 
 // src/commands/factory.ts
 async function factoryCommand(host, arg) {
-  const text19 = arg.trim();
-  if (!text19 && host.toggleFactory()) return;
+  const text18 = arg.trim();
+  if (!text18 && host.toggleFactory()) return;
   const sid = host.session.ref.live;
   if (!sid) {
     host.transcript.notice("/factory needs an attached session", "warning");
@@ -75015,7 +75314,7 @@ async function factoryCommand(host, arg) {
   try {
     const result = await host.gw.request("command.dispatch", {
       name: "factory",
-      arg: text19 === "text" || text19 === "status" ? "" : text19,
+      arg: text18 === "text" || text18 === "status" ? "" : text18,
       session_id: sid
     });
     if (host.session.ref.live !== sid || owner2?.isCurrent() === false) return;
@@ -75027,14 +75326,215 @@ async function factoryCommand(host, arg) {
   }
 }
 
+// src/wire/euiKit.ts
+var kitDoc = object({
+  kind: string2().check(_regex(/^[a-z][a-z0-9-]{0,39}$/)),
+  app: string2().check(_regex(/^[a-z0-9][a-z0-9.-]{0,63}$/)),
+  title: optional(string2().check(_maxLength(200))),
+  data: record2(string2(), unknown())
+});
+function freeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return;
+  for (const child of Object.values(value)) freeze(child);
+  Object.freeze(value);
+}
+function decodeEuiKit(raw2) {
+  const text18 = JSON.stringify(raw2);
+  if (!text18 || Buffer.byteLength(text18) > 1024 * 1024) throw new TypeError("Invalid kit document size");
+  const parsed2 = kitDoc.safeParse(JSON.parse(text18));
+  if (!parsed2.success) throw new TypeError("Invalid kit document");
+  const { title: title2, ...fields } = parsed2.data;
+  const doc = title2 === void 0 ? fields : { ...fields, title: title2 };
+  freeze(doc);
+  return doc;
+}
+function kitNotes(doc) {
+  const notes = array(string2()).safeParse(doc.data["notes"]);
+  const hosts2 = array(object({ label: string2(), notes: optional(array(string2())) })).safeParse(doc.data["hosts"]);
+  return [...notes.success ? notes.data : [], ...hosts2.success ? hosts2.data.flatMap((host) => (host.notes ?? []).map((note) => `${host.label}: ${note}`)) : []];
+}
+function kitInput(doc) {
+  if (!doc.kind.startsWith("fleet-")) return doc;
+  const { notes: _notes, ...data } = doc.data;
+  const hosts2 = data["hosts"];
+  const cleanHosts = Array.isArray(hosts2) ? hosts2.map((host) => {
+    if (!host || typeof host !== "object" || Array.isArray(host)) return host;
+    const { notes: _notes2, ...fields } = host;
+    return fields;
+  }) : void 0;
+  return decodeEuiKit({ ...doc, data: { ...data, ...cleanHosts ? { hosts: cleanHosts } : {} } });
+}
+
+// src/wire/fleet.ts
+var apps = { hosts: "k3s", portfolio: "dash", factory: "aodl" };
+function decodeFleet(raw2, view) {
+  const doc = decodeEuiKit(raw2);
+  if (doc.kind !== `fleet-${view}` || doc.app !== apps[view]) throw new TypeError("Unexpected fleet document");
+  return doc;
+}
+var id = string2().check(_minLength(1), _maxLength(200));
+var agentEntities = object({ host: id, agent: id });
+var taskEntities = object({ product: id, feature: id, task: id });
+var nodeEntities = object({ node: id });
+var intent2 = discriminatedUnion("action", [
+  object({ action: literal("open-chat"), entities: agentEntities }),
+  object({ action: literal("nudge"), entities: agentEntities }),
+  object({ action: literal("open-pod"), entities: object({ host: id, ns: id, name: id }) }),
+  object({ action: literal("open-task"), entities: taskEntities }),
+  object({ action: literal("set-next"), entities: taskEntities }),
+  object({ action: literal("queue-fix"), entities: nodeEntities }),
+  object({ action: literal("open-node"), entities: nodeEntities })
+]);
+function decodeFleetIntent(raw2) {
+  const parsed2 = intent2.safeParse(raw2);
+  if (!parsed2.success) throw new Error("Unhandled or invalid fleet action");
+  return parsed2.data;
+}
+var hosts = object({ hosts: array(object({
+  id,
+  online: boolean2(),
+  harnesses: array(object({ kind: id, agents: array(object({ id, name: string2(), state: string2() })) })),
+  k3s: nullable(object({ pods: array(tuple([string2(), string2(), string2(), number2(), string2()])) }))
+})) });
+var portfolios = object({ portfolios: record2(string2(), object({ products: array(object({
+  id,
+  features: array(object({ id, tasks: array(object({ id, label: string2(), url: optional(string2()) })) }))
+})) })) });
+var factory = object({ nodes: array(object({ id, label: string2(), url: optional(string2()) })) });
+function fleetAgent(doc, entity) {
+  if (doc.kind !== "fleet-hosts") throw new Error("Action does not belong to this fleet card");
+  const host = hosts.parse(doc.data).hosts.find((h2) => h2.id === entity.host);
+  const harness = host?.harnesses.find((h2) => h2.agents.some((a2) => a2.id === entity.agent));
+  const agent = harness?.agents.find((a2) => a2.id === entity.agent);
+  if (!host?.online || !agent || agent.state === "offline") throw new Error("Agent unavailable in this snapshot");
+  return { host, harness, agent };
+}
+function fleetPod(doc, entity) {
+  if (doc.kind !== "fleet-hosts") throw new Error("Action does not belong to this fleet card");
+  const host = hosts.parse(doc.data).hosts.find((h2) => h2.id === entity.host);
+  if (!host?.online || !host.k3s?.pods.some((p3) => p3[0] === entity.ns && p3[1] === entity.name)) {
+    throw new Error("Pod unavailable in this snapshot");
+  }
+  return entity;
+}
+function fleetTask(doc, entity) {
+  if (doc.kind !== "fleet-portfolio") throw new Error("Action does not belong to this fleet card");
+  const task = Object.values(portfolios.parse(doc.data).portfolios).flatMap((p3) => p3.products).find((p3) => p3.id === entity.product)?.features.find((f2) => f2.id === entity.feature)?.tasks.find((t) => t.id === entity.task);
+  if (!task) throw new Error("Task unavailable in this snapshot");
+  return task;
+}
+function fleetNode(doc, entity) {
+  if (doc.kind !== "fleet-factory") throw new Error("Action does not belong to this fleet card");
+  const node3 = factory.parse(doc.data).nodes.find((n3) => n3.id === entity.node);
+  if (!node3) throw new Error("Node unavailable in this snapshot");
+  return node3;
+}
+function fleetText(raw2) {
+  return object({ text: string2() }).parse(raw2).text;
+}
+
+// src/commands/fleet.ts
+var title = { hosts: "Hosts", portfolio: "Portfolio", factory: "Factory graph" };
+function browse(url) {
+  if (!url) throw new Error("No URL available in this snapshot");
+  const parsed2 = new URL(url);
+  if (!["https:", "http:"].includes(parsed2.protocol) || parsed2.username || parsed2.password) throw new Error("Unsafe fleet URL");
+  openUrl(parsed2.href);
+}
+async function fleetIntent(host, doc, detail, context) {
+  if (!context.isCurrent() || context.signal.aborted) return;
+  try {
+    const action = decodeFleetIntent(detail);
+    switch (action.action) {
+      case "open-chat": {
+        const { harness, agent } = fleetAgent(doc, action.entities);
+        if (harness?.kind.toLowerCase() !== "hermes" || agent.id.startsWith("process:") || /^\d+$/.test(agent.id)) {
+          host.transcript.notice("Not a Hermes session. Process ids cannot be resumed.", "warning");
+          return;
+        }
+        await host.resume(storedSessionId(agent.id));
+        return;
+      }
+      case "nudge": {
+        const { agent } = fleetAgent(doc, action.entities);
+        host.control().draft(`Follow up with ${agent.name} on ${action.entities.host}: `);
+        return;
+      }
+      case "open-pod": {
+        const pod = fleetPod(doc, action.entities);
+        const reply2 = await host.gw.request("glide.fleet_pod", { session_id: context.sessionId, ...pod });
+        if (context.isCurrent() && !context.signal.aborted) host.control().panel(`${pod.ns}/${pod.name}`, fleetText(reply2));
+        return;
+      }
+      case "open-task":
+        browse(fleetTask(doc, action.entities).url);
+        return;
+      case "set-next": {
+        const task = fleetTask(doc, action.entities);
+        host.control().draft(`Set next: ${task.label} (${action.entities.product}/${action.entities.feature}/${task.id}). `);
+        return;
+      }
+      case "queue-fix": {
+        const node3 = fleetNode(doc, action.entities);
+        host.control().draft(`Investigate and prepare a fix for ${node3.label} (${node3.id}). `);
+        return;
+      }
+      case "open-node":
+        browse(fleetNode(doc, action.entities).url);
+        return;
+      default: {
+        const exhaustive = action;
+        return exhaustive;
+      }
+    }
+  } catch (error) {
+    if (context.isCurrent() && !context.signal.aborted) {
+      host.transcript.notice(`Fleet action: ${error instanceof Error ? error.message : String(error)}`, "warning");
+    }
+  }
+}
+async function fleetCommand(host, view, portfolio) {
+  const sessionId = host.session.ref.live;
+  const label = view === "factory" ? "/factory graph" : `/${view}`;
+  if (!sessionId || !host.eui) {
+    host.transcript.notice(`${label} needs an attached session and inline cards`, "warning");
+    return;
+  }
+  const eui = host.eui;
+  const ref = host.session.ref;
+  const owner2 = host.session.ownerTicket?.();
+  const lifetime = host.transcript.lifetime;
+  const current = () => host.session.ref === ref && host.session.ref.live === sessionId && owner2?.isCurrent() !== false && !owner2?.signal.aborted && host.transcript.lifetime === lifetime;
+  const params = { session_id: sessionId, view, ...portfolio ? { portfolio } : {} };
+  const read = async () => decodeFleet(await host.gw.request("glide.fleet", params), view);
+  let handle3;
+  const publish = (doc, first) => {
+    const intent3 = (detail, context) => fleetIntent(host, doc, detail, context);
+    const refresh = async (context) => {
+      const next2 = await read();
+      if (!current() || !context.isCurrent() || context.signal.aborted) return;
+      publish(next2, false);
+    };
+    const data = { ...doc, title: title[view] };
+    if (first) handle3 = eui.host.publishKit(data, intent3, refresh);
+    else handle3.update(data, intent3, refresh);
+  };
+  try {
+    const doc = await read();
+    if (current()) publish(doc, true);
+  } catch (error) {
+    if (current()) host.transcript.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, "warning");
+  }
+}
+
 // src/commands/refused.ts
 var words2 = (arg) => arg.trim().split(/\s+/).filter(Boolean);
-async function cliPanel(host, title, argv) {
+async function cliPanel(host, title2, argv) {
   const r = await rpc(host.gw, "cli.exec", { argv });
   if (r?.blocked) {
     return host.transcript.notice(r.hint || `\`hermes ${argv.join(" ")}\` cannot run here.`, "warning");
   }
-  host.transcript.panel(title, r?.output?.trim() || "(no output)");
+  host.transcript.panel(title2, r?.output?.trim() || "(no output)");
   if (r?.code) {
     host.transcript.notice(`\`hermes ${argv.join(" ")}\` exited with code ${r.code}.`, "warning");
   }
@@ -75043,7 +75543,7 @@ var isBrowserAction = oneOf(["connect", "disconnect", "status"]);
 async function browser(host, arg) {
   const [first = "status", ...rest] = words2(arg);
   const action = first.toLowerCase();
-  const note = (text19, tone2) => host.transcript.notice(text19, tone2);
+  const note = (text18, tone2) => host.transcript.notice(text18, tone2);
   if (!isBrowserAction(action)) {
     return note("Usage: /browser [status|connect [url]|disconnect]", "warning");
   }
@@ -75244,32 +75744,32 @@ var REFUSED_COMMANDS = [
 ];
 
 // src/commands/session.ts
-async function rewind(host, intent2, arg = "") {
-  const count5 = intent2 === "undo" && arg.trim() ? Number(arg.trim()) : 1;
+async function rewind(host, intent3, arg = "") {
+  const count5 = intent3 === "undo" && arg.trim() ? Number(arg.trim()) : 1;
   if (!Number.isSafeInteger(count5) || count5 < 1) {
     return host.notice("Usage: /undo [N] (N counts prompts back from the newest)", "warning");
   }
   if (!host.sid) {
-    return host.notice(`Nothing to ${intent2}.`);
+    return host.notice(`Nothing to ${intent3}.`);
   }
-  const result = await mutateSession(host.gw, host.sid, "rewind", intent2 === "retry" ? retryTurnRewind : undoRewind(count5));
+  const result = await mutateSession(host.gw, host.sid, "rewind", intent3 === "retry" ? retryTurnRewind : undoRewind(count5));
   const removed = Number(result?.["rewound_count"] ?? 0);
   if (host.stale()) {
     return;
   }
   if (!result || removed <= 0) {
-    return host.notice(`Nothing to ${intent2}.`);
+    return host.notice(`Nothing to ${intent3}.`);
   }
   await host.reload();
   if (host.stale()) {
     return;
   }
-  if (intent2 === "undo") {
+  if (intent3 === "undo") {
     return host.notice(`Undid ${plural(removed, "message")}.`);
   }
   const target2 = result["target_message"];
-  const text19 = retryText(typeof target2 === "object" && target2 !== null && "content" in target2 ? target2.content : void 0);
-  return text19 ? host.send(text19) : host.notice("Nothing to retry.");
+  const text18 = retryText(typeof target2 === "object" && target2 !== null && "content" in target2 ? target2.content : void 0);
+  return text18 ? host.send(text18) : host.notice("Nothing to retry.");
 }
 function compressReport(summary4) {
   const head2 = summary4?.headline ? `${summary4.noop ? "" : "\u2713 "}${summary4.headline}` : "\u2713 Transcript compressed.";
@@ -75282,14 +75782,14 @@ async function compress(host, arg) {
   if (host.busy) {
     return host.notice("Wait for the current turn to finish (or press Esc twice) before compressing.", "warning");
   }
-  const focus2 = arg.trim();
-  const preview5 = /(^|\s)--preview(\s|$)/.test(focus2);
+  const focus = arg.trim();
+  const preview5 = /(^|\s)--preview(\s|$)/.test(focus);
   if (!preview5) {
     host.compressing("start");
   }
   let result;
   try {
-    result = await mutateSession(host.gw, host.sid, "compress", focus2 ? { focus: focus2 } : {});
+    result = await mutateSession(host.gw, host.sid, "compress", focus ? { focus } : {});
   } catch (e) {
     if (host.stale()) {
       return;
@@ -75306,11 +75806,11 @@ async function compress(host, arg) {
     return host.notice(Array.isArray(result["lines"]) ? result["lines"].join("\n") : "Nothing to preview.");
   }
   const summary4 = result.summary;
-  const num7 = (v) => typeof v === "number" && v > 0 ? v : void 0;
+  const num6 = (v) => typeof v === "number" && v > 0 ? v : void 0;
   const kept = result.status === "noop" || result.status === "aborted" || Boolean(summary4?.noop || summary4?.aborted || summary4?.refused_would_grow);
   if (result.status !== "pending") {
     const line = lineTokens(summary4?.token_line ?? "");
-    host.compressing(kept ? "none" : { after: num7(result["after_tokens"]) ?? line.after, before: num7(result["before_tokens"]) ?? line.before });
+    host.compressing(kept ? "none" : { after: num6(result["after_tokens"]) ?? line.after, before: num6(result["before_tokens"]) ?? line.before });
   }
   if (result.status !== "noop") {
     await host.reload();
@@ -75326,8 +75826,8 @@ async function branch(host, arg) {
   if (!host.sid) {
     return host.notice("No active session.", "warning");
   }
-  const title = arg.trim();
-  const result = await mutateSession(host.gw, host.sid, "branch", title ? { title } : {});
+  const title2 = arg.trim();
+  const result = await mutateSession(host.gw, host.sid, "branch", title2 ? { title: title2 } : {});
   const child = result.branched_session_id;
   if (typeof child !== "string" || !child) {
     throw new Error("the gateway did not name the branch");
@@ -75336,7 +75836,7 @@ async function branch(host, arg) {
     return;
   }
   const info = await rpc(host.gw, "session.info", { session_id: child }).catch(() => null);
-  host.notice(`Branched \u2192 ${info?.title?.trim() || title || child}`);
+  host.notice(`Branched \u2192 ${info?.title?.trim() || title2 || child}`);
 }
 async function save(host) {
   if (!host.sid) {
@@ -75385,8 +75885,8 @@ async function rollback(host, arg) {
       return host.notice("Usage: /rollback diff <checkpoint>", "warning");
     }
     const r2 = await rpc(host.gw, "rollback.diff", { hash: rest[0], session_id: host.sid });
-    const text19 = [r2?.stat?.trim(), r2?.diff?.trim()].filter(Boolean).join("\n\n");
-    return text19 ? host.panel("Rollback diff", text19) : host.notice("No changes since this checkpoint.");
+    const text18 = [r2?.stat?.trim(), r2?.diff?.trim()].filter(Boolean).join("\n\n");
+    return text18 ? host.panel("Rollback diff", text18) : host.notice("No changes since this checkpoint.");
   }
   const file2 = rest.join(" ").trim();
   const r = await rpc(host.gw, "rollback.restore", {
@@ -75495,13 +75995,13 @@ var COMMANDS3 = [
     help: "Open a rotatable model beside the chat: /view3d PATH|URL",
     name: "view3d",
     run: async (host, arg) => {
-      const source3 = arg.trim().replace(/^(["'])(.*)\1$/, "$2");
-      if (!source3) {
+      const source2 = arg.trim().replace(/^(["'])(.*)\1$/, "$2");
+      if (!source2) {
         host.transcript.notice("Usage: /view3d PATH|URL (.glb, .gltf, .obj, .fbx, .usdz)", "warning");
         return;
       }
       try {
-        await openArtifact(source3, host.session.info?.cwd);
+        await openArtifact(source2, host.session.info?.cwd);
       } catch {
         host.transcript.notice("Could not open the 3D model. Check the path, format, or public download URL.", "warning");
       }
@@ -75714,9 +76214,19 @@ var COMMANDS3 = [
     run: (host, arg) => arg.trim() === "lanes" ? glideLanes(host) : glideCommand(host, arg)
   },
   {
-    help: "Content factory: toggle the optional pane [text | status | runs | scenes <words> | suggest | render <run> <contract_id>]",
+    help: "Content factory: toggle the optional pane [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]",
     name: "factory",
-    run: (host, arg) => factoryCommand(host, arg)
+    run: (host, arg) => arg.trim() === "graph" ? fleetCommand(host, "factory") : factoryCommand(host, arg)
+  },
+  {
+    name: "hosts",
+    help: "Local fleet hosts, agents, gauges and k3s pods",
+    run: (host, arg) => arg.trim() ? host.transcript.notice("Usage: /hosts", "warning") : fleetCommand(host, "hosts")
+  },
+  {
+    name: "portfolio",
+    help: "Local work portfolios, products and tasks [key]",
+    run: (host, arg) => /\s/.test(arg.trim()) ? host.transcript.notice("Usage: /portfolio [key]", "warning") : fleetCommand(host, "portfolio", arg.trim() || void 0)
   },
   {
     help: "The Socratic council as a popup: seats as minerals, rounds as rings, a verdict per seat [card]",
@@ -75770,12 +76280,12 @@ function copyAnswer(host, arg) {
   }
   const answers2 = host.transcript.entries.flatMap((e) => e.kind === "turn" && answerText(e) ? [answerText(e)] : []);
   const at2 = n3 === void 0 ? answers2.length : Math.min(n3, answers2.length);
-  const text19 = answers2[at2 - 1];
-  if (!text19) {
+  const text18 = answers2[at2 - 1];
+  if (!text18) {
     return host.transcript.notice("No answer to copy yet.", "warning");
   }
-  copyToClipboard(text19);
-  host.transcript.notice(`Copied ${n3 === void 0 ? "the last answer" : `answer ${at2}`} (${text19.length} characters).`);
+  copyToClipboard(text18);
+  host.transcript.notice(`Copied ${n3 === void 0 ? "the last answer" : `answer ${at2}`} (${text18.length} characters).`);
 }
 function historyText(entries2, arg) {
   const preview5 = Math.max(80, Number.parseInt(arg, 10) || 400);
@@ -75901,25 +76411,25 @@ function normalizeChord(raw2) {
   const parts3 = raw2.toLowerCase().split("+").map((s2) => s2.trim()).map((s2) => ALIASES3[s2] ?? s2);
   const name = parts3.pop() ?? "";
   const validName = /^(?:[a-z0-9,./;=\-]|f(?:[1-9]|1[0-9]|2[0-4])|enter|escape|tab|space|backspace|delete|home|end|up|down|left|right|page_up|page_down)$/.test(name);
-  if (!validName || parts3.some((p3) => !MODIFIERS2.some((m) => m === p3)) || new Set(parts3).size !== parts3.length) {
+  if (!validName || parts3.some((p3) => !MODIFIERS2.some((m2) => m2 === p3)) || new Set(parts3).size !== parts3.length) {
     throw new Error(`Invalid key chord: ${raw2}`);
   }
   if (parts3.includes("meta") || parts3.includes("ctrl") && parts3.includes("shift") && ["c", "v", "k", "p"].includes(name) || parts3.includes("alt") && ["f4", "tab"].includes(name)) {
     throw new Error(`Host-reserved key chord: ${raw2}`);
   }
-  return [...MODIFIERS2.filter((m) => parts3.includes(m)), name].join("+");
+  return [...MODIFIERS2.filter((m2) => parts3.includes(m2)), name].join("+");
 }
 function exact(chord, key3) {
   const parts3 = chord.split("+");
   const name = parts3.pop();
-  return key3.name.toLowerCase() === name && MODIFIERS2.every((m) => key3[m] === parts3.includes(m));
+  return key3.name.toLowerCase() === name && MODIFIERS2.every((m2) => key3[m2] === parts3.includes(m2));
 }
 function shortcutMatches(shortcut, key3) {
   const policy = shortcut.legacy;
   if (policy) {
     return shortcut.keys.some((chord) => {
       const name = chord.split("+").at(-1);
-      return name === key3.name.toLowerCase() && policy.must.every((m) => key3[m]) && policy.forbid.every((m) => !key3[m]);
+      return name === key3.name.toLowerCase() && policy.must.every((m2) => key3[m2]) && policy.forbid.every((m2) => !key3[m2]);
     });
   }
   return shortcut.keys.some((chord) => exact(chord, key3));
@@ -75950,10 +76460,10 @@ function effectiveShortcuts(raw2) {
     throw new Error("Tern keybindings must be an object keyed by action id.");
   }
   const overrides = /* @__PURE__ */ new Map();
-  for (const [id, value] of Object.entries(raw2)) {
-    const action = APP_SHORTCUTS.find((row2) => row2.id === id);
+  for (const [id2, value] of Object.entries(raw2)) {
+    const action = APP_SHORTCUTS.find((row2) => row2.id === id2);
     if (!action) {
-      throw new Error(`Unknown Tern action: ${id}`);
+      throw new Error(`Unknown Tern action: ${id2}`);
     }
     if (value === null) {
       continue;
@@ -75961,26 +76471,26 @@ function effectiveShortcuts(raw2) {
     const keys3 = typeof value === "string" ? [value] : Array.isArray(value) ? value : [value];
     const normalized = keys3.map((key3) => {
       if (typeof key3 !== "string") {
-        throw new Error(`Bindings for ${id} must be strings.`);
+        throw new Error(`Bindings for ${id2} must be strings.`);
       }
       const chord = normalizeChord(key3);
       const name = chord.split("+").at(-1) ?? "";
       const mods2 = chord.split("+").slice(0, -1);
       const printable = name.length === 1 || name === "space";
-      const typing = printable && !mods2.includes("ctrl") && (!mods2.includes("alt") || id === "app.message.dequeue" || id === "app.message.alternate");
+      const typing = printable && !mods2.includes("ctrl") && (!mods2.includes("alt") || id2 === "app.message.dequeue" || id2 === "app.message.alternate");
       if (fixedChord(chord)) {
         throw new Error(`Fixed app key chord: ${chord}`);
       }
-      const ownDefault = id === "app.thinking.cycle" && chord === "shift+tab" || id === "app.message.dequeue" && chord === "alt+up";
+      const ownDefault = id2 === "app.thinking.cycle" && chord === "shift+tab" || id2 === "app.message.dequeue" && chord === "alt+up";
       if (editorChord(chord) && !ownDefault || typing) {
         throw new Error(`Composer-owned key chord: ${chord}`);
       }
       return chord;
     });
     if (new Set(normalized).size !== normalized.length) {
-      throw new Error(`Duplicate chord in ${id}`);
+      throw new Error(`Duplicate chord in ${id2}`);
     }
-    overrides.set(id, normalized);
+    overrides.set(id2, normalized);
   }
   const actions = APP_SHORTCUTS.map((action) => {
     const keys3 = overrides.get(action.id);
@@ -76069,9 +76579,9 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
   const sections2 = /* @__PURE__ */ new Map();
   for (const section of [...HOTKEYS, ...shortcutGroups(actions)]) {
     const rows = sections2.get(section.group) ?? [];
-    for (const [keys3, title] of section.rows) {
-      if (!rows.some(([prior, label]) => label === title && prior.join(" ") === keys3.join(" "))) {
-        rows.push([[...keys3], title]);
+    for (const [keys3, title2] of section.rows) {
+      if (!rows.some(([prior, label]) => label === title2 && prior.join(" ") === keys3.join(" "))) {
+        rows.push([[...keys3], title2]);
       }
     }
     sections2.set(section.group, rows);
@@ -76089,7 +76599,7 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
   const overlay2 = {
     key: KEY12,
     modal: true,
-    node: (id) => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Commands and shortcuts", modal: true, role: "omp.overlay.hotkeys", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "lg", children: [
+    node: (id2) => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Commands and shortcuts", modal: true, role: "omp.overlay.hotkeys", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "lg", children: [
       [...sections2].map(([group, rows]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
         "table",
         {
@@ -76116,10 +76626,10 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
             { grow: 1, head: "Description", id: "action" }
           ],
           role: "omp.hotkeys.table",
-          rows: pairs.map(([command2 = "", text19 = ""], i) => ({
+          rows: pairs.map(([command2 = "", text18 = ""], i) => ({
             // The `(usage: …)` tail is `/help <command>`'s business; the table keeps the summary.
             cells: {
-              action: [{ t: text19.replace(/\s*\(usage: .+\)\s*$/, "") }],
+              action: [{ t: text18.replace(/\s*\(usage: .+\)\s*$/, "") }],
               command: [{ s: "mono", t: command2 }]
             },
             id: String(i)
@@ -76128,7 +76638,7 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
         "table"
       ) }, `cmd-${name}`)),
       actionsRow([{ hint: "escape", key: "close", keys: ["escape"], label: "Close", onClick: () => host.close(overlay2) }])
-    ] }, "body") }, nativeOverlayKey(id)),
+    ] }, "body") }, nativeOverlayKey(id2)),
     onKey: (k) => {
       if (k.name === "escape" || k.name === "enter" || k.name === "q") {
         host.close(overlay2);
@@ -76141,22 +76651,22 @@ async function openHelp(host, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join13 } from "node:path";
+import { join as join14 } from "node:path";
 
 // src/config/dataDir.ts
-import { homedir as homedir9 } from "node:os";
-import { join as join12 } from "node:path";
-var dataDir = (env2 = process.env) => join12(env2["HERMES_HOME"] || join12(homedir9(), ".hermes"), "plugin-data", "hermes-tern");
+import { homedir as homedir10 } from "node:os";
+import { join as join13 } from "node:path";
+var dataDir = (env2 = process.env) => join13(env2["HERMES_HOME"] || join13(homedir10(), ".hermes"), "plugin-data", "hermes-tern");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join13(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join14(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join13(dir2, "panes"), { recursive: true });
+    mkdirSync4(join14(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -76173,10 +76683,10 @@ function forgetPane(launch3, dir2 = dataDir()) {
 
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { dirname as dirname6, join as join14 } from "node:path";
+import { homedir as homedir11 } from "node:os";
+import { dirname as dirname6, join as join15 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "hermes-tern", "settings.json");
+  return join15(env2["HERMES_HOME"] || join15(homedir11(), ".hermes"), "hermes-tern", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
@@ -76237,10 +76747,10 @@ function decodePastedImage(data) {
   return { bytes, ...format };
 }
 function pastedImageEvent(value) {
-  const outer = record2(value);
-  const event = outer?.["ev"] === "unknown" ? record2(outer["raw"]) : outer;
+  const outer = record(value);
+  const event = outer?.["ev"] === "unknown" ? record(outer["raw"]) : outer;
   if (event?.["ev"] !== "paste" && event?.["ev"] !== "drop") return void 0;
-  const raw2 = record2(event["raw"]) ?? event;
+  const raw2 = record(event["raw"]) ?? event;
   const candidate = raw2["name"];
   const name = typeof candidate === "string" && candidate.length <= 120 && !Array.from(candidate).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127) && candidate.trim() ? candidate : "Pasted image";
   const path2 = raw2["path"];
@@ -76318,9 +76828,9 @@ var SurfaceLifecycle = class {
   #dirty = false;
   #stalled = false;
   #watchdog;
-  constructor(tern, title, host) {
+  constructor(tern, title2, host) {
     this.#tern = tern;
-    this.#title = title;
+    this.#title = title2;
     this.#host = host;
     this.#surface = this.#open();
   }
@@ -76401,8 +76911,8 @@ var SurfaceLifecycle = class {
     if (this.#state === "disposed") {
       throw new Error("Cannot reopen a disposed Tern surface");
     }
-    const id = this.#recoveries ? "hermes.recovery-" + this.#recoveries : "hermes";
-    const surface = this.#tern.open({ id, mode: "inline", role: "omp.session", title: this.#title });
+    const id2 = this.#recoveries ? "hermes.recovery-" + this.#recoveries : "hermes";
+    const surface = this.#tern.open({ id: id2, mode: "inline", role: "omp.session", title: this.#title });
     if (typeof surface.send !== "function" || typeof surface.acknowledge !== "function" || typeof surface.seq !== "number") {
       throw new TypeError("Incompatible @stencil-hq/tern Surface: send, acknowledge and seq are required.");
     }
@@ -76474,8 +76984,8 @@ var SurfaceLifecycle = class {
 
 // src/eui/cards.ts
 import { createHash as createHash4 } from "node:crypto";
-import { readFileSync as readFileSync7 } from "node:fs";
-import { dirname as dirname7, join as join16, resolve as resolve8 } from "node:path";
+import { readFileSync as readFileSync8 } from "node:fs";
+import { dirname as dirname7, join as join17, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -76497,14 +77007,14 @@ function decodeEuiCard(body, kinds) {
   if (!kinds.includes(parsed2.data.kind)) {
     return { error: `unknown kind ${parsed2.data.kind}` };
   }
-  const { kind, app: app2, title } = parsed2.data;
-  return title === void 0 ? { kind, app: app2 } : { kind, app: app2, title };
+  const { kind, app: app2, title: title2 } = parsed2.data;
+  return title2 === void 0 ? { kind, app: app2 } : { kind, app: app2, title: title2 };
 }
 
 // ../glide/frontend/intentCards.ts
 var INTENT_KINDS = ["intent-declare", "intent-contract", "intent-work", "intent-proof"];
 var isIntentKind = (kind) => INTENT_KINDS.includes(kind);
-var text16 = (value) => ({ t: "text", text: value });
+var text14 = (value) => ({ t: "text", text: value });
 var str6 = (v) => String(v);
 function waveform(words3, bars = 64) {
   const out = [];
@@ -76541,9 +77051,9 @@ function declare(d, el) {
   const ask = d.summary ?? "";
   const runs3 = clauseRuns(ask, d.rows);
   return el("div", [
-    el("div", [waveSvg(ask), el("p", runs3.map((r) => r.clause ? el("span", [text16(r.text)], `ih-u ih-c-${r.clause.replace(/[^a-z]/g, "")}`, { "data-clause": r.clause }) : text16(r.text)), "ih-ask")], "ih-wavebox"),
+    el("div", [waveSvg(ask), el("p", runs3.map((r) => r.clause ? el("span", [text14(r.text)], `ih-u ih-c-${r.clause.replace(/[^a-z]/g, "")}`, { "data-clause": r.clause }) : text14(r.text)), "ih-ask")], "ih-wavebox"),
     // A clause that is the whole ask is already the headline: its key names the kind alone.
-    el("div", d.rows.map((r) => el("span", [text16(str6(r.value).trim() === ask.trim() ? r.label : `${r.label} \xB7 ${str6(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, "")}`)), "ih-keys")
+    el("div", d.rows.map((r) => el("span", [text14(str6(r.value).trim() === ask.trim() ? r.label : `${r.label} \xB7 ${str6(r.value)}`)], `ih-key ih-c-${r.label.toLowerCase().replace(/[^a-z]/g, "")}`)), "ih-keys")
   ], "ih-hero ih-declare");
 }
 var met = (v) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str6(v));
@@ -76558,29 +77068,29 @@ function criterion(label) {
 var TYPED = /^(pattern|gate|budget|sample|lane: .+|host: .+)$/;
 var isCriterion = (label) => !TYPED.test(label);
 var rowsOf3 = (d, prefix2) => d.rows.filter((r) => r.label.startsWith(prefix2)).map((r) => ({ name: r.label.slice(prefix2.length), parts: str6(r.value).split("\xB7").map((s2) => s2.trim()) }));
-var one6 = (d, label) => str6(d.rows.find((r) => r.label === label)?.value ?? "");
+var one5 = (d, label) => str6(d.rows.find((r) => r.label === label)?.value ?? "");
 var tone = (state) => /^(online|ready|running|working|thinking|answered|verified|\d+\/\d+ ready)/i.test(state) ? "ok" : /^(idle|queued|standby|corrected)/i.test(state) ? "idle" : /^(blocked|dead|offline|down)/i.test(state) ? "bad" : "idle";
 function contract(d, el) {
   const crit = d.rows.filter((r) => isCriterion(r.label));
   const ok3 = crit.filter((r) => met(evidence(r.value)[0])).length;
-  const sample = one6(d, "sample");
+  const sample = one5(d, "sample");
   const synthetic = (panel) => sample.split(",").map((s2) => s2.trim()).includes(panel);
-  const head2 = (title, note, panel) => el("div", [
-    el("b", [text16(title)], "ih-h"),
-    el("span", [text16(note)], "ih-hnote"),
-    ...panel && synthetic(panel) ? [el("span", [text16("sample data")], "ih-sample")] : []
+  const head2 = (title2, note, panel) => el("div", [
+    el("b", [text14(title2)], "ih-h"),
+    el("span", [text14(note)], "ih-hnote"),
+    ...panel && synthetic(panel) ? [el("span", [text14("sample data")], "ih-sample")] : []
   ], "ih-head");
   const reqs = el("div", crit.map((r) => {
     const { kind, phrase } = criterion(r.label);
     const [state, more] = evidence(r.value);
     const good = met(state);
     return el("div", [
-      el("small", [text16(kind)], "ih-kind"),
+      el("small", [text14(kind)], "ih-kind"),
       el("div", [
-        el("span", [text16(`\u201C${phrase}\u201D`)], "ih-phrase"),
-        el("span", [text16(good ? `evidence \xB7 ${more || state}` : more || "needs a real-turn receipt")], "ih-needs")
+        el("span", [text14(`\u201C${phrase}\u201D`)], "ih-phrase"),
+        el("span", [text14(good ? `evidence \xB7 ${more || state}` : more || "needs a real-turn receipt")], "ih-needs")
       ], "ih-req-text"),
-      good ? el("span", [el("b", [text16("\u2713")], "ih-tick"), text16(" evidenced")], "ih-mark") : el("span", [el("i", [], "ih-dot"), text16(" missing")], "ih-mark")
+      good ? el("span", [el("b", [text14("\u2713")], "ih-tick"), text14(" evidenced")], "ih-mark") : el("span", [el("i", [], "ih-dot"), text14(" missing")], "ih-mark")
     ], good ? "ih-slot ih-met" : "ih-slot ih-missing", { "data-state": good ? "met" : "missing" });
   }), "ih-slots");
   const lanes2 = rowsOf3(d, "lane: ");
@@ -76589,52 +77099,52 @@ function contract(d, el) {
     return el(
       "div",
       [
-        el("div", [el("i", [], `ih-led ih-${tone(state)}`), el("b", [text16(l.name)])], "ih-lrole"),
-        el("small", [text16(model || job)], "ih-lmodel"),
-        el("small", [text16(job)], "ih-ljob")
+        el("div", [el("i", [], `ih-led ih-${tone(state)}`), el("b", [text14(l.name)])], "ih-lrole"),
+        el("small", [text14(model || job)], "ih-lmodel"),
+        el("small", [text14(job)], "ih-ljob")
       ],
       `ih-lane ih-l-${l.name.replace(/[^a-z]/g, "")}`,
       { "data-state": state }
     );
   };
   const link3 = () => el("i", [], "ih-flowlink");
-  const fan = /fan-out/i.test(one6(d, "pattern"));
+  const fan = /fan-out/i.test(one5(d, "pattern"));
   const mid = lanes2.filter((l) => fan && (l.name === "small" || l.name === "large"));
-  const flow4 = [el("span", [text16("ask")], "ih-term")];
+  const flow4 = [el("span", [text14("ask")], "ih-term")];
   for (const l of lanes2) {
     if (mid.includes(l)) {
-      if (l === mid[0]) flow4.push(link3(), el("div", mid.map((m) => el("div", [el("i", [], "ih-stub"), node3(m), el("i", [], "ih-stub")], "ih-branch")), "ih-fan"));
+      if (l === mid[0]) flow4.push(link3(), el("div", mid.map((m2) => el("div", [el("i", [], "ih-stub"), node3(m2), el("i", [], "ih-stub")], "ih-branch")), "ih-fan"));
       continue;
     }
     flow4.push(link3(), node3(l));
   }
-  flow4.push(el("i", [], "ih-flowlink ih-gated"), el("span", [text16("receipt")], "ih-term ih-due"));
-  const hosts = rowsOf3(d, "host: ");
-  const gate = one6(d, "gate").split("\xB7").map((s2) => s2.trim());
+  flow4.push(el("i", [], "ih-flowlink ih-gated"), el("span", [text14("receipt")], "ih-term ih-due"));
+  const hosts2 = rowsOf3(d, "host: ");
+  const gate = one5(d, "gate").split("\xB7").map((s2) => s2.trim());
   const votes = Number(/(\d+) of (\d+)/.exec(gate[1] ?? "")?.[2] ?? 0);
-  const budget = one6(d, "budget").split("\xB7").map((s2) => s2.trim());
+  const budget = one5(d, "budget").split("\xB7").map((s2) => s2.trim());
   const left = Math.max(0, Math.min(100, Number(/(\d+)%/.exec(budget[1] ?? "")?.[1] ?? 0)));
   return el("div", [
     head2("Requirements", `${ok3}/${crit.length} evidenced \xB7 ${crit.length - ok3} missing`),
     reqs,
-    ...lanes2.length ? [head2("Orchestration", one6(d, "pattern"), "lanes"), el("div", flow4, "ih-flow")] : [],
-    ...hosts.length ? [head2("Hosts", "where each slice runs", "hosts"), el("div", hosts.map((h2) => el("div", [
-      el("div", [el("i", [], `ih-led ih-${tone(h2.parts[0] ?? "")}`), el("b", [text16(h2.name)])], "ih-lrole"),
-      el("small", [text16(h2.parts[0] ?? "")], "ih-hstate"),
-      el("small", [text16(h2.parts[1] ?? "")], "ih-ljob")
+    ...lanes2.length ? [head2("Orchestration", one5(d, "pattern"), "lanes"), el("div", flow4, "ih-flow")] : [],
+    ...hosts2.length ? [head2("Hosts", "where each slice runs", "hosts"), el("div", hosts2.map((h2) => el("div", [
+      el("div", [el("i", [], `ih-led ih-${tone(h2.parts[0] ?? "")}`), el("b", [text14(h2.name)])], "ih-lrole"),
+      el("small", [text14(h2.parts[0] ?? "")], "ih-hstate"),
+      el("small", [text14(h2.parts[1] ?? "")], "ih-ljob")
     ], "ih-host", { "data-state": h2.parts[0] ?? "" })), "ih-hosts")] : [],
     ...gate[0] || budget[0] ? [el("div", [
       el("div", [
-        el("div", [el("small", [text16("gate")], "ih-kind")], "ih-head"),
-        el("b", [text16(gate[0] ?? "")], "ih-gname"),
-        el("div", [...Array.from({ length: votes }, () => el("i", [], "ih-pip")), el("small", [text16(`0/${votes} seats voted`)], "ih-ljob")], "ih-pips"),
-        el("small", [text16(gate[1] ?? "")], "ih-ljob")
+        el("div", [el("small", [text14("gate")], "ih-kind")], "ih-head"),
+        el("b", [text14(gate[0] ?? "")], "ih-gname"),
+        el("div", [...Array.from({ length: votes }, () => el("i", [], "ih-pip")), el("small", [text14(`0/${votes} seats voted`)], "ih-ljob")], "ih-pips"),
+        el("small", [text14(gate[1] ?? "")], "ih-ljob")
       ], "ih-gate"),
       el("div", [
-        el("div", [el("small", [text16(synthetic("budget") ? "budget \xB7 sample" : "budget")], "ih-kind ih-wide")], "ih-head"),
-        el("b", [text16(budget[0] ?? "")], "ih-gname"),
+        el("div", [el("small", [text14(synthetic("budget") ? "budget \xB7 sample" : "budget")], "ih-kind ih-wide")], "ih-head"),
+        el("b", [text14(budget[0] ?? "")], "ih-gname"),
         el("div", [el("i", [], `ih-meterfill ih-w${Math.round(left / 10)}`)], "ih-meter"),
-        el("small", [text16(budget[1] ?? "")], "ih-ljob")
+        el("small", [text14(budget[1] ?? "")], "ih-ljob")
       ], "ih-budget")
     ], "ih-gaterow")] : []
   ], "ih-hero ih-contract");
@@ -76649,13 +77159,13 @@ function work(d, el) {
   d.rows.forEach((r, i) => {
     const [state = "unknown", repo = ""] = str6(r.value).split("\xB7").map((s2) => s2.trim());
     if (!seam && i > 0 && state !== "built" && d.rows.slice(0, i).every((x) => str6(x.value).startsWith("built"))) {
-      kids.push(el("span", [text16("built \u2260 accepted")], "ih-seam"));
+      kids.push(el("span", [text14("built \u2260 accepted")], "ih-seam"));
       seam = true;
     } else if (i > 0) kids.push(el("i", [], "ih-link"));
     kids.push(el("div", [
-      el("b", [text16(r.label)], "ih-node"),
-      el("small", [text16(state)], "ih-state"),
-      ...repo ? [el("span", [text16(repo)], "ih-repo")] : []
+      el("b", [text14(r.label)], "ih-node"),
+      el("small", [text14(state)], "ih-state"),
+      ...repo ? [el("span", [text14(repo)], "ih-repo")] : []
     ], `ih-stop ih-s-${state.replace(/[^a-z]/g, "")}`, { "data-state": state }));
   });
   return el("div", kids, "ih-hero ih-work ih-rail");
@@ -76664,9 +77174,9 @@ function proof(d, el) {
   const n3 = Number(d.rows.find((r) => /receipt/i.test(r.label))?.value ?? 0) || 0;
   const hash = str6(d.rows.find((r) => /hash/i.test(r.label))?.value ?? "");
   return el("div", [
-    el("div", n3 > 0 ? [el("span", [text16(String(n3 - 1))], "ih-n ih-n-out"), el("span", [text16(String(n3))], "ih-n ih-n-in")] : [el("span", [text16("0")], "ih-n")], "ih-counter"),
-    el("small", [text16(n3 === 1 ? "real-turn receipt" : "real-turn receipts")], "ih-cap"),
-    n3 > 0 && hash ? el("span", [text16(hash.slice(0, 12))], "ih-stamp") : el("span", [text16("no receipt yet")], "ih-stamp ih-none")
+    el("div", n3 > 0 ? [el("span", [text14(String(n3 - 1))], "ih-n ih-n-out"), el("span", [text14(String(n3))], "ih-n ih-n-in")] : [el("span", [text14("0")], "ih-n")], "ih-counter"),
+    el("small", [text14(n3 === 1 ? "real-turn receipt" : "real-turn receipts")], "ih-cap"),
+    n3 > 0 && hash ? el("span", [text14(hash.slice(0, 12))], "ih-stamp") : el("span", [text14("no receipt yet")], "ih-stamp ih-none")
   ], `ih-hero ih-proof ${n3 > 0 ? "ih-landed" : ""}`.trim());
 }
 function intentHero(d, el) {
@@ -76775,11 +77285,48 @@ var INTENT_CSS = `
 }
 `;
 
+// src/wire/euiHostCard.ts
+var MAX_HOST_CARD_BYTES = 16 * 1024;
+var MAX_HOST_ROWS = 32;
+var text15 = (max) => string2().check(_minLength(1), _maxLength(max));
+var hostCard = strictObject({
+  kind: string2().check(_regex(/^[a-z][a-z0-9-]{0,39}$/)),
+  app: string2().check(_regex(/^[a-z0-9][a-z0-9.-]{0,63}$/)),
+  title: text15(200),
+  summary: optional(text15(2048)),
+  rows: array(strictObject({
+    label: text15(80),
+    value: union([string2().check(_maxLength(2048)), number2(), boolean2()])
+  })).check(_maxLength(MAX_HOST_ROWS)),
+  approval: optional(strictObject({ label: text15(80), description: text15(2048) }))
+});
+function decodeEuiHostCard(value, kinds) {
+  const parsed2 = hostCard.safeParse(value);
+  if (!parsed2.success) throw new TypeError("Invalid host card data");
+  const data = parsed2.data;
+  if (!kinds.includes(data.kind)) throw new TypeError("Unknown host card kind");
+  if (data.approval && data.kind !== "approve" && data.kind !== "intent-contract") throw new TypeError("Only approve and intent-contract cards accept an operation");
+  if (!data.title.trim() || data.rows.some((row2) => !row2.label.trim()) || data.approval && (!data.approval.label.trim() || !data.approval.description.trim())) {
+    throw new TypeError("Host card labels and operation descriptions must not be blank");
+  }
+  if (new TextEncoder().encode(JSON.stringify(data)).byteLength > MAX_HOST_CARD_BYTES) {
+    throw new TypeError("Host card exceeds the UTF-8 byte limit");
+  }
+  return Object.freeze({
+    kind: data.kind,
+    app: data.app,
+    title: data.title,
+    rows: Object.freeze(data.rows.map((row2) => Object.freeze({ label: row2.label, value: row2.value }))),
+    ...data.summary === void 0 ? {} : { summary: data.summary },
+    ...data.approval === void 0 ? {} : { approval: Object.freeze({ ...data.approval }) }
+  });
+}
+
 // src/eui/hostSnapshot.ts
 var HOST_APPROVE_ID = 1;
 function hostSnapshot(data, status) {
   let next2 = 2;
-  const text19 = (value) => ({ t: "text", text: value });
+  const text18 = (value) => ({ t: "text", text: value });
   const el = (tag3, kids2, cls = "", attrs = {}) => ({
     t: "el",
     tag: tag3,
@@ -76790,21 +77337,20 @@ function hostSnapshot(data, status) {
     click: false,
     kids: kids2
   });
-  const attention4 = attentionHero(data, el);
-  const hero = intentHero(data, el) ?? attention4;
-  const hold = data.kind === "intent-contract" || attention4 !== void 0 && data.approval !== void 0;
-  const drawn = attention4 !== void 0 || hero !== void 0 && (hold || data.kind === "intent-declare");
+  const hero = intentHero(data, el);
+  const hold = data.kind === "intent-contract";
+  const drawn = hero !== void 0 && (hold || data.kind === "intent-declare");
   const kids = [
-    el("h3", [text19(data.title)], "eui-host-title"),
+    el("h3", [text18(data.title)], "eui-host-title"),
     ...hero ? [hero] : [],
-    ...data.summary === void 0 || drawn && !hold && !attention4 ? [] : [el("p", [text19(data.summary)])],
+    ...data.summary === void 0 || drawn && !hold ? [] : [el("p", [text18(data.summary)])],
     ...drawn ? [] : [el("dl", data.rows.flatMap((row2) => [
-      el("dt", [text19(row2.label)]),
-      el("dd", [text19(String(row2.value))])
+      el("dt", [text18(row2.label)]),
+      el("dd", [text18(String(row2.value))])
     ]), "eui-host-rows")]
   ];
   if (data.approval) {
-    kids.push(el("p", [text19(data.approval.description)], "eui-host-operation"));
+    kids.push(el("p", [text18(data.approval.description)], "eui-host-operation"));
     kids.push({
       t: "el",
       tag: "button",
@@ -76813,10 +77359,41 @@ function hostSnapshot(data, status) {
       style: "",
       attrs: { "data-eui-action": "approve", ...status === "pending" ? {} : { disabled: "true" } },
       click: status === "pending",
-      kids: [...hold ? [el("i", [], "ih-holdfill")] : [], text19(status === "pending" ? data.approval.label : status === "running" ? "Running\u2026" : status === "done" ? intentDoneLabel(data) ?? "Completed" : "Failed \xB7 approval used")]
+      kids: [...hold ? [el("i", [], "ih-holdfill")] : [], text18(status === "pending" ? data.approval.label : status === "running" ? "Running\u2026" : status === "done" ? intentDoneLabel(data) ?? "Completed" : "Failed \xB7 approval used")]
     });
   }
   return el("div", [el("section", kids, "eu-card eui-host")]);
+}
+
+// src/eui/kitSnapshot.ts
+function kitSnapshot(node3, notes, refresh, refreshing, error) {
+  let id2 = -2;
+  const text18 = (text19) => ({ t: "text", text: text19 });
+  const el = (tag3, kids, attrs = {}) => ({
+    t: "el",
+    tag: tag3,
+    id: id2--,
+    cls: "",
+    style: "",
+    attrs,
+    click: false,
+    kids
+  });
+  return el("div", [
+    ...node3 ? [node3] : [el("p", [text18(error ? "Fleet card unavailable" : "Loading fleet card\u2026")], { role: "status" })],
+    ...notes.map((note) => el("p", [text18(note)], { "data-fleet-note": "" })),
+    ...error ? [el("p", [text18(error)], { role: "status" })] : [],
+    ...refresh ? [{
+      t: "el",
+      tag: "button",
+      id: -1,
+      cls: "eu-btn",
+      style: "",
+      attrs: { title: "Reload this fleet snapshot", ...refreshing ? { disabled: "true" } : {} },
+      click: !refreshing,
+      kids: [text18(refreshing ? "Refreshing\u2026" : "Refresh")]
+    }] : []
+  ]);
 }
 
 // src/eui/host.ts
@@ -76826,33 +77403,44 @@ var EuiHostCards = class {
   #kinds;
   #changed;
   #port;
+  #sandbox;
   #revision = 0;
   #closed = false;
   #revoking = false;
-  constructor(kinds, changed, port) {
+  constructor(kinds, changed, port, sandbox) {
     this.#kinds = kinds;
     this.#changed = changed;
     this.#port = port;
+    this.#sandbox = sandbox;
   }
   get size() {
     return this.#slots.size;
   }
   publish(raw2, operation2) {
-    const data = this.#data(raw2, operation2);
+    const handle3 = this.#publish(this.#rows(raw2, operation2));
+    return { ...handle3, get revision() {
+      return handle3.revision;
+    }, update: (raw3, run8) => handle3.update(this.#rows(raw3, run8)) };
+  }
+  /** Only a trusted caller receives this publication's intent callback and abort lifetime. */
+  publishKit(raw2, intent3, refresh) {
+    const handle3 = this.#publish(this.#kit(raw2, intent3, refresh));
+    return { ...handle3, get revision() {
+      return handle3.revision;
+    }, update: (raw3, run8, refresh2) => handle3.update(this.#kit(raw3, run8, refresh2)) };
+  }
+  #publish(content5) {
     const port = this.#port;
     const owner2 = port?.owner();
-    if (this.#closed || this.#revoking || !port || !owner2 || !owner2.sessionId || owner2.signal.aborted || !owner2.isCurrent() || !port.active()) {
-      throw new Error("Host card needs an active session");
-    }
+    if (this.#closed || this.#revoking || !port || !owner2 || !owner2.sessionId || owner2.signal.aborted || !owner2.isCurrent() || !port.active()) throw new Error("Host card needs an active session");
     this.sync();
-    if (owner2.signal.aborted || !owner2.isCurrent() || !port.active()) {
-      throw new Error("Host card owner changed");
-    }
-    const entry = port.append(data.title);
+    if (owner2.signal.aborted || !owner2.isCurrent() || !port.active()) throw new Error("Host card owner changed");
+    const title2 = content5.data.title ?? content5.data.kind;
+    const entry = port.append(title2);
     if (this.#closed || owner2.signal.aborted || !owner2.isCurrent() || !port.contains(entry) || !port.active()) {
       throw new Error("Host card owner changed while publishing");
     }
-    let slot = this.#install(entry, data, operation2, owner2);
+    let slot = this.#install(entry, content5, owner2);
     while (this.#slots.size > MAX_HOST_CARDS) {
       const oldest = this.#slots.values().next().value;
       if (!oldest) break;
@@ -76865,19 +77453,16 @@ var EuiHostCards = class {
       get revision() {
         return slot.revision;
       },
-      update: (next2, run8) => {
-        const data2 = this.#data(next2, run8);
-        if (!this.#current(slot) || !port.active() || this.#revoking) {
-          throw new Error("Host card is no longer current");
-        }
+      update: (content6) => {
+        if (!this.#current(slot) || !port.active() || this.#revoking) throw new Error("Host card is no longer current");
         const owner3 = slot.owner;
         this.#drop(slot);
         if (this.#closed || !owner3.isCurrent() || owner3.signal.aborted || !port.contains(entry) || !port.active()) {
           this.#changed(slot.key);
           throw new Error("Host card owner changed");
         }
-        entry.title = data2.title;
-        slot = this.#install(entry, data2, run8, owner3);
+        entry.title = content6.data.title ?? content6.data.kind;
+        slot = this.#install(entry, content6, owner3);
         this.#changed(slot.key);
       },
       revoke: () => {
@@ -76888,23 +77473,25 @@ var EuiHostCards = class {
       }
     };
   }
-  /** Object identity is the authority: a matching model fence or reconstructed panel grants nothing. */
   view(entry) {
     this.sync();
     const slot = this.#slots.get(entry);
     if (!slot) return void 0;
+    const content5 = slot.content;
+    const revision = slot.revision;
     return {
-      spec: slot.data,
-      app: slot.data.app,
-      label: slot.data.title,
-      identity: "host-" + slot.revision,
-      node: hostSnapshot(slot.data, slot.status),
-      activate: (id) => {
-        this.#approve(slot, id);
+      spec: content5.data,
+      app: content5.data.app,
+      label: content5.data.title ?? content5.data.kind,
+      identity: "host-" + revision,
+      node: content5.kind === "rows" ? hostSnapshot(content5.data, content5.status) : kitSnapshot(content5.mounted?.snapshot() ?? null, kitNotes(content5.data), content5.refresh !== void 0, content5.refreshing, content5.error),
+      activate: (id2) => {
+        if (slot.revision !== revision) return;
+        if (content5.kind === "rows") this.#approve(slot, id2);
+        else this.#clickKit(slot, id2);
       }
     };
   }
-  /** Also covers transcript reset/load when the runtime id happens to stay the same. */
   sync() {
     for (const slot of this.#slots.values()) {
       if (!this.#current(slot)) {
@@ -76922,23 +77509,35 @@ var EuiHostCards = class {
     this.#closed = true;
     this.invalidate();
   }
-  #data(raw2, operation2) {
+  /** Theme changes retire native ids and pending mounts, but keep the publication and owner. */
+  remountKit() {
+    for (const slot of this.#slots.values()) {
+      if (slot.content.kind !== "kit") continue;
+      slot.content.mounted?.dispose();
+      delete slot.content.mounted;
+      slot.revision = ++this.#revision;
+      this.#mountKit(slot);
+      this.#changed(slot.key);
+    }
+  }
+  #rows(raw2, operation2) {
     const data = decodeEuiHostCard(raw2, this.#kinds);
     if (Boolean(data.approval) !== (typeof operation2 === "function")) {
       throw new TypeError("An approval needs its separate host operation; read-only cards have none");
     }
-    return data;
+    return { kind: "rows", data, operation: operation2, status: "pending" };
   }
-  #install(entry, data, operation2, owner2) {
+  #kit(raw2, intent3, refresh) {
+    return { kind: "kit", data: decodeEuiKit(raw2), intent: intent3, refresh, refreshing: false, accepting: false };
+  }
+  #install(entry, content5, owner2) {
     const slot = {
       entry,
       key: "main." + entry.id + ".host",
       revision: ++this.#revision,
-      data,
-      operation: operation2,
+      content: content5,
       owner: owner2,
       controller: new AbortController(),
-      status: "pending",
       onAbort: () => {
         if (this.#slots.get(entry) === slot) {
           this.#drop(slot);
@@ -76948,6 +77547,7 @@ var EuiHostCards = class {
     };
     this.#slots.set(entry, slot);
     owner2.signal.addEventListener("abort", slot.onAbort, { once: true });
+    this.#mountKit(slot);
     return slot;
   }
   #current(slot) {
@@ -76955,7 +77555,13 @@ var EuiHostCards = class {
   }
   #drop(slot) {
     this.#slots.delete(slot.entry);
-    slot.operation = void 0;
+    const content5 = slot.content;
+    if (content5.kind === "rows") content5.operation = void 0;
+    else {
+      content5.accepting = false;
+      content5.mounted?.dispose();
+      delete content5.mounting;
+    }
     slot.owner.signal.removeEventListener("abort", slot.onAbort);
     const wasRevoking = this.#revoking;
     this.#revoking = true;
@@ -76965,37 +77571,97 @@ var EuiHostCards = class {
       this.#revoking = wasRevoking;
     }
   }
-  #approve(slot, id) {
-    if (id !== HOST_APPROVE_ID || !this.#current(slot) || !this.#port?.active() || slot.status !== "pending" || !slot.operation) return;
-    const run8 = slot.operation;
-    slot.operation = void 0;
-    slot.status = "running";
+  #context(slot) {
+    const revision = slot.revision;
+    return {
+      sessionId: slot.owner.sessionId,
+      revision,
+      signal: slot.controller.signal,
+      isCurrent: () => this.#current(slot) && slot.revision === revision && this.#port?.active() === true
+    };
+  }
+  #mountKit(slot) {
+    const content5 = slot.content;
+    if (content5.kind !== "kit" || !this.#sandbox) return;
+    const token = content5.mounting = /* @__PURE__ */ Symbol();
+    delete content5.error;
+    this.#sandbox().then((sb) => {
+      if (!this.#current(slot) || content5.mounting !== token) return;
+      content5.mounted = sb.mount(content5.data.kind, content5.data.app, () => {
+        if (this.#current(slot) && content5.mounting === token) this.#changed(slot.key);
+      }, kitInput(content5.data), (detail) => {
+        if (!content5.accepting || !this.#current(slot) || content5.mounting !== token || !this.#port?.active()) return;
+        content5.accepting = false;
+        void this.#runKit(slot, () => content5.intent(detail, this.#context(slot)));
+      });
+      this.#changed(slot.key);
+    }).catch((error) => {
+      if (!this.#current(slot) || content5.mounting !== token) return;
+      content5.error = error instanceof Error ? error.message : String(error);
+      this.#changed(slot.key);
+    });
+  }
+  #clickKit(slot, id2) {
+    const content5 = slot.content;
+    if (content5.kind !== "kit" || !this.#current(slot) || !this.#port?.active()) return;
+    if (id2 === -1 && content5.refresh && !content5.refreshing) {
+      content5.refreshing = true;
+      this.#changed(slot.key);
+      void this.#runKit(slot, () => content5.refresh?.(this.#context(slot))).finally(() => {
+        if (!this.#current(slot)) return;
+        content5.refreshing = false;
+        this.#changed(slot.key);
+      });
+    } else if (id2 > 0) {
+      content5.accepting = true;
+      try {
+        content5.mounted?.click(id2);
+      } finally {
+        content5.accepting = false;
+      }
+      if (this.#current(slot)) this.#changed(slot.key);
+    }
+  }
+  async #runKit(slot, run8) {
+    const revision = slot.revision;
+    try {
+      await run8();
+    } catch (error) {
+      if (!this.#current(slot) || slot.revision !== revision || slot.content.kind !== "kit") return;
+      slot.content.error = error instanceof Error ? error.message : String(error);
+    } finally {
+      if (this.#current(slot) && slot.revision === revision) this.#changed(slot.key);
+    }
+  }
+  #approve(slot, id2) {
+    const content5 = slot.content;
+    if (content5.kind !== "rows" || id2 !== HOST_APPROVE_ID || !this.#current(slot) || !this.#port?.active() || content5.status !== "pending" || !content5.operation) return;
+    const run8 = content5.operation;
+    content5.operation = void 0;
+    content5.status = "running";
     try {
       const result = run8(Object.freeze({
         sessionId: slot.owner.sessionId,
         revision: slot.revision,
-        data: slot.data,
+        data: content5.data,
         signal: slot.controller.signal
       }));
-      void Promise.resolve(result).then(
-        () => this.#finish(slot, "done"),
-        () => this.#finish(slot, "failed")
-      );
+      void Promise.resolve(result).then(() => this.#finish(slot, "done"), () => this.#finish(slot, "failed"));
       if (this.#current(slot)) this.#changed(slot.key);
     } catch {
       this.#finish(slot, "failed");
     }
   }
   #finish(slot, status) {
-    if (!this.#current(slot)) return;
-    slot.status = status;
+    if (!this.#current(slot) || slot.content.kind !== "rows") return;
+    slot.content.status = status;
     this.#changed(slot.key);
   }
 };
 
 // src/eui/sandbox.js
-import { existsSync as existsSync3, readFileSync as readFileSync6 } from "node:fs";
-import { join as join15 } from "node:path";
+import { existsSync as existsSync3, readFileSync as readFileSync7 } from "node:fs";
+import { join as join16 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -79055,11 +79721,11 @@ var DomHandler = class {
     this.lastNode = null;
   }
   oncdatastart() {
-    const text19 = new Text2("");
-    const node3 = new CDATA2([text19]);
+    const text18 = new Text2("");
+    const node3 = new CDATA2([text18]);
     this.addNode(node3);
-    text19.parent = node3;
-    this.lastNode = text19;
+    text18.parent = node3;
+    this.lastNode = text18;
   }
   oncdataend() {
     this.lastNode = null;
@@ -80203,10 +80869,10 @@ function getElements(options, nodes, recurse, limit = Infinity) {
   const test = compileTest(options);
   return test ? filter(test, nodes, recurse, limit) : [];
 }
-function getElementById(id, nodes, recurse = true) {
+function getElementById(id2, nodes, recurse = true) {
   if (!Array.isArray(nodes))
     nodes = [nodes];
-  return findOne(getAttribCheck("id", id), nodes, recurse);
+  return findOne(getAttribCheck("id", id2), nodes, recurse);
 }
 function getElementsByTagName(tagName19, nodes, recurse = true, limit = Infinity) {
   return filter(Checks["tag_name"](tagName19), nodes, recurse, limit);
@@ -80740,11 +81406,11 @@ var parseFromString = (document3, isHTML, markupLanguage) => {
     oncomment(data) {
       append3(node3, document3.createComment(data), active2);
     },
-    ontext(text19) {
+    ontext(text18) {
       if (parsingCData) {
-        append3(node3, document3.createCDATASection(text19), active2);
+        append3(node3, document3.createCDATASection(text18), active2);
       } else {
-        append3(node3, document3.createTextNode(text19), active2);
+        append3(node3, document3.createTextNode(text18), active2);
       }
     },
     // #cdata
@@ -81396,7 +82062,7 @@ var esca = {
   "<": "&lt;",
   ">": "&gt;"
 };
-var pe = (m) => esca[m];
+var pe = (m2) => esca[m2];
 var escape2 = (es) => replace2.call(es, ca, pe);
 
 // node_modules/linkedom/esm/interface/attr.js
@@ -82297,10 +82963,10 @@ function getElements2(options, nodes, recurse, limit = Number.POSITIVE_INFINITY)
   const test = compileTest2(options);
   return test ? filter2(test, nodes, recurse, limit) : [];
 }
-function getElementById2(id, nodes, recurse = true) {
+function getElementById2(id2, nodes, recurse = true) {
   if (!Array.isArray(nodes))
     nodes = [nodes];
-  return findOne2(getAttribCheck2("id", id), nodes, recurse);
+  return findOne2(getAttribCheck2("id", id2), nodes, recurse);
 }
 function getElementsByTagName2(tagName19, nodes, recurse = true, limit = Number.POSITIVE_INFINITY) {
   return filter2(Checks2["tag_name"](tagName19), nodes, recurse, limit);
@@ -83406,12 +84072,12 @@ function compileNth(reverse, ofType) {
   };
 }
 var filters = {
-  contains(next2, text19, options) {
+  contains(next2, text18, options) {
     const { getText: getText4 } = options.adapter;
-    return cacheParentResults(next2, options, (element6) => getText4(element6).includes(text19));
+    return cacheParentResults(next2, options, (element6) => getText4(element6).includes(text18));
   },
-  icontains(next2, text19, options) {
-    const itext = text19.toLowerCase();
+  icontains(next2, text18, options) {
+    const itext = text18.toLowerCase();
     const { getText: getText4 } = options.adapter;
     return cacheParentResults(next2, options, (element6) => getText4(element6).toLowerCase().includes(itext));
   },
@@ -84075,24 +84741,24 @@ var Text6 = class _Text extends CharacterData {
     super(ownerDocument, "#text", TEXT_NODE, data);
   }
   get wholeText() {
-    const text19 = [];
+    const text18 = [];
     let { previousSibling: previousSibling2, nextSibling: nextSibling2 } = this;
     while (previousSibling2) {
       if (previousSibling2.nodeType === TEXT_NODE)
-        text19.unshift(previousSibling2[VALUE]);
+        text18.unshift(previousSibling2[VALUE]);
       else
         break;
       previousSibling2 = previousSibling2.previousSibling;
     }
-    text19.push(this[VALUE]);
+    text18.push(this[VALUE]);
     while (nextSibling2) {
       if (nextSibling2.nodeType === TEXT_NODE)
-        text19.push(nextSibling2[VALUE]);
+        text18.push(nextSibling2[VALUE]);
       else
         break;
       nextSibling2 = nextSibling2.nextSibling;
     }
-    return text19.join("");
+    return text18.join("");
   }
   cloneNode() {
     const { ownerDocument, [VALUE]: data } = this;
@@ -84330,10 +84996,10 @@ var ParentNode = class extends Node3 {
 
 // node_modules/linkedom/esm/mixin/non-element-parent-node.js
 var NonElementParentNode = class extends ParentNode {
-  getElementById(id) {
+  getElementById(id2) {
     let { [NEXT]: next2, [END]: end } = this;
     while (next2 !== end) {
-      if (next2.nodeType === ELEMENT_NODE && next2.id === id)
+      if (next2.nodeType === ELEMENT_NODE && next2.id === id2)
         return next2;
       next2 = next2[NEXT];
     }
@@ -84777,9 +85443,9 @@ var attributesHandler = {
 };
 var create6 = (ownerDocument, element6, localName) => {
   if ("ownerSVGElement" in element6) {
-    const svg4 = ownerDocument.createElementNS(SVG_NAMESPACE, localName);
-    svg4.ownerSVGElement = element6.ownerSVGElement;
-    return svg4;
+    const svg3 = ownerDocument.createElementNS(SVG_NAMESPACE, localName);
+    svg3.ownerSVGElement = element6.ownerSVGElement;
+    return svg3;
   }
   return ownerDocument.createElement(localName);
 };
@@ -84891,36 +85557,36 @@ var Element2 = class extends ParentNode {
   // </specialGetters>
   // <contentRelated>
   get innerText() {
-    const text19 = [];
+    const text18 = [];
     let { [NEXT]: next2, [END]: end } = this;
     while (next2 !== end) {
       if (next2.nodeType === TEXT_NODE) {
-        text19.push(next2.textContent.replace(/\s+/g, " "));
-      } else if (text19.length && next2[NEXT] != end && BLOCK_ELEMENTS.has(next2.tagName)) {
-        text19.push("\n");
+        text18.push(next2.textContent.replace(/\s+/g, " "));
+      } else if (text18.length && next2[NEXT] != end && BLOCK_ELEMENTS.has(next2.tagName)) {
+        text18.push("\n");
       }
       next2 = next2[NEXT];
     }
-    return text19.join("");
+    return text18.join("");
   }
   /**
    * @returns {String}
    */
   get textContent() {
-    const text19 = [];
+    const text18 = [];
     let { [NEXT]: next2, [END]: end } = this;
     while (next2 !== end) {
       const nodeType = next2.nodeType;
       if (nodeType === TEXT_NODE || nodeType === CDATA_SECTION_NODE)
-        text19.push(next2.textContent);
+        text18.push(next2.textContent);
       next2 = next2[NEXT];
     }
-    return text19.join("");
+    return text18.join("");
   }
-  set textContent(text19) {
+  set textContent(text18) {
     this.replaceChildren();
-    if (text19 != null && text19 !== "")
-      this.appendChild(new Text6(this.ownerDocument, text19));
+    if (text18 != null && text18 !== "")
+      this.appendChild(new Text6(this.ownerDocument, text18));
   }
   get innerHTML() {
     return getInnerHtml(this);
@@ -85100,8 +85766,8 @@ var Element2 = class extends ParentNode {
   insertAdjacentHTML(position4, html6) {
     this.insertAdjacentElement(position4, htmlToFragment(this.ownerDocument, html6));
   }
-  insertAdjacentText(position4, text19) {
-    const node3 = this.ownerDocument.createTextNode(text19);
+  insertAdjacentText(position4, text18) {
+    const node3 = this.ownerDocument.createTextNode(text18);
     this.insertAdjacentElement(position4, node3);
   }
   // </insertAdjacent>
@@ -87523,9 +88189,9 @@ var HTMLDocument = class extends Document2 {
   }
   set title(textContent3) {
     const { head: head2 } = this;
-    let title = head2.getElementsByTagName("title").at(0);
-    if (title)
-      title.textContent = textContent3;
+    let title2 = head2.getElementsByTagName("title").at(0);
+    if (title2)
+      title2.textContent = textContent3;
     else {
       head2.insertBefore(
         this.createElement("title"),
@@ -87632,23 +88298,23 @@ function resolveValue(value, lookup2, depth = 0) {
   v = v.replace(/hsla?\(\s*([\d.]+)(?:deg)?\s+([\d.]+%)\s+([\d.]+%)\s*\)/g, (_2, h2, s2, l) => `hsl(${h2},${s2},${l})`);
   return v;
 }
-function rgba(c) {
+function rgba2(c) {
   c = c.trim();
   if (c === "transparent") return [0, 0, 0, 0];
-  let m = /^#([0-9a-f]{3,8})$/i.exec(c);
-  if (m) {
-    const h2 = m[1].length < 6 ? [...m[1]].map((x) => x + x).join("") : m[1];
+  let m2 = /^#([0-9a-f]{3,8})$/i.exec(c);
+  if (m2) {
+    const h2 = m2[1].length < 6 ? [...m2[1]].map((x) => x + x).join("") : m2[1];
     return [0, 2, 4].map((i) => Number.parseInt(h2.slice(i, i + 2), 16)).concat(h2.length === 8 ? Number.parseInt(h2.slice(6), 16) / 255 : 1);
   }
-  m = /^rgba?\(([^)]*)\)$/.exec(c);
-  if (m) {
-    const p3 = m[1].split(/[\s,/]+/).filter(Boolean).map(Number.parseFloat);
+  m2 = /^rgba?\(([^)]*)\)$/.exec(c);
+  if (m2) {
+    const p3 = m2[1].split(/[\s,/]+/).filter(Boolean).map(Number.parseFloat);
     return p3.length >= 3 ? [p3[0], p3[1], p3[2], p3[3] ?? 1] : void 0;
   }
   return void 0;
 }
 function mix3(a2, p3, b) {
-  const x = rgba(a2), y = rgba(b);
+  const x = rgba2(a2), y = rgba2(b);
   if (!x || !y) return void 0;
   const al = x[3] * p3 + y[3] * (1 - p3);
   const ch = (i) => al === 0 ? 0 : Math.round((x[i] * x[3] * p3 + y[i] * y[3] * (1 - p3)) / al);
@@ -87661,15 +88327,15 @@ function lengthOf(el) {
   if (el.localName === "circle") return 2 * Math.PI * n3("r");
   return void 0;
 }
-function svgInline(svg4, rules, theme) {
-  const copy = svg4.cloneNode(true);
-  const live = [svg4, ...svg4.querySelectorAll("*")];
+function svgInline(svg3, rules, theme) {
+  const copy = svg3.cloneNode(true);
+  const live = [svg3, ...svg3.querySelectorAll("*")];
   const out = [copy, ...copy.querySelectorAll("*")];
   const inherited = {};
-  for (let a2 = svg4.parentElement; a2; a2 = a2.parentElement) {
+  for (let a2 = svg3.parentElement; a2; a2 = a2.parentElement) {
     for (const [k, v] of Object.entries(props(a2.getAttribute("style")))) if (!(k in inherited) && (k.startsWith("--") || k === "color")) inherited[k] = v;
   }
-  const scope2 = /* @__PURE__ */ new Map([[svg4, inherited]]);
+  const scope2 = /* @__PURE__ */ new Map([[svg3, inherited]]);
   live.forEach((el, i) => {
     const up = scope2.get(el.parentElement) ?? inherited;
     const decl = {};
@@ -87730,13 +88396,13 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join15(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join15(dir2, "data", match[1] + ".json");
-  return existsSync3(file2) ? readFileSync6(file2, "utf8") : void 0;
+  const file2 = join16(dir2, "data", match[1] + ".json");
+  return existsSync3(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
 }) {
@@ -87796,8 +88462,8 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   };
   EP.blur ??= function() {
   };
-  const timer = (f) => (fn, ms2, ...a2) => {
-    const t = f(() => {
+  const timer = (f2) => (fn, ms2, ...a2) => {
+    const t = f2(() => {
       try {
         fn(...a2);
       } catch (e) {
@@ -87828,7 +88494,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
     }, removeEventListener() {
     }, addListener() {
     } }),
-    requestAnimationFrame: (f) => timer(setTimeout)(() => f(performance.now()), 16),
+    requestAnimationFrame: (f2) => timer(setTimeout)(() => f2(performance.now()), 16),
     cancelAnimationFrame: clearTimeout,
     setTimeout: timer(setTimeout),
     clearTimeout,
@@ -87886,11 +88552,11 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
     },
     dispatchEvent: () => true,
     fetch: async (url) => {
-      const text19 = await dataText(String(url));
-      if (text19 === void 0) return { ok: false, status: 404, json: async () => {
+      const text18 = await dataText(String(url));
+      if (text18 === void 0) return { ok: false, status: 404, json: async () => {
         throw Error(`404 ${url}`);
       }, text: async () => "" };
-      return { ok: true, status: 200, json: async () => JSON.parse(text19), text: async () => text19 };
+      return { ok: true, status: 200, json: async () => JSON.parse(text18), text: async () => text18 };
     }
   };
   ctx.getSelection = () => ({ removeAllRanges() {
@@ -87936,14 +88602,14 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync6(join15(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K = ctx.__EUI;
   await K.loadApps();
-  const themes = JSON.parse(readFileSync6(join15(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
   K.theme.themes = themes;
   K.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join15(dir2, "kit.css");
-  const rules = existsSync3(kitCss2) ? svgRules(readFileSync6(kitCss2, "utf8"), scheme2) : [];
+  const kitCss2 = join16(dir2, "kit.css");
+  const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   K.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
   const byId = /* @__PURE__ */ new Map();
@@ -87966,8 +88632,19 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
       const box = (el.getAttribute("viewBox") ?? "").split(/[\s,]+/).map(Number);
       const w = Number.parseFloat(el.getAttribute("width") ?? "") || box[2] || 16;
       const h2 = Number.parseFloat(el.getAttribute("height") ?? "") || box[3] || 16;
-      const svg4 = svgInline(el, rules, K.theme.base ?? {});
-      return { t: "svg", svg: svg4, w, h: h2, cls: el.getAttribute("class") ?? "", style: el.getAttribute("style") ?? "" };
+      const svg3 = svgInline(el, rules, K.theme.base ?? {});
+      const image3 = { t: "svg", svg: svg3, w, h: h2, cls: el.getAttribute("class") ?? "", style: el.getAttribute("style") ?? "" };
+      const controls = [...el.querySelectorAll('[role="button"]')].filter(clickable).map((control) => ({
+        t: "el",
+        tag: "button",
+        id: idOf2(control),
+        cls: "eu-btn",
+        style: "",
+        click: true,
+        attrs: { title: control.getAttribute("aria-label") ?? "", "data-fleet-svg-control": control.getAttribute("data-node") ?? "" },
+        kids: [{ t: "text", text: control.getAttribute("aria-label") || control.textContent }]
+      }));
+      return controls.length ? { t: "el", tag: "div", id: idOf2(el), cls: "eui-svg-controls", style: "", attrs: {}, click: false, kids: [image3, ...controls] } : image3;
     }
     if (el.localName === "canvas" || el.localName === "script" || el.localName === "style" || el.localName === "template") return null;
     const attrs = {};
@@ -87999,7 +88676,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   return {
     kinds: Object.keys(K.KINDS),
     apps: () => K.catalog.apps.map((a2) => ({ id: a2.id, name: a2.name, kinds: [...a2.kinds ?? []] })),
-    mount(kind, appId, onChange) {
+    mount(kind, appId, onChange, doc, onIntent) {
       const k = K.KINDS[kind];
       if (!k) throw Error(`ephemeral-ui has no kind ${kind}`);
       const app2 = K.catalog.byId[appId] ?? K.catalog.apps.find((a2) => (a2.kinds ?? []).includes(kind)) ?? { id: appId, name: appId, kinds: [kind] };
@@ -88009,7 +88686,9 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
       root7.setAttribute("data-eui-app", app2.id);
       if (scheme2 === "dark") root7.classList.add("dark");
       document3.body.append(root7);
-      const c = k.make(app2, K.rng(app2.id + kind));
+      const intent3 = (event) => onIntent?.(event.detail);
+      if (onIntent) root7.addEventListener("eui:intent", intent3);
+      const c = k.make(app2, K.rng(app2.id + kind), doc);
       root7.append(c.el ?? c);
       const run8 = new K.Run();
       if (typeof c.play === "function") Promise.resolve().then(() => c.play(run8)).catch((e) => {
@@ -88030,8 +88709,8 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
         app: app2.id,
         label: String(k.label ?? kind),
         snapshot: () => snapshot4(root7),
-        click(id) {
-          const el = byId.get(id)?.deref();
+        click(id2) {
+          const el = byId.get(id2)?.deref();
           if (!el || !root7.contains(el) || el.disabled) return false;
           if (el.localName === "input" && (el.type === "checkbox" || el.type === "radio")) {
             el.checked = el.type === "radio" ? true : !el.checked;
@@ -88071,6 +88750,7 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
           mo.disconnect();
           run8.stop();
           clearTimeout(pending2);
+          root7.removeEventListener("eui:intent", intent3);
           root7.remove();
         }
       };
@@ -88095,7 +88775,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = dir2 ? readFileSync7(join16(dir2, "kit.css"), "utf8") : "";
+  const kit = dir2 ? readFileSync8(join17(dir2, "kit.css"), "utf8") : "";
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--accent-ink, var(--card)); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -88107,7 +88787,6 @@ function euiStyles() {
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
 ${INTENT_CSS}
-${ATTENTION_CSS}
 [data-role='eui.error'] { color: var(--sf-c-error, var(--t2)); font: 12px/1.4 var(--mono); }
 `;
   return kitCss;
@@ -88116,28 +88795,28 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync7(join16(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join17(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
-function splitEuiFences(text19, block, kinds) {
-  if (!text19.includes(EUI_FENCE)) {
-    return [{ kind: "md", text: text19 }];
+function splitEuiFences(text18, block, kinds) {
+  if (!text18.includes(EUI_FENCE)) {
+    return [{ kind: "md", text: text18 }];
   }
   const parts3 = [];
   let at2 = 0;
   let n3 = 0;
-  for (const m of text19.matchAll(FENCE2)) {
-    const start = m.index + (m[1]?.length ?? 0);
-    const before2 = text19.slice(at2, start);
+  for (const m2 of text18.matchAll(FENCE2)) {
+    const start = m2.index + (m2[1]?.length ?? 0);
+    const before2 = text18.slice(at2, start);
     if (before2.trim()) {
       parts3.push({ kind: "md", text: before2 });
     }
-    const decoded = decodeEuiCard(m[4] ?? "", kinds);
-    parts3.push("error" in decoded ? { kind: "bad", text: m[0].slice(m[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n3++}`, spec: decoded });
-    at2 = m.index + m[0].length;
+    const decoded = decodeEuiCard(m2[4] ?? "", kinds);
+    parts3.push("error" in decoded ? { kind: "bad", text: m2[0].slice(m2[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n3++}`, spec: decoded });
+    at2 = m2.index + m2[0].length;
   }
-  const rest = text19.slice(at2);
+  const rest = text18.slice(at2);
   if (rest.trim() || parts3.length === 0) {
     parts3.push({ kind: "md", text: rest });
   }
@@ -88145,8 +88824,8 @@ function splitEuiFences(text19, block, kinds) {
 }
 var EuiCards = class {
   revision = 0;
-  dir = euiDir();
-  kinds = pinnedKinds(this.dir);
+  dir;
+  kinds;
   host;
   #sink;
   #changed;
@@ -88156,12 +88835,14 @@ var EuiCards = class {
   #blobs = /* @__PURE__ */ new Map();
   #rules = /* @__PURE__ */ new Map();
   #sheetDirty = false;
-  constructor(changed, sink2, host) {
+  constructor(changed, sink2, host, dir2 = euiDir()) {
+    this.dir = dir2;
+    this.kinds = pinnedKinds(dir2);
     this.#changed = changed;
     this.#sink = sink2;
     this.host = new EuiHostCards(this.kinds, (key3) => {
       this.#bump(key3);
-    }, host);
+    }, host, () => this.#loadSandbox());
   }
   attach(sink2, dark) {
     this.#sink = sink2;
@@ -88177,10 +88858,11 @@ var EuiCards = class {
     }
     this.#dark = dark;
     this.#sandbox = void 0;
+    this.host.remountKit();
     this.#reset();
   }
-  split(text19, block) {
-    return this.kinds.length ? splitEuiFences(text19, block, this.kinds) : [{ kind: "md", text: text19 }];
+  split(text18, block) {
+    return this.kinds.length ? splitEuiFences(text18, block, this.kinds) : [{ kind: "md", text: text18 }];
   }
   /** The card's current state, mounting it on first sight. */
   view(key3, spec) {
@@ -88192,8 +88874,8 @@ var EuiCards = class {
       this.#evict();
       this.#mount(key3, slot);
     }
-    const m = slot.mounted;
-    return { spec, app: m?.app ?? spec.app, label: m?.label ?? spec.kind, node: m ? m.snapshot() : null, ...slot.error === void 0 ? {} : { error: slot.error } };
+    const m2 = slot.mounted;
+    return { spec, app: m2?.app ?? spec.app, label: m2?.label ?? spec.kind, node: m2 ? m2.snapshot() : null, ...slot.error === void 0 ? {} : { error: slot.error } };
   }
   /** A trusted host panel, through the same stylesheet and node renderer as demo cards. */
   hostView(entry) {
@@ -88201,8 +88883,8 @@ var EuiCards = class {
     if (view) this.#flush();
     return view;
   }
-  click(key3, id) {
-    if (this.#slots.get(key3)?.mounted?.click(id)) {
+  click(key3, id2) {
+    if (this.#slots.get(key3)?.mounted?.click(id2)) {
       this.#bump(key3);
     }
   }
@@ -88212,14 +88894,14 @@ var EuiCards = class {
     if (hit !== void 0 || !this.#sink) {
       return hit;
     }
-    const id = this.#sink.blob(new TextEncoder().encode(themeSvg(markup)), "image/svg+xml");
-    if (id !== void 0) {
+    const id2 = this.#sink.blob(new TextEncoder().encode(themeSvg(markup)), "image/svg+xml");
+    if (id2 !== void 0) {
       if (this.#blobs.size >= MAX_BLOBS) {
         this.#blobs.delete(this.#blobs.keys().next().value ?? "");
       }
-      this.#blobs.set(markup, id);
+      this.#blobs.set(markup, id2);
     }
-    return id;
+    return id2;
   }
   /** The `data-eui-s` value that carries an element's inline style (Tern nodes take no style). */
   style(css2) {
@@ -88253,9 +88935,11 @@ var EuiCards = class {
       this.#sink.stylesheet(INLINE_SHEET, css2);
     }
   }
+  #loadSandbox() {
+    return this.#sandbox ??= createSandbox(this.dir, this.#dark ? "dark" : "light");
+  }
   #mount(key3, slot) {
-    this.#sandbox ??= createSandbox(this.dir, this.#dark ? "dark" : "light");
-    this.#sandbox.then((sb) => {
+    this.#loadSandbox().then((sb) => {
       if (this.#slots.get(key3) !== slot) {
         return;
       }
@@ -88296,8 +88980,8 @@ var EuiCards = class {
     this.#changed(key3);
   }
 };
-function themeSvg(svg4) {
-  return svg4.replace(/currentColor/g, "var(--text)").replace(/var\(--h-(fg|primaryFg)\)/g, "var(--text)").replace(/var\(--h-(mutedFg|border|input)\)/g, "var(--muted)").replace(/var\(--h-primary\)/g, "var(--accent)");
+function themeSvg(svg3) {
+  return svg3.replace(/currentColor/g, "var(--text)").replace(/var\(--h-(fg|primaryFg)\)/g, "var(--text)").replace(/var\(--h-(mutedFg|border|input)\)/g, "var(--muted)").replace(/var\(--h-primary\)/g, "var(--accent)");
 }
 
 // src/surface/host.ts
@@ -88309,7 +88993,7 @@ var SurfaceHost = class {
   #missing = /* @__PURE__ */ new Set();
   #focus = INPUT_ID;
   #palette;
-  constructor(tern, title, styles, events) {
+  constructor(tern, title2, styles, events) {
     const host = {
       changed: () => events.changed(),
       report: (message) => events.report(message),
@@ -88328,7 +89012,7 @@ var SurfaceHost = class {
         events.recovered(surface);
       }
     };
-    this.#life = new SurfaceLifecycle(tern, title, host);
+    this.#life = new SurfaceLifecycle(tern, title2, host);
     this.#track(this.raw);
     this.raw.stylesheet("hermes-tern", styles);
   }
@@ -88368,8 +89052,8 @@ var SurfaceHost = class {
     const accepted = this.#life.event(event);
     const childGone = event.ev === "gone" && !event.ids.includes(before2.id) && (!event.sf || event.sf === before2.id) && this.#life.state !== "failed" && this.#life.state !== "disposed";
     if (childGone) {
-      for (const id of event.ids) {
-        this.#missing.add(id);
+      for (const id2 of event.ids) {
+        this.#missing.add(id2);
       }
       this.#writer.forget(event.ids);
       if (this.#focus && this.#absent(this.#focus)) {
@@ -88409,36 +89093,36 @@ var SurfaceHost = class {
       this.raw.palette(palette);
     }
   }
-  focus(id) {
-    if (this.closed || this.raw.blocked || id !== null && this.#absent(id)) {
+  focus(id2) {
+    if (this.closed || this.raw.blocked || id2 !== null && this.#absent(id2)) {
       this.#focus = void 0;
       this.#life.defer();
       return;
     }
-    this.#focus = id;
-    this.raw.focus(id);
+    this.#focus = id2;
+    this.raw.focus(id2);
   }
-  follow(id) {
-    if (id !== this.#focus) {
-      this.focus(id);
+  follow(id2) {
+    if (id2 !== this.#focus) {
+      this.focus(id2);
     }
   }
-  reveal(id, at2) {
-    if (!this.closed && !this.raw.blocked && !this.#absent(id)) {
-      this.raw.reveal(id, at2);
+  reveal(id2, at2) {
+    if (!this.closed && !this.raw.blocked && !this.#absent(id2)) {
+      this.raw.reveal(id2, at2);
     }
   }
-  scroll(id, to) {
-    if (!this.closed && !this.raw.blocked && !this.#absent(id)) {
-      this.raw.scroll(id, to);
+  scroll(id2, to) {
+    if (!this.closed && !this.raw.blocked && !this.#absent(id2)) {
+      this.raw.scroll(id2, to);
     }
   }
   #accept(surface, event) {
     return surface === this.raw && !this.closed && (!("sf" in event) || !event.sf || event.sf === surface.id) && (!("id" in event) || !event.id || !this.#absent(event.id));
   }
-  #absent(id) {
+  #absent(id2) {
     for (const missing of this.#missing) {
-      if (id === missing || id.startsWith(missing + ".")) {
+      if (id2 === missing || id2.startsWith(missing + ".")) {
         return true;
       }
     }
@@ -88464,8 +89148,8 @@ var SurfaceHost = class {
           visit2(op[4]);
         }
       }
-      for (const id of restored2) {
-        this.#missing.delete(id);
+      for (const id2 of restored2) {
+        this.#missing.delete(id2);
       }
     };
   }
@@ -88592,11 +89276,11 @@ function hermesTableChartPlanner(env2 = process.env) {
 // src/transcript/tableCharts.ts
 var NUMBER = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)%?$/;
 var cells = (line) => line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((s2) => s2.trim());
-function analyzeTable(source3) {
-  if (source3.length > 8192 || /[\\`<>]/.test(source3) || [...source3].some((c) => c !== "\n" && c.charCodeAt(0) < 32)) {
+function analyzeTable(source2) {
+  if (source2.length > 8192 || /[\\`<>]/.test(source2) || [...source2].some((c) => c !== "\n" && c.charCodeAt(0) < 32)) {
     return;
   }
-  const rows = source3.trim().split("\n").map(cells);
+  const rows = source2.trim().split("\n").map(cells);
   const [header, delimiter, ...body] = rows;
   if (!header || header.length !== 2 || header.some((s2) => !s2) || !delimiter || delimiter.length !== 2 || !delimiter.every((s2) => /^:?-{3,}:?$/.test(s2)) || body.length < 2 || body.length > 24 || body.some((row2) => row2.length !== 2 || !row2[0] || NUMBER.test(row2[0]) || !NUMBER.test(row2[1] ?? ""))) {
     return;
@@ -88607,7 +89291,7 @@ function analyzeTable(source3) {
   if (new Set(labels).size !== labels.length || labels.some((s2) => s2.length > 80) || new Set(raw2.map((s2) => s2.endsWith("%"))).size !== 1 || values.some((n3) => !Number.isFinite(n3) || Math.abs(n3) > 1e12) || values.every((n3) => n3 === 0)) {
     return;
   }
-  return Object.freeze({ source: source3, labels: Object.freeze(labels), values: Object.freeze(values), title: header[1] ?? "" });
+  return Object.freeze({ source: source2, labels: Object.freeze(labels), values: Object.freeze(values), title: header[1] ?? "" });
 }
 function tableSlices(markdown2) {
   if (markdown2.length > 65536) {
@@ -88627,17 +89311,17 @@ function tableSlices(markdown2) {
         fence = "";
       }
     } else if (!fence && /^ {0,3}\|/.test(line) && /^ {0,3}\|/.test(lines[i + 1] ?? "")) {
-      let source3 = line;
+      let source2 = line;
       let end = i + 1;
       while (end < lines.length && /^ {0,3}\|/.test(lines[end] ?? "")) {
-        source3 += lines[end] ?? "";
+        source2 += lines[end] ?? "";
         end++;
       }
-      const table3 = analyzeTable(source3);
+      const table3 = analyzeTable(source2);
       if (table3 && result.length < 8) {
-        result.push({ start: offset, end: offset + source3.length, table: table3 });
+        result.push({ start: offset, end: offset + source2.length, table: table3 });
       }
-      offset += source3.length;
+      offset += source2.length;
       i = end - 1;
       continue;
     }
@@ -88719,15 +89403,15 @@ var TableCharts = class {
     this.#session = "";
     this.#cache.clear();
   }
-  markdown(source3, settled2) {
+  markdown(source2, settled2) {
     if (!settled2 || this.mode === "off") {
-      return source3;
+      return source2;
     }
-    const slices = tableSlices(source3);
+    const slices = tableSlices(source2);
     let result = "";
     let offset = 0;
     for (const { end, table: table3 } of slices) {
-      result += source3.slice(offset, end);
+      result += source2.slice(offset, end);
       offset = end;
       const key3 = table3.source.trimEnd();
       let entry = this.#cache.get(key3);
@@ -88754,7 +89438,7 @@ ${chartSvg(table3, entry.kind)}
 `;
       }
     }
-    return result + source3.slice(offset);
+    return result + source2.slice(offset);
   }
   #plan(table3, entry) {
     if (this.#active) {
@@ -88834,8 +89518,8 @@ function retentionBoundary(entries2) {
 }
 
 // src/transcript/messages.ts
-function userEntry(id, { text: text19, at: at2 = Date.now(), steered = false, attachments = [] }) {
-  return { at: at2, id, kind: "user", text: text19, ...steered ? { steered } : {}, ...attachments.length ? { attachments } : {} };
+function userEntry(id2, { text: text18, at: at2 = Date.now(), steered = false, attachments = [] }) {
+  return { at: at2, id: id2, kind: "user", text: text18, ...steered ? { steered } : {}, ...attachments.length ? { attachments } : {} };
 }
 function failure3(error, code7) {
   const http = /^HTTP (\d{3}):\s*/.exec(error);
@@ -88850,7 +89534,7 @@ function displayNotice(kind, metadata) {
   if (kind !== "async_delegation_complete" && kind !== "process_complete") {
     return void 0;
   }
-  const meta3 = record2(metadata);
+  const meta3 = record(metadata);
   const shown3 = typeof meta3?.["display_text"] === "string" ? meta3["display_text"].trim() : "";
   if (shown3) {
     return shown3;
@@ -88863,43 +89547,43 @@ function displayNotice(kind, metadata) {
 }
 var INTERNAL_FOOTER = "[INTERNAL NOTIFICATION \u2014 generated by the Hermes gateway";
 function internalNotice(content5) {
-  const text19 = content5.trim();
-  if (text19.startsWith("[ASYNC DELEGATION BATCH COMPLETE")) {
+  const text18 = content5.trim();
+  if (text18.startsWith("[ASYNC DELEGATION BATCH COMPLETE")) {
     return "Subagents finished";
   }
-  if (text19.startsWith("[ASYNC DELEGATION COMPLETE")) {
+  if (text18.startsWith("[ASYNC DELEGATION COMPLETE")) {
     return "Subagent finished";
   }
-  if (text19.startsWith("[ASYNC DELEGATION TASK FAILED")) {
+  if (text18.startsWith("[ASYNC DELEGATION TASK FAILED")) {
     return "Subagent failed";
   }
-  if (text19.startsWith("[Continuing toward your standing goal]")) {
+  if (text18.startsWith("[Continuing toward your standing goal]")) {
     return "Continuing toward the goal";
   }
-  const wakeup = /^\[\/loop wakeup #(\d+)(?:, ([^\]]+))?\]/.exec(text19);
+  const wakeup = /^\[\/loop wakeup #(\d+)(?:, ([^\]]+))?\]/.exec(text18);
   if (wakeup) {
     return `Loop run #${wakeup[1]}${wakeup[2] ? ` \xB7 ${wakeup[2]}` : ""}`;
   }
-  const watch3 = /^\[IMPORTANT: Background process \S+ matched watch pattern "([^"]*)"/.exec(text19);
+  const watch3 = /^\[IMPORTANT: Background process \S+ matched watch pattern "([^"]*)"/.exec(text18);
   if (watch3) {
     return `Watcher matched "${watch3[1]}"`;
   }
-  if (/^\[Background process \S+ heartbeat/.test(text19)) {
+  if (/^\[Background process \S+ heartbeat/.test(text18)) {
     return "Background command still running";
   }
-  const done = /^\[IMPORTANT: Background process \S+ ([^(]+?) \(exit code ([^)\s]+)/.exec(text19);
+  const done = /^\[IMPORTANT: Background process \S+ ([^(]+?) \(exit code ([^)\s]+)/.exec(text18);
   if (done) {
     const how = done[1] === "completed normally" ? "finished" : done[1];
     return `Background command ${how}${done[2] === "0" ? "" : ` (exit ${done[2]})`}`;
   }
-  return text19.includes(INTERNAL_FOOTER) ? "Hermes notice" : void 0;
+  return text18.includes(INTERNAL_FOOTER) ? "Hermes notice" : void 0;
 }
 function continuation(prev) {
   if (prev?.kind !== "turn") {
     return void 0;
   }
   const background2 = prev.blocks.some(
-    (b) => b.kind === "tool" && b.call.name === "delegate_task" && record2(b.call.result)?.["mode"] === "background"
+    (b) => b.kind === "tool" && b.call.name === "delegate_task" && record(b.call.result)?.["mode"] === "background"
   );
   if (background2) {
     return "Subagents finished";
@@ -88910,11 +89594,11 @@ function continuation(prev) {
 var STEER_OPEN = "[OUT-OF-BAND USER MESSAGE";
 var STEER_CLOSE = "[/OUT-OF-BAND USER MESSAGE]";
 function steerText(content5) {
-  const text19 = content5.trim();
-  if (!text19.startsWith(STEER_OPEN)) {
+  const text18 = content5.trim();
+  if (!text18.startsWith(STEER_OPEN)) {
     return void 0;
   }
-  const body = text19.slice(text19.indexOf("]") + 1);
+  const body = text18.slice(text18.indexOf("]") + 1);
   const end = body.lastIndexOf(STEER_CLOSE);
   return (end >= 0 ? body.slice(0, end) : body).trim();
 }
@@ -88930,20 +89614,20 @@ var BOX = /[─-╿]/;
 var RULE2 = /^\s*\+[-=+]{3,}\+?\s*$/;
 var COLUMNS = /^\s{0,4}[^\s•\-*>#`|][^\n]*?\S {2,}\S/;
 var ESC3 = String.fromCharCode(27);
-function isPreformatted(text19) {
-  if (text19.includes(`${ESC3}[`) || BOX.test(text19)) {
+function isPreformatted(text18) {
+  if (text18.includes(`${ESC3}[`) || BOX.test(text18)) {
     return true;
   }
-  const lines = text19.split("\n").filter((l) => l.trim());
+  const lines = text18.split("\n").filter((l) => l.trim());
   if (lines.some((l) => RULE2.test(l))) {
     return true;
   }
   const aligned = lines.filter((l) => COLUMNS.test(l)).length;
   return aligned >= 3 && aligned >= lines.length / 2;
 }
-function hardBreaks(text19) {
+function hardBreaks(text18) {
   let fenced = false;
-  return text19.split("\n").map((line, i, all8) => {
+  return text18.split("\n").map((line, i, all8) => {
     if (/^\s*(```|~~~)/.test(line)) {
       fenced = !fenced;
       return line;
@@ -88957,11 +89641,11 @@ function hardBreaks(text19) {
 var HEADER = /^\s*(?:[^\p{L}\p{N}*\s]\S*\s+)?\*\*(?<title>.+?)\*\*\s*(?<inline>.*)$/u;
 var SUFFIX = { b: 1e9, k: 1e3, m: 1e6 };
 function parseCount(raw2) {
-  const m = /^~?\s*(?<digits>[\d,]*\.?\d+)\s*(?<suffix>[kmb])?$/i.exec(raw2.trim());
-  if (!m) {
+  const m2 = /^~?\s*(?<digits>[\d,]*\.?\d+)\s*(?<suffix>[kmb])?$/i.exec(raw2.trim());
+  if (!m2) {
     return NaN;
   }
-  const { digits = "", suffix } = m.groups ?? {};
+  const { digits = "", suffix } = m2.groups ?? {};
   return Number(digits.replace(/,/g, "")) * (suffix ? SUFFIX[suffix.toLowerCase()] ?? 1 : 1);
 }
 function compactCount(n3) {
@@ -88977,35 +89661,35 @@ function compactCount(n3) {
 function limits(inline) {
   const out = [];
   for (const part of inline.split("|")) {
-    const m = /^\s*(?<name>[A-Za-z]+):\s*(?<left>[\d.,]+\s*[kmb]?)\s*\/\s*(?<limit>[\d.,]+\s*[kmb]?)(?:\s*\(resets?\s+(?<reset>.+?)\))?\s*$/i.exec(part)?.groups;
-    const left = m ? parseCount(m["left"] ?? "") : NaN;
-    const limit = m ? parseCount(m["limit"] ?? "") : NaN;
-    if (m && Number.isFinite(left) && limit > 0) {
-      out.push({ left, limit, name: (m["name"] ?? "").toUpperCase(), reset: m["reset"] });
+    const m2 = /^\s*(?<name>[A-Za-z]+):\s*(?<left>[\d.,]+\s*[kmb]?)\s*\/\s*(?<limit>[\d.,]+\s*[kmb]?)(?:\s*\(resets?\s+(?<reset>.+?)\))?\s*$/i.exec(part)?.groups;
+    const left = m2 ? parseCount(m2["left"] ?? "") : NaN;
+    const limit = m2 ? parseCount(m2["limit"] ?? "") : NaN;
+    if (m2 && Number.isFinite(left) && limit > 0) {
+      out.push({ left, limit, name: (m2["name"] ?? "").toUpperCase(), reset: m2["reset"] });
     }
   }
   return out;
 }
 function pair2(line) {
-  const m = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line)?.groups;
-  return m ? { key: m["key"] ?? "", value: (m["value"] ?? "").replace(/^`(.*)`$/, "$1") } : void 0;
+  const m2 = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line)?.groups;
+  return m2 ? { key: m2["key"] ?? "", value: (m2["value"] ?? "").replace(/^`(.*)`$/, "$1") } : void 0;
 }
 function crumb(line) {
-  const m = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line)?.groups;
-  const tokens2 = m ? parseCount(m["tokens"] ?? "") : NaN;
-  return m && Number.isFinite(tokens2) ? { label: m["label"] ?? "", pct: m["pct"] ? Number(m["pct"]) : void 0, tokens: tokens2 } : void 0;
+  const m2 = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line)?.groups;
+  const tokens2 = m2 ? parseCount(m2["tokens"] ?? "") : NaN;
+  return m2 && Number.isFinite(tokens2) ? { label: m2["label"] ?? "", pct: m2["pct"] ? Number(m2["pct"]) : void 0, tokens: tokens2 } : void 0;
 }
-function build2(title, inline, body) {
-  const name = title.replace(/:$/, "").trim();
+function build2(title2, inline, body) {
+  const name = title2.replace(/:$/, "").trim();
   const lower = name.toLowerCase();
   const lines = body.filter((l) => l.trim());
   if (lower.includes("rate limit")) {
     const items = limits(inline || lines.join(" | "));
-    return items.length ? { items, kind: "limits", title: name } : text17(name, inline, lines);
+    return items.length ? { items, kind: "limits", title: name } : text16(name, inline, lines);
   }
   if (lower.includes("context breakdown")) {
     const items = lines.flatMap((l) => crumb(l) ?? []);
-    return items.length ? { items, kind: "breakdown", note: /_\((.*?)\)_/.exec(inline)?.[1], title: name } : text17(name, inline, lines);
+    return items.length ? { items, kind: "breakdown", note: /_\((.*?)\)_/.exec(inline)?.[1], title: name } : text16(name, inline, lines);
   }
   if (lower.includes("session") || lower.includes("token usage")) {
     const rows = [];
@@ -89021,7 +89705,7 @@ function build2(title, inline, body) {
         rows.push(p3);
       }
     }
-    return rows.length || context ? { context, kind: "session", rows, title: name } : text17(name, inline, lines);
+    return rows.length || context ? { context, kind: "session", rows, title: name } : text16(name, inline, lines);
   }
   if (lower.includes("credit")) {
     const rows = [];
@@ -89034,12 +89718,12 @@ function build2(title, inline, body) {
         notes.push(l.trim());
       }
     }
-    return rows.length ? { kind: "credits", notes, rows, title: name } : text17(name, inline, lines);
+    return rows.length ? { kind: "credits", notes, rows, title: name } : text16(name, inline, lines);
   }
-  return text17(name, inline, lines);
+  return text16(name, inline, lines);
 }
-function text17(title, inline, lines) {
-  return { kind: "text", text: [inline, ...lines].filter(Boolean).join("\n"), title };
+function text16(title2, inline, lines) {
+  return { kind: "text", text: [inline, ...lines].filter(Boolean).join("\n"), title: title2 };
 }
 function parseUsage(raw2) {
   const sections2 = [];
@@ -89079,13 +89763,13 @@ function slashBody(e) {
   }
   return [textBody(e.text, "body")];
 }
-function textBody(text19, key3) {
-  return isPreformatted(text19) ? /* @__PURE__ */ jsx("ansi", { text: text19 }, key3) : /* @__PURE__ */ jsx("md", { children: hardBreaks(text19) }, key3);
+function textBody(text18, key3) {
+  return isPreformatted(text18) ? /* @__PURE__ */ jsx("ansi", { text: text18 }, key3) : /* @__PURE__ */ jsx("md", { children: hardBreaks(text18) }, key3);
 }
-function heading4(icon, title, note) {
+function heading4(icon, title2, note) {
   return /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", children: [
     /* @__PURE__ */ jsx("icon", { name: icon }, "icon"),
-    /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: title }, ...note ? [{ s: "dim", t: `  ${note}` }] : []] }, "title")
+    /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: title2 }, ...note ? [{ s: "dim", t: `  ${note}` }] : []] }, "title")
   ] }, "head");
 }
 function usageSection(s2, i) {
@@ -89196,7 +89880,7 @@ function sessionBody(rows, context) {
   }
   return out;
 }
-function pairTable(rows, id) {
+function pairTable(rows, id2) {
   return /* @__PURE__ */ jsx(
     "table",
     {
@@ -89209,10 +89893,10 @@ function pairTable(rows, id) {
           k: [{ s: "muted", t: r.key }],
           v: /^https?:\/\//.test(r.value) ? [{ href: r.value, s: "link", t: r.value }] : [{ s: /^[\d$,.%\s-]+$/.test(r.value) ? "num" : "", t: r.value }]
         },
-        id: `${id}${i}`
+        id: `${id2}${i}`
       }))
     },
-    id
+    id2
   );
 }
 function breakdownBody(items) {
@@ -89271,9 +89955,9 @@ var modelMimes = {
   usdz: ["model/vnd.usdz+zip", "application/x-usdz"]
 };
 function confirmedWriteArtifact2(call, cwd, hostLocal) {
-  const result = record2(call.result);
-  const source3 = typeof call.args["content"] === "string" ? call.args["content"] : call.args["contents"];
-  if (call.name !== "write_file" || call.outcome.kind !== "done" || !result || result["error"] || result["success"] === false || result["verified"] !== true || result["partial"] === true || result["truncated"] === true || typeof source3 !== "string" || !source3 || result["bytes_written"] !== Buffer.byteLength(source3, "utf8")) {
+  const result = record(call.result);
+  const source2 = typeof call.args["content"] === "string" ? call.args["content"] : call.args["contents"];
+  if (call.name !== "write_file" || call.outcome.kind !== "done" || !result || result["error"] || result["success"] === false || result["verified"] !== true || result["partial"] === true || result["truncated"] === true || typeof source2 !== "string" || !source2 || result["bytes_written"] !== Buffer.byteLength(source2, "utf8")) {
     return void 0;
   }
   const rawPath = result["resolved_path"] ?? call.args["path"] ?? call.args["file_path"];
@@ -89287,11 +89971,11 @@ function confirmedWriteArtifact2(call, cwd, hostLocal) {
     return void 0;
   }
   const mime = typeof reportedMime2 === "string" ? reportedMime2.split(";")[0]?.trim().toLowerCase() : void 0;
-  const revision = createHash5("sha256").update(JSON.stringify([call.id, href, source3, result])).digest("hex");
+  const revision = createHash5("sha256").update(JSON.stringify([call.id, href, source2, result])).digest("hex");
   const owner2 = { callId: call.id, revision };
   const language = Object.hasOwn(figureLanguages, ext) ? figureLanguages[ext] : void 0;
   if (language) {
-    return !mime || mime === "application/octet-stream" || figureMimes[language].includes(mime) ? { ...owner2, kind: "source", language, source: source3 } : void 0;
+    return !mime || mime === "application/octet-stream" || figureMimes[language].includes(mime) ? { ...owner2, kind: "source", language, source: source2 } : void 0;
   }
   if (hostLocal && Object.hasOwn(modelMimes, ext) && (!mime || mime === "application/octet-stream" || modelMimes[ext]?.includes(mime))) {
     return { ...owner2, kind: "model", path: fileURLToPath10(href) };
@@ -89315,7 +89999,7 @@ function artifactCard(call, card, context) {
   if (!fileTools.has(call.name) || staleWriteMarker(call) || patchContextWarning(call) || writeContextWarning(call)) {
     return card;
   }
-  const result = record2(call.result);
+  const result = record(call.result);
   const resolved = result?.["resolved_path"];
   const specified = call.args["path"] ?? call.args["file_path"];
   const path2 = typeof resolved === "string" ? resolved : typeof specified === "string" ? specified : card.target;
@@ -89398,9 +90082,9 @@ function drawTool(call, view, whyFailed, now, context, focusBrowser, media2, lin
   const running2 = status === "running";
   const native = toolMediaNode(call, media2);
   const body = [...native ? [native] : [], ...card.body];
-  const focus2 = card.name === "browser" ? browserFocusButton(call, focusBrowser) : void 0;
-  if (focus2) {
-    body.push(focus2);
+  const focus = card.name === "browser" ? browserFocusButton(call, focusBrowser) : void 0;
+  if (focus) {
+    body.push(focus);
   }
   const error = call.outcome.kind === "error" ? whyFailed(call) : void 0;
   if (call.outcome.kind === "cancelled") {
@@ -89448,9 +90132,9 @@ function drawDetail(call, view, whyFailed, now, context, focusBrowser, media2, l
   const card = artifactCard(call, view.card(now, context, media2), links);
   const native = toolMediaNode(call, media2);
   const body = [...native ? [native] : [], ...card.body];
-  const focus2 = card.name === "browser" ? browserFocusButton(call, focusBrowser) : void 0;
-  if (focus2) {
-    body.push(focus2);
+  const focus = card.name === "browser" ? browserFocusButton(call, focusBrowser) : void 0;
+  if (focus) {
+    body.push(focus);
   }
   const prefix2 = view.detailPrefix();
   if (prefix2) {
@@ -89471,8 +90155,8 @@ function drawDetail(call, view, whyFailed, now, context, focusBrowser, media2, l
 }
 
 // src/view/ui/fold.tsx
-function foldSection(f) {
-  return node("section", { collapsed: true, collapsible: true, head: `${f.id}.head`, key: f.key, role: f.role }, [f.head, f.body]);
+function foldSection(f2) {
+  return node("section", { collapsed: true, collapsible: true, head: `${f2.id}.head`, key: f2.key, role: f2.role }, [f2.head, f2.body]);
 }
 function headedCard(c) {
   return node("card", { head: `${c.id}.head`, key: c.key, role: c.role, tone: c.tone }, [c.head, c.body]);
@@ -89513,8 +90197,8 @@ function workingNode(turn2, now) {
 }
 var LIVE_MAX = 120;
 function liveText(label) {
-  const text19 = label.length > LIVE_MAX ? `${label.slice(0, LIVE_MAX - 1)}\u2026` : label;
-  return shimmerText({ key: "label", role: "hermes.work.live", text: text19 });
+  const text18 = label.length > LIVE_MAX ? `${label.slice(0, LIVE_MAX - 1)}\u2026` : label;
+  return shimmerText({ key: "label", role: "hermes.work.live", text: text18 });
 }
 function latestFailed(items) {
   const last = items.findLast((i) => i.kind === "tool");
@@ -89526,11 +90210,11 @@ function thinkingRow() {
     liveText("Thinking")
   ] }, "thinking");
 }
-function foldNode(part, id, children3) {
+function foldNode(part, id2, children3) {
   return foldSection({
     body: children3,
     head: /* @__PURE__ */ jsx("row", { align: "center", gap: "xs", children: /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: part.label }], wrap: "none" }, "label") }, "head"),
-    id,
+    id: id2,
     key: part.key,
     role: "hermes.turn.fold"
   });
@@ -89541,7 +90225,7 @@ function workNode(items, parent, live, now, context, focusBrowser, media2, links
     return null;
   }
   const key3 = `w${(items[0] ?? shown3[0]).id}`;
-  const id = `${parent}.${key3}`;
+  const id2 = `${parent}.${key3}`;
   if (!live && shown3.length === 1) {
     return itemNode(shown3[0], parent, now, key3, context, focusBrowser, media2, links);
   }
@@ -89559,10 +90243,10 @@ function workNode(items, parent, live, now, context, focusBrowser, media2, links
     /* @__PURE__ */ jsx("spacer", { grow: 1 }, "gap"),
     /* @__PURE__ */ jsx("text", { role: "hermes.work.time", spans: [{ s: "dim", t: clockShort(startOf(shown3[0])) }], wrap: "none" }, "time")
   ] }, "head");
-  return foldSection({ body: shown3.map((i) => itemNode(i, id, now, i.id, context, focusBrowser, media2, links)), head: head2, id, key: key3, role: "hermes.work.group" });
+  return foldSection({ body: shown3.map((i) => itemNode(i, id2, now, i.id, context, focusBrowser, media2, links)), head: head2, id: id2, key: key3, role: "hermes.work.group" });
 }
 function itemNode(item3, parent, now, key3 = item3.id, context, focusBrowser, media2, links = NO_FILE_CONTEXT) {
-  const id = `${parent}.${key3}`;
+  const id2 = `${parent}.${key3}`;
   if (item3.kind === "thinking") {
     return foldSection({
       body: /* @__PURE__ */ jsx("md", { role: "hermes.work.thought", ...optional2("stream", item3.endedAt === void 0 || void 0), children: item3.text }, "body"),
@@ -89570,7 +90254,7 @@ function itemNode(item3, parent, now, key3 = item3.id, context, focusBrowser, me
         /* @__PURE__ */ jsx("icon", { name: "brain" }, "icon"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: [{ s: "muted", t: thoughtTitle(item3) }], truncate: "end", wrap: "none" }, "label")
       ] }, "head"),
-      id,
+      id: id2,
       key: key3,
       role: "hermes.work.row"
     });
@@ -89589,18 +90273,18 @@ function itemNode(item3, parent, now, key3 = item3.id, context, focusBrowser, me
   return foldSection({
     body: /* @__PURE__ */ jsx("col", { gap: "xs", role: "hermes.work.detail", children: detail }, "detail"),
     head: head2,
-    id,
+    id: id2,
     key: key3,
     role: "hermes.work.row"
   });
 }
 function labelSpans(call) {
   const entries2 = (batchOf(call) ?? [call]).map((e) => appOf(e.name, e.args));
-  const apps = entries2.filter(isDefined);
-  if (apps.length < entries2.length) {
+  const apps2 = entries2.filter(isDefined);
+  if (apps2.length < entries2.length) {
     return [{ s: "muted", t: stepLabel(call) }];
   }
-  return apps.flatMap((app2, i) => [
+  return apps2.flatMap((app2, i) => [
     ...i ? [{ s: "muted", t: ", " }] : [],
     { t: app2.app },
     { s: "muted", t: ` \xB7 ${app2.action}` }
@@ -89618,7 +90302,7 @@ function forgetEntryNode(entry) {
   const built2 = holder;
   delete built2[kNode];
 }
-function entryNode(e, id, cx) {
+function entryNode(e, id2, cx) {
   if (e.kind === "welcome") {
     return welcomeNode(e.id, cx.welcome);
   }
@@ -89641,23 +90325,23 @@ function entryNode(e, id, cx) {
   if (cached2?.rev === rev && cached2.browserSource === cx.browserSource) {
     return cached2.node;
   }
-  const node3 = buildEntry(e, id, cx);
+  const node3 = buildEntry(e, id2, cx);
   built2[kNode] = { browserSource: cx.browserSource, node: node3, rev };
   return node3;
 }
-function buildEntry(e, id, cx) {
+function buildEntry(e, id2, cx) {
   switch (e.kind) {
     case "user":
       return userNode(e, cx);
     case "turn":
-      return turnNode(e, id, cx);
+      return turnNode(e, id2, cx);
     case "notice":
       return noticeNode(e);
     case "compaction":
-      return compactionNode(e.compaction, e.id, id, cx.now);
+      return compactionNode(e.compaction, e.id, id2, cx.now);
     case "panel": {
       const hosted = cx.eui?.hostView(e);
-      if (hosted && cx.eui) return /* @__PURE__ */ jsx("col", { role: "eui.host-panel", children: euiCardNode(id + ".host", hosted, cx.eui) }, e.id);
+      if (hosted && cx.eui) return /* @__PURE__ */ jsx("col", { role: "eui.host-panel", children: euiCardNode(id2 + ".host", hosted, cx.eui) }, e.id);
       return /* @__PURE__ */ jsx("card", { collapsible: true, head: [{ s: "strong", t: e.title }], role: "omp.custom", tone: "neutral", children: slashBody(e) }, e.id);
     }
   }
@@ -89701,7 +90385,7 @@ function attachmentsRow(list10, cx) {
     );
   }) }, "images");
 }
-function turnNode(turn2, id, cx) {
+function turnNode(turn2, id2, cx) {
   const live = turn2.end.status === "live";
   const children3 = [];
   if (turn2.continued) {
@@ -89717,7 +90401,7 @@ function turnNode(turn2, id, cx) {
   }
   for (const part of parts2(turn2)) {
     children3.push(
-      ...part.kind === "fold" ? [foldNode(part, `${id}.${part.key}`, pieceNodes(turn2, part.blocks, `${id}.${part.key}`, cx))] : pieceNodes(turn2, part.blocks, id, cx)
+      ...part.kind === "fold" ? [foldNode(part, `${id2}.${part.key}`, pieceNodes(turn2, part.blocks, `${id2}.${part.key}`, cx))] : pieceNodes(turn2, part.blocks, id2, cx)
     );
   }
   const last = pieces(turn2.blocks).at(-1);
@@ -89739,7 +90423,7 @@ function turnNode(turn2, id, cx) {
           /* @__PURE__ */ jsx("text", { spans: [{ s: "error strong", t: "Request failed" }] }, "title"),
           end.code ? /* @__PURE__ */ jsx("badge", { role: "omp.error.code", text: end.code, tone: "error" }, "code") : null
         ] }, "head"),
-        id: `${id}.error`,
+        id: `${id2}.error`,
         key: "error",
         role: "omp.error",
         tone: "error"
@@ -89800,11 +90484,11 @@ function steerNode(b, state) {
     ] }, "how")
   ] }, b.id);
 }
-function copyButton(text19, id, role, title, cx) {
-  const copied = cx.copied === id;
+function copyButton(text18, id2, role, title2, cx) {
+  const copied = cx.copied === id2;
   return pressable(
-    { key: "copy", name: copied ? "Copied" : title, onClick: () => cx.copy(text19, id) },
-    /* @__PURE__ */ jsx("icon", { name: copied ? "check" : "copy", role, title: copied ? "Copied" : title }, "face")
+    { key: "copy", name: copied ? "Copied" : title2, onClick: () => cx.copy(text18, id2) },
+    /* @__PURE__ */ jsx("icon", { name: copied ? "check" : "copy", role, title: copied ? "Copied" : title2 }, "face")
   );
 }
 function usageNode(turn2, answer, cx) {
@@ -89814,7 +90498,7 @@ function usageNode(turn2, answer, cx) {
   const output = u.output ?? u.completion ?? 0;
   const total = u.total || input2 + output || turn2.tickTokens || 0;
   const cost = typeof u.cost_usd === "number" && u.cost_usd > 0 ? ` \xB7 $${u.cost_usd.toFixed(2)}` : "";
-  const title = `This turn: ${duration2(ms2)} \xB7 ${total.toLocaleString()} tokens (${input2.toLocaleString()} in \xB7 ${output.toLocaleString()} out)${cost}`;
+  const title2 = `This turn: ${duration2(ms2)} \xB7 ${total.toLocaleString()} tokens (${input2.toLocaleString()} in \xB7 ${output.toLocaleString()} out)${cost}`;
   const tps = (typeof u.avg_tps === "number" && u.avg_tps > 0 ? u.avg_tps : void 0) ?? turn2.tps;
   const facts2 = total ? [
     ["time", "time", duration2(ms2)],
@@ -89824,7 +90508,7 @@ function usageNode(turn2, answer, cx) {
     ...cost ? [["cost", "cost", cost.replace(/^ · /, "")]] : []
   ] : [];
   const detail = [
-    title,
+    title2,
     turn2.cacheHit !== void 0 ? `${turn2.cacheHit}% of the prompt came from the cache` : "",
     tps ? `${tps.toFixed(1)} tokens per second (recent calls)` : ""
   ].filter(Boolean).join("\n");
@@ -89837,7 +90521,7 @@ function usageNode(turn2, answer, cx) {
   ] }, "usage");
 }
 var COMPACTED_TITLE = "Hermes summarized the conversation before this line to free context. From here on the agent works from that summary; the turns above stay here for you.";
-function compactionNode(c, key3, id, now) {
+function compactionNode(c, key3, id2, now) {
   const done = c.state.status === "done" ? c.state : void 0;
   const running2 = !done;
   const tokens2 = c.before && done?.after ? `${compact(c.before)} \u2192 ${compact(done.after)} tokens` : c.before ? `${compact(c.before)} tokens` : "";
@@ -89859,7 +90543,7 @@ function compactionNode(c, key3, id, now) {
       /* @__PURE__ */ jsx("md", { children: done.summary }, "summary")
     ],
     head: line,
-    id,
+    id: id2,
     key: key3,
     role: "hermes.compaction"
   });
@@ -89868,11 +90552,11 @@ function noticeNode(e) {
   const tone2 = e.tone === "info" ? "muted" : e.tone;
   return /* @__PURE__ */ jsx("text", { role: `omp.notice.${e.tone}`, spans: [{ s: tone2, t: e.text }], wrap: "word" }, e.id);
 }
-function euiAnswerNode(id, parts3, eui) {
+function euiAnswerNode(id2, parts3, eui) {
   return /* @__PURE__ */ jsx("col", { role: "eui.answer", children: parts3.map((p3, i) => p3.kind === "card" ? euiCardNode(p3.key, eui.view(p3.key, p3.spec), eui) : p3.kind === "bad" ? /* @__PURE__ */ jsxs("col", { role: "eui.card.invalid", children: [
     /* @__PURE__ */ jsx("text", { role: "eui.error", text: `ephemeral-ui card not drawn: ${p3.error}` }, "e"),
     /* @__PURE__ */ jsx("md", { children: p3.text }, "src")
-  ] }, `bad${i}`) : /* @__PURE__ */ jsx("md", { children: p3.text }, `md${i}`)) }, id);
+  ] }, `bad${i}`) : /* @__PURE__ */ jsx("md", { children: p3.text }, `md${i}`)) }, id2);
 }
 
 // src/view/retention.ts
@@ -89950,7 +90634,7 @@ var Retention = class {
         continue;
       }
       const rootLost = gone.includes("main") || gone.includes(row2.id);
-      const descendants = gone.filter((id) => id.startsWith(row2.id + "."));
+      const descendants = gone.filter((id2) => id2.startsWith(row2.id + "."));
       if (!rootLost && !descendants.length) {
         continue;
       }
@@ -89962,8 +90646,8 @@ var Retention = class {
         row2.missing.clear();
         this.#evicted.add(row2);
       } else {
-        for (const id of descendants) {
-          row2.missing.add(id);
+        for (const id2 of descendants) {
+          row2.missing.add(id2);
         }
       }
       if (!row2.settled || !rootLost) {
@@ -90264,9 +90948,9 @@ var Retention = class {
     }
     changed.clear();
   }
-  #absentTarget(row2, id) {
+  #absentTarget(row2, id2) {
     for (const missing of row2.missing) {
-      if (id === missing || id.startsWith(missing + ".")) {
+      if (id2 === missing || id2.startsWith(missing + ".")) {
         return true;
       }
     }
@@ -91248,7 +91932,7 @@ var STYLES = css`
 
 // node_modules/@hermes/shared/src/slash.ts
 var SLASH_COMMAND_RE = /^\/[^\s/]*(?:\s|$)/;
-var looksLikeSlashCommand = (text19) => SLASH_COMMAND_RE.test(text19);
+var looksLikeSlashCommand = (text18) => SLASH_COMMAND_RE.test(text18);
 var str7 = (value) => typeof value === "string" ? value : void 0;
 function parseCommandDispatch(raw2) {
   if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) {
@@ -91274,17 +91958,17 @@ function parseCommandDispatch(raw2) {
 
 // node_modules/@hermes/shared/src/slash-input.ts
 var INLINE_SLASH_RE = /\s\/([a-zA-Z][\w-]*)?$/;
-var inlineSlashTrigger = (text19) => {
-  const match = INLINE_SLASH_RE.exec(text19);
+var inlineSlashTrigger = (text18) => {
+  const match = INLINE_SLASH_RE.exec(text18);
   if (!match) {
     return null;
   }
   const query2 = match[1] ?? "";
-  return { query: query2, start: text19.length - query2.length - 1 };
+  return { query: query2, start: text18.length - query2.length - 1 };
 };
 var applyCompletion = (value, rowText2, compReplace) => {
-  const text19 = value[compReplace - 1] === "/" && rowText2.startsWith("/") ? rowText2.slice(1) : rowText2;
-  return value.slice(0, compReplace) + text19;
+  const text18 = value[compReplace - 1] === "/" && rowText2.startsWith("/") ? rowText2.slice(1) : rowText2;
+  return value.slice(0, compReplace) + text18;
 };
 
 // node_modules/@hermes/shared/src/slash-score.ts
@@ -91430,8 +92114,8 @@ function shape(error) {
   };
 }
 function detailLine(raw2) {
-  const text19 = raw2.replace(/\s+/g, " ").trim();
-  return text19 ? `Details: ${text19.length > DETAIL_LIMIT ? `${text19.slice(0, DETAIL_LIMIT - 1)}\u2026` : text19}` : null;
+  const text18 = raw2.replace(/\s+/g, " ").trim();
+  return text18 ? `Details: ${text18.length > DETAIL_LIMIT ? `${text18.slice(0, DETAIL_LIMIT - 1)}\u2026` : text18}` : null;
 }
 var VERSION_SKEW_RE = /Extra inputs are not permitted|^unknown method:/;
 var UNAVAILABLE_METHOD_RE = /^unknown method: (\S+) — not available on this Hermes backend$/;
@@ -91443,44 +92127,44 @@ function isVersionSkew(code7, message) {
 }
 var ROWS = [
   [
-    (code7, text19) => (code7 === RPC_SESSION_NOT_FOUND || code7 === void 0) && /session not found/i.test(text19),
+    (code7, text18) => (code7 === RPC_SESSION_NOT_FOUND || code7 === void 0) && /session not found/i.test(text18),
     () => "This chat is no longer attached to the backend (it was idle or the backend restarted). Your history is saved: type /resume to reopen it."
   ],
   [
-    (_code, text19) => text19 === "session_read_only",
+    (_code, text18) => text18 === "session_read_only",
     () => "This chat is stored history Hermes can show but not continue, so your message was not run. Use /new to start a new chat."
   ],
   [
-    (_code, text19) => text19 === "session_has_children",
+    (_code, text18) => text18 === "session_has_children",
     () => "This chat has child sessions (such as subagent runs) that deleting it would remove too, so it was not deleted."
   ],
   [
-    (_code, text19) => /^gateway not (?:connected|running)\b/.test(text19),
+    (_code, text18) => /^gateway not (?:connected|running)\b/.test(text18),
     () => "Hermes is not connected right now, so that was not sent. It reconnects automatically; wait a moment and try again."
   ],
-  [(_code, text19) => UNAVAILABLE_METHOD_RE.exec(text19), (m) => `This Hermes backend does not provide ${m?.[1] ?? "?"}, so that was not done.`],
+  [(_code, text18) => UNAVAILABLE_METHOD_RE.exec(text18), (m2) => `This Hermes backend does not provide ${m2?.[1] ?? "?"}, so that was not done.`],
   [
-    (_code, text19) => text19.trim() === "launch_credentials_unavailable",
+    (_code, text18) => text18.trim() === "launch_credentials_unavailable",
     () => "This chat can't use the API key it was started with any more (it changed or was removed), so that was not done. A chat never switches to a different key on its own. Type /new to start a new chat on your current key."
   ],
   [
-    (_code, text19) => /^request timed out after (\d+)s/.exec(text19),
-    (m) => `Hermes did not answer within ${m?.[1] ?? "?"}s. Try again; if it keeps happening, report the last lines of the gateway log.`
+    (_code, text18) => /^request timed out after (\d+)s/.exec(text18),
+    (m2) => `Hermes did not answer within ${m2?.[1] ?? "?"}s. Try again; if it keeps happening, report the last lines of the gateway log.`
   ]
 ];
 function describeRpcError(error) {
   const { code: code7, message } = shape(error);
-  const text19 = message ?? (typeof error === "string" && error.trim() ? error : "request failed");
-  if (isVersionSkew(code7, text19)) {
+  const text18 = message ?? (typeof error === "string" && error.trim() ? error : "request failed");
+  if (isVersionSkew(code7, text18)) {
     return "Tern and the Hermes backend are out of sync (different versions). Run `hermes update`, then start `hermes tern` again.";
   }
   for (const [match, say] of ROWS) {
-    const m = match(code7, text19);
-    if (m) {
-      return say(m === true ? null : m);
+    const m2 = match(code7, text18);
+    if (m2) {
+      return say(m2 === true ? null : m2);
     }
   }
-  return text19;
+  return text18;
 }
 function isUnsupportedCommand(error) {
   return shape(error).data?.reason === "unsupported_command";
@@ -91534,8 +92218,8 @@ var ROUTES = [
 function operationalView(service, arg) {
   return ROUTES.find((item3) => item3.service === service.toLowerCase() && item3.arg === arg.trim().toLowerCase())?.view;
 }
-function literal2(text19) {
-  return text19.replace(/([\\\x60*_{}[\]()#+.!|<>~-])/g, "\\$1").replace(/\r?\n/g, " ");
+function literal2(text18) {
+  return text18.replace(/([\\\x60*_{}[\]()#+.!|<>~-])/g, "\\$1").replace(/\r?\n/g, " ");
 }
 function operationalText(result) {
   const empty3 = result.view === "ssh-list" ? "No SSH hosts configured in this Hermes profile." : result.view === "mcp-catalog" ? "No MCP catalog entries available." : "No MCP servers configured in this Hermes profile.";
@@ -91571,8 +92255,8 @@ function commandEnvelope(raw2) {
     warning: "warning" in legacy2 && typeof legacy2.warning === "string" ? legacy2.warning : void 0
   };
 }
-async function runSlash(text19, cx, resolve11 = true, literal3 = false) {
-  const [typed = "", ...rest] = text19.slice(1).split(/\s+/);
+async function runSlash(text18, cx, resolve11 = true, literal3 = false) {
+  const [typed = "", ...rest] = text18.slice(1).split(/\s+/);
   const name = typed.toLowerCase();
   const arg = rest.join(" ");
   const local = localCommand(name);
@@ -91609,17 +92293,17 @@ async function runSlash(text19, cx, resolve11 = true, literal3 = false) {
   if (!sid) {
     return;
   }
-  const title = `/${name}${arg ? ` ${arg}` : ""}`;
-  const report = isReportCommand(name, arg) ? { ticket: cx.host.operations.begin(title, sid) } : void 0;
+  const title2 = `/${name}${arg ? ` ${arg}` : ""}`;
+  const report = isReportCommand(name, arg) ? { ticket: cx.host.operations.begin(title2, sid) } : void 0;
   if (report && !report.ticket) {
     return;
   }
   try {
-    const r = await rpc(cx.gw, "slash.exec", { command: text19.slice(1), session_id: sid });
+    const r = await rpc(cx.gw, "slash.exec", { command: text18.slice(1), session_id: sid });
     if (stale()) {
       return;
     }
-    await dispatched(r, cx, { arg, title, ...report ? { report } : {} });
+    await dispatched(r, cx, { arg, title: title2, ...report ? { report } : {} });
   } catch (error) {
     if (stale()) {
       return;
@@ -91637,7 +92321,7 @@ async function runSlash(text19, cx, resolve11 = true, literal3 = false) {
         if (stale()) {
           return;
         }
-        await dispatched(r, cx, { arg, title, ...report ? { report } : {} });
+        await dispatched(r, cx, { arg, title: title2, ...report ? { report } : {} });
       } catch (dispatchFailure) {
         if (stale()) {
           return;
@@ -91652,14 +92336,14 @@ async function runSlash(text19, cx, resolve11 = true, literal3 = false) {
   }
   cx.changed();
 }
-async function dispatched(raw2, cx, { arg, report, title }) {
+async function dispatched(raw2, cx, { arg, report, title: title2 }) {
   const { dispatch: d, output, warning } = commandEnvelope(raw2);
   if (report && (!d || d.type === "exec" || d.type === "plugin")) {
-    const text19 = d ? d.output : output;
+    const text18 = d ? d.output : output;
     cx.host.operations.finish(
       report.ticket,
-      text19?.trim() ? text19 : "Hermes returned no report text.",
-      text19?.trim() ? "ready" : "unavailable"
+      text18?.trim() ? text18 : "Hermes returned no report text.",
+      text18?.trim() ? "ready" : "unavailable"
     );
     return;
   }
@@ -91671,7 +92355,7 @@ async function dispatched(raw2, cx, { arg, report, title }) {
   }
   if (!d) {
     if (output?.trim()) {
-      cx.transcript.panel(title, output);
+      cx.transcript.panel(title2, output);
     }
     return;
   }
@@ -91679,13 +92363,13 @@ async function dispatched(raw2, cx, { arg, report, title }) {
     case "exec":
     case "plugin":
       if (d.output?.trim()) {
-        cx.transcript.panel(title, d.output);
+        cx.transcript.panel(title2, d.output);
       }
       return;
     case "alias":
       return runSlash(`/${d.target}${arg ? ` ${arg}` : ""}`, cx, true, true);
     case "skill":
-      return d.message?.trim() ? cx.prompt({ display: d.display || title, images: cx.attachments.take(), kind: "command", text: d.message }) : cx.transcript.notice(`${title}: the skill sent no message`, "error");
+      return d.message?.trim() ? cx.prompt({ display: d.display || title2, images: cx.attachments.take(), kind: "command", text: d.message }) : cx.transcript.notice(`${title2}: the skill sent no message`, "error");
     case "send":
       if (d.notice?.trim()) {
         cx.transcript.notice(d.notice);
@@ -91712,8 +92396,8 @@ var REFUSALS = [
   ["command_failed", "the command could not start"]
 ];
 function shellError(error) {
-  const text19 = errorText(error);
-  return REFUSALS.find(([code7]) => text19.includes(code7))?.[1] ?? describeRpcError(error);
+  const text18 = errorText(error);
+  return REFUSALS.find(([code7]) => text18.includes(code7))?.[1] ?? describeRpcError(error);
 }
 async function shellExec(gw2, sid, command2) {
   const r = await rpc(gw2, "shell.exec", { command: command2, session_id: sid });
@@ -91729,20 +92413,20 @@ function shellLines(r) {
     ...r.code !== 0 || !out ? [{ failed: r.code !== 0, text: `exit ${r.code}` }] : []
   ];
 }
-function typedCommands(text19, pasted = []) {
-  return [...text19.matchAll(new RegExp(INTERPOLATION_RE.source, "g"))].filter((m) => !pasted.some((p3) => p3.includes(m[0])));
+function typedCommands(text18, pasted = []) {
+  return [...text18.matchAll(new RegExp(INTERPOLATION_RE.source, "g"))].filter((m2) => !pasted.some((p3) => p3.includes(m2[0])));
 }
-async function interpolate(gw2, sid, text19, pasted = []) {
-  const matches3 = typedCommands(text19, pasted);
+async function interpolate(gw2, sid, text18, pasted = []) {
+  const matches3 = typedCommands(text18, pasted);
   const results = await Promise.all(
-    matches3.map(async (m) => {
-      const r = await shellExec(gw2, sid, m[1] ?? "");
+    matches3.map(async (m2) => {
+      const r = await shellExec(gw2, sid, m2[1] ?? "");
       return [r.stdout, r.stderr].filter(Boolean).join("\n").trim();
     })
   );
   return matches3.reduceRight(
-    (acc, m, i) => acc.slice(0, m.index) + (results[i] ?? "") + acc.slice((m.index ?? 0) + m[0].length),
-    text19
+    (acc, m2, i) => acc.slice(0, m2.index) + (results[i] ?? "") + acc.slice((m2.index ?? 0) + m2[0].length),
+    text18
   );
 }
 
@@ -91971,11 +92655,11 @@ function openAutomation(host, which) {
     key: key3,
     modal: true,
     onClose: unwatch,
-    node: (id) => {
+    node: (id2) => {
       const now = Date.now();
       const sheet = current();
       if (!sheet) {
-        return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, size: "md" }, nativeOverlayKey(id));
+        return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, size: "md" }, nativeOverlayKey(id2));
       }
       const pending2 = host.automation.pending;
       const buttons = [
@@ -92002,7 +92686,7 @@ function openAutomation(host, which) {
             actionsRow(buttons)
           ] }, "body")
         },
-        nativeOverlayKey(id)
+        nativeOverlayKey(id2)
       );
     },
     onKey: (k) => {
@@ -92027,9 +92711,9 @@ function openAutomation(host, which) {
 
 // src/overlays/historySearch.tsx
 function openPromptHistorySearch(host, composer2, history2 = load()) {
-  const rows = history2.map((text19, index2) => {
-    const search3 = text19.replace(/\s+/g, " ").trim();
-    return { id: String(index2), text: text19, search: search3, label: search3.length > 140 ? search3.slice(0, 140) + "\u2026" : search3 };
+  const rows = history2.map((text18, index2) => {
+    const search3 = text18.replace(/\s+/g, " ").trim();
+    return { id: String(index2), text: text18, search: search3, label: search3.length > 140 ? search3.slice(0, 140) + "\u2026" : search3 };
   }).filter((row2) => row2.search.length > 0).reverse();
   let query2 = "";
   let shown3 = rows.map((row2) => row2.id);
@@ -92043,9 +92727,9 @@ function openPromptHistorySearch(host, composer2, history2 = load()) {
     }
     return matches3;
   };
-  const fill = (id = selected) => {
-    if (!alive || id === void 0 || !shown3.includes(id)) return;
-    const picked = rows.find((row2) => row2.id === id);
+  const fill = (id2 = selected) => {
+    if (!alive || id2 === void 0 || !shown3.includes(id2)) return;
+    const picked = rows.find((row2) => row2.id === id2);
     if (!picked) return;
     host.close(overlay2);
     composer2.set(picked.text, { literal: true });
@@ -92182,8 +92866,8 @@ var BindingPreferences = class {
   get profile() {
     return this.#owner && this.#active(this.#owner) ? this.#profile : "";
   }
-  matches(id, key3) {
-    const item3 = this.actions.find((row2) => row2.id === id);
+  matches(id2, key3) {
+    const item3 = this.actions.find((row2) => row2.id === id2);
     return item3 ? shortcutMatches(item3, key3) : false;
   }
   /** A confirmed owner-scoped readback supersedes pending refresh work. */
@@ -92266,11 +92950,11 @@ function availableModels(options) {
   const rows = (options.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
   const seen = /* @__PURE__ */ new Set();
   return rows.filter((row2) => {
-    const id = modelId(row2);
-    if (seen.has(id)) {
+    const id2 = modelId(row2);
+    if (seen.has(id2)) {
       return false;
     }
-    seen.add(id);
+    seen.add(id2);
     return true;
   });
 }
@@ -92285,11 +92969,11 @@ function cycleTarget(available, recent, active2, direction) {
   const allowed = new Set(available.map(modelId));
   const seen = /* @__PURE__ */ new Set();
   const valid2 = recent.filter((row2) => allowed.has(modelId(row2))).filter((row2) => {
-    const id = modelId(row2);
-    if (seen.has(id)) {
+    const id2 = modelId(row2);
+    if (seen.has(id2)) {
       return false;
     }
-    seen.add(id);
+    seen.add(id2);
     return true;
   });
   const rows = valid2.length > 1 ? valid2 : available;
@@ -92361,8 +93045,8 @@ function cycleModel(host, direction) {
 
 // src/surface/osc.ts
 import { hostname } from "node:os";
-function setTabTitle(title, out = process.stdout) {
-  out.write(`\x1B]2;${title.replace(/[\x00-\x1f]/g, " ")}\x07`);
+function setTabTitle(title2, out = process.stdout) {
+  out.write(`\x1B]2;${title2.replace(/[\x00-\x1f]/g, " ")}\x07`);
 }
 function reportCwd(cwd, out = process.stdout) {
   out.write(`\x1B]7;file://${hostname()}${encodeURI(cwd)}\x07`);
@@ -92384,8 +93068,8 @@ var BusyDraft = class {
   async steer(raw2) {
     const { activity, composer: composer2, gw: gw2, router, session: session2, transcript } = this.#host;
     const ticket = session2.ticket();
-    const text19 = raw2.trim();
-    if (this.#pending || !ticket.sid || !text19) {
+    const text18 = raw2.trim();
+    if (this.#pending || !ticket.sid || !text18) {
       return;
     }
     if (raw2 !== composer2.text) {
@@ -92394,7 +93078,7 @@ var BusyDraft = class {
     const revision = composer2.revision;
     const cursor = composer2.cursor;
     const pasted = [...composer2.shellPasted];
-    if (composer2.literal && (text19.startsWith("!") || text19.includes("{!"))) {
+    if (composer2.literal && (text18.startsWith("!") || text18.includes("{!"))) {
       transcript.notice("Shell syntax is sent as text because its origin is unverified.", "warning");
     }
     const owningTurn = transcript.live;
@@ -92404,7 +93088,7 @@ var BusyDraft = class {
     try {
       const ready = await router.expanded(
         ticket.sid,
-        { images: [], kind: "typed", pasted, text: text19 },
+        { images: [], kind: "typed", pasted, text: text18 },
         {
           restoreOnFailure: false,
           current: () => !ticket.signal.aborted && ticket.isCurrent() && this.#host.admit() && composer2.revision === revision && composer2.cursor === cursor && composer2.text === raw2
@@ -92431,7 +93115,7 @@ var BusyDraft = class {
       }
       const current = activity.busy;
       const runningAt = current && (current.since === busySince || transcript.generation !== generation) ? current.startedAt : void 0;
-      transcript.steerAccepted(text19, { generation, owner: owningTurn, runningAt });
+      transcript.steerAccepted(text18, { generation, owner: owningTurn, runningAt });
       if (composer2.revision === revision && composer2.cursor === cursor && composer2.text === raw2) {
         composer2.take();
       }
@@ -92689,9 +93373,9 @@ function openCommandPalette(host) {
     }
     return { hits, order: [...shown3] };
   };
-  const current = (id = selected) => all8.find((row2) => row2.id === id);
-  const pick2 = (id, execute) => {
-    const command2 = current(id)?.name;
+  const current = (id2 = selected) => all8.find((row2) => row2.id === id2);
+  const pick2 = (id2, execute) => {
+    const command2 = current(id2)?.name;
     if (!command2 || !alive || sid !== host.session.ref.live) {
       return;
     }
@@ -92823,14 +93507,14 @@ function openAppPalette(cx, run8) {
 }
 
 // src/artifacts/clipboard.ts
-function clipboardDraft(text19, caret, currentLine = false) {
+function clipboardDraft(text18, caret, currentLine = false) {
   if (!currentLine) {
-    return text19;
+    return text18;
   }
-  const cursor = Math.max(0, Math.min(text19.length, Math.trunc(caret) || 0));
-  const start = cursor > 0 ? text19.lastIndexOf("\n", cursor - 1) + 1 : 0;
-  const end = text19.indexOf("\n", cursor);
-  return text19.slice(start, end < 0 ? void 0 : end);
+  const cursor = Math.max(0, Math.min(text18.length, Math.trunc(caret) || 0));
+  const start = cursor > 0 ? text18.lastIndexOf("\n", cursor - 1) + 1 : 0;
+  const end = text18.indexOf("\n", cursor);
+  return text18.slice(start, end < 0 ? void 0 : end);
 }
 
 // src/app/native-artifacts.ts
@@ -92855,9 +93539,9 @@ function attachNativeImage(cx, image3) {
 
 // src/app/busy-intent.ts
 function shouldSteer(cx, raw2, alternate) {
-  const text19 = raw2.trim();
+  const text18 = raw2.trim();
   return Boolean(
-    cx.activity.busy && cx.state.ref.live && !cx.life.switching && !cx.liveVoice.blocked && !isModal(cx.chat.overlays) && !cx.attachments.any && !cx.attachments.uploading && text19 && !text19.startsWith("/") && !text19.startsWith("!") && busyIntent(cx.state.busyMode, alternate) === "steer"
+    cx.activity.busy && cx.state.ref.live && !cx.life.switching && !cx.liveVoice.blocked && !isModal(cx.chat.overlays) && !cx.attachments.any && !cx.attachments.uploading && text18 && !text18.startsWith("/") && !text18.startsWith("!") && busyIntent(cx.state.busyMode, alternate) === "steer"
   );
 }
 
@@ -92888,7 +93572,7 @@ function serverRequest(req) {
 }
 
 // src/prompts/parse.ts
-var text18 = (v) => typeof v === "string" ? v : "";
+var text17 = (v) => typeof v === "string" ? v : "";
 var strings3 = (v) => Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
 function clarifyChoice(value) {
   if (typeof value === "string") {
@@ -92945,8 +93629,8 @@ function approvalOf(req, { params: p3 }) {
   }
   return {
     choices: [...allowed],
-    command: text18(p3.command),
-    description: text18(p3.description),
+    command: text17(p3.command),
+    description: text17(p3.description),
     kind: "approval",
     req,
     requestId: typeof p3.request_id === "string" ? p3.request_id : void 0,
@@ -92961,9 +93645,9 @@ function questionsOf(raw2) {
     if (!q2 || typeof q2 !== "object" || !("qid" in q2) || !("question" in q2)) {
       return [];
     }
-    const question = text18(q2.question).trim();
+    const question = text17(q2.question).trim();
     const { labels, previews } = clarifyChoices("choices" in q2 ? q2.choices : void 0);
-    return question ? [{ choices: labels, ...previews.some(Boolean) ? { previews } : {}, multi: "multi_select" in q2 && q2.multi_select === true, qid: text18(q2.qid), question }] : [];
+    return question ? [{ choices: labels, ...previews.some(Boolean) ? { previews } : {}, multi: "multi_select" in q2 && q2.multi_select === true, qid: text17(q2.qid), question }] : [];
   });
 }
 function lockedAnswers(preset) {
@@ -92980,15 +93664,15 @@ function lockedAnswers(preset) {
 }
 function maskedOf(req, method, p3) {
   return {
-    command: text18(p3.command),
-    envVar: text18(p3.env_var),
-    hint: text18(p3.hint),
+    command: text17(p3.command),
+    envVar: text17(p3.env_var),
+    hint: text17(p3.hint),
     kind: "masked",
-    manager: text18(p3.display_name) || text18(p3.backend),
+    manager: text17(p3.display_name) || text17(p3.backend),
     method,
-    prompt: text18(p3.prompt),
+    prompt: text17(p3.prompt),
     req,
-    site: text18(p3.site) || text18(p3.origin)
+    site: text17(p3.site) || text17(p3.origin)
   };
 }
 
@@ -93034,9 +93718,9 @@ var ServerQueue = class {
    * prompt.submit (or the FIFO listing it queued) named a submitting admission `id`: it can be
    * withdrawn now. One that started or left meanwhile stays so.
    */
-  admitted(own14, id) {
+  admitted(own14, id2) {
     if (own14.admission.kind === "submitting") {
-      own14.admission = { id, kind: "admitted" };
+      own14.admission = { id: id2, kind: "admitted" };
     }
   }
   /** This pane withdrew `own` (prompt.cancel said terminal): it left the FIFO without running. */
@@ -93104,8 +93788,8 @@ var ServerQueue = class {
   }
   /** A message.complete that only settles a queued row nobody started (prompt.cancel's), not the running turn. */
   settlesQueuedRow(payload) {
-    const id = cancelledAdmission(payload);
-    return id !== void 0 && this.#queuedOnly.has(id);
+    const id2 = cancelledAdmission(payload);
+    return id2 !== void 0 && this.#queuedOnly.has(id2);
   }
   /** The rows that still wait, oldest first: the FIFO's, then admissions it does not list yet. */
   queued() {
@@ -93131,9 +93815,9 @@ function gates(cx) {
 }
 function restore(cx, prompt) {
   const { composer: composer2 } = cx;
-  const text19 = shownText(prompt);
-  composer2.set(text19 && composer2.text ? `${text19}
-${composer2.text}` : text19 || composer2.text, {
+  const text18 = shownText(prompt);
+  composer2.set(text18 && composer2.text ? `${text18}
+${composer2.text}` : text18 || composer2.text, {
     literal: composer2.literal || prompt.kind !== "typed",
     pasted: [...composer2.pasted, ...prompt.kind === "typed" ? prompt.pasted : []]
   });
@@ -93228,16 +93912,16 @@ function onRequest(cx, req) {
 }
 
 // src/app/agent-pane.ts
-async function openAgentPane(cx, id) {
+async function openAgentPane(cx, id2) {
   const { chat, state } = cx;
-  const a2 = chat.agents.all().find((x) => x.id === id);
+  const a2 = chat.agents.all().find((x) => x.id === id2);
   const sid = state.ref.live;
   if (!a2 || !sid) {
     return;
   }
   const cwd = state.info?.cwd || cx.launch.home || "/";
   if (!await openSidebar(specOf(a2, agentName(a2), sid), cwd)) {
-    openAgents(chat, { id, watch: true });
+    openAgents(chat, { id: id2, watch: true });
   }
 }
 
@@ -93259,8 +93943,8 @@ function showImage(cx, call, imageLanded2) {
   if (call) cx.media.show(call, () => imageLanded2(call));
 }
 function showArtifacts(cx, artifacts, call) {
-  artifacts.show(call, cx.state.info?.cwd ?? process.cwd(), (text19) => {
-    cx.transcript.notice(text19, "warning");
+  artifacts.show(call, cx.state.info?.cwd ?? process.cwd(), (text18) => {
+    cx.transcript.notice(text18, "warning");
     cx.changed();
   });
 }
@@ -93287,23 +93971,23 @@ function toggleFactory(cx) {
   if (!cx.tern.caps.features.includes("aside")) {
     return false;
   }
-  const { factory, prAside, sidebar: sidebar2 } = cx;
-  if (!factory.open) {
+  const { factory: factory2, prAside, sidebar: sidebar2 } = cx;
+  if (!factory2.open) {
     if (sidebar2.open) sidebar2.toggle();
     if (prAside.open) prAside.close();
   }
-  factory.toggle();
+  factory2.toggle();
   return true;
 }
 function toggleSidebar(cx) {
-  const { factory, prAside, sidebar: sidebar2 } = cx;
+  const { factory: factory2, prAside, sidebar: sidebar2 } = cx;
   if (!cx.tern.caps.features.includes("aside")) {
     cx.transcript.notice("This Tern has no side panel (the aside feature). /changes and /prs still work.", "warning");
     cx.changed();
     return;
   }
   if (!sidebar2.open) {
-    if (factory.open) factory.toggle();
+    if (factory2.open) factory2.toggle();
     if (prAside.open) prAside.close();
   }
   sidebar2.toggle();
@@ -93320,8 +94004,8 @@ function openPrAside(cx, key3) {
   }
   cx.prAside.show(key3);
 }
-async function openAgent(cx, id) {
-  return openAgentPane(cx, id);
+async function openAgent(cx, id2) {
+  return openAgentPane(cx, id2);
 }
 
 // src/app/actions.ts
@@ -93350,7 +94034,7 @@ var AppActions = class {
     const changed = () => cx.changed();
     const admit = () => !isModal(chat.overlays) && !life.switching && !attachments.any && !attachments.uploading;
     this.#busyDraft = new BusyDraft({ activity: cx.activity, admit, composer: composer2, gw: gw2, router: cx.router, session: cx.state, transcript, changed });
-    this.bindings = new BindingPreferences({ gw: gw2, session: cx.state, changed, notice: (text19) => chat.notice(text19, "warning") });
+    this.bindings = new BindingPreferences({ gw: gw2, session: cx.state, changed, notice: (text18) => chat.notice(text18, "warning") });
     this.dock = {
       onBtwView: (notice) => cx.btw.viewNotice(notice),
       onBtwDismiss: (notice) => cx.btw.dismissNotice(notice),
@@ -93421,7 +94105,7 @@ var AppActions = class {
       openHistorySearch: () => openPromptHistorySearch(chat, composer2),
       openHelp: () => void chat.openHelp(),
       cycleModel: (direction) => void cycleModel(chat, direction),
-      shortcut: (id, key3) => this.bindings.matches(id, key3),
+      shortcut: (id2, key3) => this.bindings.matches(id2, key3),
       openPlan: () => openPlanReview(chat),
       presses: cx.presses,
       queue: queue2,
@@ -93439,10 +94123,10 @@ var AppActions = class {
         cx.surface().focus(INPUT_ID);
       },
       modal: () => isModal(chat.overlays),
-      openAgent: (id) => void this.openAgent(id),
+      openAgent: (id2) => void this.openAgent(id2),
       openAgents: () => openAgents(chat),
       openLanes: () => void openLanesPopup(chat, chat.laneFeed),
-      openProcess: (id) => openBackground(chat, id),
+      openProcess: (id2) => openBackground(chat, id2),
       openUrl
     };
     this.slash = {
@@ -93459,15 +94143,15 @@ var AppActions = class {
     this.host = {
       activity: cx.activity,
       changed,
-      draft: (text19) => composer2.set(composer2.text ? `${text19}
-${composer2.text}` : text19, { pasted: composer2.pasted }),
+      draft: (text18) => composer2.set(composer2.text ? `${text18}
+${composer2.text}` : text18, { pasted: composer2.pasted }),
       gw: gw2,
       life,
       queue: queue2,
       router: cx.router,
       setCompacting: (on, opts) => this.setCompacting(on, opts),
       state: cx.state,
-      submit: (text19, literal3) => this.submit(text19, true, "queue", literal3 ? [text19] : []),
+      submit: (text18, literal3) => this.submit(text18, true, "queue", literal3 ? [text18] : []),
       transcript
     };
   }
@@ -93480,9 +94164,9 @@ ${composer2.text}` : text19, { pasted: composer2.pasted }),
     return this.#copied.value;
   }
   /** A Copy button: `text` to the clipboard, and its button reads Copied for a moment. */
-  copy = (text19, id) => {
-    copyToClipboard(text19);
-    this.#copied.set(id);
+  copy = (text18, id2) => {
+    copyToClipboard(text18);
+    this.#copied.set(id2);
   };
   /** Clears the Copied timer. */
   dispose() {
@@ -93523,28 +94207,28 @@ ${composer2.text}` : text19, { pasted: composer2.pasted }),
   submit(raw2, draft = true, busy = draft ? busyIntent(this.#cx.state.busyMode) : "queue", pasted = []) {
     const { attachments, composer: composer2, transcript } = this.#cx;
     if (draft && this.#cx.liveVoice.blocked) return;
-    const text19 = raw2.trim();
-    if (draft && attachments.uploading && !text19.startsWith("/")) {
+    const text18 = raw2.trim();
+    if (draft && attachments.uploading && !text18.startsWith("/")) {
       composer2.set(raw2, { pasted });
       transcript.notice("An image is still attaching. Send again in a moment.", "warning");
       return;
     }
-    if (!text19 && !(draft && attachments.items.length)) {
+    if (!text18 && !(draft && attachments.items.length)) {
       return;
     }
-    if (!text19.startsWith("/") && pasted.length && (text19.startsWith("!") || text19.includes("{!"))) {
+    if (!text18.startsWith("/") && pasted.length && (text18.startsWith("!") || text18.includes("{!"))) {
       transcript.notice("Shell syntax is sent as text because its origin is unverified.", "warning");
     }
-    if (text19.startsWith("/")) {
-      void runSlash(text19, this.slash, true, pasted.length > 0);
+    if (text18.startsWith("/")) {
+      void runSlash(text18, this.slash, true, pasted.length > 0);
       return;
     }
-    if (text19.startsWith("!") && text19.slice(1).trim() && !pasted.some((p3) => text19.startsWith(p3.trim().split("\n")[0] ?? ""))) {
-      void this.#shell(text19.slice(1).trim());
+    if (text18.startsWith("!") && text18.slice(1).trim() && !pasted.some((p3) => text18.startsWith(p3.trim().split("\n")[0] ?? ""))) {
+      void this.#shell(text18.slice(1).trim());
       return;
     }
     this.#cx.connect.yieldOpen();
-    this.#cx.router.route({ images: draft ? attachments.take() : [], kind: "typed", pasted, text: text19 }, busy);
+    this.#cx.router.route({ images: draft ? attachments.take() : [], kind: "typed", pasted, text: text18 }, busy);
   }
   /** What the router's gates read: the session, the switch in flight, the turn, the compaction and the startup image. */
   gates() {
@@ -93654,8 +94338,8 @@ ${composer2.text}` : text19, { pasted: composer2.pasted }),
     openPrAside(this.#cx, key3);
   }
   /** Shows subagent `id` beside the chat in a Tern split; its timeline sheet where no split can open. */
-  async openAgent(id) {
-    return openAgent(this.#cx, id);
+  async openAgent(id2) {
+    return openAgent(this.#cx, id2);
   }
 };
 
@@ -94007,7 +94691,7 @@ function shellsPill(s2, onOpen, focused) {
   const charts = live ? s2.charts ?? [] : [];
   const fresh = latest(charts)?.view;
   const figure = fresh && glance(fresh);
-  const title = ["Background processes  \u2325J", ...charts.map((c) => `${c.process.id}  ${summary(c.view)}`)].join("\n");
+  const title2 = ["Background processes  \u2325J", ...charts.map((c) => `${c.process.id}  ${summary(c.view)}`)].join("\n");
   const card = hovercard(charts);
   return pill({
     children: [
@@ -94022,7 +94706,7 @@ function shellsPill(s2, onOpen, focused) {
     key: "shells",
     name: `${plural(n3, "shell")}${live ? " running" : " exited"}`,
     onClick: onOpen,
-    title
+    title: title2
   });
 }
 function prsPillNode(p3, onOpen, focused) {
@@ -94077,9 +94761,9 @@ function compactingNode(c, now) {
   });
 }
 function effortChip(r, on) {
-  const text19 = effortText(r.effort, r.effortWire);
+  const text18 = effortText(r.effort, r.effortWire);
   const glyph = r.effort === "none" ? "off" : r.effortWire || r.effort || DEFAULT_EFFORT;
-  const clamp2 = text19.includes("\u2192") ? ` (this route sends ${r.effortWire})` : "";
+  const clamp2 = text18.includes("\u2192") ? ` (this route sends ${r.effortWire})` : "";
   return /* @__PURE__ */ jsxs(
     "row",
     {
@@ -94088,10 +94772,10 @@ function effortChip(r, on) {
       onClick: on.onEffort,
       ...optional2("onMenu", on.onEffortMenu),
       role: "omp.composer.effort",
-      title: `Reasoning effort: ${text19}${r.effort ? clamp2 : " (the default)"} \xB7 click to cycle  \u21E7\u21E5 \xB7 right-click to choose or save as default`,
+      title: `Reasoning effort: ${text18}${r.effort ? clamp2 : " (the default)"} \xB7 click to cycle  \u21E7\u21E5 \xB7 right-click to choose or save as default`,
       children: [
         /* @__PURE__ */ jsx("effort", { level: glyph }, "glyph"),
-        /* @__PURE__ */ jsx("text", { spans: [{ ...optional2("s", r.effort ? void 0 : "muted"), t: text19 }], wrap: "none" }, "level")
+        /* @__PURE__ */ jsx("text", { spans: [{ ...optional2("s", r.effort ? void 0 : "muted"), t: text18 }], wrap: "none" }, "level")
       ]
     },
     "effort"
@@ -94167,10 +94851,9 @@ function drawFrame(cx, now = Date.now()) {
   if (!modal2) {
     cx.completion.update(cx.composer);
   }
-  const voice = cx.liveVoice.node();
-  const lanes2 = cx.lanes?.node() ?? null;
+  const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null);
   const chrome = {
-    dock: [...voice ? [voice] : [], ...lanes2 ? [lanes2] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
+    dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
     layer: [
       ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
@@ -94233,11 +94916,11 @@ function euiHostPort(host, active2) {
         isCurrent: () => ticket.isCurrent() && host.session.ref.live === sessionId && host.transcript.lifetime === lifetime
       };
     },
-    append: (title) => {
+    append: (title2) => {
       const entry = {
         id: host.transcript.id("eui"),
         kind: "panel",
-        title,
+        title: title2,
         text: "This host card is no longer active. Reopen the flow to review current data."
       };
       host.transcript.push(entry);
@@ -94249,11 +94932,11 @@ function euiHostPort(host, active2) {
 
 // src/agents/ownership.ts
 function resultId(call) {
-  const value = record2(call.result)?.["delegation_id"];
+  const value = record(call.result)?.["delegation_id"];
   return typeof value === "string" && value ? value : void 0;
 }
-function agentsWith(calls, id) {
-  return id ? calls.flatMap((call) => (call.subagents ?? []).filter((agent) => agent.id === id).map((agent) => ({ call, agent }))) : [];
+function agentsWith(calls, id2) {
+  return id2 ? calls.flatMap((call) => (call.subagents ?? []).filter((agent) => agent.id === id2).map((agent) => ({ call, agent }))) : [];
 }
 function trustedParentChain(calls, owner2, parent) {
   const seen = /* @__PURE__ */ new Set();
@@ -94296,23 +94979,23 @@ function eventOwner(calls, event) {
     return void 0;
   }
   const known3 = child[0]?.call ?? parent[0]?.call;
-  const id = event.delegation_id;
-  if (id !== null && id !== void 0) {
-    if (typeof id !== "string" || !id) {
+  const id2 = event.delegation_id;
+  if (id2 !== null && id2 !== void 0) {
+    if (typeof id2 !== "string" || !id2) {
       return void 0;
     }
     const matching = calls.filter(
-      (call) => resultId(call) === id || call.subagents?.some((agent) => agent.delegationId === id)
+      (call) => resultId(call) === id2 || call.subagents?.some((agent) => agent.delegationId === id2)
     );
     if (matching.length === 1) {
       const owner2 = matching[0];
       const existingChild = child[0]?.agent;
-      if (!owner2 || known3 && owner2 !== known3 || existingChild?.delegationId && existingChild.delegationId !== id) {
+      if (!owner2 || known3 && owner2 !== known3 || existingChild?.delegationId && existingChild.delegationId !== id2) {
         return void 0;
       }
-      if (id !== resultId(owner2)) {
+      if (id2 !== resultId(owner2)) {
         const parents = new Set(
-          (owner2.subagents ?? []).filter((agent) => agent.delegationId === id && agent.parentId).map((agent) => agent.parentId)
+          (owner2.subagents ?? []).filter((agent) => agent.delegationId === id2 && agent.parentId).map((agent) => agent.parentId)
         );
         if (parents.size > 1 || event.parent_id && parents.size > 0 && !parents.has(event.parent_id) || existingChild?.parentId && parents.size > 0 && !parents.has(existingChild.parentId) || existingChild?.parentId && event.parent_id && existingChild.parentId !== event.parent_id) {
           return void 0;
@@ -94488,12 +95171,12 @@ var Agents = class {
     }
   }
   /** Queues steering text into a running agent; the owner answers `queued` or `rejected`. */
-  async steer(a2, text19) {
+  async steer(a2, text18) {
     const sid = this.#host.sid;
     if (!sid) {
       return false;
     }
-    const r = await rpc(this.#host.gw, "subagent.steer", { session_id: sid, subagent_id: a2.id, text: text19 });
+    const r = await rpc(this.#host.gw, "subagent.steer", { session_id: sid, subagent_id: a2.id, text: text18 });
     return r?.status === "queued";
   }
   /** Interrupts a running agent; its partial result still returns to the parent. */
@@ -94516,8 +95199,8 @@ var Agents = class {
    * Applies an async-delegation completion (the model text of its `message.start`,
    * tools/process_registry_notifications.py) to the rows whose end the owner did not report.
    */
-  settle(text19) {
-    const done = completionOutcomes(text19);
+  settle(text18) {
+    const done = completionOutcomes(text18);
     if (!done) {
       return;
     }
@@ -94612,12 +95295,12 @@ var Agents = class {
     const owners = this.#owners();
     const present = /* @__PURE__ */ new Set();
     for (const row2 of rows) {
-      const id = row2.subagent_id;
-      if (!id) {
+      const id2 = row2.subagent_id;
+      if (!id2) {
         continue;
       }
-      present.add(id);
-      this.#listed.add(id);
+      present.add(id2);
+      this.#listed.add(id2);
       const a2 = findRow(owners, row2) ?? nestedChild(owners, row2) ?? this.#attach(owners, row2);
       if (!a2) {
         continue;
@@ -94703,11 +95386,11 @@ function openBtwOverlay(model) {
   let message = "";
   let root7 = "";
   const valid2 = () => model.owns(sheet);
-  const choose = (id) => {
+  const choose = (id2) => {
     if (!valid2()) {
       return;
     }
-    model.select(id);
+    model.select(id2);
     pane = "composer";
     host.changed();
   };
@@ -94724,9 +95407,9 @@ function openBtwOverlay(model) {
       pane = "history";
     }
   };
-  const send2 = (text19) => {
+  const send2 = (text18) => {
     if (valid2()) {
-      void model.submit(text19);
+      void model.submit(text18);
     }
   };
   const cancel2 = () => {
@@ -94749,12 +95432,12 @@ function openBtwOverlay(model) {
   const sheet = {
     key: "btw",
     modal: true,
-    focus: (id) => pane === "composer" ? id + ".body." + model.editorKey : null,
+    focus: (id2) => pane === "composer" ? id2 + ".body." + model.editorKey : null,
     cancel: () => model.close(),
     onClose: () => model.closed(sheet),
-    node: (id) => {
+    node: (id2) => {
       const editor = model.captureEditor(sheet);
-      root7 = id;
+      root7 = id2;
       return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", head: "/btw", modal: true, role: "omp.overlay.report", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
         /* @__PURE__ */ jsx("text", { text: "Tab: history / reader / composer \xB7 Ctrl+N/P: select \xB7 Alt+Enter: send \xB7 Ctrl+X: stop side turn", wrap: "word" }, "hint"),
         /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.btw.body", children: [
@@ -94825,7 +95508,7 @@ function openBtwOverlay(model) {
           } }] : [],
           { key: "close", label: "Return to main draft", hint: "escape", onClick: () => model.close() }
         ])
-      ] }, "body") }, nativeOverlayKey(id));
+      ] }, "body") }, nativeOverlayKey(id2));
     },
     onKey: (key3) => {
       if (!valid2()) {
@@ -94932,11 +95615,11 @@ async function listBtw(gw2, sid) {
   await requireMethod(gw2, sid, METHODS.list);
   return threads.parse(await gw2.request(METHODS.list, { session_id: sid })).threads;
 }
-async function submitBtw(gw2, sid, text19, threadId) {
+async function submitBtw(gw2, sid, text18, threadId) {
   await requireMethod(gw2, sid, METHODS.submit);
   const result = await gw2.request(METHODS.submit, {
     session_id: sid,
-    text: text19,
+    text: text18,
     ...threadId ? { thread_id: threadId } : {}
   });
   return submission.parse(result);
@@ -95046,20 +95729,20 @@ var BtwThreads = class {
     return this.threads.find((item3) => item3.id === this.selected);
   }
   get draft() {
-    const id = this.selected ?? "new";
-    let draft = this.#drafts.get(id);
+    const id2 = this.selected ?? "new";
+    let draft = this.#drafts.get(id2);
     if (!draft) {
       draft = new Composer();
-      this.#drafts.set(id, draft);
+      this.#drafts.set(id2, draft);
     }
     return draft;
   }
-  select(id) {
-    if (id === null || this.threads.some((item3) => item3.id === id)) {
-      if (this.selected !== id) {
+  select(id2) {
+    if (id2 === null || this.threads.some((item3) => item3.id === id2)) {
+      if (this.selected !== id2) {
         this.#revokeSelection();
       }
-      this.selected = id;
+      this.selected = id2;
       this.host.changed();
     }
   }
@@ -95136,12 +95819,12 @@ var BtwThreads = class {
   completed(ev) {
     const payload = ev.payload;
     const taskId = payload?.task_id;
-    const text19 = payload?.text;
-    if (typeof taskId !== "string" || !taskId.trim() || typeof text19 !== "string" || !text19.trim() || !this.#sid || ev.session_id !== this.#sid || this.host.session.ref.live !== this.#sid || this.#owner !== this.host.session.ref || this.#seenCompletions.has(taskId)) {
+    const text18 = payload?.text;
+    if (typeof taskId !== "string" || !taskId.trim() || typeof text18 !== "string" || !text18.trim() || !this.#sid || ev.session_id !== this.#sid || this.host.session.ref.live !== this.#sid || this.#owner !== this.host.session.ref || this.#seenCompletions.has(taskId)) {
       return false;
     }
     this.#seenCompletions.add(taskId);
-    this.#pendingCompletions.set(taskId, /^error:/i.test(text19.trimStart()));
+    this.#pendingCompletions.set(taskId, /^error:/i.test(text18.trimStart()));
     this.#matchCompletions();
     this.host.changed();
     return true;
@@ -95221,11 +95904,11 @@ var BtwThreads = class {
     }
     this.host.changed();
   }
-  async submit(text19) {
+  async submit(text18) {
     const sid = this.host.session.ref.live;
     const sheet = this.#sheet;
     const draft = this.draft;
-    const question = (text19 ?? draft.text).trim();
+    const question = (text18 ?? draft.text).trim();
     const previous3 = this.selected;
     if (!sid || sid !== this.#sid || !sheet || !this.owns(sheet) || this.state !== "idle" || !question || this.thread?.turns.at(-1)?.state === "running") {
       return;
@@ -95637,7 +96320,7 @@ var Sidebar = class {
       this.#cwd = cwd;
     }
   }
-  node(id) {
+  node(id2) {
     if (!this.#open) {
       return null;
     }
@@ -95645,8 +96328,8 @@ var Sidebar = class {
     const git3 = this.#state;
     const prs = host.prs.entries().toReversed();
     const files = git3?.files ?? [];
-    const added = files.reduce((n3, f) => n3 + f.additions, 0);
-    const removed = files.reduce((n3, f) => n3 + f.deletions, 0);
+    const added = files.reduce((n3, f2) => n3 + f2.additions, 0);
+    const removed = files.reduce((n3, f2) => n3 + f2.deletions, 0);
     const where = git3?.upstream ? git3.ahead || git3.behind ? [git3.ahead && `${git3.ahead} ahead`, git3.behind && `${git3.behind} behind`].filter(Boolean).join(", ") + ` of ${git3.upstream}` : `Up to date with ${git3.upstream}` : "Not pushed: no upstream";
     const branchRows = git3 ? [
       {
@@ -95667,11 +96350,11 @@ var Sidebar = class {
       label: `#${e.ref.number} ${e.pr?.title ?? e.ref.repository}`,
       ...optional2("warning", e.pr?.state === "open" && e.pr.mergeable === "conflicting" ? "Conflicts with its base branch" : void 0)
     })) : [{ disabled: "Hermes links each PR it opens; the branch\u2019s PR shows here too.", id: "no-prs", label: "None yet" }];
-    const fileRows = files.length ? files.slice(0, MAX_FILES).map((f) => ({
+    const fileRows = files.length ? files.slice(0, MAX_FILES).map((f2) => ({
       control: { act: "diff", k: "action", label: "Diff" },
-      hint: `${f.status}${f.staged ? ", staged" : ""} \xB7 +${f.additions} \u2212${f.deletions}`,
-      id: `file:${f.path}`,
-      label: f.path
+      hint: `${f2.status}${f2.staged ? ", staged" : ""} \xB7 +${f2.additions} \u2212${f2.deletions}`,
+      id: `file:${f2.path}`,
+      label: f2.path
     })) : git3 ? [{ disabled: "Nothing changed since the last commit.", id: "no-files", label: "Clean" }] : [];
     return /* @__PURE__ */ jsx(
       "prefs",
@@ -95874,12 +96557,12 @@ var TodoHud = class {
   /** Prefer this session's event snapshot, including an empty one, then its restored history. */
   visible(turnRunning, history2) {
     const snapshot4 = this.#active ? this.#plans.get(this.#active) : void 0;
-    const plan = snapshot4 ?? history2;
-    return todos(plan ? [...plan] : void 0, turnRunning);
+    const plan2 = snapshot4 ?? history2;
+    return todos(plan2 ? [...plan2] : void 0, turnRunning);
   }
-  #remember(key3, plan) {
+  #remember(key3, plan2) {
     this.#plans.delete(key3);
-    this.#plans.set(key3, plan.map((todo) => ({ ...todo })));
+    this.#plans.set(key3, plan2.map((todo) => ({ ...todo })));
     while (this.#plans.size > MAX_CACHED_SESSIONS) {
       const oldest = this.#plans.keys().next().value;
       if (oldest === void 0) {
@@ -95914,7 +96597,7 @@ var ConnectWatcher = class {
   }
   /** `connection.request`: the gateway opened an operation for session `session`; its card goes on the call that opened it. */
   request(payload, session2) {
-    const drawn = this.#byOp(record2(payload)?.["op_id"]);
+    const drawn = this.#byOp(record(payload)?.["op_id"]);
     if (drawn) {
       this.#apply(drawn, payload);
       return;
@@ -95935,7 +96618,7 @@ var ConnectWatcher = class {
   }
   /** `connection.update`: a row moved or the operation settled. */
   update(payload, session2) {
-    const op = record2(payload)?.["op_id"];
+    const op = record(payload)?.["op_id"];
     const call = this.#byOp(op);
     if (call) {
       this.#apply(call, payload);
@@ -96040,9 +96723,9 @@ var ConnectWatcher = class {
     }
     const op = card.op;
     rpc(this.#host.gw, "connectors.operation.status", opParams(op)).then(
-      (frame) => {
+      (frame2) => {
         if (ticket.isCurrent()) {
-          this.#apply(call, frame);
+          this.#apply(call, frame2);
         }
       },
       (error) => {
@@ -96060,9 +96743,9 @@ var ConnectWatcher = class {
     const stale = named2 !== void 0 && named2.outcome.kind !== "running";
     let call = stale ? void 0 : named2 ?? transcript.lastCall((c) => c.name === CONNECT_TOOL && c.outcome.kind === "running" && !c.connect);
     if (!call) {
-      const id = callId && !stale ? callId : `connect-${card.op.id}`;
-      transcript.toolStart({ args: { action: "connect", connectors: card.targets.map((t) => t.name) }, name: CONNECT_TOOL, tool_id: id });
-      call = transcript.call(toolCallId(id));
+      const id2 = callId && !stale ? callId : `connect-${card.op.id}`;
+      transcript.toolStart({ args: { action: "connect", connectors: card.targets.map((t) => t.name) }, name: CONNECT_TOOL, tool_id: id2 });
+      call = transcript.call(toolCallId(id2));
     }
     if (!call) {
       this.#undrawable(void 0, card.op.session);
@@ -96075,7 +96758,7 @@ var ConnectWatcher = class {
   }
   /** A request the pane cannot draw: it says so, and answers Continue so the tool does not wait out its deadline. */
   #undrawable(payload, sid) {
-    const op = record2(payload)?.["op_id"];
+    const op = record(payload)?.["op_id"];
     const answered2 = typeof op === "string" && op && sid;
     this.#host.transcript.notice(
       answered2 ? "Hermes asked for a connection card this pane cannot draw, so the pane answered Continue: the tool carries on without it. Connect apps in Hermes Desktop or the Nous Portal." : "Hermes asked for a connection card this pane cannot read. Its tool waits until the card times out; press Esc twice to stop it.",
@@ -96088,9 +96771,9 @@ var ConnectWatcher = class {
     }
   }
   /** Applies a frame of its operation to `call`'s card, when it moves something. */
-  #apply(call, frame) {
+  #apply(call, frame2) {
     const card = call.connect;
-    const next2 = card && applyFrame(card, frame);
+    const next2 = card && applyFrame(card, frame2);
     if (next2) {
       this.#host.transcript.mutateCall(call, (c) => c.connect = next2);
       this.#host.changed();
@@ -96105,7 +96788,7 @@ var ConnectWatcher = class {
     const card = call.connect;
     const final = this.#finals.has(call) ? void 0 : resultCard(call);
     this.#finals.add(call);
-    if (card && final && record2(call.result)?.["op_id"] === op.id) {
+    if (card && final && record(call.result)?.["op_id"] === op.id) {
       const before2 = new Map(card.targets.map((t) => [t.name, t]));
       const targets = final.targets.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url }));
       this.#host.transcript.mutateCall(call, (c) => c.connect = { ...card, settled: final.settled, targets });
@@ -96242,8 +96925,8 @@ import { fileURLToPath as fileURLToPath11 } from "node:url";
 import { execFile as execFile9 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
-import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
-import { join as join17, resolve as resolve10 } from "node:path";
+import { homedir as homedir12, tmpdir as tmpdir3 } from "node:os";
+import { join as join18, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
   execFile9(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
@@ -96311,16 +96994,16 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp3(join17(tmpdir3(), "hermes-tern-clipboard-"));
+  const dir2 = await mkdtemp3(join18(tmpdir3(), "hermes-tern-clipboard-"));
   try {
-    const path2 = await extract(join17(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join18(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm4(dir2, { force: true, recursive: true });
   }
 }
-function imagePathOf(text19, cwd) {
-  let raw2 = text19.trim();
+function imagePathOf(text18, cwd) {
+  let raw2 = text18.trim();
   if (!raw2 || raw2.includes("\n")) {
     return void 0;
   }
@@ -96332,7 +97015,7 @@ function imagePathOf(text19, cwd) {
       return void 0;
     }
   }
-  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir11());
+  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir12());
   if (!IMAGE2.test(raw2)) {
     return void 0;
   }
@@ -96469,16 +97152,16 @@ var Attachments = class {
     if (!result?.path) throw new Error("the gateway did not store the image");
     return { bytes, mime: format.mime, path: result.path };
   }
-  paste(text19) {
-    if (text19.startsWith("data:image/")) {
-      void this.fromDataUrl(text19);
+  paste(text18) {
+    if (text18.startsWith("data:image/")) {
+      void this.fromDataUrl(text18);
       return true;
     }
-    if (!text19.trim()) {
+    if (!text18.trim()) {
       void this.fromClipboard(true);
       return true;
     }
-    const path2 = imagePathOf(text19, this.#host.cwd());
+    const path2 = imagePathOf(text18, this.#host.cwd());
     if (!path2) return false;
     void this.#attach(path2, basename8(path2));
     return true;
@@ -96829,8 +97512,8 @@ ${found.details}`, "warning");
     this.#host.changed();
   }
   /** `text` at the caret (over a selection), spaced from the words beside it, as one undo step. */
-  #write(text19) {
-    const words3 = text19.trim();
+  #write(text18) {
+    const words3 = text18.trim();
     if (!words3) {
       return;
     }
@@ -96928,27 +97611,27 @@ var untrustedText = (host) => `Not read: ${host} is not github.com or a GitHub E
 
 // src/github/branch.ts
 var run7 = promisify7(execFile10);
-function parseRemote(url, hosts = githubHosts()) {
+function parseRemote(url, hosts2 = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
-  const m = scp ?? full;
-  if (!m) {
+  const m2 = scp ?? full;
+  if (!m2) {
     return void 0;
   }
   const port = full?.["scheme"]?.startsWith("http") ? full["port"] ?? "" : "";
-  const trusted = hosts.trusted(`${m["host"] ?? ""}${port}`);
-  return trusted ? { host: trusted.host, repository: (m["repo"] ?? "").toLowerCase() } : void 0;
+  const trusted = hosts2.trusted(`${m2["host"] ?? ""}${port}`);
+  return trusted ? { host: trusted.host, repository: (m2["repo"] ?? "").toLowerCase() } : void 0;
 }
 async function git2(cwd, ...args) {
   const { stdout } = await run7("git", ["-C", cwd, ...args], { timeout: 5e3 });
   return stdout.trim();
 }
-async function branchTarget(cwd, hosts = githubHosts()) {
+async function branchTarget(cwd, hosts2 = githubHosts()) {
   try {
     const branch2 = await git2(cwd, "symbolic-ref", "--quiet", "--short", "HEAD");
     const [remote = "", ref = ""] = (await git2(cwd, "for-each-ref", "--format=%(upstream:remotename)%00%(upstream:remoteref)", `refs/heads/${branch2}`)).split("\0");
     const name = remote || "origin";
-    const parsed2 = parseRemote(await git2(cwd, "remote", "get-url", name), hosts);
+    const parsed2 = parseRemote(await git2(cwd, "remote", "get-url", name), hosts2);
     const head2 = ref.replace(/^refs\/heads\//, "") || branch2;
     const fallback = ["main", "master"];
     const defaultBranch = (await git2(cwd, "symbolic-ref", "--quiet", "--short", `refs/remotes/${name}/HEAD`).catch(() => "")).replace(
@@ -97049,16 +97732,16 @@ var graphqlAnswer = _catch(
   }),
   { data: void 0 }
 );
-function trustedOr(hosts, host) {
-  const trusted = hosts.trusted(host);
+function trustedOr(hosts2, host) {
+  const trusted = hosts2.trusted(host);
   if (!trusted) {
     throw new GitHubError(untrustedText(host));
   }
   return trusted;
 }
-function tokens(env2 = process.env, hosts = githubHosts(env2)) {
+function tokens(env2 = process.env, hosts2 = githubHosts(env2)) {
   return async (host) => {
-    const { host: name, kind } = trustedOr(hosts, host);
+    const { host: name, kind } = trustedOr(hosts2, host);
     const own14 = kind === "github" ? env2["GITHUB_TOKEN"] || env2["GH_TOKEN"] : env2["GITHUB_ENTERPRISE_TOKEN"] || env2["GH_ENTERPRISE_TOKEN"];
     if (own14) {
       return own14;
@@ -97092,9 +97775,9 @@ async function send(url, origin, first) {
     }
   }
 }
-function github(token = tokens(), hosts = githubHosts()) {
+function github(token = tokens(), hosts2 = githubHosts()) {
   async function call(answer, host, url, init) {
-    const trusted = trustedOr(hosts, host);
+    const trusted = trustedOr(hosts2, host);
     const headers = {
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${await token(trusted.host)}`,
@@ -97103,8 +97786,8 @@ function github(token = tokens(), hosts = githubHosts()) {
       ...init.body ? { "Content-Type": "application/json" } : {}
     };
     const res = await send(new URL(url(trusted)), new URL(trusted.rest).origin, { ...init, headers });
-    const text19 = await res.text();
-    const json = text19 ? decodeJson(text19) : void 0;
+    const text18 = await res.text();
+    const json = text18 ? decodeJson(text18) : void 0;
     if (!res.ok) {
       const { message } = failure4.parse(json);
       throw new GitHubError(message ? `GitHub: ${message}` : `GitHub answered ${res.status}`, res.status);
@@ -97181,18 +97864,18 @@ var PullRequests = class {
     settled: () => this.#host.changed()
   });
   #busy = /* @__PURE__ */ new Set();
-  constructor(host, gh = github(), branchOf = branchTarget, hosts = githubHosts()) {
+  constructor(host, gh = github(), branchOf = branchTarget, hosts2 = githubHosts()) {
     this.#host = host;
     this.#gh = gh;
     this.#branchOf = branchOf;
-    this.#hosts = hosts;
+    this.#hosts = hosts2;
   }
   /**
    * The linked PRs (oldest link first), then the branch's PR, then stack layers none of them are:
    * each a copy of its entry with its source and stack. Writes nothing.
    */
   entries() {
-    return this.#list().map(({ ref, source: source3, stack }) => ({ ...this.#entries.get(prKey(ref)) ?? blank(ref), source: source3, stack }));
+    return this.#list().map(({ ref, source: source2, stack }) => ({ ...this.#entries.get(prKey(ref)) ?? blank(ref), source: source2, stack }));
   }
   /** The native stacks the list's PRs sit in. */
   stacks() {
@@ -97344,8 +98027,8 @@ var PullRequests = class {
         if (!runs3.length) {
           throw new Error("No failed GitHub Actions run to re-run.");
         }
-        for (const id of runs3) {
-          await this.#gh.rest(pr.host, "POST", `/repos/${pr.repository}/actions/runs/${id}/rerun-failed-jobs`);
+        for (const id2 of runs3) {
+          await this.#gh.rest(pr.host, "POST", `/repos/${pr.repository}/actions/runs/${id2}/rerun-failed-jobs`);
         }
       } else {
         await this.#gh.graphql(pr.host, MUTATIONS[action], {
@@ -97363,11 +98046,11 @@ var PullRequests = class {
   #list() {
     const seen = /* @__PURE__ */ new Set();
     const out = [];
-    const add2 = (ref, source3) => {
+    const add2 = (ref, source2) => {
       const key3 = prKey(ref);
       if (!seen.has(key3)) {
         seen.add(key3);
-        out.push({ ref, source: source3 });
+        out.push({ ref, source: source2 });
       }
     };
     this.#refs.forEach((r) => add2(r, "linked"));
@@ -97592,20 +98275,20 @@ var MediaDelivery = class {
   token() {
     return JSON.stringify([this.revision, this.#epoch, this.#scope(), this.deps.tern.caps.kinds, this.deps.tern.caps.features]);
   }
-  preview(source3) {
+  preview(source2) {
     const host = this.context();
-    const cached2 = this.#cache.get(this.#key(source3));
-    if (source3.host === "gateway" && source3.toolCallId !== void 0) {
+    const cached2 = this.#cache.get(this.#key(source2));
+    if (source2.host === "gateway" && source2.toolCallId !== void 0) {
       return { label: "Tool image preview unavailable: no authenticated completed-tool evidence.", status: "unsupported" };
     }
-    const gatewayAttachment = source3.host === "gateway" && source3.scope === "attachment" && !source3.toolCallId && this.deps.gw.attached;
-    if (source3.scope === "attachment" && !gatewayAttachment || !gatewayAttachment && (host.local || source3.host !== host.remoteHost)) {
+    const gatewayAttachment = source2.host === "gateway" && source2.scope === "attachment" && !source2.toolCallId && this.deps.gw.attached;
+    if (source2.scope === "attachment" && !gatewayAttachment || !gatewayAttachment && (host.local || source2.host !== host.remoteHost)) {
       return { label: "Image path does not belong to the active host.", status: "unsupported" };
     }
     if (cached2?.status === "ready" && cached2.blob) {
       return { blob: cached2.blob, status: "ready" };
     }
-    if (this.#closed || !this.deps.session() || !this.deps.tern.caps.features.includes("blobs") || source3.host === "tern" || source3.host === "compute" || source3.host === "gateway" && !source3.toolCallId && source3.scope !== "attachment") {
+    if (this.#closed || !this.deps.session() || !this.deps.tern.caps.features.includes("blobs") || source2.host === "tern" || source2.host === "compute" || source2.host === "gateway" && !source2.toolCallId && source2.scope !== "attachment") {
       return { label: "Remote image preview unavailable on this host or SDK.", status: "unsupported" };
     }
     if (this.#uploads >= MEDIA_CONNECTION_BLOBS || this.#bytes >= MEDIA_CONNECTION_BYTES) {
@@ -97619,8 +98302,8 @@ var MediaDelivery = class {
     }
     return this.#busy ? { label: "Another preview is loading\u2026", status: "busy" } : { label: "Load image preview", status: "available" };
   }
-  async load(source3) {
-    const state = this.preview(source3);
+  async load(source2) {
+    const state = this.preview(source2);
     if (state.status !== "available" && state.status !== "failed") {
       return;
     }
@@ -97628,7 +98311,7 @@ var MediaDelivery = class {
     if (!session2 || this.#busy) {
       return;
     }
-    const key3 = this.#key(source3);
+    const key3 = this.#key(source2);
     const scope2 = this.#scope();
     const epoch = this.#epoch;
     const entry = { status: "loading" };
@@ -97645,8 +98328,8 @@ var MediaDelivery = class {
     this.#touch();
     try {
       let bytes;
-      let responseMime = source3.mime;
-      if (source3.host === "gateway") {
+      let responseMime = source2.mime;
+      if (source2.host === "gateway") {
         const capabilities2 = await this.deps.gw.request(
           "gateway.capabilities",
           { session_id: session2 }
@@ -97660,9 +98343,9 @@ var MediaDelivery = class {
         }
         const response = await this.deps.gw.request("hermes-tern.media.image", {
           session_id: session2,
-          path: source3.path,
-          ...source3.mime ? { mime: source3.mime } : {},
-          ...source3.toolCallId ? { tool_call_id: source3.toolCallId } : {}
+          path: source2.path,
+          ...source2.mime ? { mime: source2.mime } : {},
+          ...source2.toolCallId ? { tool_call_id: source2.toolCallId } : {}
         });
         const raw2 = response?.content_base64;
         if (typeof raw2 !== "string" || raw2.length === 0 || raw2.length % 4 !== 0 || raw2.length > Math.ceil(MEDIA_MAX_BYTES / 3) * 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(raw2)) {
@@ -97673,13 +98356,13 @@ var MediaDelivery = class {
           throw new Error("Invalid or incomplete gateway image.");
         }
         responseMime = response.mime;
-      } else if (source3.host === "frontend") {
-        bytes = await readImageBytes(source3.path);
+      } else if (source2.host === "frontend") {
+        bytes = await readImageBytes(source2.path);
       } else {
         return;
       }
       const mime = imageBytesMime(bytes, responseMime);
-      imageBytesMime(bytes, source3.mime);
+      imageBytesMime(bytes, source2.mime);
       if (bytes.length > MEDIA_MAX_BYTES || this.#bytes + bytes.length > MEDIA_CONNECTION_BYTES || this.#uploads >= MEDIA_CONNECTION_BLOBS) {
         throw new Error("Preview connection budget reached; reconnect to load more images.");
       }
@@ -97701,8 +98384,8 @@ var MediaDelivery = class {
       this.#touch();
     }
   }
-  forget(source3) {
-    this.#cache.delete(this.#key(source3));
+  forget(source2) {
+    this.#cache.delete(this.#key(source2));
     this.#touch();
   }
   /** Clear transcript-owned previews, never the cumulative SDK-connection blob budget. */
@@ -97712,8 +98395,8 @@ var MediaDelivery = class {
     this.#cache.clear();
     this.#touch();
   }
-  #key(source3) {
-    return JSON.stringify([this.#scope(), source3.host, source3.id, source3.path, source3.mime, source3.toolCallId, source3.scope]);
+  #key(source2) {
+    return JSON.stringify([this.#scope(), source2.host, source2.id, source2.path, source2.mime, source2.toolCallId, source2.scope]);
   }
   #scope() {
     const { gw: gw2, env: env2 = process.env } = this.deps;
@@ -97775,8 +98458,8 @@ function openOperationalOverlay(owner2, report) {
     modal: true,
     cancel: close,
     onClose: () => owner2.closed(sheet),
-    node: (id) => {
-      root7 = id;
+    node: (id2) => {
+      root7 = id2;
       return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", head: report.title, modal: true, role: "omp.overlay.report", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
         /* @__PURE__ */ jsx("text", { role: "omp.report.state", text: report.status }, "state"),
         report.scope ? /* @__PURE__ */ jsx("text", { role: "omp.report.scope", text: "Hermes profile: " + report.scope + " \xB7 Read only", wrap: "word" }, "scope") : null,
@@ -97786,7 +98469,7 @@ function openOperationalOverlay(owner2, report) {
           { key: "copy", label: "Copy", onClick: copy },
           { key: "close", label: "Close", hint: "escape", onClick: close }
         ])
-      ] }, "body") }, nativeOverlayKey(id));
+      ] }, "body") }, nativeOverlayKey(id2));
     },
     onKey: (key3) => {
       if (!valid2()) {
@@ -97843,7 +98526,7 @@ var OperationalSheets = class {
     }
   }
   /** Claim the sheet before asynchronous work: a close fences its reply. */
-  begin(title, sid) {
+  begin(title2, sid) {
     if (this.host.session.ref.live !== sid) {
       return void 0;
     }
@@ -97852,7 +98535,7 @@ var OperationalSheets = class {
     if (top?.modal && top !== this.#sheet) {
       return void 0;
     }
-    const report = { title, text: "", status: "loading" };
+    const report = { title: title2, text: "", status: "loading" };
     const sheet = openOperationalOverlay(this, report);
     this.#sheet = sheet;
     return { epoch: ++this.#epoch, owner: this.host.session.ref, report, sheet, sid };
@@ -97861,11 +98544,11 @@ var OperationalSheets = class {
     return ticket.epoch === this.#epoch && ticket.sheet === this.#sheet && this.host.overlays.includes(ticket.sheet) && this.host.session.ref === ticket.owner && this.#owner === ticket.owner && this.host.session.ref.live === ticket.sid && this.#sid === ticket.sid;
   }
   /** Update a still-owned report even when an approval later covers it. */
-  finish(ticket, text19, status = "ready", scope2) {
+  finish(ticket, text18, status = "ready", scope2) {
     if (!ticket || !this.#valid(ticket)) {
       return false;
     }
-    ticket.report.text = text19;
+    ticket.report.text = text18;
     ticket.report.status = status;
     if (scope2 !== void 0) {
       ticket.report.scope = scope2;
@@ -97878,8 +98561,8 @@ var OperationalSheets = class {
       this.host.close(ticket.sheet);
     }
   }
-  showText(title, text19) {
-    this.finish(this.begin(title, this.host.session.ref.live), text19);
+  showText(title2, text18) {
+    this.finish(this.begin(title2, this.host.session.ref.live), text18);
   }
   /** The real canonical tools.show RPC: read-only, not slash-output sniffing. */
   async showTools(arg = "") {
@@ -97907,8 +98590,8 @@ var OperationalSheets = class {
     const arg = argument.trim().toLowerCase();
     const view = operationalView(service, arg);
     const label = service.toUpperCase();
-    const title = view ? "/" + service + (arg ? " " + arg : "") : label + " management unavailable";
-    const ticket = this.begin(title, sid);
+    const title2 = view ? "/" + service + (arg ? " " + arg : "") : label + " management unavailable";
+    const ticket = this.begin(title2, sid);
     if (!ticket) {
       return;
     }
@@ -98199,7 +98882,7 @@ function slashOffset(input2, offset) {
   return actual !== void 0 && Number.isSafeInteger(actual) && actual >= 1 && actual <= points.length && (lastSpace < 0 ? details ? actual === points.length : actual === 1 : actual === lastSpace + 1) ? points.slice(0, actual).join("").length : void 0;
 }
 function slashItems(items, typed) {
-  const word = (text19) => text19.replace(/^\//, "").split(/\s/)[0]?.toLowerCase() ?? "";
+  const word = (text18) => text18.replace(/^\//, "").split(/\s/)[0]?.toLowerCase() ?? "";
   if (HIDDEN_COMMANDS.has(word(typed))) {
     return [];
   }
@@ -98317,13 +99000,13 @@ var OverlayStack = class {
    * Main, dock, ACK, gone, visibility and foreign events keep their normal path.
    */
   nativeReceipt(event) {
-    const id = "id" in event ? event.id : void 0;
-    if (typeof id !== "string" || !id.startsWith(NATIVE_OVERLAY_PREFIX)) {
+    const id2 = "id" in event ? event.id : void 0;
+    if (typeof id2 !== "string" || !id2.startsWith(NATIVE_OVERLAY_PREFIX)) {
       return { allowed: true, root: null };
     }
     const top = this.items.at(-1);
     const root7 = top === void 0 ? void 0 : this.#roots.get(top);
-    return { allowed: root7 !== void 0 && withinOverlayRoot(id, root7), root: root7 ?? null };
+    return { allowed: root7 !== void 0 && withinOverlayRoot(id2, root7), root: root7 ?? null };
   }
   /** A callback already chosen by the SDK must still belong to the live top open. */
   ownsNativeReceipt(receipt) {
@@ -98395,9 +99078,9 @@ var Viewer = class {
     }
   }
   /** Whether a live pane shows conversation `id`; false when the gateway cannot say. */
-  async shown(id) {
+  async shown(id2) {
     try {
-      const r = await this.#gw.request(VIEWER_SHOWN, { ids: [id] });
+      const r = await this.#gw.request(VIEWER_SHOWN, { ids: [id2] });
       return typeof r === "object" && r !== null && "shown" in r && r.shown === true;
     } catch {
       return false;
@@ -98413,16 +99096,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync6, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync5 } from "node:fs";
-import { join as join18 } from "node:path";
+import { join as join19 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
-var safe2 = (id) => /^[\w.-]{1,128}$/.test(id);
-function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
+var safe2 = (id2) => /^[\w.-]{1,128}$/.test(id2);
+function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
   return {
-    load(id) {
-      if (!safe2(id)) {
+    load(id2) {
+      if (!safe2(id2)) {
         return void 0;
       }
-      const value = readJsonFile(join18(dir2, `${id}.json`));
+      const value = readJsonFile(join19(dir2, `${id2}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -98434,15 +99117,15 @@ function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
         return void 0;
       }
     },
-    save(id, value) {
-      if (!safe2(id)) {
+    save(id2, value) {
+      if (!safe2(id2)) {
         return;
       }
       try {
         mkdirSync6(dir2, { recursive: true });
-        writeFileSync5(join18(dir2, `${id}.json`), JSON.stringify(value));
+        writeFileSync5(join19(dir2, `${id2}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join18(dir2, name);
+          const file2 = join19(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -98464,12 +99147,12 @@ var PrAside = class {
   get open() {
     return this.#view !== void 0;
   }
-  show(focus2) {
+  show(focus) {
     if (!this.#view) {
       this.#view = new PrView(this.#host);
     }
-    if (focus2) {
-      this.#view.select(focus2);
+    if (focus) {
+      this.#view.select(focus);
     }
     this.#host.prs.poke();
     this.#host.changed();
@@ -98479,7 +99162,7 @@ var PrAside = class {
     this.#view = void 0;
     this.#host.changed();
   }
-  node(id) {
+  node(id2) {
     const view = this.#view;
     if (!view) {
       return null;
@@ -98505,7 +99188,7 @@ var PrAside = class {
           view.switcher(true),
           view.header(now),
           view.tabBar(),
-          /* @__PURE__ */ jsx("col", { gap: "md", role: "hermes.pr.body", children: view.body(`${id}.view.body`, now, "narrow") }, "body"),
+          /* @__PURE__ */ jsx("col", { gap: "md", role: "hermes.pr.body", children: view.body(`${id2}.view.body`, now, "narrow") }, "body"),
           view.actions()
         ] }, "view")
       },
@@ -98871,8 +99554,8 @@ var SessionViews = class {
     return ref;
   }
   /** The detach of session `id` still in flight, if any. */
-  detaching(id) {
-    return this.#detaching.get(id);
+  detaching(id2) {
+    return this.#detaching.get(id2);
   }
   /** A switch's result that a later switch superseded: nothing will show it. */
   superseded(r) {
@@ -99030,9 +99713,9 @@ var SessionLifecycle = class {
     return route;
   }
   /** request.cancel for request `id`: true when it was held here (it is dropped). */
-  unhold(id) {
-    const held = this.#heldRequests.some((r) => r.id === id);
-    this.#heldRequests = this.#heldRequests.filter((r) => r.id !== id);
+  unhold(id2) {
+    const held = this.#heldRequests.some((r) => r.id === id2);
+    this.#heldRequests = this.#heldRequests.filter((r) => r.id !== id2);
     return held;
   }
   /** Leaves every session this pane holds a subscription to (quitting). */
@@ -99065,12 +99748,12 @@ var SessionLifecycle = class {
    * Resumes the conversation this pane showed when its program died (the launcher found it, panes.py)
    * and says so; one that no longer resumes gives way to a new session.
    */
-  async #restore(id) {
+  async #restore(id2) {
     const host = this.#host;
     let r;
     const fresh = () => this.newSession(void 0, host.launch.sessionCwd ? host.launch.paneCwd : "");
     const since = this.#switches.since();
-    if (await host.shownElsewhere(id)) {
+    if (await host.shownElsewhere(id2)) {
       if (!since.isCurrent()) {
         return;
       }
@@ -99082,22 +99765,22 @@ var SessionLifecycle = class {
       return;
     }
     try {
-      r = await this.#resume(id);
+      r = await this.#resume(id2);
     } catch (error) {
       await fresh();
       host.transcript.notice(`Could not resume this pane's last session (${errorText(error)}); started a new one.`, "warning");
       return;
     }
     if (r) {
-      const title = typeof r.info?.title === "string" ? r.info.title.trim() : "";
-      host.transcript.notice(`Resumed ${title ? `\u201C${title}\u201D` : "the session"} after the pane restarted.`);
+      const title2 = typeof r.info?.title === "string" ? r.info.title.trim() : "";
+      host.transcript.notice(`Resumed ${title2 ? `\u201C${title2}\u201D` : "the session"} after the pane restarted.`);
     }
   }
   /** After a reconnect (or a replay gap): resumes the shown session under `id` (its runtime id or subscription died). */
-  async reattach(id, notice = "Reconnected to the agent backend.") {
+  async reattach(id2, notice = "Reconnected to the agent backend.") {
     const host = this.#host;
     try {
-      if (await this.reload(id)) {
+      if (await this.reload(id2)) {
         host.transcript.notice(notice);
       }
     } catch (error) {
@@ -99106,7 +99789,7 @@ var SessionLifecycle = class {
     host.changed();
   }
   /** Closes the open session and starts a fresh one with an empty transcript, named `title` if given. */
-  async newSession(title, cwd = this.#host.launch.sessionCwd) {
+  async newSession(title2, cwd = this.#host.launch.sessionCwd) {
     if (this.#refuseSwitch()) {
       return;
     }
@@ -99135,21 +99818,21 @@ var SessionLifecycle = class {
       this.#settle(token);
     }
     const sid = host.state.ref.live;
-    if (title && sid) {
-      await host.rename(sid, title);
+    if (title2 && sid) {
+      await host.rename(sid, title2);
     }
   }
   /** Resumes stored session `id`: its history replaces the transcript, and the session it leaves is closed. */
-  async resume(id) {
-    await this.#resume(id);
+  async resume(id2) {
+    await this.#resume(id2);
   }
   /** {@link resume}, answering with the adopted snapshot (undefined when refused or superseded). */
-  async #resume(id) {
+  async #resume(id2) {
     if (this.#refuseSwitch()) {
       return void 0;
     }
     const previous3 = this.#host.state.ref.live;
-    const r = await this.reload(id);
+    const r = await this.reload(id2);
     if (r && previous3 && previous3 !== r.session_id) {
       void this.#views.leave(previous3, "tui_close");
     }
@@ -99159,20 +99842,20 @@ var SessionLifecycle = class {
    * Resumes and adopts session `id` (its stored id, or a runtime id when none is known); undefined
    * when a later switch superseded this one.
    */
-  async reload(id) {
+  async reload(id2) {
     const host = this.#host;
     const token = this.#switches.begin();
-    const hold = host.gw.holdAttach(id);
+    const hold = host.gw.holdAttach(id2);
     let snapshot4;
     try {
-      const detaching = this.#views.detaching(id);
+      const detaching = this.#views.detaching(id2);
       if (detaching) {
         await detaching;
         if (!this.#switches.current(token)) {
           return void 0;
         }
       }
-      const r = await rpc(host.gw, "session.resume", { session_id: id });
+      const r = await rpc(host.gw, "session.resume", { session_id: id2 });
       if (!this.#switches.current(token)) {
         this.#views.superseded(r);
         return void 0;
@@ -99324,8 +100007,8 @@ var SessionTitle = class {
     return this.#text;
   }
   /** Names the session `title` (trimmed) on the strip and the tab; true when it changed. */
-  set(title) {
-    const next2 = title?.trim();
+  set(title2) {
+    const next2 = title2?.trim();
     if (!next2 || next2 === this.#text) {
       return false;
     }
@@ -99334,9 +100017,9 @@ var SessionTitle = class {
     return true;
   }
   /** Another session is shown: its own name (or none yet) on the tab, and a read of the list. */
-  adopt(title) {
+  adopt(title2) {
     this.#text = "";
-    this.set(title);
+    this.set(title2);
     this.read();
   }
   /**
@@ -99349,11 +100032,11 @@ var SessionTitle = class {
     this.#timer = setTimeout(() => void this.#fetch(), READ_MS);
   }
   /** Names session `sid` (`/new <title>`) with the gateway's rename mutation. */
-  async rename(sid, title) {
+  async rename(sid, title2) {
     const host = this.#host;
     try {
-      const r = await mutateSession(host.gw, sid, "rename", { title });
-      if (sid === host.session.ref.live && this.set(String(r?.title ?? title))) {
+      const r = await mutateSession(host.gw, sid, "rename", { title: title2 });
+      if (sid === host.session.ref.live && this.set(String(r?.title ?? title2))) {
         host.changed();
       }
     } catch (error) {
@@ -99393,18 +100076,18 @@ var CONTEXT_REF = new RegExp(`^(?:\\S+ )?@(file|folder|url|image):${VALUE2}`, "g
 var IMAGE_FILE = /\.(png|jpe?g|gif|webp)$/i;
 var unquote2 = (v) => /^([`"']).*\1$/.test(v) ? v.slice(1, -1) : v;
 function splitPrompt(raw2) {
-  let text19 = raw2;
+  let text18 = raw2;
   let hinted = [];
-  const hints = HINTS.exec(text19);
+  const hints = HINTS.exec(text18);
   if (hints) {
-    const paths = [...(hints[1] ?? "").matchAll(/^\[Image attached(?: at)?: (?<path>.+)\]$/gm)].flatMap((m) => m.groups?.["path"] ?? []);
+    const paths = [...(hints[1] ?? "").matchAll(/^\[Image attached(?: at)?: (?<path>.+)\]$/gm)].flatMap((m2) => m2.groups?.["path"] ?? []);
     const placeholders2 = (hints[2] ?? "").split("[screenshot]").length - 1;
     if (placeholders2 === 0 || placeholders2 === paths.length) {
-      text19 = text19.slice(0, hints.index);
+      text18 = text18.slice(0, hints.index);
       hinted = paths;
     }
   }
-  const lines = (text19.endsWith("\n") ? text19.slice(0, -1) : text19).split("\n");
+  const lines = (text18.endsWith("\n") ? text18.slice(0, -1) : text18).split("\n");
   const row2 = (i) => (lines[i] ?? "").replace(/\r$/, "");
   let last = lines.length;
   while (last > 0 && row2(last - 1) === "[screenshot]") last--;
@@ -99429,26 +100112,26 @@ function splitPrompt(raw2) {
     }
   }
   if (!fence && refs3.length && (!placeholders || placeholders === refs3.length)) {
-    text19 = lines.slice(0, first).join("\n");
+    text18 = lines.slice(0, first).join("\n");
   } else {
     refs3.length = 0;
   }
   const files = [];
-  const marker = ATTACHED_CONTEXT.exec(text19);
+  const marker = ATTACHED_CONTEXT.exec(text18);
   if (marker) {
-    const context = text19.slice(marker.index + marker[0].length);
-    text19 = text19.slice(0, marker.index);
-    for (const m of context.matchAll(CONTEXT_REF)) {
-      const ref = `@${m[1]}:${m[2]}`;
-      const end = context.indexOf("\n", m.index);
-      const line = context.slice(m.index, end < 0 ? void 0 : end);
+    const context = text18.slice(marker.index + marker[0].length);
+    text18 = text18.slice(0, marker.index);
+    for (const m2 of context.matchAll(CONTEXT_REF)) {
+      const ref = `@${m2[1]}:${m2[2]}`;
+      const end = context.indexOf("\n", m2.index);
+      const line = context.slice(m2.index, end < 0 ? void 0 : end);
       const disk = /available on disk at `([^`]+)`/.exec(line)?.[1];
-      if (!text19.includes(ref) && !files.some((f) => f.ref === ref)) {
+      if (!text18.includes(ref) && !files.some((f2) => f2.ref === ref)) {
         files.push({ ref, ...disk ? { path: disk } : {} });
       }
     }
   }
-  return { files, images: [...refs3, ...hinted], text: text19.replace(CONTEXT_WARNINGS, "").replace(/\n{3,}/g, "\n\n").trim() };
+  return { files, images: [...refs3, ...hinted], text: text18.replace(CONTEXT_WARNINGS, "").replace(/\n{3,}/g, "\n\n").trim() };
 }
 function promptAttachments(parts3, exists = existsSync7) {
   const local = (p3) => p3.startsWith("/") && exists(p3);
@@ -99467,43 +100150,43 @@ function promptAttachments(parts3, exists = existsSync7) {
 }
 
 // src/transcript/history.ts
-function history({ kept, messages, id }) {
+function history({ kept, messages, id: id2 }) {
   const entries2 = [...kept];
   let turn2;
   let pendingContinued;
   let promptAt = 0;
   const calls = /* @__PURE__ */ new Map();
   let todos2;
-  for (const m of messages) {
-    const at2 = typeof m.timestamp === "number" ? m.timestamp * 1e3 : 0;
-    const text19 = typeof m.text === "string" ? m.text : typeof m.content === "string" ? m.content : "";
-    const steered = m.role === "user" ? m.display_kind === "steer" ? text19.trim() : steerText(text19) : void 0;
+  for (const m2 of messages) {
+    const at2 = typeof m2.timestamp === "number" ? m2.timestamp * 1e3 : 0;
+    const text18 = typeof m2.text === "string" ? m2.text : typeof m2.content === "string" ? m2.content : "";
+    const steered = m2.role === "user" ? m2.display_kind === "steer" ? text18.trim() : steerText(text18) : void 0;
     if (steered !== void 0 && turn2) {
-      turn2.blocks.push({ at: at2, id: id("s"), kind: "steer", text: steered });
+      turn2.blocks.push({ at: at2, id: id2("s"), kind: "steer", text: steered });
       continue;
     }
-    if (m.role === "user") {
+    if (m2.role === "user") {
       turn2 = void 0;
       promptAt = at2;
-      const notice = displayNotice(m.display_kind, m.display_metadata) ?? internalNotice(text19);
+      const notice = displayNotice(m2.display_kind, m2.display_metadata) ?? internalNotice(text18);
       if (notice) {
         pendingContinued = notice;
       } else {
         pendingContinued = void 0;
-        entries2.push(storedUser(id("u"), steered ?? text19, at2));
+        entries2.push(storedUser(id2("u"), steered ?? text18, at2));
       }
       continue;
     }
-    if (m.role === "system") {
+    if (m2.role === "system") {
       turn2 = void 0;
-      if (text19.trim()) {
-        entries2.push({ id: id("n"), kind: "notice", text: text19, tone: "info" });
+      if (text18.trim()) {
+        entries2.push({ id: id2("n"), kind: "notice", text: text18, tone: "info" });
       }
       continue;
     }
     if (!turn2) {
       const continued = pendingContinued ?? continuation(entries2.findLast(passable));
-      turn2 = { blocks: [], continued, end: { status: "done" }, id: id("t"), kind: "turn", rev: 0, startedAt: promptAt || at2 };
+      turn2 = { blocks: [], continued, end: { status: "done" }, id: id2("t"), kind: "turn", rev: 0, startedAt: promptAt || at2 };
       pendingContinued = void 0;
       promptAt = 0;
       entries2.push(turn2);
@@ -99512,35 +100195,35 @@ function history({ kept, messages, id }) {
     if (at2 > 0 && end.status !== "live") {
       turn2.end = { ...end, endedAt: Math.max(end.endedAt ?? at2, at2) };
     }
-    if (m.role === "assistant") {
-      const meta3 = record2(m.display_metadata);
-      const thought = storedThought(m);
+    if (m2.role === "assistant") {
+      const meta3 = record(m2.display_metadata);
+      const thought = storedThought(m2);
       if (thought.trim()) {
-        turn2.blocks.push({ endedAt: at2, id: id("k"), kind: "thinking", startedAt: at2, text: thought });
+        turn2.blocks.push({ endedAt: at2, id: id2("k"), kind: "thinking", startedAt: at2, text: thought });
       }
-      if (m.display_kind === "failed_turn") {
-        const surface = record2(meta3?.["error_surface"]);
+      if (m2.display_kind === "failed_turn") {
+        const surface = record(meta3?.["error_surface"]);
         const error = str8(meta3?.["error"]) ?? str8(surface?.["message"]);
         const card = error ? failure3(error, surface?.["code"]) : turn2.end.status === "error" ? turn2.end : {};
-        endTurn(turn2, { ...card, hint: text19.trim() || void 0, status: "error" });
+        endTurn(turn2, { ...card, hint: text18.trim() || void 0, status: "error" });
         continue;
       }
-      const reply2 = typeof m["display_content"] === "string" ? m["display_content"] : text19;
-      const notes = Array.isArray(m["display_commentary"]) ? m["display_commentary"].filter((n3) => typeof n3 === "string" && Boolean(n3.trim())) : [];
+      const reply2 = typeof m2["display_content"] === "string" ? m2["display_content"] : text18;
+      const notes = Array.isArray(m2["display_commentary"]) ? m2["display_commentary"].filter((n3) => typeof n3 === "string" && Boolean(n3.trim())) : [];
       const flat2 = (s2) => s2.replace(/\s+/g, " ").trim();
       if (!reply2.trim() || flat2(notes.join("\n\n")) !== flat2(reply2)) {
-        turn2.blocks.push(...notes.map((n3) => ({ id: id("x"), kind: "text", text: n3 })));
+        turn2.blocks.push(...notes.map((n3) => ({ id: id2("x"), kind: "text", text: n3 })));
       }
       if (reply2.trim()) {
-        turn2.blocks.push({ id: id("x"), kind: "text", text: reply2 });
+        turn2.blocks.push({ id: id2("x"), kind: "text", text: reply2 });
       }
       if (meta3?.["interrupted"] === true) {
         endTurn(turn2, { status: "interrupted" });
       }
-    } else if (m.role === "tool") {
-      const callId = toolCallId(m.tool_call_id ?? id("c"));
-      const result = typeof m.content === "string" && m.content ? m.content : void 0;
-      const diff2 = str8(record2(record2(m.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
+    } else if (m2.role === "tool") {
+      const callId = toolCallId(m2.tool_call_id ?? id2("c"));
+      const result = typeof m2.content === "string" && m2.content ? m2.content : void 0;
+      const diff2 = str8(record(record(m2.display_metadata)?.["tool_result_metadata"])?.["inline_diff"]);
       const existing = calls.get(callId);
       if (existing) {
         existing.result = result ?? existing.result;
@@ -99550,12 +100233,12 @@ function history({ kept, messages, id }) {
         }
         continue;
       }
-      const u = unwrap(m.name ?? "tool", m.args ?? {});
+      const u = unwrap(m2.name ?? "tool", m2.args ?? {});
       const args = u.args;
       const call = {
         args,
         argsText: "",
-        context: m.context ?? "",
+        context: m2.context ?? "",
         diff: diff2,
         id: callId,
         name: u.name,
@@ -99564,7 +100247,7 @@ function history({ kept, messages, id }) {
         startedAt: at2,
         via: u.via
       };
-      call.outcome = { duration: 0, kind: settleBridge(call) ?? Boolean(record2(call.result)?.["error"]) ? "error" : "done" };
+      call.outcome = { duration: 0, kind: settleBridge(call) ?? Boolean(record(call.result)?.["error"]) ? "error" : "done" };
       if (isTodoName(call.name)) {
         call.todosBefore = todos2;
       }
@@ -99574,7 +100257,7 @@ function history({ kept, messages, id }) {
         todos2 = call.todos;
       }
       calls.set(callId, call);
-      turn2.blocks.push({ call, id: id("c"), kind: "tool" });
+      turn2.blocks.push({ call, id: id2("c"), kind: "tool" });
     }
   }
   return entries2;
@@ -99592,7 +100275,7 @@ function blockAt(b) {
       return void 0;
   }
 }
-function placeCompactions(entries2, compactions, id) {
+function placeCompactions(entries2, compactions, id2) {
   for (const { at: at2, compaction } of compactions) {
     const same = (c) => c === compaction || c.startedAt === compaction.startedAt;
     const shown3 = entries2.some(
@@ -99607,50 +100290,50 @@ function placeCompactions(entries2, compactions, id) {
     const ended = before2?.kind === "turn" ? turnEndedAt(before2) : void 0;
     if (before2?.kind === "turn" && (ended === void 0 || ended >= at2)) {
       const step = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at2);
-      before2.blocks.splice(step + 1, 0, { at: at2, compaction, id: id("z"), kind: "compaction" });
+      before2.blocks.splice(step + 1, 0, { at: at2, compaction, id: id2("z"), kind: "compaction" });
       before2.rev++;
     } else {
-      entries2.splice(next2, 0, { compaction, id: id("z"), kind: "compaction", rev: 0 });
+      entries2.splice(next2, 0, { compaction, id: id2("z"), kind: "compaction", rev: 0 });
     }
   }
 }
-function storedUser(id, raw2, at2) {
+function storedUser(id2, raw2, at2) {
   const parts3 = splitPrompt(raw2);
-  return userEntry(id, { at: at2, attachments: promptAttachments(parts3), text: parts3.text });
+  return userEntry(id2, { at: at2, attachments: promptAttachments(parts3), text: parts3.text });
 }
 function endTurn(turn2, end) {
   const at2 = turnEndedAt(turn2);
   turn2.end = at2 === void 0 ? end : { ...end, endedAt: at2 };
 }
 var str8 = (v) => typeof v === "string" && v.trim() ? v : void 0;
-function storedThought(m) {
-  if (typeof m["display_reasoning"] === "string") {
-    return detailsText(m["display_reasoning"]);
+function storedThought(m2) {
+  if (typeof m2["display_reasoning"] === "string") {
+    return detailsText(m2["display_reasoning"]);
   }
-  return str8(m.reasoning) ?? str8(m["reasoning_content"]) ?? detailsText(m["reasoning_details"]);
+  return str8(m2.reasoning) ?? str8(m2["reasoning_content"]) ?? detailsText(m2["reasoning_details"]);
 }
 function detailsText(details) {
   let blocks2 = details;
   if (typeof blocks2 === "string") {
-    const text19 = blocks2.trim();
-    if (!text19.startsWith("[") && !text19.startsWith("{")) {
-      return text19;
+    const text18 = blocks2.trim();
+    if (!text18.startsWith("[") && !text18.startsWith("{")) {
+      return text18;
     }
-    blocks2 = parseJson(text19);
+    blocks2 = parseJson(text18);
     if (blocks2 === void 0) {
-      return text19;
+      return text18;
     }
   }
   const out = [];
   for (const block of Array.isArray(blocks2) ? blocks2 : [blocks2]) {
-    const r = typeof block === "string" ? { text: block } : record2(block);
+    const r = typeof block === "string" ? { text: block } : record(block);
     if (!r || r["type"] === "reasoning.encrypted") {
       continue;
     }
-    const summary4 = Array.isArray(r["summary"]) ? r["summary"].map((s2) => typeof s2 === "string" ? s2 : str8(record2(s2)?.["text"]) ?? "").join("\n\n") : r["summary"];
-    const text19 = [summary4, r["thinking"], r["content"], r["text"]].map(str8).find(Boolean)?.trim();
-    if (text19 && !out.includes(text19)) {
-      out.push(text19);
+    const summary4 = Array.isArray(r["summary"]) ? r["summary"].map((s2) => typeof s2 === "string" ? s2 : str8(record(s2)?.["text"]) ?? "").join("\n\n") : r["summary"];
+    const text18 = [summary4, r["thinking"], r["content"], r["text"]].map(str8).find(Boolean)?.trim();
+    if (text18 && !out.includes(text18)) {
+      out.push(text18);
     }
   }
   return out.join("\n\n");
@@ -99773,22 +100456,22 @@ var Transcript = class {
    * A steer the gateway took for the running turn: it shows inside that turn, where it was sent,
    * since the agent reads it before its next step. With no turn running it is a plain prompt.
    */
-  steer(text19, at2 = Date.now(), owner2 = this.live) {
+  steer(text18, at2 = Date.now(), owner2 = this.live) {
     if (owner2 && !this.#entries.includes(owner2)) return;
     if (!owner2) {
-      return this.user({ at: at2, text: text19 });
+      return this.user({ at: at2, text: text18 });
     }
-    owner2.blocks.push({ at: at2, id: this.id("s"), kind: "steer", text: text19 });
+    owner2.blocks.push({ at: at2, id: this.id("s"), kind: "steer", text: text18 });
     this.#touchTurn(owner2);
   }
   /** Records an acknowledged correction in the current transcript before its draft is taken. */
-  steerAccepted(text19, { at: at2 = Date.now(), generation, owner: owner2, runningAt }) {
+  steerAccepted(text18, { at: at2 = Date.now(), generation, owner: owner2, runningAt }) {
     const retained = generation === this.#generation && owner2 && this.#entries.includes(owner2) ? owner2 : void 0;
     const current = retained ?? (runningAt !== void 0 ? this.messageStart(runningAt) : void 0);
     if (current) {
-      this.steer(text19, at2, current);
+      this.steer(text18, at2, current);
     } else {
-      this.user({ at: at2, text: text19 });
+      this.user({ at: at2, text: text18 });
     }
   }
   /** A prompt bubble at the end. */
@@ -99799,9 +100482,9 @@ var Transcript = class {
    * A queued prompt the shared gateway just started. Its message.start came first, so the bubble
    * goes before the turn it opened while that turn is still empty; else at the end.
    */
-  started(text19, at2 = Date.now(), attachments = []) {
+  started(text18, at2 = Date.now(), attachments = []) {
     const live = this.live;
-    const notice = attachments.length ? void 0 : internalNotice(text19);
+    const notice = attachments.length ? void 0 : internalNotice(text18);
     if (notice) {
       if (live && !live.blocks.length) {
         live.continued = notice;
@@ -99812,18 +100495,18 @@ var Transcript = class {
       return;
     }
     if (live && !live.blocks.length && this.#entries.at(-1) === live) {
-      this.#entries.splice(-1, 0, userEntry(this.id("u"), { at: at2, attachments, text: text19 }));
+      this.#entries.splice(-1, 0, userEntry(this.id("u"), { at: at2, attachments, text: text18 }));
       live.continued = void 0;
       this.#touchTurn(live);
       return;
     }
-    this.user({ at: at2, attachments, text: text19 });
+    this.user({ at: at2, attachments, text: text18 });
   }
-  notice(text19, tone2 = "info") {
-    this.push({ id: this.id("n"), kind: "notice", text: text19, tone: tone2 });
+  notice(text18, tone2 = "info") {
+    this.push({ id: this.id("n"), kind: "notice", text: text18, tone: tone2 });
   }
-  panel(title, text19) {
-    this.push({ id: this.id("p"), kind: "panel", text: text19, title });
+  panel(title2, text18) {
+    this.push({ id: this.id("p"), kind: "panel", text: text18, title: title2 });
   }
   /** message.start: opens the live turn, unless one is already streaming. */
   messageStart(at2 = Date.now()) {
@@ -99855,16 +100538,16 @@ var Transcript = class {
     this.#continued = void 0;
     return turn2;
   }
-  reasoning(text19, at2 = Date.now()) {
-    if (!text19) {
+  reasoning(text18, at2 = Date.now()) {
+    if (!text18) {
       return;
     }
     const turn2 = this.#open(at2);
     const last = turn2.blocks.at(-1);
     if (last?.kind === "thinking" && last.endedAt === void 0) {
-      last.text += text19;
+      last.text += text18;
     } else {
-      turn2.blocks.push({ id: this.id("k"), kind: "thinking", startedAt: at2, text: text19 });
+      turn2.blocks.push({ id: this.id("k"), kind: "thinking", startedAt: at2, text: text18 });
     }
     this.#touchTurn(turn2);
   }
@@ -99874,43 +100557,43 @@ var Transcript = class {
    * turn already shows is not a thought either. One that comes after its turn ended goes in that
    * turn.
    */
-  reasoningBlock(text19, at2 = Date.now()) {
+  reasoningBlock(text18, at2 = Date.now()) {
     const shown3 = this.#live ?? this.#ended;
-    const incoming = text19.trim();
+    const incoming = text18.trim();
     if (!incoming || shown3?.blocks.some((b) => b.kind === "thinking" && !b.label || b.kind === "text" && b.text.includes(incoming))) {
       return;
     }
     const turn2 = shown3 ?? this.#open(at2);
-    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", startedAt: at2, text: text19 });
+    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", startedAt: at2, text: text18 });
     this.#touchTurn(turn2);
   }
   /** A Mixture-of-Agents reference model's answer: a sealed thought block of its own, under `label`. */
-  reference(label, text19, at2 = Date.now()) {
+  reference(label, text18, at2 = Date.now()) {
     const turn2 = this.#open(at2);
     endThinking(turn2, at2);
-    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", label, startedAt: at2, text: text19.trim() });
+    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", label, startedAt: at2, text: text18.trim() });
     this.#touchTurn(turn2);
   }
-  text(text19, at2 = Date.now()) {
-    if (!text19) {
+  text(text18, at2 = Date.now()) {
+    if (!text18) {
       return;
     }
     const turn2 = this.#open(at2);
     endThinking(turn2, at2);
     const last = turn2.blocks.at(-1);
     if (last?.kind === "text") {
-      last.text += text19;
+      last.text += text18;
     } else {
-      turn2.blocks.push({ id: this.id("x"), kind: "text", text: text19 });
+      turn2.blocks.push({ id: this.id("x"), kind: "text", text: text18 });
     }
     this.#touchTurn(turn2);
   }
   /** Interim commentary: seals the streamed text so the next delta starts a new block. */
-  interim(text19, { alreadyStreamed }, at2 = Date.now()) {
+  interim(text18, { alreadyStreamed }, at2 = Date.now()) {
     const turn2 = this.#open(at2);
     endThinking(turn2, at2);
-    if (!alreadyStreamed && text19.trim()) {
-      turn2.blocks.push({ id: this.id("x"), kind: "text", text: text19 });
+    if (!alreadyStreamed && text18.trim()) {
+      turn2.blocks.push({ id: this.id("x"), kind: "text", text: text18 });
     }
     turn2.blocks.push({ id: this.id("x"), kind: "text", text: "" });
     this.#touchTurn(turn2);
@@ -99958,7 +100641,7 @@ var Transcript = class {
       return;
     }
     const { call, turn: turn2 } = found;
-    const output = record2(p3.result)?.["output"];
+    const output = record(p3.result)?.["output"];
     const interrupted = p3.name === "terminal" && typeof output === "string" && /\[Command interrupted\]\s*$/.test(output);
     const duration3 = typeof p3.duration_s === "number" ? Math.round(p3.duration_s * 1e3) : at2 - call.startedAt;
     const summary4 = p3.summary ?? void 0;
@@ -100087,16 +100770,16 @@ var Transcript = class {
     return this.#lastTool(match)?.call;
   }
   /** The call with tool id `id`, in any turn. */
-  call(id) {
-    return this.#tool(id)?.call;
+  call(id2) {
+    return this.#tool(id2)?.call;
   }
   /** The calls that show a background process: terminal calls that start one, `process` calls that watch one; oldest first. */
   backgroundCalls() {
     return callsWhere(this.#entries, (call) => isBackgroundCall(call) || isWatchCall(call));
   }
   /** The call the gateway's tool id `id` names (as an event sends it), in any turn; the newest when ids repeat. */
-  #tool(id) {
-    return findCall(this.#entries, (call) => call.id === id);
+  #tool(id2) {
+    return findCall(this.#entries, (call) => call.id === id2);
   }
   /** The newest call matching `match` in the live (else the last) turn only. */
   #lastTool(match) {
@@ -100266,9 +100949,9 @@ var PromptQueue = class {
         text: ready.text || (attachments.length ? IMAGE_ONLY_PROMPT : ""),
         ...attachments.length ? { attachments } : {}
       });
-      const id = admissionOf(r);
-      if (id !== void 0) {
-        this.server.admitted(own14, id);
+      const id2 = admissionOf(r);
+      if (id2 !== void 0) {
+        this.server.admitted(own14, id2);
       }
     } catch (error) {
       if (own14.admission.kind === "submitting") {
@@ -100325,11 +101008,11 @@ var PromptQueue = class {
       host.transcript.notice("A queued prompt with images cannot steer the turn. It stays queued.", "warning");
       return host.changed();
     }
-    const { text: text19 } = prompt;
+    const { text: text18 } = prompt;
     const ahead = this.#held.slice(0, index2);
     this.#held.splice(index2, 1);
     host.changed();
-    void steerTurn(host.gw, sid, text19).then((r) => {
+    void steerTurn(host.gw, sid, text18).then((r) => {
       if (!ticket.isCurrent()) {
         if (!r.ok) {
           host.restore(prompt);
@@ -100338,7 +101021,7 @@ var PromptQueue = class {
         return host.changed();
       }
       if (r.ok) {
-        host.transcript.steer(text19);
+        host.transcript.steer(text18);
       } else {
         const at2 = Math.max(0, ...ahead.map((h2) => this.#held.indexOf(h2) + 1));
         this.#held.splice(at2, 0, item3);
@@ -100601,7 +101284,7 @@ var PromptRouter = class {
       return;
     }
     const { images } = prompt;
-    const text19 = prompt.text || (images.length ? IMAGE_ONLY_PROMPT : "");
+    const text18 = prompt.text || (images.length ? IMAGE_ONLY_PROMPT : "");
     const attachments = images.map(({ mime, path: path2 }) => ({ mime, path: path2 }));
     const submission2 = newInputId();
     host.transcript.user({ attachments: userImages(images), text: display?.trim() || prompt.text });
@@ -100611,7 +101294,7 @@ var PromptRouter = class {
     rpc(host.gw, "prompt.submit", {
       session_id: sid,
       submission_id: submission2,
-      text: text19,
+      text: text18,
       ...queued ? { queued } : {},
       ...attachments.length ? { attachments } : {}
     }).catch((error) => {
@@ -100670,14 +101353,14 @@ var LiveVoice = class {
   start() {
     const sid = this.#host.sid();
     if (!sid || sid !== this.#consentSid || this.phase !== "consent" || this.#lease || this.#host.switching()) return;
-    const id = randomUUID4();
+    const id2 = randomUUID4();
     const started = this.#host.gw.request("voice.live.start", {
       session_id: sid,
-      live_id: id,
+      live_id: id2,
       consent: true
     });
     const lease = {
-      id,
+      id: id2,
       sid,
       started,
       pending: Promise.resolve(),
@@ -100830,12 +101513,12 @@ var LiveVoice = class {
 // src/voice/talk-gateway.ts
 import { EventEmitter } from "node:events";
 var PHASES2 = /* @__PURE__ */ new Set(["idle", "starting", "listening", "thinking", "speaking", "stopping", "error"]);
-function snapshot3(value, id) {
-  const result = record2(value);
+function snapshot3(value, id2) {
+  const result = record(value);
   if (!result || typeof result["output"] !== "string") throw new Error("Hermes Talk returned no control receipt");
-  const p3 = record2(result["output"]);
-  if (!p3 || p3["live_id"] !== id || typeof p3["phase"] !== "string" || !PHASES2.has(p3["phase"]) || typeof p3["active"] !== "boolean" || typeof p3["error"] !== "string") throw new Error("Invalid Hermes Talk call identity or state");
-  return { live_id: id, phase: p3["phase"], active: p3["active"], error: p3["error"] };
+  const p3 = record(result["output"]);
+  if (!p3 || p3["live_id"] !== id2 || typeof p3["phase"] !== "string" || !PHASES2.has(p3["phase"]) || typeof p3["active"] !== "boolean" || typeof p3["error"] !== "string") throw new Error("Invalid Hermes Talk call identity or state");
+  return { live_id: id2, phase: p3["phase"], active: p3["active"], error: p3["error"] };
 }
 var TalkGateway = class extends EventEmitter {
   #gw;
@@ -100852,11 +101535,11 @@ var TalkGateway = class extends EventEmitter {
     gw2.on("exit", this.#exit);
   }
   async request(method, params) {
-    const sid = params["session_id"], id = params["live_id"];
-    if (typeof sid !== "string" || typeof id !== "string") throw new Error("Voice needs a session and call identity");
+    const sid = params["session_id"], id2 = params["live_id"];
+    if (typeof sid !== "string" || typeof id2 !== "string") throw new Error("Voice needs a session and call identity");
     if (method === "voice.live.start") {
       if (this.#owner) throw new Error("A voice call is already starting or active");
-      const owner3 = { sid, id };
+      const owner3 = { sid, id: id2 };
       this.#owner = owner3;
       try {
         const receipt2 = await this.#command(owner3, "start");
@@ -100870,7 +101553,7 @@ var TalkGateway = class extends EventEmitter {
     }
     if (method !== "voice.live.control") throw new Error("Unsupported Talk adapter method");
     const owner2 = this.#owner;
-    if (!owner2 || owner2.sid !== sid || owner2.id !== id) throw new Error("Voice call no longer belongs to this session");
+    if (!owner2 || owner2.sid !== sid || owner2.id !== id2) throw new Error("Voice call no longer belongs to this session");
     if (params["action"] !== "stop") throw new Error("This Hermes Talk adapter supports Stop; provider-native barge-in stays active");
     const receipt = await this.#command(owner2, "stop");
     this.#publish(owner2, receipt);
@@ -100941,7 +101624,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     changed,
     gw: gw2,
     // A command's dispatch envelope from outside a typed command (a goal or loop sheet's button).
-    runDispatch: (raw2, title2) => dispatched(raw2, act().slash, { arg: "", title: title2 }),
+    runDispatch: (raw2, title3) => dispatched(raw2, act().slash, { arg: "", title: title3 }),
     get sid() {
       return session2.ref.live;
     },
@@ -100960,9 +101643,9 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   const processes = new Processes(live, { author: gatewayAuthor(gw2, () => session2.ref.live), enabled: () => jobCharts, memory: chartMemory() });
   const cron = new Cron(chat);
   const sidebar2 = new Sidebar(chat);
-  const factory = new FactoryPane(chat);
+  const factory2 = new FactoryPane(chat);
   const automation = new Automation(live);
-  const title = new SessionTitle(chat);
+  const title2 = new SessionTitle(chat);
   const hud2 = new Hud({ changed, open: (pill2) => act().openPill(pill2) });
   const todoHud = new TodoHud();
   const prs = new PullRequests({ changed, cwd: () => session2.info?.cwd || null, links: (sid) => linkedPullRequests(gw2, sid), sid: () => session2.ref.live });
@@ -100973,14 +101656,14 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const prAside = new PrAside({
     changed,
-    notice: (text19, tone2) => chat.notice(text19, tone2),
+    notice: (text18, tone2) => chat.notice(text18, tone2),
     open: openUrl,
     prs,
-    reveal: (id) => chat.reveal(id),
-    scroll: (id, to) => chat.scroll(id, to)
+    reveal: (id2) => chat.reveal(id2),
+    scroll: (id2, to) => chat.scroll(id2, to)
   });
   const composer2 = new Composer();
-  const dictation2 = new Dictation({ changed, composer: composer2, note: (text19, tone2) => transcript.notice(text19, tone2) }, recorder);
+  const dictation2 = new Dictation({ changed, composer: composer2, note: (text18, tone2) => transcript.notice(text18, tone2) }, recorder);
   const vimPreference = new VimPreference({ gw: gw2, composer: composer2, sid: () => session2.ref.live, changed });
   const btw = new BtwThreads(chat);
   const operations = new OperationalSheets(chat);
@@ -101012,7 +101695,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       cwd: () => session2.info?.cwd || launch3.cwd,
       gw: gw2,
       launchCwd: launch3.cwd,
-      note: (text19, tone2) => transcript.notice(text19, tone2),
+      note: (text18, tone2) => transcript.notice(text18, tone2),
       owner: () => session2.ref
     },
     { clipboard: (use) => withClipboardImage(use, launch3.hermes), startup: launch3.image }
@@ -101050,7 +101733,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     composer: composer2,
     vimPreference,
     connect: connect2,
-    factory,
+    factory: factory2,
     hud: hud2,
     media: media2,
     mediaDelivery,
@@ -101067,7 +101750,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     sidebar: sidebar2,
     state: session2,
     timers,
-    title,
+    title: title2,
     todoHud,
     transcript
   };
@@ -101081,8 +101764,8 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       gw: gw2,
       launch: launch3,
       operations,
-      rename: (sid, text19) => title.rename(sid, text19),
-      shownElsewhere: (id) => viewer.shown(id),
+      rename: (sid, text18) => title2.rename(sid, text18),
+      shownElsewhere: (id2) => viewer.shown(id2),
       request: (req) => act().onRequest(req),
       sheets: sheets2,
       state: session2,
@@ -101094,14 +101777,14 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
         warned.status = void 0;
       },
       imageLanded: (call) => act().imageLanded(call),
-      markPane: (id) => markPane(launch3, id),
+      markPane: (id2) => markPane(launch3, id2),
       markViewer: (now, before2) => viewer.show(now, before2),
       readBusyMode: () => void act().readBusyMode(),
       readShortcuts: () => void act().bindings.refresh(),
       readVimPreference: () => void vimPreference.refresh(),
       reportCwd: () => act().reportCwd(),
       restoreCompactions: () => void act().restoreCompactions(),
-      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text19, tone2) => chat.notice(text19, tone2), settings: settings2 }, sid)
+      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text18, tone2) => chat.notice(text18, tone2), settings: settings2 }, sid)
     })
   );
   const talkGateway = new TalkGateway(gw2);
@@ -101205,9 +101888,9 @@ var App = class {
       }
       this.changed();
     }, void 0, euiHostPort(this, () => this.#visible && this.#surface?.state === "visible" && !this.stores.life.switching && !this.overlays.some((o) => o.modal)));
-    this.#hostLifecycle = new HostLifecycle(writeHost ?? ((text19) => {
+    this.#hostLifecycle = new HostLifecycle(writeHost ?? ((text18) => {
       if (launch3.pane) {
-        process.stdout.write(text19);
+        process.stdout.write(text18);
       }
     }));
     const s2 = chatStores(this, { act: () => this.#act, gw: gw2, launch: launch3, recorder, settings: settings2, surface: () => this.#surface, tern, version: version2 });
@@ -101277,7 +101960,7 @@ var App = class {
     this.laneFeed = s2.laneFeed;
     if (this.#tern.caps.features.includes("blobs")) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion);
-      if (s2.laneFeed) this.#lanes = new LaneStrip(s2.laneFeed, this.#tern, this.#surface.motion);
+      if (s2.laneFeed) this.#lanes = new LaneStrip(s2.laneFeed, this.#tern, this.#surface.motion, (i) => void openLanesPopup(this, this.laneFeed, void 0, i));
     }
     this.#view = {
       ...s2,
@@ -101297,7 +101980,7 @@ var App = class {
       retention: this.#retention
     };
     s2.theme.apply();
-    onCardFault(noticeSink((text19) => this.notice(text19, "warning")));
+    onCardFault(noticeSink((text18) => this.notice(text18, "warning")));
     this.eui.attach({ blob: (bytes, mime) => this.#tern.caps.features.includes("blobs") ? this.#tern.blob(bytes, mime) : void 0, stylesheet: (name, css2) => {
       this.#surface.raw.stylesheet(name, css2);
     } }, Boolean(this.#tern.caps.dark));
@@ -101505,8 +102188,8 @@ var App = class {
     this.#renders.request();
   }
   /** A notice in the transcript, rendered now. */
-  notice(text19, tone2) {
-    this.transcript.notice(text19, tone2);
+  notice(text18, tone2) {
+    this.transcript.notice(text18, tone2);
     this.changed();
   }
   /** An error nothing caught (a rejected promise no caller awaited): shown, so the pane lives on. */
@@ -101526,17 +102209,17 @@ var App = class {
   toggleSidebar() {
     this.#act.toggleSidebar();
   }
-  reveal(id) {
-    this.#surface.reveal(id, "start");
+  reveal(id2) {
+    this.#surface.reveal(id2, "start");
   }
-  scroll(id, to) {
-    this.#surface.scroll(id, to);
+  scroll(id2, to) {
+    this.#surface.scroll(id2, to);
   }
   openPrAside(key3) {
     this.#act.openPrAside(key3);
   }
-  openAgent(id) {
-    return this.#act.openAgent(id);
+  openAgent(id2) {
+    return this.#act.openAgent(id2);
   }
   openHelp() {
     return openHelp(this, this.#act.bindings.actions);
@@ -101555,8 +102238,8 @@ var App = class {
         composer: this.stores.composer,
         sid: () => this.session.ref.live,
         changed: () => this.changed(),
-        notice: (text19, tone2) => this.notice(text19, tone2),
-        panel: (title, text19) => this.transcript.panel(title, text19)
+        notice: (text18, tone2) => this.notice(text18, tone2),
+        panel: (title2, text18) => this.transcript.panel(title2, text18)
       });
     } finally {
       if (grid && !this.#surface.closed) this.#surface.resume();
@@ -101581,13 +102264,13 @@ var App = class {
   control(literal3 = false) {
     return sessionHost(this.#act.host, literal3);
   }
-  newSession(title) {
+  newSession(title2) {
     void this.liveVoice.control("stop");
-    return this.stores.life.newSession(title);
+    return this.stores.life.newSession(title2);
   }
-  resume(id) {
+  resume(id2) {
     void this.liveVoice.control("stop");
-    return this.stores.life.resume(id);
+    return this.stores.life.resume(id2);
   }
   setTheme(mode) {
     this.stores.theme.set(mode);
@@ -101650,7 +102333,7 @@ var gatewayTextEn = {
       unsupportedOptions: (options) => `gateway does not support TUI launch options: ${options}`,
       // The same refusals for a client that launches with another source or names itself.
       /** {0} = session source */
-      noSourcePolicy: (source3) => `gateway does not support ${source3} session policy; update/restart the gateway`,
+      noSourcePolicy: (source2) => `gateway does not support ${source2} session policy; update/restart the gateway`,
       /** {0} = comma-separated option names */
       unsupportedSessionOptions: (options) => `gateway does not support these session options: ${options}`
     }
@@ -101700,16 +102383,16 @@ function randomUuid() {
 }
 
 // node_modules/@hermes/shared/src/gateway-canonical.ts
-function canonicalRequest(method, original, contract2, text19 = gatewayText, identity = {}) {
+function canonicalRequest(method, original, contract2, text18 = gatewayText, identity = {}) {
   const params = { ...original };
   if (method === "session.create") {
-    const source3 = identity.source ?? "tui";
-    const neutral = source3 !== "tui" || identity.client !== void 0;
+    const source2 = identity.source ?? "tui";
+    const neutral = source2 !== "tui" || identity.client !== void 0;
     delete params.cols;
-    params.source = source3;
+    params.source = source2;
     params.request_id ??= randomUuid();
-    if (!contract2?.sources.includes(source3)) {
-      throw new Error(neutral ? text19("canonical.launch.noSourcePolicy", source3) : text19("canonical.launch.noTuiPolicy"));
+    if (!contract2?.sources.includes(source2)) {
+      throw new Error(neutral ? text18("canonical.launch.noSourcePolicy", source2) : text18("canonical.launch.noTuiPolicy"));
     }
     if (!contract2.parameters.includes("client_env")) {
       delete params.client_env;
@@ -101723,7 +102406,7 @@ function canonicalRequest(method, original, contract2, text19 = gatewayText, ide
     }
     const unsupported = Object.keys(params).filter((key3) => !contract2.parameters.includes(key3));
     if (unsupported.length) {
-      throw new Error(text19(
+      throw new Error(text18(
         neutral ? "canonical.launch.unsupportedSessionOptions" : "canonical.launch.unsupportedOptions",
         unsupported.join(", ")
       ));
@@ -101819,9 +102502,9 @@ var redactUrl = (raw2) => {
   }
   try {
     const url = new URL(raw2);
-    const userInfo2 = url.username || url.password ? "***@" : "";
+    const userInfo3 = url.username || url.password ? "***@" : "";
     const query2 = url.search ? "?***" : "";
-    return `${url.protocol}//${userInfo2}${url.host}${url.pathname}${query2}`;
+    return `${url.protocol}//${userInfo3}${url.host}${url.pathname}${query2}`;
   } catch {
     const noUserInfo = raw2.replace(_USERINFO_FALLBACK_RE, "$1***@");
     const queryIdx = noUserInfo.indexOf("?");
@@ -102156,26 +102839,26 @@ var GatewayClient = class extends EventEmitter2 {
     }
   }
   publishLocalEvent(ev) {
-    const frame = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
-    this.mirrorEventToSidecar(frame);
+    const frame2 = JSON.stringify({ jsonrpc: "2.0", method: "event", params: ev });
+    this.mirrorEventToSidecar(frame2);
     this.publish(ev);
   }
   handleWebSocketFrame(raw2) {
-    const text19 = wireFrameText(raw2);
-    if (!text19) {
+    const text18 = wireFrameText(raw2);
+    if (!text18) {
       return;
     }
-    const frame = this.channel.handleFrame(text19);
-    if (!frame) {
-      this.protocolError("malformed websocket frame", text19, "(empty frame)");
+    const frame2 = this.channel.handleFrame(text18);
+    if (!frame2) {
+      this.protocolError("malformed websocket frame", text18, "(empty frame)");
       return;
     }
-    if (frame.method === "event") {
-      this.mirrorEventToSidecar(text19);
+    if (frame2.method === "event") {
+      this.mirrorEventToSidecar(text18);
     }
   }
-  protocolError(what, text19, emptyLabel) {
-    const preview5 = text19.trim().slice(0, MAX_LOG_PREVIEW) || emptyLabel;
+  protocolError(what, text18, emptyLabel) {
+    const preview5 = text18.trim().slice(0, MAX_LOG_PREVIEW) || emptyLabel;
     this.pushLog(`[protocol] ${what}: ${preview5}`);
     this.publish({ type: "gateway.protocol_error", payload: { preview: preview5 } });
   }
@@ -102237,7 +102920,7 @@ var GatewayClient = class extends EventEmitter2 {
       const ws = new WebSocketCtor(attachUrl, protocols);
       let settled2 = false;
       this.ws = ws;
-      this.channel.attach({ send: (text19) => ws.send(text19) });
+      this.channel.attach({ send: (text18) => ws.send(text18) });
       const connectPromise = new Promise((resolve11, reject) => {
         ws.addEventListener(
           "open",
@@ -102678,8 +103361,8 @@ var WatchApp = class {
     });
     this.#gw.drain();
     onCardFault(
-      noticeSink((text19) => {
-        this.transcript.notice(text19, "warning");
+      noticeSink((text18) => {
+        this.transcript.notice(text18, "warning");
         this.changed();
       })
     );
@@ -102812,12 +103495,12 @@ var WatchApp = class {
     }
   }
   async #submit(raw2) {
-    const text19 = raw2.trim();
+    const text18 = raw2.trim();
     const a2 = this.#agent;
-    if (!text19) {
+    if (!text18) {
       return;
     }
-    if (text19 === "/stop") {
+    if (text18 === "/stop") {
       return this.#stop();
     }
     if (!isRunning(a2)) {
@@ -102828,7 +103511,7 @@ var WatchApp = class {
       const r = await rpc(this.#gw, "subagent.steer", {
         session_id: this.#spec.sid,
         subagent_id: a2.id,
-        text: text19
+        text: text18
       });
       this.transcript.notice(
         r?.status === "queued" ? `Steering sent: it reaches ${a2.name} after its current step.` : `${a2.name} is not taking steering now.`,
