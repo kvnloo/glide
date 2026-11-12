@@ -33,10 +33,10 @@ function walk(n: EuiNode | null, f: (n: EuiNode) => void) {
 }
 
 describe('ephemeral-ui fences', () => {
-  it('pins the 53 kinds of card.v0.json at c3b7b275', () => {
+  it('pins the 53 kinds of card.v0.json at da2bbcc9', () => {
     const pin = readFileSync(join(euiDir(), 'PIN.json'), 'utf8')
 
-    expect(pin).toContain('c3b7b275521e125fc303b683fe5c752eabdfd5e2')
+    expect(pin).toContain('da2bbcc9de10ec2bb0be8fad16c8f51281ee8fc9')
     expect(KINDS).toHaveLength(53)
     expect(KINDS).toContain('merge')
     expect(KINDS).toContain('infra-models')
@@ -74,6 +74,29 @@ describe('ephemeral-ui fences', () => {
 })
 
 describe('ephemeral-ui kit sandbox', () => {
+  it('keeps the completed Oura action reason in the native snapshot', async () => {
+    const sb = await createSandbox(euiDir(), 'light')
+    const card = sb.mount('health', 'oura', () => undefined)
+    try {
+      let action = -1
+      walk(card.snapshot(), n => {
+        if (n.t === 'el' && n.tag === 'button' && n.kids.some(k => k.t === 'text' && k.text === 'Add plan to calendar')) { action = n.id }
+      })
+      expect(action).toBeGreaterThan(0)
+      expect(card.click(action)).toBe(true)
+      const disabled: string[] = []
+      walk(card.snapshot(), n => {
+        if (n.t === 'el' && n.tag === 'button' && n.attrs['disabled'] === 'true') {
+          expect(n.attrs['title']).toBe('Already completed')
+          disabled.push(JSON.stringify(n.kids))
+        }
+      })
+      expect(disabled).toHaveLength(1)
+      expect(disabled[0]).toContain('Added ✓')
+      expect(disabled[0]).toContain('Already completed')
+    } finally { card.dispose() }
+  })
+
   it('mounts every pinned kind from the repo catalog with content', async () => {
     const sb = await createSandbox(euiDir(), 'light')
     const empty: string[] = []
