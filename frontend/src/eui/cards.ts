@@ -238,19 +238,21 @@ export class EuiCards {
 
   /** A blob id for one SVG, sent once and reused while it lasts. */
   svg(markup: string): string | undefined {
-    const hit = this.#blobs.get(markup)
+    // Keyed by the inked markup, so a palette change sends the SVG again in its new colors.
+    const inked = themeSvg(markup, inkFor(this.#dark))
+    const hit = this.#blobs.get(inked)
 
     if (hit !== undefined || !this.#sink) {
       return hit
     }
 
-    const id = this.#sink.blob(new TextEncoder().encode(themeSvg(markup)), 'image/svg+xml')
+    const id = this.#sink.blob(new TextEncoder().encode(inked), 'image/svg+xml')
 
     if (id !== undefined) {
       if (this.#blobs.size >= MAX_BLOBS) {
         this.#blobs.delete(this.#blobs.keys().next().value ?? '')
       }
-      this.#blobs.set(markup, id)
+      this.#blobs.set(inked, id)
     }
 
     return id
@@ -341,13 +343,43 @@ export class EuiCards {
   }
 }
 
-/** The kit's SVG ink uses its host variables; Tern's SVG images resolve only its own tokens. */
-export function themeSvg(svg: string): string {
-  return svg
+/** The palette tokens a card SVG paints with. */
+export type SvgInk = Readonly<Record<'text' | 'muted' | 'accent', string>>
+
+/** Used when the palette leaves a token to Tern's own theme (Tern does not tell us its colors). */
+const DEFAULT_INK: { dark: SvgInk; light: SvgInk } = {
+  dark: { text: '#E6E3DA', muted: '#8E8A80', accent: '#FFBF00' },
+  light: { text: '#1C1B18', muted: '#6B675E', accent: '#956E00' }
+}
+
+/** The tokens of the palette last sent to the surface (the `t` verb), per polarity. */
+let ink: { dark: Partial<SvgInk>; light: Partial<SvgInk> } = { dark: {}, light: {} }
+
+/** Records the palette the surface wears, so card SVGs paint in its colors. */
+export function setSvgInk(palette: { readonly dark?: Readonly<Record<string, string>>; readonly light?: Readonly<Record<string, string>> }) {
+  const pick = (t: Readonly<Record<string, string>> | undefined): Partial<SvgInk> => {
+    const out: Partial<Record<keyof SvgInk, string>> = {}
+    for (const k of ['text', 'muted', 'accent'] as const) if (t?.[k] && /^#[0-9a-f]{3,8}$/i.test(t[k])) out[k] = t[k]
+    return out
+  }
+  ink = { dark: pick(palette.dark), light: pick(palette.light) }
+}
+
+export function inkFor(dark: boolean): SvgInk {
+  return { ...DEFAULT_INK[dark ? 'dark' : 'light'], ...ink[dark ? 'dark' : 'light'] }
+}
+
+/**
+ * The kit's SVG ink uses its host variables. Tern draws a blob SVG as a plain image: a var() paint never
+ * resolves there (a fill falls back to black, a stroke to none), so with `ink` the tokens become literal colors.
+ */
+export function themeSvg(svg: string, ink?: SvgInk): string {
+  const named = svg
     .replace(/currentColor/g, 'var(--text)')
     .replace(/var\(--h-(fg|primaryFg)\)/g, 'var(--text)')
     .replace(/var\(--h-(mutedFg|border|input)\)/g, 'var(--muted)')
     .replace(/var\(--h-primary\)/g, 'var(--accent)')
+  return ink ? named.replace(/var\(--(text|muted|accent)\)/g, (_, k: keyof SvgInk) => ink[k]) : named
 }
 
 
