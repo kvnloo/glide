@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { euiHostPort } from '../app/eui-host.js'
-import { glideCommand, glideTheme, type GlideDetect, type GlideFocus, type GlideHost, type GlideMemory } from '../commands/glide.js'
+import { glideCommand, glideTheme, type GlideDetect, type GlideHost, type GlideMemory } from '../commands/glide.js'
 import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards } from '../eui/cards.js'
@@ -89,56 +89,6 @@ describe('/glide intent', () => {
     await glideCommand(host, 'intent')
     expect(titles()).toEqual([])
     expect(JSON.stringify(transcript.entries)).toContain('Usage: /glide intent <ask>')
-  })
-})
-
-describe('/glide focus', () => {
-  const focus = (f: Partial<GlideFocus> = {}): GlideFocus => ({
-    phase: 'PEAK', phase_source: 'circadian', flow: { flow: 0.72, confidence: 0.6 }, next_window: 'now, until 09:00–11:00',
-    bedtime: '2026-11-12T02:30:00-06:00', block: null, guarded: true, queued: 0,
-    learned: { days: 10, source: 'your Hermes sessions', stop: 23, windows: [{ start: 9, end: 11, days: 20 }] }, ...f
-  })
-
-  it('shows phase, flow estimate and bedtime, then starts and ends a guarded block on taps', async () => {
-    const on = focus({ block: { until: '09:50', minutes_left: 50 } })
-    const replies: Record<string, unknown> = { 'glide.focus': focus() }
-    const { host, request, view, titles } = setup()
-    request.mockImplementation(async (method: string, params: Record<string, unknown>) => {
-      if (method !== 'glide.focus') throw new Error(`unknown method ${method}`)
-      if (params['action'] === 'start') return on
-      if (params['action'] === 'stop') return { ...focus(), digest: [{ title: 'PR #12 ready for review', cls: 'decision' }] }
-      return replies['glide.focus']
-    })
-    await glideCommand(host, 'focus')
-    expect(titles()).toEqual(['Your attention', 'Start a deep-work block'])
-    const rows = JSON.stringify(view(0))
-    expect(rows).toContain('Peak')
-    expect(rows).toContain('72% (estimate)')
-    expect(rows).toContain('02:30')
-    expect(request.mock.calls.map(c => c[1])).toEqual([{ session_id: 'glide-session' }])
-
-    must(view(1).activate)(HOST_APPROVE_ID)
-    await settle()
-    expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'start', minutes: 50 }])
-    expect(titles().slice(2)).toEqual(['Deep-work block on until 09:50', 'End the deep-work block'])
-
-    must(view(3).activate)(HOST_APPROVE_ID)
-    await settle()
-    expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'stop' }])
-    expect(titles().at(-1)).toBe('While you were in deep work: 1 held')
-  })
-
-  it('wind-down saves where you left off; hours shows learned windows', async () => {
-    const { host, request, titles, panels, view } = setup({
-      'glide.focus': focus({ phase: 'WIND_DOWN', wind_down: { nudge: true, resume: { title: 'parser', last_asks: ['fix the tokenizer'] } } })
-    })
-    await glideCommand(host, 'focus wind-down')
-    expect(request.mock.calls[0]?.[1]).toEqual({ session_id: 'glide-session', action: 'wind_down' })
-    expect(titles()).toEqual(["Time to wrap: here's where you left off"])
-    expect(JSON.stringify(view(0))).toContain('fix the tokenizer')
-    await glideCommand(host, 'focus hours')
-    expect(titles().at(-1)).toBe('Your best deep-work hours')
-    expect(JSON.stringify(view(panels().length - 1))).toContain('09:00–11:00')
   })
 })
 
