@@ -7,6 +7,7 @@ import { entryId } from '../core/ids.js'
 import { EuiCards, euiDir, euiStyles, splitEuiFences, themeSvg } from '../eui/cards.js'
 import { createSandbox, type EuiNode } from '../eui/sandbox.js'
 import type { TurnEntry } from '../model.js'
+import { STYLES } from '../view/styles.js'
 import { entryNode, type TranscriptContext } from '../view/transcript.js'
 import { decodeEuiCard } from '../wire/euiCard.js'
 
@@ -66,10 +67,18 @@ describe('ephemeral-ui fences', () => {
   it('scopes the kit stylesheet under the card root and binds its host variables to Tern', () => {
     const css = euiStyles()
 
-    expect(css).toContain("[data-eui='card'] .eu-card")
+    expect(css).toContain('[data-eui=card] .eu-card')
     expect(css).toContain('--h-primary: var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
     expect(themeSvg('<path stroke="currentColor" fill="var(--h-primary)"/>')).toBe('<path stroke="var(--text)" fill="var(--accent)"/>')
+  })
+
+  it("keeps the chat surface's stylesheets under Tern's per-surface cap", () => {
+    // Tern fails the whole surface (no paint, no input) past 256 KiB of stylesheets; leave room for the wal theme sheet (~11 KiB).
+    const css = euiStyles()
+
+    expect(Buffer.byteLength(STYLES) + Buffer.byteLength(css) + 12 * 1024).toBeLessThanOrEqual(256 * 1024)
+    expect(css).not.toMatch(/@container|container-type|\/\*/)
   })
 })
 

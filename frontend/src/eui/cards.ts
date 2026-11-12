@@ -11,6 +11,7 @@ import type { PanelEntry } from '../model.js'
 import { decodeEuiCard, EUI_FENCE, type EuiCardSpec } from '../wire/euiCard.js'
 import { parseJson } from '../wire/json.js'
 
+import { ATTENTION_CSS } from '../../../glide/frontend/attentionCards.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
 import { EuiHostCards, type EuiHostPort } from './host.js'
@@ -74,10 +75,39 @@ export function euiStyles(): string {
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
 ${INTENT_CSS}
+${ATTENTION_CSS}
 [data-role='eui.error'] { color: var(--sf-c-error, var(--t2)); font: 12px/1.4 var(--mono); }
 `
 
+  kitCss = compactCss(kitCss)
+
   return kitCss
+}
+
+/**
+ * Tern caps a surface's stylesheets at 256 KiB and drops `@container` rules, so the kit ships
+ * without comments, container queries, scope quotes or spare whitespace.
+ */
+export function compactCss(css: string): string {
+  let out = css.replace(/\/\*[\s\S]*?\*\//g, '')
+
+  for (let at = out.indexOf('@container'); at >= 0; at = out.indexOf('@container', at)) {
+    let end = out.indexOf('{', at)
+    for (let depth = 0; end < out.length; end++) {
+      depth += out[end] === '{' ? 1 : out[end] === '}' ? -1 : 0
+      if (depth === 0) {
+        break
+      }
+    }
+    out = out.slice(0, at) + out.slice(end + 1)
+  }
+
+  return out
+    .replaceAll("[data-eui='card']", '[data-eui=card]')
+    .replace(/container-type\s*:[^;}]*;?/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{};])\s*/g, '$1')
+    .trim()
 }
 
 /** The kinds the pinned schema lists (card.v0.json properties.kind.enum). */
