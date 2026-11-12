@@ -75,6 +75,7 @@ export class SurfaceLifecycle {
   #recoveries = 0
   #dirty = false
   #stalled = false
+  readonly #skippedSheets = new Set<string>()
   #watchdog: ReturnType<typeof setTimeout> | undefined
 
   constructor(tern: Session, title: string, host: SurfaceLifecycleHost) {
@@ -127,6 +128,16 @@ export class SurfaceLifecycle {
 
     if (event.ev === 'unknown' && ['ack', 'error', 'gone'].includes(String(event.raw['ev']))) {
       this.failure('Tern sent a malformed ' + String(event.raw['ev']) + ' protocol event.')
+      return false
+    }
+
+    if (event.ev === 'error' && event.sheet !== undefined) {
+      // Tern keeps the rules of a stylesheet it understood and names the rest; the document is fine.
+      const sheet = event.sheet
+      if (!this.#skippedSheets.has(sheet)) {
+        this.#skippedSheets.add(sheet)
+        process.stderr.write(`hermes tern: Tern skipped unsupported CSS in stylesheet ${sheet}: ${event.msg.slice(0, 300)}\n`)
+      }
       return false
     }
 
