@@ -171,4 +171,10 @@ describe('intent hero styles', () => {
     expect(INTENT_CSS).toMatch(/prefers-reduced-motion: reduce\) \{\s*\[data-eui='card'\] \.ih-hero \*[^{]*\{ animation: none; transition: none; \}/)
     expect(INTENT_CSS).not.toMatch(/!important|forwards/)
   })
+
+  it('paints every text colour from a theme token, so small labels keep contrast in light and dark', () => {
+    // A fixed hue on 11px text (the council's #a855d6 measured 2.86:1 light, 2.26:1 dark); hue belongs on borders.
+    const fixed = [...INTENT_CSS.matchAll(/(?<![-\w])color:\s*([^;}]+)/g)].map(m => (m[1] ?? '').trim()).filter(v => !v.startsWith('var(--'))
+    expect(fixed).toEqual([])
+  })
 })

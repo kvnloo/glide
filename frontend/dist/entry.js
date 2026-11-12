@@ -25514,7 +25514,6 @@ ${k} .ih-key, ${k} .eu-chip { transition: background-color .18s var(--g-ease), t
 ${k} .ih-key:hover, ${k} .eu-chip:hover { background-color: ${a2(14)}; transform: translateY(-1px); box-shadow: 0 0 12px -4px ${a2(55)}; }
 ${k} .ih-l-council, ${k} .ih-gate, ${k} .ih-pip { border-color: var(--g-b); }
 ${k} .ih-l-council { box-shadow: 0 0 0 1px ${b(25)}, 0 0 16px -6px ${b(60)}; }
-${k} .ih-l-council .ih-lrole b { color: var(--g-b); }
 ${k} .ih-flowlink.ih-gated { background: var(--g-b); }
 ${k} .eu-btn { background: ${glass(45)}; border-color: ${a2(30)}; }
 ${k} .eu-btn:hover { border-color: ${a2(70)}; box-shadow: 0 0 16px -6px ${a2(70)}; transform: translateY(-1px); }
@@ -76827,6 +76826,7 @@ var SurfaceLifecycle = class {
   #recoveries = 0;
   #dirty = false;
   #stalled = false;
+  #skippedSheets = /* @__PURE__ */ new Set();
   #watchdog;
   constructor(tern, title2, host) {
     this.#tern = tern;
@@ -76868,6 +76868,15 @@ var SurfaceLifecycle = class {
     }
     if (event.ev === "unknown" && ["ack", "error", "gone"].includes(String(event.raw["ev"]))) {
       this.failure("Tern sent a malformed " + String(event.raw["ev"]) + " protocol event.");
+      return false;
+    }
+    if (event.ev === "error" && event.sheet !== void 0) {
+      const sheet = event.sheet;
+      if (!this.#skippedSheets.has(sheet)) {
+        this.#skippedSheets.add(sheet);
+        process.stderr.write(`hermes tern: Tern skipped unsupported CSS in stylesheet ${sheet}: ${event.msg.slice(0, 300)}
+`);
+      }
       return false;
     }
     if (event.ev === "error") {
@@ -77222,7 +77231,6 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-stub { flex: none; width: 10px; height: 2px; background: var(--h-mutedFg); }
 [data-eui='card'] .ih-lane { flex: none; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border: 1px solid var(--h-border); border-radius: 7px; background: var(--h-muted); overflow: hidden; }
 [data-eui='card'] .ih-l-council { border-color: #a855d6; box-shadow: 0 0 0 1px rgba(207,120,239,.25); }
-[data-eui='card'] .ih-l-council .ih-lrole b { color: #a855d6; }
 [data-eui='card'] .ih-lrole { display: flex; align-items: center; gap: 5px; font: 600 11px/1.2 var(--h-mono); color: var(--h-fg); white-space: nowrap; }
 [data-eui='card'] .ih-lmodel, [data-eui='card'] .ih-ljob, [data-eui='card'] .ih-hstate { display: block; font: 11px/1.35 var(--h-mono); color: var(--h-fg); opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 [data-eui='card'] .ih-lmodel { color: var(--h-fg); opacity: .9; }
