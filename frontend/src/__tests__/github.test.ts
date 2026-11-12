@@ -1,4 +1,11 @@
+import { execFile } from 'node:child_process'
+
 import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('node:child_process', async importOriginal => {
+  const real = await importOriginal<typeof import('node:child_process')>()
+  return { ...real, execFile: vi.fn(real.execFile) }
+})
 
 import { liveSessionId, prKey, toolCallId } from '../core/ids.js'
 import { type BranchTarget, parseRemote, parseStacks } from '../github/branch.js'
@@ -17,6 +24,7 @@ import {
 } from '../github/pullRequest.js'
 import { shown } from '../github/remote.js'
 import { PullRequests } from '../github/store.js'
+import { browsableUrl, openUrl } from '../overlays/pullRequests.js'
 import type { ToolCall } from '../model.js'
 
 import { FakeGateway, must } from './fakes.js'
@@ -456,5 +464,22 @@ describe('branch and stacks', () => {
     expect(store.get(key)).not.toHaveProperty('source')
     expect(store.entries()[0]).not.toBe(store.entries()[0])
     store.dispose()
+  })
+})
+
+describe('openUrl', () => {
+  it('hands only http(s) URLs to the system opener', () => {
+    const spawn = vi.mocked(execFile)
+    spawn.mockClear()
+    for (const url of ['file:///etc/passwd', 'javascript:alert(1)', 'smb://host/share', 'ssh://h', '-n https://x', '/tmp/a', 'not a url']) {
+      expect(browsableUrl(url), url).toBeUndefined()
+      openUrl(url)
+    }
+    expect(spawn).not.toHaveBeenCalled()
+
+    spawn.mockImplementationOnce((() => undefined) as never)
+    expect(browsableUrl('https://github.com/o/r/pull/1')).toBe('https://github.com/o/r/pull/1')
+    openUrl('https://github.com/o/r/pull/1')
+    expect(spawn).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/^(open|xdg-open)$/), ['https://github.com/o/r/pull/1'], expect.any(Function))
   })
 })

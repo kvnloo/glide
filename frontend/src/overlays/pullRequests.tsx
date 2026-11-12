@@ -33,9 +33,23 @@ const SHEET = 'pull-requests'
 const MENU = 'pull-requests-menu'
 const TICK_MS = 30_000
 
-/** Opens `url` in the default browser on this machine. */
+/** `url` normalised when it is an http(s) URL; undefined for any other scheme or a non-URL. */
+export function browsableUrl(url: string): string | undefined {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** Opens `url` in the default browser on this machine: http(s) only, since open/xdg-open would
+ * also run file:, smb: or custom-scheme handlers. */
 export function openUrl(url: string) {
-  execFile(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], () => {})
+  const safe = browsableUrl(url)
+  if (safe) {
+    execFile(process.platform === 'darwin' ? 'open' : 'xdg-open', [safe], () => {})
+  }
 }
 
 /** `/prs` opens the newest PR, `/prs 22` PR #22. */
