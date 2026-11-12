@@ -369,7 +369,7 @@ def _portfolio(home, path, selection, notes):
                     board_repos.add(repo)
                     board_tasks.extend(task_repos[repo])
                     # Preserve feature/action IDs while displaying the repository's name, not a config key.
-                    features.append({"id": f"{cid}:{repo_key}", "label": repo.rsplit("/", 1)[-1],
+                    features.append({"id": f"{cid}:{repo_key}", "label": repo[:200],
                                      "horizon": _horizon(component.get("horizon")),
                                      "tasks": deepcopy(task_repos[repo])})
                 for other in component.get("also", [])[:64]:
