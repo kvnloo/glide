@@ -47,7 +47,7 @@ def legacy(tmp_path, monkeypatch):
     plugins._reset_plugin_managers_for_tests()
     monkeypatch.setattr(plugins, "discover_plugins", lambda force=False: None)
     manager = plugins.get_plugin_manager()
-    ctx = plugins.PluginContext(plugins.PluginManifest(name="hermes-tern"), manager)
+    ctx = plugins.PluginContext(plugins.PluginManifest(name="glide"), manager)
     plan_gateway.register(ctx)
     yield server, manager
     plugins._reset_plugin_managers_for_tests()
@@ -67,13 +67,13 @@ def test_legacy_real_dispatch_never_invents_authority_or_equates_ids(legacy):
         "transport": owner, "profile_home": None, "session_key": "durable-task-Z",
         "history": [], "history_lock": threading.Lock(), "running": False,
     }
-    status = _legacy_call(server, owner, "hermes-tern.plan.status", session_id="live-A")
+    status = _legacy_call(server, owner, "glide.plan.status", session_id="live-A")
     assert status["result"] == {
         "supported": False, "reason": plan_gateway.AUTHORITY_REQUIRED}
     assert "plan" not in status["result"]
-    assert _legacy_call(server, other, "hermes-tern.plan.status",
+    assert _legacy_call(server, other, "glide.plan.status",
                         session_id="live-A")["error"]["code"] == 4001
-    assert _legacy_call(server, owner, "hermes-tern.plan.status",
+    assert _legacy_call(server, owner, "glide.plan.status",
                         session_id="durable-task-Z")["error"]["code"] == 4001
     for verb, payload in (
         ("mode", {"enabled": True}),
@@ -81,7 +81,7 @@ def test_legacy_real_dispatch_never_invents_authority_or_equates_ids(legacy):
         ("annotate", {"plan_id": "fake", "revision": 1, "section": 0, "text": "note"}),
         ("decide", {"plan_id": "fake", "revision": 1, "intent": "approve"}),
     ):
-        refused = _legacy_call(server, owner, "hermes-tern.plan." + verb,
+        refused = _legacy_call(server, owner, "glide.plan." + verb,
                                session_id="live-A", **payload)
         assert refused["error"]["code"] == 4094, refused
     assert "plan_review" not in server._sessions["live-A"]
@@ -101,14 +101,14 @@ def test_legacy_real_gateway_validation_detach_and_unload(legacy):
                    set(cap["result"]["plugin_methods"]))
     for payload in ({"enabled": "true"}, {"enabled": True, "profile": "other"},
                     {"enabled": True, "extraneous": True}):
-        rejected = _legacy_call(server, peer, "hermes-tern.plan.mode",
+        rejected = _legacy_call(server, peer, "glide.plan.mode",
                                 session_id="live", **payload)
         assert rejected["error"]["code"] in (4001, -32602), rejected
     server._sessions.pop("live")
-    assert _legacy_call(server, peer, "hermes-tern.plan.status",
+    assert _legacy_call(server, peer, "glide.plan.status",
                         session_id="live")["error"]["code"] == 4001
-    assert manager.unload("hermes-tern")
-    assert _legacy_call(server, peer, "hermes-tern.plan.status",
+    assert manager.unload("glide")
+    assert _legacy_call(server, peer, "glide.plan.status",
                         session_id="live")["error"]["code"] in (4001, -32601)
 
 
@@ -128,7 +128,7 @@ async def test_canonical_real_authority_dispatch_requires_attached_operator(tmp_
     monkeypatch.setattr(plugins, "discover_plugins", lambda force=False: None)
     manager = plugins.get_plugin_manager()
     plan_gateway.register(plugins.PluginContext(
-        plugins.PluginManifest(name="hermes-tern"), manager))
+        plugins.PluginManifest(name="glide"), manager))
     db = SessionDB(db_path=home / "state.db")
     try:
         db.create_session("persisted", source="test")
@@ -157,20 +157,20 @@ async def test_canonical_real_authority_dispatch_requires_attached_operator(tmp_
         a, b = connect(), connect(subject="second")
         reader = connect(operator=False, subject="reader")
         try:
-            assert (await call(a, "hermes-tern.plan.status",
+            assert (await call(a, "glide.plan.status",
                                {"session_id": "persisted"}))["error"]["code"] == 4001
             for peer in (a, b):
                 attached = await call(peer, "session.resume", {"session_id": "persisted"})
                 assert "result" in attached, attached
-                result = await call(peer, "hermes-tern.plan.status",
+                result = await call(peer, "glide.plan.status",
                                     {"session_id": "persisted"})
                 assert result["result"]["supported"] is False, result
-                rejected = await call(peer, "hermes-tern.plan.decide", {
+                rejected = await call(peer, "glide.plan.decide", {
                     "session_id": "persisted", "plan_id": "fabricated", "revision": 1,
                     "intent": "approve",
                 })
                 assert rejected["error"]["code"] == 4094, rejected
-            assert (await call(reader, "hermes-tern.plan.status",
+            assert (await call(reader, "glide.plan.status",
                                {"session_id": "persisted"}))["error"]["code"] == 4001
             # No invented approved revision or executable user-turn context.
         finally:

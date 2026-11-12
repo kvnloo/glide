@@ -46,4 +46,4 @@ Use one when the user asks for a card, a board, a visual, or a demo of an app fl
 def register(ctx) -> None:
     text = prompt()
     if text:
-        ctx.register_system_prompt_section("hermes-tern.ephemeral-ui", text)
+        ctx.register_system_prompt_section("glide.ephemeral-ui", text)

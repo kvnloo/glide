@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { github, tokens } from '../github/client.js'
 
-const SETTING = 'plugins.entries.hermes-tern.settings.enterprise_hosts'
+const SETTING = 'plugins.entries.glide.settings.enterprise_hosts'
 const ENV = {
   GITHUB_ENTERPRISE_TOKEN: 'ghe-token',
   GITHUB_TOKEN: 'gh-token',

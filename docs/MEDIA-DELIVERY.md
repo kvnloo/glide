@@ -55,14 +55,14 @@ does not authorize even if text or image bytes happen to match.
 
 The existing optional gateway methods are unchanged:
 
-- `hermes-tern.media.attach_bytes` (canonical only) stages
+- `glide.media.attach_bytes` (canonical only) stages
   PNG/JPEG/GIF/WebP with the original `stage_image_bytes`,
   retains the successful upload's original scoped lease, and writes the
   version-2 private `.tern-proof` witness only at staging time.
   Its exact original filename/path, profile, durable SID, SHA-256, size,
   MIME and original dev/inode are independently checked. There is no
   second image admission or queue.
-- `hermes-tern.media.image` accepts an original staging
+- `glide.media.image` accepts an original staging
   path only while `lease.assert_caller(current_request)`
   remains valid. A real `claim_session_input`
   increments runtime generation and revokes that staging authority.

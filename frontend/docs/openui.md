@@ -1,4 +1,4 @@
-# OpenUI prepared visual previews in hermes-tern
+# OpenUI prepared visual previews in glide
 
 This downstream feature preserves the reviewed Hermes OpenUI experiment *as source*
 inside the installed plugin, with its original validator, static OpenUI parser
@@ -86,7 +86,7 @@ all fingerprint inputs remain unmodified.
    session scope and an external absolute output directory:
 
    ```sh
-   cd /absolute/path/to/hermes-tern/frontend
+   cd /absolute/path/to/glide/frontend
    node openui/prepare.mjs prepare \
      openui/openui-generation/fixtures/explorer.openui \
      openui/openui-preview/fixtures/repository.json \
@@ -125,7 +125,7 @@ field (64 KiB, 12-item lists, enums, no control characters) and the Luau rendere
 No section approves, executes or publishes; approval stays with the host's AODL path.
 
 ```sh
-cd /absolute/path/to/hermes-tern/frontend
+cd /absolute/path/to/glide/frontend
 node openui/prepare.mjs prepare-intent \
   openui/openui-generation/fixtures/intent.openui \
   openui/openui-preview/fixtures/intent-board.json \
@@ -163,7 +163,7 @@ in /visual and the separately linked native Luau board says
 approve, publish, provision or install anything.
 
 ~~~sh
-cd /absolute/path/to/hermes-tern/frontend
+cd /absolute/path/to/glide/frontend
 node openui/prepare.mjs prepare-architecture \
   openui/openui-generation/fixtures/architecture.openui \
   openui/openui-preview/fixtures/architecture-board.json \
@@ -193,7 +193,7 @@ The fixed Tern `hermes-openui` file route is present at
 `frontend/openui/openui-preview/tern/` but **is not linked or enabled** by
 the frontend. On a disposable Tern host, an operator may independently
 review the files and explicitly run
-`tern plugin link /absolute/path/to/hermes-tern/frontend/openui/openui-preview/tern`.
+`tern plugin link /absolute/path/to/glide/frontend/openui/openui-preview/tern`.
 The narrow route handles `*.hvisual.json`; no chat overlay, discovery or
 frontend build auto-installs it. Its working native pixels and control
 protocol must still be established in a live authenticated Tern window.
@@ -291,7 +291,7 @@ put this on one line in card.json:
 2. Run an explicit local terminal command with a writable absolute directory
    **outside the plugin**, substituting the actual scope:
 
-       cd /absolute/path/to/hermes-tern/frontend
+       cd /absolute/path/to/glide/frontend
        node openui/prepare.mjs prepare-card card.json \
          '["stored-id","main"]' /absolute/output-directory --json
 

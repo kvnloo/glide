@@ -2,7 +2,7 @@
 ``list_pull_requests``, after T3 Code's tools of the same purpose.
 
 The agent links each PR it opens or works on; ``hermes tern`` shows them beside the chat. Links live
-in ``<HERMES_HOME>/plugin-data/hermes-tern/pull-requests.json`` under the conversation's root
+in ``<HERMES_HOME>/plugin-data/glide/pull-requests.json`` under the conversation's root
 session, so a compressed conversation (whose session id changes) keeps them. A subagent runs in a
 session of its own; its links go to the conversation that delegated it:
 
@@ -14,13 +14,13 @@ Nothing here calls GitHub: a link is the URL's host, repository and number. The 
 rest from the GitHub API, with the user's token for that host.
 
 The frontend reads a conversation's links with the plugin RPC method
-``plugin.hermes-tern.pull_requests.linked`` ``{session_id}``, which answers ``{"linked": [...]}`` like
+``plugin.glide.pull_requests.linked`` ``{session_id}``, which answers ``{"linked": [...]}`` like
 ``list_pull_requests``. When a link tool changes the list, the panes that show the conversation get the
-session event ``plugin.hermes-tern.pull_requests.changed`` and read it again: a subagent links from a
+session event ``plugin.glide.pull_requests.changed`` and read it again: a subagent links from a
 session of its own, so the parent's pane sees no tool result for it.
 
 A link may name only github.com or a GitHub Enterprise host the user listed in the plugin's
-``enterprise_hosts`` setting (``plugins.entries.hermes-tern.settings.enterprise_hosts``): the host
+``enterprise_hosts`` setting (``plugins.entries.glide.settings.enterprise_hosts``): the host
 comes from the model, and the frontend sends the enterprise token to it. The frontend checks the
 same list again before every request (frontend/src/github/hosts.ts).
 """
@@ -41,8 +41,8 @@ from . import sessions
 
 logger = logging.getLogger(__name__)
 
-PLUGIN = "hermes-tern"
-TOOLSET = "hermes-tern"
+PLUGIN = "glide"
+TOOLSET = "glide"
 FILE = "pull-requests.json"
 # The plugin RPC method that reads a conversation's links, and the session event that says they changed.
 LINKED_METHOD = "pull_requests.linked"
@@ -143,7 +143,7 @@ def enterprise_hosts() -> list[str]:
     for item in raw:
         host = normalize_host(item)
         if host is None:
-            logger.warning("hermes-tern: ignoring %r in %s: not a plain host name", item, CONFIG_PATH)
+            logger.warning("glide: ignoring %r in %s: not a plain host name", item, CONFIG_PATH)
         elif host != GITHUB and host not in hosts:
             hosts.append(host)
     return hosts
@@ -304,7 +304,7 @@ def _tell_viewers(data: dict[str, Any], root: str) -> None:
             if _ctx.emit_to_session(sid, CHANGED_EVENT, {}):
                 return
         except Exception:  # noqa: BLE001 - the links are saved; a pane that misses this reads them on its next adopt
-            logger.debug("hermes-tern: links of %s changed, not told to %s", root, sid, exc_info=True)
+            logger.debug("glide: links of %s changed, not told to %s", root, sid, exc_info=True)
 
 
 # ── Handlers ───────────────────────────────────────────────────────────────────────────────────
@@ -385,5 +385,5 @@ def register(ctx) -> None:
     ):
         ctx.register_tool(name=name, toolset=TOOLSET, schema=schema, handler=handler, emoji="🔗",
                           description=schema["description"])
-    ctx.register_system_prompt_section("hermes-tern.pull-requests", PROMPT)
+    ctx.register_system_prompt_section("glide.pull-requests", PROMPT)
     ctx.register_rpc(LINKED_METHOD, linked)

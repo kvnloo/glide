@@ -66,9 +66,9 @@ def test_one_install_also_registers_glide(ctx):
 
 
 def test_native_browser_registration_is_namespaced_and_read_only_without_consent(ctx):
-    entries = [(args, kwargs) for args, kwargs in ctx.of('register_gateway_method') if args[0].startswith('hermes-tern.browser.')]
+    entries = [(args, kwargs) for args, kwargs in ctx.of('register_gateway_method') if args[0].startswith('glide.browser.')]
     assert [args[0] for args, _ in entries] == [
-        f'hermes-tern.browser.{action}' for action in ('blocks', 'adopt', 'focus', 'release', 'frame')
+        f'glide.browser.{action}' for action in ('blocks', 'adopt', 'focus', 'release', 'frame')
     ]
     assert all('schema' in kwargs for _, kwargs in entries)
     assert [kwargs['name'] for _, kwargs in ctx.of('register_tool')] == [
@@ -98,8 +98,8 @@ def test_chart_tasks_keep_their_explicit_plugin_keys(ctx):
 
 def test_only_real_safe_report_is_registered_until_btw_owner_seam(ctx):
     ((args, kwargs),) = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method")
-                        if args[0] == "hermes-tern.operations.report"]
-    assert args[0] == "hermes-tern.operations.report"
+                        if args[0] == "glide.operations.report"]
+    assert args[0] == "glide.operations.report"
     assert callable(args[1]) and kwargs["schema"].model_config["extra"] == "forbid"
 
 
@@ -119,10 +119,10 @@ def test_an_old_runtime_still_registers_its_normal_plugin_commands():
 def test_plan_methods_use_only_owned_public_gateway_registration(ctx):
     methods = [(args[0], args[1], kwargs["schema"])
                for args, kwargs in ctx.of("register_gateway_method")
-               if args[0].startswith("hermes-tern.plan.")]
+               if args[0].startswith("glide.plan.")]
     assert [name for name, _, _ in methods] == [
-        "hermes-tern.plan.status", "hermes-tern.plan.mode", "hermes-tern.plan.edit",
-        "hermes-tern.plan.annotate", "hermes-tern.plan.decide",
+        "glide.plan.status", "glide.plan.mode", "glide.plan.edit",
+        "glide.plan.annotate", "glide.plan.decide",
     ]
     assert all(callable(handler) and schema is not None
                for _, handler, schema in methods)
@@ -143,9 +143,9 @@ def test_older_plugin_context_does_not_advertise_plan_authority():
 def test_registered_media_gateway_methods_are_strict_and_owned(ctx):
     from hermes_tern_plugin import media_backend
 
-    methods = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method") if args[0].startswith("hermes-tern.media.")]
+    methods = [(args, kwargs) for args, kwargs in ctx.of("register_gateway_method") if args[0].startswith("glide.media.")]
     assert [args[0] for args, _ in methods] == [
-        "hermes-tern.media.image", "hermes-tern.media.attach_bytes"
+        "glide.media.image", "glide.media.attach_bytes"
     ]
     assert [args[1] for args, _ in methods] == [
         media_backend.read_image, media_backend.attach_bytes
@@ -168,7 +168,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
     from hermes_tern_plugin import ephemeral_cards
 
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     kinds = ephemeral_cards.kinds()
     assert len(kinds) == 54
     assert len(text) < 4000
@@ -178,7 +178,7 @@ def test_ephemeral_ui_prompt_lists_every_pinned_kind(ctx):
 
 def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     assert all(kind in text for kind in ("fleet-hosts", "fleet-portfolio", "fleet-factory"))
     assert "glide.fleet" in text
     assert "never invent" in text.lower()
@@ -187,7 +187,7 @@ def test_fleet_prompt_requires_gateway_data_not_invented_examples(ctx):
 
 def test_intel_prompt_requires_stock_command_data_not_invented_examples(ctx):
     sections = {a[0]: a[1] for a, _ in ctx.of("register_system_prompt_section")}
-    text = sections["hermes-tern.ephemeral-ui"]
+    text = sections["glide.ephemeral-ui"]
     assert "intel-suite/glide" in text and "/intel" in text
     assert "stock intel plugin command, never invented" in text
     assert "Assistant fences cannot grant intel actions" in text

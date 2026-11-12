@@ -4665,7 +4665,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.viewer.set",
+   "method": "plugin.glide.viewer.set",
    "params": {
     "session_id": "s1",
     "pid": "<PID>",
@@ -4679,7 +4679,7 @@
    }
   },
   {
-   "method": "plugin.hermes-tern.pull_requests.linked",
+   "method": "plugin.glide.pull_requests.linked",
    "params": {
     "session_id": "s1"
    }

@@ -1,5 +1,5 @@
 /** Cold-row settlement and history boundaries; pure policy over Hermes entries.
- * Adapted from kvnloo/hermes-agent/ui-tsp and retained in the hermes-tern view layer.
+ * Adapted from kvnloo/hermes-agent/ui-tsp and retained in the glide view layer.
  */
 import type { Entry } from '../model.js'
 

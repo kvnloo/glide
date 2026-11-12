@@ -12,7 +12,7 @@ import { snapshotIds } from '../wire/rpc.js'
 
 import { FakeGateway, fakeTern, settle } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-ids-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-ids-'))
 
 const { App } = await import('../app/chat.js')
 
@@ -48,7 +48,7 @@ async function started(gw: FakeGateway) {
 const resumed = (gw: FakeGateway) => gw.sent('session.resume').map(p => p['session_id'])
 
 /** The sessions whose PR links the pane asked the plugin for. */
-const linksRead = (gw: FakeGateway) => gw.sent('plugin.hermes-tern.pull_requests.linked').map(p => p['session_id'])
+const linksRead = (gw: FakeGateway) => gw.sent('plugin.glide.pull_requests.linked').map(p => p['session_id'])
 
 describe('a session with a stored id', () => {
   it('reads its runtime id for requests and its stored id for filing', async () => {
@@ -58,7 +58,7 @@ describe('a session with a stored id', () => {
     expect(app.session.ref.live).toBe('live-1')
     expect(app.session.ref.stored).toBe('stored-1')
     expect(app.session.ref).toEqual({ live: 'live-1', stored: 'stored-1' })
-    expect(gw.sent('plugin.hermes-tern.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
+    expect(gw.sent('plugin.glide.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
     expect(linksRead(gw)).toEqual(['live-1'])
   })
 
@@ -76,8 +76,8 @@ describe('a session with a stored id', () => {
     await settle(gw)
 
     expect(app.session.ref.live).toBe('live-2')
-    expect(gw.sent('plugin.hermes-tern.viewer.set').at(-1)).toMatchObject({ session_id: 'live-2', stored: 'stored-2' })
-    expect(gw.sent('plugin.hermes-tern.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
+    expect(gw.sent('plugin.glide.viewer.set').at(-1)).toMatchObject({ session_id: 'live-2', stored: 'stored-2' })
+    expect(gw.sent('plugin.glide.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
     expect(gw.sent('session.transcript').map(p => p['session_id'])).toEqual(['live-2'])
     expect(linksRead(gw).at(-1)).toEqual('live-2')
   })
@@ -89,7 +89,7 @@ describe('a session with a stored id', () => {
     app.quit()
     await done
 
-    expect(gw.sent('plugin.hermes-tern.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
+    expect(gw.sent('plugin.glide.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1', stored: 'stored-1' }])
   })
 
   it('keeps the stored id while the gateway is down, and reattaches under it', async () => {
@@ -153,14 +153,14 @@ describe('a session with no stored id', () => {
 
     expect(app.session.ref.stored).toBeNull()
     expect(app.session.ref).toEqual({ live: 'live-1', stored: null })
-    expect(gw.sent('plugin.hermes-tern.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 'live-1' }])
-    expect(gw.sent('plugin.hermes-tern.viewer.set')[0]).not.toHaveProperty('stored')
+    expect(gw.sent('plugin.glide.viewer.set')).toMatchObject([{ pid: process.pid, session_id: 'live-1' }])
+    expect(gw.sent('plugin.glide.viewer.set')[0]).not.toHaveProperty('stored')
     expect(linksRead(gw)).toEqual(['live-1'])
 
     app.quit()
     await done
 
-    expect(gw.sent('plugin.hermes-tern.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1' }])
+    expect(gw.sent('plugin.glide.viewer.clear')).toEqual([{ pid: process.pid, session_id: 'live-1' }])
   })
 
   it('reloads a session that fell behind under its runtime id', async () => {

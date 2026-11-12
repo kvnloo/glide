@@ -10,7 +10,7 @@ import { record } from '../wire/json.js'
 
 import { FakeGateway, fakeTern, given, key, must, stubOverlay } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-lifecycle-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-lifecycle-'))
 
 const { App } = await import('../app/chat.js')
 const { openSessionPicker } = await import('../overlays/sessions.js')
@@ -64,7 +64,7 @@ describe('session lifecycle', () => {
   })
 
   it("the launcher's --image waits for the first session, then goes with the startup query", async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'hermes-tern-startup-'))
+    const dir = mkdtempSync(join(tmpdir(), 'glide-startup-'))
     writeFileSync(join(dir, 'shot.png'), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0]))
     gw.handlers.set('image.attach_bytes', () => ({ path: '/uploads/1.png' }))
     const app = new App(fakeTern().session, gw.client, '', { launch: readLaunchEnv({ HERMES_TERN_IMAGE: 'shot.png' }, dir) })

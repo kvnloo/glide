@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "hermes-tern-frontend",
+      "name": "glide-frontend",
       "dependencies": {
         "@hermes/shared": "file:.hermes-src/apps/shared",
         "@stencil-hq/tern": "0.1.0",

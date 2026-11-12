@@ -80,7 +80,7 @@ export function readWatchSpecText(raw: string | undefined): WatchSpec | undefine
   return spec.success ? spec.data : undefined
 }
 
-// ── Chart memory (plugin-data/hermes-tern/charts/<id>.json) ───────────────────────────────────
+// ── Chart memory (plugin-data/glide/charts/<id>.json) ───────────────────────────────────
 
 const skipped = z.object({ skip: z.number() })
 

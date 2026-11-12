@@ -43,7 +43,7 @@ def start(spawn, sha):
            'HERMES_ENABLE_PROJECT_PLUGINS': 'false', 'PYTHONNOUSERSITE': '1'}
     config = {'model': {'provider': 'nvidia', 'default': 'google/gemma-4-31b-it',
                         'base_url': 'https://integrate.api.nvidia.com/v1'},
-              'plugins': {'enabled': ['hermes-tern']},
+              'plugins': {'enabled': ['glide']},
               'platforms': {'api_server': {'enabled': False}},
               'agent': {'max_turns': 4, 'disabled_toolsets': ['delegation']},
               'delegation': {'model': 'google/gemma-4-31b-it', 'provider': 'nvidia',
@@ -59,7 +59,7 @@ def start(spawn, sha):
     (hh / '.env').symlink_to(dotenv)
     plugins = hh / 'plugins'
     plugins.mkdir()
-    (plugins / 'hermes-tern').symlink_to('/home/user/glide', target_is_directory=True)
+    (plugins / 'glide').symlink_to('/home/user/glide', target_is_directory=True)
     if Path('/home/user/glide/ARMY_SHA').read_text().strip() != sha:
         raise RuntimeError('plugin exact-SHA check failed')
     # This command is the catalog-admission scanner, not an installed-plugin startup gate.

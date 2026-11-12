@@ -26,8 +26,8 @@ from pydantic import BaseModel, ConfigDict
 from hermes_cli.plugin_gateway_methods import GatewayMethodFailure
 from hermes_cli.plugin_gateway_scopes import GatewayScopeError
 
-IMAGE_METHOD = "hermes-tern.media.image"
-ATTACH_METHOD = "hermes-tern.media.attach_bytes"
+IMAGE_METHOD = "glide.media.image"
+ATTACH_METHOD = "glide.media.attach_bytes"
 PREVIEW_MAX_BYTES = 16 * 1024 * 1024
 STAGING_MAX_BYTES = 20 * 1024 * 1024
 STAGE_RECORD_LIMIT = 256

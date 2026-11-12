@@ -62,7 +62,7 @@ export function openBrowserBlocks(host: BrowserHost): void {
       selected = blocks.some(block => block.target_id === selected) ? selected : blocks[0]?.target_id
       message = !available
         ? result.reason === 'operator_consent_or_task_authority_required'
-          ? 'Native drive unsupported: explicit plugins.entries.hermes-tern.allow_tool_override/tools.override consent and a gateway-authorized task/busy fence are required.'
+          ? 'Native drive unsupported: explicit plugins.entries.glide.allow_tool_override/tools.override consent and a gateway-authorized task/busy fence are required.'
           : 'Tern browser interface unavailable. The existing browser backend is unchanged.'
         : blocks.length
           ? ''
@@ -119,7 +119,7 @@ export function openBrowserBlocks(host: BrowserHost): void {
           await refresh()
         }
       } else if (intent === 'frame') {
-        const result = await browserTarget(host.gw, 'hermes-tern.browser.frame', caller, block.target_id, frame.text.trim())
+        const result = await browserTarget(host.gw, 'glide.browser.frame', caller, block.target_id, frame.text.trim())
 
         if (live()) {
           message = `Block ${result.target_id} · evaluation frame ${result.frame ?? 'main'}`
@@ -128,7 +128,7 @@ export function openBrowserBlocks(host: BrowserHost): void {
           }
         }
       } else {
-        await browserTarget(host.gw, block.owned ? 'hermes-tern.browser.focus' : 'hermes-tern.browser.adopt', caller, block.target_id)
+        await browserTarget(host.gw, block.owned ? 'glide.browser.focus' : 'glide.browser.adopt', caller, block.target_id)
 
         if (live()) {
           host.close(overlay)

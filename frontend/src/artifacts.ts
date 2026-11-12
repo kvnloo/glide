@@ -16,7 +16,7 @@ import { parseJson, record } from './wire/json.js'
 const run = promisify(execFile)
 const MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i
 const MAX_BYTES = 128 * 1024 * 1024
-const CACHE = join(process.env['XDG_CACHE_HOME'] || join(homedir(), '.cache'), 'hermes-tern', 'artifacts')
+const CACHE = join(process.env['XDG_CACHE_HOME'] || join(homedir(), '.cache'), 'glide', 'artifacts')
 
 /** File extension without a signed URL's query string. */
 function extension(source: string): string {

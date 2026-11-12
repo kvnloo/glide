@@ -18,9 +18,9 @@ export function ternPane(env: NodeJS.ProcessEnv = process.env): Record<string, s
 }
 
 /** The plugin's methods (viewers.py). */
-export const VIEWER_SET = 'plugin.hermes-tern.viewer.set'
-export const VIEWER_CLEAR = 'plugin.hermes-tern.viewer.clear'
-export const VIEWER_SHOWN = 'plugin.hermes-tern.viewer.shown'
+export const VIEWER_SET = 'plugin.glide.viewer.set'
+export const VIEWER_CLEAR = 'plugin.glide.viewer.clear'
+export const VIEWER_SHOWN = 'plugin.glide.viewer.shown'
 
 /** How long quitting waits for its `viewer.clear` (a dead pane counts for nothing anyway: its pid is checked). */
 const CLEAR_WAIT_MS = 300

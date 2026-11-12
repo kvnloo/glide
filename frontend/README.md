@@ -1,4 +1,4 @@
-# hermes-tern frontend
+# glide frontend
 
 The chat UI that `hermes tern` runs. It describes the UI to [Tern](https://stencil.so/tern) over
 the Tern Surface Protocol (TSP) instead of painting terminal cells: the transcript, tool calls,

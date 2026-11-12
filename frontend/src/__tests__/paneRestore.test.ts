@@ -11,7 +11,7 @@ import { parseJson, record } from '../wire/json.js'
 
 import { FakeGateway, fakeTern } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-pane-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-pane-'))
 // The tab's title is not this test's; it would print to the runner's terminal.
 vi.mock('../surface/osc.js', () => ({ reportCwd: () => undefined, setTabTitle: () => undefined }))
 
@@ -47,7 +47,7 @@ async function started(env: Record<string, string> = {}) {
 
 describe('the pane file', () => {
   it('names the session, the launch folder and this process; nothing outside a Tern pane', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'hermes-tern-panes-'))
+    const dir = mkdtempSync(join(tmpdir(), 'glide-panes-'))
     markPane({ pane: '7', paneCwd: '/work' }, storedSessionId('s1'), dir)
 
     expect(read('7', dir)).toMatchObject({ cwd: '/work', pid: process.pid, session_id: 's1' })
@@ -102,7 +102,7 @@ describe('a pane restarted after its program died', () => {
   })
 
   it('starts a new session when another live pane shows that one (the plugin says so)', async () => {
-    gw.handlers.set('plugin.hermes-tern.viewer.shown', p => ({ shown: JSON.stringify(p['ids']) === '["tip"]' }))
+    gw.handlers.set('plugin.glide.viewer.shown', p => ({ shown: JSON.stringify(p['ids']) === '["tip"]' }))
     const { app } = await started({ HERMES_TERN_RESTORED: 'root', HERMES_TERN_RESUME: 'tip' })
 
     expect(gw.methods('session.resume')).toHaveLength(0)
@@ -111,7 +111,7 @@ describe('a pane restarted after its program died', () => {
   })
 
   it('starts that new session where the pane launched, not in the other conversation\'s folder', async () => {
-    gw.handlers.set('plugin.hermes-tern.viewer.shown', () => ({ shown: true }))
+    gw.handlers.set('plugin.glide.viewer.shown', () => ({ shown: true }))
     await started({ HERMES_TERN_RESTORED: 'root', HERMES_TERN_RESUME: 'tip', HERMES_TERN_SESSION_CWD: '/elsewhere/repo' })
 
     expect(gw.methods('session.create').map(c => c.params['cwd'])).toEqual(['/work'])
@@ -119,7 +119,7 @@ describe('a pane restarted after its program died', () => {
 
   it('leaves a switch the user made while the plugin was answering alone', async () => {
     let answer: (shown: { shown: boolean }) => void = () => undefined
-    gw.handlers.set('plugin.hermes-tern.viewer.shown', () => new Promise(resolve => (answer = resolve)))
+    gw.handlers.set('plugin.glide.viewer.shown', () => new Promise(resolve => (answer = resolve)))
     const { app } = await started({ HERMES_TERN_RESTORED: 'root', HERMES_TERN_RESUME: 'tip' })
 
     await app.stores.life.newSession()

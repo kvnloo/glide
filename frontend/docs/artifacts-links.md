@@ -6,7 +6,7 @@ This port reuses the downstream Hermes ui-tsp contracts from
 [read-media.ts](https://github.com/kvnloo/hermes-agent/blob/preview/tern-frontend/ui-tsp/src/read-media.ts),
 [attachments.ts](https://github.com/kvnloo/hermes-agent/blob/preview/tern-frontend/ui-tsp/src/attachments.ts) and
 [clipboard.ts](https://github.com/kvnloo/hermes-agent/blob/preview/tern-frontend/ui-tsp/src/clipboard.ts).
-It extends the existing hermes-tern frontend without replacing its tools, gateway or composer.
+It extends the existing glide frontend without replacing its tools, gateway or composer.
 
 - A file URI is rendered only for a non-attached, host-local gateway with a session-provided working directory. File and line links never guess Tern's process cwd. Assistant Markdown local targets are resolved after the turn finishes. Remote and compute paths stay text.
 - Only a completed verified write with exact UTF-8 byte count and compatible extension/MIME may become an inline SVG or Mermaid fence, or a local 3D media node with negotiated Tern media support. Existing source and diff remain visible; unverified writes remain ordinary cards. Generated code is never executed.

@@ -1,4 +1,4 @@
-// Each process's chart rules on disk (`plugin-data/hermes-tern/charts/<id>.json`): a process
+// Each process's chart rules on disk (`plugin-data/glide/charts/<id>.json`): a process
 // outlives the pane that charted it, so a pane opened later, or a second pane on the session,
 // reads the rules instead of asking the model again. A decline is kept too.
 

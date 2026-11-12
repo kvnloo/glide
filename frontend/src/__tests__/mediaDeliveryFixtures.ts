@@ -18,8 +18,8 @@ interface Setup {
 export function setup(options: Setup = {}) {
   const { blobs = true, attached = true, env = {}, native = false } = options
   const gw = new FakeGateway({ replies: {
-    'gateway.capabilities': () => ({ plugin_methods: ['hermes-tern.media.image'] }),
-    'hermes-tern.media.image': response
+    'gateway.capabilities': () => ({ plugin_methods: ['glide.media.image'] }),
+    'glide.media.image': response
   } })
   gw.attached = attached
   const tern = fakeTern({ features: blobs ? ['blobs'] : [] }).session

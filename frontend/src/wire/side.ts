@@ -27,14 +27,14 @@ const legacyUpdate = z.object({
   payload: z.object({ thread })
 })
 
-// The public scope's publish('hermes-tern.btw.update', ...) is delivered as
+// The public scope's publish('glide.btw.update', ...) is delivered as
 // a session-bound Hermes plugin.event; it is not a generated core btw.update.
 const pluginUpdate = z.object({
   type: z.literal('plugin.event'),
   session_id: z.string(),
   payload: z.object({
-    plugin: z.literal('hermes-tern'),
-    event_name: z.literal('hermes-tern.btw.update'),
+    plugin: z.literal('glide'),
+    event_name: z.literal('glide.btw.update'),
     profile: z.string(),
     data: z.object({ thread })
   })
@@ -57,10 +57,10 @@ export function btwEvent(raw: unknown) {
 }
 
 const METHODS = {
-  list: 'hermes-tern.btw.list',
-  submit: 'hermes-tern.btw.submit',
-  cancel: 'hermes-tern.btw.cancel',
-  report: 'hermes-tern.operations.report'
+  list: 'glide.btw.list',
+  submit: 'glide.btw.submit',
+  cancel: 'glide.btw.cancel',
+  report: 'glide.operations.report'
 } as const
 
 async function requireMethod(gw: Requester, sid: string, name: string): Promise<void> {

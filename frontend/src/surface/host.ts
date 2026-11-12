@@ -32,7 +32,7 @@ export class SurfaceHost {
         this.#missing.clear()
         this.#focus = undefined
         this.#track(surface)
-        surface.stylesheet('hermes-tern', styles)
+        surface.stylesheet('glide', styles)
         for (const [name, css] of euiSheets) { surface.stylesheet(name, css) }
         if (this.#palette) {
           surface.palette(this.#palette)
@@ -42,7 +42,7 @@ export class SurfaceHost {
     }
     this.#life = new SurfaceLifecycle(tern, title, host)
     this.#track(this.raw)
-    this.raw.stylesheet('hermes-tern', styles)
+    this.raw.stylesheet('glide', styles)
   }
 
   get raw(): Surface {

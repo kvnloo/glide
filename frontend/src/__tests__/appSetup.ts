@@ -15,7 +15,7 @@ import { face, FakeGateway, fakeTern, given, key, must, type Reply, settle as se
 import type { Recorder } from '../hermes/dictation.js'
 
 /** This file's HERMES_HOME, set before App loads. */
-export const home = mkdtempSync(join(tmpdir(), 'hermes-tern-app-'))
+export const home = mkdtempSync(join(tmpdir(), 'glide-app-'))
 process.env['HERMES_HOME'] = home
 
 export const { App } = await import('../app/chat.js')

@@ -50,7 +50,7 @@ def test_registration_names_only_actual_public_supported_method():
     ctx = Recorder()
     ops.register(ctx)
     assert ctx.registrations == [
-        ("hermes-tern.operations.report", ops.report, ops.ReportParams)
+        ("glide.operations.report", ops.report, ops.ReportParams)
     ]
     with pytest.raises(Exception):
         ops.ReportParams.model_validate({"session_id": "live-rpc-a",

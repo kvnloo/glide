@@ -9,13 +9,20 @@ In a Tern pane whose last ``hermes tern`` died (a crash, a kill, Tern's daemon r
 with no session flag resumes the conversation that pane showed (``panes.py``); ``--new`` starts fresh.
 """
 
+import contextlib
+from pathlib import Path
+
 from . import (
     browser_backend, channels, charts, ephemeral_cards, launcher, plan_gateway,
-    pull_requests, tern_env, viewers,
+    plugin_data, pull_requests, tern_env, viewers,
 )
 
 
 def register(ctx) -> None:
+    with contextlib.suppress(Exception):  # Hermes absent (tests) or an unreadable home
+        from hermes_constants import get_hermes_home
+
+        plugin_data.migrate_legacy(Path(get_hermes_home()))
     ctx.register_cli_command(
         name="tern", help="Chat in Tern's native UI (runs in a Tern pane only)",
         setup_fn=launcher.setup, handler_fn=launcher.run,

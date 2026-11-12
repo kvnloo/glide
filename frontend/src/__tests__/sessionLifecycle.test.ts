@@ -19,7 +19,7 @@ import type { BusyMode } from '../turn/serverQueue.js'
 
 import { FakeGateway, settle } from './fakes.js'
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-session-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-session-'))
 
 const a = liveSessionId('a')
 const b = liveSessionId('b')

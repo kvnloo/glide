@@ -67,7 +67,7 @@ export const openDraftFile: DraftOpener = file => {
 
 /** A single temp file round-trip. Mode 0600; directory is private and always removed. */
 export async function editTextExternal(initial: string, opener: DraftOpener = openDraftFile): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'hermes-tern-edit-'))
+  const dir = await mkdtemp(join(tmpdir(), 'glide-edit-'))
   try {
     const file = join(dir, 'draft.txt')
     await writeFile(file, initial, { mode: 0o600 })

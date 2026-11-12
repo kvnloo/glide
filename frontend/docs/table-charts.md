@@ -4,7 +4,7 @@ Derived from the Hermes × Tern `ui-tsp` implementation by its original contribu
 
 ## Settings and provider route
 
-Set `"tableCharts": "always"` or `"tableCharts": "smart"` in the active Hermes profile's `hermes-tern/settings.json` (normally `~/.hermes/hermes-tern/settings.json`). Default is `off`. The setting is read on session adoption; reopen a session/pane for an external file edit to take effect.
+Set `"tableCharts": "always"` or `"tableCharts": "smart"` in the active Hermes profile's `glide/settings.json` (normally `~/.hermes/glide/settings.json`). Default is `off`. The setting is read on session adoption; reopen a session/pane for an external file edit to take effect.
 
 - `off`: table only. No auxiliary model call.
 - `always`: append a locally generated bar SVG. No auxiliary model call.

@@ -177,7 +177,7 @@ describe('dockModel: the composer and pills', () => {
 })
 
 describe('dockModel: removing an attached image', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hermes-tern-dock-'))
+  const dir = mkdtempSync(join(tmpdir(), 'glide-dock-'))
   const shot = join(dir, 'shot.png')
   writeFileSync(shot, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
 

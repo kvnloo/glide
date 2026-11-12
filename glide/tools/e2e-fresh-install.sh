@@ -45,7 +45,7 @@ hermes="$core/.venv/bin/hermes"
 # --force explicitly accepts CAUTION for this custom public source. The scanner still runs;
 # DANGEROUS remains blocked. --yes-deps supplies non-interactive dependency consent.
 step install "$hermes" plugins install kvnloo/glide --force --enable --yes-deps
-installed="$HERMES_HOME/plugins/hermes-tern"
+installed="$HERMES_HOME/plugins/glide"
 printf "Installed main revision=%s\n" "$(git -C "$installed" rev-parse HEAD)"
 step validate "$hermes" plugins validate "$installed"
 step glide-flow "$core/.venv/bin/python" "$repo/glide/tools/fresh_install.py"

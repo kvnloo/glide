@@ -22,7 +22,7 @@ actual = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"]
 if actual != PIN:
     raise RuntimeError(f"Hermes checkout {actual} != pinned {PIN}")
 
-with TemporaryDirectory(prefix="hermes-tern-keybindings-owner-") as directory:
+with TemporaryDirectory(prefix="glide-keybindings-owner-") as directory:
     home = Path(directory) / "launch"
     a = home / "profiles" / "a"
     b = home / "profiles" / "b"

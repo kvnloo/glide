@@ -16,7 +16,7 @@ describe('public registered Hermes gateway methods', () => {
     const gw = new FakeGateway()
     await expect(listBtw(gw.client, 'live-a')).rejects.toBeInstanceOf(PluginGatewayUnavailable)
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 'live-a' }])
-    expect(gw.methods('hermes-tern.btw.list')).toHaveLength(0)
+    expect(gw.methods('glide.btw.list')).toHaveLength(0)
     expect(gw.methods('btw.list')).toHaveLength(0)
     expect(gw.methods('prompt.btw')).toHaveLength(0)
   })
@@ -30,7 +30,7 @@ describe('public registered Hermes gateway methods', () => {
     await expect(listBtw(gw.client, 'live-a')).rejects.toBeInstanceOf(PluginGatewayUnavailable)
     gw.handlers.set('gateway.capabilities', () => { throw new Error('not attached') })
     await expect(listBtw(gw.client, 'live-a')).rejects.toBeInstanceOf(PluginGatewayUnavailable)
-    expect(gw.methods('hermes-tern.btw.list')).toHaveLength(0)
+    expect(gw.methods('glide.btw.list')).toHaveLength(0)
   })
 
   it('refuses submit, cancel and reports without their exact registered capability', async () => {
@@ -47,12 +47,12 @@ describe('public registered Hermes gateway methods', () => {
 
   it('reads only registered operational report, and rejects mismatched views', async () => {
     const gw = new FakeGateway({ replies: {
-      'hermes-tern.operations.report': () => ({
+      'glide.operations.report': () => ({
         view: 'mcp-list', scope: 'owned', state: 'ready', read_only: true, rows: [], message: 'actual config'
       })
     } })
     expect((await readOperational(gw.client, 'live-a', 'mcp-list')).scope).toBe('owned')
-    expect(gw.sent('hermes-tern.operations.report')).toEqual([
+    expect(gw.sent('glide.operations.report')).toEqual([
       { session_id: 'live-a', view: 'mcp-list' }
     ])
     await expect(readOperational(gw.client, 'live-a', 'ssh-list')).rejects.toThrow('Mismatched operational view')
@@ -64,7 +64,7 @@ describe('public registered Hermes gateway methods', () => {
     await model.show('Side 🦉')
     expect(model.error).toContain('Needs Hermes plugin gateway methods')
     expect(model.draft.text).toBe('Side 🦉')
-    expect(f.gw.methods('hermes-tern.btw.list')).toHaveLength(0)
+    expect(f.gw.methods('glide.btw.list')).toHaveLength(0)
     expect(f.gw.methods('prompt.submit')).toHaveLength(0)
     expect(f.gw.methods('prompt.btw')).toHaveLength(0)
   })
@@ -73,12 +73,12 @@ describe('public registered Hermes gateway methods', () => {
     const raw = {
       type: 'plugin.event', session_id: 'live-a',
       payload: {
-        plugin: 'hermes-tern', event_name: 'hermes-tern.btw.update',
+        plugin: 'glide', event_name: 'glide.btw.update',
         profile: 'owned', data: { thread: sample }
       }
     }
     expect(btwEvent(raw).success).toBe(true)
     expect(btwEvent({ ...raw, payload: { ...raw.payload, plugin: 'other' } }).success).toBe(false)
-    expect(btwEvent({ ...raw, payload: { ...raw.payload, event_name: 'hermes-tern.other.event' } }).success).toBe(false)
+    expect(btwEvent({ ...raw, payload: { ...raw.payload, event_name: 'glide.other.event' } }).success).toBe(false)
   })
 })

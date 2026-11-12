@@ -25,7 +25,7 @@ import { FakeGateway, must, tree } from './fakes.js'
 const all = (n: NodeJson): NodeJson[] => [n, ...(n.c ?? []).flatMap(all)]
 const images = (n: NodeJson) => all(n).filter(x => x.k === 'image')
 
-const dir = mkdtempSync(join(tmpdir(), 'hermes-tern-images-'))
+const dir = mkdtempSync(join(tmpdir(), 'glide-images-'))
 const PNG = Buffer.concat([
   Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13]),
   Buffer.from('IHDR'),
@@ -359,14 +359,14 @@ describe('Attachments: the draft\'s images', () => {
   it('uses the namespaced staged-bytes path only when the canonical gateway advertises it', async () => {
     const { a, gw } = attachments()
     gw.handlers.set('gateway.capabilities', () => ({
-      plugin_methods: ['hermes-tern.media.attach_bytes']
+      plugin_methods: ['glide.media.attach_bytes']
     }))
-    gw.handlers.set('hermes-tern.media.attach_bytes', () => ({
+    gw.handlers.set('glide.media.attach_bytes', () => ({
       path: '/uploads/attested.png'
     }))
     await a.fromPath(shot)
     expect(gw.sent('gateway.capabilities')).toEqual([{ session_id: 's1' }])
-    expect(gw.sent('hermes-tern.media.attach_bytes')).toEqual([
+    expect(gw.sent('glide.media.attach_bytes')).toEqual([
       expect.objectContaining({ filename: 'image.png', session_id: 's1' })
     ])
     expect(gw.sent('image.attach_bytes')).toEqual([])
@@ -380,13 +380,13 @@ describe('Attachments: the draft\'s images', () => {
     })
     await older.a.fromPath(shot)
     expect(older.gw.sent('image.attach_bytes')).toHaveLength(1)
-    expect(older.gw.sent('hermes-tern.media.attach_bytes')).toEqual([])
+    expect(older.gw.sent('glide.media.attach_bytes')).toEqual([])
 
     const unadvertised = attachments()
     await unadvertised.a.fromPath(shot)
     expect(unadvertised.gw.sent('gateway.capabilities')).toEqual([{ session_id: 's1' }])
     expect(unadvertised.gw.sent('image.attach_bytes')).toHaveLength(1)
-    expect(unadvertised.gw.sent('hermes-tern.media.attach_bytes')).toEqual([])
+    expect(unadvertised.gw.sent('glide.media.attach_bytes')).toEqual([])
   })
 
   it('an empty paste reads the clipboard\'s image and uploads it, with its size and thumbnail', async () => {

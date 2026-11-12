@@ -11,7 +11,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-with TemporaryDirectory(prefix="hermes-tern-profile-owner-") as directory:
+with TemporaryDirectory(prefix="glide-profile-owner-") as directory:
     home = Path(directory) / "launch"
     a = home / "profiles" / "a"
     b = home / "profiles" / "b"

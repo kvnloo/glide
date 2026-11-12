@@ -149,7 +149,7 @@ export async function withClipboardImage<T>(
   hermes: HermesCommand | undefined,
   extract: (dest: string, hermes: HermesCommand | undefined) => Promise<string | undefined> = extractClipboardImage
 ): Promise<T | undefined> {
-  const dir = await mkdtemp(join(tmpdir(), 'hermes-tern-clipboard-'))
+  const dir = await mkdtemp(join(tmpdir(), 'glide-clipboard-'))
 
   try {
     const path = await extract(join(dir, 'clipboard.png'), hermes)

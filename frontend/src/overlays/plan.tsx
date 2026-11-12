@@ -1,5 +1,5 @@
 // Native revision-bound plan review; Hermes gateway remains the only plan authority.
-// Adapted from Hermes ui-tsp/src/overlays/plan-review.tsx to hermes-tern's overlay API.
+// Adapted from Hermes ui-tsp/src/overlays/plan-review.tsx to glide's overlay API.
 
 import type { JSX, Key } from '@stencil-hq/tern'
 

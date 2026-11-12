@@ -31,8 +31,8 @@ def main():
                        'HERMES_ENABLE_PROJECT_PLUGINS=false']
                 script = "import logging,sys; logging.basicConfig(level=logging.DEBUG); from hermes_cli.main import main; sys.argv=['hermes','tern','--help']; main()"
                 command = '''mkdir -p runs /home/user/probe/home /home/user/probe/hermes/plugins
-printf '%s' '{"plugins":{"enabled":["hermes-tern"]}}' >/home/user/probe/hermes/config.yaml
-ln -s /home/user/glide /home/user/probe/hermes/plugins/hermes-tern
+printf '%s' '{"plugins":{"enabled":["glide"]}}' >/home/user/probe/hermes/config.yaml
+ln -s /home/user/glide /home/user/probe/hermes/plugins/glide
 set +e
 ''' + shlex.join([*env, '/home/user/army-deps/hermes/.venv/bin/python', '-c', script]) + ' >runs/plugins.txt 2>&1; cat runs/plugins.txt; exit 0'
             else:

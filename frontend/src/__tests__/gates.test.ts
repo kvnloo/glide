@@ -15,7 +15,7 @@ import { FakeGateway, fakeTern, given, key, type Reply, settle } from './fakes.j
 
 vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load: () => [] }))
 
-process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'hermes-tern-gates-'))
+process.env['HERMES_HOME'] = mkdtempSync(join(tmpdir(), 'glide-gates-'))
 
 const { App } = await import('../app/chat.js')
 

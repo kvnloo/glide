@@ -94,7 +94,7 @@ The frontend source is still pinned to
 runtime upgrade. The public green gateway seam is downstream
 [hermes-agent#650](https://github.com/kvnloo/hermes-agent/pull/650)
 at 0ac4e9df39eecf3ce69a3ea3c80a6dc70dd7dcd5.
-The plugin registers only hermes-tern.operations.report when the installed
+The plugin registers only glide.operations.report when the installed
 Hermes exposes ctx.register_gateway_method. The frontend checks the
 attached session's gateway.capabilities.plugin_methods before issuing any
 namespaced request. Older runtimes show "Needs Hermes plugin gateway
@@ -106,9 +106,9 @@ not connect/authenticate/probe/install/reload. MCP tool names and effective
 SSH identity are NOT available via a public profile-owned ledger API;
 those views explicitly say unavailable, never an invented empty list.
 
-BTW's registered method names would be hermes-tern.btw.list,
-hermes-tern.btw.submit, hermes-tern.btw.cancel, plus the event
-hermes-tern.btw.update via the authenticated plugin.event envelope.
+BTW's registered method names would be glide.btw.list,
+glide.btw.submit, glide.btw.cancel, plus the event
+glide.btw.update via the authenticated plugin.event envelope.
 They are NOT registered yet: GatewayRequestContext publicly exposes a
 live transport SID, profile, assert_attached and capture_scope only; not
 the authenticated durable conversation ID/metadata handle, main transcript

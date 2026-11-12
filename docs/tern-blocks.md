@@ -51,7 +51,7 @@ Open a model yourself:
 ```
 
 Relative paths use the chat's current directory. Downloads use
-`$XDG_CACHE_HOME/hermes-tern/artifacts` (default `~/.cache/hermes-tern/artifacts`).
+`$XDG_CACHE_HOME/glide/artifacts` (default `~/.cache/glide/artifacts`).
 The cache uses a hash of the URL, not its signed query, as its directory name. Each file
 has a 128 MiB limit and a 60-second download deadline. Private network URLs are refused.
 GLB is preferred when a tool lists several formats. Remote glTF relative buffers and

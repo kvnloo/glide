@@ -1,4 +1,4 @@
-// The chart author's reply: the payload of the plugin event `plugin.hermes-tern.charts.authored`
+// The chart author's reply: the payload of the plugin event `plugin.glide.charts.authored`
 // that the plugin's Python half (charts.py) sends to the session once the model answered.
 
 import * as z from 'zod/mini'

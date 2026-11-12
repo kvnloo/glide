@@ -99,7 +99,7 @@ again. This is not atomic: two clients writing at once can race. Unsupported fie
 logins stay read-only and go through Hermes' own setup.
 
 **Gateway reports.** On Hermes builds with session-attached plugin gateway methods,
-`hermes-tern.operations.report` returns the profile's MCP configuration, cached status and catalog,
+`glide.operations.report` returns the profile's MCP configuration, cached status and catalog,
 read-only. It never connects, authenticates, installs or returns secrets. Older Hermes shows
 "Needs Hermes plugin gateway methods" in `/btw`; unsent side questions are kept.
 
@@ -127,7 +127,7 @@ The checked-in `frontend/dist/entry.js` can lag the source on this fork (the bun
 deploy key the fork does not have). Build it yourself after installing or updating:
 
 ```sh
-cd "${HERMES_HOME:-$HOME/.hermes}/plugins/hermes-tern/frontend"
+cd "${HERMES_HOME:-$HOME/.hermes}/plugins/glide/frontend"
 bun install --frozen-lockfile && bun run bundle   # bun 1.4 or later
 ```
 

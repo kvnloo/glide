@@ -1,7 +1,7 @@
 # Transcript retention and windowing
 
 This downstream port adapts the tested Hermes `ui-tsp/RETENTION.md` and
-`ui-tsp/src/retention.ts` design to the existing **hermes-tern** transcript
+`ui-tsp/src/retention.ts` design to the existing **glide** transcript
 (`frontend/src/transcript/store.ts`) and entry projection
 (`frontend/src/view/transcript.tsx`). It does not replace or truncate Hermes
 session history, change its gateway RPCs, or create an independent session store.

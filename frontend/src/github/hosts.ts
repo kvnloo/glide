@@ -7,7 +7,7 @@
 
 export const GITHUB = 'github.com'
 /** The setting the user lists enterprise hosts in, as `hermes config set` takes it. */
-export const HOSTS_SETTING = 'plugins.entries.hermes-tern.settings.enterprise_hosts'
+export const HOSTS_SETTING = 'plugins.entries.glide.settings.enterprise_hosts'
 const HOSTS_ENV = 'HERMES_TERN_GITHUB_ENTERPRISE_HOSTS'
 
 /** One DNS label, ASCII only: an IDN host is compared in its punycode (xn--) form. */

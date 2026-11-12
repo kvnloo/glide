@@ -13,7 +13,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool
 
-NAMESPACE = "hermes-tern.plan"
+NAMESPACE = "glide.plan"
 AUTHORITY_REQUIRED = (
     "Hermes plan review needs public accepted-turn identity, live busy/owner "
     "and generation authority, terminal completion, both execution-boundary "

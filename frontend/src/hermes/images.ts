@@ -140,13 +140,13 @@ export async function stageImageBytes(gw: Pick<GatewayClient, 'request'>, params
     })
 
     namespaced = Array.isArray(caps?.plugin_methods) &&
-      caps.plugin_methods.includes('hermes-tern.media.attach_bytes')
+      caps.plugin_methods.includes('glide.media.attach_bytes')
   } catch {
     // An older gateway may not implement capabilities. Original staging still works.
   }
 
   const r = namespaced
-    ? await gw.request<{ path?: string }>('hermes-tern.media.attach_bytes', params)
+    ? await gw.request<{ path?: string }>('glide.media.attach_bytes', params)
     : await rpc(gw, 'image.attach_bytes', params)
 
   return r

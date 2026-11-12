@@ -1,5 +1,5 @@
 // This frontend's own settings: one JSON file in the profile's Hermes home
-// (`<home>/hermes-tern/settings.json`), so the plugin needs neither config.yaml keys
+// (`<home>/glide/settings.json`), so the plugin needs neither config.yaml keys
 // nor environment variables of its own. A missing or unreadable file is the defaults.
 
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -23,7 +23,7 @@ export interface Settings {
 }
 
 export function settingsFile(env: NodeJS.ProcessEnv = process.env): string {
-  return join(env['HERMES_HOME'] || join(homedir(), '.hermes'), 'hermes-tern', 'settings.json')
+  return join(env['HERMES_HOME'] || join(homedir(), '.hermes'), 'glide', 'settings.json')
 }
 
 /** The settings in `file`; a setting it does not hold, or holds as the wrong type, is unset (its default). */

@@ -269,7 +269,7 @@ vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load:
 
 const sshVariables = ['SSH_CONNECTION', 'SSH_CLIENT', 'SSH_TTY'] as const
 const previousHome = process.env['HERMES_HOME']
-const isolatedHome = mkdtempSync(join(tmpdir(), 'hermes-tern-lsp-results-'))
+const isolatedHome = mkdtempSync(join(tmpdir(), 'glide-lsp-results-'))
 process.env['HERMES_HOME'] = isolatedHome
 
 afterAll(() => {

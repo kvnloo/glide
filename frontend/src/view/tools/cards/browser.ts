@@ -76,7 +76,7 @@ export function bindBrowserFocus(host: BrowserFocusHost, source: Pick<SessionIds
       return
     }
 
-    void browserTarget(host.gw, 'hermes-tern.browser.focus', caller, target.target_id).catch(error => {
+    void browserTarget(host.gw, 'glide.browser.focus', caller, target.target_id).catch(error => {
       if (live()) {
         host.notice(errorText(error), 'warning')
       }

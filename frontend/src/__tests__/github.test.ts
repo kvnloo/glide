@@ -206,12 +206,12 @@ describe('PullRequests', () => {
   })
 
   it('asks the plugin for the links of the session it names, and reads a malformed answer as none', async () => {
-    const gw = new FakeGateway({ replies: { 'plugin.hermes-tern.pull_requests.linked': () => ({ linked: [ref(3), { host: 'github.com' }] }) } })
+    const gw = new FakeGateway({ replies: { 'plugin.glide.pull_requests.linked': () => ({ linked: [ref(3), { host: 'github.com' }] }) } })
 
     expect((await linkedPullRequests(gw.client, 's1')).map(r => r.number)).toEqual([3])
-    expect(gw.sent('plugin.hermes-tern.pull_requests.linked')).toEqual([{ session_id: 's1' }])
+    expect(gw.sent('plugin.glide.pull_requests.linked')).toEqual([{ session_id: 's1' }])
 
-    gw.handlers.set('plugin.hermes-tern.pull_requests.linked', () => ({}))
+    gw.handlers.set('plugin.glide.pull_requests.linked', () => ({}))
     expect(await linkedPullRequests(gw.client, 's1')).toEqual([])
   })
   it('says once why nothing could be read', async () => {
@@ -351,7 +351,7 @@ describe('branch and stacks', () => {
     store.adopt()
     await vi.waitFor(() => expect(store.entries()[1]?.pr?.title).toBe('Fix it'))
     expect(new Set([...graphql.mock.calls, ...rest.mock.calls].map(c => c[0]))).toEqual(new Set(['github.com']))
-    expect(store.entries()[0]?.error).toContain('plugins.entries.hermes-tern.settings.enterprise_hosts')
+    expect(store.entries()[0]?.error).toContain('plugins.entries.glide.settings.enterprise_hosts')
     expect(store.error).toBeUndefined()
     store.dispose()
   })

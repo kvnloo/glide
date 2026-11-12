@@ -234,8 +234,8 @@ export class MediaDelivery {
         )
         const methods = capabilities?.plugin_methods
 
-        if (!Array.isArray(methods) || !methods.includes('hermes-tern.media.image')) {
-          throw new Error('Image preview requires Hermes plugin gateway methods; upgrade Hermes and enable hermes-tern.')
+        if (!Array.isArray(methods) || !methods.includes('glide.media.image')) {
+          throw new Error('Image preview requires Hermes plugin gateway methods; upgrade Hermes and enable glide.')
         }
 
         if (this.#closed || epoch !== this.#epoch || scope !== this.#scope() || this.#cache.get(key) !== entry) {
@@ -246,7 +246,7 @@ export class MediaDelivery {
           content_base64: string
           bytes: number
           mime: string
-        }>('hermes-tern.media.image', {
+        }>('glide.media.image', {
           session_id: session,
           path: source.path,
           ...(source.mime ? { mime: source.mime } : {}),

@@ -1,12 +1,12 @@
-name: hermes-tern
-label: Tern
+name: glide
+label: Glide
 version: 0.2.0
 manifest_version: 2
 kind: standalone
-description: "Hermes for Tern: the chat UI drawn natively by the Tern terminal over its Surface Protocol. Adds `hermes tern`."
+description: "Glide for Hermes: the Tern chat UI drawn natively by the Tern terminal over its Surface Protocol, plus the Glide memory and attention tools. Adds `hermes tern` and `hermes glide`."
 author: "alt-glitch (original), Kevin Rajan (fork)"
 license: MIT
-homepage: https://github.com/kvnloo/hermes-tern
+homepage: https://github.com/kvnloo/glide
 tags: [tern, tui, frontend]
 requires_hermes: ">=0.23.0"
 provides_tools: [link_pull_request, unlink_pull_request, list_pull_requests]

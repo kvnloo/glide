@@ -31,7 +31,7 @@ Hermes scans community plugins and rates this one CAUTION, the same verdict as u
 hermes plugins install kvnloo/glide
 ```
 
-After a successful install, accept Hermes' plugin-enable prompt. This installs both the Tern frontend and Glide as the `hermes-tern` plugin. Do not install the standalone subdirectory as well. [Merged registration](https://github.com/kvnloo/glide/pull/223)
+After a successful install, accept Hermes' plugin-enable prompt. This installs both the Tern frontend and Glide as the `glide` plugin. Do not install the standalone subdirectory as well. [Merged registration](https://github.com/kvnloo/glide/pull/223)
 
 In a Tern pane, outside terminal multiplexers:
 

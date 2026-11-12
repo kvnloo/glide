@@ -1,6 +1,6 @@
 """Writes the spec of a background process's live chart with Hermes' auxiliary model.
 
-The frontend (``frontend/src/processes/widgets/author.ts``) calls ``plugin.hermes-tern.charts.author``
+The frontend (``frontend/src/processes/widgets/author.ts``) calls ``plugin.glide.charts.author``
 on its gateway connection, once per process that has run for a while with output::
 
     {"session_id": "...", "job": "<id>", "system": "...", "user": "..."}
@@ -8,7 +8,7 @@ on its gateway connection, once per process that has run for a while with output
 The call answers at once with ``{"job": "<id>"}``: the gateway serves one connection's requests in
 order, and a model call can take a minute, which would hold up the pane's prompts. The model call
 runs in a thread here. Its reply goes to the viewers of that session as the event
-``plugin.hermes-tern.charts.authored``, with ``job`` and one of:
+``plugin.glide.charts.authored``, with ``job`` and one of:
 
 - ``answer``: the spec (a JSON object; the frontend validates it against the spec schema and the
   process's output, and asks once more with the errors when it does not fit);
@@ -132,7 +132,7 @@ def register(ctx) -> None:
             try:
                 ctx.emit_to_session(session_id, EVENT, {"job": job, **reply})
             except Exception:  # noqa: BLE001 - the session went away; nobody waits
-                logger.debug("hermes-tern: chart reply for %s not delivered", session_id, exc_info=True)
+                logger.debug("glide: chart reply for %s not delivered", session_id, exc_info=True)
 
         # The thread keeps the call's context: the owning profile's scope (config, the session's authority).
         _executor().submit(contextvars.copy_context().run, run)
