@@ -510,3 +510,4 @@ frontend/e2e/army/tests/test_tern_launch.py
 frontend/src/__tests__/glass.test.ts
 frontend/src/__tests__/orbitTargets.test.ts
 frontend/src/voice/orbitTargets.ts
+frontend/e2e/army/tests/test_runs_dir.py

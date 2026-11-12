@@ -5,14 +5,14 @@ import json
 import shlex
 from pathlib import Path
 import time
-from up import Army, ROOT, boat, guard_budget, run
+from up import Army, ROOT, RUNS, boat, guard_budget, run
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('probe', choices=['web-help', 'gpu', 'plugins'])
     args = parser.parse_args()
-    out = ROOT / 'runs/boat' / (time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + '-' + args.probe)
+    out = RUNS / 'boat' / (time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + '-' + args.probe)
     out.mkdir(parents=True)
     owner = Army(out)
     before = boat('billing')
