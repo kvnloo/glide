@@ -86,7 +86,7 @@ ${ATTENTION_CSS}
 
 /**
  * Tern caps a surface's stylesheets at 256 KiB and drops `@container` rules, so the kit ships
- * without comments, container queries, scope quotes or spare whitespace.
+ * without comments, container queries or spare whitespace, scoped by the short `[data-eu]` root mark.
  */
 export function compactCss(css: string): string {
   let out = css.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -103,7 +103,7 @@ export function compactCss(css: string): string {
   }
 
   return out
-    .replaceAll("[data-eui='card']", '[data-eui=card]')
+    .replaceAll("[data-eui='card']", '[data-eu]') // same specificity, 6 bytes shorter x ~2.3k scoped rules
     .replace(/container-type\s*:[^;}]*;?/g, '')
     .replace(/\s+/g, ' ')
     .replace(/\s*([{};])\s*/g, '$1')

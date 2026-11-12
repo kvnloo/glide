@@ -67,7 +67,8 @@ describe('ephemeral-ui fences', () => {
   it('scopes the kit stylesheet under the card root and binds its host variables to Tern', () => {
     const css = euiStyles()
 
-    expect(css).toContain('[data-eui=card] .eu-card')
+    expect(css).toContain('[data-eu] .eu-card')
+    expect(css).not.toContain('[data-eui=card]')
     expect(css).toContain('--h-primary: var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
     expect(themeSvg('<path stroke="currentColor" fill="var(--h-primary)"/>')).toBe('<path stroke="var(--text)" fill="var(--accent)"/>')
