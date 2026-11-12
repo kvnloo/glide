@@ -15,7 +15,7 @@
       __defProp(target, name, { get: all[name], enumerable: true });
   };
 
-  // ../../ephemeral-ui-pages/vendor/three.min.js
+  // vendor/three.min.js
   var three_min_exports = {};
   __export(three_min_exports, {
     ACESFilmicToneMapping: () => Ru,
@@ -4447,7 +4447,7 @@ Program Info Log: ` + D + `
   }
   var Lf, mm, gm, Df, vu, Nf, _m, xm, Kr, Uf, Hs, Mi, tn, Bn, Qi, Ws, yu, Su, Mu, Ff, vm, ji, Of, Bf, zf, kf, Gf, Vf, Hf, Wf, bu, Tu, Xf, qf, Yf, Zf, Jf, $f, Kf, Qf, jf, ao, oo, lo, Es, co, ho, uo, fo, Qr, tp, ep, zn, Au, Eu, wu, Ru, Cu, Iu, Pu, eh, np, Tl, si, ts, jr, ta, dr, rn, fr, Te, Lu, ym, Xs, Sm, ye, ea, Mm, In, bm, cn, Du, Nu, qs, Al, xn, Qe, Pn, El, wl, es, Uu, Fu, Ou, Bu, on, Qn, ri, Rl, na, bi, Cl, Tm, Il, ia, sa, ra, aa, Pl, Ll, Dl, Nl, Ul, Fl, Ol, Bl, zl, oa, kl, Gl, Vl, Hl, Wl, Xl, ql, Yl, Zl, Jl, $l, Kl, Ql, jl, tc, ec, nc, ic, sc, rc, la, ac, ip, sp, rp, pr, po, so, nh, Bi, zi, mr, oc, zu, Am, Em, wm, ap, Rm, Cm, Im, ai, op, oi, sn, gr, _r, ce, Pm, Lm, Dm, Nm, ro, Um, Fm, Om, Bm, zm, km, Gm, Vm, Hm, Wm, Xm, qm, Ym, lp, cp, hp, up, ku, dp, fp, Gu, Vu, lc, Zm, Jm, $m, Km, Qm, jm, tg, eg, ng, Hu, dn, Vi, ig, sg, rg, ag, og, cg, _d, _i, xp, fn, We, xd, Gi, Hi, wg, et, ke, C, xc, vd, Wt, vc, yd, Sd, ee, is, mo, Cg, gn, ih, Ig, Sc, Ae, de, vr, je, Rs, sh, Cs, rh, Ht, ss, Sn, Pg, Lg, hi, ma, hn, Md, bd, wn, Is, Dg, Td, rs, Hn, ga, $s, Ng, Ug, Ad, Ed, wd, Rd, Fg, as, Mc, le, gi, Og, Ps, vp, ui, _a, bt, Xe, go, _o, xo, Mn, Wn, Tc, Xn, os, ls, Cd, Ac, Ec, wc, Rc, Cc, Ic, Nn, Be, qn, bn, xa, cs, hs, us, di, fi, wi, Ks, va, ya, Ri, Jn, ah, Re, Sa, zg, me, oh, lh, ch, hh, yr, uh, Sr, dh, At, kg, Qs, Lc, Ie, Gg, mn, Dc, ds, un, js, Fe, Yt, Ls, Ke, Wi, Nc, Vg, Hg, Tn, Wg, Pe, Mr, fs, tr, ps, ms, gs, er, yp, Ma, nr, ba, Pd, Uc, Ld, vo, Aa, Dd, yo, Yn, Fc, Ea, wa, xi, jn, Nd, Ci, Ra, Ud, Ca, Ia, Pa, Oc, La, Fd, Da, Ce, ir, Od, Bd, qg, zd, Ua, Bc, kd, zc, So, br, an, Gd, Yg, Mo, vi, _s, Vd, Fa, Hd, Zg, sr, rr, bo, Ii, Jg, Oa, ti, Wd, Tr, fh, en, Qg, jg, t_, Ba, Pi, Gc, Xd, qd, e_, Vc, qe, za, To, Ge, Ao, Eo, Yd, ar, ka, Hc, Zd, Fn, Jd, $d, _n, wo, Ar, Kd, ph, Va, Ha, Ro, Co, mh, gh, Ds, _h, xh, Xi, vh, yh, ei, Er, wr, qi, Io, Po, Rr, Cr, yi, Lo, Wa, Xa, Wc, qa, Do, pn, Ns, No, jd, tf, Xc, qc, Yc, Uo, Ir, Fo, Pr, Oo, Lr, Dr, Nr, Bo, zo, Yi, Zi, bh, En, ko, w_, Go, Vo, Br, Fs, Ho, Wo, zr, Xo, qo, Yo, Zo, Jo, of, $o, Ap, P_, L_, Rn, kr, Gr, Ko, Qo, jo, tl, el, Vr, Hr, nl, il, Ah, Si, sl, Wr, rl, al, ln, ni, Xr, Os, ol, Bs, ii, qr, $i, Un, Yr, Cp, Ze, Zn, Eh, Cn, wh, Rh, xs, Ki, Ch, Ih, Ph, On, ll, Zc, df, ff, zs, Ja, $a, Dn, ks, pi, pf, mf, Oe, Lh, cl, Dh, hl, Gs, Nh, ul, dl, fl, Zr, pl, gf, ml, Jr, gl, _l, Jc, Uh, z_, _f, xf, $c, Fh, Ka, $r, Oh, vf, yf, Li, Bh, vs, ys, Vs, xl, vl, Di, Kc, G_, Ni, Ui, zh, yl, Fi, Sf, V_, Oi, kh, Gh, Sl, Zu, H_, Ju, W_, X_, q_, Y_, Z_, J_, $_, Vh, ue, Hh, Ml, K_, Wh, Xh, qh, Q_, Yh, Zh, Jh, Mf, $h, Qh, jh, tu, eu, Tf, bl, Af, Qa, Ss, Ms, Qc, j_, t0, nu, Ef, iu, mi, ja, jc, su, ru, e0, wf, Rf, au, ou, lu, Cf, to, If, cu, eo, Me, hu, no, uu, du, fu, Pf, io, th, pu, mu, gu, _u, xu, o0, l0, c0, h0, u0, d0, f0, p0, m0, g0, _0, x0, v0, y0, S0, M0, b0, T0, A0, E0, w0, R0, C0, I0, P0, L0, D0, N0, U0, F0, O0, B0, z0, k0, G0, V0, H0, W0, X0, q0, Y0, Z0, J0, $0, K0, Q0, j0, tx, ex, nx, ix, sx, rx, ax, ox, lx, cx, hx, ux, dx, fx, px, mx, gx, _x, xx, vx, yx, Sx, Mx, bx, Tx, Ax, Ex, wx, Rx, Cx, Ix, Px, Lx, Dx, Nx, Ux, Fx, Ox, Bx, zx, kx, Gx, Vx, Hx, Wx, Xx, qx, Yx, Zx, Jx, $x, Kx, Qx, jx, tv, ev, nv, iv, sv, rv, av, ov, lv, cv, hv, uv, dv, fv, pv, mv, gv, _v, xv, vv, yv, Sv, Mv, bv, Tv, Av, Ev, wv, Rv, Cv, Iv, Pv, Lv, Dv, Nv, Uv, Fv, Ov, Bv, zv, $t, St, Gn, uc, kv, tm, ua, Pp, qv, Yv, em, nm, Zv, Jv, $v, fc, oy, im, sm, rm, am, om, lm, Up, Fp, Op, Bp, zp, Qu, ju, td, $u, Ys, $y, Ky, Vp, eS, dc, oS, cS, uS, fS, mS, xS, nd, id, ES, IS, PS, LS, DS, Kp, ca, Ku, BS, zS, sd, rd, kS, cm, HS, kn, Qp;
   var init_three_min = __esm({
-    "../../ephemeral-ui-pages/vendor/three.min.js"() {
+    "vendor/three.min.js"() {
       Lf = "187";
       mm = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
       gm = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
@@ -19227,7 +19227,7 @@ void main() {
     }
   });
 
-  // ../../ephemeral-ui-pages/js/motion.js
+  // js/motion.js
   var reduced = matchMedia("(prefers-reduced-motion: reduce)");
   var motion = { speed: 1 };
   function spring({ stiffness = 170, damping = 26, mass = 1, velocity = 0 } = {}) {
@@ -19364,7 +19364,7 @@ void main() {
   }
   var pick = (r, arr2) => arr2[Math.floor(r() * arr2.length)];
 
-  // ../../ephemeral-ui-pages/js/themes.js
+  // js/themes.js
   var state = { themes: [], base: null, over: {}, brand: "accent", logos: false };
   function hexToRgb(hex) {
     let c = (hex || "#000").replace("#", "");
@@ -19402,7 +19402,7 @@ void main() {
     return { ...b, ...state.over };
   }
 
-  // ../../ephemeral-ui-pages/js/shell.js
+  // js/shell.js
   var catalog = { apps: [], byId: {}, categories: [] };
   async function loadApps() {
     const d = await (await fetch("data/apps.json")).json();
@@ -19573,7 +19573,7 @@ void main() {
   });
   var fmt$ = (n) => "$" + n.toLocaleString(void 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // ../../ephemeral-ui-pages/js/loop.js
+  // js/loop.js
   var ID_RE = /^[\w.:\-@#/ ]{1,120}$/;
   function strip(card3) {
     let s36 = card3.querySelector(":scope > .lp-strip");
@@ -19721,7 +19721,7 @@ void main() {
     return list;
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-a.js
+  // js/kinds-a.js
   var SUBJECTS = {
     email: [["Invoice #4471 is due Nov 14", "Hi \u2014 attaching the October invoice for the Acme retainer. Net 30, total $1,240.00."], ["Offer letter: please sign by Friday", "Congrats again! The DocuSign link is below; let me know if anything looks off."], ["Your flight to SFO is confirmed", "UA 1734 \xB7 Thu Nov 6 \xB7 7:05 AM \u2192 9:42 AM \xB7 Seat 14C"], ["Design review moved to 3pm", "Same room, new time. I'll bring the updated flows for checkout."], ["Re: Q4 roadmap", "Agree on cutting the importer. Can we keep sync in scope?"], ["Weekly metrics are in", "WAU up 8.2%, retention flat. Full deck in the drive folder."]]
   };
@@ -20767,7 +20767,7 @@ void main() {
     });
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-b.js
+  // js/kinds-b.js
   var METRIC = {
     pay: ["Net volume", 48210, "$"],
     money: ["Cash balance", 182400, "$"],
@@ -21589,7 +21589,7 @@ void main() {
     }
   };
 
-  // ../../ephemeral-ui-pages/js/chrome.js
+  // js/chrome.js
   var UI = {
     blender: { bg: "#303030", panel: "#1d1d1d", view: "#393939", fg: "#e6e6e6", acc: "#4772b3", hot: "#ffaf29", name: "Blender", font: '"DejaVu Sans", Inter, sans-serif' },
     zbrush: { bg: "#2b2b2b", panel: "#1e1e1e", view: "#3a3a3a", fg: "#d8d8d8", acc: "#e8892b", hot: "#e8892b" },
@@ -21678,7 +21678,7 @@ void main() {
     return h("div", { class: "ap-bar" }, items.map((x, i) => h("span", { class: "ap-tab" + (i === 0 ? " on" : "") }, x)), h("span", { class: "grow" }), right);
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-c.js
+  // js/kinds-c.js
   var sleep = (run, ms2) => run.wait(ms2);
   var COMFY = { MODEL: "#b39ddb", CLIP: "#ffd500", VAE: "#ff6e6e", CONDITIONING: "#ffa931", LATENT: "#ff9cf9", IMAGE: "#64b5f6", exec: "#ffffff", float: "#a0ff7f", bool: "#940000", obj: "#00a8f3", geo: "#7fc3ff", top: "#c088ff" };
   var GRAPHS = {
@@ -22660,7 +22660,7 @@ void main() {
     anatomy: { label: "Anatomy figure", verb: () => "Built a figure", make: anatomyMake }
   };
 
-  // ../../ephemeral-ui-pages/js/kinds-e.js
+  // js/kinds-e.js
   var STEPS = {
     phone: [["open", "Settings", 50, 12], ["tap", "Display", 50, 38], ["tap", "Dark mode", 70, 52], ["swipe", "back", 20, 50], ["tap", "T3 Code", 50, 70], ["type", "\u201Crun the mobile check\u201D", 50, 86]],
     desk: [["click", "Terminal", 12, 92], ["type", "npm test", 40, 40], ["click", "Chrome", 22, 92], ["click", "localhost:5173", 50, 12], ["drag", "card \u2192 column", 62, 55], ["click", "Screenshot \u2713", 84, 20]]
@@ -22786,7 +22786,7 @@ void main() {
     sandbox: { label: "Forking sandboxes", verb: () => "Forked VMs", make: sandboxMake }
   };
 
-  // ../../ephemeral-ui-pages/js/stage3d.js
+  // js/stage3d.js
   var THREE = null;
   var R = null;
   var raf = 0;
@@ -22943,7 +22943,7 @@ void main() {
     return { hemi, sun: d };
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-f.js
+  // js/kinds-f.js
   var LAWS = [
     ["speed_near_humans", "v \u2264 0.5 m/s within 2 m of a person", "speed"],
     ["no_wet_aisle", "transport robots never enter an aisle a cleaner marked wet", "wet"],
@@ -23167,7 +23167,7 @@ void main() {
     health: { label: "Health brief", verb: () => "Merged health data", make: healthMake }
   };
 
-  // ../../ephemeral-ui-pages/js/trace-data.js
+  // js/trace-data.js
   var fixture = null;
   function loadFixture() {
     return fixture ??= fetch("data/trace-fixture.json").then((r) => r.json());
@@ -23341,7 +23341,7 @@ void main() {
     return { toU: map(tp2, up2), toT: map(up2, tp2), domain: [0, u], gaps };
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-t.js
+  // js/kinds-t.js
   var DEFAULT_LAYERS = /* @__PURE__ */ new Set(["spans", "tokens", "cost", "errors", "subagents"]);
   var lay = (o) => o?.layers ?? DEFAULT_LAYERS;
   var LANE = { turn: "Input", model: "Model", tool: "Tools", subagent: "Agents", background: "Bg" };
@@ -24297,7 +24297,7 @@ void main() {
   };
   for (const k of Object.values(KINDS_T)) k.trace = true;
 
-  // ../../ephemeral-ui-pages/js/intent-data.js
+  // js/intent-data.js
   var data;
   var intentReady = () => data ??= fetch("data/intent-snapshot.json").then((r) => {
     if (!r.ok) throw Error(`Intent snapshot: ${r.status}`);
@@ -24315,7 +24315,7 @@ void main() {
   var ageDays = (stamp, now = Date.now()) => Math.max(0, (now - Date.parse(stamp)) / 864e5);
   var reviewRequest = (c) => ({ v: 0, action: "request_review", sourceHash: c.sourceHash, contractHash: c.contractHash, revision: c.revision, approval: "pending" });
 
-  // ../../ephemeral-ui-pages/js/kinds-i.js
+  // js/kinds-i.js
   var chip = (t, cls = "") => h("span", { class: "ic-chip " + cls }, t);
   var note = (t) => h("p", { class: "ic-note" }, t);
   var code = (t) => h("code", { class: "ic-code" }, t);
@@ -24483,7 +24483,7 @@ void main() {
     };
   }
 
-  // ../../ephemeral-ui-pages/js/infra-data.js
+  // js/infra-data.js
   var services = [
     ["client", "Clients", "Edge", "HTTPS entry point"],
     ["aws-api", "API Gateway", "AWS", "Request routing"],
@@ -24570,7 +24570,7 @@ void main() {
     return { total: rows.length, destructive: rows.filter(([action]) => ["delete", "replace"].includes(action)).length };
   }
 
-  // ../../ephemeral-ui-pages/js/kinds-infra.js
+  // js/kinds-infra.js
   var btn2 = (text2, onclick) => h("button", { type: "button", class: "eu-btn ghost sm", onclick }, text2);
   var hint = (text2) => h("p", { class: "if-hint" }, text2);
   var select = (label, entries, onChange) => {
@@ -24793,7 +24793,7 @@ void main() {
     "infra-models": { label: "Local training & inference", infra: true, make: models }
   };
 
-  // ../../ephemeral-ui-pages/js/stats-lib.js
+  // js/stats-lib.js
   function emitter() {
     const m = /* @__PURE__ */ new Map();
     return {
@@ -25573,7 +25573,7 @@ void main() {
     }
   };
 
-  // ../../ephemeral-ui-pages/js/ops-data.js
+  // js/ops-data.js
   var data2 = null;
   var opsReady = () => data2 ??= fetch("data/ops-fixture.json").then((r) => {
     if (!r.ok) throw Error(`Ops snapshot: ${r.status}`);
@@ -25694,7 +25694,7 @@ void main() {
   var bandTone = (b) => ({ "under-burn": "ok", "on-pace": "ok", ok: "ok", throttle: "warn", "hard-throttle": "bad", avoid: "bad", hold: "bad" })[b] ?? "neutral";
   var short = (s36, n = 34) => s36 && s36.length > n ? s36.slice(0, n - 1) + "\u2026" : s36 ?? "";
 
-  // ../../ephemeral-ui-pages/js/kinds-ops.js
+  // js/kinds-ops.js
   var NM = "not measured";
   var para = (t, cls = "") => h("p", { class: "ops-p " + cls }, t);
   var lead = (t) => h("p", { class: "ops-lead" }, t);
@@ -26372,7 +26372,7 @@ void main() {
     "ops-sources": define2("ops-sources", "Ops \xB7 what we measure", "What can't we see yet?", "Gaps", sourcesBoard)
   };
 
-  // ../../ephemeral-ui-pages/js/fleet-data.js
+  // js/fleet-data.js
   var HOSTS = [
     {
       id: "groot",
@@ -26552,7 +26552,7 @@ void main() {
     ]
   };
 
-  // ../../ephemeral-ui-pages/js/fleet-schema.js
+  // js/fleet-schema.js
   var FLEET_ACTIONS = Object.freeze({
     "fleet-hosts": Object.freeze(["open-chat", "nudge", "open-pod"]),
     "fleet-portfolio": Object.freeze(["open-task", "set-next"]),
@@ -26659,7 +26659,7 @@ void main() {
     return { ok: !errors.length, errors };
   }
 
-  // ../../ephemeral-ui-pages/js/fleet-hosts.js
+  // js/fleet-hosts.js
   var STATES = { working: "Working", blocked: "Needs you", idle: "Idle", offline: "Offline" };
   var dot2 = (state2) => h("span", { class: `fh-dot fh-${state2}`, title: STATES[state2] });
   var text = (cls, value) => h("span", { class: cls, title: value }, value);
@@ -26780,7 +26780,7 @@ void main() {
   var agentsOfCount = (hosts) => hosts.reduce((n, h2) => n + agentsOf(h2).length, 0);
   var KINDS_FLEET_HOSTS = { "fleet-hosts": { label: "Hosts & k3s", make } };
 
-  // ../../ephemeral-ui-pages/js/fleet-pm.js
+  // js/fleet-pm.js
   var STATUS = { done: "Done", active: "Working", next: "Next", blocked: "Blocked" };
   var HZ = { now: "Now", next: "Next", later: "Later" };
   var HUES = ["var(--fl-gold)", "var(--fl-ok)", "var(--h-primary)", "var(--fl-warn)"];
@@ -26889,7 +26889,7 @@ void main() {
   }
   var KINDS_FLEET_PM = { "fleet-portfolio": { label: "Product portfolio", make: make2 } };
 
-  // ../../ephemeral-ui-pages/js/fleet-factory.js
+  // js/fleet-factory.js
   var COLS = ["Brain", "Lanes", "Cards", "Repos"];
   var STATE_LABEL = { live: "Live", "needs-you": "Needs you", failing: "Failing", done: "Done", idle: "Idle", queued: "Queued" };
   var lerp = (a, b, t) => a + (b - a) * t;
@@ -27189,7 +27189,7 @@ void main() {
   }
   var KINDS_FLEET_FACTORY = { "fleet-factory": { label: "Agent factory graph", make: make3 } };
 
-  // ../../ephemeral-ui-pages/js/kinds-fleet.js
+  // js/kinds-fleet.js
   var commands = { "fleet-hosts": "/hosts", "fleet-portfolio": "/portfolio", "fleet-factory": "/factory graph" };
   var examples = { "fleet-hosts": () => ({ hosts: HOSTS }), "fleet-portfolio": () => ({ portfolios: PORTFOLIOS }), "fleet-factory": () => FACTORY };
   function updated(at2, now = Date.now()) {
