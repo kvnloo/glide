@@ -120,7 +120,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:3px 10px 3px 4px;border-radius:999px;border:1px solid ${NIGHT.border}`, [
       svg(swatchSvg(seat.mineral, 16), 16, 'flex:none'),
       el('span', `font-family:${SERIF};font-size:14px;color:${NIGHT.text}`, [text(seat.name)]),
-      ...(open ? stance : [el('span', `font-size:12px;color:${NIGHT.faint}`, [text(v ? '…' : '—')])])
+      ...(open ? stance : [el('span', `font-size:12px;color:${NIGHT.text3}`, [text(v ? '…' : '—')])])
     ])
     return el('div', `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
       svg(swatchSvg(seat.mineral, 30), 30, 'flex:none'),
@@ -130,7 +130,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
           el('span', `${micro};font-size:8.5px`, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
           ...stance
         ]),
-        el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.faint}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
+        el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
       ])
     ])
   }))
@@ -156,7 +156,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
       ])
     ]),
     // The popup's title already says live or demo; a short pane has no row to spare for the provenance line.
-    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.faint};text-align:center`, [text(src.live
+    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text(src.live
       ? `live run read from ${src.from} · this card draws it and computes nothing`
       : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])])
   ])])

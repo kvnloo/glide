@@ -10,12 +10,23 @@ import type { TurnEntry } from '../model.js'
 import { STYLES } from '../view/styles.js'
 import { entryNode, type TranscriptContext } from '../view/transcript.js'
 import { decodeEuiCard } from '../wire/euiCard.js'
+import { minifyCss } from '../../../glide/frontend/css.js'
+import { glassPlayCss } from '../../../glide/frontend/glass.js'
+import { walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
+import type { OrbitLane } from '../voice/orbit.js'
+import { orbitCss } from '../voice/orbitTargets.js'
 
 import { tree } from './fakes.js'
 import { ternBody, ternSelector } from '../eui/ternCss.js'
 import { euiCardNode } from '../view/euiCard.js'
 
 const FENCE = String.fromCharCode(96).repeat(3)
+// The hackathon film's wallpaper palette, as pywal writes it.
+const FILM: WalColors = {
+  special: { background: '#0d1a17', foreground: '#eef3ec' },
+  colors: Object.fromEntries(['#0d1a17', '#7db84a', '#7db84a', '#d9b98a', '#d9c27e', '#5cc3c9', '#2f8f9a', '#a8bbb2',
+    '#8a9c94', '#7db84a', '#7db84a', '#d9b98a', '#d9c27e', '#5cc3c9', '#2f8f9a', '#eef3ec'].map((c, i) => [`color${i}`, c]))
+}
 const KINDS = new EuiCards(() => undefined).kinds
 const settle = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 
@@ -70,17 +81,28 @@ describe('ephemeral-ui fences', () => {
 
     expect(css).toContain('[data-eu] .eu-card')
     expect(css).not.toContain('[data-eui=card]')
-    expect(css).toContain('--h-primary: var(--accent)')
+    expect(css).toContain('--h-primary:var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
     expect(themeSvg('<path stroke="currentColor" fill="var(--h-primary)"/>')).toBe('<path stroke="var(--text)" fill="var(--accent)"/>')
   })
 
   it("keeps the chat surface's stylesheets under Tern's per-surface cap", () => {
-    // Tern fails the whole surface (no paint, no input) past 256 KiB of stylesheets; leave room for the wal theme sheet (~11 KiB).
+    // Tern fails the whole surface (no paint, no input) past 256 KiB of stylesheets. Count every sheet a chat
+    // can carry at once: ours, the kit's, the wallpaper theme with its glass, the glass playground mid-cycle and
+    // a six-lane orbit, and keep 8 KiB for the cards' inline sheet plus 4 KiB of headroom.
     const css = euiStyles()
+    const wal = walPalette(FILM)
+    const lane = (role: string): OrbitLane => ({ role, state: 'thinking', hue: '#888888' })
+    const orbit = orbitCss(['fast', 'fast', 'small', 'small', 'large', 'council'].map(lane))
+    const sheets = [STYLES, css, walCss(wal), glassPlayCss(wal), orbit].map(c => Buffer.byteLength(c))
 
-    expect(Buffer.byteLength(STYLES) + Buffer.byteLength(css) + 12 * 1024).toBeLessThanOrEqual(256 * 1024)
+    expect(sheets.reduce((a, b) => a + b) + (8 + 4) * 1024).toBeLessThanOrEqual(256 * 1024)
     expect(css).not.toMatch(/@container|container-type|\/\*/)
+  })
+
+  it('minifies a sheet without touching its strings or its media queries', () => {
+    expect(minifyCss(`/* note */ .a > b ,\n .c { content: ": a, b > c" ; color: red }\n@media (prefers-reduced-motion: reduce) { .a { animation: none } }`))
+      .toBe('.a>b,.c{content:": a, b > c";color:red}@media (prefers-reduced-motion: reduce){.a{animation:none}}')
   })
 })
 
@@ -274,11 +296,11 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(css).not.toMatch(/:has\(|::-webkit-|\(\s*(pointer|hover)\s*:|\d+dvh|env\(|conic-gradient/)
     expect(css).not.toMatch(/@container\b|\bcontainer-type\s*:|\bpaint-order\s*:|\btransform-box\s*:|\bpadding-inline\s*:/)
     expect(css).toContain('.eu-btn')
-    expect(css).toContain('.ff-stats{grid-template-columns:repeat(2, 1fr)}')
+    expect(css).toContain('.ff-stats{grid-template-columns:repeat(2,1fr)}')
   })
 
   it('lets native SVG callback buttons grow with wrapped labels', () => {
-    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls > \.eu-btn\{([^}]*)\}/)?.[1]
+    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls>\.eu-btn\{([^}]*)\}/)?.[1]
     expect(rule).toBeDefined()
     expect(rule).toMatch(/display:\s*block/)
     expect(rule).toMatch(/height:\s*auto/)

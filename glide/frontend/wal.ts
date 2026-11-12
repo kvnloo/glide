@@ -8,9 +8,11 @@ import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 
 import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '../../frontend/src/hermes/theme.js'
+import { minifyCss } from './css.js'
 import { parseJson, record } from '../../frontend/src/wire/json.js'
 
-import { glassCss, pickGlow } from './glass.js'
+import { NIGHT_INKS } from './council.js'
+import { glassCss, pickGlow, tintFloor, wallSamples } from './glass.js'
 
 /** Tern's program palette (`t`), as @stencil-hq/tern's Palette. */
 export interface TernPalette {
@@ -47,6 +49,10 @@ export interface WalPalette {
   warning: string
   selectedBg: string
   layers: [string, string, string]
+  /** The wallpaper's own pixels as pywal sampled them (glass.ts wallSamples). */
+  samples: string[]
+  /** The least glass tint opacity (percent) that keeps every text ink, the popups' too, 4.5:1 over the wallpaper (glass.ts tintFloor). */
+  floor: number
 }
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -108,31 +114,45 @@ export function pickAccent(wal: WalColors): string {
   return best
 }
 
-/** The wallpaper's palette: every text token at least TEXT_FLOOR against the background. */
+/**
+ * The wallpaper's palette: every text token at least TEXT_FLOOR against the background and against
+ * its lightest layer, since Tern lays its panes and the cards their rows on those layers.
+ */
 export function walPalette(wal: WalColors, source = ''): WalPalette {
   const bg = wal.special.background
-  const text = (c: string | undefined, fallback: string) => {
-    const lifted = ensureContrast(c && HEX.test(c) ? c : fallback, bg, TEXT_FLOOR, 0.05)
+  const lift = (c: string | undefined, fallback: string, under: readonly string[]) => {
+    let ink = c && HEX.test(c) ? c : fallback
+    for (const u of under) ink = ensureContrast(ink, u, TEXT_FLOOR, 0.05)
     // ensureContrast stops at the pole; a pole that still fails (mid-gray background) takes the better ink.
-    return (contrastRatio(lifted, bg) ?? 0) >= TEXT_FLOOR ? lifted : readableOn(bg)
+    return under.every(u => (contrastRatio(ink, u) ?? 0) >= TEXT_FLOOR) ? ink : readableOn(bg)
   }
-  const fg = text(wal.special.foreground, wal.special.foreground)
+  const base = lift(wal.special.foreground, wal.special.foreground, [bg])
+  const layers: [string, string, string] = [mix(bg, base, 0.06), mix(bg, base, 0.12), mix(bg, base, 0.2)]
+  const text = (c: string | undefined, fallback: string) => lift(c, fallback, [bg, layers[2]])
+  const fg = text(base, base)
   const accent = text(pickAccent(wal), fg)
-  return {
-    source,
-    dark: (relativeLuminance(bg) ?? 0) < 0.5,
-    bg,
+  const inks = {
     fg,
     accent,
-    accentInk: readableOn(accent),
     glow: text(pickGlow(wal, accent), accent),
     muted: text(wal.colors['color7'], fg),
     dim: text(wal.colors['color8'], fg),
     error: text(wal.colors['color1'], fg),
     success: text(wal.colors['color2'], fg),
-    warning: text(wal.colors['color3'], fg),
+    warning: text(wal.colors['color3'], fg)
+  }
+  const samples = wallSamples(wal)
+  return {
+    source,
+    dark: (relativeLuminance(bg) ?? 0) < 0.5,
+    bg,
+    ...inks,
+    accentInk: readableOn(accent),
     selectedBg: mix(bg, accent, 0.18),
-    layers: [mix(bg, fg, 0.06), mix(bg, fg, 0.12), mix(bg, fg, 0.2)]
+    layers,
+    samples,
+    // The council and lanes popups paint their own night inks on the same glass.
+    floor: tintFloor([...Object.values(inks), ...NIGHT_INKS], bg, samples)
   }
 }
 
@@ -152,14 +172,14 @@ export function walCss(p: WalPalette): string {
   const vars = [
     `--accent: ${p.accent}`, `--sf-p-accent: ${p.accent}`, `--accent-ink: ${p.accentInk}`,
     `--text: ${p.fg}`, `--muted: ${p.muted}`, `--t1: ${p.fg}`, `--t2: ${p.muted}`, `--t3: ${p.dim}`,
-    `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--raise: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`
+    `--l1: ${l1}`, `--l2: ${l2}`, `--l3: ${l3}`, `--card: ${l1}`, `--raise: ${l1}`, `--panel: ${p.bg}`, `--sf-c-error: ${p.error}`, `--sf-c-warning: ${p.warning}`, `--sf-c-success: ${p.success}`
   ]
   // Only plugin blocks carry [data-surface]; a program pane (hermes tern) is a bare .sf-region, and
   // Tern binds these variables on :root, so the region (and each card) must rebind them itself.
   // Tern scopes the sheet inside the region, so `.sf-region` matches only in other hosts: in a
   // program pane its .sf descendants take the variables (no background: they would all paint).
   // The kit's primary buttons read --h-primary-ink, which its host binding leaves unset.
-  return `.sf-region, [data-surface] { ${vars.join('; ')}; background: ${p.bg}; color: ${p.fg}; }\n.sf { ${vars.join('; ')}; }\n[data-eui='card'] { ${vars.join('; ')}; --h-primary-ink: ${p.accentInk}; }\n${glassCss(p)}`
+  return minifyCss(`.sf-region, [data-surface], .sf, [data-eui='card'] { ${vars.join('; ')}; }\n.sf-region, [data-surface] { background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { --h-primary-ink: ${p.accentInk}; }\n${glassCss(p)}`)
 }
 
 /** Writes the resolved palette JSON for other tools (the fframes film); returns the path. */

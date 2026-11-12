@@ -23,10 +23,12 @@ const FAMILY: Record<string, readonly Mineral[]> = {
 }
 
 export const NIGHT = {
-  canvas: '#0c0c0a', text: '#ECE8DF', text2: '#B4AFA3', text3: '#837F74', faint: '#5e5b52',
-  action: '#d7b986', strong: '#eccd8c', muted: '#99835c', danger: '#e37f65', agree: '#98cf8b',
+  canvas: '#0c0c0a', text: '#ECE8DF', text2: '#B4AFA3', text3: '#A39F94', faint: '#5e5b52',
+  action: '#d7b986', strong: '#eccd8c', muted: '#AF9D7E', danger: '#e37f65', agree: '#98cf8b',
   border: 'rgba(236,232,223,0.10)', borderStrong: 'rgba(236,232,223,0.16)'
 }
+/** The popups' text inks (faint marks bars only): the glass floor keeps each 4.5:1 (wal.ts). */
+export const NIGHT_INKS = [NIGHT.text, NIGHT.text2, NIGHT.text3, NIGHT.action, NIGHT.strong, NIGHT.muted, NIGHT.danger, NIGHT.agree] as const
 export const SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif"
 export const MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
 

@@ -89,6 +89,7 @@ export class App implements ChatPorts {
   readonly overlays: Overlay[]
   /** Every store, the ports' among them: entry.ts and the tests reach the rest here, a module through its ports. */
   readonly stores: ChatStores
+  readonly glassDemo = (): number | null => this.stores.theme.playGlass()
   readonly #renders = new RenderScheduler(() => this.#frame())
   #done = Promise.withResolvers<number>()
   readonly #tern: Session
@@ -169,7 +170,6 @@ export class App implements ChatPorts {
     return this.stores.dictation
   }
 
-  /** Whose colors the surface wears (`/theme`). */
   get theme(): ThemeMode {
     return this.stores.theme.mode
   }

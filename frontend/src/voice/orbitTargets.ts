@@ -5,6 +5,8 @@
 // ease off again on leave. Stopped planets wobble like iOS home-screen icons in edit mode and wear a small
 // edit badge: they can be picked. The planet under the pointer grows and names its lane. Reduced motion
 // seats the planets still and shows a dashed ring instead of the wobble.
+import { minifyCss } from '../../../glide/frontend/css.js'
+
 import { deadMark, HALO, lanePeriod, type OrbitLane, orbitLayout, ORBIT_SCALE, orbitScene, orbitUnits, PLANET, tint } from './orbit.js'
 
 /** The stylesheet's name in Tern. */
@@ -194,5 +196,5 @@ export function orbitCss(lanes: readonly OrbitLane[], reduce = false): string {
     }
     rules.push(`${L} .glide-orbit-jiggle { animation-delay: ${f(s.jiggleDelay, 4)}s; }`)
   })
-  return rules.join('\n')
+  return minifyCss(rules.join('\n'))
 }

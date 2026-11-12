@@ -52,6 +52,7 @@ export type CommandHost = Pick<
   | 'busy'
   | 'btw'
   | 'eui'
+  | 'glassDemo'
   | 'operations'
   | 'control'
   | 'gw'
@@ -378,7 +379,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export | glass demo]',
     name: 'glide',
     run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },

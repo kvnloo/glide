@@ -99,7 +99,7 @@ describe('live lane strip', () => {
     // Each lane is a planet button over the scene; the orbit's stylesheet animates and pauses them.
     const buttons = (t: Tree): Tree[] => [...(t.props['class'] === 'glide-orbit-planet' ? [t] : []), ...t.children.flatMap(buttons)]
     expect(buttons(tree).map(b => JSON.stringify(b.props['attrs']))).toEqual(s.lanes().map((l, i) => JSON.stringify({ 'data-lane': l.role, 'data-lane-index': i })))
-    expect(sheets.get('glide-orbit')).toContain('animation-play-state: paused')
+    expect(sheets.get('glide-orbit')).toContain('animation-play-state:paused')
     expect(buttons(tree).every(b => b.props['title'] === undefined)).toBe(true) // the CSS label names it; a title would add Tern's tooltip
     expect(ids(tree)).toContain(LANES_ID)
     // Role-less, so Tern's chat reader centres its children on the composer's track.

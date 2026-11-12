@@ -8,6 +8,7 @@ import type { Palette } from '@stencil-hq/tern'
 import type { SettingsSource, ThemeMode } from '../settings.js'
 
 import { paletteFor } from './palette.js'
+import { glassPlayCss, PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
 import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from '../../../glide/frontend/wal.js'
 
 /** What the theme reaches of the app. */
@@ -31,6 +32,8 @@ export class Theme {
   /** The wallpaper palette the auto mode last sent. */
   #wal: WalPalette | undefined
   #unwatch: (() => void) | undefined
+  /** Takes the glass playground's sheet away once its cycle ends. */
+  #play: NodeJS.Timeout | undefined
 
   /** `mode` is the one settings.json kept. */
   constructor(host: ThemeHost, mode: ThemeMode) {
@@ -73,10 +76,32 @@ export class Theme {
     this.apply()
   }
 
-  /** Stops following the wallpaper file. */
+  /**
+   * `/glide glass demo`: one CSS keyframe cycle of the glass (glass.ts glassPlayCss), then the sheet goes and
+   * the glass settles. Its seconds, or null outside the auto mode, where there is no glass to play.
+   */
+  playGlass(): number | null {
+    const wal = this.wal
+    if (!wal || !this.#host.stylesheet) return null
+    this.#stopPlay()
+    this.#host.stylesheet(PLAY_SHEET, glassPlayCss(wal))
+    this.#play = setTimeout(() => this.#stopPlay(), PLAY_SECONDS * 1000 + 500)
+    this.#play.unref()
+    return PLAY_SECONDS
+  }
+
+  /** Stops following the wallpaper file, and takes a playing glass cycle's sheet away with its timer. */
   dispose() {
+    this.#stopPlay()
     this.#unwatch?.()
     this.#unwatch = undefined
+  }
+
+  #stopPlay() {
+    if (this.#play === undefined) return
+    clearTimeout(this.#play)
+    this.#play = undefined
+    this.#host.stylesheet?.(PLAY_SHEET, null)
   }
 
   #applyWal() {
