@@ -220,14 +220,18 @@ export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
   const nodes: FleetDesignTile[] = parsed.data.nodes.map(node => {
     const state: FleetTone = node.state === 'failing' ? 'failed' : node.state === 'needs-you' ? 'held'
       : node.state === 'live' ? 'running' : node.state === 'done' ? 'done' : 'idle'
+    const needsFix = state === 'failed' || state === 'held'
+    const intent: FleetIntent | null = needsFix
+      ? { action: 'queue-fix', entities: { node: node.id } }
+      : node.url ? { action: 'open-node', entities: { node: node.id } } : null
     return { key: node.id, name: friendly(node.label, 'Factory node'),
       column: Math.max(0, Math.min(3, Math.floor(node.col))), state,
-      action: state === 'failed' || state === 'held' ? 'Prepare fix' : 'Review node',
-      intent: { action: 'queue-fix', entities: { node: node.id } }, recommended: false }
+      action: needsFix ? 'Prepare fix' : node.url ? 'Open node' : 'No action needed',
+      intent, recommended: false }
   })
-  const next = [...nodes].sort((a,b) => severity(b.state)-severity(a.state))[0]
+  const next = [...nodes].filter(n => n.intent).sort((a,b) => severity(b.state)-severity(a.state))[0]
   return { view, hero: plural(nodes.length, 'node') + ' · ' + (next?.state === 'held' ? 'needs attention' : next?.state === 'failed' ? 'failed' : 'ready') + ' · ' +
-    (next ? next.action + ' for ' + next.name : 'No next action'),
+    (next ? next.action + ' for ' + next.name : 'No action needed'),
     verdict: next?.state === 'failed' ? 'A factory step failed' : next?.state === 'held' ? 'A step needs attention' : 'Factory flow',
     rows: [], tiles: nodes.map(n => ({...n, recommended: n.key === next?.key})),
     edges: parsed.data.edges.filter(([a,b]) => ids.has(a) && ids.has(b)).map(([a,b]) => [a,b]) }
