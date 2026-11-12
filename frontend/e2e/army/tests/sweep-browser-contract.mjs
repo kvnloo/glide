@@ -2,6 +2,7 @@
 import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
 import { colors, auditDOM } from '../sweep-audit.mjs';
+import { freshDocument } from '../sweep-navigation.mjs';
 
 const browser=await chromium.launch({executablePath:process.env.CHROME_EXE??'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try {
@@ -44,4 +45,29 @@ try {
   assert.ok(clippedRoot.some(f=>f.check==='horizontal-overflow'&&f.selector==='#root'));
   assert.ok(!clippedRoot.some(f=>f.check==='horizontal-overflow'&&f.selector==='html'));
   console.log('PASS: real Chromium surface, contrast, 18px threshold, SVG fill, gradient occlusion, clipping, tooltip, hidden text, and root/document overflow detectors');
+  const url='http://army.test/fleet.html#theme=light';
+  await page.route('http://army.test/**',route=>route.fulfill({contentType:'text/html',body:`<!doctype html>
+    <style>#surface{background:#fff}</style><div id="surface"><span id="count">4/5 online</span>
+    <button onclick="document.dispatchEvent(new CustomEvent('eui:intent'))">Open chat</button></div>`}));
+  const navigate=async()=>{
+    await freshDocument(page,url);
+    await page.evaluate(()=>{
+      globalThis.intents=0;
+      document.addEventListener('eui:intent',()=>globalThis.intents++);
+    });
+  };
+  await navigate();
+  await page.evaluate(()=>{
+    document.querySelector('#surface').style.background='#000';
+    const patch=()=>{const n=document.querySelector('#count');if(n.textContent!=='99/6 online')n.textContent='99/6 online';};
+    new MutationObserver(patch).observe(document.body,{childList:true,subtree:true});patch();
+    document.addEventListener('click',e=>e.stopImmediatePropagation(),true);
+  });
+  assert.equal(await page.locator('#count').innerText(),'99/6 online','seed must be active');
+  await navigate();
+  assert.equal(await page.locator('#count').innerText(),'4/5 online','same-URL clean navigation must remove seed observer');
+  assert.equal(await page.locator('#surface').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(255, 255, 255)','seed CSS must not survive');
+  await page.getByRole('button',{name:'Open chat'}).click();
+  assert.equal(await page.evaluate(()=>globalThis.intents),1,'seed handler and duplicate instrumentation must not survive');
+  console.log('PASS: same-URL seeded-to-clean document isolation and exactly one intent per click');
 } finally {await browser.close();}

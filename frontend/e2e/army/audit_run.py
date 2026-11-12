@@ -56,7 +56,11 @@ def audit(root):
             fleet = {(c['width'], c['kind']) for c in report['controls'] if c.get('phase') == 'clean' and c.get('surface') == 'fleet'}
             require(fleet == {(w, k) for w in (390, 768, 1440) for k in ('fleet-hosts', 'fleet-portfolio', 'fleet-factory')}, 'Incomplete fleet control matrix: ' + lane['id'])
         require(report.get('detector_regressions', {}).get('controls') == 'passed', 'Controller fixture did not pass: ' + lane['id'])
-        require('PASS:' in (folder / 'detector-regressions.log').read_text(), 'Style fixtures did not pass: ' + lane['id'])
+        regressions = (folder / 'detector-regressions.log').read_text()
+        require('PASS:' in regressions, 'Style fixtures did not pass: ' + lane['id'])
+        if lane['id'] in ('kit-sweep-clicks', 'kit-sweep-themes'):
+            require('PASS: same-URL seeded-to-clean document isolation and exactly one intent per click' in regressions,
+                    'Seed-to-clean isolation not proved: ' + lane['id'])
         require(not lane.get('pass_trusted'), 'Premium review must not be implicitly certified')
         finding_classes.update(f['classification'] for f in lane['findings'])
         gap_classes.update(g['classification'] for g in lane['gaps'])
@@ -81,6 +85,9 @@ def audit(root):
     return {'receipt_audit_passed': not errors, 'errors': errors,
             'app_qualification_passed': not errors and all(lane['verdict'] == 'pass' and lane.get('pass_trusted') for lane in lanes),
             'revisions': metadata['revisions'], 'kit_sha': metadata['kit_sha'],
+            'composite': metadata.get('composite', False), 'lane_sources': metadata.get('lane_sources', {}),
+            'superseded_lanes': metadata.get('superseded_lanes', []),
+            'source_campaigns': metadata.get('source_campaigns', []),
             'findings_count_by_class': dict(finding_classes + gap_classes),
             'finding_records_by_class': dict(finding_classes), 'gaps_count_by_class': dict(gap_classes),
             'counting_note': 'Non-canary observations plus coverage-gap records, not deduplicated root causes.',

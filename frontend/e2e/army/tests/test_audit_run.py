@@ -36,7 +36,7 @@ class ReceiptAuditContracts(unittest.TestCase):
                 report['coverage'] += [{'phase':'clean', 'surface':'gallery', 'kind':'kind-' + str(i)} for i in range(55)]
                 report['controls'] = [{'phase':'clean', 'surface':'fleet', 'width':w, 'kind':k} for w in (390,768,1440) for k in kinds]
             (folder / name / 'report.json').write_text(json.dumps(report))
-            (folder / 'detector-regressions.log').write_text('PASS: style fixtures')
+            (folder / 'detector-regressions.log').write_text('PASS: style fixtures\nPASS: same-URL seeded-to-clean document isolation and exactly one intent per click')
             lane = {'id': name, 'sha': 'a' * 40, 'status': 'done', 'deterministic': True,
                     'exit': 1 if bad_exit and index == 0 else 0}
             (folder / 'lane.json').write_text(json.dumps(lane))
@@ -60,6 +60,15 @@ class ReceiptAuditContracts(unittest.TestCase):
             root = Path(temp)
             self.fixture(root, substitute=True)
             self.assertFalse(audit(root)['receipt_audit_passed'])
+
+    def test_seed_to_clean_isolation_receipt_is_required(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.fixture(root)
+            (root / 'kit-sweep-clicks/runs/detector-regressions.log').write_text('PASS: style fixtures')
+            result = audit(root)
+            self.assertFalse(result['receipt_audit_passed'])
+            self.assertIn('Seed-to-clean isolation not proved: kit-sweep-clicks', result['errors'])
 
     def test_missing_matrix_case_is_not_complete_coverage(self):
         with tempfile.TemporaryDirectory() as temp:

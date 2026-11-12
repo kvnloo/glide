@@ -17,7 +17,7 @@ This freezes kit `c3b7b275`, `origin/main`, and `origin/feat/eui-fleet-vendor`. 
 - Console runs the clean click/gallery/theme traversal and preserves every console.error and pageerror. Graphics initialization errors are provider gaps.
 - Build records the archive SHA and disk PIN but refuses to infer served-pane provenance from them. Missing queryable pane provenance fails coverage.
 
-Every lane first runs the Chromium style-detector fixtures and the rendered control-order fixture. Matching recall is exact detector + selector + seed ID, not text matching. Clicks require 1/1; themes require 3/3. Console/build have no matching planted seed: recall is not applicable. Calibrations do not contaminate clean findings.
+Every lane first runs the Chromium style-detector fixtures, the same-URL seeded-to-clean fixture, and the rendered control-order fixture. Each navigation commits `about:blank` before loading the target, so hash-only navigation cannot retain planted mutations or multiply intent listeners. The regression verifies that the count observer, injected CSS, and dead-button handler disappear and one clean click emits exactly one intent. Matching recall is exact detector + selector + seed ID, not text matching. Clicks require 1/1; themes require 3/3. Console/build have no matching planted seed: recall is not applicable. The receipt auditor rejects kit click/theme results without this isolation proof.
 
 The Tern web server creates its own pane; native `ctl run` is not proof that its web client launched Glide. The deterministic path supplies a private launch executable as `SHELL`; that executable re-exports the private profile because the PTY can replace environment variables. Tern-generated pane identity is preserved. A real `hermes tern --help` registration probe precedes launch. The explorer path retains native `serve --control`. The PNG is checked for a uniform framebuffer: accessibility nodes and zero console errors alone do not prove pixels painted. Blank frames, unsupported native styles, missing transcript cards, and absent pane provenance remain coverage gaps.
 
@@ -31,6 +31,17 @@ python3 ledger.py runs/boat --since 20261111T235205Z
 ```
 
 The first command checks exact lane IDs, fixtures, canary recall, PNG signatures, usage, concurrency, and sampler coverage. Exit 0 means consistent receipts, not app acceptance. The ledger includes failed attempts and diagnostics, reads a fresh Boat list, checks the cross-run peak, and never adds overlapping account-wide billing deltas. Usage is sampled immediately before deletion, so teardown latency is excluded.
+
+To replace invalid lane receipts at the same frozen app/kit SHAs without rerunning unaffected lanes:
+
+```sh
+python3 compose_run.py "$BASE" "$REPLACEMENT" runs/w5-final
+python3 findings.py runs/w5-final > /tmp/w5-findings.log
+python3 sanity.py runs/w5-final
+python3 audit_run.py runs/w5-final
+```
+
+The output must not exist. `run.json` records every lane's source campaign and both payload hashes. All source sandboxes, including superseded lanes, remain in accounting. This is a composite evidence bundle, not a fresh eleven-sandbox run. Keep it outside `runs/boat` so the ownership ledger counts only original creation receipts. Original reports and screenshots are untouched; overlapping account-wide billing deltas are never added.
 
 Run artifacts contain structured per-control results, checks, console records, PNGs, `FINDINGS.md`, and the pending premium-review sampler. See `REPORT.md` for measured outcomes and limitations, and `SWEEPS-DESIGN.md` for ownership and design rationale.
 

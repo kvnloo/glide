@@ -3,6 +3,7 @@ import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdirSync, writeFileSync, realpathSync } from 'node:fs';
 import { colors, controlOutcome, canaryRecall, auditDOM, hasPixelVariation } from './sweep-audit.mjs';
+import { freshDocument } from './sweep-navigation.mjs';
 
 process.chdir('/home/user/army');
 if (realpathSync(process.cwd()) !== realpathSync('/home/user/army')) throw new Error('Sweeps run only in an owned Boat sandbox');
@@ -55,7 +56,7 @@ async function navigate(url, canary=false) {
   scope.url=url;
   if(!canary) await page.route('**/army-canary.js',r=>r.fulfill({body:'',contentType:'text/javascript'}));
   else await page.unroute('**/army-canary.js');
-  await page.goto(url,{waitUntil:'networkidle',timeout:60000});
+  await freshDocument(page,url);
   if(url.includes('fleet.html')) await page.waitForSelector('html.ready');
   await instrument();
 }
