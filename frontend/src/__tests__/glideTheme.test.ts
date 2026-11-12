@@ -79,10 +79,10 @@ describe('walPalette', () => {
     const css = walCss(walPalette(A))
     expect(css).toContain('[data-surface]')
     // A program pane (hermes tern) has no [data-surface]: the bare region and each card rebind too.
-    expect(css).toMatch(/^\.sf-region, \[data-surface\], \.sf, \[data-eui='card'\] \{[^}]*--t1: [^}]*--card: /)
-    expect(css).toContain('--accent: #ff810d')
-    expect(css).toContain('background: #0f1420')
-    expect(css).toContain('--h-primary-ink: #000000')
+    expect(css).toMatch(/^\.sf-region,\[data-surface\],\.sf,\[data-eui='card'\]\{[^}]*--t1:[^}]*--card:/)
+    expect(css).toContain('--accent:#ff810d')
+    expect(css).toContain('background:#0f1420')
+    expect(css).toContain('--h-primary-ink:#000000')
   })
 })
 
@@ -121,7 +121,7 @@ describe('Theme auto mode', () => {
     t.apply()
     expect(h.sheets.get(WAL_SHEET)).toContain('#ff810d')
     await writeFile(file, JSON.stringify(B))
-    await vi.waitFor(() => expect(h.sheets.get(WAL_SHEET)).toContain('background: #f4efe6'), { timeout: 3000 })
+    await vi.waitFor(() => expect(h.sheets.get(WAL_SHEET)).toContain('background:#f4efe6'), { timeout: 3000 })
     expect(t.wal?.dark).toBe(false)
   })
 

@@ -13,6 +13,7 @@
 // GLASS_FORBIDDEN lists them and the tests hold the sheet to it.
 
 import { contrastRatio, mix } from '../../frontend/src/hermes/theme.js'
+import { minifyCss } from './css.js'
 
 import type { WalColors, WalPalette } from './wal.js'
 
@@ -245,7 +246,7 @@ export function glassPlayCss(p: WalPalette, seconds = PLAY_SECONDS): string {
   const run = (name: string) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`
   const lit = [CARD, EDITOR, POPUP, LANES].join(', ')
   const all = [lit, STATUS, NATIVE, TEXT, after(RIMMED), MOTES].join(', ')
-  return `
+  return minifyCss(`
 @keyframes glide-play { ${frame(s => `${glass(s)}; ${halo(s)}`)} }
 @keyframes glide-play-flat { ${frame(glass)} }
 @keyframes glide-play-rim { ${frame(s => `opacity: ${Math.min(1, 0.55 + 0.25 * s.glow).toFixed(2)}`)} }
@@ -257,6 +258,6 @@ ${after(RIMMED)} { ${run('glide-play-rim')}; }
 ${MOTES} { ${run('glide-play-motes')}; }
 @media (prefers-reduced-motion: reduce) { ${all} { animation: none; } }
 @media (prefers-reduced-transparency: reduce) { ${all} { animation: none; } }
-`
+`)
 }
 

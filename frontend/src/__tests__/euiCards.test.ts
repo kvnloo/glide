@@ -10,6 +10,7 @@ import type { TurnEntry } from '../model.js'
 import { STYLES } from '../view/styles.js'
 import { entryNode, type TranscriptContext } from '../view/transcript.js'
 import { decodeEuiCard } from '../wire/euiCard.js'
+import { minifyCss } from '../../../glide/frontend/css.js'
 import { glassPlayCss } from '../../../glide/frontend/glass.js'
 import { walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
 import type { OrbitLane } from '../voice/orbit.js'
@@ -80,7 +81,7 @@ describe('ephemeral-ui fences', () => {
 
     expect(css).toContain('[data-eu] .eu-card')
     expect(css).not.toContain('[data-eui=card]')
-    expect(css).toContain('--h-primary: var(--accent)')
+    expect(css).toContain('--h-primary:var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
     expect(themeSvg('<path stroke="currentColor" fill="var(--h-primary)"/>')).toBe('<path stroke="var(--text)" fill="var(--accent)"/>')
   })
@@ -88,15 +89,20 @@ describe('ephemeral-ui fences', () => {
   it("keeps the chat surface's stylesheets under Tern's per-surface cap", () => {
     // Tern fails the whole surface (no paint, no input) past 256 KiB of stylesheets. Count every sheet a chat
     // can carry at once: ours, the kit's, the wallpaper theme with its glass, the glass playground mid-cycle and
-    // a six-lane orbit, and keep 8 KiB for the cards' inline sheet.
+    // a six-lane orbit, and keep 8 KiB for the cards' inline sheet plus 4 KiB of headroom.
     const css = euiStyles()
     const wal = walPalette(FILM)
     const lane = (role: string): OrbitLane => ({ role, state: 'thinking', hue: '#888888' })
     const orbit = orbitCss(['fast', 'fast', 'small', 'small', 'large', 'council'].map(lane))
     const sheets = [STYLES, css, walCss(wal), glassPlayCss(wal), orbit].map(c => Buffer.byteLength(c))
 
-    expect(sheets.reduce((a, b) => a + b) + 8 * 1024).toBeLessThanOrEqual(256 * 1024)
+    expect(sheets.reduce((a, b) => a + b) + (8 + 4) * 1024).toBeLessThanOrEqual(256 * 1024)
     expect(css).not.toMatch(/@container|container-type|\/\*/)
+  })
+
+  it('minifies a sheet without touching its strings or its media queries', () => {
+    expect(minifyCss(`/* note */ .a > b ,\n .c { content: ": a, b > c" ; color: red }\n@media (prefers-reduced-motion: reduce) { .a { animation: none } }`))
+      .toBe('.a>b,.c{content:": a, b > c";color:red}@media (prefers-reduced-motion: reduce){.a{animation:none}}')
   })
 })
 

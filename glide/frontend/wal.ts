@@ -8,6 +8,7 @@ import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 
 import { contrastRatio, ensureContrast, mix, readableOn, relativeLuminance } from '../../frontend/src/hermes/theme.js'
+import { minifyCss } from './css.js'
 import { parseJson, record } from '../../frontend/src/wire/json.js'
 
 import { NIGHT_INKS } from './council.js'
@@ -178,7 +179,7 @@ export function walCss(p: WalPalette): string {
   // Tern scopes the sheet inside the region, so `.sf-region` matches only in other hosts: in a
   // program pane its .sf descendants take the variables (no background: they would all paint).
   // The kit's primary buttons read --h-primary-ink, which its host binding leaves unset.
-  return `.sf-region, [data-surface], .sf, [data-eui='card'] { ${vars.join('; ')}; }\n.sf-region, [data-surface] { background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { --h-primary-ink: ${p.accentInk}; }\n${glassCss(p)}`
+  return minifyCss(`.sf-region, [data-surface], .sf, [data-eui='card'] { ${vars.join('; ')}; }\n.sf-region, [data-surface] { background: ${p.bg}; color: ${p.fg}; }\n[data-eui='card'] { --h-primary-ink: ${p.accentInk}; }\n${glassCss(p)}`)
 }
 
 /** Writes the resolved palette JSON for other tools (the fframes film); returns the path. */

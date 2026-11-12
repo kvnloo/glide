@@ -12,6 +12,7 @@ import { decodeEuiCard, EUI_FENCE, type EuiCardSpec } from '../wire/euiCard.js'
 import { parseJson } from '../wire/json.js'
 
 import { ATTENTION_CSS } from '../../../glide/frontend/attentionCards.js'
+import { minifyCss } from '../../../glide/frontend/css.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
 import { EuiHostCards, type EuiHostPort } from './host.js'
@@ -103,12 +104,9 @@ export function compactCss(css: string): string {
     out = out.slice(0, at) + out.slice(end + 1)
   }
 
-  return out
+  return minifyCss(out
     .replaceAll("[data-eui='card']", '[data-eu]') // same specificity, 6 bytes shorter x ~2.3k scoped rules
-    .replace(/container-type\s*:[^;}]*;?/g, '')
-    .replace(/\s+/g, ' ')
-    .replace(/\s*([{};])\s*/g, '$1')
-    .trim()
+    .replace(/container-type\s*:[^;}]*;?/g, ''))
 }
 
 /** The kinds the pinned schema lists (card.v0.json properties.kind.enum). */

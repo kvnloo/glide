@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { glideGlass } from '../commands/glide.js'
 import { contrastRatio, mix } from '../hermes/theme.js'
 import { NIGHT_INKS } from '../../../glide/frontend/council.js'
+import { minifyCss } from '../../../glide/frontend/css.js'
 import {
   GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, pickGlow, PLAY_SECONDS, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
 } from '../../../glide/frontend/glass.js'
@@ -76,9 +77,9 @@ describe('glassPlayCss', () => {
     expect(Math.max(...stops.map(s => s.motes))).toBeGreaterThan(1)
     expect(stops[0]).toEqual({ ...stops.at(-1), at: 0 })
     expect(play).toContain(`${PLAY_SECONDS}s`)
-    expect(play).toMatch(/ 1; \}/) // one cycle, no fill: the resting glass takes over again
+    expect(play).toMatch(/ 1;\}/) // one cycle, no fill: the resting glass takes over again
     // The rest stops are left to the resting sheet, so the cycle starts and ends exactly on it.
-    expect(play).not.toMatch(/\b(0|100)% \{/)
+    expect(play).not.toMatch(/\b(0|100)% ?\{/)
     expect(stops[0]).toMatchObject({ tint: restTint(p), blur: 22, saturate: 140 })
     expect(glassCss(p)).toContain('backdrop-filter: blur(22px) saturate(140%)')
   })
@@ -86,7 +87,7 @@ describe('glassPlayCss', () => {
   it('never lays text on a tint under the floor, at any keyframe or between them', () => {
     for (const s of stops) expect(s.tint).toBeGreaterThanOrEqual(p.floor)
     // Linear between stops, each above the floor, so every frame is too.
-    const bgs = [...play.matchAll(/background-color: rgba\(\d+,\d+,\d+,([\d.]+)\)/g)].map(m => Number(m[1]))
+    const bgs = [...play.matchAll(/background-color:rgba\(\d+,\d+,\d+,([\d.]+)\)/g)].map(m => Number(m[1]))
     expect(bgs.length).toBe((stops.length - 2) * 2)
     for (const alpha of bgs) expect(alpha).toBeGreaterThanOrEqual(p.floor / 100)
   })
@@ -96,7 +97,7 @@ describe('glassPlayCss', () => {
     expect(play.split('{').length).toBe(play.split('}').length)
     for (const sel of Object.values(GLASS_VIEWS)) expect(play).toContain(sel)
     for (const media of ['prefers-reduced-motion: reduce', 'prefers-reduced-transparency: reduce']) {
-      expect(play).toMatch(new RegExp(`@media \\(${media}\\) \\{ [^{]+\\{ animation: none; \\} \\}`))
+      expect(play).toMatch(new RegExp(`@media \\(${media}\\)\\{[^{]+\\{animation:none;\\}\\}`))
     }
   })
 
@@ -188,6 +189,6 @@ describe('glassCss', () => {
   })
 
   it('rides on the auto theme sheet', () => {
-    expect(walCss(p).endsWith(css)).toBe(true)
+    expect(walCss(p).endsWith(minifyCss(css))).toBe(true)
   })
 })
