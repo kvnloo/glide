@@ -76,6 +76,20 @@ describe('/glide intent', () => {
     expect(JSON.stringify(view(1))).not.toContain('Completed')
   })
 
+  it('shows the proof card for the last ask, labelled sample, and asks for an ask first', async () => {
+    const { host, titles, view, transcript } = setup()
+    await glideCommand(host, 'intent proof')
+    expect(titles()).toEqual([])
+    expect(JSON.stringify(transcript.entries)).toContain('Usage: /glide intent <ask>, then /glide intent proof')
+    await glideCommand(host, 'intent Make the voice orb feel alive, and ship it in the plugin by Friday.')
+    await glideCommand(host, 'intent proof')
+    expect(titles()[2]).toBe('Show me the real-turn receipt')
+    const proof = JSON.stringify(view(2))
+    expect(proof).toContain('Sample receipt (synthetic)')
+    expect(proof).toMatch(/"ih-stamp"|ih-stamp/)
+    expect(proof).not.toContain('no receipt yet')
+  })
+
   it('asks for the ask when it is missing', async () => {
     const { host, titles, transcript } = setup()
     await glideCommand(host, 'intent')
@@ -300,6 +314,10 @@ describe('/council', () => {
     expect(idle).toContain('"data-council-source":"demo"')
     expect(idle).toContain('Convene council')
     expect(idle).not.toContain('data-council-stance')
+    // Fits a short pane: the header rides in the side column, so nothing stacks above the instrument.
+    expect(idle.indexOf('COUNCIL · GLIDE · SOCRATIC')).toBeGreaterThan(idle.indexOf('"w":320,"h":320'))
+    expect(idle).not.toContain('read a live council') // the popup title already says demo
+    expect(idle.match(/"w":16,"h":16/g)).toHaveLength(4) // seats ride as small chips, not four stacked 30px rows
     await settle()
     expect(blobs.some(b => b.includes('url(#tb)'))).toBe(true)
     expect(c.running).toBe(false)
@@ -314,6 +332,8 @@ describe('/council', () => {
     const done = draw()
     expect(done).toContain('"data-council-stance":"dissent"')
     expect(done.match(/data-council-stance/g)).toHaveLength(4)
+    // Still fits once every seat has closed: seats are one line each, and the verdict prose stays in the transcript card.
+    for (const v of demoRun().verdicts) expect(done).not.toContain(JSON.stringify(v.text))
     expect(done).toContain('Convene again')
 
     press(overlays[0], 'enter')
