@@ -23,8 +23,9 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   // lanes, hosts, gate, budget). A paragraph or list under either would repeat it.
   // Attention heroes draw all their rows and keep the summary as the source line.
   const drawn = attention !== undefined || (hero !== undefined && (hold || data.kind === 'intent-declare'))
+  // The title is a head row above the box, as omp heads its tool cards (name, then target).
+  const head = el('div', [el('span', [text('Glide')], 'eui-host-name'), el('span', [text(data.title)], 'eui-host-title')], 'eui-host-head')
   const kids: EuiNode[] = [
-    el('h3', [text(data.title)], 'eui-host-title'),
     ...(hero ? [hero] : []),
     ...(data.summary === undefined || (drawn && !hold && !attention) ? [] : [el('p', [text(data.summary)])]),
     ...(drawn ? [] : [el('dl', data.rows.flatMap(row => [
@@ -43,5 +44,5 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
           : status === 'done' ? intentDoneLabel(data) ?? 'Completed' : 'Failed · approval used')]
     })
   }
-  return el('div', [el('section', kids, 'eu-card eui-host')])
+  return el('div', [head, el('section', kids, 'eu-card eui-host')])
 }
