@@ -8,7 +8,8 @@ import type { EuiHostCardData } from '../../frontend/src/wire/euiHostCard.js'
 export const FOCUS_APP = 'glide.focus'
 export const DIGEST_APP = 'glide.digest'
 export const WIND_APP = 'glide.wind'
-const APPS = [FOCUS_APP, DIGEST_APP, WIND_APP]
+export const HOURS_APP = 'glide.hours'
+const APPS = [FOCUS_APP, DIGEST_APP, WIND_APP, HOURS_APP]
 export const isAttentionCard = (d: Pick<EuiHostCardData, 'app'>) => APPS.includes(d.app)
 
 type El = (tag: string, kids: readonly EuiNode[], cls?: string, attrs?: Record<string, string>) => EuiNode
@@ -49,6 +50,7 @@ function digest(d: EuiHostCardData, el: El): EuiNode {
   const items = d.rows.filter(r => r.label !== 'count')
   const n = num(one(d, 'count')) ?? items.length
   // Back layers first so the newest ask paints on top; they are edges only, the list below has their text.
+  // The top ask is already on the stack, so the list starts at the second one.
   const top = items[0]
   const stack = top ? [...items.slice(1, 4).map((_, i) => el('div', [], `ah-ask ah-a${i + 1}`)).reverse(),
     el('div', [el('small', [text(top.label)], `ah-cls ah-c-${top.label.replace(/[^a-z]/g, '')}`),
@@ -60,7 +62,7 @@ function digest(d: EuiHostCardData, el: El): EuiNode {
       el('div', [el('b', [text(String(n))], 'ah-big'), el('small', [text(n === 1 ? 'held ask' : 'held asks')], 'ah-cap'),
         el('span', [text('1 digest')], 'ah-pill ah-held')], n ? 'ah-tile' : 'ah-tile ah-none')
     ], 'ah-collapse'),
-    ...(items.length ? [el('ol', items.map(r => el('li', [el('small', [text(r.label)], `ah-cls ah-c-${r.label.replace(/[^a-z]/g, '')}`),
+    ...(items.length > 1 ? [el('ol', items.slice(1).map(r => el('li', [el('small', [text(r.label)], `ah-cls ah-c-${r.label.replace(/[^a-z]/g, '')}`),
       el('span', [text(String(r.value))], 'ah-title')], 'ah-item')), 'ah-list')] : [])
   ], 'ah-hero ah-digest')
 }
@@ -102,9 +104,19 @@ function wind(d: EuiHostCardData, el: El): EuiNode {
   ], 'ah-hero ah-wind')
 }
 
+/** /glide focus hours: the learned windows on the day band, then each row as a fact tile. */
+function hours(d: EuiHostCardData, el: El): EuiNode {
+  const best = d.rows.map(r => /(\d{1,2}):00–(\d{1,2}):00/.exec(String(r.value))).filter(m => m !== null).map(m => [Number(m[1]), Number(m[2])] as [number, number])
+  return el('div', [
+    daySvg(best),
+    el('div', d.rows.map(r => el('div', [el('small', [text(r.label)], 'ah-k'), el('b', [text(String(r.value))], 'ah-v')], 'ah-fact')), 'ah-facts')
+  ], 'ah-hero ah-hours')
+}
+
 /** The hero for a /glide focus card, or undefined for any other card. */
 export function attentionHero(d: EuiHostCardData, el: El): EuiNode | undefined {
-  return d.app === FOCUS_APP ? focus(d, el) : d.app === DIGEST_APP ? digest(d, el) : d.app === WIND_APP ? wind(d, el) : undefined
+  return d.app === FOCUS_APP ? focus(d, el) : d.app === DIGEST_APP ? digest(d, el) : d.app === WIND_APP ? wind(d, el)
+    : d.app === HOURS_APP ? hours(d, el) : undefined
 }
 
 export const ATTENTION_CSS = `
@@ -144,6 +156,7 @@ export const ATTENTION_CSS = `
 [data-eui='card'] .ah-list { margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 [data-eui='card'] .ah-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid var(--h-border); }
 [data-eui='card'] .ah-daysvg { display: block; width: 100%; }
+[data-eui='card'] .ah-hours .ah-facts { margin-top: 8px; }
 [data-eui='card'] .ah-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
 [data-eui='card'] .ah-leg { display: flex; align-items: center; gap: 5px; font: 12px/1.3 var(--h-mono); color: var(--h-fg); }
 [data-eui='card'] .ah-sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }

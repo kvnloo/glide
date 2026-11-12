@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 import { entryId } from '../core/ids.js'
-import { EuiCards, euiDir, euiStyles, splitEuiFences, themeSvg } from '../eui/cards.js'
+import { EuiCards, euiDir, euiStyles, inkFor, setSvgInk, splitEuiFences, themeSvg } from '../eui/cards.js'
 import { createSandbox, type EuiNode } from '../eui/sandbox.js'
 import type { TurnEntry } from '../model.js'
 import { STYLES } from '../view/styles.js'
@@ -84,6 +84,25 @@ describe('ephemeral-ui fences', () => {
     expect(css).toContain('--h-primary:var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
     expect(themeSvg('<path stroke="currentColor" fill="var(--h-primary)"/>')).toBe('<path stroke="var(--text)" fill="var(--accent)"/>')
+  })
+
+  it('paints card SVG blobs in literal palette colors, since Tern never resolves var() in an image', () => {
+    const ink = { text: '#eeeeee', muted: '#777777', accent: '#ffaa00' }
+    expect(themeSvg('<rect fill="var(--h-primary)"/><text fill="var(--h-fg)"/><rect fill="var(--h-border)"/>', ink))
+      .toBe('<rect fill="#ffaa00"/><text fill="#eeeeee"/><rect fill="#777777"/>')
+
+    setSvgInk({ dark: { accent: '#123456', text: 'not-a-color' }, light: {} })
+    expect(inkFor(true).accent).toBe('#123456')
+    expect(inkFor(true).text).toMatch(/^#[0-9a-f]{6}$/i)
+    const sent: string[] = []
+    const cards = new EuiCards(() => {}, { blob: bytes => { sent.push(new TextDecoder().decode(bytes)); return `b${sent.length}` }, stylesheet: () => {} })
+    cards.attach({ blob: bytes => { sent.push(new TextDecoder().decode(bytes)); return `b${sent.length}` }, stylesheet: () => {} }, true)
+    cards.svg('<svg><circle stroke="var(--h-primary)"/></svg>')
+    expect(sent.at(-1)).toBe('<svg><circle stroke="#123456"/></svg>')
+    setSvgInk({ dark: { accent: '#654321' } })
+    cards.svg('<svg><circle stroke="var(--h-primary)"/></svg>')
+    expect(sent.at(-1)).toBe('<svg><circle stroke="#654321"/></svg>')
+    setSvgInk({})
   })
 
   it("keeps the chat surface's stylesheets under Tern's per-surface cap", () => {

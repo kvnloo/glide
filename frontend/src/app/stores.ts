@@ -14,7 +14,7 @@ import { NoticeStrip } from '../chrome/notices.js'
 import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
 import { Theme } from '../chrome/theme.js'
-import { euiSheets } from '../eui/cards.js'
+import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { TodoHud } from '../todo-hud.js'
 import { dispatched } from '../commands/slash.js'
 import type { LaunchEnv } from '../config/env.js'
@@ -306,7 +306,10 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   laneFeed?.start()
   /** Whose colors the surface wears, and the gateway's skin. */
   const theme = new Theme({
-    palette: palette => surface().palette(palette),
+    palette: palette => {
+      setSvgInk(palette)
+      surface().palette(palette)
+    },
     // Kept with the card sheets so a recovered surface gets the wallpaper variables again.
     stylesheet: (name, css) => {
       if (css === null) euiSheets.delete(name)

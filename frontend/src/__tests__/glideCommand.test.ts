@@ -552,6 +552,8 @@ describe('/glide focus', () => {
     expect(JSON.stringify(view(0))).not.toContain('End block')
     const digest = JSON.stringify(view(1))
     for (const s of ['ah-stack', 'ah-tile', '"text":"2"', 'held asks', '1 digest', 'PR #12 ready for review', 'nightly eval done']) expect(digest).toContain(s)
+    // The top ask sits on the stack; the list below holds the rest, so no ask is drawn twice.
+    expect(digest.split('"text":"PR #12 ready for review"')).toHaveLength(2)
   })
 
   it('never leaves two live End block cards', async () => {
@@ -580,7 +582,9 @@ describe('/glide focus', () => {
     for (const s of ['ah-daysvg', 'Tomorrow starts here', '“fix the tokenizer”', 'bed 02:30', 'best hours', 'next deep work now, until 09:00–11:00']) expect(wind).toContain(s)
     await glideCommand(host, 'focus hours')
     expect(titles().at(-1)).toBe('Your best deep-work hours')
-    expect(JSON.stringify(view(panels().length - 1))).toContain('09:00–11:00')
+    const hours = JSON.stringify(view(panels().length - 1))
+    for (const s of ['ah-hours', 'ah-daysvg', '09:00–11:00', 'Usual stop', '23:00']) expect(hours).toContain(s)
+    expect(hours).not.toContain('eui-host-rows')
   })
 
   it('styles its heroes with ah- classes no kit stylesheet uses', () => {
