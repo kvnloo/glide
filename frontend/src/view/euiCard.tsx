@@ -39,7 +39,8 @@ function convert(n: EuiNode, key: string, card: string, eui: EuiCards): JSX.Elem
     return blob === undefined ? null : html.span({ attrs, class: n.cls }, ui.image({ blob, w: Math.round(n.w), h: Math.round(n.h) }))
   }
 
-  const tag = ternTag(n.tag, n.attrs)
+  const prose = /\bic-sentence\b/.test(n.cls)
+  const tag = prose ? 'div' : ternTag(n.tag, n.attrs)
   const attrs: Record<string, string> = {}
 
   for (const [k, v] of Object.entries(n.attrs)) {
@@ -62,7 +63,9 @@ function convert(n: EuiNode, key: string, card: string, eui: EuiCards): JSX.Elem
     attrs['data-eui-s'] = eui.style(n.style)
   }
 
-  const kids = n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, card, eui))
+  // Tern keeps a button and a span to one text line (live Tern 0.9.9 window, 2026-11-05). An intent
+  // sentence row holds prose, so it renders as a clickable div and its text span as a div.
+  const kids = n.kids.map((k, i) => convert(prose && k.t === 'el' && k.tag === 'span' && !/\bic-chip\b/.test(k.cls) ? { ...k, tag: 'div' } : k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, card, eui))
 
   if (n.tag === 'input' && tag === 'span') {
     kids.push(n.attrs['value'] || n.attrs['placeholder'] || '')

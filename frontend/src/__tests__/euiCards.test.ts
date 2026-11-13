@@ -214,6 +214,13 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(ternBody("height:100dvh;padding:env(safe-area-inset-top);content:'a;b'")).toBe("height:100vh;padding:0px;content:'a;b'")
   })
 
+  // In a real Tern 0.9.9 window the intent-declare sentence ran 780 px past its 560 px card: Tern's flex
+  // item kept its one-line width instead of wrapping (live shot 2026-11-05). The host lets it shrink.
+  it('lets the intent-declare sentence shrink inside its flex row', () => {
+    expect(euiStyles()).toMatch(/\.ic-sentence>span:first-child\s*\{[^}]*min-width:\s*0[^}]*\}/)
+    expect(euiStyles()).toMatch(/\.ic-sentence>span:first-child\s*\{[^}]*flex:\s*1 1 0[^}]*\}/)
+  })
+
   // Tern 0.9.9 matches [data-*] only (probed live), so a switch never showed aria-checked="true".
   it('moves state selectors onto the data-eui-a- mirror the host writes', async () => {
     expect(ternSelector(`.eu-switch[aria-checked="true"] i,[open]>summary,[data-x='1']`)).toBe(
@@ -227,6 +234,30 @@ describe('ephemeral-ui kit stylesheet', () => {
     const drawn = JSON.stringify(tree(euiCardNode('h', eui.view('h', spec), eui)))
     expect(drawn).toContain('"data-eui-a-aria-checked":"true"')
     expect(drawn).toContain('"data-eui-a-aria-checked":"false"')
+    eui.close()
+  }, 20_000)
+
+  // Live Tern 0.9.9 window, 2026-11-05: a button or span keeps its text on one line, so the intent
+  // sentence ran past its 560 px card. The host draws each prose row and its text as divs; rows stay clickable.
+  it('draws intent-declare sentence rows as wrapping divs, not one-line buttons', async () => {
+    const eui = new EuiCards(() => undefined)
+    const spec = { kind: 'intent-declare', app: 'ripple' }
+    eui.view('i', spec)
+    // The kit fills the sentence rows after its first paint.
+    await vi.waitFor(() => { expect(JSON.stringify(eui.view('i', spec).node)).toContain('ic-sentence') }, { timeout: 10_000 })
+    type W = { k?: string; p?: Record<string, unknown>; c?: W[] }
+    const rows: W[] = []
+    const visit = (n: W): void => {
+      if (typeof n?.p?.['class'] === 'string' && /\bic-sentence\b/.test(n.p['class'])) rows.push(n)
+      n?.c?.forEach(visit)
+    }
+    visit(JSON.parse(JSON.stringify(tree(euiCardNode('i', eui.view('i', spec), eui)))) as W)
+    expect(rows.length).toBeGreaterThan(1)
+    for (const r of rows) {
+      expect(r.p?.['tag']).toBe('div')
+      expect(r.p?.['attrs']).toMatchObject({ 'data-eui-tag': 'button' })
+      expect(r.c?.[0]?.p?.['tag']).toBe('div')
+    }
     eui.close()
   }, 20_000)
 })
