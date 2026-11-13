@@ -4,7 +4,8 @@
 // Usage from the repository root:
 //   bun glide/tools/intel-shots.mts OUT_DIR
 // Output: OUT_DIR/{hill,skills,memory,failures,trace,empty}-{desktop,phone}.png and OUT_DIR/metrics.json
-// (card height, painted text lines, and whether the whole card with its head row fits in 596 px).
+// (card height, painted text lines, and whether the whole card with its head row fits in 596 px), plus the
+// card-to-Refresh total, the stage's hidden overflow, and the hill chart's lowest gridline and point against the stage.
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -87,8 +88,9 @@ function draw(node: EuiNode | null): string {
   if (!node) return ''
   if (node.t === 'text') return escapeHtml(node.text)
   if (node.t === 'svg') {
-    return '<img alt="Chart" width="' + node.w + '" height="' + node.h +
-      '" src="data:image/svg+xml;base64,' + Buffer.from(node.svg).toString('base64') + '">'
+    // euiCardNode's wrapper: a span carrying the kit's class around Tern's image.
+    return '<span data-eui-svg="" class="' + escapeHtml(node.cls) + '"><img class="sf-image" alt="Chart" width="' + node.w +
+      '" height="' + node.h + '" src="data:image/svg+xml;base64,' + Buffer.from(node.svg).toString('base64') + '"></span>'
   }
   // A closed details carries open="" in the snapshot; HTML would treat any open attribute as open.
   const attrs = Object.entries(node.attrs).filter(([key, value]) => key !== 'open' || value)
@@ -119,7 +121,6 @@ const style = [
   '.intel-frame{border:1px solid var(--l3);background:var(--l1);border-radius:' + RADIUS.tile +
     'px;padding:14px;min-width:0;overflow-wrap:anywhere}',
   '.intel-frame [data-eui="card"]{width:100%;max-width:none;min-width:0}',
-  '.intel-frame img{max-width:100%;height:auto}',
   euiStyles()
 ].join('\n')
 
@@ -129,8 +130,20 @@ const measure = '<script>addEventListener("load",()=>{const main=document.queryS
   'const tops=new Set();const walk=document.createTreeWalker(frame,NodeFilter.SHOW_TEXT);let n;' +
   'while((n=walk.nextNode())){if(!n.textContent.trim())continue;const r=document.createRange();r.selectNodeContents(n);' +
   'for(const b of r.getClientRects())if(b.width>0&&b.height>0)tops.add(Math.round(b.top))}' +
-  'const m=main.getBoundingClientRect(),f=frame.getBoundingClientRect();' +
-  'document.getElementById("metrics").textContent=JSON.stringify({cardHeight:Math.round(f.height),totalHeight:Math.round(m.height),' +
+  'const m=main.getBoundingClientRect(),f=frame.getBoundingClientRect(),q=s=>frame.querySelector(s),r1=v=>Math.round(v*10)/10;' +
+  // The card as Tern stacks it: kit card top to the host Refresh row's bottom.
+  'const card=q(".eu-card").getBoundingClientRect(),end=[...frame.querySelectorAll("button.eu-btn")].pop()?.getBoundingClientRect();' +
+  'const stage=q(".is-stage"),img=q(".is-chart img");let chart=null;' +
+  // The chart's lowest gridline and points, from its own SVG mapped through the drawn image box, against the stage's visible box;
+  // labelPx is its axis text as drawn (the kit's labels carry no font size, so they are 16 viewBox units).
+  'if(stage&&img){const svg=new DOMParser().parseFromString(atob(img.src.split(",")[1]),"image/svg+xml").documentElement;' +
+  'const s=stage.getBoundingClientRect(),b=img.getBoundingClientRect(),vb=svg.viewBox.baseVal,k=b.height/vb.height,at=v=>r1(b.top+(v-vb.y)*k);' +
+  'const bottom=r1(s.top+stage.clientHeight),grid=Math.max(...[...svg.querySelectorAll("line")].map(l=>+l.getAttribute("y1")));' +
+  'const dot=Math.max(...[...svg.querySelectorAll("circle")].map(c=>+c.getAttribute("cy")+ +c.getAttribute("r")));' +
+  'chart={width:r1(b.width),height:r1(b.height),labelPx:r1(16*k),top:r1(b.top),lowestGrid:at(grid),lowestPoint:at(dot),stageTop:r1(s.top),stageBottom:bottom,' +
+  'inside:b.top>=s.top&&at(grid)<=bottom&&at(dot)<=bottom}}' +
+  'document.getElementById("metrics").textContent=JSON.stringify({cardHeight:Math.round(f.height),' +
+  'cardTotal:r1((end?end.bottom:card.bottom)-card.top),stage:stage?r1(stage.clientHeight):null,stageOverflow:stage?stage.scrollHeight-stage.clientHeight:null,chart,totalHeight:Math.round(m.height),' +
   'textLines:tops.size,fitsAt596:m.height<=596})})</script>'
 
 // euiCardNode (frontend/src/view/euiCard.tsx) draws the snapshot root's children inside the

@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { euiStyles } from '../eui/cards.js'
+import { euiDir, euiStyles } from '../eui/cards.js'
+import { createSandbox, type EuiNode } from '../eui/sandbox.js'
 import { intelDetailBody, presentIntel, type IntelDoc } from '../wire/intel.js'
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
@@ -41,9 +42,47 @@ describe('intel card height', () => {
   // Real Tern at 1060x596 scrolled the card head away: a 34px serif hero, a 300px stage floor and notes.
   it('drops the hero, and caps the stage and the opened Source notes so the card head stays on screen', () => {
     const css = euiStyles()
-    expect(css).toMatch(/\[data-eui-kind='intel-suite'\] :is\(\.is-head,\s*\.is-receipt:empty\)\s*\{\s*display:\s*none/)
-    expect(css).toMatch(/:is\(\.is-stage,\s*\.is-notes\)\s*\{\s*min-height:\s*0;\s*max-height:\s*var\(--cap,\s*232px\);\s*overflow:\s*hidden auto/)
+    expect(css).toMatch(/\.k-intel-suite :is\(\.is-head,\s*\.is-receipt:empty\)\s*\{\s*display:\s*none/)
+    expect(css).toMatch(/:is\(\.is-stage,\s*\.is-notes\)\s*\{\s*min-height:\s*0;\s*max-height:\s*var\(--cap,\s*208px\);\s*overflow:\s*hidden auto/)
     expect(css).toMatch(/\.is-notes\s*\{\s*--cap:\s*80px/)
+  })
+
+  // Tern's 406px transcript at 1060x596 left the head under the tab bar; a lower stage cap alone clipped the chart's floor.
+  it('fits the hill chart inside the capped stage by scaling it by width, never by clipping its foot', () => {
+    const css = euiStyles()
+    // 420px wide draws the cropped 640x174 viewBox 114px tall: hero chrome (88px) plus chart stay inside the 208px stage.
+    expect(css).toMatch(/\.k-intel-suite \.is-chart\s*\{\s*max-width:\s*420px/)
+    expect(css).toMatch(/\[data-eui-svg\]\s*>\s*\.sf-image[^{]*\{\s*max-width:\s*100%;\s*height:\s*auto/)
+    expect(css).toMatch(/\.k-intel-suite\s*\{\s*--h-density:\s*\.5/)
+  })
+
+  it.each([[[0.51, 0.55, 0.6, 0.58, 0.7]], [[0.4]], [[0, 0, 0]], [[-3, 12, 5]]])('crops the hill chart to its plot without cutting a gridline, point or label: %j', async points => {
+    const kit = await createSandbox(euiDir(), 'dark')
+    const doc = fixture()
+    const card = kit.mount('intel-suite', 'glide', () => undefined,
+      { ...doc, data: { ...doc.data, climbs: [{ id: 'climb-a', label: 'lab/x', metric: 'score', points, best: Math.max(...points) }] } })
+    try {
+      const charts: Extract<EuiNode, { t: 'svg' }>[] = []
+      const walk = (n: EuiNode | null): void => { if (n?.t === 'svg' && n.cls === 'is-chart') charts.push(n); else if (n?.t === 'el') n.kids.forEach(walk) }
+      walk(card.snapshot())
+      const svg = charts[0]?.svg ?? ''
+      expect(svg).toContain('viewBox="0 34 640 174"')
+      expect(charts[0]?.h).toBe(174)
+      const nums = (re: RegExp) => [...svg.matchAll(re)].map(m => Number(m[1]))
+      const cy = nums(/<circle[^>]*\bcy="([-\d.]+)"/g)
+      expect(cy).toHaveLength(points.length)
+      // Points (r <= 5, stroke 2), gridlines and 16-unit labels (baseline 5 above their line) inside y 34..208.
+      for (const y of [...cy.map(v => v + 6), ...nums(/<line[^>]*\by1="([-\d.]+)"/g)]) expect(y).toBeLessThanOrEqual(208)
+      for (const y of [...cy.map(v => v - 6), ...nums(/<text[^>]*\by="([-\d.]+)"/g).map(v => v - 13)]) expect(y).toBeGreaterThanOrEqual(34)
+    } finally { card.dispose() }
+  })
+
+  it('drops the kit rules for the hidden hero head and the stage floor it overrides', () => {
+    const css = euiStyles()
+    expect(css).not.toMatch(/\.is-(title|eyebrow)\b/)
+    expect(css).not.toMatch(/\[data-eu\] \.is-head\s*(\{|>\s*\.is-act)/)
+    expect(css).not.toMatch(/\[data-eu\] \.is-stage\s*\{/)
+    expect(css).toMatch(/\[data-eu\] \.is-root\s*>\s*\*\s*,\s*\[data-eu\] \.is-pane\s*>\s*\*/)
   })
 })
 

@@ -67,6 +67,8 @@ export function euiStyles(): string {
   const dir = euiDir()
   // A disabled control keeps its ink: its label carries the state, and a faded label fell under 4.5:1.
   const kit = (dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : '').replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, '$1')
+    // The intel card hides its hero head and sizes its own stage, so the kit's rules for those are dead bytes.
+    .replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, '')
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -82,9 +84,15 @@ export function euiStyles(): string {
 [data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
-[data-eui-kind='intel-suite'] :is(.is-head, .is-receipt:empty) { display: none; }
-[data-eui-kind='intel-suite'] :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 232px); overflow: hidden auto; }
-[data-eui-kind='intel-suite'] .is-notes { --cap: 80px; }
+.k-intel-suite { --h-density: .5; }
+.k-intel-suite :is(.is-head, .is-receipt:empty) { display: none; }
+.k-intel-suite :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 208px); overflow: hidden auto; }
+.k-intel-suite .is-notes { --cap: 80px; }
+.k-intel-suite :is(.is-hero, .is-side) { gap: 6px; }
+.k-intel-suite .is-hero { padding: 8px 12px; }
+.k-intel-suite :is(.is-segb, .is-act) { padding: 5px 12px; }
+.k-intel-suite .is-big b { font-size: 28px; }
+.k-intel-suite .is-chart { max-width: 420px; }
 ${INTENT_CSS}
 ${ATTENTION_CSS}
 ${FLEET_FIT_CSS}
