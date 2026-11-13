@@ -1,6 +1,7 @@
 // One renderer for bound glide/v1 trees (library.ts): every part becomes a native Tern kind (card,
 // tabs, chart, table, kv, checklist, meter, badge), so Tern does layout, truncation and theming itself
 // and nothing is measured in a fake DOM. Roles carry the ephemeral-ui kit's look (UI_CSS).
+import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
 import { type JSX, type Span, ui } from '@stencil-hq/tern'
 
 import { button, pressable } from '../view/ui/button.js'
@@ -203,19 +204,19 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
 /** The kit's look on native kinds: type ramp, uppercase mono labels, hero figure, hairline rows. */
 export const UI_CSS = `
 [data-role='glide.body']{padding:4px 2px}
-[data-role='glide.hero.value']{font-size:32px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,#d7b986);font-variant-numeric:tabular-nums}
+[data-role='glide.hero.value']{font-size:32px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,${DASH.gold});font-variant-numeric:tabular-nums}
 [data-role='glide.hero.detail']{font-size:12px;opacity:.72}
 [data-role='glide.stat.value']{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
 [data-role='glide.label'],[data-role='glide.list.index']{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.section.title']{font-size:15px;font-weight:600}
 [data-role='glide.muted']{opacity:.7}
 [data-role='glide.strong']{font-weight:600}
-[data-role='glide.quote']{font-size:15px;line-height:1.45;padding-left:10px;border-left:2px solid var(--sf-accent,#d7b986)}
+[data-role='glide.quote']{font-size:15px;line-height:1.45;padding-left:10px;border-left:2px solid var(--sf-accent,${DASH.gold})}
 [data-role='glide.source']{font-size:11px;opacity:.56;padding-top:8px;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.list.row']{padding:8px 10px}
 [data-role='glide.list.group']{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace;padding:10px 10px 2px}
 [data-role='glide.list.value']{font-variant-numeric:tabular-nums;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.flow.arrow']{opacity:.5;align-self:center}
-[data-role^='glide.flow.stage']{padding:8px 10px;border-radius:10px;border:1px solid rgba(236,232,223,.16)}
-[data-role='glide.flow.stage.accent'],[data-role='glide.flow.stage.success']{border-color:var(--sf-accent,#d7b986)}
+[data-role^='glide.flow.stage']{padding:8px 10px;border-radius:10px;border:1px solid var(--sf-border,${NIGHT.border})}
+[data-role='glide.flow.stage.accent'],[data-role='glide.flow.stage.success']{border-color:var(--sf-accent,${DASH.gold})}
 `
