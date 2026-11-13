@@ -74,7 +74,7 @@ STYLE_SCHEMA = {
         "Restyle the whole Glide surface (chat, cards and every mounted widget) through its palette tokens. "
         "warmth: -1 (cool) to 1 (warm), 0 is the wallpaper's own colors; accent: one #rrggbb accent. "
         "Text stays at 4.5:1 contrast. reset: true goes back to the wallpaper's palette. "
-        "Example: \"make it warmer\" -> warmth 0.6."
+        "Example: \"make it warmer\" -> warmth 0.85 (a restyle the user should see at a glance)."
     ),
     "parameters": {
         "type": "object",

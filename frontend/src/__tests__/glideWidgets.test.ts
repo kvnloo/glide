@@ -113,6 +113,7 @@ describe('design checks', () => {
     const warm = walPalette(styleWal(wal, { warmth: 0.8 }), 'test')
     expect(warm.bg).not.toBe(walPalette(wal).bg)
     expect(checkPalette(warm)).toEqual([])
+    for (const w of [0.85, 1]) expect(checkPalette(walPalette(styleWal(wal, { warmth: w }), 'test'))).toEqual([])
     expect(checkPalette(styleAccent(dashPalette(), { accent: '#202020' }))).toEqual([])
     expect(checkPalette({ ...warm, muted: warm.bg })[0]).toMatch(/muted .* under 4.5:1/)
   })
