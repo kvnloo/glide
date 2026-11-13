@@ -137,7 +137,7 @@ const graphShape = z.object({
   edges: z.array(z.tuple([id, id, z.string(), z.boolean()]))
 })
 const severity = (state: FleetTone) => ({ failed: 5, held: 4, running: 2, idle: 1, done: 0 })[state]
-const plural = (n: number, noun: string) => n + ' ' + noun + (n === 1 ? '' : 's')
+const plural = (n: number, noun: string) => n + ' ' + (n === 1 ? noun : /[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's')
 const friendly = (text: string, fallback: string) => {
   // eslint-disable-next-line no-control-regex -- control characters are what this strips
   const safe = text.replace(/[\u0000-\u001f]/g, ' ').trim()

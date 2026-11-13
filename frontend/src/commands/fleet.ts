@@ -174,8 +174,12 @@ function fleetGraph(model: FleetDesign, phone: boolean): string {
   const height = Math.max(1, ...count) * 124 - 12
   const paths = model.edges.map(([a, b]) => {
     const start = positions.get(a), end = positions.get(b)
-    return start && end ? '<path d="M ' + (start.x + 76) + ' ' + (start.y + 56) +
-      ' L ' + (end.x + 76) + ' ' + (end.y + 56) + '"/>' : ''
+    if (!start || !end) return ''
+    // Edge to edge, never centre to centre: a hairline must not cross the tiles it joins.
+    const [x1, y1, x2, y2] = start.y === end.y
+      ? (start.x < end.x ? [start.x + 152, start.y + 56, end.x, end.y + 56] : [start.x, start.y + 56, end.x + 152, end.y + 56])
+      : (start.y < end.y ? [start.x + 76, start.y + 112, end.x + 76, end.y] : [start.x + 76, start.y, end.x + 76, end.y + 112])
+    return '<path d="M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2 + '"/>'
   }).join('')
   const tiles = model.tiles.map(tile => {
     const point = positions.get(tile.key) ?? { x: 0, y: 0 }
