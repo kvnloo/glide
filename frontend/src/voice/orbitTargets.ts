@@ -154,13 +154,16 @@ export function orbitCss(lanes: readonly OrbitLane[], reduce = false): string {
     `${O} [data-role='glide.orbit.bg'] { position: absolute; left: 0; top: 0; }`,
     // Tern opens an image viewer on a click on any image (`.sf-zoom`): here clicks belong to the planets' buttons.
     `${O} .sf-image { pointer-events: none; cursor: default; }`,
-    `${O} .glide-orbit-arm { position: absolute; pointer-events: none; animation-name: glide-orbit-turn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
+    // Each seat sets only custom properties (--od duration, --ol delay, --ob brake, --oj jiggle phase); these shared rules read them.
+    `${O} .glide-orbit-arm { position: absolute; pointer-events: none; animation-name: glide-orbit-turn; animation-timing-function: linear; animation-iteration-count: infinite; animation-duration: var(--od); animation-delay: var(--ol); }`,
     `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake, ${O} .glide-orbit-jiggle { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }`,
     `${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake { transition: transform ${BRAKE_S}s ${BRAKE_EASE}; }`,
     `${O} .glide-orbit-tail { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity ${BRAKE_S}s; }`,
     `${O} .glide-orbit-planet { position: absolute; left: 50%; top: 100%; width: ${HIT}px; height: ${HIT}px; margin: -${half}px 0 0 -${half}px; padding: 0; border: 0; border-radius: 50%; background: transparent; pointer-events: auto; cursor: pointer; }`,
-    `${O} .glide-orbit-face { position: absolute; left: 0; top: 0; right: 0; bottom: 0; animation-name: glide-orbit-unturn; animation-timing-function: linear; animation-iteration-count: infinite; }`,
-    `${O} .glide-orbit-jiggle { transition: transform .18s ease-out; }`,
+    `${O} .glide-orbit-face { position: absolute; left: 0; top: 0; right: 0; bottom: 0; animation-name: glide-orbit-unturn; animation-timing-function: linear; animation-iteration-count: infinite; animation-duration: var(--od); animation-delay: var(--ol); }`,
+    `${O} .glide-orbit-jiggle { transition: transform .18s ease-out; animation-delay: var(--oj); }`,
+    `${O}:is(:hover,:focus-within) .glide-orbit-arm > .glide-orbit-brake { transform: rotate(calc(-1 * var(--ob))); }`,
+    `${O}:is(:hover,:focus-within) .glide-orbit-arm .glide-orbit-unbrake { transform: rotate(var(--ob)); }`,
     `${O} .glide-orbit-jiggle [data-role='glide.orbit.face'] { position: absolute; left: 0; top: 0; }`,
     // The badge overlaps the planet's upper-left rim, as iOS's edit badge does an icon's corner.
     `${O} .glide-orbit-badge { position: absolute; left: ${Math.round(HIT / 2 - PLANET * ORBIT_SCALE)}px; top: ${Math.round(HIT / 2 - PLANET * ORBIT_SCALE)}px; opacity: 0; transition: opacity .2s; }`,
@@ -189,16 +192,13 @@ export function orbitCss(lanes: readonly OrbitLane[], reduce = false): string {
   seats.forEach((s, i) => {
     const L = `${O} .glide-orbit-s${i}`
     const at = `left: ${f(w / 2 - s.arm / 2)}px; top: ${f(h / 2 - s.arm / 2)}px; width: ${f(s.arm)}px; height: ${f(s.arm)}px; --a: ${f(((fixed[i]?.theta ?? 0) * 180) / Math.PI)}deg;`
+    const jiggle = `--oj: ${f(s.jiggleDelay, 4)}s;`
     if (s.moving) {
-      const timing = `animation-duration: ${f(s.period)}s; animation-delay: ${f(s.delay, 4)}s;`
-      rules.push(`${L} { ${at} ${timing} }`, `${L} .glide-orbit-face { ${timing} }`,
-        `${O}:is(:hover,:focus-within) .glide-orbit-s${i} > .glide-orbit-brake { transform: rotate(-${f(s.brake)}deg); }`,
-        `${O}:is(:hover,:focus-within) .glide-orbit-s${i} .glide-orbit-unbrake { transform: rotate(${f(s.brake)}deg); }`)
+      rules.push(`${L} { ${at} ${jiggle} --od: ${f(s.period)}s; --ol: ${f(s.delay, 4)}s; --ob: ${f(s.brake)}deg; }`)
     } else {
       const deg = f((s.theta * 180) / Math.PI)
-      rules.push(`${L} { ${at} animation-name: none; transform: rotate(-${deg}deg); }`, `${L} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`)
+      rules.push(`${L} { ${at} ${jiggle} animation-name: none; transform: rotate(-${deg}deg); }`, `${L} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`)
     }
-    rules.push(`${L} .glide-orbit-jiggle { animation-delay: ${f(s.jiggleDelay, 4)}s; }`)
   })
   // CSS media fallback for a host that has not threaded its reduced-motion preference through to orbitCss:
   // every arm and face settles on the same fixed seat as orbitLayout(..., true).

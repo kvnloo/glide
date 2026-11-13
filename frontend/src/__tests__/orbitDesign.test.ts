@@ -53,7 +53,7 @@ describe('FOCUS orbit design', () => {
   it('stops the orbit on hover or keyboard focus, then signals clickability with a tiny jiggle', () => {
     const css = orbitCss(lanes)
     expect(css).toContain('.glide-orbit:is(:hover,:focus-within) :is(.glide-orbit-arm,.glide-orbit-face)')
-    expect(css).toContain('.glide-orbit:is(:hover,:focus-within) .glide-orbit-s0>.glide-orbit-brake')
+    expect(css).toContain('.glide-orbit:is(:hover,:focus-within) .glide-orbit-arm>.glide-orbit-brake{transform:rotate(calc(-1 * var(--ob)))}')
     expect(css).toContain('glide-orbit-jiggle')
     expect(JIGGLE_S).toBeGreaterThanOrEqual(0.12)
     expect(HIT).toBeGreaterThanOrEqual(44)
