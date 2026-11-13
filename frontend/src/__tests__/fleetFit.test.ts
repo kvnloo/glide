@@ -141,6 +141,19 @@ describe('fleetFit', () => {
     expect(all(nth(snap, 'fl-controls', 0), 'fl-updated')).toHaveLength(1)
   }, 30_000)
 
+  it('shows one whole intel failure row, then "N more" reveals the rest', () => {
+    const fit = must(fleetFit('intel-suite'))
+    const row = (id: number): El => ({ t: 'el', tag: 'div', id, cls: 'is-frow', style: '', attrs: {}, click: false, kids: [{ t: 'text', text: 'Failure ' + id }] })
+    const list: El = { t: 'el', tag: 'div', id: 1, cls: 'is-flist', style: '', attrs: {}, click: false, kids: [row(2), row(3), row(4)] }
+    let snap = fit(list)
+    expect(all(snap, 'is-frow').map(text)).toEqual(['Failure 2'])
+    const more = button(snap, '2 more')
+    expect(fit.click(more.id)).toBe(true)
+    snap = fit(list)
+    expect(all(snap, 'is-frow')).toHaveLength(3)
+    expect(all(snap, 'fl-more')).toHaveLength(0)
+  })
+
   it('folds the factory stats and graph below capped action rows, and toggles the fold', async () => {
     const { view, click, fit } = await mount(factory)
     let snap = view()
