@@ -125,7 +125,9 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       const numbered = n.props.numbered !== false
       return (
         <col gap="xs" key={key} role="glide.list">
-          {n.props.items.map((it, i) => {
+          {n.props.items.flatMap((it, i) => {
+            const group = it.group !== undefined && it.group !== n.props.items[i - 1]?.group
+              ? [<text key={`g${i}`} role="glide.list.group" text={it.group} truncate="end" />] : []
             const row = (
               <row align="center" gap="md" key="r" role="glide.list.row">
                 {numbered ? <text key="i" role="glide.list.index" text={String(i + 1).padStart(2, '0')} /> : null}
@@ -138,7 +140,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
               </row>
             )
             const intent = it.intent
-            return intent ? pressable({ key: `i${it.id}`, name: it.label, onClick: () => r.send(intent) }, row) : <col key={`i${it.id}`}>{row}</col>
+            return [...group, intent ? pressable({ key: `i${i}`, name: it.label, onClick: () => r.send(intent) }, row) : <col key={`i${i}`}>{row}</col>]
           })}
         </col>
       )
@@ -175,7 +177,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
               ...(i === 0 ? [] : [<text key={`a${i}`} role="glide.flow.arrow" text="→" />]),
               <col basis={0} gap="none" grow={1} key={`s${i}`} min={{ w: '10ch' }} role={`glide.flow.stage.${s.tone ?? 'neutral'}`}>
                 <text key="l" role="glide.strong" text={s.label} truncate="end" />
-                {s.detail ? <text key="d" role="glide.muted" text={s.detail} truncate="end" /> : null}
+                {s.detail ? <text key="d" role="glide.muted" text={s.detail} wrap="word" /> : null}
               </col>
             ])}
           </row>
@@ -211,6 +213,7 @@ export const UI_CSS = `
 [data-role='glide.quote']{font-size:15px;line-height:1.45;padding-left:10px;border-left:2px solid var(--sf-accent,#d7b986)}
 [data-role='glide.source']{font-size:11px;opacity:.56;padding-top:8px;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.list.row']{padding:8px 10px}
+[data-role='glide.list.group']{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace;padding:10px 10px 2px}
 [data-role='glide.list.value']{font-variant-numeric:tabular-nums;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.flow.arrow']{opacity:.5;align-self:center}
 [data-role^='glide.flow.stage']{padding:8px 10px;border-radius:10px;border:1px solid rgba(236,232,223,.16)}

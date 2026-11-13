@@ -25,7 +25,8 @@ export interface UiParts {
     rows: readonly { id: string; cells: Readonly<Record<string, UiCell>>; intent?: UiIntent }[]
   }
   Kv: { items: readonly { k: string; v: string }[] }
-  List: { items: readonly { id: string; label: string; detail?: string; value?: string; badge?: string; tone?: UiTone; intent?: UiIntent }[]; numbered?: boolean }
+  /** `group` starts a labelled run of rows (a host's agents, a repository's tasks) when it changes. */
+  List: { items: readonly { id: string; label: string; detail?: string; value?: string; badge?: string; tone?: UiTone; intent?: UiIntent; group?: string }[]; numbered?: boolean }
   Tabs: { items: readonly { id: string; label: string; count?: number; intent: UiIntent }[]; active: string }
   Badges: { items: readonly { text: string; tone?: UiTone }[] }
   Steps: { items: readonly { id: string; text: string; status: 'pending' | 'active' | 'done' | 'blocked'; note?: string }[] }

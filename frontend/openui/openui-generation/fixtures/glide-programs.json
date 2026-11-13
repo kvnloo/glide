@@ -3,5 +3,11 @@
   "intel.skills": "root = GlideCard(\"intel\", [Tabs(\"tabs\"), Stats(\"skills.stats\"), Bars(\"skills.bars\"), List(\"skills.routes\"), Buttons(\"actions\")])",
   "intel.memory": "root = GlideCard(\"intel\", [Tabs(\"tabs\"), Stats(\"memory.stats\"), Table(\"memory.stores\"), Buttons(\"actions\")])",
   "intel.failures": "root = GlideCard(\"intel\", [Tabs(\"tabs\"), Stats(\"failures.stats\"), List(\"failures.list\"), Buttons(\"actions\")])",
-  "intel.trace": "root = GlideCard(\"intel\", [Tabs(\"tabs\"), Stats(\"trace.stats\"), Table(\"trace.lanes\"), Buttons(\"actions\")])"
+  "intel.trace": "root = GlideCard(\"intel\", [Tabs(\"tabs\"), Stats(\"trace.stats\"), Table(\"trace.lanes\"), Buttons(\"actions\")])",
+  "fleet.hosts.agents": "root = GlideCard(\"fleet\", [Tabs(\"tabs\"), Stats(\"hosts.stats\"), List(\"hosts.agents\"), Text(\"hosts.quiet\"), Buttons(\"actions\")])",
+  "fleet.hosts.machines": "root = GlideCard(\"fleet\", [Tabs(\"tabs\"), Stats(\"hosts.stats\"), Table(\"hosts.machines\"), Buttons(\"actions\")])",
+  "fleet.hosts.k3s": "root = GlideCard(\"fleet\", [Tabs(\"tabs\"), List(\"hosts.pods\"), Text(\"hosts.outside\"), Buttons(\"actions\")])",
+  "fleet.portfolio": "root = GlideCard(\"fleet\", [Stats(\"pf.stats\"), Flow(\"pf.roadmap\"), List(\"pf.list\"), Buttons(\"actions\")])",
+  "fleet.factory": "root = GlideCard(\"fleet\", [top, Graphic(\"ff.graph\"), List(\"ff.open\"), Buttons(\"actions\")])\ntop = Row([Badges(\"ff.tally\"), Stats(\"ff.stats\")])",
+  "fleet.vacant": "root = GlideCard(\"fleet\", [Text(\"empty\"), Buttons(\"actions\")])"
 }

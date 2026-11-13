@@ -117,7 +117,8 @@ describe('App Factory composition', () => {
     expect(h.app.stores.factory.open).toBe(false)
     expect(prefs(h)).toEqual([])
     expect(h.sent('glide.fleet')).toEqual([{ session_id: 's1', view: 'factory' }])
-    expect(h.app.transcript.entries.filter(entry => entry.kind === 'panel')).toHaveLength(1)
+    // The card is drawn once the OpenUI glide library has loaded alongside the snapshot read.
+    await vi.waitFor(() => expect(h.app.transcript.entries.filter(entry => entry.kind === 'panel')).toHaveLength(1))
     expect(JSON.stringify(h.app.transcript.entries)).not.toContain('not on this gateway')
 
     // Known now: the next /factory goes straight to the card, without a pane or another check.
