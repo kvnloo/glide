@@ -21,6 +21,26 @@ export function tasteBoard(raw: unknown): TasteBoard {
   return { url, title }
 }
 
+/** The compact, actionable receipt for a board already opened beside chat. */
+export function tasteCard(board: TasteBoard, block: number) {
+  if (!Number.isSafeInteger(block) || block <= 0) {
+    throw new Error('Taste pane needs a valid block')
+  }
+  return {
+    kind: 'approve' as const,
+    app: 'glide',
+    title: board.title,
+    rows: [
+      { label: 'State', value: 'Open beside chat' },
+      { label: 'Board', value: board.url }
+    ],
+    approval: {
+      label: 'Open board',
+      description: 'Bring the board pane into view.'
+    }
+  }
+}
+
 /** A user-requested local board, not the agent browser-control/drive backend. */
 export async function openTastePane(board: TasteBoard): Promise<number> {
   const owner = process.env['TERN_PANE'] ?? ''
