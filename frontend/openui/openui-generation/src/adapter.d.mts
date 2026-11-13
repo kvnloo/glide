@@ -45,3 +45,7 @@ export interface GenerationAdapter<S extends VisualSelection = VisualSelection> 
 export function createGenerationAdapter(): Promise<GenerationAdapter<RepositorySelection>>;
 export function createGenerationAdapter(options: { library: 'repository' }): Promise<GenerationAdapter<RepositorySelection>>;
 export function createGenerationAdapter(options: { library: 'intent' }): Promise<GenerationAdapter<IntentSelection>>;
+export function createGenerationAdapter(options: { library: 'glide' }): Promise<{
+  readonly prompt: string;
+  compile(source: string, context: { readonly scope: string }): import('./glide.mjs').GlideSelection;
+}>;

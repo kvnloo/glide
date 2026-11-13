@@ -1,5 +1,7 @@
 import type { ChatPorts } from '../app/ports.js'
-import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
+import type { EuiKitContext, EuiNativeHandle } from '../eui/host.js'
+import { intelGlide, intelProgram } from '../glideui/intel.js'
+import { glide, type Glide } from '../glideui/program.js'
 import { decodeIntel, decodeIntelIntent, INTEL_TABS, intelDetailBody, intelEntity, intelReadableTitle, intelTab, intelText, presentIntel, type IntelDoc, type IntelTab } from '../wire/intel.js'
 
 export type IntelHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'control'> & {
@@ -29,7 +31,8 @@ export async function intelCommand(host: IntelHost, arg: string): Promise<void> 
     const doc = decodeIntel(await request(INTEL_TABS[tab]))
     return { ...doc, data: { ...doc.data, tab } }
   }
-  let handle: EuiKitHandle | undefined
+  let handle: EuiNativeHandle | undefined
+  let g: Glide | undefined
   const publish = (doc: IntelDoc) => {
     const presentation = presentIntel(doc)
     const refresh = async (context: EuiKitContext) => {
@@ -88,11 +91,16 @@ export async function intelCommand(host: IntelHost, arg: string): Promise<void> 
         if (active(context)) host.transcript.notice(`Intel action: ${error instanceof Error ? error.message : String(error)}`, 'warning')
       }
     }
-    const data = { ...presentation.card, title: 'Local intelligence' }
-    if (handle) handle.update(data, intent, refresh)
-    else handle = eui.host.publishKit(data, intent, refresh)
+    // A shipped glide/v1 program through the real OpenUI parser, bound to this snapshot, drawn natively.
+    const tab = doc.data.tab ?? initialTab
+    if (!g) throw new Error('OpenUI glide library is not loaded')
+    const ui = g.bind(g.program(intelProgram(tab), sessionId), intelGlide(doc, tab))
+    const card = { kind: 'intel-suite', app: 'glide', title: 'Local intelligence', ui }
+    if (handle) handle.update(card, intent)
+    else handle = eui.host.publishNative(card, intent)
   }
   try {
+    g = await glide()
     const doc = await read(initialTab)
     if (current()) publish(doc)
   } catch (error) {
