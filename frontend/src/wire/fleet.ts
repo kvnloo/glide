@@ -38,6 +38,7 @@ const taskEntities = z.object({ product: id, feature: id, task: id })
 const nodeEntities = z.object({ node: id })
 const intent = z.discriminatedUnion('action', [
   z.object({ action: z.literal('open-chat'), entities: agentEntities }),
+  z.object({ action: z.literal('check-host'), entities: z.object({ host: id }) }),
   z.object({ action: z.literal('nudge'), entities: agentEntities }),
   z.object({ action: z.literal('open-pod'), entities: z.object({ host: id, ns: id, name: id }) }),
   z.object({ action: z.literal('open-task'), entities: taskEntities }),
@@ -70,6 +71,12 @@ export function fleetAgent(doc: EuiKitDoc, entity: z.infer<typeof agentEntities>
   if (!host?.online || !agent || agent.state === 'offline') throw new Error('Agent unavailable in this snapshot')
   return { host, harness, agent }
 }
+export function fleetHost(doc: EuiKitDoc, entity: { host: string }) {
+  if (doc.kind !== 'fleet-hosts') throw new Error('Action does not belong to this fleet card')
+  const host = hosts.parse(doc.data).hosts.find(h => h.id === entity.host)
+  if (!host) throw new Error('Host unavailable in this snapshot')
+  return host
+}
 export function fleetPod(doc: EuiKitDoc, entity: { host: string; ns: string; name: string }) {
   if (doc.kind !== 'fleet-hosts') throw new Error('Action does not belong to this fleet card')
   const host = hosts.parse(doc.data).hosts.find(h => h.id === entity.host)
@@ -92,3 +99,183 @@ export function fleetNode(doc: EuiKitDoc, entity: z.infer<typeof nodeEntities>) 
   return node
 }
 export function fleetText(raw: unknown): string { return z.object({ text: z.string() }).parse(raw).text }
+
+
+/** Display-only projection. IDs remain in validated intents, never on the card. */
+export type FleetTone = 'running' | 'held' | 'failed' | 'done' | 'idle'
+export interface FleetDesignRow {
+  key: string
+  name: string
+  state: FleetTone
+  fact?: string
+  action: string
+  intent: FleetIntent | null
+  recommended: boolean
+}
+export interface FleetDesignTile extends FleetDesignRow { column: number }
+export interface FleetDesign {
+  view: FleetView
+  hero: string
+  verdict: string
+  rows: FleetDesignRow[]
+  tiles: FleetDesignTile[]
+  edges: [string, string][]
+}
+const agentShape = z.object({ id, name: z.string(), state: z.string() })
+const hostShape = z.object({
+  id, label: z.string(), online: z.boolean(),
+  harnesses: z.array(z.object({ kind: z.string(), agents: z.array(agentShape) })),
+  k3s: z.nullable(z.object({ node: z.optional(z.string()), pods: z.array(z.array(z.unknown())) }))
+})
+const portfolioShape = z.object({ portfolios: z.record(z.string(), z.object({
+  products: z.array(z.object({ id, label: z.string(), features: z.array(z.object({
+    id, label: z.string(), tasks: z.array(z.object({ id, label: z.string(), status: z.string(), url: z.optional(z.string()) }))
+  })) }))
+})) })
+const graphShape = z.object({
+  nodes: z.array(z.object({ id, label: z.string(), col: z.number(), state: z.string(), action: z.optional(z.string()), url: z.optional(z.string()) })),
+  edges: z.array(z.tuple([id, id, z.string(), z.boolean()]))
+})
+const severity = (state: FleetTone) => ({ failed: 5, held: 4, running: 2, idle: 1, done: 0 })[state]
+const plural = (n: number, noun: string) => n + ' ' + (n === 1 ? noun : /[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's')
+const friendly = (text: string, fallback: string) => {
+  // eslint-disable-next-line no-control-regex -- control characters are what this strips
+  const safe = text.replace(/[\u0000-\u001f]/g, ' ').trim()
+  return !safe || /(?:Traceback|Exception:|error code|provider.+(?:timeout|failed)|^\/|^[a-f0-9]{24,}$)/i.test(safe)
+    ? fallback : safe.slice(0, 96)
+}
+const vacant = (view: FleetView): FleetDesign => ({
+  view, hero: 'Fleet snapshot unavailable · Refresh to retry', verdict: 'No current data', rows: [], tiles: [], edges: []
+})
+
+/** One host or repository per row. The factory retains real edges, not invented topology. */
+export function fleetDesign(doc: EuiKitDoc, view: FleetView): FleetDesign {
+  if (doc.kind !== 'fleet-' + view) return vacant(view)
+  if (view === 'hosts') {
+    const parsed = z.object({ hosts: z.array(hostShape) }).safeParse(doc.data)
+    if (!parsed.success) return vacant(view)
+    const rows: FleetDesignRow[] = parsed.data.hosts.map(host => {
+      const agents = host.harnesses.flatMap(h => h.agents.map(a => ({ ...a, harness: h.kind })))
+      const blocked = agents.find(a => a.state === 'blocked')
+      const chosen = blocked ?? agents.find(a => a.state !== 'offline')
+      const state: FleetTone = !host.online ? 'failed'
+        : blocked || host.k3s?.node === 'NotReady' ? 'held'
+          : agents.some(a => a.state === 'working') ? 'running' : 'idle'
+      const canResume = chosen?.harness.toLowerCase() === 'hermes' && !chosen.id.startsWith('process:') && !/^\d+$/.test(chosen.id)
+      const intent: FleetIntent = host.online && chosen
+        ? blocked || !canResume
+          ? { action: 'nudge', entities: { host: host.id, agent: chosen.id } }
+          : { action: 'open-chat', entities: { host: host.id, agent: chosen.id } }
+        : { action: 'check-host', entities: { host: host.id } }
+      const action = !host.online || !chosen ? 'Check host' : blocked ? 'Answer' : canResume ? 'Open chat' : 'Follow up'
+      const fact = agents.length ? plural(agents.length, 'agent')
+        : host.k3s?.pods.length ? plural(host.k3s.pods.length, 'pod') : undefined
+      return { key: host.id, name: friendly(host.label, 'Unnamed host'), state, ...(fact ? { fact } : {}),
+        action, intent, recommended: false }
+    })
+    const next = [...rows].sort((a, b) => severity(b.state) - severity(a.state))[0]
+    const visibleState = next?.state === 'failed' ? 'offline' : next?.state === 'held' ? 'needs attention'
+      : next?.state === 'running' ? 'working' : 'ready'
+    return {
+      view, hero: plural(rows.length, 'host') + ' · ' + visibleState + ' · ' +
+        (next ? next.action + ' on ' + next.name : 'No hosts to review'),
+      verdict: next?.state === 'failed' ? 'A host is offline' : next?.state === 'held'
+        ? 'A host needs attention' : 'Host status at a glance',
+      rows: rows.map(r => ({ ...r, recommended: r.key === next?.key })), tiles: [], edges: []
+    }
+  }
+  if (view === 'portfolio') {
+    const parsed = portfolioShape.safeParse(doc.data)
+    if (!parsed.success) return vacant(view)
+    const byRepo = new Map<string, FleetDesignRow>()
+    for (const board of Object.values(parsed.data.portfolios))
+      for (const product of board.products) for (const feature of product.features) {
+        if (feature.id.includes(':also:') || (!feature.id.includes(':') && !feature.tasks.length)) continue
+        const repoKey = feature.label
+        const name = friendly(repoKey.split('/').at(-1) ?? '', product.label)
+        const priority = (s: string) => s === 'blocked' ? 4 : s === 'next' ? 3 : s === 'active' ? 2 : 1
+        const best = [...feature.tasks].sort((a,b) => priority(b.status) - priority(a.status))[0]
+        const state: FleetTone = best?.status === 'blocked' ? 'held' : best?.status === 'active'
+          ? 'running' : best?.status === 'done' ? 'done' : 'idle'
+        const entities = { product: product.id, feature: feature.id, task: best?.id ?? '' }
+        const intent: FleetIntent | null = !best ? null : best.url && best.status !== 'next'
+          ? { action: 'open-task', entities }
+          : { action: 'set-next', entities }
+        const row: FleetDesignRow = { key: feature.id, name, state,
+          ...(best ? { fact: plural(feature.tasks.length, 'task') } : {}),
+          action: !best ? 'No open tasks' : best.status === 'next' ? 'Set next' : best.url ? 'Open task' : 'Set next',
+          intent, recommended: false }
+        const previous = byRepo.get(repoKey)
+        if (!previous || severity(row.state) > severity(previous.state)) byRepo.set(repoKey, row)
+      }
+    const rows = [...byRepo.values()]
+    const next = [...rows].filter(r => r.intent).sort((a,b) => severity(b.state)-severity(a.state))[0]
+    return { view, hero: plural(rows.length, 'repository') + ' · ' + (next?.state === 'held' ? 'needs attention' : next?.state === 'running' ? 'working' : 'ready') + ' · ' +
+      (next ? next.action + ' in ' + next.name : 'No next action'),
+      verdict: next ? 'One next step per repository' : 'No open tasks',
+      rows: rows.map(r => ({...r, recommended: r === next})), tiles: [], edges: [] }
+  }
+  const parsed = graphShape.safeParse(doc.data)
+  if (!parsed.success) return vacant(view)
+  const ids = new Set(parsed.data.nodes.map(n => n.id))
+  const nodes: FleetDesignTile[] = parsed.data.nodes.map(node => {
+    const state: FleetTone = node.state === 'failing' ? 'failed' : node.state === 'needs-you' ? 'held'
+      : node.state === 'live' ? 'running' : node.state === 'done' ? 'done' : 'idle'
+    const needsFix = state === 'failed' || state === 'held'
+    const intent: FleetIntent | null = needsFix
+      ? { action: 'queue-fix', entities: { node: node.id } }
+      : node.url ? { action: 'open-node', entities: { node: node.id } } : null
+    return { key: node.id, name: friendly(node.label, 'Factory node'),
+      column: Math.max(0, Math.min(3, Math.floor(node.col))), state,
+      action: needsFix ? 'Prepare fix' : node.url ? 'Open node' : 'No action needed',
+      intent, recommended: false }
+  })
+  const next = [...nodes].filter(n => n.intent).sort((a,b) => severity(b.state)-severity(a.state))[0]
+  return { view, hero: plural(nodes.length, 'node') + ' · ' + (next?.state === 'held' ? 'needs attention' : next?.state === 'failed' ? 'failed' : 'ready') + ' · ' +
+    (next ? next.action + ' for ' + next.name : 'No action needed'),
+    verdict: next?.state === 'failed' ? 'A factory step failed' : next?.state === 'held' ? 'A step needs attention' : 'Factory flow',
+    rows: [], tiles: nodes.map(n => ({...n, recommended: n.key === next?.key})),
+    edges: parsed.data.edges.filter(([a,b]) => ids.has(a) && ids.has(b)).map(([a,b]) => [a,b]) }
+}
+
+
+/** Human-facing diagnostics only. Action validation still uses the original collector document. */
+export function fleetVisibleDoc(doc: EuiKitDoc): EuiKitDoc {
+  const copy = (value: unknown): string => {
+    if (typeof value !== 'string') return 'Fleet details unavailable. Refresh to retry.'
+    const note = value.trim()
+    if (/^portfolio: unknown key/i.test(note)) return 'Portfolio not found.'
+    if (/^Remote gauges and harnesses/i.test(note)) return 'Remote host: status only.'
+    if (/^GitHub tasks are repository-wide/i.test(note)) return 'Tasks are grouped by repository.'
+    if (/^Factory graph is a bounded/i.test(note)) return 'Factory snapshot. Details may be delayed.'
+    if (/^(?:ops|brain|verify|gauges|tailscale|k3s|github|config|processes|sessions|cpu|memory)\s*:/i.test(note)
+      || /\b(?:provider|traceback|exception|FileNotFoundError|TimeoutExpired|stderr)\b|[{}<>]/i.test(note))
+      return 'A fleet source could not respond. Refresh to retry.'
+    if (/^[a-f\d]{24,}$/i.test(note)) return 'Details are available in the source.'
+    return note.slice(0, 200)
+  }
+  const notes = (list: unknown[]): string[] => [...new Set(list.map(copy))]
+  const data: Record<string, unknown> = { ...doc.data }
+  if (Array.isArray(data['notes'])) data['notes'] = notes(data['notes'])
+  if (Array.isArray(data['hosts'])) data['hosts'] = data['hosts'].map((host: unknown) => {
+    if (!host || typeof host !== 'object' || Array.isArray(host)) return host
+    const row = host as Record<string, unknown>
+    return { ...row,
+      ...(Array.isArray(row['notes']) ? { notes: notes(row['notes']) } : {}),
+      ...(Array.isArray(row['harnesses']) ? { harnesses: row['harnesses'].map((harness: unknown) => {
+        if (!harness || typeof harness !== 'object' || Array.isArray(harness)) return harness
+        const group = harness as Record<string, unknown>
+        return { ...group, ...(Array.isArray(group['agents']) ? { agents: group['agents'].map((agent: unknown) => {
+          if (!agent || typeof agent !== 'object' || Array.isArray(agent)) return agent
+          const a = agent as Record<string, unknown>
+          return { ...a, ...(typeof a['line'] === 'string' ? { line: copy(a['line']) } : {}) }
+        }) } : {}) }
+      }) } : {}) }
+  })
+  if (Array.isArray(data['nodes'])) data['nodes'] = data['nodes'].map((node: unknown) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return node
+    const row = node as Record<string, unknown>
+    return { ...row, ...(typeof row['reason'] === 'string' ? { reason: copy(row['reason']) } : {}) }
+  })
+  return { ...doc, data }
+}
