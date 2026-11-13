@@ -1,24 +1,38 @@
-// Real intel-suite kit shots over synthetic data, before/after the view-model projection.
-// Mirrors lanes-shots.mts: snapshot the pinned kit DOM, render it with its actual CSS,
-// and use headless Chromium for 1060x596 and 412x915 frames. No local data is read.
+// Real intel-suite kit shots over synthetic data, composed the way Tern's host card draws it:
+// the pinned kit DOM inside kitSnapshot (host notes + host buttons), with the kit's actual CSS,
+// in headless Chromium at 1060x596 and 412x915. No local data is read.
 // Usage from the repository root:
 //   bun glide/tools/intel-shots.mts OUT_DIR
-// Output: OUT_DIR/{before,after}-{hill,skills,memory,failures,trace}-{desktop,phone}.png
+// Output: OUT_DIR/{hill,skills,memory,failures,trace,empty}-{desktop,phone}.png and OUT_DIR/metrics.json
+// (card height, painted text lines, and whether the whole card with its head row fits in 596 px).
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 import { euiDir, euiStyles } from '../../frontend/src/eui/cards.js'
+import { kitSnapshot } from '../../frontend/src/eui/kitSnapshot.js'
 import { createSandbox, type EuiNode } from '../../frontend/src/eui/sandbox.js'
+import { decodeEuiKit, kitNotes } from '../../frontend/src/wire/euiKit.js'
 import { INTEL_TABS, presentIntel, type IntelDoc } from '../../frontend/src/wire/intel.js'
 import { DASH, MONO, NIGHT, RADIUS, STATUS, TRACK, TYPE } from '../frontend/tokens.js'
 
 const out = resolve(process.argv[2] ?? 'intel-shots')
 const work = mkdtempSync(join(tmpdir(), 'intel-shots-'))
-mkdirSync(out, { recursive: true })
 mkdirSync(join(out, 'html'), { recursive: true })
 
+// The methodology copy the local collectors attach (glide/intel.py, glide/intel_sources.py), not profile data.
+const methodology = [
+  'Read-only local snapshot. Observations are not commands or verified fixes.',
+  'Hill climbs: the final point is the latest observed score; the best may be earlier.',
+  'climbs: series show the latest 64 points; best is over the bounded source read.',
+  'routes: corrected=0; no cheap per-load owner-corrections attribution is available.',
+  'routes: assistant argument lookup capped at 256 calls per session; unmatched loads are omitted.',
+  'memory: L3 relations store unavailable; the memory contract does not establish a separately deployed graph.',
+  'memory: representative local store bytes and mtime only, not full layer coverage, fact counts or successful recall.',
+  'failures: count is recorded failed checks, spark is the latest 14 replay checks. fixed means last check passed, not a verified permanent fix.',
+  "trace: today's UTC profile events, minutes since first event. Buckets mark events, not measured model/tool durations; session IDs are opaque."
+]
 // Sample observations only; synthetic identities are intentionally unlike local source data.
 const sample: IntelDoc = {
   kind: 'intel-suite', app: 'glide',
@@ -49,8 +63,19 @@ const sample: IntelDoc = {
       { lane: 'session-aaaaaaaaaaaaaaaaaaaaaaaa', spans: [[0, 4, 'm'], [4, 7, 't'], [7, 18, 'm'], [18, 19, 'e']] },
       { lane: 'session-bbbbbbbbbbbbbbbbbbbbbbbb', spans: [[6, 11, 'm'], [11, 14, 't'], [14, 24, 'm']] }
     ],
-    notes: ['Sample only. Read-only observations; no real profile data.']
+    notes: methodology
   }
+}
+// A profile whose collectors found nothing yet: the copy a fresh install sees.
+const empty: IntelDoc = {
+  ...sample,
+  data: { ...sample.data, climbs: [], routes: [], memory: [], failures: [], trace: [], notes: [
+    methodology[0]!, methodology[1]!,
+    'climbs: no score-per-iteration series available in the bounded run scan.',
+    'routes: unavailable or invalid; source unavailable.',
+    methodology[5]!, 'memory: L5 State Packet source unavailable.', methodology[6]!,
+    'failures: unavailable or invalid; source unavailable.', 'trace: unavailable or invalid; source unavailable.'
+  ] }
 }
 
 function escapeHtml(value: unknown): string {
@@ -65,7 +90,9 @@ function draw(node: EuiNode | null): string {
     return '<img alt="Chart" width="' + node.w + '" height="' + node.h +
       '" src="data:image/svg+xml;base64,' + Buffer.from(node.svg).toString('base64') + '">'
   }
-  const attrs = Object.entries(node.attrs).map(([key, value]) => ' ' + key + '="' + escapeHtml(value) + '"').join('')
+  // A closed details carries open="" in the snapshot; HTML would treat any open attribute as open.
+  const attrs = Object.entries(node.attrs).filter(([key, value]) => key !== 'open' || value)
+    .map(([key, value]) => ' ' + key + '="' + escapeHtml(value) + '"').join('')
   const cls = node.cls ? ' class="' + escapeHtml(node.cls) + '"' : ''
   const style = node.style ? ' style="' + escapeHtml(node.style) + '"' : ''
   const tag = node.tag
@@ -96,42 +123,68 @@ const style = [
   euiStyles()
 ].join('\n')
 
-function html(node: EuiNode | null): string {
+// Measured in the page: the card box, how many distinct text lines it paints, and whether the
+// head row plus the whole card fit one 596 px viewport (so the head is on screen at the card's end).
+const measure = '<script>addEventListener("load",()=>{const main=document.querySelector("main"),frame=document.querySelector(".intel-frame");' +
+  'const tops=new Set();const walk=document.createTreeWalker(frame,NodeFilter.SHOW_TEXT);let n;' +
+  'while((n=walk.nextNode())){if(!n.textContent.trim())continue;const r=document.createRange();r.selectNodeContents(n);' +
+  'for(const b of r.getClientRects())if(b.width>0&&b.height>0)tops.add(Math.round(b.top))}' +
+  'const m=main.getBoundingClientRect(),f=frame.getBoundingClientRect();' +
+  'document.getElementById("metrics").textContent=JSON.stringify({cardHeight:Math.round(f.height),totalHeight:Math.round(m.height),' +
+  'textLines:tops.size,fitsAt596:m.height<=596})})</script>'
+
+// euiCardNode (frontend/src/view/euiCard.tsx) draws the snapshot root's children inside the
+// [data-eu] mark that the compacted kit sheet is scoped to.
+function html(node: EuiNode): string {
+  const kids = node.t === 'el' ? node.kids.map(draw).join('') : draw(node)
   return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
     '<style>' + style + '</style><main class="transcript">' +
-    '<div class="glide-head"><b>Glide</b><span>· Intelligence</span><span class="sample-pill">SAMPLE</span></div>' +
-    '<section class="intel-frame">' + draw(node) + '</section></main></html>'
+    '<div class="glide-head"><b>Glide</b><span>· Local intelligence</span><span class="sample-pill">SAMPLE</span></div>' +
+    '<section class="intel-frame"><div data-eui="card" data-eu="" data-eui-kind="intel-suite" data-eui-app="glide">' + kids +
+    '</div></section></main><pre id="metrics" hidden></pre>' + measure + '</html>'
 }
 
 const browser = ['chromium', 'google-chrome-stable'].find(name => {
   try { execFileSync('which', [name]); return true } catch { return false }
 })
 if (!browser) throw new Error('Headless Chromium is required for intel shots')
+const flags = (name: string, width: number, height: number) => ['--headless=new', '--disable-gpu', '--no-sandbox',
+  '--disable-dev-shm-usage', '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=' + width + ',' + height,
+  '--user-data-dir=' + join(work, 'chromium-' + name)]
 
+const metrics: Record<string, unknown> = {}
 function shoot(page: string, name: string, width: number, height: number) {
   const input = join(out, 'html', name + '.html')
   const image = join(out, name + '.png')
   writeFileSync(input, page)
-  execFileSync(browser!, ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage',
-    '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=' + width + ',' + height,
-    '--user-data-dir=' + join(work, 'chromium-' + name), '--screenshot=' + image,
-    'file://' + input], { stdio: 'ignore', timeout: 60_000 })
-  console.log(image)
+  execFileSync(browser!, [...flags(name, width, height), '--screenshot=' + image, 'file://' + input], { stdio: 'ignore', timeout: 60_000 })
+  const dom = execFileSync(browser!, [...flags(name + '-m', width, height), '--virtual-time-budget=2000', '--dump-dom',
+    'file://' + input], { encoding: 'utf8', timeout: 60_000, stdio: ['ignore', 'pipe', 'ignore'] })
+  const found = /<pre id="metrics" hidden="">([^<]*)<\/pre>/.exec(dom)?.[1]
+  metrics[name] = found ? JSON.parse(found.replace(/&quot;/g, '"')) : null
+  // Throwaway Chromium profiles are tens of MB each; never leave them on a near-full disk.
+  for (const dir of [name, name + '-m']) rmSync(join(work, 'chromium-' + dir), { recursive: true, force: true })
+  console.log(image, JSON.stringify(metrics[name]))
 }
 
 const kit = await createSandbox(euiDir(), 'dark')
 if (!kit.kinds.includes('intel-suite')) throw new Error('Pinned intel-suite kit is unavailable')
-const modes: Array<['before' | 'after', IntelDoc]> = [
-  ['before', sample],
-  ['after', presentIntel(sample).card]
+const views: Array<[string, IntelDoc]> = [
+  ...INTEL_TABS.map((name, index): [string, IntelDoc] => [name, { ...sample, data: { ...sample.data, tab: index as IntelDoc['data']['tab'] } }]),
+  ['empty', empty], ['notes', sample]
 ]
-for (const [mode, doc] of modes) {
-  for (const [index, name] of INTEL_TABS.entries()) {
-    const input: IntelDoc = { ...doc, data: { ...doc.data, tab: index as IntelDoc['data']['tab'] } }
-    const mounted = kit.mount('intel-suite', 'glide', () => undefined, input)
-    const page = html(mounted.snapshot())
-    shoot(page, mode + '-' + name + '-desktop', 1060, 596)
-    shoot(page, mode + '-' + name + '-phone', 412, 915)
-    mounted.dispose()
-  }
+const noteSummary = (node: EuiNode | null): number | undefined => node?.t !== 'el' ? undefined
+  : node.tag === 'summary' ? node.id : node.kids.map(noteSummary).find(id => id !== undefined)
+for (const [name, raw] of views) {
+  // The document intel.ts publishes, drawn the way EuiHostCards wraps a kit card.
+  const doc = decodeEuiKit({ ...presentIntel(raw).card, title: 'Local intelligence' })
+  const mounted = kit.mount('intel-suite', 'glide', () => undefined, doc)
+  // 'notes' is the hill tab with the kit's collapsed Source notes opened by the reader.
+  if (name === 'notes') await mounted.click(noteSummary(mounted.snapshot()) ?? 0)
+  const page = html(kitSnapshot(mounted.snapshot(), kitNotes(doc), true, false))
+  shoot(page, name + '-desktop', 1060, 596)
+  shoot(page, name + '-phone', 412, 915)
+  mounted.dispose()
 }
+writeFileSync(join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n')
+rmSync(work, { recursive: true, force: true })

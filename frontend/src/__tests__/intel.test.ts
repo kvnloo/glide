@@ -109,7 +109,9 @@ describe('intel command and host-owned actions', () => {
     expect(f.view().spec.kind).toBe('intel-suite')
     expect(f.view().spec.app).toBe('glide')
     expect(f.view().spec).toMatchObject({ data: { tab: index } })
-    expect(JSON.stringify(f.view().node)).toContain('Synthetic source unavailable')
+    // Methodology notes stay in the kit's collapsed Source notes; the host does not repeat them as prose rows.
+    expect(f.view().spec).toMatchObject({ data: { notes: ['Synthetic source unavailable'] } })
+    expect(JSON.stringify(f.view().node)).not.toContain('data-fleet-note')
   })
 
   it.each(['bogus', 'hill skills', '--json trace extra', 'trace --other'])('rejects invalid args %s without sending', async arg => {
@@ -259,9 +261,10 @@ describe('intel command and host-owned actions', () => {
     const snapshot = () => JSON.stringify(eui.hostView(ofKind(f.transcript.entries.find(e => e.kind === 'panel'), 'panel'))?.node)
     await vi.waitFor(() => {
       const node = snapshot()
-      expect(node).toContain('Synthetic source unavailable')
+      expect(node).not.toContain('data-fleet-note')
       if (available) {
         expect(node).toContain('"data-eui-kind":"intel-suite"')
+        expect(node).toContain('Source notes')
         expect(node).not.toContain('ephemeral-ui has no kind intel-suite')
       } else {
         expect(node).toContain('ephemeral-ui has no kind intel-suite')

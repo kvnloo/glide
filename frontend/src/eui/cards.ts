@@ -80,6 +80,9 @@ export function euiStyles(): string {
 [data-eui='card'] .eui-host-rows dt { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
+[data-eui-kind='intel-suite'] :is(.is-head, .is-receipt:empty) { display: none; }
+[data-eui-kind='intel-suite'] :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 232px); overflow: hidden auto; }
+[data-eui-kind='intel-suite'] .is-notes { --cap: 80px; }
 ${INTENT_CSS}
 ${ATTENTION_CSS}
 [data-role='eui.error'] { color: var(--sf-c-error, var(--t2)); font: 12px/1.4 var(--mono); }

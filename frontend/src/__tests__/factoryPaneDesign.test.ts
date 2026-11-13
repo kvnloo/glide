@@ -89,13 +89,28 @@ describe('factory native aside design', () => {
     expect(request).toHaveBeenCalledTimes(1)
   })
 
-  it('keeps one quiet poll error line without a stack or a second warning', async () => {
+  it('settles a first failed check into one plain unavailable state, never a stack or a spinner', async () => {
     const { pane } = opened(new Error('Factory timed out\n    at hidden/internal.ts:12'))
-    await vi.waitFor(() => expect(section(pane, 'check')?.rows[0]?.hint).toBe('Factory timed out'))
-    expect(section(pane, 'check')?.rows).toHaveLength(1)
-    expect(view(pane).sections.filter(s => s.id === 'check')).toHaveLength(1)
-    expect(JSON.stringify(view(pane).sections)).not.toContain('hidden/internal')
+    await vi.waitFor(() => expect(section(pane, 'status-line')?.rows[0]?.label).toBe('Factory check timed out'))
+    expect(section(pane, 'status-line')?.rows[0]?.hint).toBe('Retrying on the next check.')
+    expect(section(pane, 'suggestions')?.rows.map(r => r.label)).toEqual(['None while the factory is unavailable'])
+    expect(section(pane, 'check')).toBeUndefined()
+    expect(JSON.stringify(view(pane).sections)).not.toMatch(/hidden\/internal|Checking factory|Finding the next/)
   })
+
+  // Real Tern showed these codes verbatim under 'Checking factory…' that never resolved.
+  for (const [error, label, next] of [
+    [Object.assign(new Error('unsupported_command'), { data: { reason: 'unsupported_command' } }), 'Factory is not on this gateway', 'hermes --cli'],
+    [new Error('gateway inaccessible: profile_parked'), "Hermes paused this profile's gateway", 'hermes gateway restart'],
+    [new Error('gateway inaccessible: brand_new_code'), 'Last check failed', 'Retrying on the next check.']
+  ] as const) {
+    it('maps ' + error.message + ' to plain copy with one next action', async () => {
+      const { pane } = opened(error)
+      await vi.waitFor(() => expect(section(pane, 'status-line')?.rows[0]?.label).toBe(label))
+      expect(section(pane, 'status-line')?.rows[0]?.hint).toContain(next)
+      expect(JSON.stringify(view(pane).sections)).not.toMatch(/[a-z]+_[a-z]+|inaccessible/)
+    })
+  }
 
   it('retains the last known counts and pauses the render when suggestions fail closed', async () => {
     const { pane } = opened({ ...sample(), error: 'Review temporarily unavailable\nat internal location', fail_closed: true })

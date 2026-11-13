@@ -247,7 +247,7 @@ describe('App Factory composition', () => {
     expect(reads).toBe(2)
     const view = JSON.stringify(factoryNode(h).props)
     expect(view).toContain('AODL approval no longer available')
-    expect(view).toContain('Suggestions blocked')
+    expect(view).toContain('Paused until the check passes')
     expect(view).not.toContain('Run approved intent')
     await render()
     await settle()

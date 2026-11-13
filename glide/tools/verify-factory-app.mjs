@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 
 import { connect } from '@stencil-hq/tern'
 import { App } from '../../frontend/src/app/chat.js'
+import { REQUIRED_CAPABILITIES } from '../../frontend/src/hermes/requirements.js'
 
 const root = process.env.FACTORY_PROOF_ROOT
 if (!root) throw new Error('FACTORY_PROOF_ROOT is required')
@@ -35,6 +36,8 @@ class ProofGateway extends EventEmitter {
       return { session_id: sid, subscription_id: 'owned-w1-sub', messages: [],
         info: { stored_session_id: sid, profile_name: 'synthetic-proof', title: 'SYNTHETIC W1 proof. No human approval.', cwd: root } }
     }
+    // The App reads this first; an empty answer stalls it before session.create.
+    if (method === 'runtime.describe') return { capabilities: [...REQUIRED_CAPABILITIES] }
     if (method === 'setup.status') return { provider_configured: true }
     if (method === 'gateway.capabilities') return { plugin_methods: [] }
     if (method === 'config.get') return params.key === 'full' ? { config: { display: {} } } : { value: null }
