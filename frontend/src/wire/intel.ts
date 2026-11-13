@@ -49,6 +49,153 @@ export function intelText(raw: unknown): string {
   return parsed.data.text
 }
 
+
+/** A view of the strict intel.v0 data: identifiers stay on the trusted side of actions. */
+export type IntelClimb = IntelDoc['data']['climbs'][number]
+export type IntelSkill = IntelDoc['data']['routes'][number]
+export type IntelFailure = IntelDoc['data']['failures'][number]
+export type IntelSource = 'climb' | 'skill' | 'failure'
+
+const numberText = (n: number) => Number(n.toPrecision(4)).toString()
+const signed = (n: number) => (n > 0 ? '+' : '') + numberText(n)
+
+/** Human labels are for display only. Never use them to look up a path or a local file. */
+export function intelReadableTitle(raw: string, fallback = 'Local observation'): string {
+  const leaf = (raw.trim().replace(/\\/g, '/').split('/').at(-1) ?? '').trim()
+  const clean = leaf.replace(/\.(?:jsonl?|sqlite3|md|py|ts|mts)\b/gi, '')
+    .replace(/\b(?:climb|failure|session)-[a-f0-9]{12,}\b/gi, '')
+    .replace(/\b[a-f0-9]{24,}\b/gi, '')
+    .replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim()
+  const label = clean || fallback
+  return (label.charAt(0).toUpperCase() + label.slice(1)).slice(0, 80)
+}
+
+function safeProse(raw: string): string {
+  return raw.replace(/(?:[A-Za-z]:\\|\/)[^\s,;)}\]]+/g, 'local source')
+    .replace(/\[[^\]]*=[^\]]+\]/g, '').replace(/\s+/g, ' ').trim()
+}
+function metricName(metric: string): string {
+  if (/own@3|recall@3/i.test(metric)) return 'Recall at three'
+  if (/acc|validation/i.test(metric)) return 'Validation accuracy'
+  if (/fitness/i.test(metric)) return 'Fitness score'
+  return intelReadableTitle(metric, 'Score')
+}
+function relativeTime(at: string, value: string): string {
+  const time = Date.parse(value), now = Date.parse(at)
+  if (!Number.isFinite(time) || !Number.isFinite(now)) return safeProse(value)
+  const minutes = Math.max(0, Math.floor((now - time) / 60_000))
+  if (minutes < 1) return 'Updated just now'
+  if (minutes < 60) return 'Updated ' + minutes + ' min ago'
+  const hours = Math.floor(minutes / 60)
+  if (hours < 48) return 'Updated ' + hours + ' h ago'
+  return 'Updated ' + Math.floor(hours / 24) + ' d ago'
+}
+function uniqueLabel(label: string, used: Map<string, number>): string {
+  const count = (used.get(label) ?? 0) + 1
+  used.set(label, count)
+  return count === 1 ? label : label + ' · item ' + count
+}
+
+/**
+ * The pinned intel-suite renderer accepts only intel.v0 fields. Build truthful, human-facing
+ * labels inside that schema; keep reversible maps for actions and never display opaque IDs.
+ * The kit owns layout, so this does not pretend to change its tab markup or CSS.
+ */
+export function presentIntel(doc: IntelDoc): {
+  readonly card: IntelDoc
+  readonly skills: ReadonlyMap<string, string>
+  readonly failures: ReadonlyMap<string, string>
+} {
+  const source = doc.data
+  const skills = new Map<string, string>()
+  const failures = new Map<string, string>()
+  const skillLabels = new Map<string, number>()
+  const failureLabels = new Map<string, number>()
+  const climbs = [...source.climbs]
+    .sort((a, b) => b.points.length - a.points.length)
+    .map(row => {
+      const first = row.points[0], current = row.points.at(-1)
+      const delta = first === undefined || current === undefined ? null : current - first
+      const direction = delta === null ? 'No score yet' : delta > 0 ? 'Rising ' + signed(delta)
+        : delta < 0 ? 'Falling ' + numberText(Math.abs(delta)) : 'Steady'
+      const name = intelReadableTitle(row.label, 'Hill climb')
+      return { ...row,
+        label: (current === undefined ? 'No score yet' : 'Now ' + numberText(current) + ' · ' + direction) + ' · ' + name,
+        metric: metricName(row.metric),
+        ...(row.unit === undefined ? {} : { unit: intelReadableTitle(row.unit, 'unit') })
+      }
+    })
+  const routes = source.routes.map(row => {
+    const label = uniqueLabel(intelReadableTitle(row.skill, 'Skill'), skillLabels)
+    skills.set(label, row.skill)
+    return { ...row, skill: label }
+  })
+  const memory = source.memory.map(row => ({
+    ...row,
+    name: (row.stale ? 'Review ' : '') + intelReadableTitle(row.name, 'Memory store'),
+    size: safeProse(row.size),
+    fresh: relativeTime(source.at, row.fresh)
+  }))
+  const orderedFailures = [...source.failures].sort((a, b) =>
+    (a.status === 'open' ? 0 : 1) - (b.status === 'open' ? 0 : 1) || b.count - a.count)
+  const failureRows = orderedFailures.map(row => {
+    const name = intelReadableTitle(row.source, 'Recorded check')
+    const label = uniqueLabel((row.status === 'open' ? 'Open · ' : row.status === 'fixed' ? 'Passed · ' : 'Covered · ') + name, failureLabels)
+    failures.set(label, row.sig)
+    return { ...row, sig: label,
+      source: row.status === 'open' ? 'Next: review the failed check'
+        : row.status === 'fixed' ? 'Last check passed · verify the fix'
+          : 'Rule linked · review the coverage' }
+  })
+  const trace = source.trace.map((row, i) => ({ ...row, lane: 'Session ' + (i + 1) }))
+  const notes = source.notes.map(note => safeProse(note)
+    .replace(/^climbs:/i, 'Hill climbs:').replace(/^routes:/i, 'Skill routing:')
+    .replace(/^failures:/i, 'Failed checks:').replace(/^trace:/i, 'Sessions:'))
+  return {
+    card: { ...doc, data: { ...source, climbs, routes, memory, failures: failureRows, trace, notes } },
+    skills, failures
+  }
+}
+
+/** Detail panels never repeat private paths, opaque IDs or raw ledger JSON. */
+export function intelDetailBody(kind: IntelSource, raw: string, row?: IntelClimb | IntelSkill | IntelFailure): string {
+  if (kind === 'climb' && row && 'points' in row && raw.includes('Last 10 points:')) {
+    const points = row.points
+    const first = points[0], current = points.at(-1)
+    return [
+      'Hill climb · ' + intelReadableTitle(row.label),
+      current === undefined ? 'Current score unavailable' : 'Current score: ' + numberText(current),
+      first === undefined || current === undefined ? 'Trend unavailable' : 'Since first score: ' + signed(current - first),
+      'Best observed: ' + numberText(row.best),
+      points.length ? 'Recent scores: ' + points.slice(-10).map(numberText).join(', ') : 'No scored iterations'
+    ].join('\n')
+  }
+  if (kind === 'skill' && row && 'skill' in row && raw.startsWith(row.skill + '\n')) {
+    return safeProse(raw.slice(row.skill.length + 1)) || 'No skill description available.'
+  }
+  if (kind === 'failure' && row && 'sig' in row) {
+    const start = raw.indexOf('\n{'), end = raw.lastIndexOf('}')
+    if (start >= 0 && end > start) {
+      try {
+        const record: unknown = JSON.parse(raw.slice(start + 1, end + 1))
+        if (record && typeof record === 'object' && !Array.isArray(record)) {
+          const details = record as Record<string, unknown>
+          const what = typeof details['what'] === 'string' ? safeProse(details['what']) : 'Repeated failed check'
+          const next = row.status === 'open' ? 'Next: inspect the failed check and confirm a fix.'
+            : row.status === 'fixed' ? 'Next: verify the passing check still holds.'
+              : 'Next: verify the registered rule still covers this case.'
+          return [what, 'Failed checks: ' + row.count,
+            row.status === 'open' ? 'Status: needs review' : row.status === 'fixed' ? 'Status: last check passed' : 'Status: rule coverage linked',
+            next].join('\n')
+        }
+      } catch { /* Invalid local detail stays hidden rather than exposing raw ledger keys. */ }
+    }
+  }
+  return /(?:[A-Za-z]:\\|\/)[^\s]+|\b(?:session|climb|failure)-[a-f0-9]{12,}\b|\n\s*\{/.test(raw)
+    ? 'This detail is available in the current local snapshot. Review its source before acting.'
+    : raw
+}
+
 const intent = z.discriminatedUnion('action', [
   z.object({ action: z.literal('tab'), entities: z.object({ tab }) }),
   z.object({ action: z.literal('refresh'), entities: z.object({}) }),

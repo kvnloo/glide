@@ -102,7 +102,19 @@ def card(home: Path, tab: str = "hill") -> dict:
         snapshot = _snapshot(name, home)
         data[name] = snapshot["rows"]
         data["notes"].extend(snapshot["notes"])
-    data["notes"] = [f"Source: /intel, read-only local snapshots at {data['at']}", *dict.fromkeys(data["notes"])]
+    # Presentation guidance only; source snapshots, lookup identities and read bounds stay unchanged.
+    guidance = {
+        "hill": "Hill climbs: the final point is the latest observed score; the best may be earlier.",
+        "skills": "Skill routing: skill loads are not measured routing accuracy.",
+        "memory": "Memory: update times show file freshness, not what changed within a file.",
+        "failures": "Failed checks: a passing replay is not proof of a permanent fix.",
+        "trace": "Sessions: minute buckets mark events, not measured execution durations.",
+    }
+    data["notes"] = [
+        "Read-only local snapshot. Observations are not commands or verified fixes.",
+        guidance[tab],
+        *dict.fromkeys(data["notes"]),
+    ]
     return {"kind": "intel-suite", "app": "glide", "data": data}
 
 

@@ -96,30 +96,78 @@ export class FactoryPane {
   node(_id: string): JSX.Element | null {
     if (!this.#open) return null
     const snapshot = this.#snapshotOwner?.isCurrent() === false ? undefined : this.#snapshot
-    const rows: PrefsRow[] = (snapshot?.runs ?? []).flatMap(run => {
-      if (run.state !== 'failed' && run.state !== 'done') return []
-      return [{ id: `run:${run.run}`, label: run.run,
-        hint: [run.state === 'failed' ? 'Failed' : 'Awaiting review', run.verdict, run.compare ?? run.output].filter(Boolean).join(' · ') }]
-    })
     const generation = this.#generation
     const owner = this.#host.session.ownerTicket?.()
     const actionable = !this.#error && !this.#busy
-    const suggestions = (snapshot?.suggestions ?? []).map(suggestion => ({
-      id: suggestion.contract_id,
-      label: `${suggestion.title} · ${suggestion.status}`,
-      hint: `${suggestion.contract_id} · ${suggestion.review.reason}`,
-      ...(actionable && suggestion.session_id === this.#sid && suggestion.status === 'approved' && suggestion.action === 'render'
-        ? { control: { act: 'render', k: 'action' as const, label: 'Run approved intent' } }
-        : { disabled: suggestion.status === 'pending' ? 'AODL review unavailable' : suggestion.review.reason })
-    }))
-    const count = snapshot?.running_count ?? 0
+
+    // The first row answers "what is happening?" without a separate running section.
+    const running = snapshot?.running_count ?? 0
+    const held = (snapshot?.runs ?? []).filter(run => run.state === 'failed').length
+    const done = (snapshot?.runs ?? []).filter(run => run.state === 'done').length
+    const hasApprovedAction = actionable && !!snapshot?.suggestions.some(s =>
+      s.status === 'approved' && s.action === 'render' && s.session_id === this.#sid)
+    const next = !snapshot ? 'Finding the next action.'
+      : this.#error ? 'Last known state; actions are paused.'
+      : this.#busy ? 'Rendering the approved suggestion.'
+      : hasApprovedAction ? 'Run an approved suggestion below.'
+      : held ? 'Inspect held runs with /factory runs.'
+      : done ? 'Review completed runs with /factory runs.'
+      : snapshot.suggestions.length ? 'Wait for review before rendering.'
+      : running ? 'Work is underway; check back for results.'
+      : 'No action needed.'
+    const hero: PrefsRow = {
+      id: 'factory-overview',
+      label: snapshot
+        ? running + ' ' + (running === 1 ? 'job' : 'jobs') + ' running, ' + held + ' held, ' + done + ' done.'
+        : 'Checking factory…',
+      hint: next
+    }
+
+    // Each suggestion has at most one real action. Pending review never becomes approval.
+    const suggestions: PrefsRow[] = (snapshot?.suggestions ?? []).map(suggestion => {
+      const canRender = actionable && suggestion.session_id === this.#sid &&
+        suggestion.status === 'approved' && suggestion.action === 'render'
+      const hint = suggestion.status === 'pending' ? 'HELD · Review pending.'
+        : suggestion.status === 'rejected' ? 'HELD · Suggestion declined.'
+        : canRender ? 'APPROVED · Ready to render.'
+        : 'HELD · Not available in this session.'
+      return {
+        id: suggestion.contract_id,
+        label: suggestion.title || 'Suggested render',
+        hint,
+        ...(canRender
+          ? { control: { act: 'render', k: 'action' as const, label: 'Run approved intent' } }
+          : { disabled: suggestion.status === 'pending' ? 'AODL review unavailable'
+            : suggestion.status === 'rejected' ? 'Suggestion declined'
+            : this.#error ? 'Factory check paused' : 'Render unavailable' })
+      }
+    })
+
+    // Only decisions need rows: active runs are already counted in the hero.
+    const attention: PrefsRow[] = (snapshot?.runs ?? []).flatMap(run => {
+      if (run.state !== 'failed' && run.state !== 'done') return []
+      return [{
+        id: 'run:' + run.run,
+        label: run.run,
+        hint: run.state === 'failed'
+          ? 'FAILED · Inspect with /factory runs.'
+          : 'DONE · Awaiting review in /factory runs.'
+      }]
+    })
+
+    // A transport or snapshot error is one quiet line, never an exception stack.
+    const errorLine = (this.#error?.split(/\r?\n/, 1)[0] ?? '')
+      .replace(/^Error:\s*/, '').replace(/\s+/g, ' ').trim().slice(0, 96)
     const sections = [
-      { id: 'attention', title: 'Needs your attention', rows: rows.length ? rows : [{ id: 'quiet', label: snapshot ? 'No runs need your attention' : 'Reading factory…' }] },
-      { id: 'suggestions', title: 'AODL suggestions', rows: suggestions.length ? suggestions : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : 'No suggestions' }] },
-      { id: 'running', title: 'In progress', rows: [{ id: 'running-count', label: `${count} ${count === 1 ? 'job' : 'jobs'} running` }] },
-      ...(this.#error ? [{ id: 'error', title: 'Factory unavailable', rows: [{ id: 'failure', label: this.#error }] }] : [])
+      { id: 'status-line', title: 'Factory now', rows: [hero] },
+      { id: 'suggestions', title: 'Suggested actions',
+        rows: suggestions.length ? suggestions
+          : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
+      ...(attention.length ? [{ id: 'attention', title: 'Runs to review', rows: attention }] : []),
+      ...(this.#error ? [{ id: 'check', title: 'Factory check',
+        rows: [{ id: 'poll-error', label: 'Last check failed', hint: errorLine || 'Retrying on the next check.' }] }] : [])
     ]
-    return <prefs key="factory" title="Factory" lead="Only decisions. /factory closes this pane." page="factory"
+    return <prefs key="factory" title="Factory" lead="Current work and the next decision." page="factory"
       pages={[{ id: 'factory', label: 'Factory' }]} sections={sections}
       onAction={{
         close: (ev: { value?: unknown }) => { if (!ev.value && generation === this.#generation) this.toggle() },

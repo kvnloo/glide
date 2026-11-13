@@ -1,35 +1,24 @@
 // FOCUS-mode lane orbit: while a /glide focus block runs and live voice is on, the call's helper lanes
 // circle the voice orb as planets in their provider's hue on tracks of their role's tint. A thinking lane
-// wears a halo, and a dead lane is parked at the top of its dashed track as a red struck-through ring,
+// wears a halo, and a dead lane is parked at the top of its dashed track as a danger-hued struck-through ring,
 // never hidden. Reduced motion draws fixed seats down the front half.
 // One light SVG per frame: one stroked circle per track and a few circles per planet, so a frame is cheap
 // to decode at the animator's 30 fps.
 import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'thinking-orbs/engine'
 
 import { LIBRARY_STATE, type OrbState } from '../chrome/orb.js'
+import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
+import { ORBIT_MARK, roleTint as orbitRoleTint } from '../../../glide/frontend/orbitTokens.js'
 
 /** Orbit radius per role (viewBox units): fast inner, council outer, one track per lane. */
 const ORBIT_R: Readonly<Record<string, number>> = { fast: 46, small: 62, large: 78, council: 94 }
 const FALLBACK_R = 70
 
-/** Each role's planet and track tint (council keeps its lapis seat colour), deeper on a light theme for contrast. */
-// One warm-to-cool ramp, read inside out: fast is a hot amber spark, small a cool teal, large a deep violet
-// and council the lapis seat colour. Same lightness band, so no planet shouts over another.
-export const ROLE_TINT: Readonly<Record<string, string>> = {
-  fast: '#f2b24c',
-  small: '#3fc8b4',
-  large: '#a98bf5',
-  council: '#5aa7ff'
-}
-const ROLE_TINT_LIGHT: Readonly<Record<string, string>> = {
-  fast: '#c47a12',
-  small: '#0f8a7a',
-  large: '#6a4fc4',
-  council: '#1f6fd6'
-}
-export const tint = (role: string, dark: boolean) => (dark ? ROLE_TINT : ROLE_TINT_LIGHT)[role] ?? (dark ? '#aaaaaa' : '#555555')
-/** A dead lane's mark: a red hollow ring struck through. */
-export const deadTint = (dark: boolean) => (dark ? '#ff6b6b' : '#c62828')
+/** One named colour ramp, shared by planets, tracks and lane keys. */
+export { ROLE_TINT } from '../../../glide/frontend/orbitTokens.js'
+export const tint = orbitRoleTint
+/** Respect the host danger colour; the tokens module supplies a renderer-safe fallback. */
+export const deadTint = (_dark: boolean) => ORBIT_MARK.danger
 
 // The cached cycle is 9.6 s. Each lane's period divides it, so the loop stays seamless, and its speed says
 // what the lane is: fast laps the orb four times a cycle, small twice, large and council once. Every lane
@@ -133,15 +122,19 @@ function marks(state: LibraryState, seconds: number, animated: boolean, dark: bo
 
 const still = (s: OrbState) => s === 'idle' || s === 'waiting' || s === 'error'
 
-/** A dead lane's mark at (x, y): a red hollow ring with an x struck through it, all circles. */
+/** A dead lane's mark: host danger ink, with a token fallback for image renderers. */
 export function deadMark(x: number, y: number, r: number, dark: boolean): string {
-  const red = deadTint(dark)
+  const danger = deadTint(dark)
+  // Presentation attributes preserve the old appearance in SVG image fallbacks; CSS wins when
+  // the host resolves --h-danger. Apply the override to each strike dot, not only its parent.
+  const fallback = dark ? ORBIT_MARK.deadFallback.dark : ORBIT_MARK.deadFallback.light
   const strike: string[] = []
   for (let i = -3; i <= 3; i++) {
     const d = (i / 3) * r * 0.55
-    strike.push(`<circle cx="${n(x + d)}" cy="${n(y + d)}" r="0.55"/>`, `<circle cx="${n(x + d)}" cy="${n(y - d)}" r="0.55"/>`)
+    strike.push(`<circle cx="${n(x + d)}" cy="${n(y + d)}" r="0.55" style="fill:${danger}"/>`,
+      `<circle cx="${n(x + d)}" cy="${n(y - d)}" r="0.55" style="fill:${danger}"/>`)
   }
-  return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${red}" stroke-width="1.3"/><g fill="${red}">${strike.join('')}</g>`
+  return `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${fallback}" stroke-width="1.3" style="stroke:${danger}"/><g fill="${fallback}">${strike.join('')}</g>`
 }
 
 const frame = (lanes: readonly OrbitLane[], body: string) => {
@@ -158,15 +151,15 @@ function planet(s: Satellite, lane: OrbitLane, CX: number, CY: number, dark: boo
   const tail = s.parked || reduce ? '' : Array.from({ length: 6 }, (_, i) => {
     const th = s.theta - ((i + 1) / 6) * ((2 * Math.PI * 0.35) / lanePeriod(lane.role))
     const k = 1 - (i + 1) / 7
-    return `<circle cx="${n(CX + s.r * TILT * Math.sin(th))}" cy="${n(CY + s.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.45 * k).toFixed(2)}"/>`
+    return `<circle cx="${n(CX + s.r * TILT * Math.sin(th))}" cy="${n(CY + s.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.18 * k).toFixed(2)}"/>`
   }).join('')
-  const trail = tail ? `<g data-tail="${lane.role}" fill="${c}">${tail}</g>` : ''
-  const edge = dark ? '#000000' : '#ffffff'
+  const trail = tail ? `<g data-tail="${lane.role}" fill="${dark ? NIGHT.text3 : DASH.dim}">${tail}</g>` : ''
+  const edge = dark ? DASH.bg : DASH.fg
   const body = s.parked
     ? deadMark(s.x, s.y, r, dark)
-    : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${c}" fill-opacity="0.2"/>` : '') +
+    : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${dark ? NIGHT.text2 : DASH.dim}" fill-opacity="0.2"/>` : '') +
       `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/>` +
-      `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="#ffffff" fill-opacity="0.4"/>`
+      `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="${DASH.fg}" fill-opacity="0.4"/>`
   return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}">${trail}${body}</g>`
 }
 
@@ -188,7 +181,7 @@ function tracks(lanes: readonly OrbitLane[], dark: boolean): string {
   return [...new Set(lanes.map(l => orbitRadius(l.role)))].map(r => {
     const on = lanes.filter(l => orbitRadius(l.role) === r)
     const dead = on.every(l => l.state === 'dead')
-    const stroke = dead ? (dark ? '#9a9a9a' : '#6a6a6a') : tint(on[0]?.role ?? '', dark)
+    const stroke = dead ? (dark ? NIGHT.text2 : DASH.dim).toLowerCase() : tint(on[0]?.role ?? '', dark)
     // Strong enough to read on the light theme's paper, still quieter than the planets riding it.
     const alpha = dead ? 0.6 : dark ? 0.72 : 0.78
     return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ''}/>`
