@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import type { EuiHostCardData } from '../../frontend/src/wire/euiHostCard.js'
 import { record } from '../../frontend/src/wire/json.js'
 
 export interface TasteBoard { url: string; title: string }
@@ -21,18 +22,19 @@ export function tasteBoard(raw: unknown): TasteBoard {
   return { url, title }
 }
 
-/** The compact, actionable receipt for a board already opened beside chat. */
-export function tasteCard(board: TasteBoard, block: number) {
+/** The card for a board Tern confirmed open beside chat: title as hero, one state, the short URL, one action. */
+export function tasteCard(board: TasteBoard, block: number): EuiHostCardData {
   if (!Number.isSafeInteger(block) || block <= 0) {
     throw new Error('Taste pane needs a valid block')
   }
+  const { host, pathname } = new URL(board.url)
   return {
-    kind: 'approve' as const,
+    kind: 'approve',
     app: 'glide',
     title: board.title,
     rows: [
       { label: 'State', value: 'Open beside chat' },
-      { label: 'Board', value: board.url }
+      { label: 'Board', value: host + pathname.replace(/\/$/, '') }
     ],
     approval: {
       label: 'Open board',
