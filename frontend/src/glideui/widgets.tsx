@@ -8,7 +8,7 @@ import { execFile } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
-import type { JSX } from '@stencil-hq/tern'
+import { html, type JSX } from '@stencil-hq/tern'
 
 import type { WalPalette } from '../../../glide/frontend/wal.js'
 import { watchWal } from '../../../glide/frontend/wal.js'
@@ -19,7 +19,7 @@ import { checkMarkup, checkPalette, checkTree } from './checks.js'
 import type { GlideDoc, UiNode } from './library.js'
 import { commitsDoc, focusDoc, type UiState, type WidgetMount, type WidgetSlot } from './mounts.js'
 import { glide, type Glide } from './program.js'
-import { node, UI_CSS, type UiRender } from './render.js'
+import { node, RING_SHEET, ringCss, UI_CSS, UI_SHEET, type UiRender } from './render.js'
 
 export interface WidgetsHost {
   /** settings.json, which holds `ui`. */
@@ -35,8 +35,8 @@ export interface WidgetsHost {
   now?(): number
   /** The compiler; default the packaged adapter (program.ts). */
   glide?(): Promise<Glide>
-  /** Puts the kit sheet on the surface if it is not there; called while widgets are drawn, so a recovered surface gets it back. */
-  sheet?(css: string): void
+  /** Puts sheet `name` on the surface if it differs; called while widgets are drawn, so a recovered surface gets it back. */
+  sheet?(name: string, css: string): void
 }
 
 /** Where the pane reports each mount's verdict for the tools (`<home>/glide/ui-status.json`). */
@@ -122,11 +122,36 @@ export class GlideWidgets {
       if (w.slot !== slot || this.#problems.get(w.id)?.length) continue
       const tree = this.#tree(w)
       if (!tree) continue
-      if (slot !== 'composer-ring' || tree.typeName !== 'Card') { out.push(node(tree, w.id, r)); continue }
-      // The ring is a strip on the composer's edge: the card's parts without its shell.
-      out.push(<row align="center" gap="md" key={w.id} role="glide.ring">{tree.props.children.map((c, i) => node(c, `p${i}`, r))}</row>)
+      if (slot !== 'composer-ring') { out.push(node(tree, w.id, r)); continue }
+      if (out.length) continue
+      // The composer's edge is the ring: its Meter runs round the border, and a chip on the top edge
+      // carries the card's title and its figure (Hero, else Text, else the meter's label).
+      const parts = tree.typeName === 'Card' ? tree.props.children : [tree]
+      const pick = <K extends UiNode['typeName']>(k: K) => parts.find((p): p is Extract<UiNode, { typeName: K }> => p.typeName === k)
+      const meter = pick('Meter')
+      const title = tree.typeName === 'Card' ? tree.props.title : ''
+      const figure = pick('Hero')?.props.value ?? pick('Text')?.props.body ?? meter?.props.label ?? ''
+      out.push(
+        <row align="center" gap="xs" key={`${w.id}.chip`} role="glide.ring.chip">
+          <html.span key="dot" role="glide.ring.dot" />
+          {title ? <text key="t" role="glide.ring.label" text={title.charAt(0).toUpperCase() + title.slice(1)} wrap="none" /> : null}
+          <text key="v" role="glide.ring.value" text={String(figure)} wrap="none" />
+        </row>
+      )
+      if (meter) {
+        if (w.glow) out.push(<html.div key={`${w.id}.glow`} role="glide.ring.glow" />)
+        out.push(
+          <html.div key={`${w.id}.t0`} role="glide.ring.t0" />,
+          <html.div key={`${w.id}.t1`} role="glide.ring.t1" />,
+          <html.div key={`${w.id}.t2`} role="glide.ring.t2" />,
+          <html.div key={`${w.id}.bl`} role="glide.ring.bl" />,
+          <html.div key={`${w.id}.br`} role="glide.ring.br" />,
+          <html.span key={`${w.id}.head`} role="glide.ring.head" />
+        )
+        this.#host.sheet?.(RING_SHEET, ringCss(meter.props.value, w.glow))
+      }
     }
-    if (out.length) this.#host.sheet?.(UI_CSS)
+    if (out.length) this.#host.sheet?.(UI_SHEET, UI_CSS)
     return out
   }
 

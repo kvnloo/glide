@@ -19,6 +19,8 @@ export interface WidgetMount {
   readonly minutes?: number | undefined
   /** clock.focus: when the block started (ms), so a relaunch keeps counting. */
   readonly startedAt?: number | undefined
+  /** composer-ring: a soft glow on the ring, only when asked for; nothing glows by default. */
+  readonly glow?: boolean | undefined
 }
 
 export interface UiState {

@@ -262,8 +262,7 @@ export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {
 
   // A role-less dock column takes Tern's reader measure for its children, so widgets line up with the composer.
   if (slots.above?.length) nodes.push(<col key="glide.above"><col gap="sm" key="w" role="glide.dock">{slots.above}</col></col>)
-  if (slots.ring?.length) nodes.push(<col key="glide.ring"><col key="w" role="glide.ring.edge">{slots.ring}</col></col>)
-  nodes.push(composerNode(cx, on))
+  nodes.push(composerNode(cx, on, slots.ring))
   if (slots.below?.length) nodes.push(<col key="glide.below"><col gap="sm" key="w" role="glide.dock">{slots.below}</col></col>)
 
   return nodes
@@ -452,13 +451,15 @@ function effortChip(r: DockRoute, on: DockActions): JSX.Element {
   )
 }
 
-function composerNode(cx: DockContext, on: DockActions): JSX.Element {
+/** The composer; `ring` (the composer-ring widget) is drawn on its edge. */
+function composerNode(cx: DockContext, on: DockActions, ring?: readonly JSX.Element[]): JSX.Element {
   const { draft, attachments, dictation } = cx.composer
   const { route } = cx
   const busy = cx.activity.kind === 'turn'
 
   return (
     <col key="composer" role="omp.editor">
+      {ring?.length ? ring : null}
       {busy ? <row key="streak" role="hermes.streak" /> : null}
       {on.onContext ? contextMeter(cx.status.context, on.onContext) : null}
       <row gap="sm" hidden={!attachments.length} key="chips" role="omp.composer.chips" wrap>

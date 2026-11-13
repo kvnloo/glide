@@ -70,7 +70,8 @@ const mount = z.object({
   source: z.enum(WIDGET_SOURCES),
   program: z.string().check(z.maxLength(4096)),
   minutes: loose(z.number()),
-  startedAt: loose(z.number())
+  startedAt: loose(z.number()),
+  glow: loose(z.boolean())
 })
 const uiState: z.ZodMiniType<UiState> = z.catch(
   z.object({

@@ -75,6 +75,10 @@ def test_mount_validates_before_writing(tmp_path):
     assert not ui.settings_file(home).exists()
     out = ui.mount(home, {**base, "minutes": 50}, wait=0, now=1000.0)
     assert out["ok"] and ui.state(home)["widgets"][0] | {} == {**base, "minutes": 50, "startedAt": 1_000_000}
+    # Glow is opt-in, and only the ring takes it.
+    ui.mount(home, {**base, "glow": True}, wait=0)
+    ui.mount(home, {"id": "commits", "slot": "below-composer", "source": "git.commits", "program": "root = x", "glow": True}, wait=0)
+    assert [w.get("glow") for w in ui.state(home)["widgets"]] == [True, None]
 
 
 def test_style_unmount_list_and_reset(tmp_path, monkeypatch):

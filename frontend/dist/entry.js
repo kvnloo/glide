@@ -24806,9 +24806,56 @@ function node2(n3, key3, r) {
     }
   }
 }
+var UI_SHEET = "glide-ui";
+var RING_SHEET = "glide-ring";
+var RING_START = 0.2;
+function ringCss(left, glow = false) {
+  const d = (1 - Math.max(0, Math.min(1, left))) * 2;
+  const x0 = RING_START;
+  const pct2 = (n3) => `${(n3 * 100).toFixed(2)}%`;
+  const at2 = (role, css3) => `[data-role][data-role='glide.ring.${role}']{${css3}}`;
+  const colour = (spent) => spent ? RING_SPENT : RING_LEFT;
+  const tops = (spans) => spans.filter(([a2, b]) => b > a2).map(
+    ([a2, b, spent], i) => at2(`t${i}`, `display:block;left:${a2 === 0 ? "-1px" : pct2(a2)};right:${b === 1 ? "-1px" : pct2(1 - b)};border-radius:${a2 === 0 ? 17 : 0}px ${b === 1 ? 17 : 0}px 0 0;border-color:${colour(spent)}`)
+  ).join("");
+  const whole = (spent) => at2("bl", `right:-1px;border-right-width:2px;border-radius:17px;border-color:${colour(spent)}`) + at2("br", "display:none");
+  let css2, head2;
+  if (d <= 1 - x0) {
+    const h2 = x0 + d;
+    css2 = tops([[0, x0, false], [x0, h2, true], [h2, 1, false]]) + whole(false);
+    head2 = `top:-4px;left:calc(${pct2(h2)} - 4px)`;
+  } else if (d <= 2 - x0) {
+    const h2 = 1 - (d - (1 - x0));
+    css2 = tops([[0, x0, false], [x0, 1, true]]) + at2("bl", `right:${pct2(1 - h2)};border-color:${RING_LEFT}`) + at2("br", `left:${pct2(h2)};border-color:${RING_SPENT}`);
+    head2 = `bottom:-4px;left:calc(${pct2(h2)} - 4px)`;
+  } else {
+    const h2 = d - (2 - x0);
+    css2 = tops([[0, h2, true], [h2, x0, false], [x0, 1, true]]) + whole(true);
+    head2 = `top:-4px;left:calc(${pct2(h2)} - 4px)`;
+  }
+  return `${css2}
+${at2("head", head2)}${glow ? RING_GLOW : ""}`;
+}
+var ACCENT = `var(--sf-accent,${DASH.gold})`;
+var RING_LEFT = ACCENT;
+var RING_SPENT = `color-mix(in srgb,${ACCENT} 14%,var(--l2))`;
+var RING_GLOW = `
+[data-role='glide.ring.glow']{position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:17px;box-shadow:0 0 26px 2px color-mix(in srgb,${ACCENT} 38%,transparent),0 0 6px color-mix(in srgb,${ACCENT} 55%,transparent)}
+[data-role='glide.ring.head']{box-shadow:0 0 10px 4px color-mix(in srgb,${ACCENT} 55%,transparent),0 0 3px 1px color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}`;
 var UI_CSS = `
 [data-role='glide.body']{padding:4px 2px}
-[data-role='glide.ring']{padding:2px 8px}
+/* The composer ring: a stroke on the composer's own border, spent clockwise from the chip. */
+[data-role='glide.ring.t0'],[data-role='glide.ring.t1'],[data-role='glide.ring.t2']{display:none;position:absolute;top:-1px;height:24px;z-index:3;pointer-events:none;border:0 solid transparent;border-top-width:2px}
+[data-role='glide.ring.bl'],[data-role='glide.ring.br']{position:absolute;top:-1px;bottom:-1px;z-index:3;pointer-events:none;border:0 solid transparent;border-bottom-width:2px}
+[data-role='glide.ring.bl']{left:-1px;border-left-width:2px;border-radius:17px 0 0 17px}
+[data-role='glide.ring.br']{right:-1px;border-right-width:2px;border-radius:0 17px 17px 0}
+[data-role='glide.ring.head']{position:absolute;z-index:3;width:8px;height:8px;border-radius:50%;pointer-events:none;background:color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}
+[data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px}
+[data-role='glide.ring.dot']{width:8px;height:8px;border-radius:50%;background:${ACCENT}}
+[data-role='glide.ring.label']{opacity:.72}
+[data-role='glide.ring.value']{font-weight:600;font-variant-numeric:tabular-nums}
+/* The context hairline steps past the chip. */
+.sf-col[data-role='omp.editor']:has(> [data-role='glide.ring.chip']) .sf-meter[data-role='omp.composer.context']{left:132px}
 [data-role='glide.hero.value']{font-size:32px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,${DASH.gold});font-variant-numeric:tabular-nums}
 [data-role='glide.hero.detail']{font-size:12px;opacity:.72}
 [data-role='glide.stat.value']{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -32461,7 +32508,8 @@ var mount = object({
   source: _enum(WIDGET_SOURCES),
   program: string2().check(_maxLength(4096)),
   minutes: loose(number2()),
-  startedAt: loose(number2())
+  startedAt: loose(number2()),
+  glow: loose(boolean2())
 });
 var uiState = _catch(
   object({
@@ -90696,7 +90744,7 @@ var MAX_BLOBS = 512;
 var FENCE2 = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, "g");
 var INLINE_SHEET = "ephemeral-ui-inline";
 var KIT_SHEET = "ephemeral-ui";
-var GLIDE_UI_SHEET = "glide-ui";
+var GLIDE_UI_SHEET = UI_SHEET;
 var euiSheets = /* @__PURE__ */ new Map();
 function euiDir() {
   const here = dirname7(fileURLToPath8(import.meta.url));
@@ -96578,8 +96626,7 @@ function dockNodes(cx, on, slots = {}) {
     );
   }
   if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "w") }, "glide.above"));
-  if (slots.ring?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { role: "glide.ring.edge", children: slots.ring }, "w") }, "glide.ring"));
-  nodes.push(composerNode(cx, on));
+  nodes.push(composerNode(cx, on, slots.ring));
   if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") }, "glide.below"));
   return nodes;
 }
@@ -96733,11 +96780,12 @@ function effortChip(r, on) {
     "effort"
   );
 }
-function composerNode(cx, on) {
+function composerNode(cx, on, ring) {
   const { draft, attachments, dictation: dictation2 } = cx.composer;
   const { route } = cx;
   const busy = cx.activity.kind === "turn";
   return /* @__PURE__ */ jsxs("col", { role: "omp.editor", children: [
+    ring?.length ? ring : null,
     busy ? /* @__PURE__ */ jsx("row", { role: "hermes.streak" }, "streak") : null,
     on.onContext ? contextMeter(cx.status.context, on.onContext) : null,
     /* @__PURE__ */ jsx("row", { gap: "sm", hidden: !attachments.length, role: "omp.composer.chips", wrap: true, children: attachments.map((a2, i) => imageChip(a2, i, on.onRemoveAttachment)) }, "chips"),
@@ -98811,13 +98859,37 @@ var GlideWidgets = class {
       if (w.slot !== slot2 || this.#problems.get(w.id)?.length) continue;
       const tree = this.#tree(w);
       if (!tree) continue;
-      if (slot2 !== "composer-ring" || tree.typeName !== "Card") {
+      if (slot2 !== "composer-ring") {
         out.push(node2(tree, w.id, r));
         continue;
       }
-      out.push(/* @__PURE__ */ jsx("row", { align: "center", gap: "md", role: "glide.ring", children: tree.props.children.map((c, i) => node2(c, `p${i}`, r)) }, w.id));
+      if (out.length) continue;
+      const parts3 = tree.typeName === "Card" ? tree.props.children : [tree];
+      const pick2 = (k) => parts3.find((p3) => p3.typeName === k);
+      const meter = pick2("Meter");
+      const title = tree.typeName === "Card" ? tree.props.title : "";
+      const figure = pick2("Hero")?.props.value ?? pick2("Text")?.props.body ?? meter?.props.label ?? "";
+      out.push(
+        /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "glide.ring.chip", children: [
+          /* @__PURE__ */ jsx(html.span, { role: "glide.ring.dot" }, "dot"),
+          title ? /* @__PURE__ */ jsx("text", { role: "glide.ring.label", text: title.charAt(0).toUpperCase() + title.slice(1), wrap: "none" }, "t") : null,
+          /* @__PURE__ */ jsx("text", { role: "glide.ring.value", text: String(figure), wrap: "none" }, "v")
+        ] }, `${w.id}.chip`)
+      );
+      if (meter) {
+        if (w.glow) out.push(/* @__PURE__ */ jsx(html.div, { role: "glide.ring.glow" }, `${w.id}.glow`));
+        out.push(
+          /* @__PURE__ */ jsx(html.div, { role: "glide.ring.t0" }, `${w.id}.t0`),
+          /* @__PURE__ */ jsx(html.div, { role: "glide.ring.t1" }, `${w.id}.t1`),
+          /* @__PURE__ */ jsx(html.div, { role: "glide.ring.t2" }, `${w.id}.t2`),
+          /* @__PURE__ */ jsx(html.div, { role: "glide.ring.bl" }, `${w.id}.bl`),
+          /* @__PURE__ */ jsx(html.div, { role: "glide.ring.br" }, `${w.id}.br`),
+          /* @__PURE__ */ jsx(html.span, { role: "glide.ring.head" }, `${w.id}.head`)
+        );
+        this.#host.sheet?.(RING_SHEET, ringCss(meter.props.value, w.glow));
+      }
     }
-    if (out.length) this.#host.sheet?.(UI_CSS);
+    if (out.length) this.#host.sheet?.(UI_SHEET, UI_CSS);
     return out;
   }
   dispose() {
@@ -104159,10 +104231,10 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       theme.apply();
       return theme.wal;
     },
-    sheet: (css2) => {
-      if (euiSheets.get(GLIDE_UI_SHEET) === css2) return;
-      euiSheets.set(GLIDE_UI_SHEET, css2);
-      surface().raw.stylesheet(GLIDE_UI_SHEET, css2);
+    sheet: (name, css2) => {
+      if (euiSheets.get(name) === css2) return;
+      euiSheets.set(name, css2);
+      surface().raw.stylesheet(name, css2);
     }
   });
   const theme = new Theme({

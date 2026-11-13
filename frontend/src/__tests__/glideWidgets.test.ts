@@ -14,7 +14,7 @@ import { walPalette } from '../../../glide/frontend/wal.js'
 import { checkMarkup, checkPalette, checkTree } from '../glideui/checks.js'
 import type { UiNode } from '../glideui/library.js'
 import { commitDays, commitsDoc, focusDoc } from '../glideui/mounts.js'
-import { node, UI_CSS } from '../glideui/render.js'
+import { node, ringCss, UI_CSS } from '../glideui/render.js'
 import { GlideWidgets, statusFile } from '../glideui/widgets.js'
 import { dockNodes, widgetAside } from '../view/dock.js'
 import { readUi } from '../wire/files.js'
@@ -42,7 +42,7 @@ function widgets(file: string, times: number[] = [], clock = { now: NOW }) {
   let restyles = 0
   const sheets: string[] = []
   const w = new GlideWidgets({
-    sheet: css => { sheets.push(css) },
+    sheet: (_name, css) => { sheets.push(css) },
     file,
     changed: () => { changes++ },
     cwd: () => '/repo/glide',
@@ -159,8 +159,32 @@ describe('GlideWidgets', () => {
     const r = { send: () => undefined, svg: () => 'blob' }
     expect(f.w.nodes('below-composer', r)).toEqual([])
     const ring = text(f.w.nodes('composer-ring', r).map(tree))
-    expect(ring).toContain('glide.ring')
+    // The ring is the composer's border: a chip with the figure, and a track spent by the meter. No glow unless asked.
+    expect(ring).toContain('glide.ring.chip')
     expect(ring).toContain('24:00')
+    expect(ring).toContain('glide.ring.br')
+    expect(ring).not.toContain('glide.ring.glow')
+    // A minute into 25: 4% spent, so the sweep has run 8% of the width from the chip (20%) along the top edge, as the second top piece.
+    const live = f.sheets.find(s => s.includes('glide.ring.head'))
+    expect(live).toContain('left:20.00%;right:72.00%')
+    expect(live).toContain('top:-4px;left:calc(28.00% - 4px)')
+    expect(live).not.toMatch(/shadow|blur/)
+    f.w.dispose()
+  })
+
+  it('sweep the ring clockwise: along the top from the chip, back along the bottom, up under the chip', () => {
+    expect(ringCss(0.5)).toContain('bottom:-4px;left:calc(80.00% - 4px)')
+    expect(ringCss(0.05)).toContain('top:-4px;left:calc(10.00% - 4px)')
+    expect(ringCss(1)).not.toMatch(/shadow/)
+  })
+
+  it('glows the ring only on a mount that asks for it', async () => {
+    const h = home({ rev: 1, widgets: [{ id: 'ring', slot: 'composer-ring', source: 'clock.focus', minutes: 25, startedAt: NOW, glow: true, program: RING }] })
+    const f = widgets(h.file)
+    await f.w.start()
+    const r = { send: () => undefined, svg: () => 'blob' }
+    expect(text(f.w.nodes('composer-ring', r).map(tree))).toContain('glide.ring.glow')
+    expect(f.sheets.find(s => s.includes('glide.ring.head'))).toContain('box-shadow')
     f.w.dispose()
   })
 
@@ -183,7 +207,10 @@ describe('dock slots', () => {
   it('stack widgets above, on and below the composer, keeping the composer key', () => {
     const w = (k: string) => node({ type: 'element', typeName: 'Text', props: { body: k } }, k, { send: () => undefined })
     const keys = dockNodes(dockContext(), dockActions(), { above: [w('a')], ring: [w('r')], below: [w('b')] }).map(n => tree(n).p?.['key'])
-    expect(keys.slice(-4)).toEqual(['glide.above', 'glide.ring', 'composer', 'glide.below'])
+    const nodes = dockNodes(dockContext(), dockActions(), { above: [w('a')], ring: [w('r')], below: [w('b')] })
+    expect(keys.slice(-3)).toEqual(['glide.above', 'composer', 'glide.below'])
+    // The ring widget draws on the composer's own edge.
+    expect(text(nodes.slice(-2, -1).map(tree))).toContain('"r"')
     expect(dockNodes(dockContext(), dockActions()).map(n => tree(n).p?.['key']).at(-1)).toBe('composer')
   })
 

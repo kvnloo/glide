@@ -16,7 +16,7 @@ import { minifyCss } from '../../../glide/frontend/css.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
 import type { UiIntent, UiNode } from '../glideui/library.js'
-import { UI_CSS } from '../glideui/render.js'
+import { UI_CSS, UI_SHEET } from '../glideui/render.js'
 
 import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
@@ -53,7 +53,7 @@ const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENC
 export const INLINE_SHEET = 'ephemeral-ui-inline'
 export const KIT_SHEET = 'ephemeral-ui'
 /** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
-export const GLIDE_UI_SHEET = 'glide-ui'
+export const GLIDE_UI_SHEET = UI_SHEET
 /** The card stylesheets as last sent, which a recovered surface gets again (surface/host.ts). */
 export const euiSheets = new Map<string, string>()
 

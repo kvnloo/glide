@@ -39,13 +39,14 @@ MOUNT_SCHEMA = {
     "description": (
         "Mount a persistent widget around the Glide composer that updates itself from host data and "
         "survives relaunches. slot: above-composer, below-composer, composer-ring (anything that runs "
-        "\"around\" or \"on\" the composer, like a focus timer: a strip on the composer's edge; Meter, Hero, "
+        "\"around\" or \"on\" the composer, like a focus timer: its Meter runs as a ring round the composer's "
+        "border and the card title plus its Hero figure sit in a chip on the top edge; Meter, Hero, "
         "Text, Badges or Graphic only, at most 3 parts), or sidebar (docked at "
         "the pane's right edge while no other aside is open). Sources: "
         + " ".join(f"{k}: {v}" for k, v in SOURCES.items()) + " " + _PROGRAM_HELP
         + " For a full-pane app beside the chat, write the file and run `tern open --split right PATH` in the "
         "terminal instead (it lands beside this pane). Mounting the same id again replaces it. The open Glide pane checks the program and the design "
-        "rules (text >= 11 px, no glow or motion, contrast) and the result says whether it mounted."
+        "rules (text >= 11 px, no glow or motion in the program, contrast) and the result says whether it mounted."
     ),
     "parameters": {
         "type": "object",
@@ -55,6 +56,7 @@ MOUNT_SCHEMA = {
             "source": {"type": "string", "enum": list(SOURCES)},
             "program": {"type": "string", "description": _PROGRAM_HELP},
             "minutes": {"type": "integer", "minimum": 1, "maximum": 240, "description": "clock.focus only: the block length."},
+            "glow": {"type": "boolean", "description": "composer-ring only: a soft glow on the ring. Leave it off unless the user asks for a glow."},
         },
         "required": ["id", "slot", "source", "program"],
         "additionalProperties": False,
@@ -155,6 +157,8 @@ def mount(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: float 
     if not isinstance(program, str) or not program.strip() or len(program.encode()) > 4096:
         return {"ok": False, "error": "program: a glide/v1 program of at most 4 KiB"}
     widget: dict[str, Any] = {"id": wid, "slot": slot, "source": source, "program": program}
+    if args.get("glow") is True and slot == "composer-ring":
+        widget["glow"] = True
     if source == "clock.focus":
         minutes = args.get("minutes", 25)
         if not isinstance(minutes, int) or not 1 <= minutes <= 240:
