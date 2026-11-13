@@ -2,19 +2,23 @@
 //   preview-*: the token-only fleetDesign/fleetCardHtml preview;
 //   kit-{before,after}-*: what Tern draws, the pinned kit's DOM snapshot with its real stylesheet,
 //   before and after fleetFit (eui/fleetFit.ts, a rewrite of the first snapshot), at 1060x596 and in a 556 px pane.
-// Usage from repo root: bun glide/tools/fleet-shots.mts OUT_DIR
+// Usage from repo root: bun glide/tools/fleet-shots.mts OUT_DIR [FACTORY_DOC.json]
+//   FACTORY_DOC: a fleet-factory document to draw instead of the inline sample, e.g. fleet.card()'s
+//   answer over the synthetic glide/demo/fleet-fixture (what bare /factory shows without a content factory).
 // Writes OUT_DIR/*.png, OUT_DIR/html/*.html and OUT_DIR/measure.json (rect heights, px).
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 import { fleetCardHtml, FLEET_DESIGN_CSS } from '../../frontend/src/commands/fleet.js'
 import { compactCss, euiDir, euiStyles } from '../../frontend/src/eui/cards.js'
 import { FLEET_FIT_CSS, fleetFit } from '../../frontend/src/eui/fleetFit.js'
+import { kitSnapshot } from '../../frontend/src/eui/kitSnapshot.js'
 import { createSandbox, type EuiNode } from '../../frontend/src/eui/sandbox.js'
 import { TERN_ATTR } from '../../frontend/src/eui/ternCss.js'
-import { decodeFleet, fleetDesign, type FleetView } from '../../frontend/src/wire/fleet.js'
+import { kitInput, kitNotes } from '../../frontend/src/wire/euiKit.js'
+import { decodeFleet, fleetDesign, fleetVisibleDoc, type FleetView } from '../../frontend/src/wire/fleet.js'
 import { DASH, MONO, NIGHT, RADIUS, STATUS, TRACK, TYPE } from '../frontend/tokens.js'
 
 const out = resolve(process.argv[2] ?? 'fleet-shots')
@@ -74,7 +78,7 @@ const factory = {
     edges: [['brain', 'lane-1', 'delegated', true], ['brain', 'lane-2', 'delegated', true], ['brain', 'lane-3', 'delegated', false],
       ['lane-1', 'card-1', 'delegated', true], ['lane-1', 'card-2', 'delegated', false], ['lane-2', 'card-3', 'delegated', true],
       ['lane-3', 'card-4', 'delegated', false], ['card-1', 'repo-1', 'touched', false], ['card-3', 'repo-2', 'touched', false]] } }
-const documents = { hosts, portfolio, factory }
+const documents = { hosts, portfolio, factory: process.argv[3] ? JSON.parse(readFileSync(process.argv[3], 'utf8')) as typeof factory : factory }
 const title = { hosts: 'Hosts', portfolio: 'Portfolio', factory: 'Factory graph' }
 
 const browser = ['chromium', 'google-chrome-stable'].find(command => {
@@ -123,7 +127,10 @@ const measure = (view: FleetView) => '<script>addEventListener("load",()=>{const
   'parts:Object.fromEntries([...document.querySelectorAll(".fl-root>*,.fh-view>*")].map(e=>[e.className.split(" ")[0]||e.tagName,r(e)])),' +
   'tags:[...new Set([...document.querySelectorAll(\".fp-hz,.fp-st,.fp-tag,.fh-count,.fl-tag\")].map(e=>{const s=getComputedStyle(e);return s.backgroundColor+\" \"+s.borderTopWidth+\" \"+s.borderTopColor+\" \"+s.color}))],' +
   'guides:[...document.querySelectorAll(\".fp-kids,.fp-feat,.fp-tasks,.fh-kids\")].filter(e=>getComputedStyle(e).borderLeftWidth!==\"0px\"||getComputedStyle(e,\"::before\").display!==\"none\"&&getComputedStyle(e,\"::before\").content!==\"none\").length,' +
-  'row3:rows[2]?Math.round(rows[2].getBoundingClientRect().bottom-top):null};' +
+  'row3:rows[2]?Math.round(rows[2].getBoundingClientRect().bottom-top):null,' +
+  // The card as Tern stacks it: kit card top to the host's notes/Refresh row bottom, and any clipped content.
+  'total:Math.round([...document.querySelectorAll(\"button.eu-btn\")].pop().getBoundingClientRect().bottom-card.getBoundingClientRect().top),' +
+  'overflow:[...card.querySelectorAll(\"*\")].filter(e=>e.scrollHeight>e.clientHeight+1&&getComputedStyle(e).overflowY!==\"visible\").length};' +
   'document.body.setAttribute("data-measure",JSON.stringify(m))})</script>'
 
 const ternCss = ':root{--l1:' + DASH.bg + ';--l2:color-mix(in srgb,' + DASH.fg + ' 8%,transparent);--l3:' + NIGHT.borderStrong +
@@ -178,10 +185,12 @@ for (const view of ['hosts', 'portfolio', 'factory'] as const) {
   const hero = fleetDesign(decodeFleet(doc, view), view).hero
   for (const mode of ['before', 'after'] as const) {
     // The first snapshot after mount, as the host's view() draws it: no later DOM edit reshapes it.
-    const mounted = kit.mount('fleet-' + view, doc.app, () => undefined, doc)
+    // The kit input EuiHostCards mounts (eui/host.ts): the published document minus host-drawn notes.
+    const mounted = kit.mount('fleet-' + view, doc.app, () => undefined, kitInput(fleetVisibleDoc(decodeFleet(doc, view))))
     const fit = mode === 'after' ? fleetFit('fleet-' + view) : undefined
     const first = mounted.snapshot()
-    const snap = first && fit ? fit(first) : first
+    // EuiHostCards wraps it with the host's notes and Refresh row (eui/host.ts).
+    const snap = kitSnapshot(first && fit ? fit(first) : first, kitNotes(fleetVisibleDoc(decodeFleet(doc, view))), true, false)
     mounted.dispose()
     // Tern's transcript column at this window, and the narrower pane the factory card was measured in.
     for (const [pane, width] of [['desktop', 880], ['pane', 556]] as const) {

@@ -63,7 +63,7 @@ const FITS: Readonly<Record<string, Fit>> = {
     caps: [['.fp-tree', 'details.fp-group', 1], ['.fp-kids', '.fp-feat', 1], ['.fp-tasks', '.fp-task', 1],
       ['.fp-lane', '.fp-fcard', 2], ['.fp-links', '.fp-readout', FLEET_ROW_CAP]]
   },
-  'fleet-factory': { moves: HEAD, folds: [['.ff-root', '.ff-stats,.ff-graph,.ff-legend,.ff-detail', 'Stats and graph']], one: [], caps: [['.ff-bl', '.ff-bi', FLEET_ROW_CAP]] }
+  'fleet-factory': { moves: [...HEAD, ['.ff-root', '.fl-updated', '.ff-tally']], folds: [['.ff-root', '.ff-stats,.ff-graph,.ff-legend,.ff-detail', 'Stats and graph']], one: [], caps: [['.ff-bl', '.ff-bi', FLEET_ROW_CAP]] }
 }
 
 /** `tag.class.class` selectors, comma-separated, with an optional `:empty`; enough for the kit's class-named fleet DOM. */

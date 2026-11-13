@@ -2,6 +2,7 @@
 import json
 import sqlite3
 import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -602,3 +603,16 @@ def test_fixture_dir_serves_synthetic_sources_and_runs_nothing(monkeypatch, tmp_
     (fixture / "gauges.json").unlink()
     fleet._CARDS.clear()
     assert "gauges: source not installed or missing." in fleet.card(tmp_path, "hosts")["data"]["notes"]
+
+
+def test_shipped_factory_fixture_fills_the_factory_card_and_runs_nothing(monkeypatch, tmp_path):
+    # glide/demo/fleet-fixture: the synthetic factory card bare /factory shows when the gateway has no content factory.
+    monkeypatch.setenv("GLIDE_FLEET_FIXTURE", str(Path(fleet.__file__).parent / "demo" / "fleet-fixture"))
+    monkeypatch.setattr(fleet, "_source", lambda *args: pytest.fail("a fixture read ran a source"))
+    monkeypatch.setattr(fleet.subprocess, "run", lambda *args, **kwargs: pytest.fail("a fixture read ran a command"))
+    data = fleet.card(tmp_path, "factory")["data"]
+    assert data["stats"] == {"queue": 6, "depth": 6, "sendsHour": 9, "capHour": 30, "posted": 14, "verifyPass": .9}
+    assert [n["label"] for n in data["nodes"] if n.get("action")] == ["build"]
+    assert {n["state"] for n in data["nodes"]} == {"idle", "done", "failing", "needs-you", "live"}
+    assert {n["label"]: n["reason"] for n in data["nodes"] if n["col"] == 2}["sample/cards#12"] == "waiting for a maintainer review"
+    assert data["notes"] == ["Factory graph is a bounded brain-state snapshot, not live lane telemetry. capHour is the configured default of 30."]

@@ -1,0 +1,24 @@
+{
+ "last_run": "2026-11-12T21:00:00Z",
+ "verifier_lanes": {
+  "verify": "pass: 9 of 10 green",
+  "build": "failed on sample/maps",
+  "docs": "idle"
+ },
+ "pending_review": [
+  {
+   "tag": "sample/cards#12",
+   "detail": "waiting for a maintainer review"
+  }
+ ],
+ "chat_in_flight": [
+  {
+   "tag": "sample/notes#4",
+   "detail": "drafting a reply"
+  }
+ ],
+ "hoss_queued": [
+  "sample/garden#2",
+  "sample/sound#9"
+ ]
+}
