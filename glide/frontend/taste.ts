@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import type { EuiHostCardData } from '../../frontend/src/wire/euiHostCard.js'
 import { record } from '../../frontend/src/wire/json.js'
 
 export interface TasteBoard { url: string; title: string }
@@ -19,6 +20,27 @@ export function tasteBoard(raw: unknown): TasteBoard {
     throw new Error('Taste Atlas requires a loopback board URL')
   }
   return { url, title }
+}
+
+/** The card for a board Tern confirmed open beside chat: title as hero, one state, the short URL, one action. */
+export function tasteCard(board: TasteBoard, block: number): EuiHostCardData {
+  if (!Number.isSafeInteger(block) || block <= 0) {
+    throw new Error('Taste pane needs a valid block')
+  }
+  const { host, pathname } = new URL(board.url)
+  return {
+    kind: 'approve',
+    app: 'glide',
+    title: board.title,
+    rows: [
+      { label: 'State', value: 'Open beside chat' },
+      { label: 'Board', value: host + pathname.replace(/\/$/, '') }
+    ],
+    approval: {
+      label: 'Open board',
+      description: 'Bring the board pane into view.'
+    }
+  }
 }
 
 /** A user-requested local board, not the agent browser-control/drive backend. */
