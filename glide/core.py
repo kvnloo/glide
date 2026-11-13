@@ -20,9 +20,9 @@ from pathlib import Path
 from . import source
 from .child_env import child_env
 from .memory import GlideMemory, MemoryNotReady
-from .skill_router import command as skill_router_command, command_install, command_list, command_rank, USAGE as skill_router_USAGE
-from .hill_climb import command as hill_climb_command, scaffold, run_round, status, create_stop, remove_stop, USAGE as hill_climb_USAGE
-from .offload import command as offload_command, offload_task, savings_card, USAGE as offload_USAGE
+from .hill_climb import command as hill_climb_command
+from .offload import command as offload_command
+from .skill_router import command as skill_router_command
 
 RUNTIMES = ("ollama", "llama-server", "llama-cli", "lms", "vllm", "mlx_lm.server")
 _TIMEOUT = 20
