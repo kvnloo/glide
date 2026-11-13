@@ -28,7 +28,8 @@ export function checkMarkup(text: string, where: string): string[] {
 const SLOT_PARTS: Record<WidgetSlot, { max: number; only?: readonly UiName[] }> = {
   'above-composer': { max: 6 },
   'below-composer': { max: 6 },
-  'composer-ring': { max: 3, only: ['Meter', 'Hero', 'Text', 'Badges', 'Graphic'] }
+  'composer-ring': { max: 3, only: ['Meter', 'Hero', 'Text', 'Badges', 'Graphic'] },
+  sidebar: { max: 8 }
 }
 
 /** A bound tree for `slot`: its part count, its kinds and its host graphics. */

@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-SLOTS = ("above-composer", "below-composer", "composer-ring")
+SLOTS = ("above-composer", "below-composer", "composer-ring", "sidebar")
 SOURCES = {
     "git.commits": "The session repository's git log: heat (Graphic, a 52-week heatmap), total (Hero), "
                    "stats (Stats: this week, streak, best day), trend (Spark, weekly), repo (Text). Card key \"commits\".",
@@ -38,10 +38,13 @@ MOUNT_SCHEMA = {
     "name": "glide_ui_mount",
     "description": (
         "Mount a persistent widget around the Glide composer that updates itself from host data and "
-        "survives relaunches. slot: above-composer, below-composer, or composer-ring (a strip on the "
-        "composer's edge; Meter, Hero, Text, Badges or Graphic only, at most 3 parts). Sources: "
+        "survives relaunches. slot: above-composer, below-composer, composer-ring (anything that runs "
+        "\"around\" or \"on\" the composer, like a focus timer: a strip on the composer's edge; Meter, Hero, "
+        "Text, Badges or Graphic only, at most 3 parts), or sidebar (docked at "
+        "the pane's right edge while no other aside is open). Sources: "
         + " ".join(f"{k}: {v}" for k, v in SOURCES.items()) + " " + _PROGRAM_HELP
-        + " Mounting the same id again replaces it. The open Glide pane checks the program and the design "
+        + " For a full-pane app beside the chat, write the file and run `tern open --split right PATH` in the "
+        "terminal instead (it lands beside this pane). Mounting the same id again replaces it. The open Glide pane checks the program and the design "
         "rules (text >= 11 px, no glow or motion, contrast) and the result says whether it mounted."
     ),
     "parameters": {
@@ -240,7 +243,17 @@ def _tool(fn):
     return handler
 
 
+PROMPT = """<glide_ui>
+The Glide pane's look is yours to change. A widget around the composer (above or below it, on its edge,
+in the sidebar) is glide_ui_mount; removing one is glide_ui_unmount; a restyle ("make it warmer", cooler,
+an accent color) is glide_ui_style and means the UI palette, never the model's temperature. If these tools
+are not loaded, find them with tool_search ("glide ui").
+</glide_ui>"""
+
+
 def register(ctx) -> None:
+    if callable(getattr(ctx, "register_system_prompt_section", None)):
+        ctx.register_system_prompt_section("glide.ui", PROMPT)
     for schema, fn in ((MOUNT_SCHEMA, mount), (UNMOUNT_SCHEMA, unmount), (STYLE_SCHEMA, style)):
         ctx.register_tool(name=schema["name"], toolset=TOOLSET, schema=schema, handler=_tool(fn),
                           description=schema["description"], emoji="🧩")

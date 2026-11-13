@@ -14,7 +14,7 @@ import { NoticeStrip } from '../chrome/notices.js'
 import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
-import { euiSheets, setSvgInk } from '../eui/cards.js'
+import { euiSheets, GLIDE_UI_SHEET, setSvgInk } from '../eui/cards.js'
 import { GlideWidgets } from '../glideui/widgets.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
@@ -314,6 +314,11 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     restyled: () => {
       theme.apply()
       return theme.wal
+    },
+    sheet: css => {
+      if (euiSheets.get(GLIDE_UI_SHEET) === css) return
+      euiSheets.set(GLIDE_UI_SHEET, css)
+      surface().raw.stylesheet(GLIDE_UI_SHEET, css)
     }
   })
   /** Whose colors the surface wears, and the gateway's skin. */

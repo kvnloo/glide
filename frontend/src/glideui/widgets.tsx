@@ -35,6 +35,8 @@ export interface WidgetsHost {
   now?(): number
   /** The compiler; default the packaged adapter (program.ts). */
   glide?(): Promise<Glide>
+  /** Puts the kit sheet on the surface if it is not there; called while widgets are drawn, so a recovered surface gets it back. */
+  sheet?(css: string): void
 }
 
 /** Where the pane reports each mount's verdict for the tools (`<home>/glide/ui-status.json`). */
@@ -124,6 +126,7 @@ export class GlideWidgets {
       // The ring is a strip on the composer's edge: the card's parts without its shell.
       out.push(<row align="center" gap="md" key={w.id} role="glide.ring">{tree.props.children.map((c, i) => node(c, `p${i}`, r))}</row>)
     }
+    if (out.length) this.#host.sheet?.(UI_CSS)
     return out
   }
 

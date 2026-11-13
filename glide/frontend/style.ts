@@ -23,8 +23,8 @@ export function styleWal(wal: WalColors, style: UiStyle | undefined): WalColors 
   const to = w > 0 ? WARM : COOL
   const k = Math.abs(w)
   return {
-    special: { ...wal.special, background: mix(wal.special.background, to.bg, 0.55 * k), foreground: mix(wal.special.foreground, to.fg, 0.4 * k) },
-    colors: Object.fromEntries(Object.entries(wal.colors).map(([name, c]) => [name, /^#[0-9a-f]{6}$/i.test(c) ? mix(c, to.hue, 0.35 * k) : c]))
+    special: { ...wal.special, background: mix(wal.special.background, to.bg, 0.75 * k), foreground: mix(wal.special.foreground, to.fg, 0.5 * k) },
+    colors: Object.fromEntries(Object.entries(wal.colors).map(([name, c]) => [name, /^#[0-9a-f]{6}$/i.test(c) ? mix(c, to.hue, 0.5 * k) : c]))
   }
 }
 

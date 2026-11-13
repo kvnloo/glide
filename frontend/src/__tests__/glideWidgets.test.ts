@@ -16,7 +16,7 @@ import type { UiNode } from '../glideui/library.js'
 import { commitDays, commitsDoc, focusDoc } from '../glideui/mounts.js'
 import { node, UI_CSS } from '../glideui/render.js'
 import { GlideWidgets, statusFile } from '../glideui/widgets.js'
-import { dockNodes } from '../view/dock.js'
+import { dockNodes, widgetAside } from '../view/dock.js'
 import { readUi } from '../wire/files.js'
 import { parseJson } from '../wire/json.js'
 
@@ -40,7 +40,9 @@ function home(ui: unknown) {
 function widgets(file: string, times: number[] = [], clock = { now: NOW }) {
   let changes = 0
   let restyles = 0
+  const sheets: string[] = []
   const w = new GlideWidgets({
+    sheet: css => { sheets.push(css) },
     file,
     changed: () => { changes++ },
     cwd: () => '/repo/glide',
@@ -48,7 +50,7 @@ function widgets(file: string, times: number[] = [], clock = { now: NOW }) {
     now: () => clock.now,
     restyled: () => { restyles++; return undefined }
   })
-  return { w, changes: () => changes, restyles: () => restyles }
+  return { w, changes: () => changes, restyles: () => restyles, sheets }
 }
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 20))
@@ -124,7 +126,11 @@ describe('GlideWidgets', () => {
     expect(h.status()).toMatchObject({ rev: 1, widgets: { commits: { ok: true } } })
     const r = { send: () => undefined, svg: () => 'blob' }
     await flush()
+    expect(f.w.nodes('above-composer', r)).toEqual([])
+    expect(f.sheets).toEqual([])
     const drawn = text(f.w.nodes('below-composer', r).map(tree))
+    // A drawn widget brings the kit sheet with it, even in a chat with no cards.
+    expect(f.sheets.at(-1)).toBe(UI_CSS)
     expect(drawn).toContain('This week')
     expect(drawn).toContain('"3 commits in 52 weeks"')
     // A new commit, read on the next refresh: the same compiled program re-binds to it.
@@ -179,5 +185,12 @@ describe('dock slots', () => {
     const keys = dockNodes(dockContext(), dockActions(), { above: [w('a')], ring: [w('r')], below: [w('b')] }).map(n => tree(n).p?.['key'])
     expect(keys.slice(-4)).toEqual(['glide.above', 'glide.ring', 'composer', 'glide.below'])
     expect(dockNodes(dockContext(), dockActions()).map(n => tree(n).p?.['key']).at(-1)).toBe('composer')
+  })
+
+  it('dock the sidebar slot as the aside, and draw nothing when it is empty', () => {
+    const w = node({ type: 'element', typeName: 'Text', props: { body: 's' } }, 's', { send: () => undefined })
+    const aside = widgetAside([w])
+    expect(aside && tree(aside).p?.['key']).toBe('layer.widgets')
+    expect(widgetAside([])).toBeNull()
   })
 })

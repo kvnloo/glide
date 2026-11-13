@@ -5,7 +5,7 @@
 
 import { slot, type GlideDoc } from './library.js'
 
-export const WIDGET_SLOTS = ['above-composer', 'below-composer', 'composer-ring'] as const
+export const WIDGET_SLOTS = ['above-composer', 'below-composer', 'composer-ring', 'sidebar'] as const
 export type WidgetSlot = (typeof WIDGET_SLOTS)[number]
 export const WIDGET_SOURCES = ['git.commits', 'clock.focus'] as const
 export type WidgetSource = (typeof WIDGET_SOURCES)[number]

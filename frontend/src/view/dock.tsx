@@ -199,6 +199,11 @@ export interface DockSlots {
   readonly below?: readonly JSX.Element[]
 }
 
+/** The sidebar slot's widgets, docked at the pane's right edge as the aside (only while no other aside is open). */
+export function widgetAside(nodes: readonly JSX.Element[]): JSX.Element | null {
+  return nodes.length ? <col gap="sm" key="layer.widgets" role="glide.aside">{nodes}</col> : null
+}
+
 export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {}): JSX.Element[] {
   const nodes: JSX.Element[] = []
   const { activity, pills: p } = cx
@@ -255,10 +260,11 @@ export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {
     )
   }
 
-  if (slots.above?.length) nodes.push(<col gap="sm" key="glide.above" role="glide.dock">{slots.above}</col>)
-  if (slots.ring?.length) nodes.push(<col key="glide.ring" role="glide.ring.edge">{slots.ring}</col>)
+  // A role-less dock column takes Tern's reader measure for its children, so widgets line up with the composer.
+  if (slots.above?.length) nodes.push(<col key="glide.above"><col gap="sm" key="w" role="glide.dock">{slots.above}</col></col>)
+  if (slots.ring?.length) nodes.push(<col key="glide.ring"><col key="w" role="glide.ring.edge">{slots.ring}</col></col>)
   nodes.push(composerNode(cx, on))
-  if (slots.below?.length) nodes.push(<col gap="sm" key="glide.below" role="glide.dock">{slots.below}</col>)
+  if (slots.below?.length) nodes.push(<col key="glide.below"><col gap="sm" key="w" role="glide.dock">{slots.below}</col></col>)
 
   return nodes
 }

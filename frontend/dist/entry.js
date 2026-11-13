@@ -32343,7 +32343,7 @@ function slot(c, p3) {
 }
 
 // src/glideui/mounts.ts
-var WIDGET_SLOTS = ["above-composer", "below-composer", "composer-ring"];
+var WIDGET_SLOTS = ["above-composer", "below-composer", "composer-ring", "sidebar"];
 var WIDGET_SOURCES = ["git.commits", "clock.focus"];
 var DAY = 864e5;
 var HEAT_WEEKS = 52;
@@ -96531,6 +96531,9 @@ function statusNotices(s2, open5) {
 }
 
 // src/view/dock.tsx
+function widgetAside(nodes) {
+  return nodes.length ? /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.aside", children: nodes }, "layer.widgets") : null;
+}
 function dockNodes(cx, on, slots = {}) {
   const nodes = [];
   const { activity, pills: p3 } = cx;
@@ -96574,10 +96577,10 @@ function dockNodes(cx, on, slots = {}) {
       ] }, "agents")
     );
   }
-  if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "glide.above"));
-  if (slots.ring?.length) nodes.push(/* @__PURE__ */ jsx("col", { role: "glide.ring.edge", children: slots.ring }, "glide.ring"));
+  if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "w") }, "glide.above"));
+  if (slots.ring?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { role: "glide.ring.edge", children: slots.ring }, "w") }, "glide.ring"));
   nodes.push(composerNode(cx, on));
-  if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "glide.below"));
+  if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") }, "glide.below"));
   return nodes;
 }
 function activityNode(a2, cx, on) {
@@ -96810,7 +96813,7 @@ function drawFrame(cx, now = Date.now()) {
   const chrome = {
     dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions, slots)],
     layer: [
-      ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
+      ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar") ?? widgetAside(w?.nodes("sidebar", r) ?? [])].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
       ...modal2 ? [] : cx.completion.nodes(COMPOSER_ID)
     ]
@@ -98495,8 +98498,8 @@ function styleWal(wal, style2) {
   const to = w > 0 ? WARM : COOL;
   const k = Math.abs(w);
   return {
-    special: { ...wal.special, background: mix(wal.special.background, to.bg, 0.55 * k), foreground: mix(wal.special.foreground, to.fg, 0.4 * k) },
-    colors: Object.fromEntries(Object.entries(wal.colors).map(([name, c]) => [name, /^#[0-9a-f]{6}$/i.test(c) ? mix(c, to.hue, 0.35 * k) : c]))
+    special: { ...wal.special, background: mix(wal.special.background, to.bg, 0.75 * k), foreground: mix(wal.special.foreground, to.fg, 0.5 * k) },
+    colors: Object.fromEntries(Object.entries(wal.colors).map(([name, c]) => [name, /^#[0-9a-f]{6}$/i.test(c) ? mix(c, to.hue, 0.5 * k) : c]))
   };
 }
 function styleAccent(p3, style2) {
@@ -98703,7 +98706,8 @@ function checkMarkup(text22, where) {
 var SLOT_PARTS = {
   "above-composer": { max: 6 },
   "below-composer": { max: 6 },
-  "composer-ring": { max: 3, only: ["Meter", "Hero", "Text", "Badges", "Graphic"] }
+  "composer-ring": { max: 3, only: ["Meter", "Hero", "Text", "Badges", "Graphic"] },
+  sidebar: { max: 8 }
 };
 function checkTree(tree, slot2) {
   const problems = [];
@@ -98813,6 +98817,7 @@ var GlideWidgets = class {
       }
       out.push(/* @__PURE__ */ jsx("row", { align: "center", gap: "md", role: "glide.ring", children: tree.props.children.map((c, i) => node2(c, `p${i}`, r)) }, w.id));
     }
+    if (out.length) this.#host.sheet?.(UI_CSS);
     return out;
   }
   dispose() {
@@ -104153,6 +104158,11 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     restyled: () => {
       theme.apply();
       return theme.wal;
+    },
+    sheet: (css2) => {
+      if (euiSheets.get(GLIDE_UI_SHEET) === css2) return;
+      euiSheets.set(GLIDE_UI_SHEET, css2);
+      surface().raw.stylesheet(GLIDE_UI_SHEET, css2);
     }
   });
   const theme = new Theme({

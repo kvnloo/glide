@@ -68,7 +68,7 @@ def test_a_rejected_mount_is_removed_and_the_previous_one_restored(tmp_path):
 def test_mount_validates_before_writing(tmp_path):
     home = _home(tmp_path)
     base = {"id": "focus", "slot": "composer-ring", "source": "clock.focus", "program": "root = x"}
-    assert "slot" in ui.mount(home, {**base, "slot": "sidebar"})["error"]
+    assert "slot" in ui.mount(home, {**base, "slot": "titlebar"})["error"]
     assert "source" in ui.mount(home, {**base, "source": "shell"})["error"]
     assert "id" in ui.mount(home, {**base, "id": "Bad Id"})["error"]
     assert "minutes" in ui.mount(home, {**base, "minutes": 0})["error"]
@@ -95,9 +95,11 @@ def test_style_unmount_list_and_reset(tmp_path, monkeypatch):
 
 
 def test_register_adds_the_three_tools():
-    tools = {}
+    tools, sections = {}, {}
     ctx = types.SimpleNamespace(register_hook=lambda *a: None, register_command=lambda *a, **k: None,
-                                register_tool=lambda **kw: tools.__setitem__(kw["name"], kw))
+                                register_tool=lambda **kw: tools.__setitem__(kw["name"], kw),
+                                register_system_prompt_section=lambda id, content: sections.__setitem__(id, content))
     plugin.register(ctx)
     assert sorted(tools) == ["glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
+    assert "never the model's temperature" in sections["glide.ui"]
     assert all(t["toolset"] == "glide" and t["schema"]["name"] == n for n, t in tools.items())

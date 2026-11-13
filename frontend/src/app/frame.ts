@@ -21,7 +21,7 @@ import type { EuiCards } from '../eui/cards.js'
 import type { GlideWidgets } from '../glideui/widgets.js'
 import type { UiRender } from '../glideui/render.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
-import { type DockActions, dockNodes } from '../view/dock.js'
+import { type DockActions, dockNodes, widgetAside } from '../view/dock.js'
 import { type DockSources, dockModel, isModal, shownPills } from '../view/dockModel.js'
 import { bindBrowserFocus, type BrowserFocusHost } from '../view/tools/cards/browser.js'
 import type { Retention } from '../view/retention.js'
@@ -97,7 +97,7 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
     dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions, slots)],
     layer: [
       ...(cx.aside()
-        ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)
+        ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : (cx.sidebar.node('layer.sidebar') ?? widgetAside(w?.nodes('sidebar', r) ?? []))].filter(n => n !== null)
         : []),
       ...cx.overlays.map(o => o.node(cx.stack.rootOf(o))),
       ...(modal ? [] : cx.completion.nodes(COMPOSER_ID))
