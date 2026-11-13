@@ -168,7 +168,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
   return {
     kinds: Object.keys(K.KINDS),
     apps: () => K.catalog.apps.map(a => ({ id: a.id, name: a.name, kinds: [...(a.kinds ?? [])] })),
-    mount(kind, appId, onChange, doc, onIntent) {
+    mount(kind, appId, onChange, doc, onIntent, fit) {
       const k = K.KINDS[kind]
       if (!k) throw Error(`ephemeral-ui has no kind ${kind}`)
       const app = K.catalog.byId[appId] ?? K.catalog.apps.find(a => (a.kinds ?? []).includes(kind)) ?? { id: appId, name: appId, kinds: [kind] }
@@ -183,10 +183,12 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       if (onIntent) root.addEventListener('eui:intent', intent)
       const c = k.make(app, K.rng(app.id + kind), doc)
       root.append(c.el ?? c)
+      fit?.(root)
       const run = new K.Run()
       if (typeof c.play === 'function') Promise.resolve().then(() => c.play(run)).catch(e => { if (e !== K.Run.CANCEL) log(e) })
       let pending
-      const mo = new window.MutationObserver(() => { if (!pending) { pending = setTimeout(() => { pending = undefined; onChange() }, 120); pending.unref?.() } })
+      // A host fit (fleetFit.ts) adapts new kit nodes before the host reads them; its own edits are not news.
+      const mo = new window.MutationObserver(() => { if (!pending) { pending = setTimeout(() => { pending = undefined; if (fit) { fit(root); mo.takeRecords() } onChange() }, 120); pending.unref?.() } })
       mo.observe(root, { subtree: true, childList: true, attributes: true, characterData: true })
       return {
         app: app.id,

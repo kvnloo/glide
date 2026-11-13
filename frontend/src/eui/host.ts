@@ -7,6 +7,7 @@ import { decodeEuiKit, kitInput, kitNotes, type EuiKitDoc } from '../wire/euiKit
 
 import type { EuiCardView } from './cards.js'
 import { HOST_APPROVE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
+import { fleetFit } from './fleetFit.js'
 import { kitSnapshot } from './kitSnapshot.js'
 import type { EuiMounted, EuiSandbox } from './sandbox.js'
 
@@ -240,7 +241,7 @@ export class EuiHostCards {
         if (!content.accepting || !this.#current(slot) || content.mounting !== token || !this.#port?.active()) return
         content.accepting = false
         void this.#runKit(slot, () => content.intent(detail, this.#context(slot)))
-      })
+      }, fleetFit(content.data.kind))
       this.#changed(slot.key)
     }).catch((error: unknown) => {
       if (!this.#current(slot) || content.mounting !== token) return
