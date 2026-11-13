@@ -7,7 +7,7 @@ import { decodeEuiKit, kitInput, kitNotes, type EuiKitDoc } from '../wire/euiKit
 
 import type { EuiCardView } from './cards.js'
 import { HOST_APPROVE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
-import { fleetFit } from './fleetFit.js'
+import { type FleetFit, fleetFit } from './fleetFit.js'
 import { kitSnapshot } from './kitSnapshot.js'
 import type { EuiMounted, EuiSandbox } from './sandbox.js'
 
@@ -55,6 +55,8 @@ type Content = {
   readonly intent: EuiKitIntent
   readonly refresh: EuiKitRefresh | undefined
   mounted?: EuiMounted
+  /** The fleet kinds' snapshot rewrite, fresh per mount (fleetFit.ts). */
+  fit?: FleetFit | undefined
   mounting?: symbol
   error?: string
   refreshing: boolean
@@ -68,6 +70,12 @@ interface Slot {
   readonly owner: EuiHostOwner
   readonly controller: AbortController
   readonly onAbort: () => void
+}
+
+/** The mounted kit's snapshot as Tern first paints it: already fitted, never reshaped after mount. */
+function kitNode(content: Extract<Content, { kind: 'kit' }>) {
+  const node = content.mounted?.snapshot() ?? null
+  return node && content.fit ? content.fit(node) : node
 }
 
 export class EuiHostCards {
@@ -153,7 +161,7 @@ export class EuiHostCards {
       spec: content.data, app: content.data.app, label: content.data.title ?? content.data.kind,
       identity: 'host-' + revision,
       node: content.kind === 'rows' ? hostSnapshot(content.data, content.status)
-        : kitSnapshot(content.mounted?.snapshot() ?? null, kitNotes(content.data), content.refresh !== undefined, content.refreshing, content.error),
+        : kitSnapshot(kitNode(content), kitNotes(content.data), content.refresh !== undefined, content.refreshing, content.error),
       activate: id => {
         if (slot.revision !== revision) return
         if (content.kind === 'rows') this.#approve(slot, id)
@@ -235,13 +243,14 @@ export class EuiHostCards {
     delete content.error
     this.#sandbox().then(sb => {
       if (!this.#current(slot) || content.mounting !== token) return
+      content.fit = fleetFit(content.data.kind)
       content.mounted = sb.mount(content.data.kind, content.data.app, () => {
         if (this.#current(slot) && content.mounting === token) this.#changed(slot.key)
       }, kitInput(content.data), detail => {
         if (!content.accepting || !this.#current(slot) || content.mounting !== token || !this.#port?.active()) return
         content.accepting = false
         void this.#runKit(slot, () => content.intent(detail, this.#context(slot)))
-      }, fleetFit(content.data.kind))
+      })
       this.#changed(slot.key)
     }).catch((error: unknown) => {
       if (!this.#current(slot) || content.mounting !== token) return
@@ -260,6 +269,8 @@ export class EuiHostCards {
         content.refreshing = false
         this.#changed(slot.key)
       })
+    } else if (content.fit?.click(id)) {
+      this.#changed(slot.key)
     } else if (id > 0) {
       content.accepting = true
       try { content.mounted?.click(id) } finally { content.accepting = false }
