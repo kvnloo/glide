@@ -147,6 +147,15 @@ describe('dash theme mode', () => {
     expect(worn).toEqual(['dash', null])
   })
 
+  it('wears the window theme again when dash is asked for while already in it', () => {
+    const worn: (string | null)[] = []
+    const theme = new Theme({ ...host(), windowTheme: (name: string | null) => void worn.push(name) }, 'tern')
+
+    theme.set('dash')
+    theme.set('dash')
+    expect(worn).toEqual(['dash', 'dash'])
+  })
+
   it("names a theme whose stage (--tv-bg: its background) and every layer are Dash's hueless night", () => {
     // Tern paints .tn-body (var(--panel)) and .tn-veil (var(--tv-bg)) from its omp theme's background.
     const shipped = record(readJsonFile(fileURLToPath(new URL('../../../glide/themes/dash.json', import.meta.url))))
@@ -174,13 +183,59 @@ describe('ternWindowTheme', () => {
   const pane = { TERN_PANE: '7' }
   const settle = () => new Promise(resolve => setTimeout(resolve, 0))
 
+  function ending() {
+    const synced: string[] = []
+    const ends: (() => void)[] = []
+    return { synced, ends, sync: (args: readonly string[]) => void synced.push(args.join(' ')), atEnd: (end: () => void) => void ends.push(end) }
+  }
+
   it('is nothing outside a Tern pane', () => {
-    expect(ternWindowTheme({}, ctl().run)).toBeUndefined()
+    const e = ending()
+    expect(ternWindowTheme({}, ctl().run, e.sync, e.atEnd)).toBeUndefined()
+    expect(e.ends).toEqual([])
+    expect(e.synced).toEqual([])
+  })
+
+  it('wears the theme again on a window something reset, keeping the first one it gave up', async () => {
+    const c = ctl()
+    const wear = ternWindowTheme(pane, c.run, ending().sync, ending().atEnd)
+    wear?.('dash')
+    await settle()
+    wear?.('dash')
+    wear?.(null)
+    await settle()
+    expect(c.calls).toEqual([
+      'state', 'theme dark dash', 'theme light dash',
+      'state', 'theme dark dash', 'theme light dash',
+      'theme dark pywal', 'theme light light'
+    ])
+  })
+
+  it("gives the window's own theme back once as the process ends in dash", async () => {
+    const c = ctl(), e = ending()
+    const wear = ternWindowTheme(pane, c.run, e.sync, e.atEnd)
+    wear?.('dash')
+    wear?.('dash')
+    await settle()
+    expect(e.ends).toHaveLength(1)
+    e.ends[0]?.()
+    e.ends[0]?.()
+    expect(e.synced).toEqual(['theme dark pywal', 'theme light light'])
+  })
+
+  it('has nothing to give back at the end once the window left dash', async () => {
+    const c = ctl(), e = ending()
+    const wear = ternWindowTheme(pane, c.run, e.sync, e.atEnd)
+    wear?.('dash')
+    wear?.(null)
+    await settle()
+    e.ends[0]?.()
+    expect(e.synced).toEqual([])
   })
 
   it("wears the theme for both appearances, then the window's own again", async () => {
     const c = ctl()
-    const wear = ternWindowTheme(pane, c.run)
+    const wear = ternWindowTheme(pane, c.run, ending().sync, ending().atEnd)
     wear?.('dash')
     wear?.(null)
     await settle()
@@ -189,7 +244,7 @@ describe('ternWindowTheme', () => {
 
   it('gives nothing back for a window already in it, and swallows a theme Tern lacks', async () => {
     const c = ctl({ theme_dark: 'dash', theme_light: 'dash' }, false)
-    const wear = ternWindowTheme(pane, c.run)
+    const wear = ternWindowTheme(pane, c.run, ending().sync, ending().atEnd)
     wear?.('dash')
     wear?.(null)
     await settle()

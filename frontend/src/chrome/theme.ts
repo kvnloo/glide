@@ -2,7 +2,7 @@
 // last reported, which only the `skin` mode wears. palette.ts maps the pair to Tern's palette; the
 // `auto` mode (wal.ts) wears the wallpaper's pywal colors and follows the file live.
 
-import { execFile } from 'node:child_process'
+import { execFile, spawnSync } from 'node:child_process'
 
 import type { SkinPayload } from '@hermes/shared/gateway-events'
 import type { Palette } from '@stencil-hq/tern'
@@ -36,27 +36,66 @@ const ternCtl: TernCtl = args => new Promise((resolve, reject) => {
   execFile('tern', ['ctl', ...args], { timeout: 5000 }, (error, stdout) => (error ? reject(error) : resolve(stdout)))
 })
 
+/** `tern ctl` run to completion: an exiting process has no event loop left for the async one. */
+export type TernCtlSync = (args: readonly string[]) => void
+
+const ternCtlSync: TernCtlSync = args => void spawnSync('tern', ['ctl', ...args], { timeout: 2000, stdio: 'ignore' })
+
+/** Runs `end` as the process ends: on exit, or on a signal that ends it, which is then re-raised. */
+export type AtProcessEnd = (end: () => void) => void
+
+const atProcessEnd: AtProcessEnd = end => {
+  process.once('exit', end)
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
+    const on = () => {
+      process.off(signal, on)
+      end()
+      // Only this hook listened: the signal's default (ending the process) is what was asked for.
+      if (process.listenerCount(signal) === 0) process.kill(process.pid, signal)
+    }
+    process.on(signal, on)
+  }
+}
+
 /**
  * The dash mode's window theme. Tern paints its stage, panes and chrome (.tn-body is var(--panel) over
  * --tv-bg, .tn-veil --tv-bg) from its own omp theme, theme_dark/theme_light; a program's palette only
  * colours its text tokens and Tern scopes its stylesheets inside its region, so in the dash mode a
  * pywal window kept a slate stage round the black cards. `tern ctl` in a pane drives the window
- * showing it, and the launcher installs glide/themes/dash.json where Tern lists it. Undefined outside a Tern pane.
+ * showing it, and the launcher installs glide/themes/dash.json where Tern lists it. Each call wears
+ * the theme again (a wallpaper hook may have put the window back in pywal), and a Glide that ends
+ * still wearing it gives the window's own back through `sync` once. Undefined outside a Tern pane.
  */
-export function ternWindowTheme(env: NodeJS.ProcessEnv = process.env, run: TernCtl = ternCtl): ((name: string | null) => void) | undefined {
+export function ternWindowTheme(
+  env: NodeJS.ProcessEnv = process.env,
+  run: TernCtl = ternCtl,
+  sync: TernCtlSync = ternCtlSync,
+  atEnd: AtProcessEnd = atProcessEnd
+): ((name: string | null) => void) | undefined {
   if (!env['TERN_PANE']) return undefined
   let before: { dark: string; light: string } | undefined
+  let hooked = false
   let queue = Promise.resolve()
   const wear = async (dark: string, light: string) => {
     for (const [side, name] of [['dark', dark], ['light', light]] as const) {
       if (record(await run(['theme', side, name]))?.['ok'] !== true) throw new Error(`tern has no theme ${name}`)
     }
   }
+  const restore = () => {
+    const own = before
+    before = undefined
+    if (own) for (const [side, name] of [['dark', own.dark], ['light', own.light]] as const) sync(['theme', side, name])
+  }
   return name => {
+    if (name !== null && !hooked) {
+      hooked = true
+      atEnd(restore)
+    }
     queue = queue.then(async () => {
       if (name === null) {
-        if (before) await wear(before.dark, before.light)
+        const own = before
         before = undefined
+        if (own) await wear(own.dark, own.light)
         return
       }
       const state = record(await run(['state']))
@@ -144,6 +183,8 @@ export class Theme {
   set(mode: ThemeMode) {
     this.#mode = mode
     this.#host.settings.save({ theme: mode })
+    // Asking for dash again wears its window theme again: something may have reset the window since.
+    if (mode === 'dash') this.#window = false
     this.apply()
   }
 
