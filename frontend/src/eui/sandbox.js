@@ -129,8 +129,14 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       if (el.localName !== 'svg') return null
       const box = (el.getAttribute('viewBox') ?? '').split(/[\s,]+/).map(Number)
       const w = Number.parseFloat(el.getAttribute('width') ?? '') || box[2] || 16
-      const h = Number.parseFloat(el.getAttribute('height') ?? '') || box[3] || 16
-      const svg = svgInline(el, rules, K.theme.base ?? {})
+      let h = Number.parseFloat(el.getAttribute('height') ?? '') || box[3] || 16
+      let svg = svgInline(el, rules, K.theme.base ?? {})
+      // The intel hill chart always plots between y 56 and 194 of its 250-unit box; Tern scales it as an
+      // image, so drop the empty bands and the capped stage spends its height on the plot.
+      if (el.classList.contains('is-chart') && box.join() === '0,0,640,250') {
+        svg = svg.replace('viewBox="0 0 640 250"', 'viewBox="0 34 640 174"')
+        h = 174
+      }
       const image = { t: 'svg', svg, w, h, cls: el.getAttribute('class') ?? '', style: el.getAttribute('style') ?? '' }
       // Tern displays SVG as an image. Keep the kit's graph controls reachable as native buttons.
       const controls = [...el.querySelectorAll('[role="button"]')].filter(clickable).map(control => ({
