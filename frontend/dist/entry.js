@@ -76343,25 +76343,6 @@ function fleetNode(doc, entity) {
 function fleetText(raw2) {
   return object({ text: string2() }).parse(raw2).text;
 }
-var agentShape = object({ id, name: string2(), state: string2() });
-var hostShape = object({
-  id,
-  label: string2(),
-  online: boolean2(),
-  harnesses: array(object({ kind: string2(), agents: array(agentShape) })),
-  k3s: nullable(object({ node: optional2(string2()), pods: array(array(unknown())) }))
-});
-var portfolioShape = object({ portfolios: record2(string2(), object({
-  products: array(object({ id, label: string2(), features: array(object({
-    id,
-    label: string2(),
-    tasks: array(object({ id, label: string2(), status: string2(), url: optional2(string2()) }))
-  })) }))
-})) });
-var graphShape = object({
-  nodes: array(object({ id, label: string2(), col: number2(), state: string2(), action: optional2(string2()), url: optional2(string2()) })),
-  edges: array(tuple([id, id, string2(), boolean2()]))
-});
 function fleetVisibleDoc(doc) {
   const copy = (value) => {
     if (typeof value !== "string") return "Fleet details unavailable. Refresh to retry.";
@@ -76828,40 +76809,6 @@ async function fleetCommand(host2, view, portfolio2) {
     if (current()) host2.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, "warning");
   }
 }
-var FLEET_DESIGN_CSS = [
-  ".fl-design{width:100%;min-width:0;color:var(--t1," + DASH.fg + ");font:400 " + TYPE.body + "px/1.4 var(--sans,system-ui,sans-serif)}",
-  ".fl-design *{box-sizing:border-box}",
-  ".fl-design-head{height:24px;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;white-space:nowrap;font-size:" + TYPE.body + "px}",
-  ".fl-design-head b{color:var(--t2," + DASH.muted + ");font-weight:500}",
-  ".fl-design-head span{overflow:hidden;text-overflow:ellipsis;font-weight:400}",
-  ".fl-design-box{background:var(--l1," + DASH.bg + ");border:1px solid var(--l3," + NIGHT.border + ");border-radius:" + RADIUS.tile + "px;padding:14px;box-shadow:none}",
-  ".fl-design-hero{max-width:72ch;font-size:" + TYPE.lead + "px;font-weight:500;line-height:1.4}",
-  ".fl-design-verdict{max-width:72ch;color:var(--t2," + NIGHT.text2 + ");font-size:" + TYPE.small + "px;margin:4px 0 10px}",
-  ".fl-design-row{height:52px;max-height:52px;display:flex;align-items:center;gap:10px;border-top:1px solid var(--l3," + NIGHT.border + ");min-width:0}",
-  ".fl-design-name{font-size:" + TYPE.body + "px;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
-  ".fl-design-status{font:" + TYPE.label + "px/1.2 " + MONO + ";letter-spacing:" + TRACK.caps + ";border-radius:" + RADIUS.pill + "px;flex:none;white-space:nowrap;padding:5px 8px;border:1px solid color-mix(in srgb,var(--fleet-status) 25%,transparent);background:color-mix(in srgb,var(--fleet-status) 9%,transparent);color:var(--fleet-status)}",
-  ".fl-design-status[data-tone=running],.fl-design-status[data-tone=done]{--fleet-status:var(--h-success," + STATUS.ok + ")}",
-  ".fl-design-status[data-tone=held]{--fleet-status:var(--h-warning," + STATUS.warn + ")}",
-  ".fl-design-status[data-tone=failed]{--fleet-status:var(--h-danger," + STATUS.bad + ")}",
-  ".fl-design-status[data-tone=idle]{--fleet-status:var(--t2," + NIGHT.text2 + ")}",
-  '.fl-design-status[data-tone=running]::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;animation:fl-breathe 2.8s ease-in-out infinite}',
-  "@keyframes fl-breathe{50%{opacity:.35}}",
-  ".fl-design-fact{font-size:" + TYPE.meta + "px;color:var(--t2," + NIGHT.text2 + ");background:var(--l2," + DASH.bg + ");border-radius:" + RADIUS.chip + "px;padding:4px 6px;flex:none;white-space:nowrap}",
-  ".fl-design-action{flex:0 0 auto;min-width:160px;max-width:180px;min-height:44px;padding:7px 16px;border:1px solid var(--l3," + NIGHT.borderStrong + ");border-radius:" + RADIUS.chip + "px;background:transparent;color:var(--t1," + DASH.fg + ");font-size:" + TYPE.body + "px;cursor:pointer;text-align:center}",
-  ".fl-design-action[data-next=true]{background:" + GOLD.fill + ";border-color:" + GOLD.rim + ";color:" + GOLD.ink + "}",
-  ".fl-design-action:disabled{opacity:.55;cursor:default}",
-  ".fl-design-action:focus-visible{outline:2px solid var(--h-primary," + DASH.gold + ");outline-offset:2px}",
-  ".fl-design-map{position:relative;margin-top:8px;max-width:100%}",
-  ".fl-design-map svg{position:absolute;inset:0;pointer-events:none;overflow:visible}",
-  ".fl-design-map path{stroke:var(--l3," + NIGHT.borderStrong + ");stroke-width:1;fill:none}",
-  ".fl-design-tile{position:absolute;width:152px;height:112px;padding:8px;border:1px solid var(--l3," + NIGHT.borderStrong + ");border-radius:" + RADIUS.tile + "px;background:var(--l2," + DASH.bg + ");display:flex;flex-direction:column;align-items:start;gap:4px}",
-  ".fl-design-tile .fl-design-name{flex:0 0 auto;max-width:100%;font-size:" + TYPE.small + "px}",
-  ".fl-design-tile .fl-design-status{align-self:start}",
-  ".fl-design-tile .fl-design-action{min-width:0;max-width:100%;width:auto;min-height:44px;padding:4px 8px;font-size:" + TYPE.small + "px;margin-top:auto}",
-  ".fl-design-map-phone{display:none}",
-  "@media(max-width:600px){.fl-design-row{gap:6px}.fl-design-name{font-size:" + TYPE.small + "px}.fl-design-fact{display:none}.fl-design-action{min-width:0;max-width:112px;padding:7px 10px}.fl-design-map-desktop{display:none}.fl-design-map-phone{display:block}}",
-  "@media(prefers-reduced-motion:reduce){.fl-design-status[data-tone=running]::before{animation:none;opacity:1}}"
-].join("\n");
 
 // src/wire/intel.ts
 var INTEL_TABS = ["hill", "skills", "memory", "failures", "trace"];

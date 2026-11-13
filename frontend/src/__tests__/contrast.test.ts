@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { paletteFor } from '../chrome/palette.js'
-import { FLEET_DESIGN_CSS } from '../commands/fleet.js'
 import { euiStyles } from '../eui/cards.js'
 import { contrastRatio, mix, relativeLuminance, skinBackground } from '../hermes/theme.js'
 import { parseJson, record } from '../wire/json.js'
@@ -80,10 +79,6 @@ describe('disabled text keeps a readable ink', () => {
     const css = euiStyles()
     expect(css.match(/\[data-eui-a-disabled\]\{[^}]*opacity:\.\d/g) ?? []).toEqual([])
     expect(css).toContain(',.eu-btn[data-eui-a-disabled]:not(.primary)){color:var(--h-mutedFg)}')
-  })
-  it("fleet's faded action label still clears 4.5:1 on its row and tile", () => {
-    const fade = Number(/\.fl-design-action:disabled\{opacity:([\d.]+)/.exec(FLEET_DESIGN_CSS)?.[1] ?? 1)
-    for (const u of [l1, l2]) expect(ratio(mix(u, p.fg, fade), u)).toBeGreaterThanOrEqual(TEXT_FLOOR)
   })
 })
 
