@@ -139,6 +139,7 @@ const graphShape = z.object({
 const severity = (state: FleetTone) => ({ failed: 5, held: 4, running: 2, idle: 1, done: 0 })[state]
 const plural = (n: number, noun: string) => n + ' ' + noun + (n === 1 ? '' : 's')
 const friendly = (text: string, fallback: string) => {
+  // eslint-disable-next-line no-control-regex -- control characters are what this strips
   const safe = text.replace(/[\u0000-\u001f]/g, ' ').trim()
   return !safe || /(?:Traceback|Exception:|error code|provider.+(?:timeout|failed)|^\/|^[a-f0-9]{24,}$)/i.test(safe)
     ? fallback : safe.slice(0, 96)

@@ -178,7 +178,7 @@ function fleetGraph(model: FleetDesign, phone: boolean): string {
       ' L ' + (end.x + 76) + ' ' + (end.y + 56) + '"/>' : ''
   }).join('')
   const tiles = model.tiles.map(tile => {
-    const point = positions.get(tile.key)!
+    const point = positions.get(tile.key) ?? { x: 0, y: 0 }
     return '<article class="fl-design-tile" data-next="' + tile.recommended +
       '" style="left:' + point.x + 'px;top:' + point.y + 'px">' +
       '<span class="fl-design-name" title="' + fleetEscape(tile.name) + '">' + fleetEscape(tile.name) + '</span>' +
