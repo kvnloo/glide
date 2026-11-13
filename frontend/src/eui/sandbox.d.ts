@@ -49,7 +49,8 @@ export interface EuiApp {
 export interface EuiSandbox {
   readonly kinds: readonly string[]
   apps(): readonly EuiApp[]
-  mount(kind: string, app: string, onChange: () => void, doc?: unknown, onIntent?: (detail: unknown) => void): EuiMounted
+  /** `fit` edits the mounted DOM after the kit draws and after each change, before the host reads it. */
+  mount(kind: string, app: string, onChange: () => void, doc?: unknown, onIntent?: (detail: unknown) => void, fit?: (root: never) => void): EuiMounted
 }
 
 export function vendorDir(candidates: readonly string[]): string
