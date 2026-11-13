@@ -455,8 +455,9 @@ def _factory(home, root, notes):
             if not (key.endswith("_queued") or key in ("pending_review", "pending_verify", "chat_in_flight", "chat_backlog")) or not isinstance(values, list):
                 continue
             for index, value in enumerate(values[:MAX_NODES]):
-                add(f"card:{key}:{index}", 2, value.get("tag", value.get("id", key)) if isinstance(value, dict) else value,
-                    "subagent", "live" if key == "chat_in_flight" else _factory_state(key), value)
+                # A card object's detail is its reason; its repr would read as a source failure.
+                label, reason = (value.get("tag", value.get("id", key)), value.get("detail", key)) if isinstance(value, dict) else (value, value)
+                add(f"card:{key}:{index}", 2, label, "subagent", "live" if key == "chat_in_flight" else _factory_state(key), reason)
     # The renderer offers a fix action only on the highest-priority observed node.
     # Every other node remains navigable; gold is not a second status colour.
     next_node = next((n for n in nodes if n["state"] == "failing"),

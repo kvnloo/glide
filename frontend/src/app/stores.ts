@@ -16,6 +16,7 @@ import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { TodoHud } from '../todo-hud.js'
+import { fleetCommand } from '../commands/fleet.js'
 import { dispatched } from '../commands/slash.js'
 import type { LaunchEnv } from '../config/env.js'
 import { ConnectWatcher } from '../connections/watcher.js'
@@ -128,7 +129,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const processes = new Processes(live, { author: gatewayAuthor(gw, () => session.ref.live), enabled: () => jobCharts, memory: chartMemory() })
   const cron = new Cron(chat)
   const sidebar = new Sidebar(chat)
-  const factory = new FactoryPane(chat)
+  const factory = new FactoryPane(chat, () => void fleetCommand(chat, 'factory'))
   /** The session's standing /goal and /loop (the dock line above the pills and its sheets). */
   const automation = new Automation(live)
   /** The session's title, as Hermes names it: on the status strip and the tab. */

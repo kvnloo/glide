@@ -49,10 +49,15 @@ export class FactoryPane {
   #operation: symbol | undefined
   #disposed = false
   #sid: LiveSessionId | null = null
+  /** The live session whose gateway answered `unsupported_command`: /factory shows `#fallback` there instead. */
+  #missing: LiveSessionId | undefined
+  readonly #fallback: (() => void) | undefined
   readonly #poller: Poller
 
-  constructor(host: FactoryPaneHost) {
+  /** `fallback`: the card to show when the gateway has no content factory, rather than a pane saying so. */
+  constructor(host: FactoryPaneHost, fallback?: () => void) {
     this.#host = host
+    this.#fallback = fallback
     this.#poller = new Poller({
       cadence: () => this.#open && this.#host.session.ref.live ? POLL_MS : 'off',
       run: ticket => this.#refresh(ticket),
@@ -64,6 +69,10 @@ export class FactoryPane {
 
   toggle() {
     if (this.#disposed) return
+    if (!this.#open && this.#fallback && this.#missing && this.#missing === this.#host.session.ref.live) {
+      this.#fallback()
+      return
+    }
     this.#open = !this.#open
     this.#poller.adopt(++this.#generation)
     clearTimeout(this.#timer)
@@ -112,7 +121,13 @@ export class FactoryPane {
       this.#snapshotOwner = owner
       this.#error = snapshot.error === undefined ? undefined : factoryProblem(snapshot.error)
     } catch (error) {
-      if (ticket.isCurrent() && owner?.isCurrent() !== false) this.#error = factoryProblem(error)
+      if (!ticket.isCurrent() || owner?.isCurrent() === false) return
+      this.#error = factoryProblem(error)
+      if (this.#error === CODES['unsupported_command'] && !this.#snapshot && this.#fallback) {
+        this.#missing = sid
+        this.toggle()
+        this.#fallback()
+      }
     }
   }
 

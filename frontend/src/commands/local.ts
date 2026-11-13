@@ -384,7 +384,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },
   {
-    help: 'Content factory: toggle the optional pane [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
+    help: 'Content factory: toggle the optional pane, else the factory graph card [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
     run: (host, arg) => arg.trim() === 'graph' ? fleetCommand(host, 'factory') : factoryCommand(host, arg)
   },

@@ -149,6 +149,7 @@ describe('fleetFit', () => {
     expect(all(snap, 'ff-graph')).toHaveLength(0)
     expect(all(snap, 'ff-bi')).toHaveLength(FLEET_ROW_CAP)
     expect(all(snap, 'fl-more').map(text)).toEqual(['2 more'])
+    expect(all(nth(snap, 'ff-tally', 0), 'fl-updated')).toHaveLength(1)
     const summary = nth(fold, 'fl-tag', 0)
     click(summary.id)
     snap = view()

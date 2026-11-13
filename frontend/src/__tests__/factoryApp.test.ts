@@ -107,6 +107,26 @@ describe('App Factory composition', () => {
     expect(h.sent('slash.exec')).toEqual([])
   })
 
+  it('shows the factory graph card instead of the pane on a gateway without the content factory', async () => {
+    const doc = { kind: 'fleet-factory', app: 'aodl', data: { at: '2026-11-11T00:00:00Z', stats: {}, nodes: [], edges: [], notes: [] } }
+    const h = await started({ replies: {
+      'command.dispatch': () => { throw new Error('unsupported_command: factory') },
+      'glide.fleet': () => doc
+    } })
+    await factory(h)
+    expect(h.app.stores.factory.open).toBe(false)
+    expect(prefs(h)).toEqual([])
+    expect(h.sent('glide.fleet')).toEqual([{ session_id: 's1', view: 'factory' }])
+    expect(h.app.transcript.entries.filter(entry => entry.kind === 'panel')).toHaveLength(1)
+    expect(JSON.stringify(h.app.transcript.entries)).not.toContain('not on this gateway')
+
+    // Known now: the next /factory goes straight to the card, without a pane or another check.
+    await factory(h)
+    expect(h.app.stores.factory.open).toBe(false)
+    expect(h.sent('command.dispatch')).toHaveLength(1)
+    expect(h.sent('glide.fleet')).toHaveLength(2)
+  })
+
   it('uses text without an aside and adds no unsupported-pane notice', async () => {
     const h = await started({ features: [] })
     const showText = vi.spyOn(h.app.operations, 'showText')
