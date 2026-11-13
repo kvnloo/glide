@@ -28382,22 +28382,33 @@ var SAMPLE_HOSTS = [
   { name: "tablet", value: "online \xB7 small lane" }
 ];
 var lastAsk = /* @__PURE__ */ new WeakMap();
+var approved = /* @__PURE__ */ new WeakSet();
 function intentProof(cards, transcript) {
   const ask = lastAsk.get(cards);
   if (!ask) {
     transcript.notice("Usage: /glide intent <ask>, then /glide intent proof", "warning");
     return;
   }
+  const hash = createHash2("sha256").update(ask).digest("hex").slice(0, 16);
   cards.publish({
     kind: "intent-proof",
     app: "aodl",
     title: "Show me the real-turn receipt",
     summary: "Sample receipt \xB7 no real turn has run yet. The chip is a fingerprint of your ask.",
-    rows: [{ label: "receipts", value: 1 }, { label: "hash", value: createHash2("sha256").update(ask).digest("hex").slice(0, 16) }, { label: "sample", value: "receipt" }]
+    rows: [{ label: "receipts", value: 1 }, { label: "hash", value: hash }, { label: "sample", value: "receipt" }]
+  });
+  if (!approved.has(cards)) return;
+  cards.publish({
+    kind: "intent-work",
+    app: "aodl",
+    title: "Implementation is not acceptance",
+    summary: `Sample plan \xB7 every task cites receipt ${hash.slice(0, 8)}.`,
+    rows: askClauses(ask).map((c, i) => ({ label: `T${i + 1}`, value: `succeeded \xB7 ${c.label}` }))
   });
 }
 function intentCommand(cards, ask, live) {
   lastAsk.set(cards, ask);
+  approved.delete(cards);
   const clauses = askClauses(ask);
   cards.publish({ kind: "intent-declare", app: "ripple", title: "One ask. Exact words.", summary: ask.slice(0, 2048), rows: clauses });
   const lane = (p3) => {
@@ -28421,6 +28432,7 @@ function intentCommand(cards, ask, live) {
     approval: { label: "Hold to approve", description: "Approve this contract revision for execution. Nothing runs until approved." }
   }, async ({ signal }) => {
     if (signal.aborted) return;
+    approved.add(cards);
     cards.publish({
       kind: "intent-work",
       app: "aodl",
@@ -98777,6 +98789,9 @@ function checkTree(tree, slot2) {
   for (const n3 of leaves) {
     if (rule.only && !rule.only.includes(n3.typeName)) problems.push(`${slot2} cannot hold a ${n3.typeName}; use ${rule.only.join(", ")}`);
     if (n3.typeName === "Graphic") problems.push(...checkMarkup(n3.props.svg, n3.props.alt));
+  }
+  if (slot2 === "composer-ring" && !leaves.some((n3) => n3.typeName === "Meter")) {
+    problems.push('composer-ring needs a Meter: it is the fill that runs round the border (add Meter("meter"))');
   }
   return problems;
 }

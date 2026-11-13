@@ -22,7 +22,8 @@ SOURCES = {
     "git.commits": "The session repository's git log: heat (Graphic, a 52-week heatmap), total (Hero), "
                    "stats (Stats: this week, streak, best day), trend (Spark, weekly), repo (Text). Card key \"commits\".",
     "clock.focus": "A focus block timer that ticks every second: left (Hero, time left), meter (Meter, fill left), "
-                   "state (Badges), ring (Graphic, a progress ring). Card key \"focus\". Pass minutes.",
+                   "state (Badges), ring (Graphic, a progress ring for the other slots; on composer-ring use the "
+                   "Meter, which runs round the border). Card key \"focus\". Pass minutes.",
 }
 TOOLSET = "glide"
 _ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}$")
