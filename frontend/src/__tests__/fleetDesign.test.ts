@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { FLEET_DESIGN_CSS, fleetCardHtml } from '../commands/fleet.js'
-import { decodeEuiKit } from '../wire/euiKit.js'
+import { decodeEuiKit, kitNotes } from '../wire/euiKit.js'
 import { decodeFleetIntent, fleetDesign, fleetHost, fleetVisibleDoc } from '../wire/fleet.js'
 
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
@@ -126,4 +126,15 @@ describe('Fleet compact presentation', () => {
       expect(tokenDrift(source(path))).toEqual(NO_DRIFT)
     })
   }
+})
+
+describe('fleet source notes', () => {
+  it('fold hosts that share a note into one line under the card', () => {
+    const doc = decodeEuiKit({ kind: 'fleet-hosts', app: 'k3s', data: { notes: ['Tasks are grouped by repository.'], hosts: ['laptop', 'phone', 'tablet'].map(label => (
+      { label, notes: ['Remote host: status only.'] })) } })
+    expect(kitNotes(doc)).toEqual(['Source: read-only fleet collectors · Tasks are grouped by repository. · laptop, phone, tablet: Remote host: status only.'])
+  })
+  it('keeps non-fleet notes one per line', () => {
+    expect(kitNotes(decodeEuiKit({ kind: 'trace', app: 'x', data: { notes: ['a', 'b'] } }))).toEqual(['a', 'b'])
+  })
 })
