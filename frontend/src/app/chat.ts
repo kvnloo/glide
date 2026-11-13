@@ -234,6 +234,7 @@ export class App implements ChatPorts {
       retention: this.#retention
     }
     s.theme.apply()
+    void s.widgets.start()
     // A card that throws draws as the generic one, and the pane says so once per tool name.
     onCardFault(noticeSink(text => this.notice(text, 'warning')))
 

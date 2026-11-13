@@ -24808,17 +24808,18 @@ function node2(n3, key3, r) {
 }
 var UI_CSS = `
 [data-role='glide.body']{padding:4px 2px}
+[data-role='glide.ring']{padding:2px 8px}
 [data-role='glide.hero.value']{font-size:32px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,${DASH.gold});font-variant-numeric:tabular-nums}
 [data-role='glide.hero.detail']{font-size:12px;opacity:.72}
 [data-role='glide.stat.value']{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
-[data-role='glide.label'],[data-role='glide.list.index']{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace}
+[data-role='glide.label'],[data-role='glide.list.index']{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.section.title']{font-size:15px;font-weight:600}
 [data-role='glide.muted']{opacity:.7}
 [data-role='glide.strong']{font-weight:600}
 [data-role='glide.quote']{font-size:15px;line-height:1.45;padding-left:10px;border-left:2px solid var(--sf-accent,${DASH.gold})}
 [data-role='glide.source']{font-size:11px;opacity:.56;padding-top:8px;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.list.row']{padding:8px 10px}
-[data-role='glide.list.group']{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace;padding:10px 10px 2px}
+[data-role='glide.list.group']{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace;padding:10px 10px 2px}
 [data-role='glide.list.value']{font-variant-numeric:tabular-nums;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.flow.arrow']{opacity:.5;align-self:center}
 [data-role^='glide.flow.stage']{padding:8px 10px;border-radius:10px;border:1px solid var(--sf-border,${NIGHT.border})}
@@ -27326,8 +27327,8 @@ function digest(d, el) {
     ], "ah-item")) : [el("li", [el("span", [text2("Nothing waited for you. Pick the next thing.")], "ah-title")], "ah-item")], "ah-list")
   ], "ah-hero ah-digest");
 }
-var hourOf = (clock4) => {
-  const m2 = /(\d{1,2}):(\d\d)/.exec(clock4);
+var hourOf = (clock5) => {
+  const m2 = /(\d{1,2}):(\d\d)/.exec(clock5);
   return m2 ? Number(m2[1]) + Number(m2[2]) / 60 : void 0;
 };
 var BAND_W = 480;
@@ -32335,6 +32336,96 @@ import { fileURLToPath } from "node:url";
 
 // src/wire/files.ts
 import { readFileSync as readFileSync6 } from "node:fs";
+
+// src/glideui/library.ts
+function slot(c, p3) {
+  return { c, p: p3 };
+}
+
+// src/glideui/mounts.ts
+var WIDGET_SLOTS = ["above-composer", "below-composer", "composer-ring"];
+var WIDGET_SOURCES = ["git.commits", "clock.focus"];
+var DAY = 864e5;
+var HEAT_WEEKS = 52;
+var CELL = 11;
+var GAP = 3;
+var midnight = (t) => {
+  const d = new Date(t);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+function commitDays(times, now, weeks = HEAT_WEEKS) {
+  const today = midnight(now);
+  const first = today - ((weeks - 1) * 7 + new Date(today).getDay()) * DAY;
+  const days = new Array(Math.round((today - first) / DAY) + 1).fill(0);
+  for (const t of times) {
+    const i = Math.round((midnight(t * 1e3) - first) / DAY);
+    if (i >= 0 && i < days.length) days[i] = (days[i] ?? 0) + 1;
+  }
+  return days;
+}
+function heatSvg(days) {
+  const peak = Math.max(1, ...days);
+  const cols = Math.ceil(days.length / 7);
+  const w = cols * (CELL + GAP) - GAP;
+  const h2 = 7 * (CELL + GAP) - GAP;
+  const cells2 = days.map((n3, i) => {
+    const x = Math.floor(i / 7) * (CELL + GAP);
+    const y = i % 7 * (CELL + GAP);
+    const level = n3 === 0 ? 0 : Math.min(4, Math.ceil(n3 / peak * 4));
+    const paint = level === 0 ? 'fill="var(--muted)" fill-opacity="0.18"' : `fill="var(--accent)" fill-opacity="${[0, 0.4, 0.6, 0.8, 1][level]}"`;
+    return `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" ${paint}/>`;
+  });
+  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${cells2.join("")}</svg>`, w, h: h2 };
+}
+function commitsDoc(times, now, repo) {
+  const days = commitDays(times, now);
+  const total = days.reduce((a2, b) => a2 + b, 0);
+  const weeks = Array.from({ length: Math.ceil(days.length / 7) }, (_2, i) => days.slice(i * 7, i * 7 + 7).reduce((a2, b) => a2 + b, 0));
+  let streak = 0;
+  for (let i = days.length - 1; i >= 0 && (days[i] ?? 0) > 0; i--) streak++;
+  const heat = heatSvg(days);
+  return {
+    id: "commits",
+    title: "Commits",
+    source: `git log \xB7 ${repo}`,
+    slots: {
+      heat: slot("Graphic", { ...heat, alt: `${total} commits in ${HEAT_WEEKS} weeks` }),
+      total: slot("Hero", { value: String(total), label: `commits \xB7 ${HEAT_WEEKS} weeks` }),
+      stats: slot("Stats", { items: [
+        { label: "This week", value: String(weeks.at(-1) ?? 0) },
+        { label: "Streak", value: `${streak} d` },
+        { label: "Best day", value: String(Math.max(0, ...days)) }
+      ] }),
+      trend: slot("Spark", { points: weeks, summary: `${weeks.at(-1) ?? 0} this week, ${Math.round(total / Math.max(1, weeks.length))} a week on average` }),
+      repo: slot("Text", { body: repo, tone: "muted" })
+    }
+  };
+}
+var clock2 = (ms2) => {
+  const s2 = Math.max(0, Math.ceil(ms2 / 1e3));
+  return `${Math.floor(s2 / 60)}:${String(s2 % 60).padStart(2, "0")}`;
+};
+function focusDoc(startedAt, minutes, now) {
+  const total = minutes * 6e4;
+  const done = Math.max(0, Math.min(1, (now - startedAt) / total));
+  const left = total - (now - startedAt);
+  const R = 18;
+  const C = 2 * Math.PI * R;
+  const ring = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="${R}" fill="none" stroke="var(--muted)" stroke-opacity="0.25" stroke-width="4"/><circle cx="22" cy="22" r="${R}" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(C * (1 - done)).toFixed(2)} ${C.toFixed(2)}" transform="rotate(-90 22 22)"/></svg>`;
+  return {
+    id: "focus",
+    title: "Focus",
+    slots: {
+      left: slot("Hero", { value: left > 0 ? clock2(left) : "Done", label: `of ${minutes} min focus` }),
+      meter: slot("Meter", { label: left > 0 ? `Focus \xB7 ${clock2(left)} left` : "Focus block done", value: 1 - done, total: `${minutes} min` }),
+      state: slot("Badges", { items: [{ text: left > 0 ? "In focus" : "Break", tone: left > 0 ? "accent" : "success" }] }),
+      ring: slot("Graphic", { svg: ring, w: 44, h: 44, alt: left > 0 ? `${clock2(left)} left` : "Focus block done" })
+    }
+  };
+}
+
+// src/wire/files.ts
 function readJsonFile(file2) {
   try {
     return parseJson(readFileSync6(file2, "utf8"));
@@ -32363,6 +32454,26 @@ function settingsOf(stored) {
 function readStoredSettings(file2) {
   const stored = readJsonFile(file2);
   return isObject2(stored) ? stored : {};
+}
+var mount = object({
+  id: string2().check(_regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
+  slot: _enum(WIDGET_SLOTS),
+  source: _enum(WIDGET_SOURCES),
+  program: string2().check(_maxLength(4096)),
+  minutes: loose(number2()),
+  startedAt: loose(number2())
+});
+var uiState = _catch(
+  object({
+    rev: _catch(number2(), 0),
+    widgets: _catch(pipe(array(_catch(nullable(mount), null)), transform((list10) => list10.filter((w) => w !== null))), []),
+    style: loose(object({ warmth: loose(number2()), accent: loose(string2().check(_regex(/^#[0-9a-f]{6}$/i))) }))
+  }),
+  { rev: 0, widgets: [] }
+);
+function readUi(file2) {
+  const stored = readJsonFile(file2);
+  return uiState.parse(isObject2(stored) ? stored.ui : void 0);
 }
 var watchSpec = object({
   sid: pipe(string2(), transform(liveSessionId)),
@@ -41808,7 +41919,7 @@ function hubPreview(a2, now, brief) {
     ] : [],
     ...recent.length ? [
       /* @__PURE__ */ jsx("section", { head: "Recent activity", role: "omp.hub.activity", children: recent.map((e, i) => /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.hub.activity.row", children: [
-        /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock2(e.at) }], wrap: "none" }, "at"),
+        /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock3(e.at) }], wrap: "none" }, "at"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: stepSpans(e), truncate: "end", wrap: "none" }, "what")
       ] }, `r${i}`)) }, "recent")
     ] : []
@@ -41820,7 +41931,7 @@ function stepItem(e, id3, a2) {
       // The call's own command over the gateway's compact preview (`git log … + 1 command`).
       detail: typeof e.call?.["command"] === "string" ? compactCommand(e.call["command"]) : e.args,
       ...optional("dot", e.running && isRunning(a2) ? "accent" : void 0),
-      facts: { at: clock2(e.at) },
+      facts: { at: clock3(e.at) },
       icon: hubIconOf(e.name),
       id: id3,
       label: e.name,
@@ -41829,10 +41940,10 @@ function stepItem(e, id3, a2) {
     };
   }
   if (e.kind === "kickoff" || e.kind === "assistant") {
-    return { detail: plain3(e.text), facts: { at: clock2(e.at) }, id: id3, label: e.kind === "kickoff" ? "Task" : "Answer", node: e.kind === "kickoff" ? "user" : "assistant" };
+    return { detail: plain3(e.text), facts: { at: clock3(e.at) }, id: id3, label: e.kind === "kickoff" ? "Task" : "Answer", node: e.kind === "kickoff" ? "user" : "assistant" };
   }
   return {
-    facts: { at: clock2(e.at) },
+    facts: { at: clock3(e.at) },
     id: id3,
     label: plain3(e.kind === "think" ? `Thinking: ${e.text}` : e.text),
     node: "assistant",
@@ -41863,7 +41974,7 @@ function stepPreview(e, a2, now, prevAt, brief) {
       {
         items: facts([
           ["Status", e.running ? [{ s: "accent", t: "running" }] : [{ s: "success", t: "done" }]],
-          ["Started", clock2(e.at) || void 0],
+          ["Started", clock3(e.at) || void 0],
           ["Running for", e.running && e.at !== void 0 ? duration3(now - e.at) : void 0]
         ]),
         role: "omp.hub.kv"
@@ -41889,7 +42000,7 @@ function stepSpans(e) {
       return [{ t: oneLine2(e.text) }];
   }
 }
-function clock2(at2) {
+function clock3(at2) {
   return at2 === void 0 ? "" : new Date(at2).toTimeString().slice(0, 8);
 }
 function callNodes(e) {
@@ -46200,15 +46311,15 @@ function collectText(node4, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join19;
+  let join20;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join19 = void 0;
+      join20 = void 0;
     } else if (lines[index2]) {
-      if (typeof join19 === "number") result.push(join19);
+      if (typeof join20 === "number") result.push(join20);
       result.push(lines[index2]);
-      join19 = 0;
+      join20 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -70351,10 +70462,10 @@ var VFile = class {
    * @returns {undefined}
    *   Nothing.
    */
-  set basename(basename10) {
-    assertNonEmpty(basename10, "basename");
-    assertPart(basename10, "basename");
-    this.path = default2.join(this.dirname || "", basename10);
+  set basename(basename11) {
+    assertNonEmpty(basename11, "basename");
+    assertPart(basename11, "basename");
+    this.path = default2.join(this.dirname || "", basename11);
   }
   /**
    * Get the parent path (example: `'~'`).
@@ -70375,9 +70486,9 @@ var VFile = class {
    * @returns {undefined}
    *   Nothing.
    */
-  set dirname(dirname8) {
+  set dirname(dirname9) {
     assertPath(this.basename, "dirname");
-    this.path = default2.join(dirname8 || "", this.basename);
+    this.path = default2.join(dirname9 || "", this.basename);
   }
   /**
    * Get the extname (including dot) (example: `'.js'`).
@@ -73258,7 +73369,7 @@ function thoughtTitle(item3) {
 
 // src/overlays/sessions/rows.ts
 import { basename as basename3 } from "node:path";
-var DAY = 864e5;
+var DAY2 = 864e5;
 var SNIPPET = 160;
 function snippet(text22, max = SNIPPET) {
   const flat2 = text22.replace(/```[\s\S]*?(```|$)/g, " [code] ").replace(/^@image:\S+/gm, "").replace(/\[The user attached [^\]]*\]/g, "").replace(/\[([^\]\n]+)\]\((?:[^)\s]+)\)/g, "$1").replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/gm, "").replace(/`([^`\n]+)`/g, "$1").replace(/(\*\*|__)(.+?)\1/g, "$2").replace(/\s+/g, " ").trim();
@@ -73288,8 +73399,8 @@ function itemOf3(s2, now, elsewhere) {
   };
 }
 function dayOf(at2, now) {
-  const midnight = new Date(now).setHours(0, 0, 0, 0);
-  return at2 >= midnight ? "Today" : at2 >= midnight - DAY ? "Yesterday" : at2 >= midnight - 6 * DAY ? "This week" : at2 >= midnight - 30 * DAY ? "This month" : "Earlier";
+  const midnight2 = new Date(now).setHours(0, 0, 0, 0);
+  return at2 >= midnight2 ? "Today" : at2 >= midnight2 - DAY2 ? "Yesterday" : at2 >= midnight2 - 6 * DAY2 ? "This week" : at2 >= midnight2 - 30 * DAY2 ? "This month" : "Earlier";
 }
 function dateOf(at2) {
   return new Date(at2).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
@@ -75910,7 +76021,7 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
     ...sideHeader ? [] : [el("span", `font-family:${MONO};font-size:10px;color:${NIGHT.text3};text-align:center`, [text22(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])]
   ])]);
 }
-function openCouncilPopup(host2, src, clock4 = realClock) {
+function openCouncilPopup(host2, src, clock5 = realClock) {
   const eui = host2.eui;
   if (!eui) {
     host2.transcript.notice("/council needs a pane with ephemeral-ui cards", "warning");
@@ -75919,16 +76030,16 @@ function openCouncilPopup(host2, src, clock4 = realClock) {
   const total = schedule(src.run).total;
   let start = null;
   let stop3;
-  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock4.now() - start) });
+  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock5.now() - start) });
   const halt = () => {
     stop3?.();
     stop3 = void 0;
   };
   const convene = () => {
     halt();
-    start = clock4.now();
-    stop3 = clock4.every(() => {
-      if (clock4.now() - (start ?? 0) >= total) halt();
+    start = clock5.now();
+    stop3 = clock5.every(() => {
+      if (clock5.now() - (start ?? 0) >= total) halt();
       host2.changed();
     }, TICK_MS4);
     host2.changed();
@@ -75962,7 +76073,7 @@ function openCouncilPopup(host2, src, clock4 = realClock) {
   host2.open(overlay2);
   return overlay2;
 }
-function publishCouncilCard(host2, src, clock4) {
+function publishCouncilCard(host2, src, clock5) {
   const cards = host2.eui?.host;
   if (!cards) {
     host2.transcript.notice("/council card needs an attached session with ephemeral-ui cards", "warning");
@@ -75987,11 +76098,11 @@ function publishCouncilCard(host2, src, clock4) {
       handle3.update(data, open5);
     } catch {
     }
-    openCouncilPopup(host2, src, clock4);
+    openCouncilPopup(host2, src, clock5);
   };
   const handle3 = cards.publish(data, open5);
 }
-async function councilCommand(host2, arg, load3 = loadCouncil, clock4) {
+async function councilCommand(host2, arg, load3 = loadCouncil, clock5) {
   const verb = arg.trim().toLowerCase();
   if (verb !== "" && verb !== "card") {
     host2.transcript.notice("Usage: /council [card]", "warning");
@@ -76000,8 +76111,8 @@ async function councilCommand(host2, arg, load3 = loadCouncil, clock4) {
   const src = await load3();
   if (src.note) host2.transcript.notice(`/council: ${src.note}`, "warning");
   try {
-    if (verb === "card") publishCouncilCard(host2, src, clock4);
-    else openCouncilPopup(host2, src, clock4);
+    if (verb === "card") publishCouncilCard(host2, src, clock5);
+    else openCouncilPopup(host2, src, clock5);
   } catch (e) {
     host2.transcript.notice(`/council: ${e instanceof Error ? e.message : String(e)}`, "error");
   }
@@ -76382,11 +76493,6 @@ function fleetVisibleDoc(doc) {
     return { ...row2, ...typeof row2["reason"] === "string" ? { reason: copy(row2["reason"]) } : {} };
   });
   return { ...doc, data };
-}
-
-// src/glideui/library.ts
-function slot(c, p3) {
-  return { c, p: p3 };
 }
 
 // src/glideui/fleet.ts
@@ -96425,7 +96531,7 @@ function statusNotices(s2, open5) {
 }
 
 // src/view/dock.tsx
-function dockNodes(cx, on) {
+function dockNodes(cx, on, slots = {}) {
   const nodes = [];
   const { activity, pills: p3 } = cx;
   const busy = activity.kind === "turn";
@@ -96468,7 +96574,10 @@ function dockNodes(cx, on) {
       ] }, "agents")
     );
   }
+  if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "glide.above"));
+  if (slots.ring?.length) nodes.push(/* @__PURE__ */ jsx("col", { role: "glide.ring.edge", children: slots.ring }, "glide.ring"));
   nodes.push(composerNode(cx, on));
+  if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "glide.below"));
   return nodes;
 }
 function activityNode(a2, cx, on) {
@@ -96695,8 +96804,11 @@ function drawFrame(cx, now = Date.now()) {
     cx.completion.update(cx.composer);
   }
   const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null);
+  const r = { send: () => void 0, svg: (markup) => cx.eui?.svg(markup) };
+  const w = cx.widgets;
+  const slots = w ? { above: w.nodes("above-composer", r), ring: w.nodes("composer-ring", r), below: w.nodes("below-composer", r) } : {};
   const chrome = {
-    dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions)],
+    dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions, slots)],
     layer: [
       ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar")].filter((n3) => n3 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
@@ -98374,6 +98486,25 @@ function dashTernPalette(p3 = dashPalette()) {
   return { ...walTernPalette(p3), name: { dark: "dash", light: "dash" } };
 }
 
+// ../glide/frontend/style.ts
+var WARM = { bg: "#2a170a", fg: "#ffe6c7", hue: "#ff9a3c" };
+var COOL = { bg: "#0a1a2c", fg: "#d6e8ff", hue: "#4aa3ff" };
+function styleWal(wal, style2) {
+  const w = Math.max(-1, Math.min(1, style2?.warmth ?? 0));
+  if (!w) return wal;
+  const to = w > 0 ? WARM : COOL;
+  const k = Math.abs(w);
+  return {
+    special: { ...wal.special, background: mix(wal.special.background, to.bg, 0.55 * k), foreground: mix(wal.special.foreground, to.fg, 0.4 * k) },
+    colors: Object.fromEntries(Object.entries(wal.colors).map(([name, c]) => [name, /^#[0-9a-f]{6}$/i.test(c) ? mix(c, to.hue, 0.35 * k) : c]))
+  };
+}
+function styleAccent(p3, style2) {
+  if (!style2?.accent) return p3;
+  const accent = [p3.bg, ...p3.layers].reduce((ink3, under) => ensureContrast(ink3, under, 4.5, 0.01), style2.accent);
+  return { ...p3, accent, glow: accent, accentInk: readableOn(accent), selectedBg: mix(p3.bg, accent, 0.18) };
+}
+
 // src/chrome/theme.ts
 var ternCtl = (args) => new Promise((resolve11, reject) => {
   execFile9("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
@@ -98533,19 +98664,223 @@ var Theme = class {
       this.#host.palette(paletteFor("tern", this.#skin));
       return;
     }
-    this.#wal = walPalette(wal, file2);
+    const style2 = this.#host.style?.();
+    this.#wal = styleAccent(walPalette(styleWal(wal, style2), file2), style2);
     this.#host.palette(walTernPalette(this.#wal));
     this.#host.stylesheet?.(WAL_SHEET, walCss(this.#wal));
   }
   /** Dash's palette, its glass floor taken over the wallpaper when its colors.json reads. */
   #dash() {
-    return dashPalette(readWal(this.#host.walFile ?? walFile()));
+    return styleAccent(dashPalette(readWal(this.#host.walFile ?? walFile())), this.#host.style?.());
   }
   #leaveWal() {
     if (this.#unwatch || this.#wal) {
       this.dispose();
       this.#wal = void 0;
       this.#host.stylesheet?.(WAL_SHEET, null);
+    }
+  }
+};
+
+// src/glideui/widgets.tsx
+import { execFile as execFile10 } from "node:child_process";
+import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
+import { basename as basename8, dirname as dirname8, join as join17 } from "node:path";
+
+// src/glideui/checks.ts
+var MIN_TEXT_PX = 11;
+var TEXT_FLOOR2 = 4.5;
+var GLOW = /(box|text)-shadow|drop-shadow|blur\(|@keyframes|animation|<filter|feGaussianBlur|<animate/i;
+function checkMarkup(text22, where) {
+  const problems = [];
+  for (const m2 of text22.matchAll(/font-size\s*[:=]\s*"?(\d+(?:\.\d+)?)(px)?/gi)) {
+    if (Number(m2[1]) < MIN_TEXT_PX) problems.push(`${where}: text at ${m2[1]} px is under ${MIN_TEXT_PX} px`);
+  }
+  const glow = GLOW.exec(text22);
+  if (glow) problems.push(`${where}: ${glow[0]} is a glow or motion effect`);
+  return problems;
+}
+var SLOT_PARTS = {
+  "above-composer": { max: 6 },
+  "below-composer": { max: 6 },
+  "composer-ring": { max: 3, only: ["Meter", "Hero", "Text", "Badges", "Graphic"] }
+};
+function checkTree(tree, slot2) {
+  const problems = [];
+  const rule = SLOT_PARTS[slot2];
+  const leaves = [];
+  const walk = (n3) => {
+    if (n3.typeName === "Card" || n3.typeName === "Row" || n3.typeName === "Section") n3.props.children.forEach(walk);
+    else leaves.push(n3);
+  };
+  walk(tree);
+  if (leaves.length > rule.max) problems.push(`${slot2} holds at most ${rule.max} parts, the program has ${leaves.length}`);
+  for (const n3 of leaves) {
+    if (rule.only && !rule.only.includes(n3.typeName)) problems.push(`${slot2} cannot hold a ${n3.typeName}; use ${rule.only.join(", ")}`);
+    if (n3.typeName === "Graphic") problems.push(...checkMarkup(n3.props.svg, n3.props.alt));
+  }
+  return problems;
+}
+function checkPalette(p3) {
+  const problems = [];
+  for (const ink3 of ["fg", "muted", "dim", "accent"]) {
+    for (const [name, under] of [["background", p3.bg], ["card", p3.layers[0]]]) {
+      const ratio = contrastRatio(p3[ink3], under) ?? 0;
+      if (ratio < TEXT_FLOOR2) problems.push(`${ink3} ${p3[ink3]} on the ${name} ${under} is ${ratio.toFixed(2)}:1, under ${TEXT_FLOOR2}:1`);
+    }
+  }
+  return problems;
+}
+
+// src/glideui/widgets.tsx
+var statusFile = (settings2) => join17(dirname8(settings2), "ui-status.json");
+var gitCommits = (cwd) => new Promise((resolve11) => {
+  execFile10("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
+    resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
+  });
+});
+var SHEET_PROBLEMS = checkMarkup(UI_CSS, "glide sheet");
+var COMMITS_REFRESH_MS = 12e4;
+var GlideWidgets = class {
+  #host;
+  #state = { rev: 0, widgets: [] };
+  #compiled = /* @__PURE__ */ new Map();
+  #problems = /* @__PURE__ */ new Map();
+  #glide;
+  #style = "";
+  #commits;
+  #fetching = false;
+  #unwatch;
+  #tick;
+  #closed = false;
+  constructor(host2) {
+    this.#host = host2;
+  }
+  /** The style the theme lays over its palette (glide_ui_style). */
+  get style() {
+    return this.#state.style;
+  }
+  get mounted() {
+    return this.#state.widgets;
+  }
+  /** Reads `ui` now and follows the file. */
+  start() {
+    try {
+      mkdirSync6(dirname8(this.#host.file), { recursive: true });
+    } catch {
+    }
+    this.#unwatch = watchWal(this.#host.file, () => void this.reload());
+    return this.reload();
+  }
+  async reload() {
+    if (this.#closed) return;
+    const state = readUi(this.#host.file);
+    this.#state = state;
+    const styleKey = JSON.stringify(state.style ?? {});
+    const restyle = styleKey !== this.#style;
+    this.#style = styleKey;
+    const palette = restyle ? this.#host.restyled() : void 0;
+    try {
+      this.#glide ??= await (this.#host.glide ?? glide)();
+    } catch (error) {
+      this.#report(state, palette, `The glide/v1 adapter did not load: ${String(error)}`);
+      return;
+    }
+    for (const w of state.widgets) {
+      if (this.#compiled.get(w.id)?.program === w.program) continue;
+      try {
+        this.#compiled.set(w.id, { program: w.program, view: this.#glide.compile(w.program, `ui:${w.id}`) });
+      } catch (error) {
+        this.#compiled.set(w.id, { program: w.program, error: error instanceof Error ? error.message : String(error) });
+      }
+    }
+    for (const id3 of [...this.#compiled.keys()]) if (!state.widgets.some((w) => w.id === id3)) this.#compiled.delete(id3);
+    this.#problems = new Map(state.widgets.map((w) => [w.id, this.#check(w)]));
+    this.#report(state, palette);
+    this.#schedule();
+    this.#host.changed();
+  }
+  /** The widgets in `slot`, drawn with `r`; one that fails to bind or check is left out. */
+  nodes(slot2, r) {
+    const out = [];
+    for (const w of this.#state.widgets) {
+      if (w.slot !== slot2 || this.#problems.get(w.id)?.length) continue;
+      const tree = this.#tree(w);
+      if (!tree) continue;
+      if (slot2 !== "composer-ring" || tree.typeName !== "Card") {
+        out.push(node2(tree, w.id, r));
+        continue;
+      }
+      out.push(/* @__PURE__ */ jsx("row", { align: "center", gap: "md", role: "glide.ring", children: tree.props.children.map((c, i) => node2(c, `p${i}`, r)) }, w.id));
+    }
+    return out;
+  }
+  dispose() {
+    this.#closed = true;
+    this.#unwatch?.();
+    clearInterval(this.#tick);
+  }
+  #doc(w) {
+    const now = this.#host.now?.() ?? Date.now();
+    if (w.source === "clock.focus") return focusDoc(w.startedAt ?? now, w.minutes ?? 25, now);
+    const cwd = this.#host.cwd();
+    if (cwd && !this.#fetching && (this.#commits?.cwd !== cwd || now - (this.#commits?.at ?? 0) > COMMITS_REFRESH_MS)) void this.#fetch(cwd, now);
+    const seen = this.#commits;
+    return commitsDoc(seen && seen.cwd === cwd ? seen.times : [], now, cwd ? basename8(cwd) : "no folder");
+  }
+  #tree(w) {
+    const view = this.#compiled.get(w.id)?.view;
+    if (!view || !this.#glide) return void 0;
+    try {
+      return this.#glide.bind(view, this.#doc(w));
+    } catch {
+      return void 0;
+    }
+  }
+  #check(w) {
+    const compiled = this.#compiled.get(w.id);
+    if (compiled?.error) return [compiled.error];
+    if (!compiled?.view || !this.#glide) return ["not compiled"];
+    let tree;
+    try {
+      tree = this.#glide.bind(compiled.view, this.#doc(w));
+    } catch (error) {
+      return [error instanceof Error ? error.message : String(error)];
+    }
+    return [...SHEET_PROBLEMS, ...checkTree(tree, w.slot)];
+  }
+  async #fetch(cwd, now) {
+    this.#fetching = true;
+    try {
+      const times = await (this.#host.commits ?? gitCommits)(cwd);
+      this.#commits = { cwd, times, at: now };
+    } finally {
+      this.#fetching = false;
+    }
+    if (!this.#closed) this.#host.changed();
+  }
+  /** The focus clock ticks once a second while a focus widget is mounted. */
+  #schedule() {
+    const ticking = this.#state.widgets.some((w) => w.source === "clock.focus");
+    if (ticking && !this.#tick) {
+      this.#tick = setInterval(() => this.#host.changed(), 1e3);
+      this.#tick.unref();
+    } else if (!ticking && this.#tick) {
+      clearInterval(this.#tick);
+      this.#tick = void 0;
+    }
+  }
+  #report(state, palette, fatal) {
+    const widgets = Object.fromEntries(state.widgets.map((w) => {
+      const problems = fatal ? [fatal] : this.#problems.get(w.id) ?? [];
+      return [w.id, problems.length ? { ok: false, problems } : { ok: true }];
+    }));
+    const style2 = palette ? checkPalette(palette) : [];
+    const status = { rev: state.rev, at: Date.now(), widgets, style: style2.length ? { ok: false, problems: style2 } : { ok: true } };
+    try {
+      writeFileSync5(statusFile(this.#host.file), `${JSON.stringify(status, null, 2)}
+`);
+    } catch {
     }
   }
 };
@@ -98932,17 +99267,17 @@ var Disposables = class {
 // src/draft/attachments.ts
 import { constants as constants2, existsSync as existsSync6, statSync } from "node:fs";
 import { open as open3 } from "node:fs/promises";
-import { basename as basename8, isAbsolute as isAbsolute9 } from "node:path";
+import { basename as basename9, isAbsolute as isAbsolute9 } from "node:path";
 import { fileURLToPath as fileURLToPath11 } from "node:url";
 
 // src/hermes/clipboardImage.ts
-import { execFile as execFile10 } from "node:child_process";
+import { execFile as execFile11 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
 import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
-import { join as join17, resolve as resolve10 } from "node:path";
+import { join as join18, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
-  execFile10(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
+  execFile11(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
       return fail2(error);
     }
@@ -99008,9 +99343,9 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp3(join17(tmpdir3(), "glide-clipboard-"));
+  const dir2 = await mkdtemp3(join18(tmpdir3(), "glide-clipboard-"));
   try {
-    const path2 = await extract(join17(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join18(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm4(dir2, { force: true, recursive: true });
@@ -99177,7 +99512,7 @@ var Attachments = class {
     }
     const path2 = imagePathOf(text22, this.#host.cwd());
     if (!path2) return false;
-    void this.#attach(path2, basename8(path2));
+    void this.#attach(path2, basename9(path2));
     return true;
   }
   async fromClipboard(quiet) {
@@ -99222,7 +99557,7 @@ var Attachments = class {
       this.#host.changed();
       return;
     }
-    await this.#attach(path2, basename8(path2));
+    await this.#attach(path2, basename9(path2));
   }
   /** Only a same-host Tern native event may introduce a filesystem path. */
   async fromNativePath(raw2, sameHost) {
@@ -99252,7 +99587,7 @@ var Attachments = class {
       this.#host.changed();
       return;
     }
-    await this.#attach(path2, basename8(path2));
+    await this.#attach(path2, basename9(path2));
   }
   /** First session startup: preserve its exact owner through queue-head admission. */
   async attachStartup(sid) {
@@ -99264,7 +99599,7 @@ var Attachments = class {
       this.#startup = "";
       return;
     }
-    const slot2 = this.#start(basename8(path2));
+    const slot2 = this.#start(basename9(path2));
     if (!slot2) {
       this.#startup = "";
       return;
@@ -99272,7 +99607,7 @@ var Attachments = class {
     try {
       const result = await this.#uploadPath(slot2, imagePathOf(path2, this.#host.launchCwd) ?? path2);
       if (this.#eligible(slot2)) {
-        const image3 = this.#image(result, basename8(path2), owner2);
+        const image3 = this.#image(result, basename9(path2), owner2);
         if (!this.#host.attachToHead(image3)) this.#items.push(image3);
       }
     } catch (error) {
@@ -99580,7 +99915,7 @@ var VimPreference = class {
 };
 
 // src/github/branch.ts
-import { execFile as execFile11 } from "node:child_process";
+import { execFile as execFile12 } from "node:child_process";
 import { promisify as promisify7 } from "node:util";
 
 // src/github/hosts.ts
@@ -99624,7 +99959,7 @@ function githubHosts(env2 = process.env) {
 var untrustedText = (host2) => `Not read: ${host2} is not github.com or a GitHub Enterprise host you listed, so tern sends it no token. If you trust it, add it to ${HOSTS_SETTING} and open a new pane.`;
 
 // src/github/branch.ts
-var run7 = promisify7(execFile11);
+var run7 = promisify7(execFile12);
 function parseRemote(url, hosts3 = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
@@ -101109,17 +101444,17 @@ var Viewer = class {
 };
 
 // src/processes/widgets/memory.ts
-import { mkdirSync as mkdirSync6, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync5 } from "node:fs";
-import { join as join18 } from "node:path";
+import { mkdirSync as mkdirSync7, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync6 } from "node:fs";
+import { join as join19 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe2 = (id3) => /^[\w.-]{1,128}$/.test(id3);
-function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
   return {
     load(id3) {
       if (!safe2(id3)) {
         return void 0;
       }
-      const value = readJsonFile(join18(dir2, `${id3}.json`));
+      const value = readJsonFile(join19(dir2, `${id3}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -101136,10 +101471,10 @@ function chartMemory(dir2 = join18(dataDir(), "charts"), now = Date.now) {
         return;
       }
       try {
-        mkdirSync6(dir2, { recursive: true });
-        writeFileSync5(join18(dir2, `${id3}.json`), JSON.stringify(value));
+        mkdirSync7(dir2, { recursive: true });
+        writeFileSync6(join19(dir2, `${id3}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join18(dir2, name);
+          const file2 = join19(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -101380,13 +101715,13 @@ function cadence(loop) {
   const s2 = loop.interval_seconds;
   return `every ${s2 % 3600 === 0 ? `${s2 / 3600}h` : s2 % 60 === 0 ? `${s2 / 60}m` : `${s2}s`}`;
 }
-var clock3 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+var clock4 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 function goalView(goal) {
   if (!goal || goal.status !== "active" && goal.status !== "paused") {
     return null;
   }
   const barrier = goal.status === "active" ? goal.wait_barrier : null;
-  const wait = barrier ? [barrier.type === "until" ? `until ${clock3(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
+  const wait = barrier ? [barrier.type === "until" ? `until ${clock4(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
   return {
     criteria: goal.subgoals ?? [],
     detail: barrier ? wait : goal.status === "paused" ? goal.paused_reason ?? "" : "",
@@ -102080,7 +102415,7 @@ var SessionTitle = class {
 
 // src/transcript/promptRefs.ts
 import { existsSync as existsSync7 } from "node:fs";
-import { basename as basename9, isAbsolute as isAbsolute10 } from "node:path";
+import { basename as basename10, isAbsolute as isAbsolute10 } from "node:path";
 var VALUE2 = "(`[^`\\n]+`|\"[^\"\\n]+\"|'[^'\\n]+'|\\S+)";
 var IMAGE_SUFFIX = new RegExp("^@image:" + VALUE2 + "$");
 var HINTS = /\n\n((?:\[Image attached(?: at)?: [^\n]+\]\n?)+)((?:\[screenshot\](?:\n|$))*)$/;
@@ -102152,12 +102487,12 @@ function promptAttachments(parts3, exists = existsSync7) {
   return [
     ...parts3.images.map((p3) => ({
       kind: "image",
-      name: basename9(p3),
+      name: basename10(p3),
       refPath: p3,
       ...local(p3) ? { source: { path: p3 } } : {}
     })),
     ...parts3.files.map(({ path: path2, ref }) => {
-      const name = basename9(unquote2(ref.replace(/^@\w+:/, "")));
+      const name = basename10(unquote2(ref.replace(/^@\w+:/, "")));
       return path2 && IMAGE_FILE.test(path2) && local(path2) ? { kind: "image", name, source: { path: path2 } } : { kind: "file", name };
     })
   ];
@@ -103811,6 +104146,15 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const laneFeed = laneFeedFromEnv(changed);
   laneFeed?.start();
+  const widgets = new GlideWidgets({
+    file: settingsFile2(),
+    changed,
+    cwd: () => session2.info?.cwd || void 0,
+    restyled: () => {
+      theme.apply();
+      return theme.wal;
+    }
+  });
   const theme = new Theme({
     palette: (palette) => {
       setSvgInk(palette);
@@ -103823,16 +104167,18 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       surface().raw.stylesheet(name, css2);
     },
     windowTheme: ternWindowTheme(),
+    style: () => widgets.style,
     settings: settings2
   }, process.env["GLIDE_AUTO_THEME"] === "1" ? "auto" : saved.theme ?? "tern");
   const completion2 = new Completion(chat, gw2, () => session2.ref.live, () => session2.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
-  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome };
+  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets };
 }
 function disposeStores(s2) {
   s2.mediaDelivery.clear(true);
   s2.liveVoice.dispose();
   s2.theme.dispose();
+  s2.widgets.dispose();
   s2.laneFeed?.stop();
   s2.dictation.dispose();
   s2.talkGateway.dispose();
@@ -103998,6 +104344,7 @@ var App = class {
       retention: this.#retention
     };
     s2.theme.apply();
+    void s2.widgets.start();
     onCardFault(noticeSink((text22) => this.notice(text22, "warning")));
     this.eui.attach({ blob: (bytes, mime) => this.#tern.caps.features.includes("blobs") ? this.#tern.blob(bytes, mime) : void 0, stylesheet: (name, css2) => {
       this.#surface.raw.stylesheet(name, css2);

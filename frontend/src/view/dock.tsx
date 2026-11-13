@@ -192,7 +192,14 @@ export interface ShellsPill {
 }
 
 /** The `dock` region's nodes: the working row, the queued prompts and the composer. */
-export function dockNodes(cx: DockContext, on: DockActions): JSX.Element[] {
+/** Agent-mounted widgets around the composer (glideui/widgets.tsx), drawn by the caller. */
+export interface DockSlots {
+  readonly above?: readonly JSX.Element[]
+  readonly ring?: readonly JSX.Element[]
+  readonly below?: readonly JSX.Element[]
+}
+
+export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {}): JSX.Element[] {
   const nodes: JSX.Element[] = []
   const { activity, pills: p } = cx
   const busy = activity.kind === 'turn'
@@ -248,7 +255,10 @@ export function dockNodes(cx: DockContext, on: DockActions): JSX.Element[] {
     )
   }
 
+  if (slots.above?.length) nodes.push(<col gap="sm" key="glide.above" role="glide.dock">{slots.above}</col>)
+  if (slots.ring?.length) nodes.push(<col key="glide.ring" role="glide.ring.edge">{slots.ring}</col>)
   nodes.push(composerNode(cx, on))
+  if (slots.below?.length) nodes.push(<col gap="sm" key="glide.below" role="glide.dock">{slots.below}</col>)
 
   return nodes
 }

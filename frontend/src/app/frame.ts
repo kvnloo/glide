@@ -18,6 +18,8 @@ import type { PrAside } from '../prs/aside.js'
 import { COMPOSER_ID, INPUT_ID, type SurfaceHost } from '../surface/host.js'
 import type { Transcript } from '../transcript/store.js'
 import type { EuiCards } from '../eui/cards.js'
+import type { GlideWidgets } from '../glideui/widgets.js'
+import type { UiRender } from '../glideui/render.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
 import { type DockActions, dockNodes } from '../view/dock.js'
 import { type DockSources, dockModel, isModal, shownPills } from '../view/dockModel.js'
@@ -40,6 +42,8 @@ export interface FrameCx extends DockSources {
   readonly mediaDelivery?: MediaDelivery
   readonly charts: TableCharts
   readonly eui?: EuiCards
+  /** Agent-mounted widgets around the composer (glide_ui_mount). */
+  readonly widgets?: Pick<GlideWidgets, 'nodes'>
   readonly overlays: readonly Overlay[]
   readonly stack: Pick<OverlayStack, 'rootOf'>
   readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries'>
@@ -85,8 +89,12 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   }
 
   const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null)
+  // Widgets only show what their host source holds: no control in one acts (nothing to send).
+  const r: UiRender = { send: () => undefined, svg: markup => cx.eui?.svg(markup) }
+  const w = cx.widgets
+  const slots = w ? { above: w.nodes('above-composer', r), ring: w.nodes('composer-ring', r), below: w.nodes('below-composer', r) } : {}
   const chrome = {
-    dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions)],
+    dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions, slots)],
     layer: [
       ...(cx.aside()
         ? [cx.factory.open ? cx.factory.node('layer.factory') : cx.prAside.open ? cx.prAside.node('layer.prs') : cx.sidebar.node('layer.sidebar')].filter(n => n !== null)

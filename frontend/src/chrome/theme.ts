@@ -14,6 +14,7 @@ import { paletteFor } from './palette.js'
 import { glassPlayCss, PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
 import { dashPalette, dashTernPalette } from '../../../glide/frontend/dash.js'
 import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from '../../../glide/frontend/wal.js'
+import { styleAccent, styleWal, type UiStyle } from '../../../glide/frontend/style.js'
 
 /** What the theme reaches of the app. */
 export interface ThemeHost {
@@ -27,6 +28,8 @@ export interface ThemeHost {
   readonly walFile?: string | undefined
   /** Puts the window showing the pane in Tern's own theme `name`, or (null) back in the one it wore before (ternWindowTheme). */
   windowTheme?(name: string | null): void
+  /** The agent's restyle (glide_ui_style), laid over the wallpaper and dash palettes; read at each apply. */
+  style?(): UiStyle | undefined
 }
 
 /** What `tern ctl` answers (`run` takes its arguments). */
@@ -229,14 +232,15 @@ export class Theme {
       this.#host.palette(paletteFor('tern', this.#skin))
       return
     }
-    this.#wal = walPalette(wal, file)
+    const style = this.#host.style?.()
+    this.#wal = styleAccent(walPalette(styleWal(wal, style), file), style)
     this.#host.palette(walTernPalette(this.#wal))
     this.#host.stylesheet?.(WAL_SHEET, walCss(this.#wal))
   }
 
   /** Dash's palette, its glass floor taken over the wallpaper when its colors.json reads. */
   #dash() {
-    return dashPalette(readWal(this.#host.walFile ?? walFile()))
+    return styleAccent(dashPalette(readWal(this.#host.walFile ?? walFile())), this.#host.style?.())
   }
 
   #leaveWal() {

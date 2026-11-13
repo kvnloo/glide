@@ -15,6 +15,7 @@ import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
+import { GlideWidgets } from '../glideui/widgets.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
 import { dispatched } from '../commands/slash.js'
@@ -51,7 +52,7 @@ import { markPane } from '../session/pane.js'
 import { SessionState } from '../session/state.js'
 import { showThoughts } from '../session/thoughts.js'
 import { SessionTitle } from '../session/title.js'
-import type { SettingsSource } from '../settings.js'
+import { settingsFile, type SettingsSource } from '../settings.js'
 import type { SurfaceHost } from '../surface/host.js'
 import { Transcript } from '../transcript/store.js'
 import { Activity } from '../turn/activity.js'
@@ -305,6 +306,16 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   /** The live call's helper lanes from the local lane broker; null when this machine has none. */
   const laneFeed = laneFeedFromEnv(changed)
   laneFeed?.start()
+  /** The widgets an agent mounted around the composer; chat.run() starts following settings.json. */
+  const widgets: GlideWidgets = new GlideWidgets({
+    file: settingsFile(),
+    changed,
+    cwd: () => session.info?.cwd || undefined,
+    restyled: () => {
+      theme.apply()
+      return theme.wal
+    }
+  })
   /** Whose colors the surface wears, and the gateway's skin. */
   const theme = new Theme({
     palette: palette => {
@@ -318,12 +329,13 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
       surface().raw.stylesheet(name, css)
     },
     windowTheme: ternWindowTheme(),
+    style: () => widgets.style,
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */
@@ -331,6 +343,7 @@ export function disposeStores(s: ChatStores) {
   s.mediaDelivery.clear(true)
   s.liveVoice.dispose()
   s.theme.dispose()
+  s.widgets.dispose()
   s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()

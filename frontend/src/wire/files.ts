@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs'
 import * as z from 'zod/mini'
 
 import { liveSessionId } from '../core/ids.js'
+import { WIDGET_SLOTS, WIDGET_SOURCES, type UiState } from '../glideui/mounts.js'
 import type { Settings } from '../settings.js'
 import type { WatchSpec } from '../watch/spec.js'
 
@@ -59,6 +60,31 @@ export function readStoredSettings(file: string): object {
   const stored = readJsonFile(file)
 
   return isObject(stored) ? stored : {}
+}
+
+// ── settings.json's `ui`: the agent's widgets and style (glide_ui_mount, glide_ui_style) ────────
+
+const mount = z.object({
+  id: z.string().check(z.regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
+  slot: z.enum(WIDGET_SLOTS),
+  source: z.enum(WIDGET_SOURCES),
+  program: z.string().check(z.maxLength(4096)),
+  minutes: loose(z.number()),
+  startedAt: loose(z.number())
+})
+const uiState: z.ZodMiniType<UiState> = z.catch(
+  z.object({
+    rev: z.catch(z.number(), 0),
+    widgets: z.catch(z.pipe(z.array(z.catch(z.nullable(mount), null)), z.transform(list => list.filter(w => w !== null))), []),
+    style: loose(z.object({ warmth: loose(z.number()), accent: loose(z.string().check(z.regex(/^#[0-9a-f]{6}$/i))) }))
+  }),
+  { rev: 0, widgets: [] }
+)
+
+/** settings.json's `ui`; a widget that does not read is dropped, a file without one is no widgets. */
+export function readUi(file: string): UiState {
+  const stored = readJsonFile(file)
+  return uiState.parse(isObject(stored) ? (stored as { ui?: unknown }).ui : undefined)
 }
 
 // ── The watch spec (HERMES_TERN_WATCH) ────────────────────────────────────────────────────────
