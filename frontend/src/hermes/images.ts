@@ -1,10 +1,6 @@
 // Images on the shared gateway ride on `prompt.submit` as `{path, mime}` attachments the owner can
 // read. `image.attach_bytes` uploads the bytes and answers with that path, for a local owner and a
-// remote one alike. Size cap and format sniffing follow Hermes' ui-tui/src/lib/imageAttachments.ts.
-import { readFile } from 'node:fs/promises'
-import { homedir } from 'node:os'
-import { extname, resolve } from 'node:path'
-
+// remote one alike. Format sniffing follows Hermes' ui-tui/src/lib/imageAttachments.ts.
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 
 import { rpc } from '../wire/rpc.js'
@@ -13,8 +9,6 @@ export interface Attachment {
   path: string
   mime: string
 }
-
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024
 
 export function imageFormat(bytes: Buffer): { mime: string; ext: string } | null {
   if (bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
@@ -87,44 +81,6 @@ export function imageSize(bytes: Buffer): { w: number; h: number } | undefined {
   }
 
   return undefined
-}
-
-/**
- * Uploads the image at `raw` (relative to `cwd`, `~` expanded) for session `sid`. The bytes come
- * back too: the composer's thumbnail shows them (a clipboard image's file is gone right after).
- */
-export async function uploadImage(
-  gw: Pick<GatewayClient, 'request'>,
-  sid: string,
-  raw: string,
-  cwd: string
-): Promise<Attachment & { bytes: Buffer }> {
-  const path = resolve(cwd, raw.replace(/^~(?=$|\/)/, homedir()))
-  const bytes = await readFile(path)
-
-  if (bytes.length > MAX_IMAGE_BYTES) {
-    throw new Error('the image is larger than 20 MB')
-  }
-
-  const format = imageFormat(bytes)
-
-  if (!format) {
-    throw new Error(`${extname(path) || 'this file'} is not a PNG, JPEG, GIF or WebP image`)
-  }
-
-  const params = {
-    session_id: sid,
-    filename: `image${format.ext}`,
-    content_base64: bytes.toString('base64')
-  }
-
-  const r = await stageImageBytes(gw, params)
-
-  if (!r?.path) {
-    throw new Error('the gateway did not store the image')
-  }
-
-  return { bytes, mime: format.mime, path: r.path }
 }
 
 /** Share optional plugin staging across every byte upload path on the gateway. */

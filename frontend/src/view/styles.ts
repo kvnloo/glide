@@ -5,6 +5,7 @@
 import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
+import { MONO, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 export const STYLES = minifyCss(css`
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
@@ -186,27 +187,16 @@ export const STYLES = minifyCss(css`
     opacity: 0.85;
   }
 
-  /* The status strip under everything (hermes-for-tern's console bar): one quiet mono line, the
-     brand in the accent, the send or stop key the strongest thing on it. */
-  [data-role='hermes.statusline'] {
-    margin-top: 6px !important;
-    font: 400 11.5px/20px var(--mono) !important;
-    color: var(--t3) !important;
-  }
-
-  [data-role='hermes.statusline.brand'] {
-    color: var(--sf-p-accent, var(--sf-c-accent)) !important;
-    font-weight: 600 !important;
-  }
-
-  [data-role='hermes.statusline.send'],
-  [data-role='hermes.statusline.stop'] {
-    color: var(--t1) !important;
-    cursor: pointer;
-  }
-
-  [data-role='hermes.statusline.stop'] {
-    color: var(--sf-c-error, var(--t1)) !important;
+  /* Gateway notices: plain single-line copy in the host's status hues. */
+  [data-role='hermes.statusline.warn'],
+  [data-role='hermes.statusline.bad'],
+  [data-role='hermes.statusline.good'] {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 400 ${TYPE.meta}px/1.4 var(--sans) !important;
   }
 
   [data-role='hermes.statusline.warn'] {
@@ -459,13 +449,34 @@ export const STYLES = minifyCss(css`
     font-family: var(--sans) !important;
   }
 
-  /* A pill holding the keys (Down from an empty prompt): ringed in the accent, without the pick mark's side bar. */
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick'] {
-    box-shadow: inset 0 0 0 1px var(--sf-p-accent, var(--accent)) !important;
+  /* HUD pills and goal/loop capsules: status-pill grammar, with gold reserved for keyboard focus. */
+  .sf-row[data-role='omp.hud'] {
+    max-width: 100%;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) {
+    min-width: 0;
+    max-width: 100%;
+    border: 1px solid var(--l3);
+    border-radius: ${RADIUS.pill}px !important;
+    background: var(--l1) !important;
     color: var(--t1) !important;
   }
 
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick']::after {
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']),
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) :is(.sf-text, .sf-elapsed) {
+    font: 500 ${TYPE.label}px/1.4 ${MONO} !important;
+    letter-spacing: ${TRACK.caps} !important;
+    text-transform: uppercase;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick'] {
+    box-shadow: inset 0 0 0 2px var(--sf-p-accent, var(--accent)) !important;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick']::after {
     display: none;
   }
 

@@ -484,4 +484,26 @@ describe('retained long-session transcript', () => {
     expect(work[0]).toEqual({ examined: 128, built: 128 })
     expect(work[1]).toEqual(work[0])
   })
+
+  it('routes a hosted card\'s tab selection to its row, like a click', async () => {
+    const send = vi.fn()
+    const ui = { typeName: 'Card' as const, props: { title: 'Local intelligence', children: [
+      { typeName: 'Tabs' as const, props: { active: 'hill', items: [
+        { id: 'hill', label: 'Hill climbs', intent: { action: 'tab', entities: { tab: 0 } } },
+        { id: 'skills', label: 'Skills', intent: { action: 'tab', entities: { tab: 1 } } }] } }] } }
+    const view = { spec: { kind: 'intel-suite', app: 'glide' }, app: 'glide', label: 'Local intelligence', identity: 'host-1', node: null, ui, send }
+    const panel: Entry = { id: entryId('panel'), kind: 'panel', title: 'Local intelligence', text: '' }
+    const eui = stub<NonNullable<TranscriptContext['eui']>>({ hostView: () => view, svg: () => undefined })
+    const h = harness()
+    h.paint([panel], { ...context(), eui })
+    const tabs = JSON.stringify(h.ops()).match(/"id":"(main\.panel[^"]*)","k":"tabs"/)?.[1]
+    expect(tabs).toBeDefined()
+    const select = (item: string) => h.retention.dispatch(stub<TspEvent>({ ev: 'select', id: tabs, item, raw: {}, sf: 'hermes' }))
+    await select('skills')?.()
+    expect(send).toHaveBeenCalledWith({ action: 'tab', entities: { tab: 1 } })
+    // Re-selecting the active tab is a no-op, and other gesture kinds stay unrouted.
+    await select('hill')?.()
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(h.retention.dispatch(stub<TspEvent>({ ev: 'toggle', id: tabs, raw: {}, sf: 'hermes' }))).toBeUndefined()
+  })
 })

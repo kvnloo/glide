@@ -11,7 +11,7 @@
 import type { HermesSkin } from '@hermes/shared/skin'
 import type { Palette } from '@stencil-hq/tern'
 
-import { skinColors, type SkinSemantics } from '../hermes/theme.js'
+import { ensureContrast, skinBackground, skinColors, type SkinSemantics } from '../hermes/theme.js'
 import type { ThemeMode } from '../settings.js'
 
 type Tokens = Record<string, string>
@@ -58,7 +58,12 @@ export function paletteFor(mode: ThemeMode, skin: HermesSkin | undefined): Palet
 
 /** The skin's colors for one polarity: the overlay a skin authors for that polarity wins over its base colors. */
 function resolve(skin: HermesSkin, polarity: 'dark' | 'light'): SkinSemantics {
-  return skinColors({ ...skin.colors, ...(polarity === 'light' ? skin.light_colors : skin.dark_colors) }, polarity)
+  const colors = { ...skin.colors, ...(polarity === 'light' ? skin.light_colors : skin.dark_colors) }
+  const raw = skinColors(colors, polarity)
+  // Tern sets these as text (the model name, bullets, status lines), so each reads 4.5:1 on the skin's background.
+  const bg = skinBackground(colors, polarity)
+  const ink = (color: string) => ensureContrast(color, bg, 4.5, 0.01)
+  return { accent: ink(raw.accent), error: ink(raw.error), ok: ink(raw.ok), warn: ink(raw.warn) }
 }
 
 function semantic(c: SkinSemantics): Tokens {

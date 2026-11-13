@@ -1,7 +1,5 @@
 """Tests for the first hill climb (kernel.toml loop with KEEP/REVERT referee)."""
 
-import json
-from pathlib import Path
 
 import pytest
 

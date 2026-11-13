@@ -26,18 +26,18 @@ const SEEDS: Record<'dark' | 'light', SkinSemantics & { bg: string }> = {
 const ACCENT_FLOOR = { dark: 1.45, light: 1.18 }
 const STATUS_FLOOR = { dark: 2.2, light: 1.6 }
 
-/** The skin's background when it authors a readable one. */
-function background(raw: string | undefined): string | undefined {
-  const value = (raw ?? '').trim()
+/** The background the skin's colors sit on: the one it authors when readable, else Hermes' seed for `polarity`. */
+export function skinBackground(colors: SkinColors, polarity: 'dark' | 'light'): string {
+  const value = (colors['background'] ?? '').trim()
   const hex = value.startsWith('#') ? value : `#${value}`
 
-  return value && relativeLuminance(hex) !== null ? hex : undefined
+  return value && relativeLuminance(hex) !== null ? hex : SEEDS[polarity].bg
 }
 
 /** The skin's accent, error, ok and warn colors for `polarity`. */
 export function skinColors(colors: SkinColors, polarity: 'dark' | 'light'): SkinSemantics {
   const seeds = SEEDS[polarity]
-  const bg = background(colors['background']) ?? seeds.bg
+  const bg = skinBackground(colors, polarity)
   const lift = (color: string, floor: number) => ensureContrast(color, bg, floor)
 
   return {

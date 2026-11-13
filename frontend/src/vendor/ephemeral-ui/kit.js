@@ -27104,7 +27104,7 @@ void main() {
       if (id2) emit("open-node", `Open ${byId.get(id2).label}`, byId.get(id2));
     }
     const actBtn = (n, cls = "") => {
-      const reason = n.requested ? "Fix already requested, awaiting glide" : !n.action ? "No fix action supplied" : "";
+      const reason = n.requested ? "Fix requested" : !n.action ? "No fix available" : "";
       return h("button", { type: "button", class: `ff-act ${cls}`, title: reason || n.action, disabled: reason ? true : null, onclick: (ev2) => {
         ev2.stopPropagation();
         queue(n);

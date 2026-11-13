@@ -1,6 +1,8 @@
 import type { ChatPorts } from '../app/ports.js'
-import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
-import { decodeIntel, decodeIntelIntent, INTEL_TABS, intelEntity, intelTab, intelText, type IntelDoc, type IntelTab } from '../wire/intel.js'
+import type { EuiKitContext, EuiNativeHandle } from '../eui/host.js'
+import { intelGlide, intelProgram } from '../glideui/intel.js'
+import { glide, type Glide } from '../glideui/program.js'
+import { decodeIntel, decodeIntelIntent, INTEL_TABS, intelDetailBody, intelEntity, intelReadableTitle, intelTab, intelText, presentIntel, type IntelDoc, type IntelTab } from '../wire/intel.js'
 
 export type IntelHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'control'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
@@ -29,8 +31,10 @@ export async function intelCommand(host: IntelHost, arg: string): Promise<void> 
     const doc = decodeIntel(await request(INTEL_TABS[tab]))
     return { ...doc, data: { ...doc.data, tab } }
   }
-  let handle: EuiKitHandle | undefined
+  let handle: EuiNativeHandle | undefined
+  let g: Glide | undefined
   const publish = (doc: IntelDoc) => {
+    const presentation = presentIntel(doc)
     const refresh = async (context: EuiKitContext) => {
       if (!active(context)) return
       try {
@@ -47,6 +51,7 @@ export async function intelCommand(host: IntelHost, arg: string): Promise<void> 
         let command: string
         let entity: string
         let title: string
+        let showDetail: (text: string) => string = text => text
         switch (action.action) {
           case 'tab':
             publish({ ...doc, data: { ...doc.data, tab: action.entities.tab } })
@@ -57,34 +62,45 @@ export async function intelCommand(host: IntelHost, arg: string): Promise<void> 
           case 'open-climb': {
             const row = doc.data.climbs.find(row => row.id === action.entities.id)
             if (!row) throw new Error('Climb unavailable in this snapshot')
-            command = 'climb'; entity = row.id; title = row.label
+            command = 'climb'; entity = row.id; title = intelReadableTitle(row.label)
+            showDetail = text => intelDetailBody('climb', text, row)
             break
           }
           case 'open-skill': {
-            const row = doc.data.routes.find(row => row.skill === action.entities.skill)
+            const original = presentation.skills.get(action.entities.skill) ?? action.entities.skill
+            const row = doc.data.routes.find(row => row.skill === original)
             if (!row) throw new Error('Skill unavailable in this snapshot')
-            command = 'skill'; entity = row.skill; title = row.skill
+            command = 'skill'; entity = row.skill; title = intelReadableTitle(row.skill)
+            showDetail = text => intelDetailBody('skill', text, row)
             break
           }
           case 'open-failure': {
-            const row = doc.data.failures.find(row => row.sig === action.entities.sig)
+            const original = presentation.failures.get(action.entities.sig) ?? action.entities.sig
+            const row = doc.data.failures.find(row => row.sig === original)
             if (!row) throw new Error('Failure unavailable in this snapshot')
-            command = 'failure'; entity = row.sig; title = row.sig
+            command = 'failure'; entity = row.sig
+            title = presentation.card.data.failures.find(f => f.sig === action.entities.sig)?.sig ?? 'Failure details'
+            showDetail = text => intelDetailBody('failure', text, row)
             break
           }
           default: { const exhaustive: never = action; return exhaustive }
         }
         const reply = await request(`${command} ${intelEntity(entity)}`)
-        if (active(context)) host.control().panel(title, intelText(reply))
+        if (active(context)) host.control().panel(title, showDetail(intelText(reply)))
       } catch (error) {
         if (active(context)) host.transcript.notice(`Intel action: ${error instanceof Error ? error.message : String(error)}`, 'warning')
       }
     }
-    const data = { ...doc, title: 'Local intelligence' }
-    if (handle) handle.update(data, intent, refresh)
-    else handle = eui.host.publishKit(data, intent, refresh)
+    // A shipped glide/v1 program through the real OpenUI parser, bound to this snapshot, drawn natively.
+    const tab = doc.data.tab ?? initialTab
+    if (!g) throw new Error('OpenUI glide library is not loaded')
+    const ui = g.bind(g.program(intelProgram(tab), sessionId), intelGlide(doc, tab))
+    const card = { kind: 'intel-suite', app: 'glide', title: 'Local intelligence', ui }
+    if (handle) handle.update(card, intent)
+    else handle = eui.host.publishNative(card, intent)
   }
   try {
+    g = await glide()
     const doc = await read(initialTab)
     if (current()) publish(doc)
   } catch (error) {

@@ -15,7 +15,7 @@ import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
 import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
 import type { ThemeMode } from '../settings.js'
-import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
 import type { Lane, LaneFeed } from '../voice/lanes.js'
@@ -51,11 +51,16 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
   else host.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`)
 }
 
-/** `/glide theme auto|default|export`: wear the wallpaper's pywal colors, go back, or write them out. */
+/** `/glide theme auto|dash|default|export`: wear the wallpaper's pywal colors or Dash's black and gold, go back, or write them out. */
 export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
     host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
+    return
+  }
+  if (sub === 'dash') {
+    host.setTheme?.('dash')
+    host.transcript.notice("Glide theme now wears Dash's black and gold")
     return
   }
   if (sub === 'export') {
@@ -70,7 +75,7 @@ export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub
     host.transcript.notice('Glide palette exported. Other tools can now wear your wallpaper colours too.')
     return
   }
-  host.transcript.notice('Usage: /glide theme auto|default|export', 'warning')
+  host.transcript.notice('Usage: /glide theme auto|dash|default|export', 'warning')
 }
 
 const glideMemory = z.object({
@@ -181,10 +186,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
       const block = await openTastePane(board)
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
-      cards.publish({
-        kind: 'receipt', app: APP, title: board.title,
-        rows: [{ label: 'Taste pane', value: block }, { label: 'Board', value: board.url },
-          { label: 'Close', value: 'Close the browser pane to return to chat' }]
+      cards.publish(tasteCard(board, block), async () => {
+        try { await focusTastePane(block) } catch (error) { fail(error) }
       })
       return
     }
@@ -398,7 +401,7 @@ function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void
   cards.publish({
     kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',
     summary: 'Sample receipt · no real turn has run yet. The chip is a fingerprint of your ask.',
-    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }]
+    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }, { label: 'sample', value: 'receipt' }]
   })
 }
 
@@ -422,7 +425,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
       { label: 'pattern', value: 'fan-out → council review' },
       ...PLAN.map(lane),
       ...SAMPLE_HOSTS.map(h => ({ label: `host: ${h.name}`, value: h.value })),
-      { label: 'gate', value: 'council review · 3 of 4 seats must pass' },
+      { label: 'verifier', value: 'council review · 3 of 4 seats must pass' },
       { label: 'budget', value: '≤ 40k tokens · 61% of weekly quota left' },
       { label: 'sample', value: live?.length ? 'hosts, budget' : 'lanes, hosts, budget' }
     ],
@@ -432,7 +435,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
     cards.publish({
       kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
       summary: 'Sample plan · tasks wait in this rail until you approve the contract.',
-      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'queued'} · ${c.label}` }))
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'declared'} · ${c.label}` }))
     })
   })
 }
@@ -453,6 +456,8 @@ const hours = (f: GlideFocus) => f.learned.windows.map(w => `${String(w.start).p
 // into the running ring into ended in place, and a newer /glide focus retires the older card, so the
 // End block button never shows twice.
 const liveFocus = new WeakMap<Cards, EuiHostHandle>()
+// The running block's length, so its ended card can say how long it was.
+const liveMinutes = new WeakMap<Cards, number>()
 const BLOCK = 50
 
 const focusRows = (f: GlideFocus) => [
@@ -479,17 +484,24 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
       rows: [{ label: 'count', value: held.length }, ...held.slice(0, MAX_HOST_ROWS - 1).map(i => ({ label: i.cls.slice(0, 80) || 'ask', value: i.title.slice(0, 2048) }))]
     })
   }
-  const ended = (f: GlideFocus) => ({
-    kind: 'receipt', app: FOCUS_APP, title: 'Deep-work block ended', summary: source(f), rows: focusRows({ ...f, block: null, queued: 0 })
+  const start = (minutes: number) => guarded(async ({ signal }) => {
+    const on = await call({ action: 'start', minutes })
+    if (signal.aborted) return
+    liveFocus.get(cards)?.update(...card(on))
   })
-  // An ended card keeps its receipt: only a card that still has a button is retired by a newer one.
+  // An ended block keeps its length and says how many asks it hands back (the digest card lists them),
+  // and its one action is the next block of the same length, so the same card turns back into the ring.
+  const ended = (f: GlideFocus, length?: number): [unknown, EuiOperation] => [{
+    kind: 'approve', app: FOCUS_APP, title: 'Deep-work block ended', summary: source(f),
+    rows: focusRows({ ...f, block: null, queued: f.digest?.length ?? 0 }).map(r =>
+      r.label === 'block' ? { label: 'block', value: 'done' } : r.label === 'length' ? { label: 'length', value: length ?? '' } : r),
+    approval: { label: 'Start another block', description: `Another ${length ?? BLOCK} minutes on the same terms. The digest below stays where it is.` }
+  }, start(length ?? BLOCK)]
   const settle = (f: GlideFocus) => {
-    const live = liveFocus.get(cards)
-    liveFocus.delete(cards)
-    live?.update(ended(f))
+    liveFocus.get(cards)?.update(...ended(f, liveMinutes.get(cards)))
   }
   const card = (f: GlideFocus): [unknown, EuiOperation] => f.block
-    ? [{
+    ? (liveMinutes.set(cards, f.block.minutes ?? f.block.minutes_left), [{
         kind: 'approve', app: FOCUS_APP, title: `Deep-work block on until ${f.block.until}`, summary: 'Agent asks are held for one digest. Critical alerts still pass.',
         rows: focusRows(f),
         approval: { label: 'End block', description: 'Ends the block and hands back everything Glide held as one digest.' }
@@ -498,15 +510,11 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
         if (signal.aborted) return
         settle(done)
         digest(done)
-      })]
+      })])
     : [{
         kind: 'approve', app: FOCUS_APP, title: 'Your attention', summary: source(f), rows: focusRows(f),
         approval: { label: 'Start block', description: `For the next ${BLOCK} minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.` }
-      }, guarded(async ({ signal }) => {
-        const on = await call({ action: 'start', minutes: BLOCK })
-        if (signal.aborted) return
-        liveFocus.get(cards)?.update(...card(on))
-      })]
+      }, start(BLOCK)]
   const show = (f: GlideFocus) => {
     liveFocus.get(cards)?.revoke()
     liveFocus.set(cards, cards.publish(...card(f)))

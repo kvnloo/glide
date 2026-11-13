@@ -1,14 +1,15 @@
 import type { ChatPorts } from '../app/ports.js'
 import { storedSessionId } from '../core/ids.js'
-import type { EuiKitContext, EuiKitHandle } from '../eui/host.js'
+import type { EuiKitContext, EuiNativeHandle } from '../eui/host.js'
+import { fleetGlide, fleetLocalIntent, FLEET_TITLES, type HostsTab } from '../glideui/fleet.js'
+import { glide, type Glide } from '../glideui/program.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
-import { decodeFleet, decodeFleetIntent, fleetAgent, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
+import { decodeFleet, decodeFleetIntent, fleetAgent, fleetHost, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
 export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
 }
-const title = { hosts: 'Hosts', portfolio: 'Portfolio', factory: 'Factory graph' }
 
 function browse(url: string | undefined) {
   if (!url) throw new Error('No URL available in this snapshot')
@@ -36,6 +37,11 @@ export async function fleetIntent(host: FleetHost, doc: EuiKitDoc, detail: unkno
           return
         }
         await host.resume(storedSessionId(agent.id))
+        return
+      }
+      case 'check-host': {
+        const found = fleetHost(doc, action.entities)
+        host.control().draft(`Check the connection for ${found.id} and recommend one next step. `)
         return
       }
       case 'nudge': {
@@ -82,21 +88,36 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
     owner?.isCurrent() !== false && !owner?.signal.aborted && host.transcript.lifetime === lifetime
   const params = { view, ...(portfolio ? { portfolio } : {}) }
   const read = async () => decodeFleet(await fleetRequest(host.gw, sessionId, params), view)
-  let handle: EuiKitHandle
-  const publish = (doc: EuiKitDoc, first: boolean) => {
-    const intent = (detail: unknown, context: EuiKitContext) => fleetIntent(host, doc, detail, context)
-    const refresh = async (context: EuiKitContext) => {
-      const next = await read()
+  let handle: EuiNativeHandle | undefined
+  let g: Glide | undefined
+  const publish = (doc: EuiKitDoc, tab: HostsTab) => {
+    // Tabs and Refresh are card-local; every other control is a fleet.v0 intent checked against this snapshot.
+    const intent = async (detail: unknown, context: EuiKitContext) => {
       if (!current() || !context.isCurrent() || context.signal.aborted) return
-      publish(next, false)
+      const local = fleetLocalIntent(detail)
+      if (local && local !== 'refresh') { publish(doc, local.tab); return }
+      if (local === 'refresh') {
+        try {
+          const next = await read()
+          if (current() && context.isCurrent() && !context.signal.aborted) publish(next, tab)
+        } catch (error) {
+          if (current()) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
+        }
+        return
+      }
+      await fleetIntent(host, doc, detail, context)
     }
-    const data = { ...doc, title: title[view] }
-    if (first) handle = eui.host.publishKit(data, intent, refresh)
-    else handle.update(data, intent, refresh)
+    if (!g) throw new Error('OpenUI glide library is not loaded')
+    const { program, doc: bound } = fleetGlide(doc, view, tab)
+    const card = { kind: 'fleet-' + view, app: doc.app, title: FLEET_TITLES[view], ui: g.bind(g.program(program, sessionId), bound) }
+    if (handle) handle.update(card, intent)
+    else handle = eui.host.publishNative(card, intent)
   }
   try {
-    const doc = await read()
-    if (current()) publish(doc, true)
+    // The snapshot read goes out at once; the OpenUI library loads alongside it.
+    const [lib, doc] = await Promise.all([glide(), read()])
+    g = lib
+    if (current()) publish(doc, 'agents')
   } catch (error) {
     if (current()) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
   }

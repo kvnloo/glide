@@ -159,7 +159,7 @@ try {
   writeFileSync(join(out, 'backend-mode'), 'unavailable\n')
   await until(() => JSON.stringify(state().factory).includes('AODL machine proposals unavailable'), 'actual production backend unavailable response', 18000)
   const unavailable = snapshot('04-backend-unavailable')
-  proof('Production machine-provenance blocker is honestly visible', unavailable.includes('Factory unavailable') && unavailable.includes('AODL machine proposals unavailable') && unavailable.includes('Suggestions blocked'))
+  proof('Production machine-provenance blocker is honestly visible', unavailable.includes('Factory check') && unavailable.includes('AODL machine proposals unavailable') && unavailable.includes('Paused until the check passes'))
   proof('Routine polls and backend failure added no transcript notices', JSON.stringify(state().notices) === notices)
   ctl('click', JSON.stringify('.sf-prefs .pf-close'))
   await until(() => !state().factoryOpen, 'native close button')

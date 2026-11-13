@@ -6,7 +6,7 @@ import { inlineSlashTrigger } from '@hermes/shared/slash-input'
 
 // The Ink TUI's ranking of slash menu items, and how a picked completion lands in the draft.
 export { scoreSlashMenuItem } from '@hermes/shared/slash-score'
-export { applyCompletion, completionToApplyOnSubmit } from '@hermes/shared/slash-input'
+export { applyCompletion } from '@hermes/shared/slash-input'
 
 // A path word starts its token: the Ink TUI's pattern lets `@` open mid-word, so `me@host` listed files.
 // t3code and Hermes desktop open `@` only at the start of the text or after whitespace.

@@ -18,7 +18,7 @@ import { lanePeriod, tint } from '../../frontend/src/voice/orbit.js'
 import { euiPopupNode } from '../../frontend/src/view/euiCard.js'
 
 import type { CouncilHost } from './councilPopup.js'
-import { MONO, NIGHT, SERIF } from './council.js'
+import { MONO, NIGHT, SERIF } from './tokens.js'
 
 export const BINDINGS_ENV = 'GLIDE_LANES_BINDINGS_FILE'
 export const CLOSE_ID = 2
@@ -105,14 +105,14 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids: spaced(kids)
   })
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text2}`
-  const dot = (hue: string, size = 8) => el('span', `width:${size}px;height:${size}px;border-radius:${size / 2}px;flex:none;background-color:${hue}`, [])
+  const micro = `font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${NIGHT.text2}`
+  const dot = (hue: string, size = 8) => el('span', `width:${size}px;height:${size}px;border-radius:50%;flex:none;background-color:${hue}`, [])
   // The orbit's own key: a planet in its provider's hue inside a ring of its role's tint.
-  const swatch = (role: string, hue: string) => el('span', `width:14px;height:14px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)])
+  const swatch = (role: string, hue: string) => el('span', `width:14px;height:14px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;border:1.5px solid ${tint(role, true)}`, [dot(hue, 7)])
   const pips = (effort: EffortId) => el('span', 'display:flex;align-items:center;gap:2px', [0, 1, 2, 3].map(i =>
-    el('span', `width:3px;height:9px;border-radius:1px;background-color:${i < EFFORTS[effort].orbits ? EFFORTS[effort].accent : NIGHT.faint}`, [])))
+    el('span', `width:3px;height:9px;border-radius:999px;background-color:${i < EFFORTS[effort].orbits ? EFFORTS[effort].accent : NIGHT.faint}`, [])))
   const badge = (kids: readonly EuiNode[], color: string, border: string, attrs: Record<string, string> = {}) =>
-    el('span', `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${color}`, kids, { attrs })
+    el('span', `display:flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid ${border};font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${color}`, kids, { attrs })
   const lanes = sortLanes(src.call?.lanes ?? [])
   const live = Boolean(src.call?.open && lanes.length)
   const dead = lanes.filter(l => l.state === 'dead').length
@@ -127,13 +127,13 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
 
   const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
-      el('span', `${micro};letter-spacing:2px`, [text('LANE BROKER')]),
-      el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` +
+      el('span', micro, [text('LANE BROKER')]),
+      el('span', `font-family:${MONO};font-size:10px;letter-spacing:.16em;padding:2px 8px;border-radius:999px;` +
         (live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.text2};border:1px solid ${NIGHT.borderStrong}`),
       [text(status)], { attrs: { 'data-lanes-source': live ? 'live' : lanes.length ? 'configured' : 'none', ...(src.call?.revision ? { title: `broker preset ${src.call.revision}` } : {}) } })
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:28px;line-height:32px;color:${NIGHT.text}`, [text('Helper lanes')]),
-    el('span', `font-size:12.5px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
+    el('span', `font-size:13px;line-height:18px;color:${NIGHT.text2}`, [text(summary)],
       { attrs: { title: 'Lane state comes from the lane broker; a model pick is saved on this device (the broker has no binding endpoint)' } })
   ])
 
@@ -146,7 +146,8 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
     const waiting = !live && lane.state === 'idle'
     const tone = waiting ? NIGHT.agree : DOT[lane.state]
     const id = info.via ? `${info.via} → ${info.target ?? 'unresolved'}` : info.id
-    const line = isDead ? `dead${lane.error ? ` · ${clip(lane.error, 80)}` : ''}`
+    // The pill already says DEAD: the line says why in words and what to do about it.
+    const line = isDead ? `Not answering${lane.error ? ` (${clip(lane.error, 80)})` : ''}. Pick another model below.`
       : lane.entry ? `“${clip(lane.entry.text, 110)}”` : lane.researching ? `Working on “${clip(lane.researching, 100)}”`
         : live ? 'no blackboard entry yet' : ''
     // A fact the catalog does not know is left out rather than badged UNSPECIFIED / UNKNOWN.
@@ -154,9 +155,10 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
       ...(info.provider === 'unknown' ? [] : [badge([dot(hue, 6), text(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { 'data-lane-provider': `${lane.role}=${info.provider}` })]),
       ...(info.billing === 'unknown' ? [] : [badge([text(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { 'data-lane-billing': `${lane.role}=${info.billing}` })]),
       ...(info.effort === 'unknown' ? [] : [badge([pips(info.effort), text(EFFORTS[info.effort].label.toUpperCase())], NIGHT.text2, NIGHT.borderStrong, { 'data-lane-effort': `${lane.role}=${info.effort}`, title: 'effort: orbit pips, as in the zerOS agent-core key' })]),
-      badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` }),
+      // A local model's provider badge already says it runs here; only a remote route needs its own badge.
+      ...(info.provider === 'local' ? [] : [badge([text(info.route === 'local' ? 'ON DEVICE' : 'CLOUD')], NIGHT.text2, NIGHT.border, { 'data-lane-route': `${lane.role}=${info.route}` })]),
       ...(info.via ? [badge([text('VOICE PLAN')], NIGHT.text2, NIGHT.border)] : []),
-      ...(binding && binding !== lane.model ? [badge([text('BOUND LOCALLY')], NIGHT.strong, rgba('#eccd8c', 0.4), { 'data-lane-rebound': lane.role })] : [])
+      ...(binding && binding !== lane.model ? [badge([text('YOUR PICK')], NIGHT.strong, rgba(NIGHT.strong, 0.4), { 'data-lane-rebound': lane.role })] : [])
     ]
     // The lane picked on the orbit: its row lifts in its role's ring tint, says so, and leads the list
     // (flex order only, so it opens in view and every picker keeps its id).
@@ -164,20 +166,21 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
     const lift = picked ? `;padding:9px 10px;margin:2px -10px;border-radius:12px;border:1px solid ${rgba(tint(lane.role, true), 0.55)};background-color:${rgba(tint(lane.role, true), 0.08)};order:-1` : ''
     return el('div', `display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid ${NIGHT.border}` + (isDead ? ';opacity:0.85' : '') + lift, [
       // Role label, model name, then the status pill: three weights, never one run of caps.
-      el('div', 'display:flex;align-items:center;gap:10px', [
+      // The row wraps rather than squeezes: a long model name drops to its own line whole, never cut or split.
+      el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px', [
         swatch(lane.role, hue),
-        el('span', `width:58px;flex:none;font-family:${MONO};font-size:10px;letter-spacing:1.6px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(lane.role.toUpperCase())], { attrs: { 'data-lane-role': lane.role } }),
-        el('span', `flex:1;min-width:0;font-family:${SERIF};font-size:19px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
-        ...(picked ? [el('span', `${micro};font-size:8.5px;color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : []),
-        el('span', `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone, 0.45)};background-color:${rgba(tone, 0.1)};font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${tone}`, [
+        el('span', `width:58px;flex:none;font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(lane.role.toUpperCase())], { attrs: { 'data-lane-role': lane.role } }),
+        el('span', `flex:1 1 auto;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${SERIF};font-size:20px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text(info.label)], { attrs: { title: [id, info.note].filter(Boolean).join(' · '), 'data-lane-model': `${lane.role}=${current}` } }),
+        ...(picked ? [el('span', `${micro};color:${tint(lane.role, true)}`, [text('SELECTED')], { attrs: { 'data-lane-focus': lane.role } })] : []),
+        el('span', `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone, 0.45)};background-color:${rgba(tone, 0.1)};font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${tone}`, [
           el('span', `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone}` + (lane.state === 'thinking' ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ''), [], { attrs: { 'data-lane-state': lane.state } }),
           text(waiting ? 'READY' : lane.state.toUpperCase())
         ])
       ]),
       el('div', 'display:flex;flex-wrap:wrap;gap:5px;padding-left:24px', badges),
-      ...(line ? [el('span', `padding-left:24px;font-size:12.5px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
+      ...(line ? [el('span', `padding-left:24px;font-size:13px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text(line)], { attrs: { 'data-lane-line': lane.role } })] : []),
       el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:24px', [
-        el('span', `${micro};font-size:8.5px`, [text('REBIND')]),
+        el('span', micro, [text('REBIND')]),
         ...laneChoices(lane, bound).map((m, j) => {
           const on = current === m
           const c = laneModel(m, null, roles)
@@ -187,8 +190,8 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
           const twin = c.via && laneChoices(lane, bound).some(o => o !== m && laneModel(o, null, roles).label === c.label)
           const label = twin ? `${short} · plan` : short
           return el('button', `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? 'rgba(236,232,223,0.62)' : NIGHT.borderStrong};background-color:${on ? 'rgba(236,232,223,0.16)' : 'transparent'}`,
-            [dot(PROVIDERS[c.provider].hue, 6), el('span', `font-size:11.5px;color:${on ? NIGHT.text : NIGHT.text2}`, [text(label)]),
-              el('span', `font-family:${MONO};font-size:8.5px;letter-spacing:1px;color:${BILL_TONE[c.billing]}`, [text(BILL_SHORT[c.billing])])],
+            [dot(PROVIDERS[c.provider].hue, 6), el('span', `font-size:12px;color:${on ? NIGHT.text : NIGHT.text2}`, [text(label)]),
+              el('span', `font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${BILL_TONE[c.billing]}`, [text(BILL_SHORT[c.billing])])],
             { id: pickId(i, j), attrs: { 'data-lane-pick': `${lane.role}=${m}`, title: [c.via ? `${c.via} → ${c.target ?? 'unresolved'}` : m, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(' · '), ...(on ? { 'data-lane-bound': 'true' } : {}) } })
         })
       ])
@@ -197,25 +200,25 @@ export function lanesCard(src: LaneSource, bound: Record<string, string>, roles?
 
   // The key, after zerOS's agent-core legend: hue is provider only, pips are effort, the orbit maps the rest.
   const keyRow = (title: string, items: readonly EuiNode[]) => el('div', 'display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px', [
-    el('span', `${micro};font-size:8.5px;letter-spacing:1.8px;width:62px;flex:none`, [text(title)]), ...items
+    el('span', `${micro};width:62px;flex:none`, [text(title)]), ...items
   ])
-  const item = (mark: EuiNode, label: string) => el('span', `display:flex;align-items:center;gap:6px;font-size:11.5px;color:${NIGHT.text2}`, [mark, text(label)])
-  const ringMark = (role: string) => el('span', `width:11px;height:11px;border-radius:6px;flex:none;border:1.5px solid ${tint(role, true)}`, [])
-  const legend = el('div', `display:flex;flex-direction:column;gap:7px;padding:10px 14px;border-radius:14px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
+  const item = (mark: EuiNode, label: string) => el('span', `display:flex;align-items:center;gap:6px;font-size:12px;color:${NIGHT.text2}`, [mark, text(label)])
+  const ringMark = (role: string) => el('span', `width:11px;height:11px;border-radius:50%;flex:none;border:1.5px solid ${tint(role, true)}`, [])
+  const legend = el('div', `display:flex;flex-direction:column;gap:5px;padding:8px 12px;border-radius:12px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px', [
-      el('span', `${micro};letter-spacing:2px`, [text('KEY')]),
+      el('span', micro, [text('KEY')]),
       el('span', `font-size:11px;color:${NIGHT.text2}`, [text('hue = provider · pips = effort · ring = role')])
     ]),
     keyRow('PROVIDER', PROVIDERS_SHOWN.map(p => item(dot(PROVIDERS[p].hue), PROVIDERS[p].label))),
     keyRow('EFFORT', EFFORTS_SHOWN.map(e => item(pips(e), EFFORTS[e].label))),
-    keyRow('ORBIT', [...ROLES_SHOWN.map(r => item(ringMark(r), `${r} ${lanePeriod(r)} s`)), item(dot(NIGHT.text2, 7), 'one dot per lane')]),
-    keyRow('BILLING', [item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.agree}`, [text('FREE')]), 'local or free tier'), item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.text2}`, [text('SUB')]), 'subscription'), item(el('span', `font-family:${MONO};font-size:8.5px;color:${NIGHT.danger}`, [text('PAID')]), 'metered')])
+    // FREE / SUB / PAID are words on every chip, so billing needs no key row.
+    keyRow('ORBIT', [...ROLES_SHOWN.map(r => item(ringMark(r), `${r} ${lanePeriod(r)} s`)), item(dot(NIGHT.text2, 7), 'one dot per lane')])
   ], { attrs: { 'data-lanes-legend': 'true' } })
 
-  const close = el('button', `padding:9px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+  const close = el('button', `padding:9px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el('span', `color:${NIGHT.text2};font-size:13px`, [text('Close')])], { id: CLOSE_ID, attrs: { 'data-eui-action': 'close' } })
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:18px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
     el('div', 'display:flex;flex-direction:column', rows),
     legend,

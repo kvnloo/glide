@@ -46,6 +46,7 @@ const hashedAssets = [
   'openui-generation/src/host.mjs',
   'openui-generation/src/intent.mjs',
   'openui-generation/src/architecture.mjs',
+  'openui-generation/src/glide.mjs',
   'openui-generation/fixtures/architecture.v0.json',
   'openui-generation/fixtures/architecture-services.v0.json',
   'openui-generation/src/static-program.mjs',

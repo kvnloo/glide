@@ -86,7 +86,9 @@ export function adaptFleetJs(js) {
     js = js.replaceAll('${' + expression + '} ' + noun + 's',
       '${' + expression + '} ' + noun + '${' + expression + ' === 1 ? "" : "s"}')
   }
-  return js
+  // Plain copy on the factory graph's disabled fix button, not developer phrasing.
+  return js.replace('"Fix already requested, awaiting glide"', '"Fix requested"')
+    .replace('"No fix action supplied"', '"No fix available"')
 }
 
 async function main() {

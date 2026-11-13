@@ -3,6 +3,8 @@
 // model family), its crew as small stones on an arc, the brief as a brass boss at the centre. This
 // module only parses a council run and draws it; it never computes a verdict. Every stone shares one
 // key light from the upper left; nothing moves unless an event is playing.
+import { MONO, NIGHT, SERIF } from './tokens.js'
+
 export type Mineral = 'citrine' | 'rose' | 'smoky' | 'clear' | 'malachite' | 'labradorite' | 'moonstone' | 'lapis'
 export type Stance = 'agree' | 'dissent' | 'abstain'
 
@@ -22,15 +24,6 @@ const FAMILY: Record<string, readonly Mineral[]> = {
   anthropic: ['citrine', 'rose', 'smoky'], openai: ['labradorite', 'moonstone', 'lapis'], google: ['malachite'], free: ['clear']
 }
 
-export const NIGHT = {
-  canvas: '#0c0c0a', text: '#ECE8DF', text2: '#B4AFA3', text3: '#A39F94', faint: '#5e5b52',
-  action: '#d7b986', strong: '#eccd8c', muted: '#AF9D7E', danger: '#e37f65', agree: '#98cf8b',
-  border: 'rgba(236,232,223,0.10)', borderStrong: 'rgba(236,232,223,0.16)'
-}
-/** The popups' text inks (faint marks bars only): the glass floor keeps each 4.5:1 (wal.ts). */
-export const NIGHT_INKS = [NIGHT.text, NIGHT.text2, NIGHT.text3, NIGHT.action, NIGHT.strong, NIGHT.muted, NIGHT.danger, NIGHT.agree] as const
-export const SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif"
-export const MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
 
 // ------------------------------------------------------------------ the payload
 

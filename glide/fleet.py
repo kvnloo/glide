@@ -353,6 +353,8 @@ def _portfolio(home, path, selection, notes):
             if selection is not None and key != selection:
                 continue
             board = {"label": product.get("name", key), "lead": product.get("lead", "Taste work board"), "products": [], "shared": []}
+            board_repos = set()
+            board_tasks = []
             for component in product.get("components", [])[:MAX_ROWS]:
                 cid = component["id"]
                 product_id = f"{key}:{cid}"
@@ -364,8 +366,10 @@ def _portfolio(home, path, selection, notes):
                         continue
                     if repo not in task_repos:
                         task_repos[repo] = _tasks(home, repo, notes)
-                    # The config has area globs, not an issue-to-area assignment. Do not invent one.
-                    features.append({"id": f"{cid}:{repo_key}", "label": repo_key,
+                    board_repos.add(repo)
+                    board_tasks.extend(task_repos[repo])
+                    # Preserve feature/action IDs while displaying the repository's name, not a config key.
+                    features.append({"id": f"{cid}:{repo_key}", "label": repo[:200],
                                      "horizon": _horizon(component.get("horizon")),
                                      "tasks": deepcopy(task_repos[repo])})
                 for other in component.get("also", [])[:64]:
@@ -376,6 +380,11 @@ def _portfolio(home, path, selection, notes):
                 if not features:
                     features.append({"id": cid, "label": component.get("name", cid), "horizon": "now", "tasks": []})
                 board["products"].append({"id": product_id, "label": component.get("name", cid), "horizon": _horizon(component.get("horizon")), "features": features})
+            # One readable portfolio verdict, based on repository-wide tasks; never assign an issue to a path.
+            next_task = next((t for t in board_tasks if t["status"] == "blocked"),
+                             next((t for t in board_tasks if t["status"] == "next"), None))
+            board["lead"] = (f"{len(board_repos)} repositories · "
+                             + (f"Next: review {str(next_task['label'])[:80]}" if next_task else "No open tasks to review"))
             boards[key] = board
         if selection is not None and selection not in boards:
             notes.append("portfolio: unknown key.")
@@ -446,8 +455,15 @@ def _factory(home, root, notes):
             if not (key.endswith("_queued") or key in ("pending_review", "pending_verify", "chat_in_flight", "chat_backlog")) or not isinstance(values, list):
                 continue
             for index, value in enumerate(values[:MAX_NODES]):
-                add(f"card:{key}:{index}", 2, value.get("tag", value.get("id", key)) if isinstance(value, dict) else value,
-                    "subagent", "live" if key == "chat_in_flight" else _factory_state(key), value)
+                # A card object's detail is its reason; its repr would read as a source failure.
+                label, reason = (value.get("tag", value.get("id", key)), value.get("detail", key)) if isinstance(value, dict) else (value, value)
+                add(f"card:{key}:{index}", 2, label, "subagent", "live" if key == "chat_in_flight" else _factory_state(key), reason)
+    # The renderer offers a fix action only on the highest-priority observed node.
+    # Every other node remains navigable; gold is not a second status colour.
+    next_node = next((n for n in nodes if n["state"] == "failing"),
+                     next((n for n in nodes if n["state"] == "needs-you"), None))
+    if next_node is not None:
+        next_node["action"] = "Prepare fix" if next_node["state"] == "failing" else "Review blocker"
     notes.append("Factory graph is a bounded brain-state snapshot, not live lane telemetry. capHour is the configured default of 30.")
     return {"stats": stats, "nodes": nodes, "edges": edges}
 

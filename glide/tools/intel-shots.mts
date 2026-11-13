@@ -1,0 +1,203 @@
+// Real intel-suite kit shots over synthetic data, composed the way Tern's host card draws it:
+// the pinned kit DOM inside kitSnapshot (host notes + host buttons), with the kit's actual CSS,
+// in headless Chromium at 1060x596 and 412x915. No local data is read.
+// Usage from the repository root:
+//   bun glide/tools/intel-shots.mts OUT_DIR
+// Output: OUT_DIR/{hill,skills,memory,failures,trace,empty}-{desktop,phone}.png and OUT_DIR/metrics.json
+// (card height, painted text lines, and whether the whole card with its head row fits in 596 px), plus the
+// card-to-Refresh total, the stage's hidden overflow, and the hill chart's lowest gridline and point against the stage.
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
+
+import { euiDir, euiStyles } from '../../frontend/src/eui/cards.js'
+import { kitSnapshot } from '../../frontend/src/eui/kitSnapshot.js'
+import { createSandbox, type EuiNode } from '../../frontend/src/eui/sandbox.js'
+import { decodeEuiKit, kitNotes } from '../../frontend/src/wire/euiKit.js'
+import { INTEL_TABS, presentIntel, type IntelDoc } from '../../frontend/src/wire/intel.js'
+import { DASH, MONO, NIGHT, RADIUS, STATUS, TRACK, TYPE } from '../frontend/tokens.js'
+
+const out = resolve(process.argv[2] ?? 'intel-shots')
+const work = mkdtempSync(join(tmpdir(), 'intel-shots-'))
+mkdirSync(join(out, 'html'), { recursive: true })
+
+// The methodology copy the local collectors attach (glide/intel.py, glide/intel_sources.py), not profile data.
+const methodology = [
+  'Read-only local snapshot. Observations are not commands or verified fixes.',
+  'Hill climbs: the final point is the latest observed score; the best may be earlier.',
+  'climbs: series show the latest 64 points; best is over the bounded source read.',
+  'routes: corrected=0; no cheap per-load owner-corrections attribution is available.',
+  'routes: assistant argument lookup capped at 256 calls per session; unmatched loads are omitted.',
+  'memory: L3 relations store unavailable; the memory contract does not establish a separately deployed graph.',
+  'memory: representative local store bytes and mtime only, not full layer coverage, fact counts or successful recall.',
+  'failures: count is recorded failed checks, spark is the latest 14 replay checks. fixed means last check passed, not a verified permanent fix.',
+  "trace: today's UTC profile events, minutes since first event. Buckets mark events, not measured model/tool durations; session IDs are opaque."
+]
+// Sample observations only; synthetic identities are intentionally unlike local source data.
+const sample: IntelDoc = {
+  kind: 'intel-suite', app: 'glide',
+  data: {
+    at: '2026-11-12T21:00:00Z', tab: 0,
+    climbs: [
+      { id: 'climb-aaaaaaaaaaaaaaaaaaaaaaaa', label: 'lab/recall-benchmark', metric: 'recall@3',
+        points: [0.51, 0.55, 0.57, 0.60, 0.58, 0.66, 0.70, 0.68], best: 0.70 },
+      { id: 'climb-bbbbbbbbbbbbbbbbbbbbbbbb', label: 'lab/route-test', metric: 'validation accuracy',
+        points: [0.49, 0.54, 0.56, 0.58], best: 0.58 }
+    ],
+    routes: [
+      { skill: 'systematic-debugging', hits: 16, corrected: 1 },
+      { skill: 'python-testing', hits: 11, corrected: 0 },
+      { skill: 'frontend-design', hits: 6, corrected: 1 }
+    ],
+    memory: [
+      { level: 'L5', name: 'STATE-PACKET.md', size: '22800 B', fresh: '2026-11-12T20:40:00Z', stale: false },
+      { level: 'L4', name: 'Reconciled-node-dossiers', size: '175400 B', fresh: '2026-11-08T19:00:00Z', stale: false },
+      { level: 'L2', name: 'Distilled-facts', size: '112000 B', fresh: '2026-11-01T08:00:00Z', stale: true }
+    ],
+    failures: [
+      { sig: 'failure-aaaaaaaaaaaaaaaaaaaaaaaa', source: 'gateway-retry', spark: '101101001011', count: 12, status: 'open' },
+      { sig: 'failure-bbbbbbbbbbbbbbbbbbbbbbbb', source: 'stale-index', spark: '001010000010', count: 6, status: 'fixed' },
+      { sig: 'failure-cccccccccccccccccccccccc', source: 'missing-keyring', spark: '000100000000', count: 2, status: 'law' }
+    ],
+    trace: [
+      { lane: 'session-aaaaaaaaaaaaaaaaaaaaaaaa', spans: [[0, 4, 'm'], [4, 7, 't'], [7, 18, 'm'], [18, 19, 'e']] },
+      { lane: 'session-bbbbbbbbbbbbbbbbbbbbbbbb', spans: [[6, 11, 'm'], [11, 14, 't'], [14, 24, 'm']] }
+    ],
+    notes: methodology
+  }
+}
+// A profile whose collectors found nothing yet: the copy a fresh install sees.
+const empty: IntelDoc = {
+  ...sample,
+  data: { ...sample.data, climbs: [], routes: [], memory: [], failures: [], trace: [], notes: [
+    methodology[0]!, methodology[1]!,
+    'climbs: no score-per-iteration series available in the bounded run scan.',
+    'routes: unavailable or invalid; source unavailable.',
+    methodology[5]!, 'memory: L5 State Packet source unavailable.', methodology[6]!,
+    'failures: unavailable or invalid; source unavailable.', 'trace: unavailable or invalid; source unavailable.'
+  ] }
+}
+
+function escapeHtml(value: unknown): string {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function draw(node: EuiNode | null): string {
+  if (!node) return ''
+  if (node.t === 'text') return escapeHtml(node.text)
+  if (node.t === 'svg') {
+    // euiCardNode's wrapper: a span carrying the kit's class around Tern's image.
+    return '<span data-eui-svg="" class="' + escapeHtml(node.cls) + '"><img class="sf-image" alt="Chart" width="' + node.w +
+      '" height="' + node.h + '" src="data:image/svg+xml;base64,' + Buffer.from(node.svg).toString('base64') + '"></span>'
+  }
+  // A closed details carries open="" in the snapshot; HTML would treat any open attribute as open.
+  const attrs = Object.entries(node.attrs).filter(([key, value]) => key !== 'open' || value)
+    .map(([key, value]) => ' ' + key + '="' + escapeHtml(value) + '"').join('')
+  const cls = node.cls ? ' class="' + escapeHtml(node.cls) + '"' : ''
+  const style = node.style ? ' style="' + escapeHtml(node.style) + '"' : ''
+  const tag = node.tag
+  return '<' + tag + attrs + cls + style + (node.click ? ' data-shot-clickable="true"' : '') +
+    '>' + node.kids.map(draw).join('') + '</' + tag + '>'
+}
+
+const style = [
+  ':root{--l1:' + NIGHT.canvas + ';--l2:color-mix(in srgb,' + DASH.fg + ' 8%,transparent);' +
+  '--l3:color-mix(in srgb,' + DASH.fg + ' 15%,transparent);--t1:' + DASH.fg +
+  ';--t2:' + NIGHT.text2 + ';--t3:' + NIGHT.text3 + ';--accent:' + DASH.gold +
+  ';--h-success:' + STATUS.ok + ';--h-warning:' + STATUS.warn + ';--h-danger:' + STATUS.bad +
+  ';--sans:"Hanken Grotesk",system-ui,sans-serif;--mono:' + MONO + ';}',
+  '*{box-sizing:border-box}',
+  'html,body{margin:0;min-height:100%;background:' + DASH.bg + ';color:' + DASH.fg +
+    ';font:' + TYPE.body + 'px/1.45 var(--sans);}',
+  '.transcript{width:100%;padding:14px;min-width:0}',
+  '.glide-head{display:flex;gap:6px;align-items:center;height:24px;min-width:0;' +
+    'font:' + TYPE.body + 'px/1.3 var(--sans);color:' + NIGHT.text2 + ';white-space:nowrap}',
+  '.glide-head b{font-weight:500;color:' + DASH.fg + '}',
+  '.sample-pill{margin-left:auto;border:1px solid ' + STATUS.ok + ';border-radius:' + RADIUS.pill +
+    'px;font:' + TYPE.label + 'px/1.5 var(--mono);letter-spacing:' + TRACK.caps +
+    ';color:' + STATUS.ok + ';padding:2px 8px}',
+  '.intel-frame{border:1px solid var(--l3);background:var(--l1);border-radius:' + RADIUS.tile +
+    'px;padding:14px;min-width:0;overflow-wrap:anywhere}',
+  '.intel-frame [data-eui="card"]{width:100%;max-width:none;min-width:0}',
+  euiStyles()
+].join('\n')
+
+// Measured in the page: the card box, how many distinct text lines it paints, and whether the
+// head row plus the whole card fit one 596 px viewport (so the head is on screen at the card's end).
+const measure = '<script>addEventListener("load",()=>{const main=document.querySelector("main"),frame=document.querySelector(".intel-frame");' +
+  'const tops=new Set();const walk=document.createTreeWalker(frame,NodeFilter.SHOW_TEXT);let n;' +
+  'while((n=walk.nextNode())){if(!n.textContent.trim())continue;const r=document.createRange();r.selectNodeContents(n);' +
+  'for(const b of r.getClientRects())if(b.width>0&&b.height>0)tops.add(Math.round(b.top))}' +
+  'const m=main.getBoundingClientRect(),f=frame.getBoundingClientRect(),q=s=>frame.querySelector(s),r1=v=>Math.round(v*10)/10;' +
+  // The card as Tern stacks it: kit card top to the host Refresh row's bottom.
+  'const card=q(".eu-card").getBoundingClientRect(),end=[...frame.querySelectorAll("button.eu-btn")].pop()?.getBoundingClientRect();' +
+  'const stage=q(".is-stage"),img=q(".is-chart img");let chart=null;' +
+  // The chart's lowest gridline and points, from its own SVG mapped through the drawn image box, against the stage's visible box;
+  // labelPx is its axis text as drawn (the kit's labels carry no font size, so they are 16 viewBox units).
+  'if(stage&&img){const svg=new DOMParser().parseFromString(atob(img.src.split(",")[1]),"image/svg+xml").documentElement;' +
+  'const s=stage.getBoundingClientRect(),b=img.getBoundingClientRect(),vb=svg.viewBox.baseVal,k=b.height/vb.height,at=v=>r1(b.top+(v-vb.y)*k);' +
+  'const bottom=r1(s.top+stage.clientHeight),grid=Math.max(...[...svg.querySelectorAll("line")].map(l=>+l.getAttribute("y1")));' +
+  'const dot=Math.max(...[...svg.querySelectorAll("circle")].map(c=>+c.getAttribute("cy")+ +c.getAttribute("r")));' +
+  'chart={width:r1(b.width),height:r1(b.height),labelPx:r1(16*k),top:r1(b.top),lowestGrid:at(grid),lowestPoint:at(dot),stageTop:r1(s.top),stageBottom:bottom,' +
+  'inside:b.top>=s.top&&at(grid)<=bottom&&at(dot)<=bottom}}' +
+  'document.getElementById("metrics").textContent=JSON.stringify({cardHeight:Math.round(f.height),' +
+  'cardTotal:r1((end?end.bottom:card.bottom)-card.top),stage:stage?r1(stage.clientHeight):null,stageOverflow:stage?stage.scrollHeight-stage.clientHeight:null,chart,totalHeight:Math.round(m.height),' +
+  'textLines:tops.size,fitsAt596:m.height<=596})})</script>'
+
+// euiCardNode (frontend/src/view/euiCard.tsx) draws the snapshot root's children inside the
+// [data-eu] mark that the compacted kit sheet is scoped to.
+function html(node: EuiNode): string {
+  const kids = node.t === 'el' ? node.kids.map(draw).join('') : draw(node)
+  return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<style>' + style + '</style><main class="transcript">' +
+    '<div class="glide-head"><b>Glide</b><span>· Local intelligence</span><span class="sample-pill">SAMPLE</span></div>' +
+    '<section class="intel-frame"><div data-eui="card" data-eu="" data-eui-kind="intel-suite" data-eui-app="glide">' + kids +
+    '</div></section></main><pre id="metrics" hidden></pre>' + measure + '</html>'
+}
+
+const browser = ['chromium', 'google-chrome-stable'].find(name => {
+  try { execFileSync('which', [name]); return true } catch { return false }
+})
+if (!browser) throw new Error('Headless Chromium is required for intel shots')
+const flags = (name: string, width: number, height: number) => ['--headless=new', '--disable-gpu', '--no-sandbox',
+  '--disable-dev-shm-usage', '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=' + width + ',' + height,
+  '--user-data-dir=' + join(work, 'chromium-' + name)]
+
+const metrics: Record<string, unknown> = {}
+function shoot(page: string, name: string, width: number, height: number) {
+  const input = join(out, 'html', name + '.html')
+  const image = join(out, name + '.png')
+  writeFileSync(input, page)
+  execFileSync(browser!, [...flags(name, width, height), '--screenshot=' + image, 'file://' + input], { stdio: 'ignore', timeout: 60_000 })
+  const dom = execFileSync(browser!, [...flags(name + '-m', width, height), '--virtual-time-budget=2000', '--dump-dom',
+    'file://' + input], { encoding: 'utf8', timeout: 60_000, stdio: ['ignore', 'pipe', 'ignore'] })
+  const found = /<pre id="metrics" hidden="">([^<]*)<\/pre>/.exec(dom)?.[1]
+  metrics[name] = found ? JSON.parse(found.replace(/&quot;/g, '"')) : null
+  // Throwaway Chromium profiles are tens of MB each; never leave them on a near-full disk.
+  for (const dir of [name, name + '-m']) rmSync(join(work, 'chromium-' + dir), { recursive: true, force: true })
+  console.log(image, JSON.stringify(metrics[name]))
+}
+
+const kit = await createSandbox(euiDir(), 'dark')
+if (!kit.kinds.includes('intel-suite')) throw new Error('Pinned intel-suite kit is unavailable')
+const views: Array<[string, IntelDoc]> = [
+  ...INTEL_TABS.map((name, index): [string, IntelDoc] => [name, { ...sample, data: { ...sample.data, tab: index as IntelDoc['data']['tab'] } }]),
+  ['empty', empty], ['notes', sample]
+]
+const noteSummary = (node: EuiNode | null): number | undefined => node?.t !== 'el' ? undefined
+  : node.tag === 'summary' ? node.id : node.kids.map(noteSummary).find(id => id !== undefined)
+for (const [name, raw] of views) {
+  // The document intel.ts publishes, drawn the way EuiHostCards wraps a kit card.
+  const doc = decodeEuiKit({ ...presentIntel(raw).card, title: 'Local intelligence' })
+  const mounted = kit.mount('intel-suite', 'glide', () => undefined, doc)
+  // 'notes' is the hill tab with the kit's collapsed Source notes opened by the reader.
+  if (name === 'notes') await mounted.click(noteSummary(mounted.snapshot()) ?? 0)
+  const page = html(kitSnapshot(mounted.snapshot(), kitNotes(doc), true, false))
+  shoot(page, name + '-desktop', 1060, 596)
+  shoot(page, name + '-phone', 412, 915)
+  mounted.dispose()
+}
+writeFileSync(join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n')
+rmSync(work, { recursive: true, force: true })

@@ -136,7 +136,6 @@ frontend/src/commands/voice.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/core/keys.ts
 frontend/src/draft/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/draft/external-editor.ts
-frontend/src/draft/readline-words.ts
 frontend/src/draft/vim-keys.ts
 frontend/src/draft/vim-preference.ts
 frontend/src/draft/vim.ts
@@ -515,3 +514,5 @@ frontend/src/__tests__/glass.test.ts
 frontend/src/__tests__/orbitTargets.test.ts
 frontend/src/voice/orbitTargets.ts
 frontend/e2e/army/tests/test_runs_dir.py
+frontend/src/__tests__/euiHostLayout.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/designTokens.test.ts  # vitest only collects frontend/src

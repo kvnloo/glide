@@ -19,7 +19,7 @@ import { record } from '../wire/json.js'
 import { must, tree } from './fakes.js'
 
 import { fileBindings, LANES_GLASS, lanesCard, openLanesPopup, sortLanes } from '../../../glide/frontend/lanesPopup.js'
-import { NIGHT_INKS } from '../../../glide/frontend/council.js'
+import { NIGHT_INKS } from '../../../glide/frontend/tokens.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import { contrastRatio, mix } from '../hermes/theme.js'
 import { PROVIDERS, ROLE_MODELS } from '../voice/catalog.js'
@@ -154,13 +154,13 @@ describe('voice lanes popup', () => {
     expect(out).toContain('"text":"VOICE PLAN"')
     expect(out).not.toMatch(/"text":"[^"]*\b(smol|slow)\b/)
     expect(out).toContain('"title":"qwen3-0.6b-q8"')
-    // Every row is badged: provider, billing, effort, route.
+    // Every row is badged: provider, billing, effort, and route where the provider does not already say it.
     expect(out).toContain('"data-lane-provider":"fast=local"')
     expect(out).toContain('"data-lane-provider":"small=anthropic"')
     expect(out).toContain('"data-lane-billing":"small=subscription"')
     expect(out).toContain('"data-lane-effort":"large=high"')
-    expect(out).toContain('"data-lane-route":"fast=local"')
-    expect(out).toContain('"text":"ON DEVICE"')
+    expect(out).not.toContain('"data-lane-route":"fast=')
+    expect(out).not.toContain('"text":"ON DEVICE"')
     expect(out).toContain('"text":"CLOUD"')
     expect(out).toContain('"text":"Haiku 4.5"')
   })

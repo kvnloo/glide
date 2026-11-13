@@ -15,6 +15,10 @@ import { ATTENTION_CSS } from '../../../glide/frontend/attentionCards.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
+import type { UiIntent, UiNode } from '../glideui/library.js'
+import { UI_CSS, UI_SHEET } from '../glideui/render.js'
+
+import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
 import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
 import { ternBody } from './ternCss.js'
@@ -33,6 +37,9 @@ export interface EuiCardView {
   /** Host revisions are part of native paths, so queued old taps cannot target a replacement. */
   readonly identity?: string
   readonly activate?: (id: number) => void
+  /** A native glide/v1 card (glideui/render.tsx) instead of a kit snapshot; `node` is then null. */
+  readonly ui?: UiNode
+  readonly send?: (intent: UiIntent) => void
 }
 
 export interface EuiSink {
@@ -45,6 +52,8 @@ const MAX_BLOBS = 512
 const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, 'g')
 export const INLINE_SHEET = 'ephemeral-ui-inline'
 export const KIT_SHEET = 'ephemeral-ui'
+/** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
+export const GLIDE_UI_SHEET = UI_SHEET
 /** The card stylesheets as last sent, which a recovered surface gets again (surface/host.ts). */
 export const euiSheets = new Map<string, string>()
 
@@ -64,21 +73,49 @@ export function euiStyles(): string {
   }
 
   const dir = euiDir()
-  const kit = dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : ''
+  // A disabled control keeps its ink: its label carries the state, and a faded label fell under 4.5:1.
+  const kit = (dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : '').replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, '$1')
+    // The intel card hides its hero head and sizes its own stage, so the kit's rules for those are dead bytes.
+    .replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, '')
+    // Every card is flat (one shell rule below), and no host sets data-brand, so the kit's hermes shadow and
+    // full-brand accent head tint and top rule are dead bytes, as are its hermes rules for chrome no kind renders.
+    .replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, '')
   kitCss = `${kit}
-[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; max-width: 560px; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
+[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
 [data-eui='card'] [data-eui-svg] { display: inline-block; vertical-align: middle; flex: none; max-width: 100%; min-width: 0; }
 [data-eui='card'] [data-eui-svg] > .sf-image, [data-eui='card'] [data-eui-svg] .sf-img-svg { max-width: 100%; height: auto; }
 [data-eui='card'] .eui-svg-controls > .eu-btn { display: block; height: auto; min-height: 28px; white-space: normal; text-align: left; }
-[data-eui='card'] .eui-host { padding: 16px; }
-[data-eui='card'] .eui-host-title { font-size: 16px; margin: 0 0 8px; }
+[data-eui='card'] .eui-host-head { display: flex; align-items: baseline; gap: 8px; height: 24px; margin: 0 0 6px; font: 500 13px/24px var(--sans); white-space: nowrap; overflow: hidden; }
+[data-eui='card'] .eui-host-name { flex: none; color: var(--t2); }
+[data-eui='card'] .eui-host-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 400; color: var(--t1); }
+[data-eui='card'] .eu-card.eui-host { padding: 14px; border: 1px solid var(--l3); background: var(--l1); }
+[data-eui='card'] :is([data-host] .eu-card,.eu-card):not(.gone){border-radius:8px;box-shadow:none;border-color:var(--h-border);--pad:14px}
+[data-eui][data-eui='card'] .eu-card:not(.gone)::after{content:none}
+[data-eui='card'] .eu-card .eu-ico{--s:20px}[data-eui='card'] .eu-card .eu-h{padding:6px var(--pad) 4px}[data-eui='card'] .eu-card .eu-t{flex-direction:row;align-items:baseline;gap:8px}[data-eui='card'] .eu-card .eu-t b{font-size:13px;flex:none}
+[data-eui][data-eui='card'] .eui-host-head.eui-host-head{padding:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none}
+[data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
-[data-eui='card'] .eui-host-rows dt { color: var(--h-mutedFg); }
+[data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
+.k-intel-suite { --h-density: .5; }
+.k-intel-suite :is(.is-head, .is-receipt:empty) { display: none; }
+.k-intel-suite :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 208px); overflow: hidden auto; }
+.k-intel-suite .is-notes { --cap: 80px; }
+.k-intel-suite .is-stack{gap:3px}.k-intel-suite .is-layer{grid-template-columns:24px minmax(0,1fr) auto auto;align-items:baseline;gap:0 10px;padding:3px 10px}.k-intel-suite :is(.is-lc,.is-fresh){grid-column:auto}
+.k-intel-suite .is-hero { gap: 6px; }
+.k-intel-suite .is-side { gap: 4px; }
+.k-intel-suite .is-stat { padding: 6px 10px; gap: 2px; }
+.k-intel-suite .is-value { font-size: 17px; }
+.k-intel-suite .is-hero { padding: 8px 12px; }
+.k-intel-suite .is-segb { padding: 5px 12px; }
+.k-intel-suite .is-act { min-height: 0; height: 24px; padding: 0 12px; }
+.k-intel-suite .is-big b { font-size: 24px; }
+.k-intel-suite .is-chart { max-width: 420px; }
 ${INTENT_CSS}
 ${ATTENTION_CSS}
+${FLEET_FIT_CSS}
 [data-role='eui.error'] { color: var(--sf-c-error, var(--t2)); font: 12px/1.4 var(--mono); }
 `
 
@@ -285,6 +322,8 @@ export class EuiCards {
     if ((this.#slots.size > 0 || this.host.size > 0) && !euiSheets.has(KIT_SHEET)) {
       euiSheets.set(KIT_SHEET, euiStyles())
       this.#sink.stylesheet(KIT_SHEET, euiStyles())
+      euiSheets.set(GLIDE_UI_SHEET, UI_CSS)
+      this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false

@@ -12,13 +12,36 @@ export type FactoryPaneHost = Pick<ChatPorts, 'changed'> & {
 }
 const POLL_MS = 10_000
 
+/** What a failed check means and the one thing to do next. */
+export interface FactoryProblem { readonly label: string; readonly hint: string }
+const RETRY = 'Retrying on the next check.'
+// Gateway and plugin machine codes (`unsupported_command`, `gateway inaccessible: profile_parked`) are
+// wire contract, never copy: each known one gets plain words, an unknown one a generic line.
+const CODES: Readonly<Record<string, FactoryProblem>> = {
+  unsupported_command: { label: 'Factory is not on this gateway', hint: 'Next: run /factory in the classic CLI (hermes --cli).' },
+  profile_parked: { label: "Hermes paused this profile's gateway", hint: 'Next: run hermes gateway restart in a terminal.' },
+  profile_mismatch: { label: 'This gateway serves another profile', hint: 'Next: restart Tern in this profile.' }
+}
+export function factoryProblem(error: unknown): FactoryProblem {
+  const reason = error && typeof error === 'object' && 'data' in error && error.data && typeof error.data === 'object' &&
+    'reason' in error.data && typeof error.data.reason === 'string' ? error.data.reason : ''
+  const line = ((error instanceof Error ? error.message : String(error)).split(/\r?\n/, 1)[0] ?? '')
+    .replace(/^Error:\s*/, '').replace(/\s+/g, ' ').trim()
+  const code = reason || /\b[a-z]+(?:_[a-z]+)+\b/.exec(line)?.[0] || ''
+  if (CODES[code]) return CODES[code]
+  if (/^gateway not (?:connected|running)\b/.test(line)) return { label: 'Hermes is reconnecting', hint: RETRY }
+  if (/timed out/i.test(line)) return { label: 'Factory check timed out', hint: RETRY }
+  // Prose from the plugin stays (first line only); a bare or unknown code does not.
+  return { label: 'Last check failed', hint: !line || code || !/\s/.test(line) ? RETRY : line.slice(0, 96) }
+}
+
 /** A user-opened native aside. Poll failures stay here, never in routine chat notices. */
 export class FactoryPane {
   readonly #host: FactoryPaneHost
   #open = false
   #snapshot: FactorySnapshot | undefined
   #snapshotOwner: Ticket | undefined
-  #error: string | undefined
+  #error: FactoryProblem | undefined
   #generation = 0
   #nextRead = 0
   #timer: NodeJS.Timeout | undefined
@@ -26,10 +49,15 @@ export class FactoryPane {
   #operation: symbol | undefined
   #disposed = false
   #sid: LiveSessionId | null = null
+  /** The live session whose gateway answered `unsupported_command`: /factory shows `#fallback` there instead. */
+  #missing: LiveSessionId | undefined
+  readonly #fallback: (() => void) | undefined
   readonly #poller: Poller
 
-  constructor(host: FactoryPaneHost) {
+  /** `fallback`: the card to show when the gateway has no content factory, rather than a pane saying so. */
+  constructor(host: FactoryPaneHost, fallback?: () => void) {
     this.#host = host
+    this.#fallback = fallback
     this.#poller = new Poller({
       cadence: () => this.#open && this.#host.session.ref.live ? POLL_MS : 'off',
       run: ticket => this.#refresh(ticket),
@@ -41,6 +69,10 @@ export class FactoryPane {
 
   toggle() {
     if (this.#disposed) return
+    if (!this.#open && this.#fallback && this.#missing && this.#missing === this.#host.session.ref.live) {
+      this.#fallback()
+      return
+    }
     this.#open = !this.#open
     this.#poller.adopt(++this.#generation)
     clearTimeout(this.#timer)
@@ -87,39 +119,94 @@ export class FactoryPane {
       if (!ticket.isCurrent() || owner?.isCurrent() === false) return
       this.#snapshot = snapshot
       this.#snapshotOwner = owner
-      this.#error = snapshot.error
+      this.#error = snapshot.error === undefined ? undefined : factoryProblem(snapshot.error)
     } catch (error) {
-      if (ticket.isCurrent() && owner?.isCurrent() !== false) this.#error = error instanceof Error ? error.message : String(error)
+      if (!ticket.isCurrent() || owner?.isCurrent() === false) return
+      this.#error = factoryProblem(error)
+      if (this.#error === CODES['unsupported_command'] && !this.#snapshot && this.#fallback) {
+        this.#missing = sid
+        this.toggle()
+        this.#fallback()
+      }
     }
   }
 
   node(_id: string): JSX.Element | null {
     if (!this.#open) return null
     const snapshot = this.#snapshotOwner?.isCurrent() === false ? undefined : this.#snapshot
-    const rows: PrefsRow[] = (snapshot?.runs ?? []).flatMap(run => {
-      if (run.state !== 'failed' && run.state !== 'done') return []
-      return [{ id: `run:${run.run}`, label: run.run,
-        hint: [run.state === 'failed' ? 'Failed' : 'Awaiting review', run.verdict, run.compare ?? run.output].filter(Boolean).join(' · ') }]
-    })
     const generation = this.#generation
     const owner = this.#host.session.ownerTicket?.()
     const actionable = !this.#error && !this.#busy
-    const suggestions = (snapshot?.suggestions ?? []).map(suggestion => ({
-      id: suggestion.contract_id,
-      label: `${suggestion.title} · ${suggestion.status}`,
-      hint: `${suggestion.contract_id} · ${suggestion.review.reason}`,
-      ...(actionable && suggestion.session_id === this.#sid && suggestion.status === 'approved' && suggestion.action === 'render'
-        ? { control: { act: 'render', k: 'action' as const, label: 'Run approved intent' } }
-        : { disabled: suggestion.status === 'pending' ? 'AODL review unavailable' : suggestion.review.reason })
-    }))
-    const count = snapshot?.running_count ?? 0
+
+    // The first row answers "what is happening?" without a separate running section.
+    const running = snapshot?.running_count ?? 0
+    const held = (snapshot?.runs ?? []).filter(run => run.state === 'failed').length
+    const done = (snapshot?.runs ?? []).filter(run => run.state === 'done').length
+    const hasApprovedAction = actionable && !!snapshot?.suggestions.some(s =>
+      s.status === 'approved' && s.action === 'render' && s.session_id === this.#sid)
+    // Without a snapshot a failed check is the whole answer: settle on it instead of "Checking…".
+    const down = !snapshot && this.#error
+    const next = down ? down.hint
+      : !snapshot ? 'Finding the next action.'
+      : this.#error ? 'Last known state; actions are paused.'
+      : this.#busy ? 'Rendering the approved suggestion.'
+      : hasApprovedAction ? 'Run an approved suggestion below.'
+      : held ? 'Inspect held runs with /factory runs.'
+      : done ? 'Review completed runs with /factory runs.'
+      : snapshot.suggestions.length ? 'Wait for review before rendering.'
+      : running ? 'Work is underway; check back for results.'
+      : 'No action needed.'
+    const hero: PrefsRow = {
+      id: 'factory-overview',
+      label: snapshot
+        ? running + ' ' + (running === 1 ? 'job' : 'jobs') + ' running, ' + held + ' held, ' + done + ' done.'
+        : down ? down.label : 'Checking factory…',
+      hint: next
+    }
+
+    // Each suggestion has at most one real action. Pending review never becomes approval.
+    const suggestions: PrefsRow[] = (snapshot?.suggestions ?? []).map(suggestion => {
+      const canRender = actionable && suggestion.session_id === this.#sid &&
+        suggestion.status === 'approved' && suggestion.action === 'render'
+      const hint = suggestion.status === 'pending' ? 'HELD · Review pending.'
+        : suggestion.status === 'rejected' ? 'HELD · Suggestion declined.'
+        : canRender ? 'APPROVED · Ready to render.'
+        : 'HELD · Not available in this session.'
+      return {
+        id: suggestion.contract_id,
+        label: suggestion.title || 'Suggested render',
+        hint,
+        ...(canRender
+          ? { control: { act: 'render', k: 'action' as const, label: 'Run approved intent' } }
+          : { disabled: suggestion.status === 'pending' ? 'AODL review unavailable'
+            : suggestion.status === 'rejected' ? 'Suggestion declined'
+            : this.#error ? 'Factory check paused' : 'Render unavailable' })
+      }
+    })
+
+    // Only decisions need rows: active runs are already counted in the hero.
+    const attention: PrefsRow[] = (snapshot?.runs ?? []).flatMap(run => {
+      if (run.state !== 'failed' && run.state !== 'done') return []
+      return [{
+        id: 'run:' + run.run,
+        label: run.run,
+        hint: run.state === 'failed'
+          ? 'FAILED · Inspect with /factory runs.'
+          : 'DONE · Awaiting review in /factory runs.'
+      }]
+    })
+
+    // A transport or snapshot error is one quiet line, never an exception stack or a machine code.
     const sections = [
-      { id: 'attention', title: 'Needs your attention', rows: rows.length ? rows : [{ id: 'quiet', label: snapshot ? 'No runs need your attention' : 'Reading factory…' }] },
-      { id: 'suggestions', title: 'AODL suggestions', rows: suggestions.length ? suggestions : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : 'No suggestions' }] },
-      { id: 'running', title: 'In progress', rows: [{ id: 'running-count', label: `${count} ${count === 1 ? 'job' : 'jobs'} running` }] },
-      ...(this.#error ? [{ id: 'error', title: 'Factory unavailable', rows: [{ id: 'failure', label: this.#error }] }] : [])
+      { id: 'status-line', title: 'Factory now', rows: [hero] },
+      { id: 'suggestions', title: 'Suggested actions',
+        rows: suggestions.length ? suggestions
+          : [{ id: 'no-suggestions', label: down ? 'None while the factory is unavailable'
+            : this.#error ? 'Paused until the check passes' : snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
+      ...(attention.length ? [{ id: 'attention', title: 'Runs to review', rows: attention }] : []),
+      ...(this.#error && !down ? [{ id: 'check', title: 'Factory check', rows: [{ id: 'poll-error', ...this.#error }] }] : [])
     ]
-    return <prefs key="factory" title="Factory" lead="Only decisions. /factory closes this pane." page="factory"
+    return <prefs key="factory" title="Factory" lead="Current work and the next decision." page="factory"
       pages={[{ id: 'factory', label: 'Factory' }]} sections={sections}
       onAction={{
         close: (ev: { value?: unknown }) => { if (!ev.value && generation === this.#generation) this.toggle() },
@@ -149,7 +236,7 @@ export class FactoryPane {
       })
       decodeFactory(factoryAnswers.render, factoryOutput(reply))
     } catch (error) {
-      if (generation === this.#generation && owner?.isCurrent() !== false) this.#error = error instanceof Error ? error.message : String(error)
+      if (generation === this.#generation && owner?.isCurrent() !== false) this.#error = factoryProblem(error)
     } finally {
       if (this.#operation === operation) {
         this.#operation = undefined

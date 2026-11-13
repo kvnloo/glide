@@ -291,10 +291,16 @@ export const LIBRARY_STATE: Readonly<Record<OrbState, LibraryState>> = {
   composing: 'composing', // an undulating multi-band sash: writing the answer
   listening: 'listening', // a waveform rolling through the rings
   speaking: 'listening',
-  waiting: 'breathing', // a ring slowly morphing, held still until the user answers
+  waiting: 'breathing', // aodl-views' waiting-approval: the still ring with a gold rim, held until the user answers
   idle: 'breathing',
-  error: 'breathing'
+  error: 'breathing' // the idle ring, drawn in the error hue so a failure never reads as rest
 }
+
+/** The waiting rim's ink: the theme's gold on dark glass, a deeper gold on paper. Gold marks what the user acts on. */
+export const ORB_WAIT_RIM = { dark: '#d7b986', light: '#8a6a2f' } as const
+
+/** The error ring's ink: the theme's danger hue on dark glass, a deeper red on paper. */
+export const ORB_ERROR_INK = { dark: '#ee888b', light: '#b3383c' } as const
 
 // The library's avatar-scale tuning (its 64px preset), shown at the composer's 34px image size.
 const SOURCE = 64
@@ -312,7 +318,7 @@ export function orbSvg(state: OrbState, seconds: number, dark: boolean): string 
     const ink = Math.min(1, Math.max(0, white))
     const level = Math.round((dark ? 1 - ink : ink) * 255)
 
-    return `#${level.toString(16).padStart(2, '0').repeat(3)}`
+    return state === 'error' ? ORB_ERROR_INK[dark ? 'dark' : 'light'] : `#${level.toString(16).padStart(2, '0').repeat(3)}`
   }
 
   // Tenths of a viewBox unit are finer than the 2x image's pixels; shorter frames keep blobs small.
@@ -327,6 +333,8 @@ export function orbSvg(state: OrbState, seconds: number, dark: boolean): string 
   for (const d of frame.dots) {
     marks.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`)
   }
+
+  if (state === 'waiting') marks.push(`<circle cx="32" cy="32" r="30.5" fill="none" stroke="${ORB_WAIT_RIM[dark ? 'dark' : 'light']}" stroke-width="1.5"/>`)
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks.join('')}</svg>`
 }

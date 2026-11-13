@@ -236,7 +236,7 @@ const COMMANDS: readonly LocalCommand[] = [
     }
   },
   {
-    help: 'Pick the colors: Tern, Nous, the Hermes skin or the wallpaper [tern|nous|skin|auto]',
+    help: 'Pick the colors: Tern, Nous, the Hermes skin, the wallpaper or Dash [tern|nous|skin|auto|dash]',
     name: 'theme',
     run: (host, arg) => {
       if (!arg) {
@@ -244,7 +244,7 @@ const COMMANDS: readonly LocalCommand[] = [
       }
 
       if (!isThemeMode(arg)) {
-        host.transcript.notice('Usage: /theme [tern|nous|skin|auto]', 'warning')
+        host.transcript.notice('Usage: /theme [tern|nous|skin|auto|dash]', 'warning')
 
         return
       }
@@ -379,12 +379,12 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|default|export | glass demo]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|dash|default|export | glass demo]',
     name: 'glide',
     run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },
   {
-    help: 'Content factory: toggle the optional pane [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
+    help: 'Content factory: toggle the optional pane, else the factory graph card [graph | text | status | runs | scenes <words> | suggest | render <run> <contract_id>]',
     name: 'factory',
     run: (host, arg) => arg.trim() === 'graph' ? fleetCommand(host, 'factory') : factoryCommand(host, arg)
   },

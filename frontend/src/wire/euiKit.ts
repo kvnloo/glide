@@ -35,8 +35,13 @@ export function decodeEuiKit(raw: unknown): EuiKitDoc {
 export function kitNotes(doc: EuiKitDoc): readonly string[] {
   const notes = z.array(z.string()).safeParse(doc.data['notes'])
   const hosts = z.array(z.object({ label: z.string(), notes: z.optional(z.array(z.string())) })).safeParse(doc.data['hosts'])
-  return [...(doc.kind.startsWith('fleet-') ? ['Source: read-only fleet collectors'] : []),
-    ...(notes.success ? notes.data : []), ...(hosts.success ? hosts.data.flatMap(host => (host.notes ?? []).map(note => `${host.label}: ${note}`)) : [])]
+  // intel-suite draws its own notes behind a collapsed "Source notes"; repeating them here was a wall of prose.
+  // Hosts sharing a note name it once ("laptop, phone: …"), and a fleet card's notes share one line under it,
+  // so the capped card keeps its head on screen instead of a paragraph per host pushing it up.
+  const byNote = new Map<string, string[]>()
+  for (const host of hosts.success ? hosts.data : []) for (const note of host.notes ?? []) byNote.set(note, [...(byNote.get(note) ?? []), host.label])
+  const lines = [...(notes.success && doc.kind !== 'intel-suite' ? notes.data : []), ...[...byNote].map(([note, labels]) => `${labels.join(', ')}: ${note}`)]
+  return doc.kind.startsWith('fleet-') ? [['Source: read-only fleet collectors', ...lines].join(' · ')] : lines
 }
 
 export function kitInput(doc: EuiKitDoc): EuiKitDoc {

@@ -214,4 +214,19 @@ describe('orb drawing', () => {
     // A dark substrate takes light ink and a light one dark ink, as the library paints them.
     expect(orbSvg('idle', 0, true)).not.toBe(orbSvg('idle', 0, false))
   })
+
+  it('gives the three still states three different looks: idle ring, waiting ring with a gold rim, error ring in red', async () => {
+    const { LIBRARY_STATE, ORB_ERROR_INK, ORB_WAIT_RIM, orbSvg } = await import('../chrome/orb.js')
+    // aodl-views' thinking table: waiting-approval is breathing with a gold rim (gold = the thing to act on).
+    expect(LIBRARY_STATE.waiting).toBe('breathing')
+    const [idle, waiting, error] = (['idle', 'waiting', 'error'] as const).map(s => orbSvg(s, 0, true))
+    expect(new Set([idle, waiting, error]).size).toBe(3)
+    expect(waiting).toBe(orbSvg('waiting', 5, true)) // still: it waits on the user, it does not work
+    expect(waiting).toContain(ORB_WAIT_RIM.dark)
+    expect(orbSvg('waiting', 0, false)).toContain(ORB_WAIT_RIM.light)
+    expect(idle).not.toContain(ORB_WAIT_RIM.dark)
+    expect(error).toContain(ORB_ERROR_INK.dark)
+    expect(idle).not.toContain(ORB_ERROR_INK.dark)
+    expect(orbSvg('error', 0, false)).toContain(ORB_ERROR_INK.light)
+  })
 })

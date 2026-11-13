@@ -11,9 +11,9 @@ import type { Transcript } from '../../frontend/src/transcript/store.js'
 import { euiPopupNode, type EuiRender } from '../../frontend/src/view/euiCard.js'
 
 import {
-  closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, MONO, narration, NIGHT,
-  parseCouncilRun, schedule, SERIF, swatchSvg
+  closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, narration, parseCouncilRun, schedule, swatchSvg
 } from './council.js'
+import { GOLD, MONO, NIGHT, SERIF } from './tokens.js'
 
 export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'
 const APP = 'glide'
@@ -81,7 +81,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
   })
   const svg = (markup: string, w: number, style = ''): EuiNode => ({ t: 'svg', svg: markup, w, h: w, cls: '', style })
-  const micro = `font-family:${MONO};font-size:9px;letter-spacing:1.4px;color:${NIGHT.text3}`
+  const micro = `font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${NIGHT.text3}`
   const { run } = src
   const done = frame.t !== null && frame.t >= schedule(run).total
   const playing = frame.t !== null && !done
@@ -92,22 +92,24 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
 
   const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
-      el('span', `${micro};letter-spacing:2px`, [text('COUNCIL · GLIDE · SOCRATIC')]),
-      el('span', `font-family:${MONO};font-size:9px;letter-spacing:1.6px;padding:2px 8px;border-radius:999px;` +
+      el('span', micro, [text('COUNCIL · GLIDE · SOCRATIC')]),
+      el('span', `font-family:${MONO};font-size:10px;letter-spacing:.16em;padding:2px 8px;border-radius:999px;` +
         (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
       [text(src.live ? `LIVE · ${src.from.toUpperCase()}` : 'DEMO')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })
     ]),
     el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:${sideHeader ? '24px;line-height:28px' : '30px;line-height:34px'};color:${NIGHT.text}`, [text('Socratic council')]),
     el('span', `${micro};margin-top:6px`, [text('THE BRIEF')]),
-    el('p', `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:14px;line-height:20px;color:${NIGHT.text}`, [text(run.brief)])
+    el('p', `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:13px;line-height:20px;color:${NIGHT.text}`, [text(run.brief)])
   ])
 
-  const verdictBox = el('div', `padding:10px 14px;border-radius:14px;border:1px solid ${dissent && done ? 'rgba(227,127,101,0.45)' : 'rgba(152,207,139,0.22)'};background-color:rgba(28,28,24,0.55)`, [
+  // The verdict's tone is the majority's: a 3-1 agreement is a decision, its one dissent is in the line under it.
+  const carried = agree > dissent
+  const verdictBox = el('div', `padding:12px 14px;border-radius:12px;border:1px solid ${done ? (carried ? 'rgba(152,207,139,0.45)' : 'rgba(227,127,101,0.45)') : NIGHT.border};background-color:rgba(28,28,24,0.55)`, [
     el('div', 'display:flex;align-items:center;gap:8px', [
-      el('span', `width:7px;height:7px;border-radius:4px;background-color:${done ? (dissent ? NIGHT.danger : NIGHT.agree) : NIGHT.muted}`, []),
-      el('span', `font-family:${SERIF};font-size:19px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
+      el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${done ? (carried ? NIGHT.agree : NIGHT.danger) : NIGHT.muted}`, []),
+      el('span', `font-family:${SERIF};font-size:20px;line-height:26px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
     ]),
-    el('span', `display:block;margin-top:4px;font-size:12.5px;line-height:18px;color:${NIGHT.text3}`, [text(done
+    el('span', `display:block;margin-top:4px;font-size:13px;line-height:18px;color:${NIGHT.text3}`, [text(done
       ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}`
       : `${run.seats.length} seats · ${run.rounds} rounds · verdicts appear as each seat closes`)])
   ])
@@ -115,11 +117,11 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
   const seats = el('div', sideHeader ? 'display:flex;flex-wrap:wrap;gap:6px' : 'display:flex;flex-direction:column;gap:2px', run.seats.map((seat, i) => {
     const v = run.verdicts.find(x => x.seat === i)
     const open = v !== undefined && shown.has(i)
-    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:9px;letter-spacing:1.2px;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
+    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
     // A short pane gets one line per seat; the verdict prose lives in the transcript card.
     if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:3px 10px 3px 4px;border-radius:999px;border:1px solid ${NIGHT.border}`, [
       svg(swatchSvg(seat.mineral, 16), 16, 'flex:none'),
-      el('span', `font-family:${SERIF};font-size:14px;color:${NIGHT.text}`, [text(seat.name)]),
+      el('span', `font-family:${SERIF};font-size:15px;color:${NIGHT.text}`, [text(seat.name)]),
       ...(open ? stance : [el('span', `font-size:12px;color:${NIGHT.text3}`, [text(v ? '…' : '—')])])
     ])
     return el('div', `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
@@ -127,36 +129,37 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
       el('div', 'display:flex;flex-direction:column;gap:2px;flex:1;min-width:0', [
         el('div', 'display:flex;align-items:baseline;gap:8px', [
           el('span', `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text(seat.name)]),
-          el('span', `${micro};font-size:8.5px`, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
+          el('span', micro, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
           ...stance
         ]),
-        el('span', `font-size:12.5px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
+        el('span', `font-size:13px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
       ])
     ])
   }))
 
   // The label is a span: the kit sheet's button rules outrank an inline rule on the button itself.
   const button = (id: number, label: string, gold: boolean) => el('button',
-    gold ? 'flex:1;padding:11px 16px;border-radius:14px;border:1px solid #f0d7a0;border-bottom-color:#9c7a43;background-color:#cfae74'
-      : `padding:11px 16px;border-radius:14px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el('span', gold ? `color:#1d160b;font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text(label)])],
+    gold ? `flex:1;padding:11px 16px;border-radius:12px;border:1px solid ${GOLD.rim};border-bottom-color:${GOLD.shade};background-color:${GOLD.fill}`
+      : `padding:11px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
+    [el('span', gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text(label)])],
     { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : 'close' } })
-  const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Convene again  →'
+  // Again only replays the run it read: say so, rather than promise a fresh council.
+  const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Replay the council  →'
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:18px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:16px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
     ...(sideHeader ? [] : [header]),
     el('div', 'display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start', [
       el('div', `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg(instrumentSvg(run, frame, size), size, 'max-width:100%;height:auto')]),
       el('div', `flex:1 1 280px;display:flex;flex-direction:column;gap:${sideHeader ? 8 : 12}px;min-width:0`, [
         ...(sideHeader ? [header] : []),
-        el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:17px;line-height:22px;color:${NIGHT.text2};text-align:center`, [text(narration(run, frame))]),
         verdictBox,
+        el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:15px;line-height:20px;color:${NIGHT.text2}`, [text(narration(run, frame))]),
         el('div', 'display:flex;gap:8px', [button(CONVENE_ID, convene, true), button(CLOSE_ID, 'Close', false)]),
         seats
       ])
     ]),
     // The popup's title already says live or demo; a short pane has no row to spare for the provenance line.
-    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:9px;color:${NIGHT.text3};text-align:center`, [text(src.live
+    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:10px;color:${NIGHT.text3};text-align:center`, [text(src.live
       ? `live run read from ${src.from} · this card draws it and computes nothing`
       : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])])
   ])])

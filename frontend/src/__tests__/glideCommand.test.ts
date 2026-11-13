@@ -9,6 +9,7 @@ import { glideCommand, type GlideDetect, type GlideFocus, type GlideHost, type G
 import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards, euiDir, euiStyles } from '../eui/cards.js'
+import type { EuiOperation } from '../eui/host.js'
 import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
@@ -20,7 +21,7 @@ import type { Overlay } from '../overlays/overlay.js'
 
 import { key, must, ofKind, stub } from './fakes.js'
 
-import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import { openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 
 vi.mock('node:child_process', () => ({
   execFile: vi.fn((_file: string, _args: string[], _options: unknown,
@@ -338,7 +339,7 @@ describe('/council', () => {
     expect(done.match(/data-council-stance/g)).toHaveLength(4)
     // Still fits once every seat has closed: seats are one line each, and the verdict prose stays in the transcript card.
     for (const v of demoRun().verdicts) expect(done).not.toContain(JSON.stringify(v.text))
-    expect(done).toContain('Convene again')
+    expect(done).toContain('Replay the council')
 
     press(overlays[0], 'enter')
     expect(c.running).toBe(true)
@@ -419,14 +420,14 @@ function setupTaste() {
     if (method === 'glide.taste') throw new Error('unknown method glide.taste')
     return { output: JSON.stringify({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }) }
   })
-  const publish = vi.fn()
+  const publish = vi.fn((_card: unknown, _operation?: EuiOperation) => undefined)
   const host: GlideHost = { gw: stub({ request }), session, transcript, eui: stub({ host: { publish } }) }
   return { host, request, publish, session, transcript }
 }
 
 describe('/glide taste', () => {
   it('uses the card seam fallback and opens the real board beside chat only on request', async () => {
-    const { host, request, publish } = setupTaste()
+    const { host, request } = setupTaste()
     expect(execFile).not.toHaveBeenCalled()
     await glideCommand(host, 'taste')
     expect(request.mock.calls).toEqual([
@@ -436,8 +437,18 @@ describe('/glide taste', () => {
     expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
       op: 'open', owner: 17, url: 'http://127.0.0.1:8789/s/launch-ab12/', how: 'beside'
     }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
-    expect(publish).toHaveBeenCalledWith(expect.objectContaining({ title: 'Launch ideas', kind: 'receipt' }))
     expect(request.mock.calls.some((c: readonly unknown[]) => c[0] === 'glide.enable')).toBe(false)
+  })
+
+  it('emits the taste card for the confirmed block; Open board focuses exactly that block', async () => {
+    const { host, publish } = setupTaste()
+    await glideCommand(host, 'taste')
+    expect(publish).toHaveBeenCalledOnce()
+    const [card, open] = must(publish.mock.calls[0])
+    expect(card).toEqual(tasteCard(tasteBoard({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }), 42))
+    vi.mocked(execFile).mockClear()
+    await must(open)(stub({ signal: new AbortController().signal }))
+    expect(execFile).toHaveBeenCalledWith('tern', ['focus', '42', '--json'], { timeout: 20_000, shell: false }, expect.any(Function))
   })
 
   it('does not open a late reply after a session switch', async () => {
@@ -533,7 +544,7 @@ describe('/glide focus', () => {
     await glideCommand(host, 'focus')
     expect(titles()).toEqual(['Your attention'])
     const idle = JSON.stringify(view(0))
-    for (const s of ['ah-ring', 'Peak', '72% est.', '02:30', 'min block', 'Start block']) expect(idle).toContain(s)
+    for (const s of ['ah-ring', 'Peak', '72% est.', '02:30', 'min, ready', 'Start block']) expect(idle).toContain(s)
     expect(idle).not.toContain('eui-host-rows')
     expect(request.mock.calls.map(c => c[1])).toEqual([{ session_id: 'glide-session' }])
 
@@ -550,10 +561,18 @@ describe('/glide focus', () => {
     expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'stop' }])
     expect(titles()).toEqual(['Deep-work block ended', 'While you were in deep work: 2 held'])
     expect(JSON.stringify(view(0))).not.toContain('End block')
+    const after = JSON.stringify(view(0))
+    for (const s of ['Start another block', '50', 'min done']) expect(after).toContain(s)
     const digest = JSON.stringify(view(1))
-    for (const s of ['ah-stack', 'ah-tile', '"text":"2"', 'held asks', '1 digest', 'PR #12 ready for review', 'nightly eval done']) expect(digest).toContain(s)
-    // The top ask sits on the stack; the list below holds the rest, so no ask is drawn twice.
+    for (const s of ['ah-list', 'ah-tile', '"text":"2"', 'held asks', 'PR #12 ready for review', 'nightly eval done']) expect(digest).toContain(s)
+    expect(digest).not.toContain('ah-stack') // one flat list: no stacked card hides a truncated ask behind it
     expect(digest.split('"text":"PR #12 ready for review"')).toHaveLength(2)
+
+    // The ended card's one action is the next block of the same length, on the same card.
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'start', minutes: 50 }])
+    expect(titles()[0]).toBe('Deep-work block on until 09:50')
   })
 
   it('never leaves two live End block cards', async () => {
@@ -579,7 +598,7 @@ describe('/glide focus', () => {
     expect(request.mock.calls[0]?.[1]).toEqual({ session_id: 'glide-session', action: 'wind_down' })
     expect(titles()).toEqual(["Time to wrap: here's where you left off"])
     const wind = JSON.stringify(view(0))
-    for (const s of ['ah-daysvg', 'Tomorrow starts here', '“fix the tokenizer”', 'bed 02:30', 'best hours', 'next deep work now, until 09:00–11:00']) expect(wind).toContain(s)
+    for (const s of ['ah-daysvg', 'Tomorrow starts here', '“fix the tokenizer”', 'bed 02:30', 'best hours', 'Next deep work now, until 09:00–11:00']) expect(wind).toContain(s)
     await glideCommand(host, 'focus hours')
     expect(titles().at(-1)).toBe('Your best deep-work hours')
     const hours = JSON.stringify(view(panels().length - 1))
