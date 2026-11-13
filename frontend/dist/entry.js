@@ -23765,12 +23765,13 @@ var LIBRARY_STATE = {
   listening: "listening",
   // a waveform rolling through the rings
   speaking: "listening",
-  waiting: "connecting",
-  // a still web of links: a question is out, held until the user answers
+  waiting: "breathing",
+  // aodl-views' waiting-approval: the still ring with a gold rim, held until the user answers
   idle: "breathing",
   error: "breathing"
   // the idle ring, drawn in the error hue so a failure never reads as rest
 };
+var ORB_WAIT_RIM = { dark: "#d7b986", light: "#8a6a2f" };
 var ORB_ERROR_INK = { dark: "#ee888b", light: "#b3383c" };
 var SOURCE = 64;
 var STILL = 0.6;
@@ -23791,6 +23792,7 @@ function orbSvg(state, seconds, dark) {
   for (const d of frame2.dots) {
     marks2.push(`<circle cx="${n3(d.x)}" cy="${n3(d.y)}" r="${n3(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
   }
+  if (state === "waiting") marks2.push(`<circle cx="32" cy="32" r="30.5" fill="none" stroke="${ORB_WAIT_RIM[dark ? "dark" : "light"]}" stroke-width="1.5"/>`);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks2.join("")}</svg>`;
 }
 
@@ -28391,7 +28393,7 @@ function intentProof(cards, transcript) {
     app: "aodl",
     title: "Show me the real-turn receipt",
     summary: "Sample receipt \xB7 no real turn has run yet. The chip is a fingerprint of your ask.",
-    rows: [{ label: "receipts", value: 1 }, { label: "hash", value: createHash2("sha256").update(ask).digest("hex").slice(0, 16) }]
+    rows: [{ label: "receipts", value: 1 }, { label: "hash", value: createHash2("sha256").update(ask).digest("hex").slice(0, 16) }, { label: "sample", value: "receipt" }]
   });
 }
 function intentCommand(cards, ask, live) {
@@ -28412,7 +28414,7 @@ function intentCommand(cards, ask, live) {
       { label: "pattern", value: "fan-out \u2192 council review" },
       ...PLAN.map(lane),
       ...SAMPLE_HOSTS.map((h2) => ({ label: `host: ${h2.name}`, value: h2.value })),
-      { label: "gate", value: "council review \xB7 3 of 4 seats must pass" },
+      { label: "verifier", value: "council review \xB7 3 of 4 seats must pass" },
       { label: "budget", value: "\u2264 40k tokens \xB7 61% of weekly quota left" },
       { label: "sample", value: live?.length ? "hosts, budget" : "lanes, hosts, budget" }
     ],
@@ -28424,7 +28426,7 @@ function intentCommand(cards, ask, live) {
       app: "aodl",
       title: "Implementation is not acceptance",
       summary: "Sample plan \xB7 tasks wait in this rail until you approve the contract.",
-      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? "running" : "queued"} \xB7 ${c.label}` }))
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? "running" : "declared"} \xB7 ${c.label}` }))
     });
   });
 }
@@ -35170,7 +35172,6 @@ import { isAbsolute as isAbsolute2 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 
 // src/hermes/images.ts
-var MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 function imageFormat(bytes) {
   if (bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
     return { mime: "image/png", ext: ".png" };
@@ -77900,14 +77901,14 @@ var COMMANDS3 = [
     }
   },
   {
-    help: "Pick the colors: Tern, Nous, the Hermes skin or the wallpaper [tern|nous|skin|auto]",
+    help: "Pick the colors: Tern, Nous, the Hermes skin, the wallpaper or Dash [tern|nous|skin|auto|dash]",
     name: "theme",
     run: (host2, arg) => {
       if (!arg) {
         return openThemePicker(host2);
       }
       if (!isThemeMode(arg)) {
-        host2.transcript.notice("Usage: /theme [tern|nous|skin|auto]", "warning");
+        host2.transcript.notice("Usage: /theme [tern|nous|skin|auto|dash]", "warning");
         return;
       }
       host2.setTheme(arg);
@@ -78898,6 +78899,7 @@ function declare(d, el) {
   ], "ih-hero ih-declare");
 }
 var met = (v) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str6(v));
+var evidenced = (v) => v === true || (([s2, r]) => met(s2) && r !== "")(evidence(v));
 var evidence = (v) => {
   const [state = "", receipt = ""] = str6(v).split("\xB7").map((s2) => s2.trim());
   return [state, receipt];
@@ -78906,14 +78908,14 @@ function criterion(label) {
   const at2 = label.indexOf(": ");
   return at2 > 0 ? { kind: label.slice(0, at2), phrase: label.slice(at2 + 2) } : { kind: "criterion", phrase: label };
 }
-var TYPED = /^(pattern|gate|budget|sample|lane: .+|host: .+)$/;
+var TYPED = /^(pattern|verifier|budget|sample|lane: .+|host: .+)$/;
 var isCriterion = (label) => !TYPED.test(label);
 var rowsOf3 = (d, prefix2) => d.rows.filter((r) => r.label.startsWith(prefix2)).map((r) => ({ name: r.label.slice(prefix2.length), parts: str6(r.value).split("\xB7").map((s2) => s2.trim()) }));
 var one6 = (d, label) => str6(d.rows.find((r) => r.label === label)?.value ?? "");
 var tone = (state) => /^(online|ready|running|working|thinking|answered|verified|\d+\/\d+ ready)/i.test(state) ? "ok" : /^(idle|queued|standby|corrected)/i.test(state) ? "idle" : /^(blocked|dead|offline|down)/i.test(state) ? "bad" : "idle";
 function contract(d, el) {
   const crit = d.rows.filter((r) => isCriterion(r.label));
-  const ok3 = crit.filter((r) => met(evidence(r.value)[0])).length;
+  const ok3 = crit.filter((r) => evidenced(r.value)).length;
   const sample = one6(d, "sample");
   const synthetic = (panel) => sample.split(",").map((s2) => s2.trim()).includes(panel);
   const head2 = (title, note, panel) => el("div", [
@@ -78924,15 +78926,16 @@ function contract(d, el) {
   const reqs = el("div", crit.map((r) => {
     const { kind, phrase } = criterion(r.label);
     const [state, more] = evidence(r.value);
-    const good = met(state);
+    const good = evidenced(r.value);
+    const seen = !good && met(state);
     return el("div", [
       el("small", [text18(kind)], "ih-kind"),
       el("div", [
         el("span", [text18(`\u201C${phrase}\u201D`)], "ih-phrase"),
-        el("span", [text18(good ? more ? `evidence \xB7 ${more}` : "observed, no receipt id" : more || "needs a real-turn receipt")], "ih-needs")
+        el("span", [text18(good ? `evidence \xB7 ${more}` : seen ? "observed, no receipt id" : more || "needs a real-turn receipt")], "ih-needs")
       ], "ih-req-text"),
-      good ? el("span", [el("b", [text18("\u2713")], "ih-tick"), text18(" evidenced")], "ih-mark") : el("span", [el("i", [], "ih-dot"), text18(" missing")], "ih-mark")
-    ], good ? "ih-slot ih-met" : "ih-slot ih-missing", { "data-state": good ? "met" : "missing" });
+      good ? el("span", [el("b", [text18("\u2713")], "ih-tick"), text18(" evidenced")], "ih-mark") : el("span", [el("i", [], "ih-dot"), text18(seen ? " no receipt" : " missing")], "ih-mark")
+    ], good ? "ih-slot ih-met" : "ih-slot ih-missing", { "data-state": good ? "met" : seen ? "unreceipted" : "missing" });
   }), "ih-slots");
   const lanes2 = rowsOf3(d, "lane: ");
   const node4 = (l) => {
@@ -78961,7 +78964,7 @@ function contract(d, el) {
   }
   flow4.push(el("i", [], "ih-flowlink ih-gated"), el("span", [text18("receipt")], "ih-term ih-due"));
   const hosts3 = rowsOf3(d, "host: ");
-  const gate = one6(d, "gate").split("\xB7").map((s2) => s2.trim());
+  const gate = one6(d, "verifier").split("\xB7").map((s2) => s2.trim());
   const votes = Number(/(\d+) of (\d+)/.exec(gate[1] ?? "")?.[2] ?? 0);
   const budget = one6(d, "budget").split("\xB7").map((s2) => s2.trim());
   const left = Math.max(0, Math.min(100, Number(/(\d+)%/.exec(budget[1] ?? "")?.[1] ?? 0)));
@@ -78976,31 +78979,33 @@ function contract(d, el) {
     ], "ih-host", { "data-state": h2.parts[0] ?? "" })), "ih-hosts")] : [],
     ...gate[0] || budget[0] ? [el("div", [
       el("div", [
-        el("div", [el("small", [text18("gate")], "ih-kind")], "ih-head"),
+        el("div", [el("small", [text18("verifier")], "ih-kind")], "ih-head"),
         el("b", [text18(gate[0] ?? "")], "ih-gname"),
         el("div", [...Array.from({ length: votes }, () => el("i", [], "ih-pip")), el("small", [text18(`0/${votes} seats voted`)], "ih-ljob")], "ih-pips"),
         el("small", [text18(gate[1] ?? "")], "ih-ljob")
       ], "ih-gate"),
       el("div", [
         el("div", [el("small", [text18(synthetic("budget") ? "budget \xB7 sample" : "budget")], "ih-kind ih-wide")], "ih-head"),
-        el("b", [text18(budget[0] ?? "")], "ih-gname"),
+        // A declared budget is never evidence of spend: the meter is the observed quota, labelled as such.
+        el("b", [text18(budget[0] ? `${budget[0]} declared` : "")], "ih-gname"),
         el("div", [el("i", [], `ih-meterfill ih-w${Math.round(left / 10)}`)], "ih-meter"),
-        el("small", [text18(budget[1] ?? "")], "ih-ljob")
+        el("small", [text18(budget[1] ? `observed \xB7 ${budget[1]}` : "")], "ih-ljob")
       ], "ih-budget")
     ], "ih-gaterow")] : []
   ], "ih-hero ih-contract");
 }
 function intentDoneLabel(d) {
   if (d.kind !== "intent-contract") return void 0;
-  return d.rows.filter((r) => isCriterion(r.label)).every((r) => met(evidence(r.value)[0])) ? "Approved \xB7 all criteria evidenced" : "Approved \u2014 awaiting receipts";
+  return d.rows.filter((r) => isCriterion(r.label)).every((r) => evidenced(r.value)) ? "Approved \xB7 all criteria evidenced" : "Approved \u2014 awaiting receipts";
 }
 function work(d, el) {
   const kids2 = [];
   let seam = false;
   d.rows.forEach((r, i) => {
     const [state = "unknown", repo = ""] = str6(r.value).split("\xB7").map((s2) => s2.trim());
-    if (!seam && i > 0 && state !== "built" && d.rows.slice(0, i).every((x) => str6(x.value).startsWith("built"))) {
-      kids2.push(el("span", [text18("built \u2260 accepted")], "ih-seam"));
+    const done = (v) => /^(succeeded|built)\b/.test(v);
+    if (!seam && i > 0 && !done(state) && d.rows.slice(0, i).every((x) => done(str6(x.value)))) {
+      kids2.push(el("span", [text18(`${str6(d.rows[i - 1]?.value ?? "").split("\xB7")[0]?.trim()} \u2260 accepted`)], "ih-seam"));
       seam = true;
     } else if (i > 0) kids2.push(el("i", [], "ih-link"));
     kids2.push(el("div", [
@@ -79014,10 +79019,12 @@ function work(d, el) {
 function proof(d, el) {
   const n3 = Number(d.rows.find((r) => /receipt/i.test(r.label))?.value ?? 0) || 0;
   const hash = str6(d.rows.find((r) => /hash/i.test(r.label))?.value ?? "");
+  const sample = d.rows.some((r) => r.label === "sample");
   return el("div", [
     el("div", n3 > 0 ? [el("span", [text18(String(n3 - 1))], "ih-n ih-n-out"), el("span", [text18(String(n3))], "ih-n ih-n-in")] : [el("span", [text18("0")], "ih-n")], "ih-counter"),
     el("small", [text18(n3 === 1 ? "real-turn receipt" : "real-turn receipts")], "ih-cap"),
-    el("b", [text18(n3 > 0 ? "Proven by a real turn" : "Not proven yet")], n3 > 0 ? "ih-verdict" : "ih-verdict ih-none"),
+    // Proof reports an observation; acceptance is the verifier's, and a sample receipt is no run at all.
+    el("b", [text18(sample ? "Sample \xB7 no real turn has run" : n3 > 0 ? "Receipt observed" : "Nothing observed yet")], n3 > 0 && !sample ? "ih-verdict" : "ih-verdict ih-none"),
     n3 > 0 && hash ? el("span", [text18(hash.slice(0, 12))], "ih-stamp") : el("span", [text18("no receipt yet")], "ih-stamp ih-none")
   ], `ih-hero ih-proof ${n3 > 0 ? "ih-landed" : ""}`.trim());
 }
@@ -79103,9 +79110,9 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-rail { display: flex; align-items: center; gap: 0; }
 [data-eui='card'] .ih-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; }
 [data-eui='card'] .ih-node { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--h-border); font: 600 13px var(--h-mono); }
-[data-eui='card'] .ih-s-built .ih-node { border-color: var(--ih-acc); color: var(--ih-acc); }
+[data-eui='card'] .ih-s-built .ih-node, [data-eui='card'] .ih-s-succeeded .ih-node { border-color: var(--ih-acc); color: var(--ih-acc); }
 [data-eui='card'] .ih-s-running .ih-node { border-color: var(--h-fg); color: var(--h-fg); animation: ih-pulse 1.2s ease-in-out infinite; }
-[data-eui='card'] .ih-s-blocked .ih-node { border-color: var(--ih-due); color: var(--ih-due); border-style: dashed; }
+[data-eui='card'] .ih-s-blocked .ih-node, [data-eui='card'] .ih-s-failed .ih-node { border-color: var(--ih-due); color: var(--ih-due); border-style: dashed; }
 [data-eui='card'] .ih-state { font: 10px var(--h-mono); color: var(--h-fg); opacity: .85; text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-repo { font: 10px var(--h-mono); padding: 1px 6px; border-radius: 4px; background: var(--h-bg); border: 1px solid var(--h-border); }
 [data-eui='card'] .ih-link { flex: 1; height: 2px; background: var(--h-border); }
@@ -79113,7 +79120,7 @@ var INTENT_CSS = `
 [data-eui='card'] .ih-proof { display: flex; flex-direction: column; align-items: center; padding: 18px; }
 [data-eui='card'] .ih-counter { position: relative; height: 96px; width: 120px; overflow: hidden; text-align: center; }
 [data-eui='card'] .ih-n { position: absolute; left: 0; right: 0; top: 0; font-size: 88px; line-height: 96px; font-weight: 500; letter-spacing: -.06em; color: var(--h-fg); }
-[data-eui='card'] .ih-verdict { margin-top: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: var(--ih-acc); }
+[data-eui='card'] .ih-verdict { margin-top: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: var(--h-fg); }
 [data-eui='card'] .ih-verdict.ih-none { color: var(--h-fg); opacity: .8; }
 [data-eui='card'] .ih-n-out { opacity: 0; transform: translateY(-100%); animation: ih-out .5s ease-in; }
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }
