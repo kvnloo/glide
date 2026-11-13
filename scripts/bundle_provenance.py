@@ -44,6 +44,13 @@ def verify(plugin: Path, hermes: Path, expected: str) -> str:
         # HEAD compares both staged and unstaged tracked changes. Generated files
         # in ignored dependency directories do not affect this check.
         git(repo, "diff", "--quiet", "HEAD", "--")
+        paths = ["."]
+        # CI checks Hermes out inside the plugin workspace. Its own checkout is
+        # checked separately below, rather than treated as untracked plugin code.
+        if repo == plugin and hermes.is_relative_to(plugin):
+            paths.append(f":(exclude){hermes.relative_to(plugin).as_posix()}/")
+        if git(repo, "ls-files", "--others", "--exclude-standard", "-z", "--", *paths):
+            raise ValueError("source checkout contains untracked files")
     return wanted
 
 

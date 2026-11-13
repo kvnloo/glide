@@ -76,6 +76,38 @@ class BundleProvenanceTest(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             self.verify()
 
+    def test_untracked_source_in_either_checkout_refuses_receipt(self):
+        for repo in (self.plugin, self.hermes):
+            with self.subTest(repo=repo.name):
+                extra = repo / "untracked-source.js"
+                extra.write_text("export const injected = true;\n")
+                with self.assertRaisesRegex(ValueError, "untracked"):
+                    provenance.receipt(self.plugin, self.hermes, self.plugin_sha, self.bundle, self.output)
+                self.assertFalse(self.output.exists())
+                extra.unlink()
+
+    def test_ignored_dependency_files_do_not_refuse_receipt(self):
+        for repo in (self.plugin, self.hermes):
+            with (repo / ".git/info/exclude").open("a") as stream:
+                stream.write("\nnode_modules/\n")
+            deps = repo / "node_modules"
+            deps.mkdir()
+            (deps / "dependency.js").write_text("installed dependency\n")
+        provenance.receipt(self.plugin, self.hermes, self.plugin_sha, self.bundle, self.output)
+        self.assertTrue(self.output.exists())
+
+    def test_nested_hermes_checkout_is_checked_separately(self):
+        nested = self.plugin / ".hermes-agent"
+        self.hermes.rename(nested)
+        self.hermes = nested
+        link = self.plugin / "frontend/.hermes-src"
+        link.unlink()
+        link.symlink_to(self.hermes, target_is_directory=True)
+        self.assertEqual(self.verify(), self.hermes_sha)
+        (nested / "injected.js").write_text("untracked nested source\n")
+        with self.assertRaisesRegex(ValueError, "untracked"):
+            self.verify()
+
     def test_changed_hermes_head_and_wrong_link_are_rejected(self):
         (self.hermes / "source").write_text("new\n")
         git(self.hermes, "add", "source")
