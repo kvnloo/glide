@@ -3,22 +3,26 @@
 // letter-spacing or hex in them that is not here, so a new component cannot drift. The design-system
 // page (glide/tools/design-system.mts) draws every token and component in each theme.
 
-/** Dash's original black and gold: the `dash` theme mode (dash.ts) and glide/themes/dash.json. */
+/**
+ * Dash's original black and gold: the `dash` theme mode (dash.ts) and glide/themes/dash.json. Muted and dim
+ * read 4.5:1 on the lightest layer text sits on (wal.ts `l3`), so walPalette never lifts them (contrast.test.ts).
+ */
 export const DASH = {
   bg: '#0c0c0a',
   fg: '#ECE8DF',
   gold: '#d7b986',
-  muted: '#A8A294',
-  dim: '#837E72',
+  muted: '#BBB5A9',
+  dim: '#ACA79D',
   error: '#E5484D',
   success: '#8FB98A'
 } as const
 
 /** The popups' night inks (council, lanes) on Dash's canvas; the glass floor keeps each text ink 4.5:1 (wal.ts). */
 export const NIGHT = {
-  canvas: DASH.bg, text: DASH.fg, text2: '#B4AFA3', text3: '#A39F94', faint: '#5e5b52',
-  action: DASH.gold, strong: '#eccd8c', muted: '#AF9D7E', danger: '#e37f65', agree: '#98cf8b',
-  border: 'rgba(236,232,223,0.10)', borderStrong: 'rgba(236,232,223,0.16)'
+  canvas: DASH.bg, text: DASH.fg, text2: DASH.muted, text3: DASH.dim, faint: '#5e5b52',
+  action: DASH.gold, strong: '#eccd8c', muted: '#B6A689', danger: '#ea9580', agree: '#98cf8b',
+  // A 1 px line reads at 1.5:1 on the canvas and on l1 (contrast.test.ts).
+  border: 'rgba(236,232,223,0.18)', borderStrong: 'rgba(236,232,223,0.24)'
 } as const
 /** The popups' text inks (faint marks bars only). */
 export const NIGHT_INKS = [NIGHT.text, NIGHT.text2, NIGHT.text3, NIGHT.action, NIGHT.strong, NIGHT.muted, NIGHT.danger, NIGHT.agree] as const

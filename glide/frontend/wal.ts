@@ -122,12 +122,14 @@ export function walPalette(wal: WalColors, source = ''): WalPalette {
   const bg = wal.special.background
   const lift = (c: string | undefined, fallback: string, under: readonly string[]) => {
     let ink = c && HEX.test(c) ? c : fallback
-    for (const u of under) ink = ensureContrast(ink, u, TEXT_FLOOR, 0.05)
+    // Fine steps: a coarse lift overshoots and lands a dim ink brighter than the muted one.
+    for (const u of under) ink = ensureContrast(ink, u, TEXT_FLOOR, 0.01)
     // ensureContrast stops at the pole; a pole that still fails (mid-gray background) takes the better ink.
     return under.every(u => (contrastRatio(ink, u) ?? 0) >= TEXT_FLOOR) ? ink : readableOn(bg)
   }
   const base = lift(wal.special.foreground, wal.special.foreground, [bg])
-  const layers: [string, string, string] = [mix(bg, base, 0.06), mix(bg, base, 0.12), mix(bg, base, 0.2)]
+  // l3 is the 1 px border layer too: 22% keeps it 1.5:1 on bg and l1 (contrast.test.ts).
+  const layers: [string, string, string] = [mix(bg, base, 0.06), mix(bg, base, 0.12), mix(bg, base, 0.22)]
   const text = (c: string | undefined, fallback: string) => lift(c, fallback, [bg, layers[2]])
   const fg = text(base, base)
   const accent = text(pickAccent(wal), fg)

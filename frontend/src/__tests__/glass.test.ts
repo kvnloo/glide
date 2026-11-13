@@ -137,7 +137,7 @@ describe('glassCss', () => {
 
   it("picks the film's gold accent and its cyan glow from the palette", () => {
     expect(p.accent).toBe('#d9c27e')
-    expect(p.glow).toBe('#5cc3c9')
+    expect(p.glow).toBe('#61c5cb') // #5cc3c9, lifted to 4.5:1 on the lightest layer
     // With nothing else colored, the glow is the accent itself.
     expect(pickGlow(GREY, '#808080')).toBe('#808080')
   })
