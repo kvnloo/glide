@@ -51,9 +51,9 @@ describe('orbit targets', () => {
 
   it('pauses the arms on hover and brakes with a curve whose slopes are 2 then 0', () => {
     const css = orbitCss(LANES)
-    expect(css).toContain(minifyCss(':hover .glide-orbit-arm, .glide-orbit:hover .glide-orbit-face { animation-play-state: paused; }'))
+    expect(css).toContain(minifyCss(':is(:hover,:focus-within) :is(.glide-orbit-arm,.glide-orbit-face) { animation-play-state: paused; }'))
     expect(css).toContain(minifyCss(`transition: transform ${BRAKE_S}s cubic-bezier(0.3333, 0.6667, 0.6667, 1)`))
-    expect(css).toContain(minifyCss('.glide-orbit:hover .glide-orbit-tail { opacity: 0; }')) // a stopped planet has no comet tail
+    expect(css).toContain(minifyCss('.glide-orbit:is(:hover,:focus-within) .glide-orbit-tail { opacity: 0; }')) // a stopped planet has no comet tail
     expect(css).toContain(minifyCss('.glide-orbit .sf-image { pointer-events: none;')) // a click reaches the planet, not Tern's image viewer
   })
 
@@ -71,8 +71,8 @@ describe('orbit targets', () => {
     expect(new Set(phases).size).toBe(phases.length)
     for (const p of phases) { expect(p).toBeLessThanOrEqual(0); expect(p).toBeGreaterThan(-JIGGLE_S) }
     const still = orbitCss(LANES, true)
-    expect(still).toContain(minifyCss('.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }'))
-    expect(still).toContain(minifyCss('.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }'))
+    expect(still).toContain(minifyCss('.glide-orbit-still:is(:hover,:focus-within) .glide-orbit-jiggle { animation-name: none; }'))
+    expect(still).toContain(minifyCss('.glide-orbit-still:is(:hover,:focus-within) .glide-orbit-ring { opacity: 1; }'))
     expect(orbitSeats(LANES, true).every(s => !s.moving && s.brake === 0)).toBe(true)
   })
 

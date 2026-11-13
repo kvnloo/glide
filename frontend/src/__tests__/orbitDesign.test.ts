@@ -27,11 +27,11 @@ describe('FOCUS orbit design', () => {
 
   it('has one named, balanced role ramp for both themes and a neutral fallback', () => {
     expect(Object.keys(ROLE_RAMP)).toEqual(['fast', 'small', 'large', 'council'])
-    for (const role of Object.keys(ROLE_RAMP)) {
+    for (const [role, ramp] of Object.entries(ROLE_RAMP)) {
       for (const dark of [true, false]) {
         const ink = roleTint(role, dark)
         expect(ink).toMatch(/^#[0-9a-fA-F]{6}$/)
-        expect(ink).toBe(dark ? ROLE_RAMP[role as keyof typeof ROLE_RAMP].dark : ROLE_RAMP[role as keyof typeof ROLE_RAMP].light)
+        expect(ink).toBe(dark ? ramp.dark : ramp.light)
       }
     }
     expect(new Set(Object.values(ROLE_RAMP).map(c => c.dark)).size).toBe(4)
@@ -52,9 +52,8 @@ describe('FOCUS orbit design', () => {
 
   it('stops the orbit on hover or keyboard focus, then signals clickability with a tiny jiggle', () => {
     const css = orbitCss(lanes)
-    expect(css).toContain('.glide-orbit:hover .glide-orbit-arm')
-    expect(css).toContain('.glide-orbit:focus-within .glide-orbit-arm')
-    expect(css).toContain('.glide-orbit:focus-within .glide-orbit-s0>.glide-orbit-brake')
+    expect(css).toContain('.glide-orbit:is(:hover,:focus-within) :is(.glide-orbit-arm,.glide-orbit-face)')
+    expect(css).toContain('.glide-orbit:is(:hover,:focus-within) .glide-orbit-s0>.glide-orbit-brake')
     expect(css).toContain('glide-orbit-jiggle')
     expect(JIGGLE_S).toBeGreaterThanOrEqual(0.12)
     expect(HIT).toBeGreaterThanOrEqual(44)
@@ -71,7 +70,8 @@ describe('FOCUS orbit design', () => {
     expect(css).toContain('animation:none !important')
     expect(css).toContain('.glide-orbit-tail{opacity:0 !important}')
     const fixed = orbitSeats(lanes, true)
-    expect(css).toContain(`transform:rotate(-${Number((fixed[0]!.theta * 180 / Math.PI).toFixed(3))}deg) !important`)
+    expect(css).toContain(`--a:${Number(((fixed[0]?.theta ?? Number.NaN) * 180 / Math.PI).toFixed(3))}deg`)
+    expect(css).toContain('.glide-orbit-arm{transform:rotate(calc(-1 * var(--a))) !important}')
     expect(orbitSvg('idle', lanes, 1, true, true)).toEqual(orbitSvg('idle', lanes, 7, true, true))
   })
 })

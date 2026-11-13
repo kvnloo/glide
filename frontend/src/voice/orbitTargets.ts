@@ -167,55 +167,48 @@ export function orbitCss(lanes: readonly OrbitLane[], reduce = false): string {
     `${O} .glide-orbit-ring { position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px; border-radius: 50%; border: 1.5px dashed var(--t2, ${NIGHT.text2}); opacity: 0; transition: opacity .2s; }`,
     `${O} .glide-orbit-label { position: absolute; left: 50%; bottom: 100%; margin-bottom: ${LABEL_GAP}px; translate: -50% 0; padding: 2px 7px; border-radius: ${RADIUS.pill}px; white-space: nowrap; font: 500 ${TYPE.meta}px var(--sans, sans-serif); color: var(--t1, ${NIGHT.text}); background: var(--pop-bg, ${NIGHT.canvas}); border: 1px solid var(--l2, ${NIGHT.borderStrong}); box-shadow: 0 3px 10px rgba(0,0,0,.28); opacity: 0; pointer-events: none; transition: opacity .15s; }`,
     // Hover: the arms and faces stop where they are; the brake carries each on to rest.
-    `${O}:hover .glide-orbit-arm, ${O}:hover .glide-orbit-face { animation-play-state: paused; }`,
-    `${O}:focus-within .glide-orbit-arm, ${O}:focus-within .glide-orbit-face { animation-play-state: paused; }`,
-    `${O}:hover .glide-orbit-badge, ${O}:focus-within .glide-orbit-badge { opacity: 1; }`,
+    `${O}:is(:hover,:focus-within) :is(.glide-orbit-arm,.glide-orbit-face) { animation-play-state: paused; }`,
+    `${O}:is(:hover,:focus-within) .glide-orbit-badge { opacity: 1; }`,
     // A stopped planet leaves no comet tail.
-    `${O}:hover .glide-orbit-tail { opacity: 0; }`,
-    `${O}:focus-within .glide-orbit-tail { opacity: 0; }`,
-    `${O}:hover .glide-orbit-jiggle, ${O}:focus-within .glide-orbit-jiggle { animation-name: glide-orbit-jiggle; animation-duration: ${JIGGLE_S}s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`,
+    `${O}:is(:hover,:focus-within) .glide-orbit-tail { opacity: 0; }`,
+    `${O}:is(:hover,:focus-within) .glide-orbit-jiggle { animation-name: glide-orbit-jiggle; animation-duration: ${JIGGLE_S}s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`,
     `${O}:hover .glide-orbit-arm:hover { z-index: 3; }`,
-    `${O} .glide-orbit-planet:hover .glide-orbit-jiggle, ${O} .glide-orbit-planet:focus-visible .glide-orbit-jiggle { animation-name: none; transform: scale(${HOVER_SCALE}); }`,
+    `${O} .glide-orbit-planet:is(:hover,:focus-visible) .glide-orbit-jiggle { animation-name: none; transform: scale(${HOVER_SCALE}); }`,
     `${O} .glide-orbit-planet:focus-visible { outline: 2px solid var(--t1, ${NIGHT.text}); outline-offset: 2px; }`,
-    `${O} .glide-orbit-planet:hover .glide-orbit-label, ${O} .glide-orbit-planet:focus-visible .glide-orbit-label { opacity: 1; }`,
+    `${O} .glide-orbit-planet:is(:hover,:focus-visible) .glide-orbit-label { opacity: 1; }`,
     // Reduced motion: nothing moves; a dashed ring says the planets can be picked.
-    `${O}.glide-orbit-still:hover .glide-orbit-jiggle { animation-name: none; }`,
-    `${O}.glide-orbit-still:focus-within .glide-orbit-jiggle { animation-name: none; }`,
-    `${O}.glide-orbit-still:hover .glide-orbit-ring { opacity: 1; }`,
-    `${O}.glide-orbit-still:focus-within .glide-orbit-ring { opacity: 1; }`,
+    `${O}.glide-orbit-still:is(:hover,:focus-within) .glide-orbit-jiggle { animation-name: none; }`,
+    `${O}.glide-orbit-still:is(:hover,:focus-within) .glide-orbit-ring { opacity: 1; }`,
     `${O}.glide-orbit-still .glide-orbit-planet:hover .glide-orbit-jiggle { transform: scale(1.2); }`,
     `@keyframes glide-orbit-turn { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }`,
     `@keyframes glide-orbit-unturn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`,
     `@keyframes glide-orbit-jiggle { 0%, 100% { transform: translate(-${JIGGLE_PX}px, ${JIGGLE_PX / 2}px) rotate(-${JIGGLE_DEG}deg); } 50% { transform: translate(${JIGGLE_PX}px, -${JIGGLE_PX / 2}px) rotate(${JIGGLE_DEG}deg); } }`
   ]
+  // Each arm carries its reduced-motion seat angle (--a) so the media fallback below is two shared rules.
+  const fixed = orbitSeats(lanes, true)
   seats.forEach((s, i) => {
     const L = `${O} .glide-orbit-s${i}`
-    const at = `left: ${f(w / 2 - s.arm / 2)}px; top: ${f(h / 2 - s.arm / 2)}px; width: ${f(s.arm)}px; height: ${f(s.arm)}px;`
+    const at = `left: ${f(w / 2 - s.arm / 2)}px; top: ${f(h / 2 - s.arm / 2)}px; width: ${f(s.arm)}px; height: ${f(s.arm)}px; --a: ${f(((fixed[i]?.theta ?? 0) * 180) / Math.PI)}deg;`
     if (s.moving) {
       const timing = `animation-duration: ${f(s.period)}s; animation-delay: ${f(s.delay, 4)}s;`
       rules.push(`${L} { ${at} ${timing} }`, `${L} .glide-orbit-face { ${timing} }`,
-        `${O}:hover .glide-orbit-s${i} > .glide-orbit-brake, ${O}:focus-within .glide-orbit-s${i} > .glide-orbit-brake { transform: rotate(-${f(s.brake)}deg); }`,
-        `${O}:hover .glide-orbit-s${i} .glide-orbit-unbrake, ${O}:focus-within .glide-orbit-s${i} .glide-orbit-unbrake { transform: rotate(${f(s.brake)}deg); }`)
+        `${O}:is(:hover,:focus-within) .glide-orbit-s${i} > .glide-orbit-brake { transform: rotate(-${f(s.brake)}deg); }`,
+        `${O}:is(:hover,:focus-within) .glide-orbit-s${i} .glide-orbit-unbrake { transform: rotate(${f(s.brake)}deg); }`)
     } else {
       const deg = f((s.theta * 180) / Math.PI)
       rules.push(`${L} { ${at} animation-name: none; transform: rotate(-${deg}deg); }`, `${L} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`)
     }
     rules.push(`${L} .glide-orbit-jiggle { animation-delay: ${f(s.jiggleDelay, 4)}s; }`)
   })
-  // CSS media fallback covers a host that has not threaded its reduced-motion preference
-  // through to orbitCss; the true fixed seats are the same as orbitLayout(..., true).
-  const fixed = orbitSeats(lanes, true)
+  // CSS media fallback for a host that has not threaded its reduced-motion preference through to orbitCss:
+  // every arm and face settles on the same fixed seat as orbitLayout(..., true).
   rules.push(`@media (prefers-reduced-motion: reduce) {
     ${O} .glide-orbit-arm, ${O} .glide-orbit-face, ${O} .glide-orbit-jiggle { animation: none !important; transition: none !important; }
-    ${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake { transform: none !important; transition: none !important; }
-    ${O} .glide-orbit-jiggle { transform: none !important; }
+    ${O} .glide-orbit-brake, ${O} .glide-orbit-unbrake, ${O} .glide-orbit-jiggle { transform: none !important; }
     ${O} .glide-orbit-tail { opacity: 0 !important; }
-    ${O}:hover .glide-orbit-ring, ${O}:focus-within .glide-orbit-ring { opacity: 1; }
-    ${fixed.map((seat, i) => {
-      const deg = f((seat.theta * 180) / Math.PI)
-      return `${O} .glide-orbit-s${i} { transform: rotate(-${deg}deg) !important; }
-        ${O} .glide-orbit-s${i} .glide-orbit-face { transform: rotate(${deg}deg) !important; }`
-    }).join('\n')}
+    ${O}:is(:hover,:focus-within) .glide-orbit-ring { opacity: 1; }
+    ${O} .glide-orbit-arm { transform: rotate(calc(-1 * var(--a))) !important; }
+    ${O} .glide-orbit-face { transform: rotate(var(--a)) !important; }
   }`)
   return minifyCss(rules.join('\n'))
 }
