@@ -1,6 +1,7 @@
 // /glide glass playground. This is the only Glide surface that may cast a coloured glow.
 // An integrator calls openGlassDemo from GlideHost.glassDemo and supplies the real apply callback.
-// The sample is synthetic; a strength changes frost and glow, never the contrast-safe dark tint.
+// The sample is synthetic and sits on a striped swatch so frost is visible. Strength thins the tint from
+// opaque (0%) to the contrast-safe floor (100%) and grows the glow; text never drops below AA.
 import type { EuiNode } from '../../frontend/src/eui/sandbox.js'
 import { contrastRatio, mix } from '../../frontend/src/hermes/theme.js'
 import { nativeOverlayKey } from '../../frontend/src/overlays/identity.js'
@@ -26,7 +27,14 @@ const rgba = (hex: string, alpha: number): string => {
   return `rgba(${rgb.join(',')},${Math.max(0, Math.min(1, alpha)).toFixed(3)})`
 }
 const samplesFor = (palette: WalPalette): string[] =>
-  [...new Set([...palette.samples, DASH.bg, DASH.fg])]
+  [...new Set([...palette.samples, DASH.bg, DASH.fg, GOLD.fill])]
+/** The synthetic backdrop the sample frosts: transcript-like lines and one gold dot, crisp enough that
+ * blur and tint read at a glance, quiet enough not to outshout the card. */
+const SWATCH = [
+  `radial-gradient(circle at 82% 34%,${GOLD.fill} 0 18px,transparent 19px)`,
+  `repeating-linear-gradient(180deg,${rgba(DASH.fg, 0.42)} 0 2px,transparent 2px 11px)`,
+  DASH.bg
+].join(',')
 
 /** A fixed tint floor across the whole transition. Strength never lowers text contrast to sell transparency. */
 export function glassDemoTint(palette: WalPalette): number {
@@ -44,7 +52,7 @@ export interface GlassDemoMeasurement {
 /** Calculates the worst text contrast across every wallpaper sample and intervening saturation stop.
  * Includes the actual gold action ink on its opaque fill; a two-decimal readout rounds DOWN. */
 export function measureGlassDemo(palette: WalPalette, strength: GlassStrength, opaque = false): GlassDemoMeasurement {
-  const tint = opaque ? 100 : glassDemoTint(palette)
+  const tint = opaque ? 100 : Math.round(100 - (100 - glassDemoTint(palette)) * strength / 100)
   const blur = Math.round(22 * strength / 100)
   const saturate = 1 + 0.4 * strength / 100
   const steps = [...new Set([1, ...SATURATE_STEPS.filter(s => s <= saturate), saturate])]
@@ -88,7 +96,7 @@ export function glassDemoCard(palette: WalPalette, strength: GlassStrength, opti
   const transition = reducedMotion ? 'none' : `background-color ${GLASS_TRANSITION_MS}ms ease, box-shadow ${GLASS_TRANSITION_MS}ms ease, backdrop-filter ${GLASS_TRANSITION_MS}ms ease, -webkit-backdrop-filter ${GLASS_TRANSITION_MS}ms ease`
   // The halo appears only in this DEMO, and never carries text or the action's gold hierarchy.
   const halo = strength === 0 || opaque ? '' :
-    `, 0 0 ${Math.round(strength * 0.28)}px -8px ${rgba(palette.glow, strength / 100 * 0.22)}`
+    `, 0 0 ${Math.round(strength * 0.3)}px ${Math.round(strength * 0.03)}px ${rgba(palette.glow, strength / 100 * 0.5)}`
   const sampleStyle = [
     'display:flex;flex-direction:column;gap:8px;min-width:0;padding:14px',
     `border-radius:${RADIUS.tile}px;border:1px solid ${NIGHT.borderStrong}`,
@@ -129,6 +137,7 @@ export function glassDemoCard(palette: WalPalette, strength: GlassStrength, opti
     el('p', `margin:0;max-width:72ch;font-size:${TYPE.body}px;line-height:1.5;color:${NIGHT.text2}`,
       [text('The small lane prepared a sample summary. Review the brief before sharing it.')])
   ], { 'data-glass-sample': 'true', 'data-glass-active': String(strength) })
+  const swatch = el('div', `padding:18px;border-radius:${RADIUS.tile}px;background:${SWATCH}`, [sample], { 'data-glass-swatch': 'true' })
 
   return el('div', '', [
     el('div', 'display:flex;align-items:center;gap:8px;height:24px;min-width:0;white-space:nowrap;overflow:hidden', [
@@ -146,7 +155,7 @@ export function glassDemoCard(palette: WalPalette, strength: GlassStrength, opti
         el('span', `padding:3px 9px;border:1px solid ${NIGHT.agree};border-radius:${RADIUS.pill}px;font-family:${MONO};font-size:${TYPE.label}px;letter-spacing:${TRACK.caps};color:${NIGHT.agree}`,
           [text('DEMO')], { 'data-glass-demo': 'true' })
       ]),
-      sample,
+      swatch,
       el('div', 'display:flex;flex-direction:column;gap:8px', [
         el('span', `font-size:${TYPE.body}px;color:${NIGHT.text2}`, [text(`Glass strength · ${strength}%`)]),
         el('div', 'display:flex;flex-wrap:wrap;gap:8px', buttons, { role: 'group', 'aria-label': 'Preview glass strength' })

@@ -103,7 +103,9 @@ describe('glass playground', () => {
     expect(tint).toBeGreaterThanOrEqual(82)
     for (const strength of GLASS_STRENGTHS) {
       const m = measureGlassDemo(palette, strength)
-      expect(m.tint).toBe(tint)
+      // Opaque at 0%, thinning to the contrast-safe floor at 100%: strength is visible, AA is not traded away.
+      expect(m.tint).toBe(Math.round(100 - (100 - tint) * strength / 100))
+      expect(m.tint).toBeGreaterThanOrEqual(tint)
       expect(m.worstContrast).toBeGreaterThanOrEqual(4.5)
       expect(m.blur).toBe(Math.round(22 * strength / 100))
       expect(m.saturate).toBe(Math.round(100 + 0.4 * strength))
@@ -112,6 +114,16 @@ describe('glass playground', () => {
       expect(card).toContain(`${m.worstContrast.toFixed(2)}:1 · AA`)
     }
     expect(contrastRatio(GOLD.ink, GOLD.fill)).toBeGreaterThanOrEqual(4.5)
+    expect(measureGlassDemo(palette, 0).tint).toBe(100)
+  })
+
+  it('frosts a transcript-like swatch so each strength reads differently', () => {
+    const card = (strength: (typeof GLASS_STRENGTHS)[number]) => JSON.stringify(glassDemoCard(palette, strength, { reducedMotion: true }))
+    expect(card(0)).toContain('"data-glass-swatch":"true"')
+    expect(card(0)).toContain('radial-gradient')
+    expect(new Set(GLASS_STRENGTHS.map(card)).size).toBe(GLASS_STRENGTHS.length)
+    expect(card(0)).not.toContain('0 0 0px')
+    expect(card(100)).toMatch(/0 0 30px 3px rgba\(/)
   })
 
   it('a reduced-transparency reader sees opaque dark glass and a fixed contrast readout', () => {
