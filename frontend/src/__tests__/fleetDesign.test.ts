@@ -108,6 +108,13 @@ describe('Fleet compact presentation', () => {
     expect(original.data['notes']).toEqual(['provider timed out after 30s'])
   })
 
+  it('shows one line per distinct failure, not one per failing collector', () => {
+    const cleaned = fleetVisibleDoc(decodeEuiKit({ kind: 'fleet-factory', app: 'aodl', data: {
+      notes: ['ops: down', 'brain: missing', 'verify: no samples', 'k3s: refused', 'Factory graph is a bounded view']
+    } }))
+    expect(cleaned.data['notes']).toEqual(['A fleet source could not respond. Refresh to retry.', 'Factory snapshot. Details may be delayed.'])
+  })
+
   // Explicit per-file drift gate opt-ins: do not edit the shared token gate.
   for (const path of [
     'frontend/src/commands/fleet.ts',

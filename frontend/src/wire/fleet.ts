@@ -254,13 +254,14 @@ export function fleetVisibleDoc(doc: EuiKitDoc): EuiKitDoc {
     if (/^[a-f\d]{24,}$/i.test(note)) return 'Details are available in the source.'
     return note.slice(0, 200)
   }
+  const notes = (list: unknown[]): string[] => [...new Set(list.map(copy))]
   const data: Record<string, unknown> = { ...doc.data }
-  if (Array.isArray(data['notes'])) data['notes'] = data['notes'].map(copy)
+  if (Array.isArray(data['notes'])) data['notes'] = notes(data['notes'])
   if (Array.isArray(data['hosts'])) data['hosts'] = data['hosts'].map((host: unknown) => {
     if (!host || typeof host !== 'object' || Array.isArray(host)) return host
     const row = host as Record<string, unknown>
     return { ...row,
-      ...(Array.isArray(row['notes']) ? { notes: row['notes'].map(copy) } : {}),
+      ...(Array.isArray(row['notes']) ? { notes: notes(row['notes']) } : {}),
       ...(Array.isArray(row['harnesses']) ? { harnesses: row['harnesses'].map((harness: unknown) => {
         if (!harness || typeof harness !== 'object' || Array.isArray(harness)) return harness
         const group = harness as Record<string, unknown>
