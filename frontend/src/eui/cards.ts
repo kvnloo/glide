@@ -15,6 +15,9 @@ import { ATTENTION_CSS } from '../../../glide/frontend/attentionCards.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
+import type { UiIntent, UiNode } from '../glideui/library.js'
+import { UI_CSS, UI_SHEET } from '../glideui/render.js'
+
 import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
 import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
@@ -34,6 +37,9 @@ export interface EuiCardView {
   /** Host revisions are part of native paths, so queued old taps cannot target a replacement. */
   readonly identity?: string
   readonly activate?: (id: number) => void
+  /** A native glide/v1 card (glideui/render.tsx) instead of a kit snapshot; `node` is then null. */
+  readonly ui?: UiNode
+  readonly send?: (intent: UiIntent) => void
 }
 
 export interface EuiSink {
@@ -46,6 +52,8 @@ const MAX_BLOBS = 512
 const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, 'g')
 export const INLINE_SHEET = 'ephemeral-ui-inline'
 export const KIT_SHEET = 'ephemeral-ui'
+/** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
+export const GLIDE_UI_SHEET = UI_SHEET
 /** The card stylesheets as last sent, which a recovered surface gets again (surface/host.ts). */
 export const euiSheets = new Map<string, string>()
 
@@ -314,6 +322,8 @@ export class EuiCards {
     if ((this.#slots.size > 0 || this.host.size > 0) && !euiSheets.has(KIT_SHEET)) {
       euiSheets.set(KIT_SHEET, euiStyles())
       this.#sink.stylesheet(KIT_SHEET, euiStyles())
+      euiSheets.set(GLIDE_UI_SHEET, UI_CSS)
+      this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false

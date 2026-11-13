@@ -53,7 +53,7 @@ export async function fingerprints() {
     digest(await readFile(new URL(`../tern/${name}`, import.meta.url)))]));
   const files = ['bundle.mjs', 'intent-document.mjs', 'architecture-document.mjs', 'lifecycle.mjs', 'control.mjs'];
   const bridge = await Promise.all(files.map(async name => [name, digest(await readFile(new URL(name, import.meta.url)))]));
-  for (const name of ['adapter.mjs', 'catalog.mjs', 'host.mjs', 'intent.mjs', 'architecture.mjs', 'static-program.mjs']) {
+  for (const name of ['adapter.mjs', 'catalog.mjs', 'host.mjs', 'intent.mjs', 'architecture.mjs', 'glide.mjs', 'static-program.mjs']) {
     bridge.push([`generation/${name}`, digest(await readFile(new URL(`../../openui-generation/src/${name}`, import.meta.url)))]);
   }
   for (const name of ['architecture.v0.json', 'architecture-services.v0.json']) {

@@ -192,7 +192,19 @@ export interface ShellsPill {
 }
 
 /** The `dock` region's nodes: the working row, the queued prompts and the composer. */
-export function dockNodes(cx: DockContext, on: DockActions): JSX.Element[] {
+/** Agent-mounted widgets around the composer (glideui/widgets.tsx), drawn by the caller. */
+export interface DockSlots {
+  readonly above?: readonly JSX.Element[]
+  readonly ring?: readonly JSX.Element[]
+  readonly below?: readonly JSX.Element[]
+}
+
+/** The sidebar slot's widgets, docked at the pane's right edge as the aside (only while no other aside is open). */
+export function widgetAside(nodes: readonly JSX.Element[]): JSX.Element | null {
+  return nodes.length ? <col gap="sm" key="layer.widgets" role="glide.aside">{nodes}</col> : null
+}
+
+export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {}): JSX.Element[] {
   const nodes: JSX.Element[] = []
   const { activity, pills: p } = cx
   const busy = activity.kind === 'turn'
@@ -248,7 +260,10 @@ export function dockNodes(cx: DockContext, on: DockActions): JSX.Element[] {
     )
   }
 
-  nodes.push(composerNode(cx, on))
+  // A role-less dock column takes Tern's reader measure for its children, so widgets line up with the composer.
+  if (slots.above?.length) nodes.push(<col key="glide.above"><col gap="sm" key="w" role="glide.dock">{slots.above}</col></col>)
+  nodes.push(composerNode(cx, on, slots.ring))
+  if (slots.below?.length) nodes.push(<col key="glide.below"><col gap="sm" key="w" role="glide.dock">{slots.below}</col></col>)
 
   return nodes
 }
@@ -436,13 +451,15 @@ function effortChip(r: DockRoute, on: DockActions): JSX.Element {
   )
 }
 
-function composerNode(cx: DockContext, on: DockActions): JSX.Element {
+/** The composer; `ring` (the composer-ring widget) is drawn on its edge. */
+function composerNode(cx: DockContext, on: DockActions, ring?: readonly JSX.Element[]): JSX.Element {
   const { draft, attachments, dictation } = cx.composer
   const { route } = cx
   const busy = cx.activity.kind === 'turn'
 
   return (
     <col key="composer" role="omp.editor">
+      {ring?.length ? ring : null}
       {busy ? <row key="streak" role="hermes.streak" /> : null}
       {on.onContext ? contextMeter(cx.status.context, on.onContext) : null}
       <row gap="sm" hidden={!attachments.length} key="chips" role="omp.composer.chips" wrap>

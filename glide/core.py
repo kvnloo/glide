@@ -20,9 +20,9 @@ from pathlib import Path
 from . import source
 from .child_env import child_env
 from .memory import GlideMemory, MemoryNotReady
-from .skill_router import command as skill_router_command, command_install, command_list, command_rank, USAGE as skill_router_USAGE
-from .hill_climb import command as hill_climb_command, scaffold, run_round, status, create_stop, remove_stop, USAGE as hill_climb_USAGE
-from .offload import command as offload_command, offload_task, savings_card, USAGE as offload_USAGE
+from .hill_climb import command as hill_climb_command
+from .offload import command as offload_command
+from .skill_router import command as skill_router_command
 
 RUNTIMES = ("ollama", "llama-server", "llama-cli", "lms", "vllm", "mlx_lm.server")
 _TIMEOUT = 20
@@ -257,7 +257,8 @@ USAGE = """/glide            show this machine and your memory
 /glide skill-router      install skill router catalog
 /glide hill-climb      optimize a target with KEEP/REVERT referee
 /glide offload      route tasks to local model, view savings card
-/glide focus        your attention: phase, deep-work block, wind-down, best hours"""
+/glide focus        your attention: phase, deep-work block, wind-down, best hours
+/glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style"""
 
 
 def _rows(m: dict) -> str:
@@ -328,6 +329,10 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
         return hill_climb_command(home, rest)
     if verb == "offload":
         return offload_command(home, rest)
+    if verb == "ui":
+        from . import ui
+
+        return ui.command(rest)
     if verb == "focus":
         from . import attention
 
@@ -385,7 +390,11 @@ def register(ctx) -> None:
                          args_hint="hosts|portfolio|factory|pod [JSON params]")
     gateway.register(ctx)  # Optional fast path; /fleet works on stock Hermes.
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
-                         args_hint="[focus|build|on|off|recall <words>|taste]")
+                         args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]]")
+    if callable(getattr(ctx, "register_tool", None)):  # The agent's widgets around the composer (#326).
+        from . import ui
+
+        ui.register(ctx)
     from . import intel
 
     ctx.register_command("intel", intel.command, description="Read-only local intelligence, source notes and safe details",

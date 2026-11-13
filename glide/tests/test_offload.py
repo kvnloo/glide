@@ -1,6 +1,5 @@
 """Tests for the offload (route to local model, savings card)."""
 
-from pathlib import Path
 
 import pytest
 

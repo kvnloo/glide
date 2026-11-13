@@ -65,6 +65,8 @@ function declare(d: EuiHostCardData, el: El): EuiNode {
 }
 
 const met = (v: string | number | boolean) => v === true || /^(observed|met|pass|ok|yes)$/i.test(str(v))
+// AODL evidence is a trace, receipt or screenshot: a state that says observed, with no receipt id, is not evidence yet.
+const evidenced = (v: string | number | boolean) => v === true || (([s, r]) => met(s) && r !== '')(evidence(v))
 /** A criterion's value as its state and receipt: "observed · 9f3c2a7" -> ['observed', '9f3c2a7']. */
 const evidence = (v: string | number | boolean): [string, string] => {
   const [state = '', receipt = ''] = str(v).split('·').map(s => s.trim())
@@ -80,7 +82,7 @@ export function criterion(label: string): { kind: string; phrase: string } {
 // The contract is typed rows: "<kind>: <phrase>" criteria ("missing · needs <evidence>" or
 // "observed · <receipt>"), "pattern", "lane: <role>" ("<job> · <model> · <state>"), "host: <name>"
 // ("<status> · <runs>"), "gate", "budget" and "sample" (which panels hold synthetic data).
-const TYPED = /^(pattern|gate|budget|sample|lane: .+|host: .+)$/
+const TYPED = /^(pattern|verifier|budget|sample|lane: .+|host: .+)$/
 export const isCriterion = (label: string) => !TYPED.test(label)
 const rowsOf = (d: EuiHostCardData, prefix: string) => d.rows.filter(r => r.label.startsWith(prefix))
   .map(r => ({ name: r.label.slice(prefix.length), parts: str(r.value).split('·').map(s => s.trim()) }))
@@ -90,7 +92,7 @@ const tone = (state: string) => /^(online|ready|running|working|thinking|answere
 
 function contract(d: EuiHostCardData, el: El): EuiNode {
   const crit = d.rows.filter(r => isCriterion(r.label))
-  const ok = crit.filter(r => met(evidence(r.value)[0])).length
+  const ok = crit.filter(r => evidenced(r.value)).length
   const sample = one(d, 'sample')
   const synthetic = (panel: string) => sample.split(',').map(s => s.trim()).includes(panel)
   const head = (title: string, note: string, panel?: string) => el('div', [
@@ -100,14 +102,15 @@ function contract(d: EuiHostCardData, el: El): EuiNode {
   const reqs = el('div', crit.map(r => {
     const { kind, phrase } = criterion(r.label)
     const [state, more] = evidence(r.value)
-    const good = met(state)
+    const good = evidenced(r.value)
+    const seen = !good && met(state)
     return el('div', [
       el('small', [text(kind)], 'ih-kind'),
       el('div', [el('span', [text(`“${phrase}”`)], 'ih-phrase'),
-        el('span', [text(good ? (more ? `evidence · ${more}` : 'observed, no receipt id') : more || 'needs a real-turn receipt')], 'ih-needs')], 'ih-req-text'),
+        el('span', [text(good ? `evidence · ${more}` : seen ? 'observed, no receipt id' : more || 'needs a real-turn receipt')], 'ih-needs')], 'ih-req-text'),
       good ? el('span', [el('b', [text('✓')], 'ih-tick'), text(' evidenced')], 'ih-mark')
-        : el('span', [el('i', [], 'ih-dot'), text(' missing')], 'ih-mark')
-    ], good ? 'ih-slot ih-met' : 'ih-slot ih-missing', { 'data-state': good ? 'met' : 'missing' })
+        : el('span', [el('i', [], 'ih-dot'), text(seen ? ' no receipt' : ' missing')], 'ih-mark')
+    ], good ? 'ih-slot ih-met' : 'ih-slot ih-missing', { 'data-state': good ? 'met' : seen ? 'unreceipted' : 'missing' })
   }), 'ih-slots')
   const lanes = rowsOf(d, 'lane: ')
   const node = (l: { name: string; parts: string[] }) => {
@@ -129,7 +132,8 @@ function contract(d: EuiHostCardData, el: El): EuiNode {
   }
   flow.push(el('i', [], 'ih-flowlink ih-gated'), el('span', [text('receipt')], 'ih-term ih-due'))
   const hosts = rowsOf(d, 'host: ')
-  const gate = one(d, 'gate').split('·').map(s => s.trim())
+  // AODL: review is a verifier; the human gate is the approve button below, never this panel.
+  const gate = one(d, 'verifier').split('·').map(s => s.trim())
   const votes = Number(/(\d+) of (\d+)/.exec(gate[1] ?? '')?.[2] ?? 0)
   const budget = one(d, 'budget').split('·').map(s => s.trim())
   const left = Math.max(0, Math.min(100, Number(/(\d+)%/.exec(budget[1] ?? '')?.[1] ?? 0)))
@@ -142,12 +146,13 @@ function contract(d: EuiHostCardData, el: El): EuiNode {
       el('small', [text(h.parts[0] ?? '')], 'ih-hstate'), el('small', [text(h.parts[1] ?? '')], 'ih-ljob')
     ], 'ih-host', { 'data-state': h.parts[0] ?? '' })), 'ih-hosts')] : []),
     ...(gate[0] || budget[0] ? [el('div', [
-      el('div', [el('div', [el('small', [text('gate')], 'ih-kind')], 'ih-head'), el('b', [text(gate[0] ?? '')], 'ih-gname'),
+      el('div', [el('div', [el('small', [text('verifier')], 'ih-kind')], 'ih-head'), el('b', [text(gate[0] ?? '')], 'ih-gname'),
         el('div', [...Array.from({ length: votes }, () => el('i', [], 'ih-pip')), el('small', [text(`0/${votes} seats voted`)], 'ih-ljob')], 'ih-pips'),
         el('small', [text(gate[1] ?? '')], 'ih-ljob')], 'ih-gate'),
       el('div', [el('div', [el('small', [text(synthetic('budget') ? 'budget · sample' : 'budget')], 'ih-kind ih-wide')], 'ih-head'),
-        el('b', [text(budget[0] ?? '')], 'ih-gname'),
-        el('div', [el('i', [], `ih-meterfill ih-w${Math.round(left / 10)}`)], 'ih-meter'), el('small', [text(budget[1] ?? '')], 'ih-ljob')], 'ih-budget')
+        // A declared budget is never evidence of spend: the meter is the observed quota, labelled as such.
+        el('b', [text(budget[0] ? `${budget[0]} declared` : '')], 'ih-gname'),
+        el('div', [el('i', [], `ih-meterfill ih-w${Math.round(left / 10)}`)], 'ih-meter'), el('small', [text(budget[1] ? `observed · ${budget[1]}` : '')], 'ih-ljob')], 'ih-budget')
     ], 'ih-gaterow')] : [])
   ], 'ih-hero ih-contract')
 }
@@ -155,7 +160,7 @@ function contract(d: EuiHostCardData, el: El): EuiNode {
 /** The approve button's label once approved: a contract is approved, not complete, until every receipt lands. */
 export function intentDoneLabel(d: EuiHostCardData): string | undefined {
   if (d.kind !== 'intent-contract') return undefined
-  return d.rows.filter(r => isCriterion(r.label)).every(r => met(evidence(r.value)[0])) ? 'Approved · all criteria evidenced' : 'Approved — awaiting receipts'
+  return d.rows.filter(r => isCriterion(r.label)).every(r => evidenced(r.value)) ? 'Approved · all criteria evidenced' : 'Approved — awaiting receipts'
 }
 
 function work(d: EuiHostCardData, el: El): EuiNode {
@@ -163,8 +168,10 @@ function work(d: EuiHostCardData, el: El): EuiNode {
   let seam = false
   d.rows.forEach((r, i) => {
     const [state = 'unknown', repo = ''] = str(r.value).split('·').map(s => s.trim())
-    if (!seam && i > 0 && state !== 'built' && d.rows.slice(0, i).every(x => str(x.value).startsWith('built'))) {
-      kids.push(el('span', [text('built ≠ accepted')], 'ih-seam'))
+    // AODL lifecycle: a node can succeed while its verifier has not accepted it (built is the older word).
+    const done = (v: string) => /^(succeeded|built)\b/.test(v)
+    if (!seam && i > 0 && !done(state) && d.rows.slice(0, i).every(x => done(str(x.value)))) {
+      kids.push(el('span', [text(`${str(d.rows[i - 1]?.value ?? '').split('·')[0]?.trim()} ≠ accepted`)], 'ih-seam'))
       seam = true
     } else if (i > 0) kids.push(el('i', [], 'ih-link'))
     kids.push(el('div', [
@@ -179,12 +186,14 @@ function work(d: EuiHostCardData, el: El): EuiNode {
 function proof(d: EuiHostCardData, el: El): EuiNode {
   const n = Number(d.rows.find(r => /receipt/i.test(r.label))?.value ?? 0) || 0
   const hash = str(d.rows.find(r => /hash/i.test(r.label))?.value ?? '')
+  const sample = d.rows.some(r => r.label === 'sample')
   return el('div', [
     el('div', n > 0
       ? [el('span', [text(String(n - 1))], 'ih-n ih-n-out'), el('span', [text(String(n))], 'ih-n ih-n-in')]
       : [el('span', [text('0')], 'ih-n')], 'ih-counter'),
     el('small', [text(n === 1 ? 'real-turn receipt' : 'real-turn receipts')], 'ih-cap'),
-    el('b', [text(n > 0 ? 'Proven by a real turn' : 'Not proven yet')], n > 0 ? 'ih-verdict' : 'ih-verdict ih-none'),
+    // Proof reports an observation; acceptance is the verifier's, and a sample receipt is no run at all.
+    el('b', [text(sample ? 'Sample · no real turn has run' : n > 0 ? 'Receipt observed' : 'Nothing observed yet')], n > 0 && !sample ? 'ih-verdict' : 'ih-verdict ih-none'),
     n > 0 && hash ? el('span', [text(hash.slice(0, 12))], 'ih-stamp') : el('span', [text('no receipt yet')], 'ih-stamp ih-none')
   ], `ih-hero ih-proof ${n > 0 ? 'ih-landed' : ''}`.trim())
 }
@@ -273,9 +282,9 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-rail { display: flex; align-items: center; gap: 0; }
 [data-eui='card'] .ih-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; }
 [data-eui='card'] .ih-node { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--h-border); font: 600 13px var(--h-mono); }
-[data-eui='card'] .ih-s-built .ih-node { border-color: var(--ih-acc); color: var(--ih-acc); }
+[data-eui='card'] .ih-s-built .ih-node, [data-eui='card'] .ih-s-succeeded .ih-node { border-color: var(--ih-acc); color: var(--ih-acc); }
 [data-eui='card'] .ih-s-running .ih-node { border-color: var(--h-fg); color: var(--h-fg); animation: ih-pulse 1.2s ease-in-out infinite; }
-[data-eui='card'] .ih-s-blocked .ih-node { border-color: var(--ih-due); color: var(--ih-due); border-style: dashed; }
+[data-eui='card'] .ih-s-blocked .ih-node, [data-eui='card'] .ih-s-failed .ih-node { border-color: var(--ih-due); color: var(--ih-due); border-style: dashed; }
 [data-eui='card'] .ih-state { font: 10px var(--h-mono); color: var(--h-fg); opacity: .85; text-transform: uppercase; letter-spacing: .08em; }
 [data-eui='card'] .ih-repo { font: 10px var(--h-mono); padding: 1px 6px; border-radius: 4px; background: var(--h-bg); border: 1px solid var(--h-border); }
 [data-eui='card'] .ih-link { flex: 1; height: 2px; background: var(--h-border); }
@@ -283,7 +292,7 @@ export const INTENT_CSS = `
 [data-eui='card'] .ih-proof { display: flex; flex-direction: column; align-items: center; padding: 18px; }
 [data-eui='card'] .ih-counter { position: relative; height: 96px; width: 120px; overflow: hidden; text-align: center; }
 [data-eui='card'] .ih-n { position: absolute; left: 0; right: 0; top: 0; font-size: 88px; line-height: 96px; font-weight: 500; letter-spacing: -.06em; color: var(--h-fg); }
-[data-eui='card'] .ih-verdict { margin-top: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: var(--ih-acc); }
+[data-eui='card'] .ih-verdict { margin-top: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: var(--h-fg); }
 [data-eui='card'] .ih-verdict.ih-none { color: var(--h-fg); opacity: .8; }
 [data-eui='card'] .ih-n-out { opacity: 0; transform: translateY(-100%); animation: ih-out .5s ease-in; }
 [data-eui='card'] .ih-n-in { animation: ih-in .9s ease-out; }

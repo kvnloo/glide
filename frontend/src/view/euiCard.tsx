@@ -4,6 +4,7 @@
 import { EL_TAGS, type ElTag, html, type JSX, ui } from '@stencil-hq/tern'
 
 import type { EuiCards, EuiCardView } from '../eui/cards.js'
+import { node as glideNode } from '../glideui/render.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
@@ -87,6 +88,15 @@ function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number)
 
 /** The card for one fence; `card` is the transcript-wide card key. */
 export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, popup = false): JSX.Element {
+  if (view.ui) {
+    const send = view.send ?? (() => undefined)
+    return (
+      <col key={view.identity === undefined ? card : `${card}.${view.identity}`} role="glide.host">
+        {glideNode(view.ui, 'ui', { send, svg: markup => eui.svg(markup) })}
+        {view.error === undefined ? null : <text key="err" role="eui.error" text={view.error} wrap="word" />}
+      </col>
+    )
+  }
   if (view.error !== undefined || !view.node) {
     return (
       <col key={card} role="eui.card.pending">

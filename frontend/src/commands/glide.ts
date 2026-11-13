@@ -401,7 +401,7 @@ function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void
   cards.publish({
     kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',
     summary: 'Sample receipt · no real turn has run yet. The chip is a fingerprint of your ask.',
-    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }]
+    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }, { label: 'sample', value: 'receipt' }]
   })
 }
 
@@ -425,7 +425,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
       { label: 'pattern', value: 'fan-out → council review' },
       ...PLAN.map(lane),
       ...SAMPLE_HOSTS.map(h => ({ label: `host: ${h.name}`, value: h.value })),
-      { label: 'gate', value: 'council review · 3 of 4 seats must pass' },
+      { label: 'verifier', value: 'council review · 3 of 4 seats must pass' },
       { label: 'budget', value: '≤ 40k tokens · 61% of weekly quota left' },
       { label: 'sample', value: live?.length ? 'hosts, budget' : 'lanes, hosts, budget' }
     ],
@@ -435,7 +435,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
     cards.publish({
       kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
       summary: 'Sample plan · tasks wait in this rail until you approve the contract.',
-      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'queued'} · ${c.label}` }))
+      rows: clauses.map((c, i) => ({ label: `T${i + 1}`, value: `${i === 0 ? 'running' : 'declared'} · ${c.label}` }))
     })
   })
 }

@@ -6,7 +6,9 @@ import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards } from '../eui/cards.js'
 import { EuiHostCards } from '../eui/host.js'
-import { createSandbox, type EuiSandbox } from '../eui/sandbox.js'
+import type { UiIntent, UiNode } from '../glideui/library.js'
+import { euiCardNode } from '../view/euiCard.js'
+import type { EuiSandbox } from '../eui/sandbox.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 import { decodeIntel, decodeIntelIntent, intelText } from '../wire/intel.js'
@@ -28,6 +30,12 @@ const dispatch = (value: unknown) => ({ output: JSON.stringify(value) })
 const closures: (() => void)[] = []
 afterEach(() => { closures.splice(0).forEach(close => close()); vi.clearAllMocks() })
 
+function find(n: UiNode, name: UiNode['typeName']): UiNode | undefined {
+  if (n.typeName === name) return n
+  for (const k of 'children' in n.props ? n.props.children : []) { const hit = find(k, name); if (hit) return hit }
+  return undefined
+}
+
 function setup() {
   const session = new SessionState(() => undefined)
   session.ref = { live: liveSessionId('fixture-session'), stored: null }
@@ -46,15 +54,17 @@ function setup() {
     control: () => stub<ReturnType<IntelHost['control']>>({ panel }) }
   const entry = () => ofKind(transcript.entries.find(e => e.kind === 'panel'), 'panel')
   const view = () => must(cards.view(entry()))
-  const tap = async (action: unknown) => {
+  const tap = async (action: UiIntent, sent = view()) => {
     await vi.waitFor(() => expect(cards.size).toBe(1))
     await Promise.resolve()
     detail = action
-    must(view().activate)(1)
+    must(sent.send)(action)
     await Promise.resolve()
     await Promise.resolve()
   }
-  return { host, request, panel, session, transcript, cards, view, tap }
+  const part = (name: UiNode['typeName']) => find(must(view().ui), name)
+  const activeTab = () => { const t = part('Tabs'); return t?.typeName === 'Tabs' ? Number(t.props.active) : undefined }
+  return { host, request, panel, session, transcript, cards, view, tap, part, activeTab }
 }
 
 describe('intel stock command boundary', () => {
@@ -108,10 +118,11 @@ describe('intel command and host-owned actions', () => {
     expect(f.request).toHaveBeenCalledExactlyOnceWith('command.dispatch', { name: 'intel', arg: `--json ${tab}`, session_id: 'fixture-session' })
     expect(f.view().spec.kind).toBe('intel-suite')
     expect(f.view().spec.app).toBe('glide')
-    expect(f.view().spec).toMatchObject({ data: { tab: index } })
-    // Methodology notes stay in the kit's collapsed Source notes; the host does not repeat them as prose rows.
-    expect(f.view().spec).toMatchObject({ data: { notes: ['Synthetic source unavailable'] } })
-    expect(JSON.stringify(f.view().node)).not.toContain('data-fleet-note')
+    // A native glide/v1 tree from the shipped program for that tab; no kit snapshot is mounted.
+    expect(f.view().node).toBeNull()
+    expect(f.activeTab()).toBe(index)
+    // Methodology notes stay on the source line rather than as prose rows.
+    expect(must(f.view().ui).props).toMatchObject({ title: 'Local intelligence', source: 'Source: /intel · Synthetic source unavailable' })
   })
 
   it.each(['bogus', 'hill skills', '--json trace extra', 'trace --other'])('rejects invalid args %s without sending', async arg => {
@@ -127,18 +138,22 @@ describe('intel command and host-owned actions', () => {
     const old = f.view()
     await f.tap({ action: 'tab', entities: { tab: 3 } })
     expect(f.request).toHaveBeenCalledTimes(1)
-    expect(f.view().spec).toMatchObject({ data: { tab: 3 } })
+    expect(f.activeTab()).toBe(3)
     expect(f.view().identity).not.toBe(old.identity)
-    must(old.activate)(-1)
+    // A queued tap from the replaced revision is dropped.
+    await f.tap({ action: 'refresh', entities: {} }, old)
     expect(f.request).toHaveBeenCalledTimes(1)
     await f.tap({ action: 'refresh', entities: {} })
     await vi.waitFor(() => expect(f.request).toHaveBeenCalledTimes(2))
     expect(f.request).toHaveBeenLastCalledWith('command.dispatch', { name: 'intel', arg: '--json failures', session_id: 'fixture-session' })
-    await vi.waitFor(() => expect(f.view().spec).toMatchObject({ data: { tab: 3 } }))
-    must(f.view().activate)(-1)
+    await vi.waitFor(() => expect(f.activeTab()).toBe(3))
+    // The card's own Refresh button sends the same intent.
+    const actions = f.part('Buttons')
+    const refresh = actions?.typeName === 'Buttons' ? actions.props.items.find(b => b.label === 'Refresh') : undefined
+    await f.tap(must(refresh).intent)
     await vi.waitFor(() => expect(f.request).toHaveBeenCalledTimes(3))
     expect(f.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
-    expect(f.view().spec).toMatchObject({ data: { tab: 3 } })
+    expect(f.activeTab()).toBe(3)
   })
 
   it.each([
@@ -167,7 +182,7 @@ describe('intel command and host-owned actions', () => {
     expect(f.request).toHaveBeenLastCalledWith('command.dispatch', { name: 'intel', arg: "--json climb 'Synthetic O'\\''Brien climb --json trace'", session_id: 'fixture-session' })
   })
 
-  it.each([
+  it.each<UiIntent>([
     { action: 'unknown', entities: {} }, { action: 'tab', entities: { tab: 5 } },
     { action: 'open-climb', entities: { id: 'foreign' } }, { action: 'open-skill', entities: { skill: 'foreign' } },
     { action: 'open-failure', entities: { sig: 'foreign' } }
@@ -227,7 +242,7 @@ describe('intel command and host-owned actions', () => {
     refresh.resolve(dispatch(document(1)))
     await Promise.resolve()
     await Promise.resolve()
-    expect(f.view().spec).toMatchObject({ data: { tab: 4 } })
+    expect(f.activeTab()).toBe(4)
   })
 
   it('requires a session and cards, and reports malformed initial/detail/refresh replies', async () => {
@@ -252,23 +267,23 @@ describe('intel command and host-owned actions', () => {
     expect(f.panel).not.toHaveBeenCalled()
   })
 
-  it('renders the actual pinned intel kind when available or reports its missing-kind fallback', async () => {
+  it('draws the bound program with native Tern kinds through the real card registry, never the kit sandbox', async () => {
     const f = setup()
     const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session: f.session, transcript: f.transcript }, () => true))
     closures.push(() => eui.close())
-    const available = (await createSandbox(eui.dir)).kinds.includes('intel-suite')
     await intelCommand({ ...f.host, eui }, '')
-    const snapshot = () => JSON.stringify(eui.hostView(ofKind(f.transcript.entries.find(e => e.kind === 'panel'), 'panel'))?.node)
-    await vi.waitFor(() => {
-      const node = snapshot()
-      expect(node).not.toContain('data-fleet-note')
-      if (available) {
-        expect(node).toContain('"data-eui-kind":"intel-suite"')
-        expect(node).toContain('Source notes')
-        expect(node).not.toContain('ephemeral-ui has no kind intel-suite')
-      } else {
-        expect(node).toContain('ephemeral-ui has no kind intel-suite')
-      }
-    })
+    const view = must(eui.hostView(ofKind(f.transcript.entries.find(e => e.kind === 'panel'), 'panel')))
+    expect(view.node).toBeNull()
+    const tree = JSON.stringify(euiCardNode('main.intel.host', view, eui))
+    for (const role of ['glide.card', 'glide.tabs', 'glide.spark', 'glide.hero', 'glide.list', 'glide.actions', 'glide.source']) expect(tree).toContain(`"${role}"`)
+    for (const text of ['Local intelligence', 'Hill climbs', 'Synthetic climb', 'best 2', 'Source: /intel']) expect(tree).toContain(text)
+    expect(tree).not.toContain('data-eui-kind')
+    expect(tree).not.toContain('sample-skill')
+    // The hill program's list row opens the same backend detail the kit row did.
+    f.request.mockResolvedValue(dispatch({ text: 'Synthetic detail text' }))
+    const list = find(must(view.ui), 'List')
+    const row = list?.typeName === 'List' ? list.props.items[0] : undefined
+    must(view.send)(must(must(row).intent))
+    await vi.waitFor(() => expect(f.panel).toHaveBeenCalledWith('Synthetic climb', 'Synthetic detail text'))
   })
 })

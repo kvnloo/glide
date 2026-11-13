@@ -5,6 +5,8 @@ import type { PanelEntry } from '../model.js'
 import { decodeEuiHostCard, type EuiHostCardData } from '../wire/euiHostCard.js'
 import { decodeEuiKit, kitInput, kitNotes, type EuiKitDoc } from '../wire/euiKit.js'
 
+import type { UiIntent, UiNode } from '../glideui/library.js'
+
 import type { EuiCardView } from './cards.js'
 import { HOST_APPROVE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
 import { type FleetFit, fleetFit } from './fleetFit.js'
@@ -44,7 +46,20 @@ export interface EuiKitHandle {
   update(doc: unknown, intent: EuiKitIntent, refresh?: EuiKitRefresh): void
   revoke(): void
 }
+/** A host-bound glide/v1 tree (glideui/program.ts): drawn with native Tern kinds, never mounted as kit HTML. */
+export interface EuiNativeCard { readonly kind: string; readonly app: string; readonly title: string; readonly ui: UiNode }
+export interface EuiNativeHandle {
+  readonly id: EntryId
+  readonly revision: number
+  update(card: EuiNativeCard, intent: EuiKitIntent): void
+  revoke(): void
+}
 type Content = {
+  readonly kind: 'native'
+  readonly data: EuiNativeCard
+  readonly intent: EuiKitIntent
+  error?: string
+} | {
   readonly kind: 'rows'
   readonly data: EuiHostCardData
   operation: EuiOperation | undefined
@@ -107,6 +122,12 @@ export class EuiHostCards {
     return { ...handle, get revision() { return handle.revision }, update: (raw, run, refresh) => handle.update(this.#kit(raw, run, refresh)) }
   }
 
+  /** A native card: its controls send intents to `intent` under this revision's context only. */
+  publishNative(card: EuiNativeCard, intent: EuiKitIntent): EuiNativeHandle {
+    const handle = this.#publish({ kind: 'native', data: card, intent })
+    return { ...handle, get revision() { return handle.revision }, update: (card, run) => handle.update({ kind: 'native', data: card, intent: run }) }
+  }
+
   #publish(content: Content) {
     const port = this.#port
     const owner = port?.owner()
@@ -157,6 +178,16 @@ export class EuiHostCards {
     if (!slot) return undefined
     const content = slot.content
     const revision = slot.revision
+    if (content.kind === 'native') {
+      return {
+        spec: content.data, app: content.data.app, label: content.data.title, identity: 'host-' + revision,
+        node: null, ui: content.data.ui, ...(content.error === undefined ? {} : { error: content.error }),
+        send: (intent: UiIntent) => {
+          if (slot.revision !== revision || !this.#current(slot) || !this.#port?.active()) return
+          void this.#runKit(slot, () => content.intent(intent, this.#context(slot)))
+        }
+      }
+    }
     return {
       spec: content.data, app: content.data.app, label: content.data.title ?? content.data.kind,
       identity: 'host-' + revision,
@@ -225,7 +256,7 @@ export class EuiHostCards {
     this.#slots.delete(slot.entry)
     const content = slot.content
     if (content.kind === 'rows') content.operation = undefined
-    else { content.accepting = false; content.mounted?.dispose(); delete content.mounting }
+    else if (content.kind === 'kit') { content.accepting = false; content.mounted?.dispose(); delete content.mounting }
     slot.owner.signal.removeEventListener('abort', slot.onAbort)
     const wasRevoking = this.#revoking
     this.#revoking = true
@@ -280,7 +311,7 @@ export class EuiHostCards {
   async #runKit(slot: Slot, run: () => void | Promise<void>) {
     const revision = slot.revision
     try { await run() } catch (error) {
-      if (!this.#current(slot) || slot.revision !== revision || slot.content.kind !== 'kit') return
+      if (!this.#current(slot) || slot.revision !== revision || slot.content.kind === 'rows') return
       slot.content.error = error instanceof Error ? error.message : String(error)
     } finally {
       if (this.#current(slot) && slot.revision === revision) this.#changed(slot.key)

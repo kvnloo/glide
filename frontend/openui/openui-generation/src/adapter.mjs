@@ -3,6 +3,7 @@ import { bindSelection, projectSelection } from './host.mjs';
 import { INTENT_CATALOG, INTENT_LIBRARY, INTENT_SCHEMA, bindIntent, projectIntent } from './intent.mjs';
 import { ARCHITECTURE_CATALOG, ARCHITECTURE_LIBRARY, ARCHITECTURE_SCHEMA, bindArchitecture, projectArchitecture } from './architecture.mjs';
 import { checkProgram } from './static-program.mjs';
+import { GLIDE_CATALOG, GLIDE_LIBRARY, GLIDE_SCHEMA, bindGlideSelection, projectGlide } from './glide.mjs';
 
 const RULES = [
   'This experiment permits only catalog calls, arrays, small nonnegative integer literals, double-quoted JSON strings and static references.',
@@ -22,6 +23,13 @@ const LIBRARIES = {
     rules: [
       'Use only snapshot keys supplied in the task. Intent, contract, receipt and intelligence values are host-owned; select sections, never fabricate data.',
       'Each section appears at most once. Approval stays with the host: no section approves, executes or publishes anything.',
+    ],
+  },
+  glide: {
+    library: GLIDE_LIBRARY, schema: GLIDE_SCHEMA, catalog: GLIDE_CATALOG, root: 'GlideCard', project: projectGlide, bind: bindGlideSelection,
+    rules: [
+      'Use only the card key and slot keys supplied in the task. Every value is host-owned; choose, order and group slots, never fabricate data.',
+      'Each slot appears at most once. Buttons only name host actions; approval and execution stay with the host.',
     ],
   },
   architecture: {

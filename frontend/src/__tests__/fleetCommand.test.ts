@@ -8,6 +8,8 @@ import { EuiCards } from '../eui/cards.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
+import type { UiNode } from '../glideui/library.js'
+
 import { must, ofKind, stub } from './fakes.js'
 
 vi.mock('../overlays/pullRequests.js', () => ({ openUrl: vi.fn() }))
@@ -42,7 +44,7 @@ describe('fleet commands', () => {
     await must(localCommand(name)).run(stub({ ...f.host }), arg)
     expect(f.request).toHaveBeenCalledWith('glide.fleet', { session_id: 'fixture-session', view, ...(portfolio ? { portfolio } : {}) })
     expect(f.view().spec.kind).toBe(`fleet-${view}`)
-    expect(JSON.stringify(f.view().node)).toContain('Source: read-only fleet collectors')
+    expect(JSON.stringify(f.view().ui)).toContain('Source: read-only fleet collectors')
   })
 
   it.each(['unknown method: glide.fleet', 'Method not found', { code: -32601 }])('renders and refreshes through stock command.dispatch for %j', async error => {
@@ -57,8 +59,8 @@ describe('fleet commands', () => {
       name: 'fleet', arg: 'portfolio {"portfolio":"sample"}', session_id: 'fixture-session'
     })
     expect(f.view().spec.kind).toBe('fleet-portfolio')
-    expect(JSON.stringify(f.view().node)).toContain('Synthetic source unavailable')
-    must(f.view().activate)(-1)
+    expect(JSON.stringify(f.view().ui)).toContain('Synthetic source unavailable')
+    must(f.view().send)({ action: 'refresh', entities: {} })
     await vi.waitFor(() => expect(f.request).toHaveBeenCalledTimes(4))
     expect(f.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
   })
@@ -74,8 +76,8 @@ describe('fleet commands', () => {
   it('shows source notes and refresh re-calls the same verb in the same panel', async () => {
     const f = setup()
     await fleetCommand(f.host, 'hosts')
-    expect(JSON.stringify(f.view().node)).toContain('Source unavailable')
-    must(f.view().activate)(-1)
+    expect(JSON.stringify(f.view().ui)).toContain('Source unavailable')
+    must(f.view().send)({ action: 'refresh', entities: {} })
     await vi.waitFor(() => expect(f.request).toHaveBeenCalledTimes(2))
     expect(f.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
   })
@@ -105,7 +107,7 @@ describe('fleet commands', () => {
     const pending = Promise.withResolvers<unknown>()
     f.request.mockImplementation(() => pending.promise)
     const view = f.view()
-    must(view.activate)(-1)
+    must(view.send)({ action: 'refresh', entities: {} })
     f.transcript.load([])
     f.eui.host.sync()
     pending.resolve({ kind: 'fleet-hosts', app: 'k3s', data: {} })
@@ -138,5 +140,64 @@ describe('fleet commands', () => {
     pending.resolve({ kind: 'fleet-hosts', app: 'k3s', data: {} })
     await running
     expect(f.eui.host.size).toBe(0)
+  })
+
+  // Synthetic snapshot: two hosts, three agents, one pod; one repository task listed under two products.
+  const hostsDoc = { kind: 'fleet-hosts', app: 'k3s', data: { at: '2026-11-11T00:00:00Z', notes: [], hosts: [
+    { id: 'h1', label: 'alpha', role: 'Local host', online: true, gauges: { cpu: 40, mem: 60, disk: null, gpu: 70 },
+      k3s: { node: 'Ready', version: 'v1', pods: [['ns', 'pod-a', 'Pending', 2, 'ContainerCreating']] },
+      harnesses: [{ kind: 'Hermes', agents: [{ id: 's-one', name: 'sample one', state: 'working' }, { id: 's-two', name: 'sample two', state: 'blocked', line: 'waiting on you' }] },
+        { kind: 'fx', agents: [{ id: 'process:9', name: 'fx worker', state: 'idle' }] }] },
+    { id: 'h2', label: 'beta', online: false, k3s: null, harnesses: [] }] } }
+  const find = (n: UiNode | undefined, name: UiNode['typeName']): UiNode | undefined => {
+    if (!n) return undefined
+    if (n.typeName === name) return n
+    for (const k of 'children' in n.props ? n.props.children : []) { const hit = find(k, name); if (hit) return hit }
+    return undefined
+  }
+
+  it('draws /hosts natively: tabs switch locally, rows send the kit fleet intents', async () => {
+    const f = setup(hostsDoc)
+    await fleetCommand(f.host, 'hosts')
+    const ui = must(f.view().ui)
+    const list = find(ui, 'List')
+    expect(list?.typeName === 'List' && list.props.items.map(i => [i.label, i.badge, i.group])).toEqual([
+      ['sample one', 'working', 'alpha · Local host'], ['sample two', 'needs you', 'alpha · Local host'],
+      ['fx worker', 'idle', 'alpha · Local host']])
+    expect(JSON.stringify(ui)).toContain('No agents reported: beta (offline)')
+    must(f.view().send)(must(list?.typeName === 'List' ? list.props.items[1]?.intent : undefined))
+    await vi.waitFor(() => expect(f.draft).toHaveBeenCalledWith('Follow up with sample two on h1: '))
+    must(f.view().send)({ action: 'tab', entities: { tab: 'k3s' } })
+    await vi.waitFor(() => expect(find(f.view().ui, 'Tabs')?.props).toMatchObject({ active: 'k3s' }))
+    const pods = find(f.view().ui, 'List')
+    expect(pods?.typeName === 'List' && pods.props.items[0]).toMatchObject({ label: 'ns/pod-a', badge: 'Pending', tone: 'warning', value: '2 restarts' })
+    expect(JSON.stringify(f.view().ui)).toContain('Not in cluster: beta')
+    must(f.view().send)({ action: 'tab', entities: { tab: 'machines' } })
+    await vi.waitFor(() => expect(find(f.view().ui, 'Table')).toBeDefined())
+    const table = find(f.view().ui, 'Table')
+    expect(table?.typeName === 'Table' && table.props.rows[0]?.cells).toMatchObject({ cpu: 0.4, disk: '—' })
+    expect(f.request).toHaveBeenCalledTimes(1)
+    expect(f.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
+  })
+
+  it('draws /portfolio with one row per repository task and /factory graph as an SVG spine', async () => {
+    const task = { id: 'demo/r#7', label: 'Sample task', status: 'next', url: 'https://github.com/demo/r/issues/7' }
+    const p = setup({ kind: 'fleet-portfolio', app: 'dash', data: { at: '2026-11-11T00:00:00Z', notes: [], portfolios: { s: { label: 'Sample', products: [
+      { id: 'a', label: 'Product A', horizon: 'now', features: [{ id: 'f', label: 'demo/r', tasks: [task] }] },
+      { id: 'b', label: 'Product B', horizon: 'next', features: [{ id: 'g', label: 'demo/r', tasks: [task] }] }] } } } })
+    await fleetCommand(p.host, 'portfolio')
+    const lists = JSON.stringify(p.view().ui)
+    expect(lists.match(/"label":"Sample task"/g)).toHaveLength(1) // one row per repository task, marked in place
+    expect(lists).toContain('"badge":"next step"')
+    expect(lists).toContain('#7 · every product')
+    const f = setup({ kind: 'fleet-factory', app: 'aodl', data: { at: '2026-11-11T00:00:00Z', notes: [],
+      nodes: [{ id: 'brain', col: 0, label: 'Brain', state: 'live' }, { id: 'lane:b', col: 1, label: 'build', state: 'failing', reason: 'red', action: 'Prepare fix' }],
+      edges: [['brain', 'lane:b', 'delegated', true], ['brain', 'ghost', 'delegated', false]] } })
+    await fleetCommand(f.host, 'factory')
+    const graphic = find(f.view().ui, 'Graphic')
+    expect(graphic?.typeName === 'Graphic' && graphic.props.alt).toContain('2 nodes, 1 edge')
+    expect(graphic?.typeName === 'Graphic' && (graphic.props.svg.match(/<path/g) ?? []).length).toBe(1)
+    must(f.view().send)({ action: 'queue-fix', entities: { node: 'lane:b' } })
+    await vi.waitFor(() => expect(f.draft).toHaveBeenCalledWith('Investigate and prepare a fix for build (lane:b). '))
   })
 })

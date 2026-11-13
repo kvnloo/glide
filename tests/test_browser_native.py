@@ -5,8 +5,6 @@ profile nor a real browser is touched. Native Sway smoke is a separate gate.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from types import SimpleNamespace
 
 import pytest
 
