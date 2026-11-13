@@ -13,7 +13,7 @@ import { Hud } from '../chrome/hud.js'
 import { NoticeStrip } from '../chrome/notices.js'
 import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
-import { Theme } from '../chrome/theme.js'
+import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { TodoHud } from '../todo-hud.js'
 import { dispatched } from '../commands/slash.js'
@@ -316,6 +316,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
       else euiSheets.set(name, css)
       surface().raw.stylesheet(name, css)
     },
+    windowTheme: ternWindowTheme(),
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
