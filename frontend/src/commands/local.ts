@@ -236,7 +236,7 @@ const COMMANDS: readonly LocalCommand[] = [
     }
   },
   {
-    help: 'Pick the colors: Tern, Nous, the Hermes skin or the wallpaper [tern|nous|skin|auto]',
+    help: 'Pick the colors: Tern, Nous, the Hermes skin, the wallpaper or Dash [tern|nous|skin|auto|dash]',
     name: 'theme',
     run: (host, arg) => {
       if (!arg) {
@@ -244,7 +244,7 @@ const COMMANDS: readonly LocalCommand[] = [
       }
 
       if (!isThemeMode(arg)) {
-        host.transcript.notice('Usage: /theme [tern|nous|skin|auto]', 'warning')
+        host.transcript.notice('Usage: /theme [tern|nous|skin|auto|dash]', 'warning')
 
         return
       }

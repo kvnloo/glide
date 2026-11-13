@@ -1,7 +1,6 @@
 """Production registered legacy/canonical image RPC coverage, no fake dispatcher."""
 from __future__ import annotations
 
-import asyncio
 import base64
 import io
 import os

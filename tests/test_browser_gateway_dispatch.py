@@ -1004,7 +1004,6 @@ def test_real_create_resume_viewer_and_model_tool_original_driver(green, monkeyp
     focused = rpc(server, second, "glide.browser.focus",
                   rid=406, session_id=sid, target_id="7")
     assert focused["result"]["target_id"] == "7", focused
-    from tools.registry import registry
     selected = registry.get_entry("browser_snapshot")
     assert selected.handler is backend._NATIVE_HANDLERS["default"]["browser_snapshot"]
     tool = json.loads(selected.handler({"full": False},

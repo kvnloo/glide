@@ -136,7 +136,6 @@ frontend/src/commands/voice.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/core/keys.ts
 frontend/src/draft/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/draft/external-editor.ts
-frontend/src/draft/readline-words.ts
 frontend/src/draft/vim-keys.ts
 frontend/src/draft/vim-preference.ts
 frontend/src/draft/vim.ts

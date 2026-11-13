@@ -105,7 +105,6 @@ def judge(d, name, sel='eu-card'):
     inner = px[min(W - 1, x0 + cw // 2), min(H - 1, y0 + 6)]
     outside = px[max(0, x0 - 6), min(H - 1, y0 + int(ch) // 2)]
     edge_c = px[x0, min(H - 1, y0 + int(ch) // 2)]
-    thr = max(6.0, dist(edge_c, outside) / 2)
     # radius: on the top border row, how far in from the card edge the border line starts (omp reads 8)
     def bright(y):
         return dist(px[min(W - 1, x0 + int(cw) // 2), y], outside)
