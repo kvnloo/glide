@@ -1,6 +1,6 @@
 // FOCUS orbit role hues in one named warm-to-cool ramp, with contrast-tuned light seats.
 // Like glide/frontend/tokens.ts, this is a token definition file (literal values belong here).
-import { DASH, NIGHT, STATUS } from './tokens.js'
+import { NIGHT, STATUS } from './tokens.js'
 
 export const ROLE_RAMP = {
   fast: { dark: '#f2b24c', light: '#c47a12' },
@@ -17,10 +17,12 @@ export const ROLE_TINT: Readonly<Record<string, string>> = Object.fromEntries(
 /** The fallback is used when the host does not expose its theme to an SVG image. */
 export const ORBIT_MARK = {
   danger: `var(--h-danger, ${STATUS.bad})`,
-  deadFallback: { dark: '#ff6b6b', light: '#c62828' }
+  deadFallback: { dark: '#ff6b6b', light: '#c62828' },
+  /** The light seats' quiet ink (trails, halos, dead marks), kept when Dash's night dim brightened. */
+  lightInk: '#837E72'
 } as const
 
 export const roleTint = (role: string, dark: boolean): string => {
   const ramp: Readonly<Record<string, { dark: string; light: string }>> = ROLE_RAMP
-  return ramp[role]?.[dark ? 'dark' : 'light'] ?? (dark ? NIGHT.text2 : DASH.dim)
+  return ramp[role]?.[dark ? 'dark' : 'light'] ?? (dark ? NIGHT.text2 : ORBIT_MARK.lightInk)
 }

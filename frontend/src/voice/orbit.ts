@@ -153,11 +153,11 @@ function planet(s: Satellite, lane: OrbitLane, CX: number, CY: number, dark: boo
     const k = 1 - (i + 1) / 7
     return `<circle cx="${n(CX + s.r * TILT * Math.sin(th))}" cy="${n(CY + s.r * Math.cos(th))}" r="${n(r * (0.35 + 0.5 * k))}" fill-opacity="${(0.18 * k).toFixed(2)}"/>`
   }).join('')
-  const trail = tail ? `<g data-tail="${lane.role}" fill="${dark ? NIGHT.text3 : DASH.dim}">${tail}</g>` : ''
+  const trail = tail ? `<g data-tail="${lane.role}" fill="${dark ? NIGHT.text3 : ORBIT_MARK.lightInk}">${tail}</g>` : ''
   const edge = dark ? DASH.bg : DASH.fg
   const body = s.parked
     ? deadMark(s.x, s.y, r, dark)
-    : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${dark ? NIGHT.text2 : DASH.dim}" fill-opacity="0.2"/>` : '') +
+    : (lane.state === 'thinking' ? `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(HALO * s.scale)}" fill="${dark ? NIGHT.text2 : ORBIT_MARK.lightInk}" fill-opacity="0.2"/>` : '') +
       `<circle cx="${n(s.x)}" cy="${n(s.y)}" r="${n(r)}" fill="${c}" stroke="${edge}" stroke-width="0.8"/>` +
       `<circle cx="${n(s.x - r * 0.3)}" cy="${n(s.y - r * 0.3)}" r="${n(r * 0.35)}" fill="${DASH.fg}" fill-opacity="0.4"/>`
   return `<g data-lane="${lane.role}" opacity="${s.alpha.toFixed(2)}">${trail}${body}</g>`
@@ -181,7 +181,7 @@ function tracks(lanes: readonly OrbitLane[], dark: boolean): string {
   return [...new Set(lanes.map(l => orbitRadius(l.role)))].map(r => {
     const on = lanes.filter(l => orbitRadius(l.role) === r)
     const dead = on.every(l => l.state === 'dead')
-    const stroke = dead ? (dark ? NIGHT.text2 : DASH.dim).toLowerCase() : tint(on[0]?.role ?? '', dark)
+    const stroke = dead ? (dark ? NIGHT.text2 : ORBIT_MARK.lightInk).toLowerCase() : tint(on[0]?.role ?? '', dark)
     // Strong enough to read on the light theme's paper, still quieter than the planets riding it.
     const alpha = dead ? 0.6 : dark ? 0.72 : 0.78
     return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ''}/>`

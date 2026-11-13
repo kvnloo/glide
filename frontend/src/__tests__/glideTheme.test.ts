@@ -20,7 +20,7 @@ const colors = (bg: string, fg: string, c: Record<number, string>): WalColors =>
   colors: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`color${i}`, c[i] ?? '#808080']))
 })
 // A: dark navy wallpaper, saturated orange in color3. B: light paper wallpaper, a pale low-contrast foreground.
-// A's orange (#ff7a00) is the accent pick; the palette lifts it to #ff810d, 4.5:1 on the lightest layer too.
+// A's orange (#ff7a00) is the accent pick; the palette lifts it to #ff8719, 4.5:1 on the lightest layer too.
 const A = colors('#0f1420', '#c8d0e0', { 1: '#a05050', 2: '#5a8a5a', 3: '#ff7a00', 4: '#5070a0', 5: '#806080', 6: '#508080', 7: '#9aa4b8', 8: '#4a5468' })
 const B = colors('#f4efe6', '#d8d0c0', { 1: '#c03030', 2: '#40a040', 3: '#c8a040', 4: '#3060c0', 5: '#e020a0', 6: '#30a0a0', 7: '#e0d8c8', 8: '#eae4d8' })
 // The film's wallpaper: its muted and dim greys sat under 4.5:1 on Tern's lifted pane layer.
@@ -80,7 +80,7 @@ describe('walPalette', () => {
     expect(css).toContain('[data-surface]')
     // A program pane (hermes tern) has no [data-surface]: the bare region and each card rebind too.
     expect(css).toMatch(/^\.sf-region,\[data-surface\],\.sf,\[data-eui='card'\]\{[^}]*--t1:[^}]*--card:/)
-    expect(css).toContain('--accent:#ff810d')
+    expect(css).toContain('--accent:#ff8719')
     expect(css).toContain('background:#0f1420')
     expect(css).toContain('--h-primary-ink:#000000')
   })
@@ -103,8 +103,8 @@ describe('Theme auto mode', () => {
     const t = new Theme(h, 'tern')
     themes.push(t)
     t.set('auto')
-    expect(h.sent.at(-1)?.dark).toMatchObject({ accent: '#ff810d' })
-    expect(h.sheets.get(WAL_SHEET)).toContain('#ff810d')
+    expect(h.sent.at(-1)?.dark).toMatchObject({ accent: '#ff8719' })
+    expect(h.sheets.get(WAL_SHEET)).toContain('#ff8719')
     expect(t.wal?.bg).toBe('#0f1420')
     t.set('tern')
     expect(h.sheets.has(WAL_SHEET)).toBe(false)
@@ -119,7 +119,7 @@ describe('Theme auto mode', () => {
     const t = new Theme(h, 'auto')
     themes.push(t)
     t.apply()
-    expect(h.sheets.get(WAL_SHEET)).toContain('#ff810d')
+    expect(h.sheets.get(WAL_SHEET)).toContain('#ff8719')
     await writeFile(file, JSON.stringify(B))
     await vi.waitFor(() => expect(h.sheets.get(WAL_SHEET)).toContain('background:#f4efe6'), { timeout: 3000 })
     expect(t.wal?.dark).toBe(false)
@@ -187,7 +187,7 @@ describe('/glide theme', () => {
     glideTheme(h, 'default')
     expect(setTheme.mock.calls).toEqual([['auto'], ['tern']])
     glideTheme(h, 'export')
-    expect(record(parseJson(await readFile(out, 'utf8')))).toMatchObject({ accent: '#ff810d', bg: '#0f1420' })
+    expect(record(parseJson(await readFile(out, 'utf8')))).toMatchObject({ accent: '#ff8719', bg: '#0f1420' })
     // The export says so in plain words: no path (the home folder would show on screen), no JSON dump.
     expect(notice.mock.calls.at(-1)).toEqual(['Glide palette exported. Other tools can now wear your wallpaper colours too.'])
     for (const [said] of notice.mock.calls) {

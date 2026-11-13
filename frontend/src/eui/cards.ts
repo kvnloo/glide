@@ -65,7 +65,8 @@ export function euiStyles(): string {
   }
 
   const dir = euiDir()
-  const kit = dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : ''
+  // A disabled control keeps its ink: its label carries the state, and a faded label fell under 4.5:1.
+  const kit = (dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : '').replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, '$1')
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -78,7 +79,7 @@ export function euiStyles(): string {
 [data-eui='card'] .eu-card.eui-host { padding: 14px; border-radius: 8px; border: 1px solid var(--l3); background: var(--l1); box-shadow: none; }
 [data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
-[data-eui='card'] .eui-host-rows dt { color: var(--h-mutedFg); }
+[data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
 [data-eui='card'] .eui-host-operation { white-space: pre-wrap; }
 ${INTENT_CSS}

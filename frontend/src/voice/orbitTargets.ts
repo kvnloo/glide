@@ -7,6 +7,7 @@
 // seats the planets still and shows a dashed ring instead of the wobble.
 import { minifyCss } from '../../../glide/frontend/css.js'
 import { DASH, NIGHT, RADIUS, TYPE } from '../../../glide/frontend/tokens.js'
+import { ORBIT_MARK } from '../../../glide/frontend/orbitTokens.js'
 
 import { deadMark, HALO, lanePeriod, type OrbitLane, orbitLayout, ORBIT_SCALE, orbitScene, orbitUnits, PLANET, tint } from './orbit.js'
 
@@ -113,7 +114,7 @@ export function planetSvg(lane: OrbitLane, dark: boolean): string {
   const edge = dark ? DASH.bg : DASH.fg
   const body = lane.state === 'dead'
     ? deadMark(c, c, r, dark)
-    : (lane.state === 'thinking' ? `<circle cx="${n(c)}" cy="${n(c)}" r="${n(HALO * 1.1)}" fill="${dark ? NIGHT.text2 : DASH.dim}" fill-opacity="0.2"/>` : '') +
+    : (lane.state === 'thinking' ? `<circle cx="${n(c)}" cy="${n(c)}" r="${n(HALO * 1.1)}" fill="${dark ? NIGHT.text2 : ORBIT_MARK.lightInk}" fill-opacity="0.2"/>` : '') +
       `<circle cx="${n(c)}" cy="${n(c)}" r="${n(r)}" fill="${hue}" stroke="${edge}" stroke-width="0.8"/>` +
       `<circle cx="${n(c - r * 0.3)}" cy="${n(c - r * 0.3)}" r="${n(r * 0.35)}" fill="${DASH.fg}" fill-opacity="0.4"/>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${HIT}" height="${HIT}" viewBox="0 0 ${n(u)} ${n(u)}">${body}</svg>`
@@ -125,7 +126,7 @@ export function tailSvg(lane: OrbitLane, seat: Seat, dark: boolean): string {
   const c = u / 2
   const rr = c
   const r = PLANET * 1.1
-  const ink = dark ? NIGHT.text3 : DASH.dim
+  const ink = dark ? NIGHT.text3 : ORBIT_MARK.lightInk
   const dots = Array.from({ length: 6 }, (_, i) => {
     const th = -((i + 1) / 6) * ((TAU * 0.35) / seat.period)
     const k = 1 - (i + 1) / 7
@@ -137,7 +138,7 @@ export function tailSvg(lane: OrbitLane, seat: Seat, dark: boolean): string {
 
 /** The hover hint's iOS-style edit badge: a small disc with three dots (pick a model). */
 export function badgeSvg(dark: boolean): string {
-  const fill = dark ? DASH.fg : DASH.dim
+  const fill = dark ? DASH.fg : ORBIT_MARK.lightInk
   const ink = dark ? DASH.bg : DASH.fg
   return `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11"><circle cx="5.5" cy="5.5" r="5" fill="${fill}" stroke="${ink}" stroke-width="0.8"/>` +
     [3.2, 5.5, 7.8].map(x => `<circle cx="${x}" cy="5.5" r="0.85" fill="${ink}"/>`).join('') + '</svg>'
