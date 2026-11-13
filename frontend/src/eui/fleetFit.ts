@@ -10,25 +10,23 @@ import type { EuiEl, EuiNode } from './sandbox.js'
  * factory's stats and graph folded below its action rows. compactCss scopes and minifies it with the kit sheet.
  */
 export const FLEET_FIT_CSS = `
-[data-eui='card'] .eu-card[class*=k-fleet]{border-radius:8px;box-shadow:none;--fl-r-md:8px;--h-density:.5;--pad:14px}
-[data-eui='card'] :is(.fh-root,.fp-root,.ff-root){padding:0;gap:8px;border:0}
-[data-eui='card'] :is(.fl-updated,.fl-controls){margin:0}
-[data-eui='card'] :is(.fl-tag,.fp-btn,.ff-graph .eu-btn){display:inline-block;font:500 11px/18px var(--fl-sans);margin:0;padding:0 7px;min-height:0;border:1px solid var(--fl-hair2);border-radius:999px;background:none;color:var(--fl-ink2);width:fit-content}
-[data-eui='card'] .fp-next .fl-tag{color:var(--fl-gold);border-color:currentColor}
-[data-eui='card'] :is(.fp-kids,.fp-feat)::before{display:none}
-[data-eui='card'] :is(.fp-kids,.fp-feat,.fp-tasks,.fh-kids){margin-left:0;padding-left:14px;border:0}
-[data-eui='card'] .fl-root :is(.fp-prow,.fp-task,.fp-frow,.fh-row,.fp-next,.ff-bi){padding:4px 8px;min-height:0;flex-wrap:nowrap;align-items:center;background:none}
-[data-eui='card'] .fl-root .fp-next{padding:8px;border:1px solid var(--fl-hair2)}
-[data-eui='card'] .fp-rt{display:flex;gap:8px;align-items:baseline}
-[data-eui='card'] .fl-root :is(.ff-rt,.fp-task-l){flex:1 1 0}
-[data-eui='card'] .fl-root .fp-d-acts{width:auto;padding:0}
-[data-eui='card'] .ff-stats{grid-template-columns:repeat(4,1fr)}
-[data-eui='card'] .ff-graph .eu-btn{margin:2px}
-[data-eui='card'] .fl-fold{display:grid;gap:8px}
+.eu-card[class*=k-fleet]{border-radius:8px;box-shadow:none;--fl-r-md:8px;--h-density:.5;--pad:14px}
+.eu-card .fl-root{padding:0;gap:8px;border:0}
+.eu-card :is(.fl-updated,.fl-controls){margin:0}
+.eu-card .fl-root .fl-tag{display:inline-block;font:500 11px/18px var(--fl-sans);margin:0;padding:0 7px;min-height:0;border:1px solid var(--fl-hair2);border-radius:999px;background:none;color:var(--fl-ink2);width:fit-content}
+.eu-card .fp-next .fl-tag{color:var(--fl-gold);border-color:currentColor}
+.eu-card :is(.fp-kids,.fp-feat)::before{display:none}
+.eu-card :is(.fp-kids,.fp-feat,.fp-tasks,.fh-kids){margin-left:0;padding-left:14px;border:0}
+.eu-card .fl-root :is(.fp-prow,.fp-task,.fp-frow,.fh-row,.fp-next,.ff-bi){padding:4px 8px;min-height:0;flex-wrap:nowrap;align-items:center;background:none}
+.eu-card .fl-root .fp-next{padding:8px;border:1px solid var(--fl-hair2)}
+.eu-card .fp-rt{display:flex;gap:8px;align-items:baseline}
+.eu-card .fl-root :is(.ff-rt,.fp-task-l){flex:1 1 0}
+.eu-card .fl-root .fp-d-acts{width:auto;padding:0}
+.eu-card .fl-fold{display:grid;gap:8px}
 `
 
 /** The kit's tag classes, each with its own colours; the fit draws them all as one neutral pill. */
-const PILLS = '.fp-hz,.fp-st,.fp-tag,.fh-count'
+const PILLS = '.fp-hz,.fp-st,.fp-tag,.fp-btn,.fh-count'
 
 /** A list's visible rows before "N more". */
 export const FLEET_ROW_CAP = 3
