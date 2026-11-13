@@ -69,6 +69,9 @@ export function euiStyles(): string {
   const kit = (dir ? readFileSync(join(dir, 'kit.css'), 'utf8') : '').replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, '$1')
     // The intel card hides its hero head and sizes its own stage, so the kit's rules for those are dead bytes.
     .replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, '')
+    // Every card is flat (one shell rule below), and no host sets data-brand, so the kit's hermes shadow and
+    // full-brand accent head tint and top rule are dead bytes, as are its hermes rules for chrome no kind renders.
+    .replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, '')
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -78,7 +81,11 @@ export function euiStyles(): string {
 [data-eui='card'] .eui-host-head { display: flex; align-items: baseline; gap: 8px; height: 24px; margin: 0 0 6px; font: 500 13px/24px var(--sans); white-space: nowrap; overflow: hidden; }
 [data-eui='card'] .eui-host-name { flex: none; color: var(--t2); }
 [data-eui='card'] .eui-host-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 400; color: var(--t1); }
-[data-eui='card'] .eu-card.eui-host { padding: 14px; border-radius: 8px; border: 1px solid var(--l3); background: var(--l1); box-shadow: none; }
+[data-eui='card'] .eu-card.eui-host { padding: 14px; border: 1px solid var(--l3); background: var(--l1); }
+[data-eui='card'] :is([data-host] .eu-card,.eu-card):not(.gone){border-radius:8px;box-shadow:none;border-color:var(--h-border);--pad:14px}
+[data-eui][data-eui='card'] .eu-card:not(.gone)::after{content:none}
+[data-eui='card'] .eu-card .eu-ico{--s:20px}[data-eui='card'] .eu-card .eu-h{padding:6px var(--pad) 4px}[data-eui='card'] .eu-card .eu-t{flex-direction:row;align-items:baseline;gap:8px}[data-eui='card'] .eu-card .eu-t b{font-size:13px;flex:none}
+[data-eui][data-eui='card'] .eui-host-head.eui-host-head{padding:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none}
 [data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
 [data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
@@ -88,6 +95,7 @@ export function euiStyles(): string {
 .k-intel-suite :is(.is-head, .is-receipt:empty) { display: none; }
 .k-intel-suite :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 208px); overflow: hidden auto; }
 .k-intel-suite .is-notes { --cap: 80px; }
+.k-intel-suite .is-stack{gap:3px}.k-intel-suite .is-layer{grid-template-columns:24px minmax(0,1fr) auto auto;align-items:baseline;gap:0 10px;padding:3px 10px}.k-intel-suite :is(.is-lc,.is-fresh){grid-column:auto}
 .k-intel-suite .is-hero { gap: 6px; }
 .k-intel-suite .is-side { gap: 4px; }
 .k-intel-suite .is-stat { padding: 6px 10px; gap: 2px; }

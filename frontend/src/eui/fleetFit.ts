@@ -10,7 +10,7 @@ import type { EuiEl, EuiNode } from './sandbox.js'
  * factory's stats and graph folded below its action rows. compactCss scopes and minifies it with the kit sheet.
  */
 export const FLEET_FIT_CSS = `
-.eu-card[class*=k-fleet]{border-radius:8px;box-shadow:none;--fl-r-md:8px;--h-density:.5;--pad:14px}
+.eu-card[class*=k-fleet]{--fl-r-md:8px;--h-density:.5}
 .eu-card .fl-root{padding:0;gap:8px;border:0}
 .eu-card :is(.fl-updated,.fl-controls){margin:0}
 .eu-card .fl-root .fl-tag{display:inline-block;font:500 11px/18px var(--fl-sans);margin:0;padding:0 7px;min-height:0;border:1px solid var(--fl-hair2);border-radius:999px;background:none;color:var(--fl-ink2);width:fit-content}
@@ -63,6 +63,8 @@ const FITS: Readonly<Record<string, Fit>> = {
     caps: [['.fp-tree', 'details.fp-group', 1], ['.fp-kids', '.fp-feat', 1], ['.fp-tasks', '.fp-task', 1],
       ['.fp-lane', '.fp-fcard', 2], ['.fp-links', '.fp-readout', FLEET_ROW_CAP]]
   },
+  // The failures list sits in the intel card's 208px stage: one whole row, then "N more", never a row cut mid-line.
+  'intel-suite': { moves: [], folds: [], one: [], caps: [['.is-flist', '.is-frow', 1]] },
   'fleet-factory': { moves: [...HEAD, ['.ff-root', '.fl-updated', '.ff-tally']], folds: [['.ff-root', '.ff-stats,.ff-graph,.ff-legend,.ff-detail', 'Stats and graph']], one: [], caps: [['.ff-bl', '.ff-bi', FLEET_ROW_CAP]] }
 }
 

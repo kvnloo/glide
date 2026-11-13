@@ -63,3 +63,34 @@ Score each criterion 0–5 and take the weighted percentage: **≥ 80 ship · 65
 - A headless shot script, `glide/tools/<surface>-shots.mts` (copy `lanes-shots.mts`), that renders the
   real component over synthetic data at 1060 px and 412 px in the Dash theme.
 - Before/after PNGs in the PR body. Real-Tern stills are taken by the integrator.
+
+## 7. Pixel rubric (real Tern, every criterion must pass)
+§1 is the taste score. This is the pass/fail bar a still from real Tern (1060×596, font 13, Dash) has to
+clear before a card counts as done. `glide/tools/tern_rubric.py SHOT_DIR NAME…` scores
+`tern ctl shot` output, using only the layout dump and the PNG pixels. Tern has no computed-style channel,
+so radius, border and shadow are read from the pixels at the card edge. The scorer is calibrated on omp's
+own tool card, which passes R05–R17.
+
+| # | Criterion | How it is measured |
+|---|---|---|
+| R01 | Stage is Dash | `tn-veil` background is `rgb(12,12,10)` |
+| R02 | No error lines | no `sf-t-error` element |
+| R03 | Head clear of the top fade | card top ≥ tab bar + 14 px. The transcript fades its top 14 px, which washes out the border and corners. |
+| R04 | Whole reply above the dock | card, notes and Refresh end at or above the composer dock |
+| R05 | Column | width min(880, region − 32), centred in its `sf-main` region (split panes included) |
+| R06 | Composer | x 162, width 736 |
+| R07 | Nothing clipped | no descendant crosses the card's sides, or the bottom of a capped `is-stage`/`is-notes` |
+| R08 | Radius 8 | circle fit on the first-ink offset per row of the top-left corner, ±1.5 px |
+| R09 | Border 1 px | one edge pixel that is neither fill nor stage |
+| R10 | No shadow or glow | the 2–6 px band outside the card equals the stage (omp reads 0.0) |
+| R11 | Inset 14 | first glyph-ink column 12–16 px in from the edge (omp reads 13–15) |
+| R12 | Contrast | every text leaf ≥ 4.5:1 on its nearest opaque background |
+| R13 | One hue in text | saturated text ink is gold-hued (±12°) |
+| R14 | One hue in pixels | at most 3 sampled saturated non-gold pixels inside the card |
+| R15 | Type scale | at most one size off the omp scale (10–13 px), kept for the hero |
+| R16 | Flat head | the head band and the body share one fill (no accent tint) |
+| R17 | Head row ≤ 30 px | omp's head row is 30 px: icon 20, title and verb on one line |
+
+Loop: shoot every surface (`/hosts`, `/portfolio`, `/factory`, `/factory graph`, `/intel` and its
+tabs, `/glide taste`), score them, fix the first failure in app code, then re-shoot. Anything vision
+reports is a hint until the dump or the pixels confirm it.

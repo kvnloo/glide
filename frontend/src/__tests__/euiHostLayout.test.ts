@@ -30,10 +30,11 @@ describe('host card layout', () => {
       return at < 0 ? '' : css.slice(at, css.indexOf('}', at))
     }
     expect(rule('[data-eu]')).not.toMatch(/max-width:\s*\d+px/)
-    const box = rule('[data-eu] .eu-card.eui-host')
-    expect(box).toMatch(/border-radius:\s*8px/)
-    expect(box).toMatch(/box-shadow:\s*none/)
-    expect(box).toMatch(/padding:\s*14px/)
+    expect(rule('[data-eu] .eu-card.eui-host')).toMatch(/padding:\s*14px/)
+    // One shell rule flattens every card, host and kit alike, past the kit's and the glass sheet's.
+    const shell = rule('[data-eu] :is([data-host] .eu-card,.eu-card):not(.gone)')
+    expect(shell).toMatch(/border-radius:\s*8px/)
+    expect(shell).toMatch(/box-shadow:\s*none/)
     expect(rule('[data-eu] .eui-host-head')).toMatch(/font:\s*500 13px/)
   })
 
