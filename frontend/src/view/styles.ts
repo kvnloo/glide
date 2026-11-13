@@ -5,6 +5,7 @@
 import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
+import { MONO, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 export const STYLES = minifyCss(css`
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
@@ -186,7 +187,18 @@ export const STYLES = minifyCss(css`
     opacity: 0.85;
   }
 
-  /* Notice tones in the composer bar. */
+  /* Gateway notices: plain single-line copy in the host's status hues. */
+  [data-role='hermes.statusline.warn'],
+  [data-role='hermes.statusline.bad'],
+  [data-role='hermes.statusline.good'] {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 400 ${TYPE.meta}px/1.4 var(--sans) !important;
+  }
+
   [data-role='hermes.statusline.warn'] {
     color: var(--sf-c-warning, var(--t2)) !important;
   }
@@ -437,13 +449,34 @@ export const STYLES = minifyCss(css`
     font-family: var(--sans) !important;
   }
 
-  /* A pill holding the keys (Down from an empty prompt): ringed in the accent, without the pick mark's side bar. */
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick'] {
-    box-shadow: inset 0 0 0 1px var(--sf-p-accent, var(--accent)) !important;
+  /* HUD pills and goal/loop capsules: status-pill grammar, with gold reserved for keyboard focus. */
+  .sf-row[data-role='omp.hud'] {
+    max-width: 100%;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) {
+    min-width: 0;
+    max-width: 100%;
+    border: 1px solid var(--l3);
+    border-radius: ${RADIUS.pill}px !important;
+    background: var(--l1) !important;
     color: var(--t1) !important;
   }
 
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick']::after {
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']),
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) :is(.sf-text, .sf-elapsed) {
+    font: 500 ${TYPE.label}px/1.4 ${MONO} !important;
+    letter-spacing: ${TRACK.caps} !important;
+    text-transform: uppercase;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick'] {
+    box-shadow: inset 0 0 0 2px var(--sf-p-accent, var(--accent)) !important;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick']::after {
     display: none;
   }
 
