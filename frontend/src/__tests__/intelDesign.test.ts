@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import { euiStyles } from '../eui/cards.js'
 import { intelDetailBody, presentIntel, type IntelDoc } from '../wire/intel.js'
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
@@ -35,6 +36,16 @@ function fixture(): IntelDoc {
     }
   }
 }
+
+describe('intel card height', () => {
+  // Real Tern at 1060x596 scrolled the card head away: a 34px serif hero, a 300px stage floor and notes.
+  it('drops the hero, and caps the stage and the opened Source notes so the card head stays on screen', () => {
+    const css = euiStyles()
+    expect(css).toMatch(/\[data-eui-kind='intel-suite'\] :is\(\.is-head,\s*\.is-receipt:empty\)\s*\{\s*display:\s*none/)
+    expect(css).toMatch(/:is\(\.is-stage,\s*\.is-notes\)\s*\{\s*min-height:\s*0;\s*max-height:\s*var\(--cap,\s*232px\);\s*overflow:\s*hidden auto/)
+    expect(css).toMatch(/\.is-notes\s*\{\s*--cap:\s*80px/)
+  })
+})
 
 describe('intel card design projection', () => {
   it('leads the hill with the latest observed score and its trend without changing the best', () => {

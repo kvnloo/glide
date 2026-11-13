@@ -12,13 +12,36 @@ export type FactoryPaneHost = Pick<ChatPorts, 'changed'> & {
 }
 const POLL_MS = 10_000
 
+/** What a failed check means and the one thing to do next. */
+export interface FactoryProblem { readonly label: string; readonly hint: string }
+const RETRY = 'Retrying on the next check.'
+// Gateway and plugin machine codes (`unsupported_command`, `gateway inaccessible: profile_parked`) are
+// wire contract, never copy: each known one gets plain words, an unknown one a generic line.
+const CODES: Readonly<Record<string, FactoryProblem>> = {
+  unsupported_command: { label: 'Factory is not on this gateway', hint: 'Next: run /factory in the classic CLI (hermes --cli).' },
+  profile_parked: { label: "Hermes paused this profile's gateway", hint: 'Next: run hermes gateway restart in a terminal.' },
+  profile_mismatch: { label: 'This gateway serves another profile', hint: 'Next: restart Tern in this profile.' }
+}
+export function factoryProblem(error: unknown): FactoryProblem {
+  const reason = error && typeof error === 'object' && 'data' in error && error.data && typeof error.data === 'object' &&
+    'reason' in error.data && typeof error.data.reason === 'string' ? error.data.reason : ''
+  const line = ((error instanceof Error ? error.message : String(error)).split(/\r?\n/, 1)[0] ?? '')
+    .replace(/^Error:\s*/, '').replace(/\s+/g, ' ').trim()
+  const code = reason || /\b[a-z]+(?:_[a-z]+)+\b/.exec(line)?.[0] || ''
+  if (CODES[code]) return CODES[code]
+  if (/^gateway not (?:connected|running)\b/.test(line)) return { label: 'Hermes is reconnecting', hint: RETRY }
+  if (/timed out/i.test(line)) return { label: 'Factory check timed out', hint: RETRY }
+  // Prose from the plugin stays (first line only); a bare or unknown code does not.
+  return { label: 'Last check failed', hint: !line || code || !/\s/.test(line) ? RETRY : line.slice(0, 96) }
+}
+
 /** A user-opened native aside. Poll failures stay here, never in routine chat notices. */
 export class FactoryPane {
   readonly #host: FactoryPaneHost
   #open = false
   #snapshot: FactorySnapshot | undefined
   #snapshotOwner: Ticket | undefined
-  #error: string | undefined
+  #error: FactoryProblem | undefined
   #generation = 0
   #nextRead = 0
   #timer: NodeJS.Timeout | undefined
@@ -87,9 +110,9 @@ export class FactoryPane {
       if (!ticket.isCurrent() || owner?.isCurrent() === false) return
       this.#snapshot = snapshot
       this.#snapshotOwner = owner
-      this.#error = snapshot.error
+      this.#error = snapshot.error === undefined ? undefined : factoryProblem(snapshot.error)
     } catch (error) {
-      if (ticket.isCurrent() && owner?.isCurrent() !== false) this.#error = error instanceof Error ? error.message : String(error)
+      if (ticket.isCurrent() && owner?.isCurrent() !== false) this.#error = factoryProblem(error)
     }
   }
 
@@ -106,7 +129,10 @@ export class FactoryPane {
     const done = (snapshot?.runs ?? []).filter(run => run.state === 'done').length
     const hasApprovedAction = actionable && !!snapshot?.suggestions.some(s =>
       s.status === 'approved' && s.action === 'render' && s.session_id === this.#sid)
-    const next = !snapshot ? 'Finding the next action.'
+    // Without a snapshot a failed check is the whole answer: settle on it instead of "Checking…".
+    const down = !snapshot && this.#error
+    const next = down ? down.hint
+      : !snapshot ? 'Finding the next action.'
       : this.#error ? 'Last known state; actions are paused.'
       : this.#busy ? 'Rendering the approved suggestion.'
       : hasApprovedAction ? 'Run an approved suggestion below.'
@@ -119,7 +145,7 @@ export class FactoryPane {
       id: 'factory-overview',
       label: snapshot
         ? running + ' ' + (running === 1 ? 'job' : 'jobs') + ' running, ' + held + ' held, ' + done + ' done.'
-        : 'Checking factory…',
+        : down ? down.label : 'Checking factory…',
       hint: next
     }
 
@@ -155,17 +181,15 @@ export class FactoryPane {
       }]
     })
 
-    // A transport or snapshot error is one quiet line, never an exception stack.
-    const errorLine = (this.#error?.split(/\r?\n/, 1)[0] ?? '')
-      .replace(/^Error:\s*/, '').replace(/\s+/g, ' ').trim().slice(0, 96)
+    // A transport or snapshot error is one quiet line, never an exception stack or a machine code.
     const sections = [
       { id: 'status-line', title: 'Factory now', rows: [hero] },
       { id: 'suggestions', title: 'Suggested actions',
         rows: suggestions.length ? suggestions
-          : [{ id: 'no-suggestions', label: this.#error ? 'Suggestions blocked' : snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
+          : [{ id: 'no-suggestions', label: down ? 'None while the factory is unavailable'
+            : this.#error ? 'Paused until the check passes' : snapshot ? 'No suggestions yet' : 'Looking for suggestions…' }] },
       ...(attention.length ? [{ id: 'attention', title: 'Runs to review', rows: attention }] : []),
-      ...(this.#error ? [{ id: 'check', title: 'Factory check',
-        rows: [{ id: 'poll-error', label: 'Last check failed', hint: errorLine || 'Retrying on the next check.' }] }] : [])
+      ...(this.#error && !down ? [{ id: 'check', title: 'Factory check', rows: [{ id: 'poll-error', ...this.#error }] }] : [])
     ]
     return <prefs key="factory" title="Factory" lead="Current work and the next decision." page="factory"
       pages={[{ id: 'factory', label: 'Factory' }]} sections={sections}
@@ -197,7 +221,7 @@ export class FactoryPane {
       })
       decodeFactory(factoryAnswers.render, factoryOutput(reply))
     } catch (error) {
-      if (generation === this.#generation && owner?.isCurrent() !== false) this.#error = error instanceof Error ? error.message : String(error)
+      if (generation === this.#generation && owner?.isCurrent() !== false) this.#error = factoryProblem(error)
     } finally {
       if (this.#operation === operation) {
         this.#operation = undefined
