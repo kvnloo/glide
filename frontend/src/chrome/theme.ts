@@ -2,10 +2,13 @@
 // last reported, which only the `skin` mode wears. palette.ts maps the pair to Tern's palette; the
 // `auto` mode (wal.ts) wears the wallpaper's pywal colors and follows the file live.
 
+import { execFile } from 'node:child_process'
+
 import type { SkinPayload } from '@hermes/shared/gateway-events'
 import type { Palette } from '@stencil-hq/tern'
 
 import type { SettingsSource, ThemeMode } from '../settings.js'
+import { record } from '../wire/json.js'
 
 import { paletteFor } from './palette.js'
 import { glassPlayCss, PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
@@ -22,6 +25,48 @@ export interface ThemeHost {
   readonly settings: Pick<SettingsSource, 'save'>
   /** pywal's colors.json for the auto mode (default: wal.ts walFile()). */
   readonly walFile?: string | undefined
+  /** Puts the window showing the pane in Tern's own theme `name`, or (null) back in the one it wore before (ternWindowTheme). */
+  windowTheme?(name: string | null): void
+}
+
+/** What `tern ctl` answers (`run` takes its arguments). */
+export type TernCtl = (args: readonly string[]) => Promise<string>
+
+const ternCtl: TernCtl = args => new Promise((resolve, reject) => {
+  execFile('tern', ['ctl', ...args], { timeout: 5000 }, (error, stdout) => (error ? reject(error) : resolve(stdout)))
+})
+
+/**
+ * The dash mode's window theme. Tern paints its stage, panes and chrome (.tn-body is var(--panel) over
+ * --tv-bg, .tn-veil --tv-bg) from its own omp theme, theme_dark/theme_light; a program's palette only
+ * colours its text tokens and Tern scopes its stylesheets inside its region, so in the dash mode a
+ * pywal window kept a slate stage round the black cards. `tern ctl` in a pane drives the window
+ * showing it, and the launcher installs glide/themes/dash.json where Tern lists it. Undefined outside a Tern pane.
+ */
+export function ternWindowTheme(env: NodeJS.ProcessEnv = process.env, run: TernCtl = ternCtl): ((name: string | null) => void) | undefined {
+  if (!env['TERN_PANE']) return undefined
+  let before: { dark: string; light: string } | undefined
+  let queue = Promise.resolve()
+  const wear = async (dark: string, light: string) => {
+    for (const [side, name] of [['dark', dark], ['light', light]] as const) {
+      if (record(await run(['theme', side, name]))?.['ok'] !== true) throw new Error(`tern has no theme ${name}`)
+    }
+  }
+  return name => {
+    queue = queue.then(async () => {
+      if (name === null) {
+        if (before) await wear(before.dark, before.light)
+        before = undefined
+        return
+      }
+      const state = record(await run(['state']))
+      const dark = state?.['theme_dark'], light = state?.['theme_light']
+      if (typeof dark !== 'string' || typeof light !== 'string') return
+      // A window already in it (a relaunch in the mode) has nothing of its own to give back.
+      if (dark !== name) before ??= { dark, light }
+      await wear(name, name)
+    }).catch(() => undefined)
+  }
 }
 
 /** The theme mode and the gateway's skin, sent to the surface as one palette. */
@@ -35,6 +80,8 @@ export class Theme {
   #unwatch: (() => void) | undefined
   /** Whether the dash mode's stylesheet is installed (the next mode takes it away). */
   #sheet = false
+  /** Whether the window wears the dash mode's Tern theme (the next mode gives its own back). */
+  #window = false
   /** Takes the glass playground's sheet away once its cycle ends. */
   #play: NodeJS.Timeout | undefined
 
@@ -57,6 +104,10 @@ export class Theme {
 
   /** Sends the palette of the mode and skin now. */
   apply() {
+    if (this.#mode !== 'dash' && this.#window) {
+      this.#window = false
+      this.#host.windowTheme?.(null)
+    }
     if (this.#mode === 'auto') {
       this.#applyWal()
       return
@@ -64,9 +115,14 @@ export class Theme {
     this.#leaveWal()
     if (this.#mode === 'dash') {
       const dash = this.#dash()
-      this.#host.palette(dashTernPalette(dash))
+      const palette = dashTernPalette(dash)
+      this.#host.palette(palette)
       this.#host.stylesheet?.(WAL_SHEET, walCss(dash))
       this.#sheet = true
+      if (!this.#window) {
+        this.#window = true
+        this.#host.windowTheme?.(palette.name.dark)
+      }
       return
     }
     if (this.#sheet) {
