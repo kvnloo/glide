@@ -88,10 +88,14 @@ export function euiStyles(): string {
 .k-intel-suite :is(.is-head, .is-receipt:empty) { display: none; }
 .k-intel-suite :is(.is-stage, .is-notes) { min-height: 0; max-height: var(--cap, 208px); overflow: hidden auto; }
 .k-intel-suite .is-notes { --cap: 80px; }
-.k-intel-suite :is(.is-hero, .is-side) { gap: 6px; }
+.k-intel-suite .is-hero { gap: 6px; }
+.k-intel-suite .is-side { gap: 4px; }
+.k-intel-suite .is-stat { padding: 6px 10px; gap: 2px; }
+.k-intel-suite .is-value { font-size: 17px; }
 .k-intel-suite .is-hero { padding: 8px 12px; }
-.k-intel-suite :is(.is-segb, .is-act) { padding: 5px 12px; }
-.k-intel-suite .is-big b { font-size: 28px; }
+.k-intel-suite .is-segb { padding: 5px 12px; }
+.k-intel-suite .is-act { min-height: 0; height: 24px; padding: 0 12px; }
+.k-intel-suite .is-big b { font-size: 24px; }
 .k-intel-suite .is-chart { max-width: 420px; }
 ${INTENT_CSS}
 ${ATTENTION_CSS}
