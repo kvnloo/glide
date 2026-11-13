@@ -59,3 +59,10 @@ export async function openTastePane(board: TasteBoard): Promise<number> {
   }
   return block
 }
+
+
+/** The card's Open board action: focus the exact block Tern confirmed, through the same local CLI. */
+export async function focusTastePane(block: number): Promise<void> {
+  if (!Number.isSafeInteger(block) || block <= 0) throw new Error('Taste pane needs a valid block')
+  await promisify(execFile)('tern', ['focus', String(block), '--json'], { timeout: 20_000, shell: false })
+}

@@ -9,6 +9,7 @@ import { glideCommand, type GlideDetect, type GlideFocus, type GlideHost, type G
 import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards, euiDir, euiStyles } from '../eui/cards.js'
+import type { EuiOperation } from '../eui/host.js'
 import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
@@ -20,7 +21,7 @@ import type { Overlay } from '../overlays/overlay.js'
 
 import { key, must, ofKind, stub } from './fakes.js'
 
-import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import { openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 
 vi.mock('node:child_process', () => ({
   execFile: vi.fn((_file: string, _args: string[], _options: unknown,
@@ -419,14 +420,14 @@ function setupTaste() {
     if (method === 'glide.taste') throw new Error('unknown method glide.taste')
     return { output: JSON.stringify({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }) }
   })
-  const publish = vi.fn()
+  const publish = vi.fn((_card: unknown, _operation?: EuiOperation) => undefined)
   const host: GlideHost = { gw: stub({ request }), session, transcript, eui: stub({ host: { publish } }) }
   return { host, request, publish, session, transcript }
 }
 
 describe('/glide taste', () => {
   it('uses the card seam fallback and opens the real board beside chat only on request', async () => {
-    const { host, request, publish } = setupTaste()
+    const { host, request } = setupTaste()
     expect(execFile).not.toHaveBeenCalled()
     await glideCommand(host, 'taste')
     expect(request.mock.calls).toEqual([
@@ -436,8 +437,18 @@ describe('/glide taste', () => {
     expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
       op: 'open', owner: 17, url: 'http://127.0.0.1:8789/s/launch-ab12/', how: 'beside'
     }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
-    expect(publish).toHaveBeenCalledWith(expect.objectContaining({ title: 'Launch ideas', kind: 'receipt' }))
     expect(request.mock.calls.some((c: readonly unknown[]) => c[0] === 'glide.enable')).toBe(false)
+  })
+
+  it('emits the taste card for the confirmed block; Open board focuses exactly that block', async () => {
+    const { host, publish } = setupTaste()
+    await glideCommand(host, 'taste')
+    expect(publish).toHaveBeenCalledOnce()
+    const [card, open] = must(publish.mock.calls[0])
+    expect(card).toEqual(tasteCard(tasteBoard({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }), 42))
+    vi.mocked(execFile).mockClear()
+    await must(open)(stub({ signal: new AbortController().signal }))
+    expect(execFile).toHaveBeenCalledWith('tern', ['focus', '42', '--json'], { timeout: 20_000, shell: false }, expect.any(Function))
   })
 
   it('does not open a late reply after a session switch', async () => {
