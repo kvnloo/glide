@@ -172,7 +172,8 @@ export class Retention {
       return () => this.request()
     }
 
-    if (event.ev !== 'action' || !this.#cx) {
+    // Clicks and list/tab selections are the row gestures (a card's `<tabs onSelect>`); others stay unrouted.
+    if ((event.ev !== 'action' && event.ev !== 'select') || !this.#cx) {
       return undefined
     }
 
