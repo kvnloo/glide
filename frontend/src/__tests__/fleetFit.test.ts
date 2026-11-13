@@ -85,7 +85,7 @@ describe('fleetFit', () => {
     expect(drawn.length).toBeGreaterThan(0)
     for (const frame of drawn) {
       expect(all(frame, 'fp-group').map(g => g.attrs['open'])).toEqual(['true'])
-      expect(all(frame, 'fl-more').map(text)).toEqual(['4 more', '1 more', '3 more'])
+      expect(all(frame, 'fl-more').map(text)).toEqual(['5 more', '1 more', '3 more'])
     }
     // The kit's own DOM keeps every group open: the fit rewrites what is drawn, not what the kit owns.
     expect(all(must(mounted[0]).snapshot(), 'fp-group').map(g => g.attrs['open'])).toEqual(['true', 'true', 'true', 'true'])
@@ -98,9 +98,9 @@ describe('fleetFit', () => {
     const group = nth(snap, 'fp-group', 0)
     expect(text(group)).toContain('Product p2')
     expect(all(snap, 'fp-feat')).toHaveLength(1)
-    // The blocked task sorts second and stays under the cap of two.
-    expect(all(group, 'fp-task').map(t => t.attrs['data-task'])).toEqual(['p20', 'p21'])
-    expect(all(snap, 'fl-more').map(text)).toEqual(['4 more', '1 more', '3 more'])
+    // The blocked task sorts second and takes the one place under the cap.
+    expect(all(group, 'fp-task').map(t => t.attrs['data-task'])).toEqual(['p21'])
+    expect(all(snap, 'fl-more').map(text)).toEqual(['5 more', '1 more', '3 more'])
     // Every tag is one neutral pill; none keeps the kit's per-status class.
     expect(all(snap, 'fl-tag').length).toBeGreaterThan(0)
     expect([...all(snap, 'fp-st'), ...all(snap, 'fp-hz'), ...all(snap, 'fp-tag')]).toHaveLength(0)
@@ -111,7 +111,7 @@ describe('fleetFit', () => {
 
   it('reveals capped rows on "N more", opens a closed group once, then hands its toggle back to the kit', async () => {
     const { view, click } = await mount(portfolio)
-    expect(click(button(view(), '4 more').id)).toBe(true)
+    expect(click(button(view(), '5 more').id)).toBe(true)
     let snap = view()
     expect(all(nth(snap, 'fp-group', 0), 'fp-task')).toHaveLength(6)
     expect(all(snap, 'fl-more').map(text)).toEqual(['1 more', '3 more'])
@@ -131,12 +131,12 @@ describe('fleetFit', () => {
     expect(nth(view(), 'fp-group', 0).attrs['open']).toBe('')
   }, 30_000)
 
-  it('keeps the blocked host open, caps hosts and agents, and drops the duplicate head and the empty hint', async () => {
+  it('shows only the blocked host, open, caps agents, and drops the duplicate head and the empty hint', async () => {
     const { view } = await mount(hosts)
     const snap = view()
-    expect(all(snap, 'fh-host-group').map(g => [text(nth(g, 'fh-host', 0)), g.attrs['open']])).toEqual([['Host h1', ''], ['Host h2', 'true']])
-    expect(all(nth(snap, 'fh-host-group', 1), 'fh-agentwrap')).toHaveLength(2)
-    expect(all(snap, 'fl-more').map(text)).toEqual(['2 more', '1 more', '2 more'])
+    expect(all(snap, 'fh-host-group').map(g => [text(nth(g, 'fh-host', 0)), g.attrs['open']])).toEqual([['Host h2', 'true']])
+    expect(all(nth(snap, 'fh-host-group', 0), 'fh-agentwrap')).toHaveLength(2)
+    expect(all(snap, 'fl-more').map(text)).toEqual(['2 more', '1 more', '3 more'])
     expect([...all(snap, 'fh-head'), ...all(snap, 'fh-toast')]).toHaveLength(0)
     expect(all(nth(snap, 'fl-controls', 0), 'fl-updated')).toHaveLength(1)
   }, 30_000)

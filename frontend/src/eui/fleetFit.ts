@@ -52,7 +52,7 @@ const FITS: Readonly<Record<string, Fit>> = {
     moves: [...HEAD, ['.fh-root', '.fh-head', ''], ['.fh-root', '.fh-toast:empty', ''], ['.fh-root', '.fl-updated', '.fl-controls']],
     folds: [],
     one: [['.fh-tree', 'details.fh-host-group', '.fh-blocked']],
-    caps: [['.fh-tree', 'details.fh-host-group', 2], ['.fh-host-group', 'section.fh-kids', 1], ['.fh-kids', 'details.fh-agentwrap', 2],
+    caps: [['.fh-tree', 'details.fh-host-group', 1], ['.fh-host-group', 'section.fh-kids', 1], ['.fh-kids', 'details.fh-agentwrap', 2],
       ['.fh-machines', '.fh-mach', FLEET_ROW_CAP], ['.fh-node', '.fh-podwrap', FLEET_ROW_CAP]]
   },
   'fleet-portfolio': {
@@ -60,7 +60,7 @@ const FITS: Readonly<Record<string, Fit>> = {
     moves: [...HEAD, ['.fp-head', '.fp-title', ''], ['.fp-next', '.fp-next-k', ''], ['.fp-feat', '.fp-ftags', ''], ['.fp-root', '.fl-updated', '.fp-stats']],
     folds: [],
     one: [['.fp-tree', 'details.fp-group', '.fp-dot.blocked']],
-    caps: [['.fp-tree', 'details.fp-group', 1], ['.fp-kids', '.fp-feat', 1], ['.fp-tasks', '.fp-task', 2],
+    caps: [['.fp-tree', 'details.fp-group', 1], ['.fp-kids', '.fp-feat', 1], ['.fp-tasks', '.fp-task', 1],
       ['.fp-lane', '.fp-fcard', 2], ['.fp-links', '.fp-readout', FLEET_ROW_CAP]]
   },
   'fleet-factory': { moves: HEAD, folds: [['.ff-root', '.ff-stats,.ff-graph,.ff-legend,.ff-detail', 'Stats and graph']], one: [], caps: [['.ff-bl', '.ff-bi', FLEET_ROW_CAP]] }
