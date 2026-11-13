@@ -5,7 +5,7 @@
 import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
-import { MONO, RADIUS, STATUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
+import { MONO, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 export const STYLES = minifyCss(css`
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
@@ -200,15 +200,15 @@ export const STYLES = minifyCss(css`
   }
 
   [data-role='hermes.statusline.warn'] {
-    color: var(--h-warning, ${STATUS.warn}) !important;
+    color: var(--sf-c-warning, var(--t2)) !important;
   }
 
   [data-role='hermes.statusline.bad'] {
-    color: var(--h-danger, ${STATUS.bad}) !important;
+    color: var(--sf-c-error, var(--t2)) !important;
   }
 
   [data-role='hermes.statusline.good'] {
-    color: var(--h-success, ${STATUS.ok}) !important;
+    color: var(--sf-c-success, var(--t2)) !important;
   }
 
   /* While a turn runs, an accent streak sweeps the composer's top edge. */
@@ -456,74 +456,28 @@ export const STYLES = minifyCss(css`
     row-gap: 4px;
   }
 
-  .sf-row[data-role='omp.hud.pill'],
-  .sf-row[data-role='hermes.automation.item'] {
-    --glide-hud-hue: var(--t3);
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) {
     min-width: 0;
     max-width: 100%;
-    min-height: 44px;
-    border: 1px solid color-mix(in srgb, var(--glide-hud-hue) 40%, var(--l3));
+    border: 1px solid var(--l3);
     border-radius: ${RADIUS.pill}px !important;
-    background: color-mix(in srgb, var(--glide-hud-hue) 9%, var(--l1)) !important;
+    background: var(--l1) !important;
     color: var(--t1) !important;
+  }
+
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']),
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item']) :is(.sf-text, .sf-elapsed) {
     font: 500 ${TYPE.label}px/1.4 ${MONO} !important;
     letter-spacing: ${TRACK.caps} !important;
     text-transform: uppercase;
-    transition: background 0.15s ease, border-color 0.15s ease;
   }
 
-  .sf-row[data-role='omp.hud.pill'] :is(.sf-text, .sf-elapsed),
-  .sf-row[data-role='hermes.automation.item'] :is(.sf-text, .sf-elapsed) {
-    font-family: ${MONO} !important;
-    font-size: ${TYPE.label}px !important;
-    letter-spacing: ${TRACK.caps} !important;
-    text-transform: uppercase;
-  }
-
-  /* Tern's activity spinner and status icons tint the pill, never the entire HUD. */
-  .sf-row[data-role='omp.hud.pill']:has(.sf-spinner),
-  .sf-row[data-role='hermes.automation.item']:has(.sf-spinner),
-  .sf-row[data-role='omp.hud.pill']:has([data-tone='success'], .st-success),
-  .sf-row[data-role='hermes.automation.item']:has([data-tone='success'], .st-success) {
-    --glide-hud-hue: var(--h-success, ${STATUS.ok});
-  }
-
-  .sf-row[data-role='omp.hud.pill']:has([data-tone='warning'], .st-warning),
-  .sf-row[data-role='hermes.automation.item']:has([data-tone='warning'], .st-warning) {
-    --glide-hud-hue: var(--h-warning, ${STATUS.warn});
-  }
-
-  .sf-row[data-role='omp.hud.pill']:has([data-tone='error'], .st-error),
-  .sf-row[data-role='hermes.automation.item']:has([data-tone='error'], .st-error) {
-    --glide-hud-hue: var(--h-danger, ${STATUS.bad});
-  }
-
-  .sf-row[data-role='omp.hud.pill'] :is(.sf-icon, .sf-spinner, svg),
-  .sf-row[data-role='hermes.automation.item'] :is(.sf-icon, .sf-spinner, svg) {
-    color: var(--glide-hud-hue) !important;
-  }
-
-  .sf-row[data-role='omp.hud.pill']:hover,
-  .sf-row[data-role='hermes.automation.item']:hover {
-    background: color-mix(in srgb, var(--glide-hud-hue) 16%, var(--l1)) !important;
-  }
-
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick'],
-  .sf-row[data-role='hermes.automation.item'][data-mark='pick'] {
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick'] {
     box-shadow: inset 0 0 0 2px var(--sf-p-accent, var(--accent)) !important;
-    color: var(--t1) !important;
   }
 
-  .sf-row[data-role='omp.hud.pill'][data-mark='pick']::after,
-  .sf-row[data-role='hermes.automation.item'][data-mark='pick']::after {
+  .sf-row:is([data-role='omp.hud.pill'], [data-role='hermes.automation.item'])[data-mark='pick']::after {
     display: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sf-row[data-role='omp.hud.pill'],
-    .sf-row[data-role='hermes.automation.item'] {
-      transition: none;
-    }
   }
 
   /* What the keys do while a pill holds them, beside the pills. */

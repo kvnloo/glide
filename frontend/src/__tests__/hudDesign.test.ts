@@ -61,21 +61,18 @@ describe('HUD pills and notice strip design', () => {
     expect(hudCss).toContain('font: 500 ${TYPE.label}px/1.4 ${MONO}')
     expect(hudCss).toContain('letter-spacing: ${TRACK.caps}')
     expect(hudCss).toContain('border-radius: ${RADIUS.pill}px')
-    expect(hudCss).toContain('min-height: 44px')
+    expect(hudCss).not.toContain('min-height: 44px') // one-line pills, omp density
     expect(hudCss).toContain("data-role='hermes.automation.item'")
     expect(hudCss).toContain('flex-wrap: wrap')
     expect(hudCss).toContain("data-mark='pick'")
     expect(hudCss).toContain('var(--sf-p-accent, var(--accent))')
-    expect(hudCss).toContain('var(--h-success, ${STATUS.ok})')
-    expect(hudCss).toContain('var(--h-warning, ${STATUS.warn})')
-    expect(hudCss).toContain('var(--h-danger, ${STATUS.bad})')
-    expect(hudCss).toContain('prefers-reduced-motion: reduce')
+    expect(hudCss).not.toMatch(/transition|animation/) // nothing moves, so reduced motion needs no override
   })
 
   it('maps each notice tone to its host status hue', () => {
-    expect(noticeCss).toContain('var(--h-warning, ${STATUS.warn})')
-    expect(noticeCss).toContain('var(--h-danger, ${STATUS.bad})')
-    expect(noticeCss).toContain('var(--h-success, ${STATUS.ok})')
+    expect(noticeCss).toContain('var(--sf-c-warning, var(--t2))')
+    expect(noticeCss).toContain('var(--sf-c-error, var(--t2))')
+    expect(noticeCss).toContain('var(--sf-c-success, var(--t2))')
     expect(noticeCss).toContain('white-space: nowrap')
   })
 
