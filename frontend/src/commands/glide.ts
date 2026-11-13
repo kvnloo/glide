@@ -15,7 +15,7 @@ import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
 import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
 import type { ThemeMode } from '../settings.js'
-import { openTastePane, tasteBoard } from '../../../glide/frontend/taste.js'
+import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
 import type { Lane, LaneFeed } from '../voice/lanes.js'
@@ -186,10 +186,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
       const block = await openTastePane(board)
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
-      cards.publish({
-        kind: 'receipt', app: APP, title: board.title,
-        rows: [{ label: 'Taste pane', value: block }, { label: 'Board', value: board.url },
-          { label: 'Close', value: 'Close the browser pane to return to chat' }]
+      cards.publish(tasteCard(board, block), async () => {
+        try { await focusTastePane(block) } catch (error) { fail(error) }
       })
       return
     }

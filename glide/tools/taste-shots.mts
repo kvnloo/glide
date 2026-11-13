@@ -1,6 +1,6 @@
-// Headless shots of the /glide taste card over a synthetic board: before (the receipt glide.ts publishes
-// today) and after (tasteCard). Both go through decodeEuiHostCard, hostSnapshot and euiCardNode, the path
-// Tern mounts, then the Dash theme sheet (`/glide theme dash`) and one headless Chromium per frame, at
+// Headless shots of the /glide taste card over a synthetic board: before (the receipt glide.ts published
+// until GLD-TASTECARD) and after (tasteCard, now emitted by /glide taste). Both go through
+// decodeEuiHostCard, hostSnapshot and euiCardNode, the path Tern mounts, then the Dash theme sheet (`/glide theme dash`) and one headless Chromium per frame, at
 // 1060x596 and 412x915 (2x). Each frame also prints its measured layout and contrast. Usage, from the repo root:
 //   bun glide/tools/taste-shots.mts OUT_DIR
 import { execFileSync } from 'node:child_process'
