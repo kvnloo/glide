@@ -1,7 +1,7 @@
 // Headless synthetic Fleet shots. Two presentations:
 //   preview-*: the token-only fleetDesign/fleetCardHtml preview;
 //   kit-{before,after}-*: what Tern draws, the pinned kit's DOM snapshot with its real stylesheet,
-//   before and after fleetFit (eui/fleetFit.ts), at 1060x596 and in a 556 px pane.
+//   before and after fleetFit (eui/fleetFit.ts, a rewrite of the first snapshot), at 1060x596 and in a 556 px pane.
 // Usage from repo root: bun glide/tools/fleet-shots.mts OUT_DIR
 // Writes OUT_DIR/*.png, OUT_DIR/html/*.html and OUT_DIR/measure.json (rect heights, px).
 import { execFileSync } from 'node:child_process'
@@ -119,6 +119,7 @@ const measure = (view: FleetView) => '<script>addEventListener("load",()=>{const
   'const rows=[...document.querySelectorAll(' + JSON.stringify(ROWS[view]) + ')].filter(e=>e.getClientRects().length);' +
   'const m={head:r(head),card:r(card),groups:[...document.querySelectorAll(".fp-group,.fh-host-group")].map(r),rows:rows.length,' +
   'more:[...document.querySelectorAll(".fl-more")].map(e=>e.textContent),' +
+  'shell:[...card.querySelectorAll(":scope>*,:scope>*>*")].map(e=>(e.className||e.tagName).split(" ")[0]+":"+r(e)),' +
   'parts:Object.fromEntries([...document.querySelectorAll(".fl-root>*,.fh-view>*")].map(e=>[e.className.split(" ")[0]||e.tagName,r(e)])),' +
   'tags:[...new Set([...document.querySelectorAll(\".fp-hz,.fp-st,.fp-tag,.fh-count,.fl-tag\")].map(e=>{const s=getComputedStyle(e);return s.backgroundColor+\" \"+s.borderTopWidth+\" \"+s.borderTopColor+\" \"+s.color}))],' +
   'guides:[...document.querySelectorAll(\".fp-kids,.fp-feat,.fp-tasks,.fh-kids\")].filter(e=>getComputedStyle(e).borderLeftWidth!==\"0px\"||getComputedStyle(e,\"::before\").display!==\"none\"&&getComputedStyle(e,\"::before\").content!==\"none\").length,' +
@@ -176,8 +177,11 @@ for (const view of ['hosts', 'portfolio', 'factory'] as const) {
   const doc = documents[view]
   const hero = fleetDesign(decodeFleet(doc, view), view).hero
   for (const mode of ['before', 'after'] as const) {
-    const mounted = kit.mount('fleet-' + view, doc.app, () => undefined, doc, undefined, mode === 'after' ? fleetFit('fleet-' + view) : undefined)
-    const snap = mounted.snapshot()
+    // The first snapshot after mount, as the host's view() draws it: no later DOM edit reshapes it.
+    const mounted = kit.mount('fleet-' + view, doc.app, () => undefined, doc)
+    const fit = mode === 'after' ? fleetFit('fleet-' + view) : undefined
+    const first = mounted.snapshot()
+    const snap = first && fit ? fit(first) : first
     mounted.dispose()
     // Tern's transcript column at this window, and the narrower pane the factory card was measured in.
     for (const [pane, width] of [['desktop', 880], ['pane', 556]] as const) {

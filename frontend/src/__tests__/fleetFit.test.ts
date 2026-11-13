@@ -1,45 +1,63 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { euiHostPort } from '../app/eui-host.js'
+import { liveSessionId } from '../core/ids.js'
 import { euiDir } from '../eui/cards.js'
 import { FLEET_ROW_CAP, fleetFit } from '../eui/fleetFit.js'
-import { createSandbox, type EuiMounted, type EuiNode } from '../eui/sandbox.js'
+import { EuiHostCards } from '../eui/host.js'
+import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox } from '../eui/sandbox.js'
+import { SessionState } from '../session/state.js'
+import { Transcript } from '../transcript/store.js'
+
+import { must, ofKind } from './fakes.js'
 
 // Synthetic fixtures only.
-const settle = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 type El = Extract<EuiNode, { t: 'el' }>
 
-/** Elements carrying `cls`; with `visible`, none under a hidden node. */
-function all(n: EuiNode | null, cls: string, visible = false, out: El[] = []): El[] {
-  if (n?.t !== 'el' || (visible && n.attrs['hidden'])) return out
+/** Elements carrying `cls`, in document order. */
+function all(n: EuiNode | null | undefined, cls: string, out: El[] = []): El[] {
+  if (n?.t !== 'el') return out
   if (n.cls.split(' ').includes(cls)) out.push(n)
-  for (const k of n.kids) all(k, cls, visible, out)
+  for (const k of n.kids) all(k, cls, out)
   return out
 }
-const shown = (n: EuiNode | null, cls: string) => all(n, cls, true)
 /** The nth match, failing the test when it is missing. */
-function nth(n: EuiNode | null, cls: string, i: number): El {
+function nth(n: EuiNode | null | undefined, cls: string, i: number): El {
   const el = all(n, cls)[i]
   if (!el) throw new Error(`no ${cls} #${i}`)
   return el
 }
 const text = (n: EuiNode): string => n.t === 'text' ? n.text : n.t === 'el' ? n.kids.map(text).join('') : ''
+const button = (n: EuiNode, label: string): El => must(all(n, 'fl-more').find(b => text(b) === label))
 
 const task = (id: string, status: string) => ({ id, label: 'Task ' + id, status })
 const product = (id: string, statuses: string[]) => ({ id, label: 'Product ' + id, horizon: 'now', features: [
-  { id: id + '-a', label: id + ' area a', horizon: 'now', tasks: statuses.map((s, i) => task(id + i, s)) },
+  { id: id + '-a', label: id + ' area a', horizon: 'now', uses: ['kit'], tasks: statuses.map((s, i) => task(id + i, s)) },
   { id: id + '-b', label: id + ' area b', horizon: 'next', tasks: [task(id + 'b', 'next')] }] })
-const portfolio = { kind: 'fleet-portfolio', app: 'dash', data: { at: '2026-11-12T00:00:00Z', portfolios: { s: { label: 'Synthetic', lead: 'Synthetic', shared: [],
+const portfolio = { kind: 'fleet-portfolio', app: 'dash', data: { at: '2026-11-12T00:00:00Z', portfolios: { s: { label: 'Synthetic', lead: 'Synthetic lead', shared: [{ id: 'kit', label: 'Kit', owner: 'p1' }],
   products: [product('p1', ['next', 'done']), product('p2', ['active', 'blocked', 'next', 'done', 'done', 'done']), product('p3', ['next']), product('p4', ['next'])] } } } }
+const agent = (id: string, state: string) => ({ id, name: 'Agent ' + id, state, line: 'line ' + id, age: '1m', model: 'sample' })
+const host = (id: string, states: string[]) => ({ id, label: 'Host ' + id, role: 'Sample', online: true, gauges: { cpu: 1, mem: 1, swap: 1, disk: 1, gpu: null }, k3s: null,
+  harnesses: [{ kind: 'Sample', agents: states.map((s, i) => agent(id + i, s)) }, { kind: 'Other', agents: [agent(id + 'o', 'idle')] }] })
+const hosts = { kind: 'fleet-hosts', app: 'k3s', data: { at: '2026-11-12T00:00:00Z',
+  hosts: [host('h1', ['working']), host('h2', ['idle', 'working', 'blocked', 'idle']), host('h3', ['idle']), host('h4', ['idle'])] } }
 const factory = { kind: 'fleet-factory', app: 'aodl', data: { at: '2026-11-12T00:00:00Z', stats: { queue: 1, depth: 4, sendsHour: 1, capHour: 4, posted: 1, verifyPass: 1 },
   nodes: [{ id: 'b', col: 0, label: 'Brain', kind: 'chat', state: 'live' },
     ...[1, 2, 3, 4, 5].map(i => ({ id: 'c' + i, col: 1, label: 'Card ' + i, kind: 'chat', state: 'failing', reason: 'failed ' + i, action: 'Prepare fix' }))],
   edges: [1, 2, 3, 4, 5].map(i => ['b', 'c' + i, 'delegated', true]) } }
 
-async function mount(doc: { kind: string, app: string }, fitted = true): Promise<EuiMounted> {
-  const sb = await createSandbox(euiDir(), 'dark')
-  const card = sb.mount(doc.kind, doc.app, () => undefined, doc, undefined, fitted ? fleetFit(doc.kind) : undefined)
-  await settle(200)
-  return card
+let sandbox: Promise<EuiSandbox> | undefined
+const kit = () => (sandbox ??= createSandbox(euiDir(), 'dark'))
+const live: EuiMounted[] = []
+const cards: EuiHostCards[] = []
+afterEach(() => { live.splice(0).forEach(m => m.dispose()); cards.splice(0).forEach(c => c.close()) })
+
+/** One mount and its fit, read the way the host reads them: the kit's snapshot, then the fit's rewrite. */
+async function mount(doc: { kind: string, app: string }) {
+  const card = (await kit()).mount(doc.kind, doc.app, () => undefined, doc)
+  live.push(card)
+  const fit = must(fleetFit(doc.kind))
+  return { card, fit, view: () => fit(must(card.snapshot())), click: (id: number) => fit.click(id) || card.click(id) }
 }
 
 describe('fleetFit', () => {
@@ -48,63 +66,97 @@ describe('fleetFit', () => {
     expect(fleetFit('fleet-hosts')).toBeTypeOf('function')
   })
 
-  it('opens only the urgent portfolio group and caps groups, features and tasks behind "N more"', async () => {
-    const card = await mount(portfolio)
-    try {
-      const snap = card.snapshot()
-      const groups = all(snap, 'fp-group')
-      expect(groups.map(g => g.attrs['open'])).toEqual(['', 'true', '', ''])
-      expect(text(nth(snap, 'fp-group', 1))).toContain('Product p2')
-      // Two groups shown, the rest behind one button; one feature shown per group; three tasks per feature.
-      expect(shown(snap, 'fp-group')).toHaveLength(2)
-      expect(shown(nth(snap, 'fp-group', 1), 'fp-feat')).toHaveLength(1)
-      expect(shown(nth(snap, 'fp-group', 1), 'fp-task')).toHaveLength(FLEET_ROW_CAP)
-      expect(all(snap, 'fl-more').map(text)).toEqual(['3 more', '1 more', '2 more'])
-      // Every tag is one neutral pill; none keeps the kit's per-status class.
-      expect(all(snap, 'fl-tag').length).toBeGreaterThan(0)
-      expect([...all(snap, 'fp-st'), ...all(snap, 'fp-hz'), ...all(snap, 'fp-tag')]).toHaveLength(0)
-    } finally { card.dispose() }
+  it("is in the host's first painted frame and never edits the kit's DOM", async () => {
+    const session = new SessionState(() => undefined)
+    session.ref = { live: liveSessionId('fixture-session'), stored: null }
+    const transcript = new Transcript()
+    const mounted: EuiMounted[] = []
+    const sb = await kit()
+    const spy: EuiSandbox = { ...sb, mount: (...args) => { const m = sb.mount(...args); mounted.push(m); live.push(m); return m } }
+    const frames: EuiNode[] = []
+    const view = () => host.view(ofKind(transcript.entries.at(-1), 'panel'))
+    const host: EuiHostCards = new EuiHostCards(['fleet-portfolio'], () => { const node = view()?.node; if (node) frames.push(node) },
+      euiHostPort({ session, transcript }, () => true), () => Promise.resolve(spy))
+    cards.push(host)
+    host.publishKit(portfolio, vi.fn())
+    await vi.waitFor(() => expect(mounted).toHaveLength(1))
+    // Every frame drawn from the kit, the first included, already holds the closed groups and the "N more" pills.
+    const drawn = frames.filter(f => all(f, 'fp-root').length)
+    expect(drawn.length).toBeGreaterThan(0)
+    for (const frame of drawn) {
+      expect(all(frame, 'fp-group').map(g => g.attrs['open'])).toEqual(['true'])
+      expect(all(frame, 'fl-more').map(text)).toEqual(['4 more', '1 more', '3 more'])
+    }
+    // The kit's own DOM keeps every group open: the fit rewrites what is drawn, not what the kit owns.
+    expect(all(must(mounted[0]).snapshot(), 'fp-group').map(g => g.attrs['open'])).toEqual(['true', 'true', 'true', 'true'])
+    expect(all(must(mounted[0]).snapshot(), 'fl-more')).toHaveLength(0)
   }, 30_000)
 
-  it('reveals capped rows on "N more" and never re-closes a group the reader opened', async () => {
-    const card = await mount(portfolio)
-    try {
-      const more = all(card.snapshot(), 'fl-more').find(b => text(b) === '3 more')
-      if (!more) throw new Error('no "3 more"')
-      expect(more.click).toBe(true)
-      card.click(more.id)
-      await settle(300)
-      let snap = card.snapshot()
-      expect(shown(nth(snap, 'fp-group', 1), 'fp-task')).toHaveLength(6)
-      expect(all(snap, 'fl-more').map(text)).toEqual(['1 more', '2 more'])
-
-      const first = nth(snap, 'fp-prow', 0)
-      card.click(first.id)
-      await settle(300)
-      snap = card.snapshot()
-      expect(nth(snap, 'fp-group', 0).attrs['open']).toBe('true')
-    } finally { card.dispose() }
+  it('opens only the urgent portfolio group, caps groups, features and tasks, and drops what Tern already shows', async () => {
+    const { view } = await mount(portfolio)
+    const snap = view()
+    const group = nth(snap, 'fp-group', 0)
+    expect(text(group)).toContain('Product p2')
+    expect(all(snap, 'fp-feat')).toHaveLength(1)
+    // The blocked task sorts second and stays under the cap of two.
+    expect(all(group, 'fp-task').map(t => t.attrs['data-task'])).toEqual(['p20', 'p21'])
+    expect(all(snap, 'fl-more').map(text)).toEqual(['4 more', '1 more', '3 more'])
+    // Every tag is one neutral pill; none keeps the kit's per-status class.
+    expect(all(snap, 'fl-tag').length).toBeGreaterThan(0)
+    expect([...all(snap, 'fp-st'), ...all(snap, 'fp-hz'), ...all(snap, 'fp-tag')]).toHaveLength(0)
+    // The select names the portfolio and the gold pill the next step; the age shares the stats line.
+    expect([...all(snap, 'fp-title'), ...all(snap, 'fp-next-k'), ...all(snap, 'fp-ftags'), ...all(snap, 'eu-ico')]).toHaveLength(0)
+    expect(all(nth(snap, 'fp-stats', 0), 'fl-updated')).toHaveLength(1)
   }, 30_000)
 
-  it('folds the factory stats and graph below capped action rows', async () => {
-    const card = await mount(factory)
-    try {
-      const snap = card.snapshot()
-      const fold = all(snap, 'fl-fold')
-      expect(fold).toHaveLength(1)
-      expect(nth(snap, 'fl-fold', 0).attrs['open']).toBe('')
-      expect(all(snap, 'ff-graph')).toHaveLength(0)
-      expect(shown(snap, 'ff-bi')).toHaveLength(FLEET_ROW_CAP)
-      expect(all(snap, 'fl-more').map(text)).toEqual(['2 more'])
-    } finally { card.dispose() }
+  it('reveals capped rows on "N more", opens a closed group once, then hands its toggle back to the kit', async () => {
+    const { view, click } = await mount(portfolio)
+    expect(click(button(view(), '4 more').id)).toBe(true)
+    let snap = view()
+    expect(all(nth(snap, 'fp-group', 0), 'fp-task')).toHaveLength(6)
+    expect(all(snap, 'fl-more').map(text)).toEqual(['1 more', '3 more'])
+
+    click(button(snap, '3 more').id)
+    snap = view()
+    expect(all(snap, 'fp-group').map(g => g.attrs['open'])).toEqual(['', 'true', '', ''])
+    const first = nth(snap, 'fp-prow', 0)
+    expect(first.click).toBe(true)
+    click(first.id)
+    snap = view()
+    expect(nth(snap, 'fp-group', 0).attrs['open']).toBe('true')
+    // Now the kit's own summary: a second click closes it in the kit.
+    const kitRow = nth(snap, 'fp-prow', 0)
+    expect(kitRow.id).toBeGreaterThan(0)
+    click(kitRow.id)
+    expect(nth(view(), 'fp-group', 0).attrs['open']).toBe('')
   }, 30_000)
 
-  it('leaves an unfitted mount as the kit drew it', async () => {
-    const card = await mount(portfolio, false)
-    try {
-      const snap = card.snapshot()
-      expect(all(snap, 'fp-group').map(g => g.attrs['open'])).toEqual(['true', 'true', 'true', 'true'])
-      expect(all(snap, 'fl-more')).toHaveLength(0)
-    } finally { card.dispose() }
+  it('keeps the blocked host open, caps hosts and agents, and drops the duplicate head and the empty hint', async () => {
+    const { view } = await mount(hosts)
+    const snap = view()
+    expect(all(snap, 'fh-host-group').map(g => [text(nth(g, 'fh-host', 0)), g.attrs['open']])).toEqual([['Host h1', ''], ['Host h2', 'true']])
+    expect(all(nth(snap, 'fh-host-group', 1), 'fh-agentwrap')).toHaveLength(2)
+    expect(all(snap, 'fl-more').map(text)).toEqual(['2 more', '1 more', '2 more'])
+    expect([...all(snap, 'fh-head'), ...all(snap, 'fh-toast')]).toHaveLength(0)
+    expect(all(nth(snap, 'fl-controls', 0), 'fl-updated')).toHaveLength(1)
+  }, 30_000)
+
+  it('folds the factory stats and graph below capped action rows, and toggles the fold', async () => {
+    const { view, click, fit } = await mount(factory)
+    let snap = view()
+    const fold = nth(snap, 'fl-fold', 0)
+    expect(fold.attrs['open']).toBe('')
+    expect(all(snap, 'ff-graph')).toHaveLength(0)
+    expect(all(snap, 'ff-bi')).toHaveLength(FLEET_ROW_CAP)
+    expect(all(snap, 'fl-more').map(text)).toEqual(['2 more'])
+    const summary = nth(fold, 'fl-tag', 0)
+    click(summary.id)
+    snap = view()
+    expect(nth(snap, 'fl-fold', 0).attrs['open']).toBe('true')
+    expect(all(snap, 'ff-graph')).toHaveLength(1)
+    click(summary.id)
+    expect(all(view(), 'ff-graph')).toHaveLength(0)
+    // Only the fit's own ids are the fit's: kit ids and kitSnapshot's refresh fall through.
+    expect([7, -1, -2].map(id => fit.click(id))).toEqual([false, false, false])
   }, 30_000)
 })
