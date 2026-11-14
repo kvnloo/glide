@@ -3428,8 +3428,8 @@ var require_webidl = __commonJS({
       return new TypeError(`${message.header}: ${message.message}`);
     };
     webidl.errors.conversionFailed = function(context) {
-      const plural4 = context.types.length === 1 ? "" : " one of";
-      const message = `${context.argument} could not be converted to${plural4}: ${context.types.join(", ")}.`;
+      const plural5 = context.types.length === 1 ? "" : " one of";
+      const message = `${context.argument} could not be converted to${plural5}: ${context.types.join(", ")}.`;
       return webidl.errors.exception({
         header: context.prefix,
         message
@@ -7996,7 +7996,7 @@ var require_pool_base = __commonJS({
         this[kClients] = [];
         this[kQueued] = 0;
         const pool = this;
-        this[kOnDrain] = function onDrain(origin, targets) {
+        this[kOnDrain] = function onDrain(origin, targets2) {
           const queue2 = pool[kQueue];
           let needDrain = false;
           while (!needDrain) {
@@ -8010,20 +8010,20 @@ var require_pool_base = __commonJS({
           this[kNeedDrain] = needDrain;
           if (!this[kNeedDrain] && pool[kNeedDrain]) {
             pool[kNeedDrain] = false;
-            pool.emit("drain", origin, [pool, ...targets]);
+            pool.emit("drain", origin, [pool, ...targets2]);
           }
           if (pool[kClosedResolve] && queue2.isEmpty()) {
             Promise.all(pool[kClients].map((c) => c.close())).then(pool[kClosedResolve]);
           }
         };
-        this[kOnConnect] = (origin, targets) => {
-          pool.emit("connect", origin, [pool, ...targets]);
+        this[kOnConnect] = (origin, targets2) => {
+          pool.emit("connect", origin, [pool, ...targets2]);
         };
-        this[kOnDisconnect] = (origin, targets, err) => {
-          pool.emit("disconnect", origin, [pool, ...targets], err);
+        this[kOnDisconnect] = (origin, targets2, err) => {
+          pool.emit("disconnect", origin, [pool, ...targets2], err);
         };
-        this[kOnConnectionError] = (origin, targets, err) => {
-          pool.emit("connectionError", origin, [pool, ...targets], err);
+        this[kOnConnectionError] = (origin, targets2, err) => {
+          pool.emit("connectionError", origin, [pool, ...targets2], err);
         };
         this[kStats] = new PoolStats(this);
       }
@@ -8189,8 +8189,8 @@ var require_pool = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect: connect2, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory3;
-        this.on("connectionError", (origin2, targets, error) => {
-          for (const target2 of targets) {
+        this.on("connectionError", (origin2, targets2, error) => {
+          for (const target2 of targets2) {
             const idx = this[kClients].indexOf(target2);
             if (idx !== -1) {
               this[kClients].splice(idx, 1);
@@ -8401,17 +8401,17 @@ var require_agent = __commonJS({
         this[kMaxRedirections] = maxRedirections;
         this[kFactory] = factory3;
         this[kClients] = /* @__PURE__ */ new Map();
-        this[kOnDrain] = (origin, targets) => {
-          this.emit("drain", origin, [this, ...targets]);
+        this[kOnDrain] = (origin, targets2) => {
+          this.emit("drain", origin, [this, ...targets2]);
         };
-        this[kOnConnect] = (origin, targets) => {
-          this.emit("connect", origin, [this, ...targets]);
+        this[kOnConnect] = (origin, targets2) => {
+          this.emit("connect", origin, [this, ...targets2]);
         };
-        this[kOnDisconnect] = (origin, targets, err) => {
-          this.emit("disconnect", origin, [this, ...targets], err);
+        this[kOnDisconnect] = (origin, targets2, err) => {
+          this.emit("disconnect", origin, [this, ...targets2], err);
         };
-        this[kOnConnectionError] = (origin, targets, err) => {
-          this.emit("connectionError", origin, [this, ...targets], err);
+        this[kOnConnectionError] = (origin, targets2, err) => {
+          this.emit("connectionError", origin, [this, ...targets2], err);
         };
       }
       get [kRunning]() {
@@ -10991,9 +10991,9 @@ var require_pluralizer = __commonJS({
       this: "these"
     };
     module.exports = class Pluralizer {
-      constructor(singular, plural4) {
+      constructor(singular, plural5) {
         this.singular = singular;
-        this.plural = plural4;
+        this.plural = plural5;
       }
       pluralize(count6) {
         const one7 = count6 === 1;
@@ -24709,10 +24709,10 @@ function liveCard(n4) {
       return false;
   }
 }
-function figure(value, role, tone2, entrance = true) {
+function figure(value, role, tone3, entrance = true) {
   const frames = entrance ? countFrames(value) : [];
-  if (!frames.length) return ui.text({ key: "v", role, text: value, ...tone2 ? { tone: tone2 } : {} });
-  return html.span({ key: "v", role, class: "glide-count", aria: value, ...tone2 ? { tone: tone2 } : {} }, [
+  if (!frames.length) return ui.text({ key: "v", role, text: value, ...tone3 ? { tone: tone3 } : {} });
+  return html.span({ key: "v", role, class: "glide-count", aria: value, ...tone3 ? { tone: tone3 } : {} }, [
     html.span({ key: "final", class: "glide-count-final" }, value),
     ...frames.map((text22, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text22))
   ]);
@@ -24769,7 +24769,7 @@ ${ROOT}::before,${ROOT}::after,${LIVE} [data-role='glide.meter'] .sf-mt-track::a
 
 // src/glideui/render.tsx
 var span2 = (t, s2) => s2 ? { t, s: s2 } : { t };
-var toneStyle = (tone2) => tone2 === void 0 || tone2 === "neutral" ? void 0 : tone2;
+var toneStyle = (tone3) => tone3 === void 0 || tone3 === "neutral" ? void 0 : tone3;
 var clamp = (v) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0));
 var STEP_STATUS = { pending: "pending", active: "running", done: "done", blocked: "error" };
 function cell2(v, meter) {
@@ -24821,8 +24821,8 @@ function node2(n4, key3, r) {
     case "Text": {
       const t = n4.props.tone;
       const role = t === "muted" ? "glide.muted" : t === "strong" ? "glide.strong" : t === "quote" ? "glide.quote" : "glide.text";
-      const tone2 = t === "muted" || t === "strong" || t === "quote" ? void 0 : toneStyle(t);
-      return /* @__PURE__ */ jsx("text", { role, text: n4.props.body, wrap: "word", ...tone2 ? { tone: tone2 } : {} }, key3);
+      const tone3 = t === "muted" || t === "strong" || t === "quote" ? void 0 : toneStyle(t);
+      return /* @__PURE__ */ jsx("text", { role, text: n4.props.body, wrap: "word", ...tone3 ? { tone: tone3 } : {} }, key3);
     }
     case "Spark":
       return /* @__PURE__ */ jsx("chart", { kind: "spark", role: "glide.spark", series: n4.props.points.map((value) => ({ value })), size: "lg", summary: n4.props.summary }, key3);
@@ -25254,7 +25254,7 @@ function lanesCard(src, bound2, roles, focus2) {
     const hue = PROVIDERS[info.provider].hue;
     const isDead = lane.state === "dead";
     const waiting5 = !live && lane.state === "idle";
-    const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
+    const tone3 = waiting5 ? NIGHT.agree : DOT[lane.state];
     const id3 = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
     const line2 = isDead ? `Not answering${lane.error ? ` (${clip2(lane.error, 80)})` : ""}. Pick another model below.` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `Working on \u201C${clip2(lane.researching, 100)}\u201D` : live ? "no blackboard entry yet" : "";
     const badges = [
@@ -25276,8 +25276,8 @@ function lanesCard(src, bound2, roles, focus2) {
         el("span", `width:58px;flex:none;font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text22(lane.role.toUpperCase())], { attrs: { "data-lane-role": lane.role } }),
         el("span", `flex:1 1 auto;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${SERIF};font-size:20px;line-height:24px;color:${isDead ? NIGHT.danger : NIGHT.text}`, [text22(info.label)], { attrs: { title: [id3, info.note].filter(Boolean).join(" \xB7 "), "data-lane-model": `${lane.role}=${current}` } }),
         ...picked ? [el("span", `${micro};color:${tint(lane.role, true)}`, [text22("SELECTED")], { attrs: { "data-lane-focus": lane.role } })] : [],
-        el("span", `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone2, 0.45)};background-color:${rgba(tone2, 0.1)};font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${tone2}`, [
-          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone2}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
+        el("span", `flex:none;display:flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;border:1px solid ${rgba(tone3, 0.45)};background-color:${rgba(tone3, 0.1)};font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${tone3}`, [
+          el("span", `width:7px;height:7px;border-radius:4px;flex:none;background-color:${tone3}` + (lane.state === "thinking" ? `;box-shadow:0 0 6px ${NIGHT.strong}` : ""), [], { attrs: { "data-lane-state": lane.state } }),
           text22(waiting5 ? "READY" : lane.state.toUpperCase())
         ])
       ]),
@@ -29334,8 +29334,8 @@ function sessionHost(cx, literal3 = false) {
     // A steer that fell back to the queue: steering carries no images.
     enqueue: (text22) => cx.router.behind({ images: [], kind: "app", text: text22 }),
     gw: cx.gw,
-    notice: (text22, tone2) => {
-      cx.transcript.notice(text22, tone2);
+    notice: (text22, tone3) => {
+      cx.transcript.notice(text22, tone3);
       cx.changed();
     },
     // The shared gateway (the one /branch runs on) answers a resume with one id for both kinds.
@@ -32375,6 +32375,7 @@ function currentTodos(entries2) {
     if (e?.kind !== "turn") {
       continue;
     }
+    if (e.todos !== void 0) return e.todos;
     const hit = e.blocks.findLast((b) => b.kind === "tool" && b.call.todos?.length);
     if (hit?.kind === "tool") {
       return hit.call.todos;
@@ -32559,8 +32560,8 @@ function callApp(call) {
 // src/connections/cards.ts
 var CONNECT_TOOL = "manage_connections";
 var POLL_MS = 2e3;
-function parseTargets(targets) {
-  return targets.flatMap((t) => {
+function parseTargets(targets2) {
+  return targets2.flatMap((t) => {
     const r = record(t);
     const name = typeof r?.["name"] === "string" ? r["name"].trim() : "";
     const fields = Array.isArray(r?.["required_env"]) ? r["required_env"].flatMap((f2) => envField(f2)) : [];
@@ -32623,8 +32624,8 @@ function settleReason(r) {
 function resultCard(call) {
   const r = call.name === CONNECT_TOOL ? record(call.result) : void 0;
   const settled2 = r && r["status"] === "settled" && typeof r["op_id"] === "string" ? settleReason(r) : void 0;
-  const targets = settled2 && Array.isArray(r?.["targets"]) ? parseTargets(r["targets"]) : [];
-  return targets.length ? { opened: [], settled: settled2, targets } : void 0;
+  const targets2 = settled2 && Array.isArray(r?.["targets"]) ? parseTargets(r["targets"]) : [];
+  return targets2.length ? { opened: [], settled: settled2, targets: targets2 } : void 0;
 }
 var connectCardOf = (call) => call.connect ?? resultCard(call);
 var isConnectCall = (call) => connectCardOf(call) !== void 0;
@@ -35230,11 +35231,11 @@ function diagnosticsOf(value) {
     const group = files.get(path2) ?? { path: path2, diagnostics: [], omitted: 0 };
     for (const candidateRow of file2["diagnostics"]) {
       const row2 = record(candidateRow);
-      const tone2 = severity(row2?.["severity"]);
+      const tone3 = severity(row2?.["severity"]);
       const line2 = row2?.["line"];
       const col = row2?.["col"];
       const message = row2?.["message"];
-      if (!tone2 || !positive2(line2) || !positive2(col) || typeof message !== "string") {
+      if (!tone3 || !positive2(line2) || !positive2(col) || typeof message !== "string") {
         return void 0;
       }
       const endLine = row2?.["end_line"];
@@ -35248,7 +35249,7 @@ function diagnosticsOf(value) {
         col,
         line: line2,
         message,
-        severity: tone2,
+        severity: tone3,
         ...hasEnd && positive2(endLine) && positive2(endCol) ? { end: { col: endCol, line: endLine } } : {},
         ...typeof source3 === "string" && source3 ? { source: source3 } : {}
       });
@@ -36055,8 +36056,8 @@ var PROCESS_LOOK = {
 var MINI_SPARK_POINTS = 16;
 var TILE_BARS = 3;
 var DEFAULT_TONE = "accent";
-function toneStyle2(tone2) {
-  switch (tone2) {
+function toneStyle2(tone3) {
+  switch (tone3) {
     case "accent":
     case "info":
     case "user":
@@ -36064,7 +36065,7 @@ function toneStyle2(tone2) {
     case "success":
     case "error":
     case "muted":
-      return tone2;
+      return tone3;
     case "warning":
     case "pending":
       return "warning";
@@ -36179,8 +36180,8 @@ function tile({ process: p3, view }) {
     trailing: /* @__PURE__ */ jsx("text", { role: "omp.job.tile.id", spans: [sp(p3.id, "dim")], wrap: "none" }, "id")
   });
 }
-function tileMeter(value, tone2 = DEFAULT_TONE, key3 = "meter") {
-  return /* @__PURE__ */ jsx("meter", { grow: 1, role: "omp.job.tile.meter", size: "sm", tone: tone2, value: fraction(value, 1) }, key3);
+function tileMeter(value, tone3 = DEFAULT_TONE, key3 = "meter") {
+  return /* @__PURE__ */ jsx("meter", { grow: 1, role: "omp.job.tile.meter", size: "sm", tone: tone3, value: fraction(value, 1) }, key3);
 }
 function tileVisual(b) {
   switch (b?.kind) {
@@ -37335,12 +37336,12 @@ function appBody(call) {
 function batchBody(call, batch) {
   return batch.flatMap(({ args, name, outcome: outcome2 }, i) => {
     const app2 = appOf(name, args);
-    const tone2 = outcome2.kind === "error" ? "error" : outcome2.kind === "running" ? "pending" : "success";
+    const tone3 = outcome2.kind === "error" ? "error" : outcome2.kind === "running" ? "pending" : "success";
     const error = outcome2.kind === "error" ? outcome2.error : void 0;
     const answer = error ?? (outcome2.kind !== "done" || outcome2.result === void 0 ? void 0 : pretty(outcome2.result));
     return [
       /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", children: [
-        /* @__PURE__ */ jsx("icon", { name: outcome2.kind === "error" ? "x" : outcome2.kind === "running" ? "clock" : "check", tone: tone2 }, "i"),
+        /* @__PURE__ */ jsx("icon", { name: outcome2.kind === "error" ? "x" : outcome2.kind === "running" ? "clock" : "check", tone: tone3 }, "i"),
         /* @__PURE__ */ jsx("text", { grow: 1, spans: [{ t: app2 ? `${app2.app} \xB7 ${app2.action}` : humanize(name) }], truncate: "end", wrap: "none" }, "t")
       ] }, `e${i}`),
       ...error ? [/* @__PURE__ */ jsx("text", { spans: [{ s: "error", t: clip3(error, { mark: "line", max: 600 }) }], wrap: "word" }, `r${i}`)] : answer && call.outcome.kind !== "running" ? [/* @__PURE__ */ jsx("code", { lang: /^\s*[[{]/.test(answer) ? "json" : "text", max: { h: "8lines" }, text: clip3(answer, { mark: "line", max: 2e3 }), wrap: true }, `r${i}`)] : []
@@ -37393,13 +37394,13 @@ function liveCard2(payload, session2) {
   const id3 = typeof r?.["op_id"] === "string" ? r["op_id"] : "";
   const seq = num5(r?.["seq"]);
   const deadlineAt = num5(r?.["deadline_at"]);
-  const targets = parseTargets(Array.isArray(r?.["targets"]) ? r["targets"] : []);
-  if (!r || !id3 || seq === void 0 || !deadlineAt || !targets.length || targets.some((t) => t.kind === "plugin" || t.kind === "skill")) {
+  const targets2 = parseTargets(Array.isArray(r?.["targets"]) ? r["targets"] : []);
+  if (!r || !id3 || seq === void 0 || !deadlineAt || !targets2.length || targets2.some((t) => t.kind === "plugin" || t.kind === "skill")) {
     return void 0;
   }
   const callId = typeof r["tool_call_id"] === "string" && r["tool_call_id"] ? r["tool_call_id"] : void 0;
   const op = { deadlineAt, id: id3, seq, session: session2 };
-  return { callId, card: { op, opened: [], settled: settleReason(r), targets } };
+  return { callId, card: { op, opened: [], settled: settleReason(r), targets: targets2 } };
 }
 function applyFrame(card, frame2) {
   const r = record(frame2);
@@ -37410,8 +37411,8 @@ function applyFrame(card, frame2) {
   }
   const rows2 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
   const before2 = new Map(card.targets.map((t) => [t.name, t]));
-  const targets = rows2.length ? rows2.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card.targets;
-  return { ...card, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets };
+  const targets2 = rows2.length ? rows2.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card.targets;
+  return { ...card, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets: targets2 };
 }
 function verbOf(t) {
   switch (t.state) {
@@ -37449,7 +37450,7 @@ var connectView = {
   },
   step: namedStep
 };
-var look = (icon, tone2, word) => ({ mark: { icon, tone: tone2 }, tone: tone2, word });
+var look = (icon, tone3, word) => ({ mark: { icon, tone: tone3 }, tone: tone3, word });
 var NEEDS2 = look("pending", "muted", "needs authorizing");
 var BROWSER = { mark: "spinner", tone: "pending", word: "waiting for your browser\u2026" };
 var SETTING_UP = { mark: "spinner", tone: "pending", word: "setting up\u2026" };
@@ -37542,11 +37543,11 @@ function rowNode(card, ref, t, i) {
   ] }, `t${i}`);
 }
 function connectCard(call, card, now) {
-  const { targets } = card;
+  const { targets: targets2 } = card;
   const ref = cardRef(call);
-  const own14 = targets.filter((t) => t.state !== "superseded");
+  const own14 = targets2.filter((t) => t.state !== "superseded");
   const op = card.settled ? void 0 : card.op;
-  const open5 = op ? targets.filter(unresolved) : [];
+  const open5 = op ? targets2.filter(unresolved) : [];
   const note = card.settled && NOTE[card.settled];
   const continuing = card.sending?.includes(CONTINUE);
   const foot = op && open5.length ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "hermes.connect.foot", children: [
@@ -37554,7 +37555,7 @@ function connectCard(call, card, now) {
     continuing ? button2("go", "Continuing\u2026", "") : button2("go", "Continue", "hermes.connect.continue", `connect-continue=${ref}`)
   ] }, "foot") : note ? /* @__PURE__ */ jsx("text", { role: "hermes.connect.note", spans: [{ s: "muted", t: note }], wrap: "word" }, "note") : null;
   return {
-    body: [...targets.flatMap((t, i) => [rowNode(card, ref, t, i), launchNode(card, t, i)].filter((n4) => n4 !== null)), ...foot ? [foot] : []],
+    body: [...targets2.flatMap((t, i) => [rowNode(card, ref, t, i), launchNode(card, t, i)].filter((n4) => n4 !== null)), ...foot ? [foot] : []],
     name: "plug",
     // One app names itself on its row; several get a count.
     target: own14.length > 1 ? `${own14.filter((t) => t.state === "connected").length} of ${own14.length} connected` : void 0,
@@ -39198,15 +39199,15 @@ function formatTrend(first, last, better, unit) {
     return void 0;
   }
   const arrow = delta > 0 ? "\u25B2" : "\u25BC";
-  const tone2 = delta > 0 === (better === "higher") ? "success" : "error";
+  const tone3 = delta > 0 === (better === "higher") ? "success" : "error";
   if (first === 0) {
-    return { text: `${arrow} ${formatNumber(Math.abs(delta), unit)}`, tone: tone2 };
+    return { text: `${arrow} ${formatNumber(Math.abs(delta), unit)}`, tone: tone3 };
   }
   const percent = Math.abs(delta / first) * 100;
   if (percent >= 1e3) {
-    return { text: `${arrow} ${formatNumber(Math.abs(last / first))}\xD7`, tone: tone2 };
+    return { text: `${arrow} ${formatNumber(Math.abs(last / first))}\xD7`, tone: tone3 };
   }
-  return { text: `${arrow} ${percent.toFixed(percent >= 10 ? 0 : 1)}%`, tone: tone2 };
+  return { text: `${arrow} ${percent.toFixed(percent >= 10 ? 0 : 1)}%`, tone: tone3 };
 }
 function formatRatio(value, total, unit) {
   const scaled = unitStep(total, unit);
@@ -39768,13 +39769,13 @@ function parseBlock(value, where, errors) {
         errors.push(`${where}.tones: expected an object of status substring \u2192 tone`);
       } else {
         let n4 = 0;
-        for (const [status, tone2] of Object.entries(value["tones"])) {
+        for (const [status, tone3] of Object.entries(value["tones"])) {
           if (++n4 > MAX_GRID_TONES) {
             errors.push(`${where}.tones: at most ${MAX_GRID_TONES} entries`);
             break;
           }
-          if (typeof tone2 === "string" && TONES.includes(tone2)) {
-            tones[status] = tone2;
+          if (typeof tone3 === "string" && TONES.includes(tone3)) {
+            tones[status] = tone3;
           } else {
             errors.push(`${where}.tones.${status}: expected one of ${TONES.join(", ")}`);
           }
@@ -40279,11 +40280,11 @@ var ChartRuntime = class {
     const values = points.map((p3) => p3.v);
     const marks2 = block.target === void 0 ? void 0 : [{ label: block.targetLabel ?? `target ${formatNumber(block.target, block.unit)}`, tone: "muted", value: block.target }];
     const { max, min } = sparkDomain([...values, ...(marks2 ?? []).map((m2) => m2.value)], block.min, block.max);
-    let tone2;
+    let tone3;
     if (block.better && block.target !== void 0 && series.values) {
       const reached = block.better === "higher" ? series.last >= block.target : series.last <= block.target;
       if (reached) {
-        tone2 = "success";
+        tone3 = "success";
       }
     }
     return {
@@ -40295,7 +40296,7 @@ var ChartRuntime = class {
       tips: points.map((p3) => `${new Date(p3.t).toTimeString().slice(0, 8)} \xB7 ${formatNumber(p3.v, block.unit)}`),
       values,
       ...marks2 ? { marks: marks2 } : {},
-      ...tone2 ? { tone: tone2 } : {}
+      ...tone3 ? { tone: tone3 } : {}
     };
   }
 };
@@ -40336,9 +40337,9 @@ function keyLabels(keys3) {
 }
 function gridTone(tones, text22) {
   const lower = text22.toLowerCase();
-  for (const [status, tone2] of Object.entries(tones)) {
+  for (const [status, tone3] of Object.entries(tones)) {
     if (lower.includes(status.toLowerCase())) {
-      return tone2;
+      return tone3;
     }
   }
   return "neutral";
@@ -42152,12 +42153,12 @@ function backgroundCard(call, d, now) {
 function processLine(call, id3, now) {
   const p3 = call.process;
   const live = !p3 || isRunning2(p3);
-  const tone2 = p3 ? processTone(p3.state.status) : "muted";
+  const tone3 = p3 ? processTone(p3.state.status) : "muted";
   return pressable(
     { action: `open-process=${id3}`, key: "process", menu: [`open-process=${id3}`], name: `Process ${p3 ? processVerdict(p3) : "starting"}: open in the Background sheet` },
     /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "omp.tool.process", title: "Open in the Background sheet  \u2325J", children: [
-      p3 && live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "state-icon") : /* @__PURE__ */ jsx("icon", { name: p3 ? PROCESS_LOOK[p3.state.status].icon : "pending", tone: tone2 }, "state-icon"),
-      /* @__PURE__ */ jsx("text", { spans: [{ s: tone2, t: p3 ? processVerdict(p3) : "starting" }], wrap: "none" }, "state"),
+      p3 && live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "state-icon") : /* @__PURE__ */ jsx("icon", { name: p3 ? PROCESS_LOOK[p3.state.status].icon : "pending", tone: tone3 }, "state-icon"),
+      /* @__PURE__ */ jsx("text", { spans: [{ s: tone3, t: p3 ? processVerdict(p3) : "starting" }], wrap: "none" }, "state"),
       p3 ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: "\xB7" }], wrap: "none" }, "sep1") : null,
       p3 && live ? /* @__PURE__ */ jsx("elapsed", { age: age(p3, p3.startedAt, now), format: "short" }, "time") : null,
       p3 && !live ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: duration3(processElapsed(p3, now)) }], wrap: "none" }, "took") : null,
@@ -43695,7 +43696,7 @@ function openCodeReview(host2, source3, focus2) {
   const active2 = () => !closed && !control2.stale() && host2.overlays.at(-1) === overlay2;
   const current = (stamp) => active2() && stamp === version2;
   const file2 = () => source3.files.find((item3) => item3.path === selected);
-  const targets = () => reviewTargets(reviewHunks(selected ? source3.diffs.get(selected) ?? "" : ""));
+  const targets2 = () => reviewTargets(reviewHunks(selected ? source3.diffs.get(selected) ?? "" : ""));
   const choose = (path2, stamp) => {
     if (!current(stamp) || selected === path2 || !source3.files.some((item3) => item3.path === path2)) return;
     selected = path2;
@@ -43716,7 +43717,7 @@ function openCodeReview(host2, source3, focus2) {
     host2.changed();
   };
   const startNote = (stamp) => {
-    if (!current(stamp) || !file2() || !targets()[targetIndex]) return;
+    if (!current(stamp) || !file2() || !targets2()[targetIndex]) return;
     editing = true;
     note.set("");
     version2++;
@@ -43724,7 +43725,7 @@ function openCodeReview(host2, source3, focus2) {
   };
   const insertNote = (stamp) => {
     if (!current(stamp) || !editing) return;
-    const target2 = targets()[targetIndex];
+    const target2 = targets2()[targetIndex];
     const picked = file2();
     const text22 = note.text.trim();
     if (!target2 || !picked || !text22) return;
@@ -43818,7 +43819,7 @@ function openCodeReview(host2, source3, focus2) {
         const item3 = source3.files[next2];
         if (item3) choose(item3.path, version2);
       } else if (!key3.ctrl && !key3.alt && !key3.meta && (key3.name === "up" || key3.name === "down")) {
-        const count6 = targets().length;
+        const count6 = targets2().length;
         const next2 = Math.max(0, Math.min(count6 - 1, targetIndex + (key3.name === "down" ? 1 : -1)));
         if (count6 && next2 !== targetIndex) {
           targetIndex = next2;
@@ -72282,17 +72283,17 @@ function conversation(e, pr, now) {
     }
     flush();
     if (a2.kind === "review") {
-      const [verb, tone2] = REVIEW[a2.state ?? "COMMENTED"] ?? COMMENTED;
+      const [verb, tone3] = REVIEW[a2.state ?? "COMMENTED"] ?? COMMENTED;
       if (!a2.body.trim()) {
         out.push(
           /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "hermes.pr.event", children: [
-            /* @__PURE__ */ jsx("icon", { name: a2.state === "APPROVED" ? "check" : a2.state === "CHANGES_REQUESTED" ? "warn" : "message", tone: tone2 }, "i"),
-            /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: a2.author }, { s: tone2 === "muted" ? "muted" : tone2, t: ` ${verb}` }, { s: "dim", t: ` \xB7 ${relative(a2.at, now)}` }] }, "t")
+            /* @__PURE__ */ jsx("icon", { name: a2.state === "APPROVED" ? "check" : a2.state === "CHANGES_REQUESTED" ? "warn" : "message", tone: tone3 }, "i"),
+            /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: a2.author }, { s: tone3 === "muted" ? "muted" : tone3, t: ` ${verb}` }, { s: "dim", t: ` \xB7 ${relative(a2.at, now)}` }] }, "t")
           ] }, `a${i}`)
         );
         return;
       }
-      out.push(comment5(`a${i}`, [{ s: "strong", t: a2.author }, { s: tone2 === "muted" ? "muted" : tone2, t: ` ${verb}` }], a2.at, now, a2.body, a2.url, links));
+      out.push(comment5(`a${i}`, [{ s: "strong", t: a2.author }, { s: tone3 === "muted" ? "muted" : tone3, t: ` ${verb}` }], a2.at, now, a2.body, a2.url, links));
     } else if (a2.kind === "thread") {
       out.push(thread(a2, `a${i}`, now, links));
     } else {
@@ -72879,7 +72880,7 @@ function openPrSheet(host2, focus2) {
   const view = new PrView(
     {
       changed: () => host2.changed(),
-      notice: (text22, tone2) => host2.notice(text22, tone2),
+      notice: (text22, tone3) => host2.notice(text22, tone3),
       open: openUrl,
       prs: host2.prs,
       reveal: (id3) => host2.reveal(id3),
@@ -74078,7 +74079,7 @@ var MORE = "more";
 function sessionDetail(d) {
   const { session: s2, preview: preview5 } = d;
   const blocks2 = [];
-  const block = (key3, children3, tone2) => {
+  const block = (key3, children3, tone3) => {
     blocks2.push(key3);
     return /* @__PURE__ */ jsx(
       "col",
@@ -74086,7 +74087,7 @@ function sessionDetail(d) {
         gap: "xs",
         onClick: () => d.focus(key3),
         role: d.focused === key3 ? "omp.picker.block.focused" : "omp.picker.block",
-        ...optional("tone", tone2),
+        ...optional("tone", tone3),
         children: children3
       },
       key3
@@ -76524,11 +76525,11 @@ function instrumentSvg(run8, frame2, size = 480, options = {}) {
   if (m2.speaking >= 0 && cur?.type === "turn") {
     const p3 = pos[m2.speaking];
     const k = ease2(m2.since / THREAD_MS);
-    const targets = cur.cites.filter((j) => j !== m2.speaking);
-    if (p3 && !targets.length) {
+    const targets2 = cur.cites.filter((j) => j !== m2.speaking);
+    if (p3 && !targets2.length) {
       s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
     }
-    for (const j of targets) {
+    for (const j of targets2) {
       const q2 = pos[j];
       if (!p3 || !q2) continue;
       const mx = c + ((p3.x + q2.x) / 2 - c) * 0.35, my = c + ((p3.y + q2.y) / 2 - c) * 0.35;
@@ -77543,7 +77544,7 @@ function hosts2(doc, tab3) {
     { label: "Pods", value: String(pods.length) }
   ] });
   const rows2 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
-    const [badge, tone2] = AGENT_STATE[a2.state] ?? [a2.state, "neutral"];
+    const [badge, tone3] = AGENT_STATE[a2.state] ?? [a2.state, "neutral"];
     const resumable = g.kind.toLowerCase() === "hermes" && !a2.id.startsWith("process:") && !/^\d+$/.test(a2.id);
     const reachable = h2.online && a2.state !== "offline";
     const act = a2.state === "blocked" || !resumable ? { action: "nudge", entities: { host: h2.id, agent: a2.id } } : { action: "open-chat", entities: { host: h2.id, agent: a2.id } };
@@ -77552,7 +77553,7 @@ function hosts2(doc, tab3) {
       label: a2.name,
       detail: [g.kind, a2.line].filter(Boolean).join(" \xB7 "),
       badge,
-      tone: tone2,
+      tone: tone3,
       ...a2.age ? { value: a2.age } : {},
       group: [h2.label, h2.role].filter(Boolean).join(" \xB7 "),
       ...reachable ? { intent: intent3(act) } : {}
@@ -77614,9 +77615,9 @@ function portfolio(doc) {
   const act = (t) => intent3(t.url && t.status !== "next" ? { action: "open-task", entities: { product: t.product, feature: t.feature, task: t.id } } : { action: "set-next", entities: { product: t.product, feature: t.feature, task: t.id } });
   const everywhere = (t) => t.products.length === pf.products.length && pf.products.length > 1;
   const row2 = (t) => {
-    const [badge, tone2] = t === queue2[0] ? ["next step", "accent"] : TASK_STATE[t.status] ?? [t.status, "neutral"];
+    const [badge, tone3] = t === queue2[0] ? ["next step", "accent"] : TASK_STATE[t.status] ?? [t.status, "neutral"];
     const where = everywhere(t) ? "every product" : t.products.join(", ");
-    return { id: t.id, label: t.label + (t.defect ? " \xB7 defect" : ""), detail: `${t.id.replace(/^.*?(#\d+)$/, "$1")} \xB7 ${where}`, badge, tone: tone2, group: t.repo, intent: act(t) };
+    return { id: t.id, label: t.label + (t.defect ? " \xB7 defect" : ""), detail: `${t.id.replace(/^.*?(#\d+)$/, "$1")} \xB7 ${where}`, badge, tone: tone3, group: t.repo, intent: act(t) };
   };
   const order2 = { blocked: 1, next: 2, active: 3, done: 4 };
   const rank2 = (t) => t === queue2[0] ? 0 : Object.hasOwn(order2, t.status) ? order2[t.status] ?? 5 : 5;
@@ -77631,9 +77632,9 @@ function portfolio(doc) {
       { label: "Tasks", value: String(all8.length) },
       { label: "Blocked", value: String(blocked2), tone: blocked2 ? "warning" : "success" }
     ] }),
-    "pf.roadmap": slot("Flow", { stages: HORIZONS.map(([id3, label, tone2]) => {
+    "pf.roadmap": slot("Flow", { stages: HORIZONS.map(([id3, label, tone3]) => {
       const here = pf.products.filter((p3) => (p3.horizon ?? "later") === id3);
-      return { id: id3, label: `${label} \xB7 ${here.length}`, detail: here.map((p3) => p3.label).join(", ") || "\u2014", tone: tone2 };
+      return { id: id3, label: `${label} \xB7 ${here.length}`, detail: here.map((p3) => p3.label).join(", ") || "\u2014", tone: tone3 };
     }) }),
     "pf.tasks": slot("Section", { title: "Tasks", aside: queue2[0] ? `${pf.label} \xB7 next: ${queue2[0].id.replace(/^.*?(#\d+)$/, "$1")}` : pf.label }),
     "pf.list": slot("List", { numbered: false, items: [...all8].sort((a2, b) => rank2(a2) - rank2(b)).map(row2) })
@@ -77695,8 +77696,8 @@ function graph(doc) {
   const spine = factorySpine(nodes, edges);
   return {
     "ff.tally": slot("Badges", { items: ["live", "needs-you", "failing", "done"].filter((s2) => count6(s2)).map((s2) => {
-      const [label, tone2] = NODE_STATE[s2] ?? [s2, "neutral"];
-      return { text: `${count6(s2)} ${label}`, tone: tone2 };
+      const [label, tone3] = NODE_STATE[s2] ?? [s2, "neutral"];
+      return { text: `${count6(s2)} ${label}`, tone: tone3 };
     }) }),
     "ff.stats": slot("Stats", { items: stats ? [
       { label: "Queue", value: `${stats.queue}/${stats.depth}` },
@@ -77707,13 +77708,13 @@ function graph(doc) {
     "ff.graph": slot("Graphic", { ...spine, alt: `Factory graph: ${plural2(nodes.length, "node")}, ${plural2(edges.length, "edge")}; brain delegates to lanes, lanes run cards, cards touch repos.` }),
     "ff.bottlenecks": slot("Section", { title: "Bottlenecks", aside: `${open5.length} open` }),
     "ff.open": slot("List", { items: open5.length ? open5.map((n4) => {
-      const [badge, tone2] = NODE_STATE[n4.state] ?? [n4.state, "neutral"];
+      const [badge, tone3] = NODE_STATE[n4.state] ?? [n4.state, "neutral"];
       return {
         id: n4.id,
         label: n4.label,
         detail: n4.reason ?? "",
         badge,
-        tone: tone2,
+        tone: tone3,
         ...n4.action ? { value: n4.action } : {},
         ...n4.action ? { intent: intent3({ action: "queue-fix", entities: { node: n4.id } }) } : n4.url ? { intent: intent3({ action: "open-node", entities: { node: n4.id } }) } : {}
       };
@@ -78280,7 +78281,7 @@ var isBrowserAction = oneOf(["connect", "disconnect", "status"]);
 async function browser(host2, arg) {
   const [first = "status", ...rest] = words2(arg);
   const action = first.toLowerCase();
-  const note = (text22, tone2) => host2.transcript.notice(text22, tone2);
+  const note = (text22, tone3) => host2.transcript.notice(text22, tone3);
   if (!isBrowserAction(action)) {
     return note("Usage: /browser [status|connect [url]|disconnect]", "warning");
   }
@@ -93520,8 +93521,8 @@ function compactionNode(c, key3, id3, now) {
   });
 }
 function noticeNode(e) {
-  const tone2 = e.tone === "info" ? "muted" : e.tone;
-  return /* @__PURE__ */ jsx("text", { role: `omp.notice.${e.tone}`, spans: [{ s: tone2, t: e.text }], wrap: "word" }, e.id);
+  const tone3 = e.tone === "info" ? "muted" : e.tone;
+  return /* @__PURE__ */ jsx("text", { role: `omp.notice.${e.tone}`, spans: [{ s: tone3, t: e.text }], wrap: "word" }, e.id);
 }
 function euiAnswerNode(id3, parts3, eui) {
   return /* @__PURE__ */ jsx("col", { role: "eui.answer", children: parts3.map((p3, i) => p3.kind === "card" ? euiCardNode(p3.key, eui.view(p3.key, p3.spec), eui) : p3.kind === "bad" ? /* @__PURE__ */ jsxs("col", { role: "eui.card.invalid", children: [
@@ -97796,7 +97797,12 @@ function drawFrame(cx, now = Date.now()) {
   const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null);
   const r = { send: () => void 0, svg: (markup) => cx.eui?.svg(markup) };
   const w = cx.widgets;
-  const slots = w ? { above: w.nodes("above-composer", r), ring: w.nodes("composer-ring", r), below: w.nodes("below-composer", r) } : {};
+  const work2 = cx.workTree?.node(cx.transcript, cx.session.info?.cwd ?? "", r, (name, css2) => {
+    if (euiSheets.get(name) === css2) return;
+    euiSheets.set(name, css2);
+    cx.surface.raw?.stylesheet(name, css2);
+  });
+  const slots = { above: w?.nodes("above-composer", r) ?? [], ring: w?.nodes("composer-ring", r) ?? [], below: [...work2 ? [work2] : [], ...w?.nodes("below-composer", r) ?? []] };
   const chrome = {
     dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions, slots)],
     layer: [
@@ -99336,7 +99342,7 @@ var Sidebar = class {
       label: `#${e.ref.number} ${e.pr?.title ?? e.ref.repository}`,
       ...optional("warning", e.pr?.state === "open" && e.pr.mergeable === "conflicting" ? "Conflicts with its base branch" : void 0)
     })) : [{ disabled: "Hermes links each PR it opens; the branch\u2019s PR shows here too.", id: "no-prs", label: "None yet" }];
-    const fileRows = files.length ? files.slice(0, MAX_FILES).map((f2) => ({
+    const fileRows2 = files.length ? files.slice(0, MAX_FILES).map((f2) => ({
       control: { act: "diff", k: "action", label: "Diff" },
       hint: `${f2.status}${f2.staged ? ", staged" : ""} \xB7 +${f2.additions} \u2212${f2.deletions}`,
       id: `file:${f2.path}`,
@@ -99352,11 +99358,11 @@ var Sidebar = class {
         sections: [
           { id: "branch", rows: branchRows, title: "Branch" },
           { id: "prs", rows: prRows, title: `Pull requests${prs.length ? ` \xB7 ${prs.length}` : ""}` },
-          ...fileRows.length ? [
+          ...fileRows2.length ? [
             {
               id: "files",
               rows: [
-                ...fileRows,
+                ...fileRows2,
                 ...files.length > MAX_FILES ? [{ control: { act: "all-files", k: "action", label: "Show all" }, id: "more", label: `${files.length - MAX_FILES} more` }] : []
               ],
               title: files.length ? `Changes \xB7 ${files.length} files \xB7 +${added} \u2212${removed}` : "Changes"
@@ -99898,6 +99904,265 @@ var GlideWidgets = class {
   }
 };
 
+// src/glideui/workTree.ts
+import { posix } from "node:path";
+var TODO_STATE = { pending: "pending", in_progress: "running", completed: "done", cancelled: "cancelled" };
+var MARK2 = { pending: "\u25CB", running: "\u25C9", done: "\u2713", error: "!", cancelled: "\u2212", untracked: "\u25CB", unconfirmed: "?" };
+var tone2 = (state) => state === "running" ? "accent" : state === "error" ? "error" : "neutral";
+var plural4 = (n4, word) => `${n4} ${word}${n4 === 1 ? "" : "s"}`;
+function filePath(raw2, cwd) {
+  const path2 = posix.normalize(raw2.trim());
+  const root7 = cwd ? posix.normalize(cwd) : "";
+  return root7 && path2.startsWith(root7 + "/") ? path2.slice(root7.length + 1) : path2;
+}
+function targets(call, cwd) {
+  const d = detailOf(call);
+  if (d.tool !== "read_file" && d.tool !== "patch" && d.tool !== "write_file") return [];
+  const found = /* @__PURE__ */ new Map();
+  const put = (path2, action2) => {
+    if (typeof path2 === "string" && path2.trim()) found.set(filePath(path2, cwd), action2);
+  };
+  const action = d.tool === "read_file" ? "read" : d.tool === "patch" ? "edit" : "write";
+  put(d.path, action);
+  if (d.tool === "patch" && typeof call.args["patch"] === "string") {
+    for (const m2 of call.args["patch"].matchAll(/^\*\*\* (Add|Update|Delete) File: (.+)$/gm)) put(m2[2], m2[1] === "Add" ? "create" : m2[1] === "Delete" ? "delete" : "edit");
+    for (const m2 of call.args["patch"].matchAll(/^\*\*\* Move to: (.+)$/gm)) put(m2[1], "edit");
+  }
+  const result = resultOf(call);
+  if (call.completedAt !== void 0 && call.outcome.kind === "done" && d.tool !== "read_file") {
+    for (const [key3, kind] of [["files_modified", "edit"], ["files_created", "create"], ["files_deleted", "delete"]]) {
+      const paths = result?.[key3];
+      if (Array.isArray(paths)) for (const path2 of paths) put(path2, kind);
+    }
+  }
+  return [...found].map(([path2, action2]) => ({ path: path2, action: action2 }));
+}
+function fileState(call, turn2) {
+  if (call.outcome.kind === "error" || call.outcome.kind === "cancelled") return call.outcome.kind;
+  const result = resultOf(call);
+  if (result?.["success"] === false || result?.["failed"] === true || result?.["is_error"] === true) return "error";
+  if (result?.["partial"] === true) return "unconfirmed";
+  if (call.completedAt !== void 0) return "done";
+  return call.outcome.kind === "running" && turn2.end.status === "live" ? "running" : "unconfirmed";
+}
+function projectWorkTree(entries2, turn2, cwd) {
+  const calls = turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call] : []);
+  const byPath = /* @__PURE__ */ new Map();
+  for (const call of calls) {
+    for (const target2 of targets(call, cwd)) {
+      const ops = byPath.get(target2.path) ?? [];
+      ops.push({ ...target2, state: fileState(call, turn2) });
+      byPath.set(target2.path, ops);
+    }
+  }
+  const files = [...byPath.values()].flatMap((ops) => {
+    const edits = ops.filter((op) => op.action !== "read");
+    const relevant = edits.length ? edits : ops;
+    const latest2 = relevant.findLast((op) => op.state === "running") ?? relevant.at(-1);
+    return latest2 ? [latest2] : [];
+  });
+  const snapshot4 = turn2.todos;
+  const index2 = entries2.indexOf(turn2);
+  const prompt = entries2.slice(0, index2).findLast((e) => e.kind === "user" && !e.steered);
+  const clauses = (prompt?.kind === "user" ? prompt.text : turn2.continued ?? "Working on your request").split(/\n+|;\s*/).map((s2) => s2.replace(/^\s*(?:[-*]|\d+[.)])\s+/, "").trim()).filter(Boolean).slice(0, 32);
+  const tasks = snapshot4 === void 0 ? clauses.map((text22, i) => ({ id: `ask-${i}`, text: text22, state: "untracked" })) : snapshot4.map((t) => ({ id: t.id, text: t.content, state: TODO_STATE[t.status], ...t.parent ? { parent: t.parent } : {} }));
+  const done = tasks.filter((t) => t.state === "done").length;
+  const open5 = tasks.filter((t) => t.state === "pending" || t.state === "running").length;
+  const untracked = tasks.filter((t) => t.state === "untracked").length;
+  const failed = files.filter((f2) => f2.state === "error").length;
+  const unconfirmed = files.filter((f2) => f2.state === "unconfirmed").length;
+  const state = { live: "Working", done: "Turn ended", error: "Turn failed", interrupted: "Interrupted" }[turn2.end.status];
+  const receipt = [
+    state,
+    plural4(files.length, "file"),
+    snapshot4 === void 0 ? `${untracked} requested \xB7 untracked` : `${done}/${tasks.filter((t) => t.state !== "cancelled").length} tasks done`,
+    ...open5 ? [`${open5} open`] : [],
+    ...failed ? [`${failed} failed`] : [],
+    ...unconfirmed ? [`${unconfirmed} unconfirmed`] : []
+  ].join(" \xB7 ");
+  return { turn: turn2, files, tasks, receipt };
+}
+function taskRows(tasks) {
+  const unique = new Map(tasks.map((t) => [t.id, t]));
+  const children3 = /* @__PURE__ */ new Map();
+  for (const task2 of unique.values()) {
+    const parent = task2.parent && unique.has(task2.parent) && task2.parent !== task2.id ? task2.parent : "";
+    children3.set(parent, [...children3.get(parent) ?? [], task2]);
+  }
+  const rows2 = [];
+  const seen = /* @__PURE__ */ new Set();
+  const walk = (roots) => {
+    const stack = roots.map((task2) => ({ task: task2, depth: 0 })).reverse();
+    while (stack.length) {
+      const next2 = stack.pop();
+      if (!next2 || seen.has(next2.task.id)) continue;
+      const { task: task2, depth } = next2;
+      seen.add(task2.id);
+      rows2.push({ id: task2.id, label: `${"  ".repeat(Math.min(depth, 8))}${depth ? "\u2514 " : ""}${MARK2[task2.state]} ${task2.text}`, value: task2.state === "untracked" ? "requested" : task2.state, tone: tone2(task2.state) });
+      stack.push(...(children3.get(task2.id) ?? []).map((task3) => ({ task: task3, depth: depth + 1 })).reverse());
+    }
+  };
+  walk(children3.get("") ?? []);
+  walk([...unique.values()].filter((t) => !seen.has(t.id)));
+  return rows2;
+}
+function fileRows(files) {
+  const rows2 = [];
+  const dirs = /* @__PURE__ */ new Set();
+  for (const file2 of [...files].sort((a2, b) => a2.path.localeCompare(b.path))) {
+    const parts3 = file2.path.split("/").filter(Boolean);
+    for (let i = 0; i < parts3.length - 1; i++) {
+      const path2 = parts3.slice(0, i + 1).join("/");
+      if (dirs.has(path2)) continue;
+      dirs.add(path2);
+      rows2.push({ id: `dir:${path2}`, label: `${"  ".repeat(Math.min(i, 8))}\u2514 ${parts3[i]}/` });
+    }
+    rows2.push({
+      id: `file:${file2.path}`,
+      label: `${"  ".repeat(Math.min(parts3.length - 1, 8))}\u2514 ${MARK2[file2.state]} ${parts3.at(-1) ?? file2.path}`,
+      ...file2.action === "read" ? { detail: "Read" } : {},
+      value: file2.state === "running" ? file2.action === "read" ? "reading" : file2.action === "create" ? "creating" : file2.action === "write" ? "writing" : "editing" : file2.state === "done" ? file2.action === "read" ? "read" : file2.action === "create" ? "created" : file2.action === "delete" ? "deleted" : "edited" : file2.state,
+      tone: tone2(file2.state)
+    });
+  }
+  return rows2;
+}
+function workTreeDoc(work2, tab3, expanded) {
+  const rows2 = tab3 === "files" ? fileRows(work2.files) : taskRows(work2.tasks);
+  return {
+    id: "work-tree",
+    title: "Work tree",
+    app: work2.turn.end.status === "live" ? "LIVE" : "RECEIPT",
+    status: work2.turn.end.status === "live" ? "running" : work2.turn.end.status === "error" ? "error" : "done",
+    slots: {
+      tabs: slot("Tabs", { active: tab3, items: [{ id: "files", label: "FILES", count: work2.files.length, intent: { action: "tab", entities: { tab: "files" } } }, { id: "tasks", label: "FEATURES / TASKS", count: work2.tasks.length, intent: { action: "tab", entities: { tab: "tasks" } } }] }),
+      rows: slot("List", { numbered: false, items: rows2 }),
+      empty: slot("Text", { body: tab3 === "files" ? "Waiting for file tools\u2026" : "No tasks in the current plan.", tone: "muted" }),
+      receipt: slot("Text", { body: work2.receipt }),
+      actions: slot("Buttons", { items: [{ label: expanded ? "Collapse work tree" : "Show work tree", intent: { action: expanded ? "collapse" : "expand" } }] })
+    }
+  };
+}
+
+// src/glideui/workTreeCard.tsx
+var PROGRAM = 'root = GlideCard("work-tree", [Tabs("tabs"), List("rows"), Text("receipt"), Buttons("actions")])';
+var EMPTY4 = PROGRAM.replace('List("rows")', 'Text("empty")');
+var RECEIPT = 'root = GlideCard("work-tree", [Text("receipt"), Buttons("actions")])';
+var WorkTreeCard = class {
+  #changed;
+  #glide;
+  #views = /* @__PURE__ */ new Map();
+  #loading;
+  #error = "";
+  #source;
+  #owner;
+  #scope = "";
+  #tab = "files";
+  #expanded = true;
+  #ended = false;
+  #closed = false;
+  constructor(changed) {
+    this.#changed = changed;
+  }
+  get scope() {
+    return this.#scope;
+  }
+  ready() {
+    this.#loading ??= glide().then((g) => {
+      for (const source3 of [PROGRAM, EMPTY4, RECEIPT]) this.#views.set(source3, g.compile(source3, "work-tree"));
+      if (!this.#closed) {
+        this.#glide = g;
+        this.#changed();
+      }
+    }).catch((error) => {
+      this.#error = error instanceof Error ? error.message : String(error);
+      if (!this.#closed) this.#changed();
+    });
+    return this.#loading;
+  }
+  node(source3, cwd, render4, sheet) {
+    this.#source = source3;
+    const turn2 = source3.live ?? (this.#owner && source3.entries.includes(this.#owner) ? this.#owner : void 0);
+    const scope2 = turn2 ? `${source3.lifetime}:${turn2.id}` : "";
+    if (scope2 !== this.#scope) {
+      this.#scope = scope2;
+      this.#owner = turn2;
+      this.#expanded = true;
+      this.#ended = false;
+      this.#tab = "files";
+    }
+    if (!turn2 || this.#closed) return null;
+    if (turn2.end.status !== "live" && !this.#ended) {
+      this.#ended = true;
+      this.#expanded = false;
+    }
+    const work2 = projectWorkTree(source3.entries, turn2, cwd);
+    sheet(UI_SHEET, UI_CSS);
+    sheet(MOTION_SHEET, MOTION_CSS);
+    const active2 = this.#tab === "files" && this.#expanded ? fileRows(work2.files).flatMap((r, i) => r.tone === "accent" && r.value !== "reading" ? [i] : []) : [];
+    const reads = this.#tab === "files" && this.#expanded ? fileRows(work2.files).flatMap((r, i) => r.value === "read" || r.value === "reading" ? [i] : []) : [];
+    sheet("glide-work-tree", workTreeCss(active2, reads));
+    if (!this.#glide) {
+      void this.ready();
+      return /* @__PURE__ */ jsx("text", { role: "glide.work-tree.notice", text: this.#error ? `Work tree unavailable: ${this.#error}` : "Preparing work tree\u2026", wrap: "word" }, "glide.work-tree.loading");
+    }
+    const doc = workTreeDoc(work2, this.#tab, this.#expanded);
+    const rows2 = this.#tab === "files" ? work2.files : work2.tasks;
+    const program = this.#expanded ? rows2.length ? PROGRAM : EMPTY4 : RECEIPT;
+    const view = this.#views.get(program);
+    if (!view) return null;
+    const bound2 = this.#glide.bind(view, doc);
+    return /* @__PURE__ */ jsx("col", { role: this.#expanded ? "glide.work-tree" : "glide.work-tree.receipt", children: node2(bound2, "card", { ...render4, send: (intent5) => this.send(scope2, intent5) }) }, "glide.work-tree");
+  }
+  send(scope2, intent5) {
+    const source3 = this.#source;
+    const owner2 = this.#owner;
+    if (this.#closed || !source3 || !owner2 || scope2 !== this.#scope || scope2 !== `${source3.lifetime}:${owner2.id}` || !source3.entries.includes(owner2) || source3.live && source3.live !== owner2) return;
+    if (intent5.action === "tab") {
+      const tab3 = intent5.entities?.["tab"];
+      if (tab3 !== "files" && tab3 !== "tasks") return;
+      this.#tab = tab3;
+    } else if (intent5.action === "expand" || intent5.action === "collapse") {
+      this.#expanded = intent5.action === "expand";
+    } else return;
+    this.#changed();
+  }
+  dispose() {
+    this.#closed = true;
+    this.#source = void 0;
+    this.#owner = void 0;
+  }
+};
+function workTreeCss(active2, reads = []) {
+  const root7 = "[data-role='glide.work-tree']";
+  const both = ":is([data-role='glide.work-tree'],[data-role='glide.work-tree.receipt'])";
+  const pulses = active2.map((i) => `${root7} [data-role='glide.list'] > :nth-child(${i + 1}) [data-role='glide.list.row']`).join(",");
+  const editing = active2.map((i) => `${root7} [data-role='glide.list'] > :nth-child(${i + 1}) [data-role='glide.strong']`).join(",");
+  const dim = reads.map((i) => `${root7} [data-role='glide.list'] > :nth-child(${i + 1}) [data-role='glide.strong']`).join(",");
+  return `
+${both}{font-size:${TYPE.body}px;min-width:0}
+${both} .sf-card{border-radius:${RADIUS.tile}px;box-shadow:none;border:1px solid var(--l3);background:var(--l1);color:var(--t1);padding:14px}
+${both} .sf-card-head,${both} .sf-card-body{padding:0}
+${both} .sf-chip.st-running{color:var(--t2);background:var(--l2)}
+${both} [data-role='glide.body']{padding:0;gap:6px}
+${both} [data-role='glide.source']{opacity:1}
+${both} [data-role='glide.list']{max-height:156px;overflow:auto;gap:0}
+${both} [data-role='glide.list.row']{padding:2px 6px;min-height:28px;border-left:2px solid transparent;gap:8px}
+${both} [data-role='glide.strong']{font-family:${MONO};font-size:${TYPE.small}px;font-weight:400;white-space:pre;min-width:0;color:var(--t1)}
+${both} [data-role='glide.list.value']{font-size:${TYPE.meta}px;color:var(--t2);flex-shrink:0}
+${both} [data-role='glide.muted']{font-size:${TYPE.meta}px;opacity:1;color:var(--t3)}
+${both} [data-role='glide.text']{font-size:${TYPE.meta}px;color:var(--t2)}
+${both} [data-role='glide.actions']{gap:4px}
+${both} [data-role='glide.actions'] button{font-size:${TYPE.meta}px;min-height:28px;padding:2px 8px}
+${pulses ? `${pulses}{border-left-color:var(--accent);animation:glide-work-edit 1.4s ease-in-out infinite}` : ""}
+@keyframes glide-work-edit{0%,100%{border-left-color:var(--accent)}50%{border-left-color:var(--l3)}}
+${editing ? `${editing}{color:var(--accent)}` : ""}
+${dim ? `${dim}{color:var(--t3)}` : ""}
+@media (prefers-reduced-motion:reduce){${root7} [data-role='glide.list.row']{animation:none!important}}
+@media (max-width:480px){${both} .sf-card{padding:10px}${both} [data-role='glide.list']{max-height:116px}${both} [data-role='glide.list.value']{max-width:9ch}${both} .sf-tabs button{min-height:44px}}
+`;
+}
+
 // src/todo-hud.ts
 var MAX_CACHED_SESSIONS = 24;
 var TodoHud = class {
@@ -100152,8 +100417,8 @@ var ConnectWatcher = class {
     this.#finals.add(call);
     if (card && final && record(call.result)?.["op_id"] === op.id) {
       const before2 = new Map(card.targets.map((t) => [t.name, t]));
-      const targets = final.targets.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url }));
-      this.#host.transcript.mutateCall(call, (c) => c.connect = { ...card, settled: final.settled, targets });
+      const targets2 = final.targets.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url }));
+      this.#host.transcript.mutateCall(call, (c) => c.connect = { ...card, settled: final.settled, targets: targets2 });
       this.#host.changed();
     }
   }
@@ -103864,8 +104129,8 @@ var Transcript = class {
     }
     this.user({ at: at2, attachments, text: text22 });
   }
-  notice(text22, tone2 = "info") {
-    this.push({ id: this.id("n"), kind: "notice", text: text22, tone: tone2 });
+  notice(text22, tone3 = "info") {
+    this.push({ id: this.id("n"), kind: "notice", text: text22, tone: tone3 });
   }
   panel(title2, text22) {
     this.push({ id: this.id("p"), kind: "panel", text: text22, title: title2 });
@@ -103981,13 +104246,12 @@ var Transcript = class {
       via: u.via
     };
     const before2 = this.currentTodos();
-    if (isTodoName(call.name)) {
-      call.todosBefore = before2;
-    }
+    if (isTodoName(call.name)) call.todosBefore = before2;
     const d = detailOf(call);
     if (d.tool === "todo_list" && d.todos) {
       call.todos = todosOf({ merge: d.merge, todos: d.todos }, before2);
     }
+    if (call.todos !== void 0) turn2.todos = call.todos;
     turn2.blocks.push({ call, id: call.id, kind: "tool" });
     this.#touchTurn(turn2);
   }
@@ -104007,6 +104271,7 @@ var Transcript = class {
     const interrupted = p3.name === "terminal" && typeof output === "string" && /\[Command interrupted\]\s*$/.test(output);
     const duration4 = typeof p3.duration_s === "number" ? Math.round(p3.duration_s * 1e3) : at2 - call.startedAt;
     const summary4 = p3.summary ?? void 0;
+    call.completedAt = at2;
     call.resultText = p3.result_text ?? void 0;
     call.result = p3.result;
     call.diff = p3.inline_diff ?? void 0;
@@ -104022,15 +104287,17 @@ var Transcript = class {
     if (Array.isArray(p3.todos)) {
       call.todos = toTodos(p3.todos);
     }
+    if (call.todos !== void 0) turn2.todos = call.todos;
     this.#touchTurn(turn2);
   }
-  /** The newest todo snapshot lands on the newest todo tool call. */
   todos(todos2) {
+    const live = this.#live;
+    if (!live) return;
+    const snapshot4 = toTodos(todos2);
     const found = this.#lastTool((c) => isTodoName(c.name) && c.outcome.kind === "running");
-    if (found) {
-      found.call.todos = toTodos(todos2);
-      this.#touchTurn(found.turn);
-    }
+    if (found) found.call.todos = snapshot4;
+    live.todos = snapshot4;
+    this.#touchTurn(live);
   }
   complete(p3, at2 = Date.now()) {
     const turn2 = this.#open(at2);
@@ -104981,6 +105248,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   const session2 = new SessionState(changed);
   const viewer = new Viewer(gw2);
   const transcript = new Transcript();
+  const workTree = new WorkTreeCard(changed);
   const activity = new Activity();
   const live = {
     changed,
@@ -105018,14 +105286,14 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const prAside = new PrAside({
     changed,
-    notice: (text22, tone2) => chat.notice(text22, tone2),
+    notice: (text22, tone3) => chat.notice(text22, tone3),
     open: openUrl,
     prs,
     reveal: (id3) => chat.reveal(id3),
     scroll: (id3, to) => chat.scroll(id3, to)
   });
   const composer2 = new Composer();
-  const dictation2 = new Dictation({ changed, composer: composer2, note: (text22, tone2) => transcript.notice(text22, tone2) }, recorder);
+  const dictation2 = new Dictation({ changed, composer: composer2, note: (text22, tone3) => transcript.notice(text22, tone3) }, recorder);
   const vimPreference = new VimPreference({ gw: gw2, composer: composer2, sid: () => session2.ref.live, changed });
   const btw = new BtwThreads(chat);
   const operations = new OperationalSheets(chat);
@@ -105057,7 +105325,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       cwd: () => session2.info?.cwd || launch3.cwd,
       gw: gw2,
       launchCwd: launch3.cwd,
-      note: (text22, tone2) => transcript.notice(text22, tone2),
+      note: (text22, tone3) => transcript.notice(text22, tone3),
       owner: () => session2.ref
     },
     { clipboard: (use) => withClipboardImage(use, launch3.hermes), startup: launch3.image }
@@ -105146,7 +105414,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       readVimPreference: () => void vimPreference.refresh(),
       reportCwd: () => act().reportCwd(),
       restoreCompactions: () => void act().restoreCompactions(),
-      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text22, tone2) => chat.notice(text22, tone2), settings: settings2 }, sid)
+      showThoughts: (sid) => showThoughts({ gw: gw2, notice: (text22, tone3) => chat.notice(text22, tone3), settings: settings2 }, sid)
     })
   );
   const talkGateway = new TalkGateway(gw2);
@@ -105190,13 +105458,14 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   }, process.env["GLIDE_AUTO_THEME"] === "1" ? "auto" : saved.theme ?? "tern");
   const completion2 = new Completion(chat, gw2, () => session2.ref.live, () => session2.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
-  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets };
+  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree };
 }
 function disposeStores(s2) {
   s2.mediaDelivery.clear(true);
   s2.liveVoice.dispose();
   s2.theme.dispose();
   s2.widgets.dispose();
+  s2.workTree.dispose();
   s2.laneFeed?.stop();
   s2.dictation.dispose();
   s2.talkGateway.dispose();
@@ -105579,8 +105848,8 @@ var App = class {
     this.#renders.request();
   }
   /** A notice in the transcript, rendered now. */
-  notice(text22, tone2) {
-    this.transcript.notice(text22, tone2);
+  notice(text22, tone3) {
+    this.transcript.notice(text22, tone3);
     this.changed();
   }
   /** An error nothing caught (a rejected promise no caller awaited): shown, so the pane lives on. */
@@ -105629,7 +105898,7 @@ var App = class {
         composer: this.stores.composer,
         sid: () => this.session.ref.live,
         changed: () => this.changed(),
-        notice: (text22, tone2) => this.notice(text22, tone2),
+        notice: (text22, tone3) => this.notice(text22, tone3),
         panel: (title2, text22) => this.transcript.panel(title2, text22)
       });
     } finally {
