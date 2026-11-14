@@ -16,6 +16,7 @@ import { commandReply } from '../wire/json.js'
 import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
 import type { ThemeMode } from '../settings.js'
 import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
+import { studioCommand } from '../../../glide/frontend/studioCommand.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
 import { cleanFocus } from '../voice/cleanFocus.js'
@@ -182,6 +183,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const [verb, ...rest] = arg.trim().split(/\s+/)
 
   try {
+    if (verb === 'studio') {
+      await studioCommand(host, rest.join(' ') || process.env['GLIDE_STUDIO_PROJECT'] || '')
+      return
+    }
     if (verb === 'taste') {
       const board = tasteBoard(await call('taste'))
       if (host.session.ref !== ref || host.session.ref.live !== sid) return

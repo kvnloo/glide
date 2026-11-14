@@ -153,6 +153,7 @@ frontend/scripts/fleet-kit-fixture.mjs  # upstream: kvnloo/glide#265; brief-requ
 frontend/scripts/fleet-python.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend producer-test setup
 frontend/scripts/fleet-verify.sh  # upstream: kvnloo/glide#265; brief-required upstream-layout integration, frontend fleet verification
 frontend/scripts/vendor-ephemeral-ui.mjs
+frontend/scripts/verify-studio.ts
 frontend/src/__tests__/__snapshots__/golden/agent-wait-solo.json
 frontend/src/__tests__/__snapshots__/golden/agent-wait-tiles.json
 frontend/src/__tests__/__snapshots__/golden/context-meter.json
@@ -321,6 +322,8 @@ frontend/src/__tests__/sideGateway.test.ts
 frontend/src/__tests__/sideSetup.ts
 frontend/src/__tests__/skillStub.test.ts
 frontend/src/__tests__/staleWrite.test.ts
+frontend/src/__tests__/studio.test.ts
+frontend/src/__tests__/studioCommand.test.ts
 frontend/src/__tests__/subagentTranscript.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
@@ -329,6 +332,7 @@ frontend/src/__tests__/tableCharts.test.ts
 frontend/src/__tests__/talkGateway.test.ts
 frontend/src/__tests__/talkNative.test.ts
 frontend/src/__tests__/tasteCard.test.ts
+frontend/src/__tests__/tasteCommand.test.ts
 frontend/src/__tests__/terminalAsyncNotify.test.ts
 frontend/src/__tests__/terminalDescription.test.ts
 frontend/src/__tests__/terminalMasked.test.ts
@@ -527,6 +531,7 @@ frontend/src/wire/intel.ts  # upstream: intel.v0 brief-required command boundary
 frontend/src/wire/openui.ts
 frontend/src/wire/plan.ts
 frontend/src/wire/side.ts
+frontend/src/wire/studio.ts
 gateway_operations.py
 media_backend.py
 plan_gateway.py

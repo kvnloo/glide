@@ -608,4 +608,3 @@ export class App implements ChatPorts {
     return applyEffort(this, value, scope)
   }
 }
-
