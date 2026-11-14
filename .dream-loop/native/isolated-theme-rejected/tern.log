@@ -1,0 +1,12 @@
+MESA-INTEL: warning: Haswell Vulkan support is incomplete
+ WARN wgpu_core::instance: Feature MAPPABLE_PRIMARY_BUFFERS enabled on a discrete gpu. This is a massive performance footgun and likely not what you wanted
+tern: control on /tmp/glide-w8-cohesion/tern/ctl-1794691869035301669.sock
+tern: serving (`tern ctl quit` stops)
+> account signed-in atlas
+< {"ok":true}
+> resize 1060 596
+< {"ok":true}
+> appearance dark
+< {"ok":true}
+> theme dark dash
+< {"ok":false,"error":"no theme called \"dash\""}

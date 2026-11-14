@@ -1,0 +1,59 @@
+{
+  "status": "blocked",
+  "source_revision": "653d6e98c669f9293c4d4d5f625714a398345dbe",
+  "threshold_kib": 6291456,
+  "samples": [
+    {
+      "time": 1794687360.1702144,
+      "available_kib": 5571144
+    },
+    {
+      "time": 1794687370.170979,
+      "available_kib": 5474572
+    },
+    {
+      "time": 1794687380.1748426,
+      "available_kib": 5388500
+    },
+    {
+      "time": 1794687390.176866,
+      "available_kib": 5339096
+    },
+    {
+      "time": 1794687400.1779165,
+      "available_kib": 5112012
+    },
+    {
+      "time": 1794687410.1787465,
+      "available_kib": 5308536
+    },
+    {
+      "time": 1794687420.1793368,
+      "available_kib": 5355952
+    },
+    {
+      "time": 1794687430.1803415,
+      "available_kib": 5330120
+    },
+    {
+      "time": 1794687440.1836905,
+      "available_kib": 5339712
+    },
+    {
+      "time": 1794687450.184687,
+      "available_kib": 5262532
+    },
+    {
+      "time": 1794687460.1871943,
+      "available_kib": 5227604
+    },
+    {
+      "time": 1794687470.1885083,
+      "available_kib": 5147968
+    }
+  ],
+  "captures": [],
+  "display_access": false,
+  "reason": "MemAvailable never exceeded the required 6 GiB.",
+  "memory_after_kib": 5147968
+}

@@ -1,0 +1,23 @@
+F..F.
+======================================================================
+FAIL: test_error_panel_is_not_ready (__main__.ReadinessTest.test_error_panel_is_not_ready)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_native_baseline.py", line 29, in test_error_panel_is_not_ready
+    self.assertFalse(self.ready([{'class': 'sf-editor'}, {'text': 'fake-model'}, {'class': 'sf-t-error', 'text': 'failed'}]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_shell_command_is_not_a_rendered_app (__main__.ReadinessTest.test_shell_command_is_not_a_rendered_app)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_native_baseline.py", line 17, in test_shell_command_is_not_a_rendered_app
+    self.assertFalse(self.ready([{'tag': 'span', 'text': 'hermes tern --model fake-model sf-editor'}]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+FAILED (failures=2)

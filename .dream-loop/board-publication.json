@@ -1,0 +1,30 @@
+{
+  "url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/",
+  "kind": "diagnostic only; no accepted candidate",
+  "checks": [
+    {
+      "url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/",
+      "status": 200,
+      "content_type": "text/html",
+      "sha256": "cd5943c1a69bc93f75b2f9e5508a27f95547427161c0fb3cd8f612e0bfaf4cf0"
+    },
+    {
+      "url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/assets/welcome-native.png",
+      "status": 200,
+      "content_type": "image/png",
+      "sha256": "1f961f492e08df9bd3488c2e88ec20139f999deac95c635d4441e160a2efa92d"
+    },
+    {
+      "url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/assets/welcome-preview.png",
+      "status": 200,
+      "content_type": "image/png",
+      "sha256": "6d41c1411a7ca45e88b996e903e3a1faa7628e36b4add0798dd30dbe75a6493c"
+    },
+    {
+      "url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/assets/omp-ref.png",
+      "status": 200,
+      "content_type": "image/png",
+      "sha256": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+    }
+  ]
+}

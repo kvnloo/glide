@@ -1,0 +1,23 @@
+EE.....
+======================================================================
+ERROR: test_only_explicit_synthetic_glide_settings_are_restored (__main__.IsolationTest.test_only_explicit_synthetic_glide_settings_are_restored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_native_baseline.py", line 43, in test_only_explicit_synthetic_glide_settings_are_restored
+    env = baseline.isolated_env({'PATH': '/usr/bin', 'GLIDE_AUTO_THEME': '1', 'GLIDE_LANES_URL': 'https://owner.invalid'}, {'GLIDE_LANES_URL': 'http://127.0.0.1:18749'})
+          ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'native_baseline' has no attribute 'isolated_env'
+
+======================================================================
+ERROR: test_owner_display_and_runtime_settings_are_removed (__main__.IsolationTest.test_owner_display_and_runtime_settings_are_removed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_native_baseline.py", line 35, in test_owner_display_and_runtime_settings_are_removed
+    env = baseline.isolated_env(inherited)
+          ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'native_baseline' has no attribute 'isolated_env'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.004s
+
+FAILED (errors=2)
