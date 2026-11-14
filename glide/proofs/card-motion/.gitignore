@@ -1,0 +1,6 @@
+*.layout.json
+*-counts.json
+*-a11y.json
+*-tree.json
+recorder.log
+frames/

@@ -5,17 +5,18 @@ import { connect, ui } from '@stencil-hq/tern'
 import { motionCard } from '../src/__tests__/glideMotionFixtures.js'
 import { MOTION_CSS, MOTION_SHEET } from '../src/glideui/motion.js'
 import { node, UI_CSS, UI_SHEET } from '../src/glideui/render.js'
+import { STYLES } from '../src/view/styles.js'
 
 const session = await connect({ app: 'Glide motion verification' })
 if (!session) throw new Error('Run this verifier in an isolated Tern pane')
 const surface = session.open({ mode: 'screen' })
+surface.stylesheet('glide', STYLES)
 surface.stylesheet(UI_SHEET, UI_CSS)
 surface.stylesheet(MOTION_SHEET, MOTION_CSS)
 surface.stylesheet('motion-proof', `
 [data-role='motion.proof']{--l1:#151515;--l2:#222;--l3:#38342d;--sf-accent:#b99b67;color:#e4ddd1;padding:16px;width:760px;max-width:100%;margin:0 auto}
 [data-role='glide.card']{background:var(--l1);border:1px solid var(--l3);border-radius:8px;padding:14px;box-shadow:none}
 [data-role='motion.hint']{font-size:11px;opacity:.7;margin-bottom:12px}
-[data-role='motion.proof'] button,[data-role='motion.proof'] button::before,[data-role='motion.proof'] button::after{box-shadow:none;background-image:none}
 `)
 let generation = 0, done = false, page = 0
 const draw = (entrance = true) => surface.render([ui.col({ key: 'proof', role: 'motion.proof' }, [

@@ -28,16 +28,17 @@ export function countFrames(value: string): string[] {
   const target = Number(digits.replaceAll(',', ''))
   if (!Number.isFinite(target)) return []
   const decimals = digits.split('.')[1]?.length ?? 0
+  if (decimals > 6) return []
   return Array.from({ length: FRAMES }, (_, i) => {
     if (i === FRAMES - 1) return value
     const scaled = target * (i === 0 ? 0 : ease(i / (FRAMES - 1)))
-    const fixed = scaled.toFixed(decimals)
-    const formatted = digits.includes(',') ? fixed.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : fixed
-    return `${prefix}${formatted}${suffix}`
+    const [whole = '', fraction] = scaled.toFixed(decimals).split('.')
+    const formatted = digits.includes(',') ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : whole
+    return `${prefix}${formatted}${fraction === undefined ? '' : '.' + fraction}${suffix}`
   })
 }
 
-/** Terminal parents win over a stale active child. Unlabelled snapshots do not idle. */
+/** Terminal parents win over a stale active child. */
 export function liveCard(n: UiNode): boolean {
   switch (n.typeName) {
     case 'Card':
@@ -63,18 +64,21 @@ export function figure(value: string, role: string, tone?: UiTone, entrance = tr
 const ROOT = '[data-glide-motion]'
 const LIVE = "[data-glide-motion='live']"
 const ENTER = "[data-glide-enter='yes']"
-const REVEAL = `${ENTER} [data-role='glide.body']>*`
-const ROWS = `${ENTER} [data-role='glide.list']>*,${ENTER} [data-role='glide.flow.row']>*,${ENTER} .sf-table tbody>tr,${ENTER} .sf-checklist-item`
+const ROWS = [
+  "[data-role='glide.body']>*", "[data-role='glide.list']>*", "[data-role='glide.flow.row']>*",
+  "[data-role='glide.table'] .sf-tbl-body>.sf-tbl-row", "[data-role='glide.steps'] .sf-ck-item", "[data-role='glide.kv']>.sf-kv-item"
+]
+const rows = (suffix = '') => ROWS.map(selector => `${ENTER} ${selector}${suffix}`).join(',')
 
 /** Separate from untrusted widget markup checks: only this host-owned sheet may animate cards. */
 export const MOTION_CSS = `
 ${ROOT}{position:relative;--glide-ease:cubic-bezier(0.45,0,0.1,1)}
+${ROOT} [data-role='omp.btn']{box-shadow:none!important}
 ${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline 180ms var(--glide-ease) both}
 ${ENTER}>[data-role='glide.card']{animation:glide-shell 180ms var(--glide-ease) both}
-${REVEAL},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
-${ROWS}{animation:glide-reveal 400ms var(--glide-ease) 160ms backwards}
-${Array.from({ length: 8 }, (_, i) => `${ENTER} [data-role='glide.body']>:nth-child(${i + 1}),${ENTER} [data-role='glide.list']>:nth-child(${i + 1}),${ENTER} .sf-table tbody>tr:nth-child(${i + 1}){animation-delay:${120 + i * 10}ms}`).join('\n')}
-${ENTER} [data-role='glide.body']>:nth-child(n+9),${ENTER} [data-role='glide.list']>:nth-child(n+9),${ENTER} .sf-table tbody>tr:nth-child(n+9){animation-delay:200ms}
+${rows()},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${Array.from({ length: 8 }, (_, i) => `${rows(`:nth-child(${i + 1})`)}{animation-delay:${120 + i * 10}ms}`).join('\n')}
+${rows(':nth-child(n+9)')}{animation-delay:200ms}
 ${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar 480ms var(--glide-ease) 120ms backwards}
 ${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow 480ms var(--glide-ease) 120ms backwards}
 ${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}

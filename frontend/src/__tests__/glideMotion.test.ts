@@ -23,6 +23,8 @@ describe('shared glide/v1 motion', () => {
     }
     expect(countFrames('1,248')[0]).toBe('0')
     expect(countFrames('$12.50')[0]).toBe('$0.00')
+    expect(countFrames('$1,234.5678')[0]).toBe('$0.0000')
+    expect(countFrames('0.' + '1'.repeat(101))).toEqual([])
     expect(countFrames('20:00')).toEqual([])
     expect(countFrames('Done')).toEqual([])
     expect(countFrames('v2.1.0')).toEqual([])
@@ -70,7 +72,7 @@ describe('shared glide/v1 motion', () => {
     expect(MOTION_CSS).toContain('@media (prefers-reduced-motion: reduce)')
     expect(MOTION_CSS).toContain('animation:none!important')
     expect(MOTION_CSS).toContain('.glide-count-frame{display:none!important}')
-    expect(MOTION_CSS).not.toMatch(/box-shadow|text-shadow|filter:|font-size:10px/)
+    expect(MOTION_CSS).not.toMatch(/(?:box|text)-shadow:(?!none)|filter:|font-size:10px/)
     expect(MOTION_CSS).toContain("[data-glide-motion='live']")
   })
 })

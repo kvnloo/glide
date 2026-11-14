@@ -15,7 +15,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 STUDIO = Path('/home/kvn/.hermes/profiles/clean/cache/scratch/studio')
-OUT = ROOT / 'artifacts/card-motion'
+OUT = ROOT / 'glide/proofs/card-motion'
 TERN = '/home/kvn/.local/bin/tern'
 
 
@@ -53,51 +53,54 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     else:
         ctl('tab', 'close')
         raise RuntimeError('The isolated studio tab did not mount the motion verifier')
-    ctl('reduce-motion', 'off')
-    ctl('key', 'r')
-    ctl('motion-at', '260')
-    shot('entrance')
-    (OUT / 'entrance-counts.json').write_text(json.dumps(ctl('dump', '.glide-count-frame'), indent=2))
-    ctl('thaw')
-    ctl('wait', '900')
-    shot('live')
-    (OUT / 'live-a11y.json').write_text(json.dumps(ctl('a11y'), indent=2))
-    socket = next((STUDIO / 'rt').glob('sway-ipc.*.sock'))
-    env = dict(os.environ, XDG_RUNTIME_DIR=str(STUDIO / 'rt'), WAYLAND_DISPLAY='wayland-1', SWAYSOCK=str(socket))
-    sway = json.loads(subprocess.check_output(['swaymsg', '-t', 'get_tree', '-r'], env=env, text=True))
+    try:
+        ctl('reduce-motion', 'off')
+        ctl('key', 'r')
+        time.sleep(0.22)
+        shot('entrance')
+        (OUT / 'entrance-counts.json').write_text(json.dumps(ctl('dump', '.glide-count-frame'), indent=2))
+        ctl('thaw')
+        ctl('wait', '900')
+        shot('live')
+        (OUT / 'live-a11y.json').write_text(json.dumps(ctl('a11y'), indent=2))
+        socket = next((STUDIO / 'rt').glob('sway-ipc.*.sock'))
+        env = dict(os.environ, XDG_RUNTIME_DIR=str(STUDIO / 'rt'), WAYLAND_DISPLAY='wayland-1', SWAYSOCK=str(socket))
+        sway = json.loads(subprocess.check_output(['/home/kvn/.local/opt/sway-nested/bin/swaymsg', '-t', 'get_tree', '-r'], env=env, text=True))
 
-    def nodes(n):
-        yield n
-        for child in n.get('nodes', []) + n.get('floating_nodes', []):
-            yield from nodes(child)
+        def nodes(n):
+            yield n
+            for child in n.get('nodes', []) + n.get('floating_nodes', []):
+                yield from nodes(child)
 
-    window = next(n for n in nodes(sway) if n.get('app_id') == 'tern')
-    rect = window['rect']
-    geom = f"{rect['x']},{rect['y']} {rect['width']}x{rect['height']}"
-    with (OUT / 'recorder.log').open('w') as log:
-        recorder = subprocess.Popen(['wf-recorder', '-g', geom, '-c', 'libx264', '-p', 'preset=ultrafast',
-                                     '-p', 'crf=18', '-y', '-f', str(OUT / 'motion.mp4')], env=env, stdout=log, stderr=log)
-        try:
-            time.sleep(0.6)
-            ctl('key', 'r')
-            time.sleep(2.2)
-            ctl('key', 'd')
-            time.sleep(1.2)
-        finally:
-            recorder.send_signal(signal.SIGINT)
-            if recorder.wait(timeout=20) != 0:
-                raise RuntimeError('Recorder failed; see recorder.log')
-    shot('done')
-    (OUT / 'done-tree.json').write_text(json.dumps(ctl('tree'), indent=2))
-    ctl('key', 'n')
-    ctl('wait', '900')
-    shot('other-parts')
-    ctl('reduce-motion', 'on')
-    ctl('key', 'r')
-    ctl('wait', '30')
-    shot('reduced')
-    (OUT / 'reduced-counts.json').write_text(json.dumps(ctl('dump', '.glide-count-frame'), indent=2))
-    ctl('reduce-motion', 'off')
-    ctl('key', 'q')
-    ctl('tab', 'close')
+        window = next(n for n in nodes(sway) if n.get('app_id') == 'so.stencil.tern')
+        rect = window['rect']
+        geom = f"{rect['x']},{rect['y']} {rect['width']}x{rect['height']}"
+        with (OUT / 'recorder.log').open('w') as log:
+            recorder = subprocess.Popen(['wf-recorder', '-g', geom, '-c', 'libx264', '-p', 'preset=ultrafast',
+                                         '-p', 'crf=18', '-y', '-f', str(OUT / 'motion.mp4')], env=env, stdout=log, stderr=log)
+            try:
+                time.sleep(0.6)
+                ctl('key', 'r')
+                time.sleep(2.2)
+                ctl('key', 'd')
+                time.sleep(1.2)
+            finally:
+                recorder.send_signal(signal.SIGINT)
+                if recorder.wait(timeout=20) != 0:
+                    raise RuntimeError('Recorder failed; see recorder.log')
+        shot('done')
+        (OUT / 'done-tree.json').write_text(json.dumps(ctl('tree'), indent=2))
+        ctl('key', 'n')
+        ctl('wait', '900')
+        shot('other-parts')
+        ctl('key', 'n')
+        ctl('reduce-motion', 'on')
+        ctl('key', 'r')
+        ctl('wait', '30')
+        shot('reduced')
+        (OUT / 'reduced-counts.json').write_text(json.dumps(ctl('dump', '.glide-count-frame'), indent=2))
+    finally:
+        ctl('reduce-motion', 'off')
+        ctl('key', 'q')
+        ctl('tab', 'close')
     print(json.dumps({'stills': [str(OUT / 'entrance.png'), str(OUT / 'live.png')], 'clip': str(OUT / 'motion.mp4')}))

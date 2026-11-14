@@ -79,7 +79,10 @@ describe('widget sources', () => {
   it('counts a focus block down from when it started, across a relaunch', () => {
     const doc = focusDoc(NOW - 5 * 60_000, 25, NOW)
     expect(doc.slots['left']?.p).toMatchObject({ value: '20:00' })
-    expect(focusDoc(NOW - 26 * 60_000, 25, NOW).slots['left']?.p).toMatchObject({ value: 'Done' })
+    expect(doc.status).toBe('running')
+    const finished = focusDoc(NOW - 26 * 60_000, 25, NOW)
+    expect(finished.slots['left']?.p).toMatchObject({ value: 'Done' })
+    expect(finished.status).toBe('done')
   })
 })
 

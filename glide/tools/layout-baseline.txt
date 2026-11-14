@@ -516,3 +516,8 @@ frontend/src/voice/orbitTargets.ts
 frontend/e2e/army/tests/test_runs_dir.py
 frontend/src/__tests__/euiHostLayout.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/designTokens.test.ts  # vitest only collects frontend/src
+frontend/src/glideui/motion.tsx  # upstream: kvnloo/glide#326; shared native renderer integration
+frontend/src/__tests__/glideMotion.test.ts  # upstream: kvnloo/glide#326; frontend Vitest discovery
+frontend/src/__tests__/glideMotionFixtures.ts  # upstream: kvnloo/glide#326; synthetic native part fixtures
+frontend/e2e/card-motion.ts  # upstream: kvnloo/glide#326; Tern SDK resolves through frontend
+frontend/e2e/capture-card-motion.py  # upstream: kvnloo/glide#326; isolated native capture driver
