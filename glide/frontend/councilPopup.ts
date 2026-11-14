@@ -15,7 +15,7 @@ import {
 } from './council.js'
 import { councilOrbSvg, deliverySvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
 import { type CouncilSpeech, type SpeechAudio, platformSpeech, speechSentences } from './councilSpeech.js'
-import { GOLD, MONO, NIGHT, SERIF } from './tokens.js'
+import { GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'
 
 export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'
 const APP = 'glide'
@@ -99,7 +99,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
   })
   const svg = (markup: string, w: number, style = ''): EuiNode => ({ t: 'svg', svg: markup, w, h: w, cls: '', style })
-  const micro = `font-family:${MONO};font-size:11px;letter-spacing:.12em;color:${NIGHT.text3}`
+  const micro = `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${NIGHT.text3}`
   const { run } = src
   const exchange = exchangeAt(run, frame.t, reading.reduceMotion)
   const done = exchange.phase === 'done'
@@ -112,7 +112,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
   const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
     el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
       el('span', micro, [text('COUNCIL · GLIDE · SOCRATIC')]),
-      el('span', `font-family:${MONO};font-size:11px;letter-spacing:.12em;padding:2px 8px;border-radius:999px;` +
+      el('span', `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};padding:2px 8px;border-radius:999px;` +
         (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
       [text(src.live ? `LIVE · ${src.from.toUpperCase()}` : 'DEMO')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })
     ]),
@@ -142,7 +142,7 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     const stateText = `${received ? 'RECEIVED · ' : ''}${state?.state.toUpperCase() ?? 'WAITING'}`
     const ink = received ? MINERAL[seat.mineral].base : NIGHT.text3
     const pulse = reading.reduceMotion || state?.state === 'done' || state?.state === 'waiting' ? 1 : .7 + .3 * Math.sin(exchange.elapsed / 220 + i) ** 2
-    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:11px;letter-spacing:.12em;color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
+    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
     // A short pane gets one line per seat; the verdict prose lives in the transcript card.
     if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid ${received ? ink : NIGHT.border}`, [
       svg(state?.state === 'thinking' || state?.state === 'drafting' ? councilOrbSvg(exchange.elapsed / 1000, pulse, Boolean(reading.reduceMotion), MINERAL[seat.mineral].base).replace('width="320" height="320"', 'width="16" height="16"') : swatchSvg(seat.mineral, 16), 16, `flex:none;opacity:${pulse.toFixed(2)}`),
@@ -345,7 +345,7 @@ function councilSpeakingCard(caption: string, orb: string, reduce: boolean, opac
   const el = (id: number, tag: string, style: string, kids: readonly EuiNode[], attrs: Record<string, string> = {}, click = false): EuiNode => ({ t: 'el', id, tag, cls: '', style, kids, attrs, click })
   return el(20, 'div', '', [el(RETURN_ID, 'section', `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [
     { t: 'svg', svg: orb, w: 320, h: 320, cls: '', style: 'max-width:100%;height:auto' },
-    el(21, 'p', `margin:0;font-size:16px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),
+    el(21, 'p', `margin:0;font-size:${TYPE.name}px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),
     el(RETURN_ID, 'button', `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text('Return to card · any key')], { 'data-eui-action': 'return-to-card' }, true)
   ], { 'data-council-speaking': '', 'data-reduced-motion': String(reduce), role: 'button', 'aria-label': 'Return to council card' }, true)])
 }

@@ -23,7 +23,7 @@ The current SDK does not expose wheel or pointer-move events. Looking at the scr
 Run focused behavior checks from `frontend/`:
 
 ```sh
-bun run test src/__tests__/glideCommand.test.ts src/__tests__/glideWidgets.test.ts
+bun run test src/__tests__/glideCommand.test.ts src/__tests__/talkNative.test.ts src/__tests__/glideWidgets.test.ts src/__tests__/designTokens.test.ts
 bun run typecheck
 bun run lint
 ```

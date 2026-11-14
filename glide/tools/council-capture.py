@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import signal
 import subprocess
 import sys
@@ -55,8 +56,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     recorder = None
     try:
         log = open(OUT / 'native.log', 'w')
-        window = subprocess.Popen(['tern', '--control', ctl, '-e', shutil.which('bun'),
-                                   str(ROOT / 'glide/tools/council-native.mts')], cwd=ROOT, env=env, stdout=log, stderr=log)
+        window = subprocess.Popen(['tern', '--control', ctl, '--dir', str(ROOT)], cwd=ROOT, env=env, stdout=log, stderr=log)
         def control(*args):
             return run(['tern', 'ctl', '--control', ctl, *args], env=env)
         for _ in range(60):
@@ -70,12 +70,26 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         control('theme', 'dark', 'dash')
         control('resize', '1440', '900')
         for _ in range(60):
+            state = json.loads(control('state'))
+            if state.get('focused', {}).get('prompt'):
+                break
+            time.sleep(.5)
+        command = ['env', *[f'{key}={env[key]}' for key in ['PATH', 'LD_LIBRARY_PATH', 'ESPEAK_DATA_PATH', 'PULSE_SERVER', 'PULSE_SINK']],
+                   shutil.which('bun'), str(ROOT / 'glide/tools/council-native.mts')]
+        control('type', json.dumps('exec ' + shlex.join(command) + ' 2>' + shlex.quote(str(OUT / 'app.log'))))
+        control('key', 'Enter')
+        for _ in range(60):
             tree = control('tree')
             if 'Socratic council' in tree:
                 break
+            state = json.loads(control('state'))
+            if state.get('focused', {}).get('exited') is not None:
+                raise RuntimeError('Council process exited: ' + (OUT / 'app.log').read_text())
             time.sleep(.5)
         else:
-            raise RuntimeError('Native council did not mount: ' + tree[-1500:])
+            (OUT / 'mount-tree.json').write_text(tree)
+            (OUT / 'mount-state.json').write_text(control('state'))
+            raise RuntimeError('Native council did not mount; inspect mount-tree.json and mount-state.json')
         sway = str(next((STUDIO / 'rt').glob('sway-ipc.*.sock')))
         swaymsg = SWAYMSG
         # Only this owned headless client is resized. No host compositor commands.

@@ -3,13 +3,13 @@
 - [x] Ground: trace `/council` through `councilCommand`, `openCouncilPopup`, `councilCard`, `euiPopupNode`, and native Tern nodes. Runs are parsed snapshots, not an agent dispatch API. `/voice tts` explicitly has no spoken replies. `orbSvg` owns the reusable thinking-orbs renderer.
 - [x] Sketch: compare two designs below.
 - [x] Agree: autonomous implementation, no owner decision required.
-- [ ] Implement: failing behavior tests, pure exchange projection, popup controls and platform speech.
+- [x] Implement: failing behavior tests, pure exchange projection, popup controls and platform speech.
 - [ ] Verify: focused tests, typecheck, lint, isolated native capture, CI mirror.
 - [ ] Deliver: signed commit, branch push, PR with evidence. Do not merge.
 
 ## Usage and shape
 
-The existing caller still uses `openCouncilPopup(host, source, clock)`. An optional fourth argument supplies speech and reduced-motion capabilities for deterministic tests. `councilCard(source, {t: elapsed})` draws the same popup/card with a typed brief, receipt chips, existing instrument, and clause report. `exchangeAt(run, elapsed, reduce)` derives all visible phases and the original instrument frame from one clock. `CouncilSpeech.speak(sentence, signal)` returns PCM amplitude samples and a cancellable playback handle. No agent requests or verdicts are invented.
+The existing caller still uses `openCouncilPopup(host, source, clock)`. An optional fourth argument supplies speech and reduced-motion capabilities for deterministic tests. `councilCard(source, {t: elapsed})` draws the same popup/card with a typed brief, receipt chips, existing instrument, and clause report. `exchangeAt(run, elapsed, reduce)` derives all visible phases and the original instrument frame from one clock. `CouncilSpeech.speak(sentence, signal, playing)` reports PCM amplitude samples when the player starts and resolves when playback ends. Its abort signal cancels playback. No agent requests or verdicts are invented.
 
 ## Alternatives and synthesis
 

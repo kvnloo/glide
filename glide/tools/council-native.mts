@@ -8,7 +8,7 @@ import { openCouncilPopup, type CouncilHost } from '../frontend/councilPopup.js'
 
 const session = await connect({ app: 'Council verification', features: ['edit'] })
 if (!session) throw new Error('Native Tern Surface Protocol is required')
-const surface = session.open({ mode: 'alt', title: 'Council · synthetic verification', role: 'council-proof' })
+const surface = session.open({ mode: 'inline', title: 'Council · synthetic verification', role: 'council-proof' })
 let overlay: Overlay | undefined
 let ready = false
 const paint = () => {
