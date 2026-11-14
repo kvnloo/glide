@@ -95,6 +95,23 @@ describe('/glide intent', () => {
     expect(proof).not.toContain('no receipt yet')
   })
 
+  it('closes the approved rail with the receipt: every task succeeded, citing its hash', async () => {
+    const { host, titles, view } = setup()
+    await glideCommand(host, 'intent Make the voice orb feel alive, and ship it in the plugin by Friday.')
+    await glideCommand(host, 'intent proof')
+    expect(titles()).toHaveLength(3) // not approved: receipt only, the rail stays as it was
+    await glideCommand(host, 'intent Make the voice orb feel alive, and ship it in the plugin by Friday.')
+    must(view(4).activate)(HOST_APPROVE_ID)
+    await settle()
+    await glideCommand(host, 'intent proof')
+    expect(titles().slice(-2)).toEqual(['Show me the real-turn receipt', 'Implementation is not acceptance'])
+    const rail = JSON.stringify(view(titles().length - 1))
+    for (const t of ['T1', 'T2', 'T3']) expect(rail).toContain(t)
+    expect(rail).toContain('succeeded')
+    expect(rail).not.toMatch(/running|declared/)
+    expect(rail).toMatch(/cites receipt [0-9a-f]{8}/)
+  })
+
   it('asks for the ask when it is missing', async () => {
     const { host, titles, transcript } = setup()
     await glideCommand(host, 'intent')

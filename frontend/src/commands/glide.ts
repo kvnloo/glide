@@ -389,6 +389,8 @@ const SAMPLE_HOSTS = [
 ]
 
 const lastAsk = new WeakMap<Cards, string>()
+// Panes whose last contract was approved (its work rail is up).
+const approved = new WeakSet<Cards>()
 
 // /glide intent proof: the receipt card for the last ask. Nothing has run, so it is a labelled sample:
 // the stamp is the ask's own hash, standing in for the hash a real turn would leave.
@@ -398,10 +400,18 @@ function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void
     transcript.notice('Usage: /glide intent <ask>, then /glide intent proof', 'warning')
     return
   }
+  const hash = createHash('sha256').update(ask).digest('hex').slice(0, 16)
   cards.publish({
     kind: 'intent-proof', app: 'aodl', title: 'Show me the real-turn receipt',
     summary: 'Sample receipt · no real turn has run yet. The chip is a fingerprint of your ask.',
-    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: createHash('sha256').update(ask).digest('hex').slice(0, 16) }, { label: 'sample', value: 'receipt' }]
+    rows: [{ label: 'receipts', value: 1 }, { label: 'hash', value: hash }, { label: 'sample', value: 'receipt' }]
+  })
+  // After an approved contract, the receipt closes the rail: every task succeeded, each cites the receipt.
+  if (!approved.has(cards)) return
+  cards.publish({
+    kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
+    summary: `Sample plan · every task cites receipt ${hash.slice(0, 8)}.`,
+    rows: askClauses(ask).map((c, i) => ({ label: `T${i + 1}`, value: `succeeded · ${c.label}` }))
   })
 }
 
@@ -411,6 +421,7 @@ function intentProof(cards: Cards, transcript: Pick<Transcript, 'notice'>): void
 // the lane broker has a call; hosts and budget are sample data until Glide reads them.
 export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] | null): void {
   lastAsk.set(cards, ask)
+  approved.delete(cards)
   const clauses = askClauses(ask)
   cards.publish({ kind: 'intent-declare', app: 'ripple', title: 'One ask. Exact words.', summary: ask.slice(0, 2048), rows: clauses })
   const lane = (p: typeof PLAN[number]) => {
@@ -432,6 +443,7 @@ export function intentCommand(cards: Cards, ask: string, live?: readonly Lane[] 
     approval: { label: 'Hold to approve', description: 'Approve this contract revision for execution. Nothing runs until approved.' }
   }, async ({ signal }) => {
     if (signal.aborted) return
+    approved.add(cards)
     cards.publish({
       kind: 'intent-work', app: 'aodl', title: 'Implementation is not acceptance',
       summary: 'Sample plan · tasks wait in this rail until you approve the contract.',

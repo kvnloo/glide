@@ -99,11 +99,21 @@ describe('design checks', () => {
     expect(checkTree(card, 'below-composer')).toEqual([])
   })
 
+  it('refuse a composer ring without a Meter, since only the Meter draws round the border', () => {
+    const hero: UiNode = { type: 'element', typeName: 'Hero', props: { value: '25:00' } } as UiNode
+    const meter: UiNode = { type: 'element', typeName: 'Meter', props: { value: 0.5 } } as UiNode
+    const card = (children: UiNode[]): UiNode => ({ type: 'element', typeName: 'Card', props: { title: 'focus', children } }) as UiNode
+    expect(checkTree(card([hero]), 'composer-ring')[0]).toMatch(/composer-ring needs a Meter/)
+    expect(checkTree(card([meter, hero]), 'composer-ring')).toEqual([])
+    expect(checkTree(card([hero]), 'below-composer')).toEqual([])
+  })
+
   it('hold a warmed and accented palette to 4.5:1', () => {
     const wal = { special: { background: '#101418', foreground: '#d8dee9' }, colors: { color4: '#5e81ac', color7: '#a0a8b8', color8: '#7a8494' } }
     const warm = walPalette(styleWal(wal, { warmth: 0.8 }), 'test')
     expect(warm.bg).not.toBe(walPalette(wal).bg)
     expect(checkPalette(warm)).toEqual([])
+    for (const w of [0.85, 1]) expect(checkPalette(walPalette(styleWal(wal, { warmth: w }), 'test'))).toEqual([])
     expect(checkPalette(styleAccent(dashPalette(), { accent: '#202020' }))).toEqual([])
     expect(checkPalette({ ...warm, muted: warm.bg })[0]).toMatch(/muted .* under 4.5:1/)
   })

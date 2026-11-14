@@ -47,6 +47,10 @@ export function checkTree(tree: UiNode, slot: WidgetSlot): string[] {
     if (rule.only && !rule.only.includes(n.typeName)) problems.push(`${slot} cannot hold a ${n.typeName}; use ${rule.only.join(', ')}`)
     if (n.typeName === 'Graphic') problems.push(...checkMarkup(n.props.svg, n.props.alt))
   }
+  // The ring is drawn from the Meter alone (widgets.tsx): without one the border stays bare and only the chip shows.
+  if (slot === 'composer-ring' && !leaves.some(n => n.typeName === 'Meter')) {
+    problems.push('composer-ring needs a Meter: it is the fill that runs round the border (add Meter("meter"))')
+  }
   return problems
 }
 
