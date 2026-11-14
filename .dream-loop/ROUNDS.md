@@ -1,6 +1,6 @@
 # W8 rounds
 
-No production visual round was attempted or accepted. Scores and blind verdicts remain unavailable.
+The 16:30 correction resumes this ledger. Round 01 is retained after both swapped judges preferred the candidate. Final native qualification remains open.
 
 ## Baseline recovery
 
@@ -24,3 +24,15 @@ No product tests, typecheck, lint, token drift, native R01–R17 rubric, full-su
 Four additional offline HTTP-handler tests pass. They check quota stops, safe response logging, other HTTP errors, and successful responses. Failing-before and passing-after logs are included.
 
 [Draft PR 342](https://github.com/kvnloo/glide/pull/342) preserves this blocked checkpoint. It is not a finished UI redesign.
+
+## Round 01: welcome form
+
+Hypothesis: replace the full-width welcome card with a compact unboxed lockup, a 32 px mark, and one quiet tip. The palette and Hermes identity stay fixed.
+
+- Baseline: 57 dressed synthetic HEADLESS captures, retained before production edits. `headless/qualified-before/receipt.json` binds source and image hashes.
+- Self-review: desktop and phone show a centered lockup with no box or clipping. The original mark is monochrome.
+- Regression: `welcomeCohesion.test.ts` fails on the original card and missing tip, then passes all 3 checks.
+- Comparison: `rounds/01/compare.png`; overlays: `rounds/01/overlay/`.
+- Fresh A/B: `judges/round01/verdict.json`, both orders select candidate.
+- Calibration: identical-image control ties in both orders. The owner contrast control ties because omp differs in palette and identity. It is confounded, not proof of owner-preference accuracy.
+- Status: retained working preview, not owner approval or native qualification.

@@ -1,0 +1,3 @@
+[notice] [context] skill catalog shortened 16 descriptions: effective=40000 bytes source=compiled default
+
+[notice] skill discovery warning: inventory incomplete because root "/home/kvn/.claude/skills" could not be read, so an unknown number of skills may be missing; fix access to the root and reload skills; candidate "/home/kvn/.agents/skills/abab-meta-research" was skipped because its linked skill directory could not be resolved to an authorized readable directory; repair or remove the link, or authorize its external location, then reload skills; relaunch with FX_TRACE=1 to write a trace log

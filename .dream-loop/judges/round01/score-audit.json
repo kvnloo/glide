@@ -1,0 +1,24 @@
+{
+  "weights": {
+    "glanceable": 20,
+    "actionable": 15,
+    "density": 15,
+    "dash": 15,
+    "glass": 10,
+    "cohesion": 10,
+    "vocabulary": 5,
+    "motion": 5,
+    "phone": 5
+  },
+  "calculated": [
+    {
+      "A": 32.0,
+      "B": 66.0
+    },
+    {
+      "A": 62.0,
+      "B": 41.0
+    }
+  ],
+  "note": "Model-reported totals are not authoritative. Recomputed from criterion scores."
+}

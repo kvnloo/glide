@@ -1,0 +1,62 @@
+{
+  "trial": 1,
+  "exit": 0,
+  "selected": "tie",
+  "data": {
+    "winner": "tie",
+    "A": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 2,
+        "density": 3,
+        "dash": 1,
+        "glass": 1,
+        "cohesion": 3,
+        "vocabulary": 2,
+        "motion": 0,
+        "phone": 0
+      },
+      "weighted": 40
+    },
+    "B": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 2,
+        "density": 3,
+        "dash": 1,
+        "glass": 1,
+        "cohesion": 3,
+        "vocabulary": 2,
+        "motion": 0,
+        "phone": 0
+      },
+      "weighted": 40
+    },
+    "image_grounding": [
+      "TARGET, A, and B appear identical, each 1060\u00d7596 pixels.",
+      "A compact, unboxed omp lockup sits above a centered two-line tip; no oversized portrait appears.",
+      "Three amber warning lines occupy the upper region; a centered status pill sits above the wide bottom composer."
+    ],
+    "defects_A": [
+      "Hermes identity and Living Night styling are not demonstrated; the visible identity remains omp.",
+      "Rounded, shadowed status pill and composer do not establish the specified shadowless 8px card grammar.",
+      "Large blank separation between warnings and lockup weakens density and reading continuity.",
+      "No single gold recommended action is established.",
+      "Focus/council stages, required typography, motion, and phone layouts are unverified; no clipping is apparent."
+    ],
+    "defects_B": [
+      "Hermes identity and Living Night styling are not demonstrated; the visible identity remains omp.",
+      "Rounded, shadowed status pill and composer do not establish the specified shadowless 8px card grammar.",
+      "Large blank separation between warnings and lockup weakens density and reading continuity.",
+      "No single gold recommended action is established.",
+      "Focus/council stages, required typography, motion, and phone layouts are unverified; no clipping is apparent."
+    ],
+    "cohesion": "unverified",
+    "reason": "A and B are visually identical to each other and TARGET. Both retain the compact lockup and quiet tip, but neither visibly implements the requested Hermes treatment or card system. Motion and phone scores reflect absent evidence, not observed failures. Host-owned chrome is not penalized. This is not owner approval."
+  },
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+  }
+}

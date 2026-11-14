@@ -1,0 +1,62 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/welcomeCohesion.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/welcomeCohesion.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 29[2mms[22m[39m
+[31m     [31m×[31m uses an unboxed column and keeps the optional mark at 32 px[39m[32m 17[2mms[22m[39m
+[31m     [31m×[31m keeps the wordmark and tip without a logo or version[39m[32m 8[2mms[22m[39m
+     [32m✓[39m uses design tokens for the welcome styles[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/welcomeCohesion.test.ts[2m > [22mcompact welcome lockup[2m > [22muses an unboxed column and keeps the optional mark at 32 px
+[31m[1mAssertionError[22m: expected { k: 'card', p: { …(2) }, …(1) } to match object { Object (k, p) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "k": "col",[39m
+[31m+   "k": "card",[39m
+[2m    "p": {[22m
+[2m      "role": "omp.welcome",[22m
+[2m    },[22m
+[2m  }[22m
+
+[36m [2m❯[22m src/__tests__/welcomeCohesion.test.ts:[2m11:18[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 16:45:22
+[2m   Duration [22m 373ms[2m (transform 58ms, setup 0ms, import 83ms, tests 29ms, environment 0ms)[22m
+
+    [90m  9|[39m   it('uses an unboxed column and keeps the optional mark at 32 px', ()…
+    [90m 10|[39m     const node = JSON.parse(JSON.stringify(welcomeNode('welcome', { lo…
+    [90m 11|[39m     expect(node).toMatchObject({ k: 'col', p: { role: 'omp.welcome' } …
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m     [35mconst[39m out [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(node)
+    [90m 13|[39m     [34mexpect[39m(out)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'"k":"card"'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/welcomeCohesion.test.ts[2m > [22mcompact welcome lockup[2m > [22mkeeps the wordmark and tip without a logo or version
+[31m[1mAssertionError[22m: expected '{"k":"card","p":{"role":"omp.welcome"…' to contain 'omp.welcome.tip'[39m
+
+Expected: [32m"omp.welcome.tip"[39m
+Received: [31m"{"k":"card","p":{"role":"omp.welcome","key":"welcome"},"c":[{"k":"row","p":{"align":"center","gap":"md","role":"omp.welcome.lockup","key":"lockup"},"c":[{"k":"col","p":{"role":"omp.welcome.mark","key":"mark"},"c":[{"k":"text","p":{"role":"omp.welcome.wordmark","spans":[{"s":"strong","t":"hermes"}],"wrap":"none","key":"wordmark"}}]}]}]}"[39m
+
+[36m [2m❯[22m src/__tests__/welcomeCohesion.test.ts:[2m24:17[22m[39m
+    [90m 22|[39m     [34mexpect[39m(out)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'"k":"image"'[39m)
+    [90m 23|[39m     [34mexpect[39m(out)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'omp.welcome.version'[39m)
+    [90m 24|[39m     [34mexpect[39m(out)[33m.[39m[34mtoContain[39m([32m'omp.welcome.tip'[39m)
+    [90m   |[39m                 [31m^[39m
+    [90m 25|[39m   })
+    [90m 26|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+error: script "test" exited with code 1

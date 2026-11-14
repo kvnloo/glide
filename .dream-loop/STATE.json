@@ -1,6 +1,6 @@
 {
-  "status": "blocked-before-qualified-baseline",
-  "updated_utc": "2026-11-14T22:19:19.116214+00:00",
+  "status": "in-progress-headless-rounds",
+  "updated_utc": "2026-11-14T22:50:40.219279+00:00",
   "branch": "feat/w8-cohesion-dreamloop",
   "source_revision": "653d6e98c669f9293c4d4d5f625714a398345dbe",
   "worktree": "/mnt/zer0models/worktrees/glide-w8-cohesion",
@@ -111,11 +111,17 @@
     "native_rubric": "not run",
     "full_suite_ci": "not run",
     "motion_clip": null,
-    "owner_acceptance": false
+    "owner_acceptance": false,
+    "welcome": {
+      "red_exit": 1,
+      "green_exit": 0,
+      "passed": 3,
+      "log": ".dream-loop/welcome-green-capture.log"
+    }
   },
-  "rounds": 0,
-  "accepted": 0,
-  "production_edits": false,
+  "rounds": 1,
+  "accepted": 1,
+  "production_edits": true,
   "rubric_before": {},
   "rubric_after": {},
   "sheet": "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/baseline-diagnostic-sheet.png",
@@ -123,5 +129,18 @@
   "board_url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/",
   "board_kind": "diagnostic only; no accepted candidate",
   "pr": "https://github.com/kvnloo/glide/pull/342",
-  "resume": "Repair isolated Dash discovery. The OpenRouter login-store key resolves, but its free daily quota resets at 2026-11-15T00:00:00+00:00. Do not rotate keys or use a paid route. Qualify free vision after reset. Validate the unexecuted sweep prototype before counting populated baselines. Then begin production UI rounds; keep only independently judged wins."
+  "resume": "Continue the 16:30 correction. Round 01 welcome wins both swapped reviews. Finish material, council, stage, breadth coverage, native final stills, motion, fleet tests and board. Do not repair MBP Dash or call OpenRouter.",
+  "correction_1630": {
+    "judge": "fx ask gpt-6.1-sol subscription lane, image preflight passed",
+    "captures": "57 headless synthetic captures on private MBP copy; final native Tern stills remain required",
+    "supersedes": [
+      "Repair MBP Dash discovery",
+      "Wait for OpenRouter reset"
+    ]
+  },
+  "headless_baseline": {
+    "captures": 57,
+    "receipt": ".dream-loop/headless/qualified-before/receipt.json",
+    "native_qualified": false
+  }
 }

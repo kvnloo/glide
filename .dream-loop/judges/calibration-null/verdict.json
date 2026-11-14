@@ -1,0 +1,137 @@
+{
+  "status": "judged",
+  "selected": "tie",
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+  },
+  "verdicts": [
+    {
+      "trial": 1,
+      "exit": 0,
+      "selected": "tie",
+      "data": {
+        "winner": "tie",
+        "A": {
+          "scores": {
+            "glanceable": 3,
+            "actionable": 2,
+            "density": 3,
+            "dash": 1,
+            "glass": 1,
+            "cohesion": 3,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 40
+        },
+        "B": {
+          "scores": {
+            "glanceable": 3,
+            "actionable": 2,
+            "density": 3,
+            "dash": 1,
+            "glass": 1,
+            "cohesion": 3,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 40
+        },
+        "image_grounding": [
+          "TARGET, A, and B appear identical, each 1060\u00d7596 pixels.",
+          "A compact, unboxed omp lockup sits above a centered two-line tip; no oversized portrait appears.",
+          "Three amber warning lines occupy the upper region; a centered status pill sits above the wide bottom composer."
+        ],
+        "defects_A": [
+          "Hermes identity and Living Night styling are not demonstrated; the visible identity remains omp.",
+          "Rounded, shadowed status pill and composer do not establish the specified shadowless 8px card grammar.",
+          "Large blank separation between warnings and lockup weakens density and reading continuity.",
+          "No single gold recommended action is established.",
+          "Focus/council stages, required typography, motion, and phone layouts are unverified; no clipping is apparent."
+        ],
+        "defects_B": [
+          "Hermes identity and Living Night styling are not demonstrated; the visible identity remains omp.",
+          "Rounded, shadowed status pill and composer do not establish the specified shadowless 8px card grammar.",
+          "Large blank separation between warnings and lockup weakens density and reading continuity.",
+          "No single gold recommended action is established.",
+          "Focus/council stages, required typography, motion, and phone layouts are unverified; no clipping is apparent."
+        ],
+        "cohesion": "unverified",
+        "reason": "A and B are visually identical to each other and TARGET. Both retain the compact lockup and quiet tip, but neither visibly implements the requested Hermes treatment or card system. Motion and phone scores reflect absent evidence, not observed failures. Host-owned chrome is not penalized. This is not owner approval."
+      },
+      "hashes": {
+        "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "parent": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+      }
+    },
+    {
+      "trial": 2,
+      "exit": 0,
+      "selected": "tie",
+      "data": {
+        "winner": "tie",
+        "A": {
+          "scores": {
+            "glanceable": 3,
+            "actionable": 2,
+            "density": 2,
+            "dash": 1,
+            "glass": 1,
+            "cohesion": 3,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 37
+        },
+        "B": {
+          "scores": {
+            "glanceable": 3,
+            "actionable": 2,
+            "density": 2,
+            "dash": 1,
+            "glass": 1,
+            "cohesion": 3,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 37
+        },
+        "image_grounding": [
+          "TARGET, A, and B appear identical, each 1060\u00d7596: three amber warning lines occupy the upper area.",
+          "Each shows a compact, unboxed omp lockup above a quiet two-line tip; no oversized portrait appears.",
+          "Each has a centered rounded status pill and a wide bottom composer with visibly rounded corners and shadow."
+        ],
+        "defects_A": [
+          "Hermes identity is absent; the lockup reads omp.",
+          "Amber warnings, yellow-green metadata, and a green check do not establish the required single-gold recommended-action hierarchy.",
+          "Large empty intervals between warnings and welcome content weaken density and rhythm.",
+          "The status pill and composer use large radii and shadows rather than the specified restrained 8px, shadowless card grammar.",
+          "Motion, phone layout, focus/council stages, and requested typography are unverified; zero motion and phone scores indicate missing evidence."
+        ],
+        "defects_B": [
+          "Hermes identity is absent; the lockup reads omp.",
+          "Amber warnings, yellow-green metadata, and a green check do not establish the required single-gold recommended-action hierarchy.",
+          "Large empty intervals between warnings and welcome content weaken density and rhythm.",
+          "The status pill and composer use large radii and shadows rather than the specified restrained 8px, shadowless card grammar.",
+          "Motion, phone layout, focus/council stages, and requested typography are unverified; zero motion and phone scores indicate missing evidence."
+        ],
+        "cohesion": "unverified",
+        "reason": "A and B are visually identical to each other and TARGET. Both preserve the compact unboxed welcome grammar, but neither demonstrates the requested Hermes/Living Night adaptation. No comparative improvement is visible. This is not owner approval."
+      },
+      "hashes": {
+        "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "parent": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+      }
+    }
+  ],
+  "owner_approval": false,
+  "calibration": true
+}

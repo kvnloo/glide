@@ -1,4 +1,8 @@
 __pycache__/
+private-shared/
+headless/
+rounds/
+judge-preflight/stderr.log
 baseline/
 mbp-baseline-retry-receipt.json
 native/verified-startup/*.log

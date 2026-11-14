@@ -1,0 +1,4 @@
+ts	phase	decision	why	evidence	result
+2026-11-14T22:27:33Z	resume	Use correction routes without repairing MBP Dash or retrying OpenRouter	The 16:30 correction replaces both saved blockers	W8-cohesion-dreamloop-BRIEF.md:48-55	judge image read exit 0
+2026-11-14T22:50:40Z	round01	Retain unboxed welcome lockup	Both swapped judges prefer the candidate and three focused checks pass	.dream-loop/judges/round01/verdict.json	accepted preview; native checks pending
+2026-11-14T22:51:32Z	judging	Recompute rubric totals instead of using model arithmetic	The first welcome judge reports 86 but its own weighted scores total 66	.dream-loop/judges/round01/score-audit.json	welcome improves but remains below 80
