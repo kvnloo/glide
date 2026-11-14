@@ -379,7 +379,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: host => openBranchTree(host)
   },
   {
-    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|dash|default|export | glass demo]',
+    help: 'Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | studio [project-id] | lanes | theme auto|dash|default|export | glass demo]',
     name: 'glide',
     run: (host, arg) => arg.trim() === 'lanes' ? glideLanes(host) : glideCommand(host, arg)
   },

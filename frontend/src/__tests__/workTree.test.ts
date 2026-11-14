@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { projectWorkTree, taskRows, workTreeDoc } from '../glideui/workTree.js'
 import { WorkTreeCard, workTreeCss } from '../glideui/workTreeCard.js'
+import { MOTION_CSS, MOTION_SHEET } from '../glideui/motion.js'
 import { glide } from '../glideui/program.js'
 import { Transcript } from '../transcript/store.js'
 import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
@@ -114,6 +115,17 @@ describe('live work tree projection', () => {
 })
 
 describe('work tree glide/v1 card', () => {
+  it('publishes the shared motion sheet without another host card or widget', async () => {
+    const card = new WorkTreeCard(() => undefined)
+    await card.ready()
+    const { t } = turn()
+    const sheets = new Map<string, string>()
+    const rendered = card.node(t, '/repo', { send: () => undefined }, (name, css) => sheets.set(name, css))
+    expect(JSON.stringify(tree(must(rendered)))).toContain('data-glide-motion')
+    expect(sheets.get(MOTION_SHEET)).toBe(MOTION_CSS)
+    card.dispose()
+  })
+
   it('binds the real adapter, switches views, collapses at end and rejects stale actions after reset', async () => {
     const g = await glide()
     const card = new WorkTreeCard(() => undefined)

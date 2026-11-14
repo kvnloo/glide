@@ -83,6 +83,7 @@ These commands show local state as native cards in the chat.
 | `/theme` | Pick the colours: Tern, Nous, the Hermes skin, the wallpaper (pywal, live) or Dash's black and gold. `/glide theme auto\|dash` sets the same. |
 | `/glide glass` | A liquid-glass demo card. It is the only surface allowed to glow. |
 | `/glide taste` | The newest Taste Atlas board beside the chat. [Requirements](glide/docs/taste.md) |
+| `/glide studio [project-id]` | Opens fframestudio and previews the selected project's scene layers. [Requirements](glide/docs/studio.md) |
 | `/glide lanes` | Live-voice helper lanes, their model and billing. |
 | `/intel` | Local intelligence: hill climbs, skills, memory, failures, traces. |
 | `/hosts` | Fleet hosts, agents, gauges and k3s pods. |

@@ -40,7 +40,7 @@ describe('the agents hub reducer', () => {
   const start = initialHub(AGENTS)
 
   it('opens on Running and the first running agent', () => {
-    expect(start).toEqual({ ask: { kind: 'none' }, selected: 'a1', tab: 'running', view: { kind: 'list' } })
+    expect(start).toEqual({ ask: { kind: 'none' }, expanded: [], selected: 'a1', tab: 'running', view: { kind: 'list' } })
     expect(initialHub([agent('a2', 'done')]).tab).toBe('all')
   })
 
@@ -51,7 +51,8 @@ describe('the agents hub reducer', () => {
       ['x', 'stop', start],
       ['t', 'watch', start],
       ['p', 'pause', start],
-      ['enter', 'beside', start],
+      ['enter', 'toggle', start],
+      ['o', 'beside', start],
       ['escape', 'steer-cancel', { ...start, ask: { kind: 'steering', text: 'hi' } }],
       ['enter', 'steer-send', { ...start, ask: { kind: 'steering', text: 'hi' } }],
       ['escape', 'cancel', { ...start, ask: { kind: 'confirmStop' } }],

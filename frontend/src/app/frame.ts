@@ -5,6 +5,7 @@
 
 import type { FileContext } from '../artifacts/links.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
+import type { JSX } from '@stencil-hq/tern'
 
 import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
@@ -72,6 +73,8 @@ export interface FrameCx extends DockSources {
   readonly orb?: Pick<ThinkingOrb, 'props'>
   /** The live call's helper lanes, drawn under the live controls; while they orbit, that scene is the voice orb. */
   readonly lanes?: Pick<LaneStrip, 'node' | 'orbiting'>
+  /** `/glide focus clean`: the clean view's layer while it is up; it then draws alone and keys go to the app. */
+  readonly clean?: () => JSX.Element | null
 }
 
 /** Draws one frame at `now`; nothing once the surface closed. */
@@ -89,6 +92,17 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   // Every composer change (keys, native edits and undo, submits, queue edits) ends in a render: refresh here.
   if (!modal) {
     cx.completion.update(cx.composer)
+  }
+
+  // The clean view draws alone: no transcript rows and no dock (Tern keeps app sheets off its own regions, so
+  // hiding them has to be by not drawing them). Restoring redraws the transcript from the store as usual.
+  const clean = cx.clean?.() ?? null
+  if (clean) {
+    const quiet = { dock: [], layer: [clean] }
+    if (cx.retention) cx.retention.paint(quiet, [], entries, modal, new Set())
+    else cx.surface.render({ ...quiet, main: [] })
+    cx.surface.follow(null)
+    return
   }
 
   const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null)

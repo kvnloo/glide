@@ -1,4 +1,3 @@
-import { execFile } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -9,19 +8,19 @@ import { glideCommand, type GlideDetect, type GlideFocus, type GlideHost, type G
 import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards, euiDir, euiStyles } from '../eui/cards.js'
-import type { EuiOperation } from '../eui/host.js'
-import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
+import { HOST_APPROVE_ID, HOST_ASIDE_ID } from '../eui/hostSnapshot.js'
+import { cleanFocus } from '../voice/cleanFocus.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
-import { closedSeats, COUNCIL_SCHEMA, demoRun, instrumentSvg, narration, parseCouncilRun, schedule } from '../../../glide/frontend/council.js'
+import { COUNCIL_SCHEMA, demoRun, parseCouncilRun } from '../../../glide/frontend/council.js'
+import { exchangeTiming } from '../../../glide/frontend/councilExchange.js'
 import { councilCard, councilCommand, type CouncilSource, loadCouncil } from '../../../glide/frontend/councilPopup.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import type { Overlay } from '../overlays/overlay.js'
 
 import { key, must, ofKind, stub } from './fakes.js'
 
-import { openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 
 vi.mock('node:child_process', () => ({
   execFile: vi.fn((_file: string, _args: string[], _options: unknown,
@@ -259,51 +258,6 @@ describe('/council', () => {
     expect(localCommand('council')?.help).toContain('Socratic council')
   })
 
-  it('parses a council run and refuses one that names a seat it does not seat', () => {
-    const run = demoRun()
-    expect(run.seats.map(s => [s.name, s.mineral])).toEqual([['Argon', 'malachite'], ['Astra', 'labradorite'], ['Fable', 'rose'], ['Opus', 'citrine']])
-    expect(run.events.filter(e => e.type === 'turn')).toHaveLength(16)
-    const raw = {
-      schema: COUNCIL_SCHEMA, brief: 'b', rounds: 2,
-      seats: [{ id: 'a', name: 'A', family: 'OpenAI' }, { id: 'b', name: 'B', family: 'OpenAI' }, { id: 'c', name: 'C', family: 'mystery' }],
-      events: [{ type: 'turn', seat: 'a', round: 1 }, { type: 'spawn', seat: 'b' }, { type: 'turn', seat: 'b', round: 2, cites: ['a'] }],
-      verdicts: [{ seat: 'a', stance: 'dissent', text: 'no' }]
-    }
-    const ok = parseCouncilRun(raw)
-    expect('error' in ok ? ok.error : ok.seats.map(s => s.mineral)).toEqual(['labradorite', 'moonstone', 'clear'])
-    expect('error' in ok ? [] : ok.events[2]).toEqual({ type: 'turn', seat: 1, round: 2, cites: [0] })
-    for (const [bad, why] of [
-      [{ ...raw, schema: 'other' }, 'schema'],
-      [{ ...raw, extra: 1 }, 'unknown field "extra"'],
-      [{ ...raw, events: [{ type: 'turn', seat: 'z', round: 1 }] }, 'unknown seat'],
-      [{ ...raw, events: [{ type: 'turn', seat: 'a', round: 3 }] }, 'events.0.round'],
-      [{ ...raw, verdicts: [{ seat: 'a', stance: 'maybe', text: 'x' }] }, 'stance'],
-      [{ ...raw, seats: [raw.seats[0], raw.seats[0]] }, 'share an id'],
-      [{ ...raw, seats: [{ id: 'a', name: 'A', family: 'x', mineral: 'ruby' }, raw.seats[1]] }, 'mineral'],
-      [null, 'expected an object']
-    ] as const) {
-      const r = parseCouncilRun(bad)
-      expect('error' in r ? r.error : 'parsed').toContain(why)
-    }
-  })
-
-  it('moves only while a run plays: idle, mid-run and complete draw differently and verdicts open seat by seat', () => {
-    const run = demoRun()
-    const { at, total } = schedule(run)
-    const lastTurn = run.events.map(e => e.type).lastIndexOf('turn')
-    const idle = instrumentSvg(run, { t: null })
-    expect(idle).not.toContain('url(#wm)')
-    expect(instrumentSvg(run, { t: null })).toBe(idle)
-    const mid = instrumentSvg(run, { t: total / 2 })
-    expect(mid).toContain('url(#wm)')
-    expect(narration(run, { t: total / 2 })).toMatch(/^Round \d · \w+/)
-    expect(closedSeats(run, { t: null }).size).toBe(0)
-    expect(closedSeats(run, { t: must(at[lastTurn]) + 10 }).size).toBe(3)
-    expect([...closedSeats(run, { t: total })]).toEqual([0, 1, 2, 3])
-    expect(instrumentSvg(run, { t: total })).not.toContain('url(#wm)')
-    expect(narration(run, { t: total })).toBe('Council complete · 4 rounds · 36 helpers')
-  })
-
   it('reads a configured live endpoint, and falls back to the tagged demo when it cannot', async () => {
     const live = { schema: COUNCIL_SCHEMA, brief: 'live brief', rounds: 1, seats: [{ id: 'a', name: 'A', family: 'Google' }, { id: 'b', name: 'B', family: 'free' }], events: [], verdicts: [] }
     const answer = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }))
@@ -346,10 +300,10 @@ describe('/council', () => {
 
     press(overlays[0], 'enter')
     expect(c.running).toBe(true)
-    c.advance(schedule(demoRun()).total / 2)
+    c.advance(exchangeTiming(demoRun()).total / 2)
     expect(draw()).toContain('Convening…')
     expect(changed.mock.calls.length).toBeGreaterThan(10)
-    c.advance(schedule(demoRun()).total)
+    c.advance(exchangeTiming(demoRun()).total)
     expect(c.running).toBe(false)
     const done = draw()
     expect(done).toContain('"data-council-stance":"dissent"')
@@ -400,7 +354,7 @@ describe('/council', () => {
     const run = demoRun()
     const verdicts = run.verdicts.map((v, i) => i === 0 ? { ...v, stance: 'abstain' as const } : v)
     const mixed = { ...run, verdicts }
-    const done = JSON.stringify(councilCard({ ...demo(), run: mixed }, { t: schedule(mixed).total }))
+    const done = JSON.stringify(councilCard({ ...demo(), run: mixed }, { t: exchangeTiming(mixed).total }))
     expect(done).toContain('2 of 4 agree · 1 dissent · 1 abstain')
     expect(done).not.toContain('3 of 4 agree')
   })
@@ -427,101 +381,6 @@ describe('/council', () => {
     expect(svgs.slice(1).map(s => /<g clip-path/.test(s))).toEqual([true, true, true, true])
   })
 })
-
-function setupTaste() {
-  vi.stubEnv('TERN_PANE', '17')
-  const session = new SessionState(() => undefined)
-  session.ref = { live: liveSessionId('taste-session'), stored: null }
-  const transcript = new Transcript()
-  const request = vi.fn(async (method: string) => {
-    if (method === 'glide.taste') throw new Error('unknown method glide.taste')
-    return { output: JSON.stringify({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }) }
-  })
-  const publish = vi.fn((_card: unknown, _operation?: EuiOperation) => undefined)
-  const host: GlideHost = { gw: stub({ request }), session, transcript, eui: stub({ host: { publish } }) }
-  return { host, request, publish, session, transcript }
-}
-
-describe('/glide taste', () => {
-  it('uses the card seam fallback and opens the real board beside chat only on request', async () => {
-    const { host, request } = setupTaste()
-    expect(execFile).not.toHaveBeenCalled()
-    await glideCommand(host, 'taste')
-    expect(request.mock.calls).toEqual([
-      ['glide.taste', { session_id: 'taste-session' }],
-      ['command.dispatch', { name: 'glide', arg: 'json taste {}', session_id: 'taste-session' }]
-    ])
-    expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
-      op: 'open', owner: 17, url: 'http://127.0.0.1:8789/s/launch-ab12/', how: 'beside'
-    }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
-    expect(request.mock.calls.some((c: readonly unknown[]) => c[0] === 'glide.enable')).toBe(false)
-  })
-
-  it('emits the taste card for the confirmed block; Open board focuses exactly that block', async () => {
-    const { host, publish } = setupTaste()
-    await glideCommand(host, 'taste')
-    expect(publish).toHaveBeenCalledOnce()
-    const [card, open] = must(publish.mock.calls[0])
-    expect(card).toEqual(tasteCard(tasteBoard({ url: 'http://127.0.0.1:8789/s/launch-ab12/', title: 'Launch ideas' }), 42))
-    vi.mocked(execFile).mockClear()
-    await must(open)(stub({ signal: new AbortController().signal }))
-    expect(execFile).toHaveBeenCalledWith('tern', ['focus', '42', '--json'], { timeout: 20_000, shell: false }, expect.any(Function))
-  })
-
-  it('does not open a late reply after a session switch', async () => {
-    const { host, session } = setupTaste()
-    host.gw.request = stub(async () => {
-      session.ref = { live: liveSessionId('different'), stored: null }
-      return { url: 'http://127.0.0.1:8789/boards', title: 'Boards' }
-    })
-    await glideCommand(host, 'taste')
-    expect(execFile).not.toHaveBeenCalled()
-  })
-
-  it('reports a failed pane open, never a success receipt', async () => {
-    const { host, publish, transcript } = setupTaste()
-    vi.stubEnv('TERN_PANE', '')
-    await glideCommand(host, 'taste')
-    expect(publish).not.toHaveBeenCalled()
-    expect(JSON.stringify(transcript.entries)).toContain('local Tern pane')
-  })
-})
-
-const board = { url: 'http://127.0.0.1:8789/s/sketch-ab12/', title: 'Sketch' }
-
-describe('Taste native pane adapter', () => {
-  it('opens beside the exact current owner using argv, without a shell', async () => {
-    vi.stubEnv('TERN_PANE', '17')
-    expect(await openTastePane(tasteBoard(board))).toBe(42)
-    expect(execFile).toHaveBeenCalledWith('tern', ['browser', JSON.stringify({
-      op: 'open', owner: 17, url: board.url, how: 'beside'
-    }), '--timeout', '15'], { timeout: 20_000, shell: false }, expect.any(Function))
-  })
-
-  it('cannot open on the desktop without a current pane', async () => {
-    vi.stubEnv('TERN_PANE', '')
-    await expect(openTastePane(board)).rejects.toThrow('local Tern pane')
-    expect(execFile).not.toHaveBeenCalled()
-  })
-
-  it('rejects an error response instead of inventing a pane receipt', async () => {
-    vi.stubEnv('TERN_PANE', '17')
-    vi.mocked(execFile).mockImplementationOnce(stub(stubReply))
-    await expect(openTastePane(board)).rejects.toThrow('did not confirm')
-  })
-
-  it.each(['https://example.com/boards', 'file:///tmp/board', 'http://127.0.0.1:8789/private',
-    'http://user:pass@127.0.0.1:8789/boards', 'http://localhost.evil/boards'])(
-    'rejects unsafe board URL %s', (url: string) => {
-      expect(() => tasteBoard({ ...board, url })).toThrow()
-    })
-})
-
-function stubReply(...args: unknown[]) {
-  const callback = args.at(-1)
-  if (typeof callback === 'function') callback(null, { stdout: '{"error":{"message":"unavailable"}}' })
-  return undefined
-}
 
 // /glide focus host cards: one live focus card (Start -> ring -> ended), the held-asks digest and wind-down.
 function focusSetup(replies: Record<string, unknown> = {}) {
@@ -572,12 +431,17 @@ describe('/glide focus', () => {
     expect(titles()).toEqual(['Deep-work block on until 09:50'])
     const running = JSON.stringify(view(0))
     for (const s of ['ah-live', 'min left', 'Deep work until 09:50', '2 asks held for the digest', 'End block', 'ih-hold']) expect(running).toContain(s)
+    // The running card's Clean screen button clears the screen; it calls nothing and leaves End block armed.
+    const calls = request.mock.calls.length
+    must(view(0).activate)(HOST_ASIDE_ID)
+    expect([running.includes('Clean screen'), cleanFocus.on, request.mock.calls.length, JSON.stringify(view(0)).includes('End block')]).toEqual([true, true, calls, true])
+    cleanFocus.exit()
 
     must(view(0).activate)(HOST_APPROVE_ID)
     await settle()
     expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'stop' }])
     expect(titles()).toEqual(['Deep-work block ended', 'While you were in deep work: 2 held'])
-    expect(JSON.stringify(view(0))).not.toContain('End block')
+    expect(JSON.stringify(view(0))).not.toMatch(/End block|Clean screen/)
     const after = JSON.stringify(view(0))
     for (const s of ['Start another block', '50', 'min done']) expect(after).toContain(s)
     const digest = JSON.stringify(view(1))

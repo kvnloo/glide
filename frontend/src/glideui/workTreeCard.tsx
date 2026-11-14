@@ -5,6 +5,7 @@ import type { TurnEntry } from '../model.js'
 import type { Transcript } from '../transcript/store.js'
 import type { GlideView } from '../wire/openui.js'
 import type { UiIntent } from './library.js'
+import { MOTION_CSS, MOTION_SHEET } from './motion.js'
 import { glide, type Glide } from './program.js'
 import { node, UI_CSS, UI_SHEET, type UiRender } from './render.js'
 import { fileRows, projectWorkTree, workTreeDoc, type WorkTab } from './workTree.js'
@@ -59,6 +60,7 @@ export class WorkTreeCard {
     if (turn.end.status !== 'live' && !this.#ended) { this.#ended = true; this.#expanded = false }
     const work = projectWorkTree(source.entries, turn, cwd)
     sheet(UI_SHEET, UI_CSS)
+    sheet(MOTION_SHEET, MOTION_CSS)
     const active = this.#tab === 'files' && this.#expanded
       ? fileRows(work.files).flatMap((r, i) => r.tone === 'accent' && r.value !== 'reading' ? [i] : []) : []
     const reads = this.#tab === 'files' && this.#expanded ? fileRows(work.files).flatMap((r, i) => r.value === 'read' || r.value === 'reading' ? [i] : []) : []
