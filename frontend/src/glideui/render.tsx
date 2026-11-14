@@ -2,12 +2,15 @@
 // tabs, chart, table, kv, checklist, meter, badge), so Tern does layout, truncation and theming itself
 // and nothing is measured in a fake DOM. Roles carry the ephemeral-ui kit's look (UI_CSS).
 import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
-import { type JSX, type Span, ui } from '@stencil-hq/tern'
+import { html, type JSX, type Span, ui } from '@stencil-hq/tern'
 
 import { button, pressable } from '../view/ui/button.js'
 import type { UiCell, UiIntent, UiNode, UiTone } from './library.js'
+import { figure, liveCard } from './motion.js'
 
 export interface UiRender {
+  /** Host revisions replace native ids; only the original publication enters. */
+  entrance?: boolean
   /** Sends a control's intent to the card's owner (revision-checked by the host). */
   send(intent: UiIntent): void
   /** A blob id for a trusted host SVG; undefined drops the graphic. */
@@ -33,8 +36,8 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
   switch (n.typeName) {
     case 'Card': {
       const p = n.props
-      return (
-        <card head={[span(p.title, 'strong'), ...(p.app ? [span('  ' + p.app, 'muted')] : [])]} key={key} role="glide.card" {...(p.status ? { status: p.status } : {})}>
+      return html.div({ key, attrs: { 'data-glide-motion': liveCard(n) ? 'live' : 'still', 'data-glide-enter': r.entrance === false ? 'no' : 'yes' } },
+        <card head={[span(p.title, 'strong'), ...(p.app ? [span('  ' + p.app, 'muted')] : [])]} key="card" role="glide.card" {...(p.status ? { status: p.status } : {})}>
           <col gap="md" key="body" role="glide.body">{kids(p.children, r)}</col>
           {p.source ? <text key="src" role="glide.source" text={p.source} wrap="word" /> : null}
         </card>
@@ -63,7 +66,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       const p = n.props
       return (
         <col gap="none" key={key} role="glide.hero">
-          <text key="v" role="glide.hero.value" text={p.value} {...(toneStyle(p.tone) ? { tone: toneStyle(p.tone) } : {})} />
+          {figure(p.value, 'glide.hero.value', p.tone, r.entrance)}
           <text key="l" role="glide.label" text={p.label} truncate="end" />
           {p.detail ? <text key="d" role="glide.hero.detail" text={p.detail} wrap="word" /> : null}
         </col>
@@ -74,7 +77,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
         <row gap="lg" key={key} role="glide.stats" wrap>
           {n.props.items.map((s, i) => (
             <col gap="none" key={`s${i}`} min={{ w: '10ch' }} role="glide.stat">
-              <text key="v" role="glide.stat.value" text={s.value} {...(toneStyle(s.tone) ? { tone: toneStyle(s.tone) } : {})} />
+              {figure(s.value, 'glide.stat.value', s.tone, r.entrance)}
               <text key="l" role="glide.label" text={s.label} truncate="end" />
             </col>
           ))}

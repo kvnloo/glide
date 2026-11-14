@@ -17,6 +17,7 @@ import type { GlideView } from '../wire/openui.js'
 
 import { checkMarkup, checkPalette, checkTree } from './checks.js'
 import type { GlideDoc, UiNode } from './library.js'
+import { MOTION_CSS, MOTION_SHEET } from './motion.js'
 import { commitsDoc, focusDoc, type UiState, type WidgetMount, type WidgetSlot } from './mounts.js'
 import { glide, type Glide } from './program.js'
 import { node, RING_SHEET, ringCss, UI_CSS, UI_SHEET, type UiRender } from './render.js'
@@ -122,7 +123,11 @@ export class GlideWidgets {
       if (w.slot !== slot || this.#problems.get(w.id)?.length) continue
       const tree = this.#tree(w)
       if (!tree) continue
-      if (slot !== 'composer-ring') { out.push(node(tree, w.id, r)); continue }
+      if (slot !== 'composer-ring') {
+        this.#host.sheet?.(MOTION_SHEET, MOTION_CSS)
+        out.push(node(tree, w.id, r))
+        continue
+      }
       if (out.length) continue
       // The composer's edge is the ring: its Meter runs round the border, and a chip on the top edge
       // carries the card's title and its figure (Hero, else Text, else the meter's label).

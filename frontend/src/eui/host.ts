@@ -84,6 +84,7 @@ interface Slot {
   readonly entry: PanelEntry
   readonly key: string
   revision: number
+  readonly entrance: boolean
   readonly content: Content
   readonly owner: EuiHostOwner
   readonly controller: AbortController
@@ -163,7 +164,7 @@ export class EuiHostCards {
           throw new Error('Host card owner changed')
         }
         entry.title = content.data.title ?? content.data.kind
-        slot = this.#install(entry, content, owner)
+        slot = this.#install(entry, content, owner, false)
         this.#changed(slot.key)
       },
       revoke: () => {
@@ -184,7 +185,7 @@ export class EuiHostCards {
     if (content.kind === 'native') {
       return {
         spec: content.data, app: content.data.app, label: content.data.title, identity: 'host-' + revision,
-        node: null, ui: content.data.ui, ...(content.error === undefined ? {} : { error: content.error }),
+        node: null, ui: content.data.ui, entrance: slot.entrance, ...(content.error === undefined ? {} : { error: content.error }),
         send: (intent: UiIntent) => {
           if (slot.revision !== revision || !this.#current(slot) || !this.#port?.active()) return
           void this.#runKit(slot, () => content.intent(intent, this.#context(slot)))
@@ -238,8 +239,9 @@ export class EuiHostCards {
   #kit(raw: unknown, intent: EuiKitIntent, refresh: EuiKitRefresh | undefined): Content {
     return { kind: 'kit', data: decodeEuiKit(raw), intent, refresh, refreshing: false, accepting: false }
   }
-  #install(entry: PanelEntry, content: Content, owner: EuiHostOwner): Slot {
+  #install(entry: PanelEntry, content: Content, owner: EuiHostOwner, entrance = true): Slot {
     const slot: Slot = {
+      entrance,
       entry, key: 'main.' + entry.id + '.host', revision: ++this.#revision,
       content, owner, controller: new AbortController(),
       onAbort: () => {
