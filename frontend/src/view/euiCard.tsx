@@ -114,9 +114,9 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
 }
 
 /** A trusted host card drawn as a centred popup in the layer (glide's /council); `key` is the overlay's native key. */
-export function euiPopupNode(key: string, head: string, view: EuiCardView, eui: EuiRender): JSX.Element {
+export function euiPopupNode(key: string, head: string, view: EuiCardView, eui: EuiRender, size: 'lg' | 'full' = 'lg'): JSX.Element {
   return (
-    <overlay anchor="center" aria={head} head={head} key={key} modal role="eui.popup" size="lg">
+    <overlay key={key} anchor="center" aria={head} {...(size === 'full' ? {} : { head })} modal role="eui.popup" size={size}>
       {euiCardNode('card', view, eui, true)}
     </overlay>
   )
