@@ -24672,7 +24672,7 @@ function node2(n3, key3, r) {
   switch (n3.typeName) {
     case "Card": {
       const p3 = n3.props;
-      return /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
+      return /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: p3.skin ? `${p3.skin}.card` : "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
         /* @__PURE__ */ jsx("col", { gap: "md", role: "glide.body", children: kids(p3.children, r) }, "body"),
         p3.source ? /* @__PURE__ */ jsx("text", { role: "glide.source", text: p3.source, wrap: "word" }, "src") : null
       ] }, key3);
@@ -24718,14 +24718,14 @@ function node2(n3, key3, r) {
       return /* @__PURE__ */ jsx("meter", { label: p3.label, role: "glide.meter", value: clamp(p3.value), ...p3.total ? { total: p3.total } : {}, ...toneStyle(p3.tone) ? { tone: toneStyle(p3.tone) } : {} }, key3);
     }
     case "Table": {
-      const { columns, rows } = n3.props;
-      const first = columns[0]?.id ?? "";
+      const { columns: columns2, rows } = n3.props;
+      const first = columns2[0]?.id ?? "";
       const table3 = /* @__PURE__ */ jsx(
         "table",
         {
-          cols: columns.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns.some((x) => x.grow) ? { grow: 1 } : {} })),
+          cols: columns2.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns2.some((x) => x.grow) ? { grow: 1 } : {} })),
           role: "glide.table",
-          rows: rows.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
+          rows: rows.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
         },
         "t"
       );
@@ -24805,6 +24805,10 @@ function node2(n3, key3, r) {
     case "Graphic": {
       const blob2 = r.svg?.(n3.props.svg);
       return blob2 === void 0 ? /* @__PURE__ */ jsx("spacer", { size: "none" }, key3) : /* @__PURE__ */ jsx("col", { role: "glide.graphic", children: ui.image({ key: "g", blob: blob2, w: n3.props.w, h: n3.props.h, alt: n3.props.alt }) }, key3);
+    }
+    case "Picture": {
+      const blob2 = r.picture?.(n3.props.png);
+      return blob2 === void 0 ? /* @__PURE__ */ jsx("spacer", { size: "none" }, key3) : /* @__PURE__ */ jsx("col", { role: "glide.picture", children: ui.image({ key: "p", blob: blob2, w: n3.props.w, h: n3.props.h, alt: n3.props.alt }) }, key3);
     }
   }
 }
@@ -25022,7 +25026,7 @@ function euiCardNode(card, view, eui, popup = false) {
   if (view.ui) {
     const send2 = view.send ?? (() => void 0);
     return /* @__PURE__ */ jsxs("col", { role: "glide.host", children: [
-      node2(view.ui, "ui", { send: send2, svg: (markup) => eui.svg(markup) }),
+      node2(view.ui, "ui", { send: send2, svg: (markup) => eui.svg(markup), picture: (png) => eui.picture?.(png) }),
       view.error === void 0 ? null : /* @__PURE__ */ jsx("text", { role: "eui.error", text: view.error, wrap: "word" }, "err")
     ] }, view.identity === void 0 ? card : `${card}.${view.identity}`);
   }
@@ -32151,6 +32155,7 @@ var CHANGES_FILES = ["patch", "terminal", "write_file", "execute_code"];
 function afterToolComplete(p3, cx) {
   cx.showImage(cx.transcript.call(toolCallId(p3.tool_id)));
   cx.showArtifacts(cx.transcript.call(toolCallId(p3.tool_id)));
+  cx.showGev?.(cx.transcript.call(toolCallId(p3.tool_id)));
   cx.agents.scan();
   if (LINK_TOOLS.has(p3.name)) {
     const call = cx.transcript.calls(p3.name).at(-1);
@@ -41837,7 +41842,7 @@ function openAgents(host2, focus2) {
     const running2 = all8.filter(isRunning).length;
     act({ ids: list10.map((x) => x.id), type: "listed" });
     const a2 = list10.find((x) => x.id === state.selected);
-    const columns = [
+    const columns2 = [
       { format: "num", head: "Tools", id: "tools", priority: 3 },
       { format: "elapsed", head: "Time", id: "time", priority: 5 }
     ];
@@ -41845,7 +41850,7 @@ function openAgents(host2, focus2) {
       "picker",
       {
         actions: actions(a2, false),
-        columns,
+        columns: columns2,
         ...optional("confirm", stopping() && a2 ? { act: "confirm", label: "Stop", text: `Stop ${agentName(a2)}? Its partial work returns to Hermes.` } : void 0),
         empty: state.tab === "running" ? "No agents running. Tab shows finished ones." : "No subagents in this session yet",
         icon: "agents",
@@ -42468,7 +42473,7 @@ function openBackground(host2, at2) {
     act({ ids: jobs.map((x) => x.job_id), type: "jobsListed" });
     const j = jobs.find((x) => x.job_id === state.job);
     const busy = j ? host2.cron.busy(j.job_id) : false;
-    const columns = [
+    const columns2 = [
       { format: "dim", head: "Schedule", id: "schedule", min: 10, priority: 1 },
       { format: "dim", head: "Next", id: "next", priority: 3 },
       { format: "dim", head: "Last", id: "last", priority: 5 }
@@ -42487,7 +42492,7 @@ function openBackground(host2, at2) {
           { danger: true, ...optional("disabled", j ? busy ? "Working" : void 0 : "No job"), id: "remove", keys: ["d"], label: "Remove" },
           { end: true, id: "close", keys: ["esc"], label: "Close" }
         ],
-        columns,
+        columns: columns2,
         ...optional("confirm", state.confirm === "job" && j ? { act: "confirm", label: "Remove", text: `Remove ${j.name || j.job_id}? It will not run again.` } : void 0),
         empty: host2.cron.error ? `Could not list cron jobs: ${host2.cron.error}` : host2.cron.loaded ? "No cron jobs. Ask Hermes to schedule one or to watch something." : "Loading cron jobs\u2026",
         icon: "clock",
@@ -42517,7 +42522,7 @@ function openBackground(host2, at2) {
     const { confirm, expanded } = state;
     const p3 = list10.find((x) => x.id === state.selected);
     const call = p3 && callOf(host2, p3.id);
-    const columns = [
+    const columns2 = [
       { format: "dim", head: "Last output", id: "last", min: 16, priority: 1 },
       { format: "dim", head: "Status", id: "status", priority: 3 },
       { format: "elapsed", head: "Time", id: "time", priority: 5 }
@@ -42538,7 +42543,7 @@ function openBackground(host2, at2) {
           { danger: true, ...optional("disabled", running2 ? void 0 : "None running"), id: "all", keys: ["shift+k"], label: "Stop all" },
           { end: true, id: "close", keys: ["esc"], label: expanded ? "Back" : "Close" }
         ],
-        columns,
+        columns: columns2,
         ...optional(
           "confirm",
           confirm === "all" ? { act: "confirm", label: "Stop all", text: `Stop ${plural(running2, "background process", "background processes")}?` } : confirm === "one" && p3 ? { act: "confirm", label: "Stop", text: `Stop ${describeCommand(p3.command)}?` } : void 0
@@ -43847,7 +43852,7 @@ function openModelPicker(host2) {
     node: (id3) => {
       const { hits, order: order2 } = view();
       const priced = rows.some((r) => r.provider.pricing?.[r.model]);
-      const columns = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
+      const columns2 = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
       const scopes = [
         { count: rows.length, icon: "list", id: ALL2, label: "All models" },
         ...providers.map(({ provider, name }) => ({
@@ -43869,7 +43874,7 @@ function openModelPicker(host2) {
             { end: true, id: "close", keys: ["esc"], label: "Close" },
             { id: "use", keys: ["enter"], label: "Switch", primary: true }
           ],
-          columns,
+          columns: columns2,
           ...optional("confirm", confirm ? { act: "confirm", label: "Switch anyway", text: confirm.text } : void 0),
           current: current ? [current] : [],
           ...optional("empty", query2 ? void 0 : "No models in this scope"),
@@ -47290,7 +47295,7 @@ function table(state, node4) {
     const cells2 = state.toSpecificContent(row2.children, createCell);
     row2.children = cells2;
   }
-  let columns = 1;
+  let columns2 = 1;
   rowIndex = -1;
   while (++rowIndex < rows.length) {
     const cells2 = rows[rowIndex].children;
@@ -47327,18 +47332,18 @@ function table(state, node4) {
         if (Object.keys(cell4.data).length === 0) delete cell4.data;
       }
     }
-    if (cells2.length > columns) columns = cells2.length;
+    if (cells2.length > columns2) columns2 = cells2.length;
   }
   rowIndex = -1;
   while (++rowIndex < rows.length) {
     const cells2 = rows[rowIndex].children;
     let cellIndex = cells2.length - 1;
-    while (++cellIndex < columns) {
+    while (++cellIndex < columns2) {
       cells2.push({ type: "tableCell", children: [] });
     }
   }
   let alignIndex = align.length - 1;
-  while (++alignIndex < columns) {
+  while (++alignIndex < columns2) {
     align.push(null);
   }
   state.inTable = false;
@@ -79146,6 +79151,28 @@ var INTENT_CSS = `
 }
 `;
 
+// src/gev/skin.ts
+var GEV_SHEET = "gev-skin";
+var GEV = { glass: "rgba(12,12,20,.72)", border: "rgba(255,255,255,.08)", accent: "#00d4ff", dimAccent: "rgba(0,212,255,.15)", text: "#e8eaed", secondary: "rgba(232,234,237,.5)", dim: "rgba(232,234,237,.3)" };
+var G2 = "[data-role='gev.card']";
+var GEV_CSS = `
+${G2}{background:${GEV.glass};border:1px solid ${GEV.border};border-radius:16px;color:${GEV.text};font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03) inset,0 1px 0 rgba(255,255,255,.06) inset;backdrop-filter:blur(24px) saturate(1.4)}
+${G2} > .sf-card-head{font-family:'JetBrains Mono','SF Mono','Fira Code',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV.dim};padding:16px 20px 0}
+${G2} > .sf-card-head *{font-weight:500}
+${G2} > .sf-card-body{padding:12px 20px 18px}
+${G2} [data-role='glide.picture']{border-radius:10px;overflow:hidden;border:1px solid ${GEV.border}}
+${G2} [data-role='glide.picture'] .sf-image{width:100%;height:auto;display:block}
+${G2} [data-role='glide.hero.value']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:30px;font-weight:600;letter-spacing:-.02em;color:${GEV.accent};text-shadow:0 0 18px rgba(0,212,255,.4)}
+${G2} [data-role='glide.label'],${G2} [data-role='glide.hero.detail']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV.dim};opacity:1}
+${G2} [data-role='glide.text']{font-size:13px;line-height:1.45;color:${GEV.secondary}}
+${G2} [data-role='glide.muted']{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${GEV.dim}}
+${G2} [data-role='glide.table']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;color:${GEV.text}}
+${G2} [data-role='glide.table'] th{font-size:9px;letter-spacing:2px;color:${GEV.dim};font-weight:500;border-bottom:1px solid ${GEV.border}}
+${G2} [data-role='glide.table'] td{border-bottom:1px solid rgba(255,255,255,.04)}
+${G2} [data-role='glide.source']{font-family:'JetBrains Mono',monospace;font-size:9px;color:${GEV.dim};padding:6px 20px 14px}
+${G2} .sf-button{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:10px;border:1px solid rgba(0,212,255,.4);background:${GEV.dimAccent};color:${GEV.accent}}
+`;
+
 // src/eui/fleetFit.ts
 var FLEET_FIT_CSS = `
 .eu-card[class*=k-fleet]{--fl-r-md:8px;--h-density:.5}
@@ -90944,6 +90971,18 @@ var EuiCards = class {
     }
     return id3;
   }
+  /** A blob id for one host PNG (base64), sent once and reused while it lasts. */
+  picture(png) {
+    const key3 = "png:" + createHash5("sha1").update(png).digest("hex");
+    const hit = this.#blobs.get(key3);
+    if (hit !== void 0 || !this.#sink) return hit;
+    const id3 = this.#sink.blob(Buffer.from(png, "base64"), "image/png");
+    if (id3 !== void 0) {
+      if (this.#blobs.size >= MAX_BLOBS) this.#blobs.delete(this.#blobs.keys().next().value ?? "");
+      this.#blobs.set(key3, id3);
+    }
+    return id3;
+  }
   /** The `data-eui-s` value that carries an element's inline style (Tern nodes take no style). */
   style(css2) {
     const key3 = createHash5("sha1").update(css2).digest("hex").slice(0, 10);
@@ -90970,6 +91009,8 @@ var EuiCards = class {
       this.#sink.stylesheet(KIT_SHEET, euiStyles());
       euiSheets.set(GLIDE_UI_SHEET, UI_CSS);
       this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS);
+      euiSheets.set(GEV_SHEET, GEV_CSS);
+      this.#sink.stylesheet(GEV_SHEET, GEV_CSS);
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false;
@@ -91521,6 +91562,261 @@ ${chartSvg(table3, entry.kind)}
       if (!this.#closed) {
         this.revision++;
         this.changed();
+      }
+    });
+  }
+};
+
+// src/wire/gev.ts
+function gevTool(name) {
+  return /^mcp_(?:gev|gods[-_]eye[-_]view)_(.+)$/.exec(name)?.[1];
+}
+var isObj = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
+var hasView = (v) => isObj(v) && isObj(v["view"]) && typeof v["view"]["url"] === "string" && v["view"]["url"].includes("#v=");
+function findStructured(v, depth = 0) {
+  if (depth > 8) return void 0;
+  if (hasView(v)) return v;
+  if (typeof v === "string") {
+    const t = v.trim();
+    for (let i = t.indexOf("{"); i >= 0; i = t.indexOf("{", i + 1)) {
+      try {
+        const hit = findStructured(JSON.parse(t.slice(i, matchBrace(t, i) + 1)), depth + 1);
+        if (hit) return hit;
+      } catch {
+      }
+    }
+    return void 0;
+  }
+  const kids2 = Array.isArray(v) ? v : isObj(v) ? Object.values(v) : [];
+  for (const k of kids2) {
+    const hit = findStructured(k, depth + 1);
+    if (hit) return hit;
+  }
+  return void 0;
+}
+function matchBrace(t, open5) {
+  let d = 0, str9 = false;
+  for (let i = open5; i < t.length; i++) {
+    const c = t[i];
+    if (str9) {
+      if (c === "\\") i++;
+      else if (c === '"') str9 = false;
+      continue;
+    }
+    if (c === '"') str9 = true;
+    else if (c === "{") d++;
+    else if (c === "}" && --d === 0) return i;
+  }
+  return t.length - 1;
+}
+function findSummary(v, depth = 0) {
+  if (depth > 8) return void 0;
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (t.startsWith("{") || t.startsWith("[")) {
+      try {
+        return findSummary(JSON.parse(t), depth + 1);
+      } catch {
+      }
+    }
+    const line = t.split("\n").map((s2) => s2.trim()).find((s2) => s2 && !s2.startsWith("{") && !s2.startsWith("["));
+    return line;
+  }
+  if (Array.isArray(v)) {
+    for (const k of v) {
+      const s2 = findSummary(k, depth + 1);
+      if (s2) return s2;
+    }
+    return void 0;
+  }
+  if (isObj(v)) {
+    for (const key3 of ["text", "content", "result", "summary"]) {
+      const s2 = v[key3] === void 0 ? void 0 : findSummary(v[key3], depth + 1);
+      if (s2) return s2;
+    }
+  }
+  return void 0;
+}
+function gevAnswer(name, result, resultText) {
+  const tool = gevTool(name);
+  if (!tool) return void 0;
+  const sc = findStructured(result) ?? findStructured(resultText);
+  if (!sc) return void 0;
+  const view = sc.view;
+  const rows = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
+  return {
+    tool,
+    summary: findSummary(resultText) ?? findSummary(result) ?? "",
+    url: view.url,
+    layers: Array.isArray(view["layers"]) ? view["layers"].filter((l) => typeof l === "string") : [],
+    total: typeof sc["total"] === "number" ? sc["total"] : rows.length || void 0,
+    rows
+  };
+}
+function embedUrl(url) {
+  const u = new URL(url);
+  u.searchParams.set("embed", "1");
+  return u.toString();
+}
+function browserAnswer(stdout) {
+  try {
+    const v = JSON.parse(stdout);
+    if (!isObj(v)) return void 0;
+    if (isObj(v["ok"])) return { ok: v["ok"] };
+    const e = v["error"];
+    return isObj(e) && typeof e["message"] === "string" ? { error: e["message"] } : void 0;
+  } catch {
+    return void 0;
+  }
+}
+
+// src/gev/card.ts
+var TITLES2 = {
+  get_earthquakes: "Earthquakes",
+  get_active_fires: "Active fires",
+  get_recent_launches: "Launches",
+  aircraft_in_area: "Aircraft",
+  find_aircraft: "Aircraft",
+  vessels_in_area: "Vessels",
+  find_vessel: "Vessels",
+  next_satellite_pass: "Satellite pass",
+  satellites_overhead: "Satellites overhead",
+  get_weather: "Weather",
+  get_cyclones: "Cyclones",
+  situation_brief: "Situation brief",
+  find_submarine_cables: "Submarine cables",
+  get_regional_brief: "Regional brief"
+};
+var gevTitle = (tool) => TITLES2[tool] ?? tool.replace(/^(get|find)_/, "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+var SKIP3 = /^(id|lat|lon|latitude|longitude|icao24|mmsi|imo|url|stream_url|geometry|path|track)$/i;
+var HEADS = { magnitude: "MAG", depth_km: "DEPTH", altitude_m: "ALT", speed_kts: "SPEED", distance_km: "DIST" };
+function cellText(key3, v) {
+  if (typeof v === "number") {
+    if (key3 === "magnitude") return "M" + v.toFixed(1);
+    if (key3.endsWith("_km")) return `${Math.round(v)} km`;
+    if (key3.endsWith("_m")) return `${Math.round(v).toLocaleString("en-US")} m`;
+    return Number(v.toPrecision(4)).toString();
+  }
+  if (typeof v === "string" && /^\d{4}-\d\d-\d\dT/.test(v)) {
+    const mins = Math.round((Date.now() - Date.parse(v)) / 6e4);
+    return mins < 0 ? new Date(v).toISOString().slice(5, 16).replace("T", " ") + "Z" : mins < 60 ? `${mins}m ago` : mins < 2880 ? `${Math.round(mins / 60)}h ago` : `${Math.round(mins / 1440)}d ago`;
+  }
+  return typeof v === "string" ? v : typeof v === "boolean" ? v ? "yes" : "no" : "";
+}
+function columns(rows) {
+  const first = rows[0];
+  if (!first) return [];
+  return Object.keys(first).filter((k) => !SKIP3.test(k) && ["string", "number", "boolean"].includes(typeof first[k])).slice(0, 4);
+}
+function gevCard(a2, s2) {
+  const cols = columns(a2.rows);
+  const kids2 = [];
+  kids2.push(s2.png ? { type: "element", typeName: "Picture", props: { png: s2.png, w: 640, h: 400, alt: `God's Eye View: ${a2.summary}` } } : { type: "element", typeName: "Text", props: { body: s2.failed ? `Globe unavailable: ${s2.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
+  kids2.push({ type: "element", typeName: "Row", props: { children: [
+    { type: "element", typeName: "Hero", props: { value: a2.total === void 0 ? "\u2014" : String(a2.total), label: gevTitle(a2.tool), ...a2.layers.length ? { detail: "layers \xB7 " + a2.layers.join(" \xB7 ") } : {} } },
+    { type: "element", typeName: "Text", props: { body: a2.summary } }
+  ] } });
+  if (cols.length && a2.rows.length) {
+    kids2.push({ type: "element", typeName: "Table", props: {
+      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, " ").toUpperCase(), ...i === 0 ? {} : { align: "end" }, ...c === "place" || c === "name" ? { grow: true } : {} })),
+      rows: a2.rows.slice(0, 6).map((r, i) => ({ id: String(r["id"] ?? i), cells: Object.fromEntries(cols.map((c) => [c, cellText(c, r[c])])) }))
+    } });
+  }
+  kids2.push({ type: "element", typeName: "Buttons", props: { items: [{ label: "Open in God's Eye View", intent: { action: "open", entities: {} }, primary: true }] } });
+  return { type: "element", typeName: "Card", props: { title: gevTitle(a2.tool), app: "GOD'S EYE VIEW", source: a2.url, skin: "gev", status: s2.capturing ? "running" : "done", children: kids2 } };
+}
+
+// src/gev/globe.ts
+import { execFile as execFile9 } from "node:child_process";
+var ternBrowser = (op, timeoutMs = 15e3) => new Promise((resolve11, reject) => {
+  execFile9("tern", ["browser", JSON.stringify(op)], { timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 }, (err, stdout) => {
+    const answer = browserAnswer(stdout);
+    if (answer && "ok" in answer) resolve11(answer.ok);
+    else reject(new Error(answer?.error ?? (err ? err.message : "tern browser gave no answer")));
+  });
+});
+function paneBlock(env2 = process.env) {
+  const n3 = Number(env2["TERN_PANE"]);
+  return Number.isInteger(n3) && n3 > 0 ? n3 : void 0;
+}
+var READY = `function () {
+  const cover = document.getElementById('loading-screen')
+  const g = window.__godsEyeView
+  const covered = cover && !(cover.classList.contains('hidden') && getComputedStyle(cover).opacity === '0')
+  return Boolean(!covered && g && g.viewer && g.viewer.scene.globe.tilesLoaded)
+}`;
+var sleep = (ms2) => new Promise((r) => setTimeout(r, ms2));
+async function captureGlobe(url, owner2, browser2 = ternBrowser, budgetMs = 3e4) {
+  const opened = await browser2({ op: "open", owner: owner2, show: false, url });
+  const block = opened["block"];
+  if (typeof block !== "number") throw new Error("tern browser opened no block");
+  try {
+    const end = Date.now() + budgetMs;
+    let settled2 = 0;
+    while (settled2 < 2) {
+      if (Date.now() > end) throw new Error("the globe did not settle in time");
+      const r = await browser2({ op: "eval", block, world: "page", function: READY });
+      settled2 = r["value"] === true ? settled2 + 1 : 0;
+      await sleep(settled2 ? 1200 : 700);
+    }
+    const shot = await browser2({ op: "capture", block, format: "png" }, 3e4);
+    if (typeof shot["data"] !== "string") throw new Error("capture returned no image");
+    return shot["data"];
+  } finally {
+    await browser2({ op: "close", block }).catch(() => void 0);
+  }
+}
+async function openGlobe(url, owner2, browser2 = ternBrowser) {
+  await browser2({ op: "open", owner: owner2, url, how: "below" });
+}
+
+// src/gev/cards.ts
+var GevCards = class {
+  constructor(eui, notice, browser2 = ternBrowser, owner2 = paneBlock) {
+    this.eui = eui;
+    this.notice = notice;
+    this.browser = browser2;
+    this.owner = owner2;
+  }
+  eui;
+  notice;
+  browser;
+  owner;
+  #seen = /* @__PURE__ */ new Set();
+  /** `call`'s card, once per finished call; anything that is not a GEV answer is left alone. */
+  show(call) {
+    if (!call || call.outcome.kind !== "done" || this.#seen.has(call.id)) return;
+    const answer = gevAnswer(call.name, call.result, call.resultText);
+    const eui = this.eui();
+    if (!answer || !eui) return;
+    this.#seen.add(call.id);
+    const owner2 = this.owner();
+    let state = { capturing: owner2 !== void 0, ...owner2 === void 0 ? { failed: "no Tern pane" } : {} };
+    let handle3;
+    const intent5 = async (detail) => {
+      const action = record(detail)?.["action"];
+      if (action === "open" && owner2 !== void 0) {
+        await openGlobe(answer.url, owner2, this.browser).catch((e) => this.notice(`God's Eye View: ${String(e instanceof Error ? e.message : e)}`));
+      }
+    };
+    const card = () => ({ kind: "gev-" + answer.tool, app: "God's Eye View", title: gevTitle(answer.tool), ui: gevCard(answer, state) });
+    try {
+      handle3 = eui.host.publishNative(card(), intent5);
+    } catch {
+      return;
+    }
+    if (owner2 === void 0) return;
+    void captureGlobe(embedUrl(answer.url), owner2, this.browser).then(
+      (png) => {
+        state = { capturing: false, png };
+      },
+      (e) => {
+        state = { capturing: false, failed: e instanceof Error ? e.message : String(e) };
+      }
+    ).then(() => {
+      try {
+        handle3?.update(card(), intent5);
+      } catch {
       }
     });
   }
@@ -98480,7 +98776,7 @@ var Sidebar = class {
 };
 
 // src/chrome/theme.ts
-import { execFile as execFile9, spawnSync as spawnSync3 } from "node:child_process";
+import { execFile as execFile10, spawnSync as spawnSync3 } from "node:child_process";
 
 // src/chrome/palette.ts
 var NOUS = {
@@ -98577,7 +98873,7 @@ function styleAccent(p3, style2) {
 
 // src/chrome/theme.ts
 var ternCtl = (args) => new Promise((resolve11, reject) => {
-  execFile9("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
+  execFile10("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
 });
 var ternCtlSync = (args) => void spawnSync3("tern", ["ctl", ...args], { timeout: 2e3, stdio: "ignore" });
 var atProcessEnd = (end) => {
@@ -98753,7 +99049,7 @@ var Theme = class {
 };
 
 // src/glideui/widgets.tsx
-import { execFile as execFile10 } from "node:child_process";
+import { execFile as execFile11 } from "node:child_process";
 import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
 import { basename as basename8, dirname as dirname8, join as join17 } from "node:path";
 
@@ -98809,7 +99105,7 @@ function checkPalette(p3) {
 // src/glideui/widgets.tsx
 var statusFile = (settings2) => join17(dirname8(settings2), "ui-status.json");
 var gitCommits = (cwd) => new Promise((resolve11) => {
-  execFile10("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
+  execFile11("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
   });
 });
@@ -99370,13 +99666,13 @@ import { basename as basename9, isAbsolute as isAbsolute9 } from "node:path";
 import { fileURLToPath as fileURLToPath11 } from "node:url";
 
 // src/hermes/clipboardImage.ts
-import { execFile as execFile11 } from "node:child_process";
+import { execFile as execFile12 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
 import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
 import { join as join18, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
-  execFile11(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
+  execFile12(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
       return fail2(error);
     }
@@ -100014,7 +100310,7 @@ var VimPreference = class {
 };
 
 // src/github/branch.ts
-import { execFile as execFile12 } from "node:child_process";
+import { execFile as execFile13 } from "node:child_process";
 import { promisify as promisify7 } from "node:util";
 
 // src/github/hosts.ts
@@ -100058,7 +100354,7 @@ function githubHosts(env2 = process.env) {
 var untrustedText = (host2) => `Not read: ${host2} is not github.com or a GitHub Enterprise host you listed, so tern sends it no token. If you trust it, add it to ${HOSTS_SETTING} and open a new pane.`;
 
 // src/github/branch.ts
-var run7 = promisify7(execFile12);
+var run7 = promisify7(execFile13);
 function parseRemote(url, hosts3 = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
@@ -104332,6 +104628,7 @@ var App = class {
   #act;
   #surface;
   #orbActivity = new OrbActivity();
+  #gev = new GevCards(() => this.eui, (text22) => this.notice(text22, "warning"));
   #orb;
   #lanes;
   #orbSid = null;
@@ -104479,6 +104776,7 @@ var App = class {
       setCompacting: (on) => this.#act.setCompacting(on),
       showImage: (call) => this.#act.showImage(call),
       showArtifacts: (call) => this.#act.showArtifacts(call),
+      showGev: (call) => this.#gev.show(call),
       sid: () => this.session.ref.live,
       summarize: (delay) => this.#act.summarize(delay)
     });

@@ -51,6 +51,7 @@ import type { Transcript } from '../transcript/store.js'
 import { hermesTableChartPlanner } from '../transcript/tableChartPlanner.js'
 import { TableCharts } from '../transcript/tableCharts.js'
 import { EuiCards } from '../eui/cards.js'
+import { GevCards } from '../gev/cards.js'
 import type { Busy } from '../turn/activity.js'
 import { IMAGE_ONLY_PROMPT } from '../turn/prompt.js'
 import { Retention } from '../view/retention.js'
@@ -100,6 +101,7 @@ export class App implements ChatPorts {
   readonly #act: AppActions
   #surface!: SurfaceHost
   readonly #orbActivity = new OrbActivity()
+  readonly #gev = new GevCards(() => this.eui, text => this.notice(text, 'warning'))
   #orb: ThinkingOrb | undefined
   #lanes: LaneStrip | undefined
   #orbSid: string | null = null
@@ -272,6 +274,7 @@ export class App implements ChatPorts {
       setCompacting: on => this.#act.setCompacting(on),
       showImage: call => this.#act.showImage(call),
       showArtifacts: call => this.#act.showArtifacts(call),
+      showGev: call => this.#gev.show(call),
       sid: () => this.session.ref.live,
       summarize: delay => this.#act.summarize(delay)
     })
