@@ -309,6 +309,16 @@ describe('drawFrame', () => {
     expect(log).toEqual(['hud.prune', 'render', `follow ${cx.stack.rootOf(sheet)}.field`])
   })
 
+  it('draws the clean view alone: no transcript, no dock, no caret', () => {
+    const views: unknown[] = []
+    const clean = new Node('col', { key: 'clean' })
+    const { cx, log } = frame({ clean: () => clean })
+
+    drawFrame({ ...cx, surface: { ...cx.surface, render: view => void views.push(view) } }, NOW)
+    expect(views).toEqual([{ dock: [], layer: [clean], main: [] }])
+    expect(log.at(-1)).toBe('follow null')
+  })
+
   it('draws nothing once the surface closed', () => {
     const { cx, log } = frame()
 
