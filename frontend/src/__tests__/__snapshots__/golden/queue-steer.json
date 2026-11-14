@@ -1026,6 +1026,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -1453,6 +1608,161 @@
              "tone": "error",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -2024,6 +2334,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -2589,6 +3054,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -3055,6 +3675,161 @@
              "tone": "error",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -3578,6 +4353,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -4089,6 +5019,161 @@
              "tone": "error",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -4744,6 +5829,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -5393,6 +6633,161 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -5904,6 +7299,161 @@
              "tone": "error",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "tabs",
+                "p": {
+                 "active": "files",
+                 "items": [
+                  {
+                   "id": "files",
+                   "label": [
+                    {
+                     "t": "FILES"
+                    },
+                    {
+                     "t": " 0",
+                     "s": "muted"
+                    }
+                   ]
+                  },
+                  {
+                   "id": "tasks",
+                   "label": [
+                    {
+                     "t": "FEATURES / TASKS"
+                    },
+                    {
+                     "t": " 1",
+                     "s": "muted"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.tabs",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Waiting for file tools…",
+                 "wrap": "word",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Working · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p3"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Collapse work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Collapse work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Collapse work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -6442,6 +7992,118 @@
              "title": "Send  ⏎",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree.receipt",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Work tree",
+               "s": "strong"
+              },
+              {
+               "t": "  RECEIPT",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "done",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.text",
+                 "text": "Turn ended · 0 files · 1 requested · untracked",
+                 "wrap": "word",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "row",
+                "p": {
+                 "align": "center",
+                 "gap": "sm",
+                 "role": "glide.actions",
+                 "wrap": true,
+                 "key": "p1"
+                },
+                "c": [
+                 {
+                  "k": "el",
+                  "p": {
+                   "tag": "button",
+                   "aria": "Show work tree",
+                   "class": "hermes-press",
+                   "key": "b0",
+                   "actions": {
+                    "click": "click"
+                   }
+                  },
+                  "c": [
+                   {
+                    "k": "row",
+                    "p": {
+                     "align": "center",
+                     "gap": "xs",
+                     "role": "omp.btn",
+                     "title": "Show work tree",
+                     "key": "face"
+                    },
+                    "c": [
+                     {
+                      "k": "text",
+                      "p": {
+                       "text": "Show work tree",
+                       "wrap": "none",
+                       "key": "label"
+                      }
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }

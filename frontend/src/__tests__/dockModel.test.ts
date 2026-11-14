@@ -274,7 +274,7 @@ function frame(over: Partial<FrameCx> = {}) {
     sidebar: { node: () => null },
     factory: { node: () => null, open: false },
     surface: { closed: false, follow: id => void log.push(`follow ${id}`), render: () => void log.push('render') },
-    transcript: { changedEntries: new Set(), currentTodos: () => undefined, entries: [] },
+    transcript: { changedEntries: new Set(), currentTodos: () => undefined, entries: [], lifetime: 0, live: undefined },
     welcome: { version: '' },
     ...over,
     stack: over.stack ?? stack
@@ -294,7 +294,7 @@ describe('drawFrame', () => {
   })
 
   it('leaves the caret off the composer while a pill still holds the keys', () => {
-    const { cx, log } = frame({ transcript: { changedEntries: new Set(), currentTodos: () => [{ content: 'Fix it', id: 't1', status: 'pending' }], entries: [] } })
+    const { cx, log } = frame({ transcript: { changedEntries: new Set(), currentTodos: () => [{ content: 'Fix it', id: 't1', status: 'pending' }], entries: [], lifetime: 0, live: undefined } })
 
     expect(shownPills(cx, NOW)).toEqual(['todos'])
     drawFrame(cx, NOW)
