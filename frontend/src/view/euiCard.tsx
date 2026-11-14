@@ -9,7 +9,7 @@ import type { EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
 /** What drawing a card needs of the card registry: blobs for SVG, rules for inline styles, demo clicks. */
-export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'>
+export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'> & Partial<Pick<EuiCards, 'picture'>>
 
 const TAGS: ReadonlySet<string> = new Set(EL_TAGS)
 const BOOLEAN = new Set(['checked', 'open', 'hidden', 'disabled'])
@@ -92,7 +92,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
     const send = view.send ?? (() => undefined)
     return (
       <col key={view.identity === undefined ? card : `${card}.${view.identity}`} role="glide.host">
-        {glideNode(view.ui, 'ui', { send, svg: markup => eui.svg(markup) })}
+        {glideNode(view.ui, 'ui', { send, svg: markup => eui.svg(markup), picture: png => eui.picture?.(png) })}
         {view.error === undefined ? null : <text key="err" role="eui.error" text={view.error} wrap="word" />}
       </col>
     )

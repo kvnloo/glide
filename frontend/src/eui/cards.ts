@@ -16,6 +16,7 @@ import { minifyCss } from '../../../glide/frontend/css.js'
 import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 
 import type { UiIntent, UiNode } from '../glideui/library.js'
+import { GEV_CSS, GEV_SHEET } from '../gev/skin.js'
 import { UI_CSS, UI_SHEET } from '../glideui/render.js'
 
 import { FLEET_FIT_CSS } from './fleetFit.js'
@@ -295,6 +296,19 @@ export class EuiCards {
     return id
   }
 
+  /** A blob id for one host PNG (base64), sent once and reused while it lasts. */
+  picture(png: string): string | undefined {
+    const key = 'png:' + createHash('sha1').update(png).digest('hex')
+    const hit = this.#blobs.get(key)
+    if (hit !== undefined || !this.#sink) return hit
+    const id = this.#sink.blob(Buffer.from(png, 'base64'), 'image/png')
+    if (id !== undefined) {
+      if (this.#blobs.size >= MAX_BLOBS) this.#blobs.delete(this.#blobs.keys().next().value ?? '')
+      this.#blobs.set(key, id)
+    }
+    return id
+  }
+
   /** The `data-eui-s` value that carries an element's inline style (Tern nodes take no style). */
   style(css: string): string {
     const key = createHash('sha1').update(css).digest('hex').slice(0, 10)
@@ -324,6 +338,8 @@ export class EuiCards {
       this.#sink.stylesheet(KIT_SHEET, euiStyles())
       euiSheets.set(GLIDE_UI_SHEET, UI_CSS)
       this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS)
+      euiSheets.set(GEV_SHEET, GEV_CSS)
+      this.#sink.stylesheet(GEV_SHEET, GEV_CSS)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false
