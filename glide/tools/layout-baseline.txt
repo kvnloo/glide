@@ -516,3 +516,6 @@ frontend/src/voice/orbitTargets.ts
 frontend/e2e/army/tests/test_runs_dir.py
 frontend/src/__tests__/euiHostLayout.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/designTokens.test.ts  # vitest only collects frontend/src
+frontend/src/__tests__/workTree.test.ts  # upstream: kvnloo/glide#337; brief-required frontend Vitest discovery
+frontend/src/glideui/workTree.ts  # upstream: kvnloo/glide#337; existing frontend transcript/card adapter integration
+frontend/src/glideui/workTreeCard.tsx  # upstream: kvnloo/glide#337; frontend JSX runtime and SDK dependency resolution

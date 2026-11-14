@@ -38,6 +38,6 @@ The shared motion layer and subagent pane are unchanged. The work tree's own CSS
 
 `frontend/src/__tests__/workTree.test.ts` covers file states, parallel edits, late results, partial results, nested plans, explicit clears, bridge calls, malformed parent edges, binding, expansion, and stale controls. Golden replays include the new dock card.
 
-`glide/tools/work-tree-shots.mjs` drives the real App and SDK in an owned headless Tern process. Its synthetic gateway feeds normal tool and todo events. The verifier clicks native controls, captures desktop and phone layouts, toggles reduced motion, checks the receipt, and resets the transcript. No model requests or physical-display input are permitted by that fixture.
+`glide/tools/work-tree-shots.mjs` drives the real App and SDK in a real Tern window on an owned headless Sway compositor. Its synthetic gateway feeds normal tool and todo events. The verifier clicks native controls, captures desktop and phone layouts, toggles reduced motion, checks the receipt, and resets the transcript. No model requests or physical-display input are permitted by that fixture.
 
 Capture files use the HEADLESS prefix because the shared studio is active for other workers. The proof uses separate configuration, HOME, daemon socket, and control socket. The real Tern renderer produces the PNGs and MP4.

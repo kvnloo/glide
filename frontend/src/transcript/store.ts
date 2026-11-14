@@ -371,9 +371,7 @@ export class Transcript {
 
     const before = this.currentTodos()
 
-    if (isTodoName(call.name)) {
-      call.todosBefore = before
-    }
+    if (isTodoName(call.name)) call.todosBefore = before
 
     // The call's own list shows while it runs (a merge patches the current one); tool.complete's
     // snapshot replaces it.
@@ -439,17 +437,14 @@ export class Transcript {
     this.#touchTurn(turn)
   }
 
-  /** The newest todo snapshot lands on the newest todo tool call. */
   todos(todos: unknown[]) {
-    // An out-of-band todo.updated is a live projection, never a rewrite of a settled tool card.
-    const found = this.#lastTool(c => isTodoName(c.name) && c.outcome.kind === 'running')
-
+    const live = this.#live
+    if (!live) return
     const snapshot = toTodos(todos)
+    const found = this.#lastTool(c => isTodoName(c.name) && c.outcome.kind === 'running')
     if (found) found.call.todos = snapshot
-    if (this.#live) {
-      this.#live.todos = snapshot
-      this.#touchTurn(this.#live)
-    }
+    live.todos = snapshot
+    this.#touchTurn(live)
   }
 
   complete(p: MessageCompletePayload, at = Date.now()) {
