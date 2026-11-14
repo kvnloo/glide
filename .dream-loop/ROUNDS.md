@@ -20,3 +20,7 @@ No production visual round was attempted or accepted. Scores and blind verdicts 
 The comparison sheet and published board are diagnostic checkpoints only. The board has a clearly empty after panel. Its page and three PNG assets return HTTP 200; asset bytes match the local files.
 
 No product tests, typecheck, lint, token drift, native R01–R17 rubric, full-suite CI, motion clip, or visual acceptance is claimed. No production UI source was changed.
+
+Four additional offline HTTP-handler tests pass. They check quota stops, safe response logging, other HTTP errors, and successful responses. Failing-before and passing-after logs are included.
+
+[Draft PR 342](https://github.com/kvnloo/glide/pull/342) preserves this blocked checkpoint. It is not a finished UI redesign.

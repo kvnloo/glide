@@ -1,6 +1,6 @@
 {
   "status": "blocked-before-qualified-baseline",
-  "updated_utc": "2026-11-14T22:11:11.728978+00:00",
+  "updated_utc": "2026-11-14T22:19:19.116214+00:00",
   "branch": "feat/w8-cohesion-dreamloop",
   "source_revision": "653d6e98c669f9293c4d4d5f625714a398345dbe",
   "worktree": "/mnt/zer0models/worktrees/glide-w8-cohesion",
@@ -122,6 +122,6 @@
   "sheet_kind": "Non-native diagnostic; not a qualified before/after comparison",
   "board_url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/",
   "board_kind": "diagnostic only; no accepted candidate",
-  "pr": null,
+  "pr": "https://github.com/kvnloo/glide/pull/342",
   "resume": "Repair isolated Dash discovery. The OpenRouter login-store key resolves, but its free daily quota resets at 2026-11-15T00:00:00+00:00. Do not rotate keys or use a paid route. Qualify free vision after reset. Validate the unexecuted sweep prototype before counting populated baselines. Then begin production UI rounds; keep only independently judged wins."
 }

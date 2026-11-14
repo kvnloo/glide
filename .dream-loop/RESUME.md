@@ -1,6 +1,6 @@
 # Resume W8
 
-1. Read `STATE.json`, `ROUNDS.md`, and the W8 brief with its retry note. Continue `feat/w8-cohesion-dreamloop`; do not create a second UI PR.
+1. Read `STATE.json`, `ROUNDS.md`, and the W8 brief with its retry note. Continue `feat/w8-cohesion-dreamloop` in [draft PR 342](https://github.com/kvnloo/glide/pull/342). Do not create a second UI PR.
 2. Repair Dash theme discovery inside `/tmp/glide-w8-cohesion` on MBP. Both tested Tern binaries reject the private theme. Selection after native composer readiness also failed, so moving the request later is not a fix. Do not modify an owner installation or gateway.
 3. The existing OpenRouter key resolves through the read-only Hermes credential pool. Its free daily quota is exhausted, with reset at 2026-11-15 00:00 UTC. Do not rotate keys or use paid inference. Never store a key or account identifier in this repository or its logs.
 4. Run `python3 .dream-loop/test_native_baseline.py`. Expect seven tests to pass. Run the explicitly free model probe after quota reset. Require G0 tool, JSON, and image-grounding passes before judging.
