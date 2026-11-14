@@ -106,18 +106,22 @@ export function orbitLayout(lanes: readonly OrbitLane[], seconds: number, reduce
 
 const n = (v: number) => v.toFixed(1)
 
-function marks(state: LibraryState, seconds: number, animated: boolean, dark: boolean): string {
+/** The engine's frame as SVG marks, each mark inked from its depth shade (`white`: 0 nearest, 1 farthest). */
+export function orbMarks(state: LibraryState, seconds: number, animated: boolean, ink: (white: number) => string): string {
   const preset = resolvePreset(state, SOURCE)
   const frame = MODE_FRAMES[preset.mode](SOURCE, animated ? seconds * preset.speed : 0.6, preset.opts)
-  const grey = (white: number) => {
+  const a = (v: number | undefined) => (v ?? 1).toFixed(2)
+  const out = frame.lines.map(l => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${ink(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a(l.a)}"/>`)
+  for (const d of frame.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${ink(d.white)}" fill-opacity="${a(d.a)}"/>`)
+  return out.join('')
+}
+
+function marks(state: LibraryState, seconds: number, animated: boolean, dark: boolean): string {
+  return orbMarks(state, seconds, animated, white => {
     // On a light theme the voice orb's greys are deepened so it holds its own against the tinted planets.
     const ink = Math.min(1, Math.max(0, dark ? white : white * 0.7))
     return `#${Math.round((dark ? 1 - ink : ink) * 255).toString(16).padStart(2, '0').repeat(3)}`
-  }
-  const a = (v: number | undefined) => (v ?? 1).toFixed(2)
-  const out = frame.lines.map(l => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a(l.a)}"/>`)
-  for (const d of frame.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${grey(d.white)}" fill-opacity="${a(d.a)}"/>`)
-  return out.join('')
+  })
 }
 
 const still = (s: OrbState) => s === 'idle' || s === 'waiting' || s === 'error'
@@ -216,13 +220,19 @@ export function laneSwatch(lane: OrbitLane, dark: boolean, size = 14): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`
 }
 
-/** The newest /glide focus answer: a block is active until its end time. */
+/** The newest /glide focus answer: a block is active until its end time; `minutes` is its whole length. */
 export const focusBlock = {
   until: 0,
-  note(f: { block: { minutes_left: number } | null }, now = Date.now()) {
+  minutes: 0,
+  note(f: { block: { minutes_left: number; minutes?: number | null | undefined } | null }, now = Date.now()) {
     this.until = f.block && f.block.minutes_left > 0 ? now + f.block.minutes_left * 60_000 : 0
+    this.minutes = this.until ? Math.max(f.block?.minutes ?? 0, f.block?.minutes_left ?? 0) : 0
   },
   active(now = Date.now()) {
     return now < this.until
+  },
+  /** Whole minutes still left, as the focus card counts them. */
+  left(now = Date.now()) {
+    return this.active(now) ? Math.ceil((this.until - now) / 60_000) : 0
   }
 }
