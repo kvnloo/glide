@@ -33,8 +33,8 @@ const READY = `function () {
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 
-/** One PNG (base64) of the real app at `url` (an embed URL), once two settled reads agree. */
-export async function captureGlobe(url: string, owner: number, browser: Browser = ternBrowser, budgetMs = 30000): Promise<string> {
+/** One PNG (base64, with its pixel size) of the real app at `url` (an embed URL), once two settled reads agree. */
+export async function captureGlobe(url: string, owner: number, browser: Browser = ternBrowser, budgetMs = 30000): Promise<{ png: string; w: number; h: number }> {
   const opened = await browser({ op: 'open', owner, show: false, url })
   const block = opened['block']
   if (typeof block !== 'number') throw new Error('tern browser opened no block')
@@ -49,7 +49,9 @@ export async function captureGlobe(url: string, owner: number, browser: Browser 
     }
     const shot = await browser({ op: 'capture', block, format: 'png' }, 30000)
     if (typeof shot['data'] !== 'string') throw new Error('capture returned no image')
-    return shot['data']
+    const w = typeof shot['width'] === 'number' ? shot['width'] : 1280
+    const h = typeof shot['height'] === 'number' ? shot['height'] : 800
+    return { png: shot['data'], w, h }
   } finally {
     await browser({ op: 'close', block }).catch(() => undefined)
   }

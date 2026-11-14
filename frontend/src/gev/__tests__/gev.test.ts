@@ -75,10 +75,10 @@ describe('captureGlobe', () => {
       ops.push(String(op['op']))
       if (op['op'] === 'open') return { block: 12 }
       if (op['op'] === 'eval') return { value: ++reads >= 2 }
-      if (op['op'] === 'capture') return { data: 'PNG' }
+      if (op['op'] === 'capture') return { data: 'PNG', width: 1280, height: 800 }
       return {}
     })
-    await expect(captureGlobe('http://x/?embed=1#v=2', 7, browser)).resolves.toBe('PNG')
+    await expect(captureGlobe('http://x/?embed=1#v=2', 7, browser)).resolves.toEqual({ png: 'PNG', w: 1280, h: 800 })
     expect(ops).toEqual(['open', 'eval', 'eval', 'eval', 'capture', 'close'])
     expect(browser.mock.calls[0]?.[0]).toMatchObject({ owner: 7, show: false })
   })

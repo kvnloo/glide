@@ -79154,14 +79154,15 @@ var INTENT_CSS = `
 // src/gev/skin.ts
 var GEV_SHEET = "gev-skin";
 var GEV = { glass: "rgba(12,12,20,.72)", border: "rgba(255,255,255,.08)", accent: "#00d4ff", dimAccent: "rgba(0,212,255,.15)", text: "#e8eaed", secondary: "rgba(232,234,237,.5)", dim: "rgba(232,234,237,.3)" };
-var G2 = "[data-role='gev.card']";
+var G2 = ".sf-card[data-role='gev.card']";
 var GEV_CSS = `
 ${G2}{background:${GEV.glass};border:1px solid ${GEV.border};border-radius:16px;color:${GEV.text};font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03) inset,0 1px 0 rgba(255,255,255,.06) inset;backdrop-filter:blur(24px) saturate(1.4)}
 ${G2} > .sf-card-head{font-family:'JetBrains Mono','SF Mono','Fira Code',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV.dim};padding:16px 20px 0}
 ${G2} > .sf-card-head *{font-weight:500}
 ${G2} > .sf-card-body{padding:12px 20px 18px}
 ${G2} [data-role='glide.picture']{border-radius:10px;overflow:hidden;border:1px solid ${GEV.border}}
-${G2} [data-role='glide.picture'] .sf-image{width:100%;height:auto;display:block}
+${G2} [data-role='glide.picture'] .sf-image,${G2} [data-role='glide.picture'] .sf-img-frame{width:100%;max-width:none;height:auto;display:block}
+${G2} [data-role='glide.hero']{min-width:150px}
 ${G2} [data-role='glide.hero.value']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:30px;font-weight:600;letter-spacing:-.02em;color:${GEV.accent};text-shadow:0 0 18px rgba(0,212,255,.4)}
 ${G2} [data-role='glide.label'],${G2} [data-role='glide.hero.detail']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV.dim};opacity:1}
 ${G2} [data-role='glide.text']{font-size:13px;line-height:1.45;color:${GEV.secondary}}
@@ -79169,8 +79170,16 @@ ${G2} [data-role='glide.muted']{font-family:'JetBrains Mono',monospace;font-size
 ${G2} [data-role='glide.table']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;color:${GEV.text}}
 ${G2} [data-role='glide.table'] th{font-size:9px;letter-spacing:2px;color:${GEV.dim};font-weight:500;border-bottom:1px solid ${GEV.border}}
 ${G2} [data-role='glide.table'] td{border-bottom:1px solid rgba(255,255,255,.04)}
-${G2} [data-role='glide.source']{font-family:'JetBrains Mono',monospace;font-size:9px;color:${GEV.dim};padding:6px 20px 14px}
-${G2} .sf-button{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:10px;border:1px solid rgba(0,212,255,.4);background:${GEV.dimAccent};color:${GEV.accent}}
+${G2} [data-role='glide.source']{display:none}
+/* radio.css .data-toggle-btn.active: GEV's lit HUD toggle. Tern's primary button paints a gradient; this replaces it. */
+${G2} .sf-row[data-role='omp.btn'][data-tone='accent'],${G2} .sf-row[data-role='omp.btn'][data-tone='accent']:hover{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:4px;color:${GEV.accent};border:1px solid ${GEV.accent};--grad:${GEV.dimAccent};--grad-ink:${GEV.accent};background-image:none;background:${GEV.dimAccent};box-shadow:0 0 10px rgba(0,212,255,.15)}
+${G2} .sf-row[data-role='omp.btn'][data-tone='accent']:hover{background:rgba(0,212,255,.22)}
+${G2} button.sf-el.hermes-press{background:transparent;background-image:none;border:0;box-shadow:none;padding:0}
+${G2} [data-role='glide.actions']{background:transparent;padding:0}
+/* layers.css .mission-data-table: hairline cyan header rule, left-aligned cells. */
+${G2} .sf-tbl-h{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:2px;font-weight:400;color:rgba(190,230,230,.58);border-bottom:1px solid rgba(34,230,230,.22);text-align:left}
+${G2} .sf-tbl-c{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;color:${GEV.text};text-align:left}
+${G2} .sf-tbl-row{border-bottom:1px solid rgba(255,255,255,.04)}
 `;
 
 // src/eui/fleetFit.ts
@@ -91728,14 +91737,14 @@ function columns(rows) {
 function gevCard(a2, s2) {
   const cols = columns(a2.rows);
   const kids2 = [];
-  kids2.push(s2.png ? { type: "element", typeName: "Picture", props: { png: s2.png, w: 640, h: 400, alt: `God's Eye View: ${a2.summary}` } } : { type: "element", typeName: "Text", props: { body: s2.failed ? `Globe unavailable: ${s2.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
+  kids2.push(s2.png ? { type: "element", typeName: "Picture", props: { png: s2.png, w: s2.size?.w ?? 1280, h: s2.size?.h ?? 800, alt: `God's Eye View: ${a2.summary}` } } : { type: "element", typeName: "Text", props: { body: s2.failed ? `Globe unavailable: ${s2.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
   kids2.push({ type: "element", typeName: "Row", props: { children: [
-    { type: "element", typeName: "Hero", props: { value: a2.total === void 0 ? "\u2014" : String(a2.total), label: gevTitle(a2.tool), ...a2.layers.length ? { detail: "layers \xB7 " + a2.layers.join(" \xB7 ") } : {} } },
+    { type: "element", typeName: "Hero", props: { value: a2.total === void 0 ? "\u2014" : String(a2.total), label: a2.layers.length ? a2.layers.join(" \xB7 ") : gevTitle(a2.tool) } },
     { type: "element", typeName: "Text", props: { body: a2.summary } }
   ] } });
   if (cols.length && a2.rows.length) {
     kids2.push({ type: "element", typeName: "Table", props: {
-      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, " ").toUpperCase(), ...i === 0 ? {} : { align: "end" }, ...c === "place" || c === "name" ? { grow: true } : {} })),
+      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, " ").toUpperCase(), ...c === "place" || c === "name" ? { grow: true } : {} })),
       rows: a2.rows.slice(0, 6).map((r, i) => ({ id: String(r["id"] ?? i), cells: Object.fromEntries(cols.map((c) => [c, cellText(c, r[c])])) }))
     } });
   }
@@ -91778,7 +91787,9 @@ async function captureGlobe(url, owner2, browser2 = ternBrowser, budgetMs = 3e4)
     }
     const shot = await browser2({ op: "capture", block, format: "png" }, 3e4);
     if (typeof shot["data"] !== "string") throw new Error("capture returned no image");
-    return shot["data"];
+    const w = typeof shot["width"] === "number" ? shot["width"] : 1280;
+    const h2 = typeof shot["height"] === "number" ? shot["height"] : 800;
+    return { png: shot["data"], w, h: h2 };
   } finally {
     await browser2({ op: "close", block }).catch(() => void 0);
   }
@@ -91825,8 +91836,8 @@ var GevCards = class {
     }
     if (owner2 === void 0) return;
     void captureGlobe(embedUrl(answer.url), owner2, this.browser).then(
-      (png) => {
-        state = { capturing: false, png };
+      (shot) => {
+        state = { capturing: false, png: shot.png, size: { w: shot.w, h: shot.h } };
       },
       (e) => {
         state = { capturing: false, failed: e instanceof Error ? e.message : String(e) };

@@ -46,7 +46,7 @@ export class GevCards {
     }
     if (owner === undefined) return
     void captureGlobe(embedUrl(answer.url), owner, this.browser).then(
-      png => { state = { capturing: false, png } },
+      shot => { state = { capturing: false, png: shot.png, size: { w: shot.w, h: shot.h } } },
       (e: unknown) => { state = { capturing: false, failed: e instanceof Error ? e.message : String(e) } }
     ).then(() => {
       try { handle?.update(card(), intent) } catch { /* the session moved on */ }

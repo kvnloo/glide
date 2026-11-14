@@ -38,22 +38,22 @@ export function columns(rows: GevAnswer['rows']): string[] {
   return Object.keys(first).filter(k => !SKIP.test(k) && ['string', 'number', 'boolean'].includes(typeof first[k])).slice(0, 4)
 }
 
-export interface GevCardState { readonly png?: string | undefined; readonly capturing: boolean; readonly failed?: string | undefined }
+export interface GevCardState { readonly png?: string | undefined; readonly size?: { readonly w: number; readonly h: number } | undefined; readonly capturing: boolean; readonly failed?: string | undefined }
 
 /** The card: the real app's globe at this answer's view, its count, summary and leading rows. */
 export function gevCard(a: GevAnswer, s: GevCardState): UiNode {
   const cols = columns(a.rows)
   const kids: UiNode[] = []
   kids.push(s.png
-    ? { type: 'element', typeName: 'Picture', props: { png: s.png, w: 640, h: 400, alt: `God's Eye View: ${a.summary}` } }
+    ? { type: 'element', typeName: 'Picture', props: { png: s.png, w: s.size?.w ?? 1280, h: s.size?.h ?? 800, alt: `God's Eye View: ${a.summary}` } }
     : { type: 'element', typeName: 'Text', props: { body: s.failed ? `Globe unavailable: ${s.failed}` : 'Rendering the globe in God\'s Eye View…', tone: 'muted' } })
   kids.push({ type: 'element', typeName: 'Row', props: { children: [
-    { type: 'element', typeName: 'Hero', props: { value: a.total === undefined ? '—' : String(a.total), label: gevTitle(a.tool), ...(a.layers.length ? { detail: 'layers · ' + a.layers.join(' · ') } : {}) } },
+    { type: 'element', typeName: 'Hero', props: { value: a.total === undefined ? '—' : String(a.total), label: a.layers.length ? a.layers.join(' · ') : gevTitle(a.tool) } },
     { type: 'element', typeName: 'Text', props: { body: a.summary } }
   ] } })
   if (cols.length && a.rows.length) {
     kids.push({ type: 'element', typeName: 'Table', props: {
-      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, ' ').toUpperCase(), ...(i === 0 ? {} : { align: 'end' as const }), ...(c === 'place' || c === 'name' ? { grow: true } : {}) })),
+      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, ' ').toUpperCase(), ...(c === 'place' || c === 'name' ? { grow: true } : {}) })),
       rows: a.rows.slice(0, 6).map((r, i) => ({ id: String(r['id'] ?? i), cells: Object.fromEntries(cols.map(c => [c, cellText(c, r[c])])) }))
     } })
   }
