@@ -25,7 +25,11 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
     started_at = time.time()
     with tempfile.TemporaryDirectory(prefix='glide-agent-tree-') as work:
         work = Path(work)
-        bundle = work / 'fixture.mjs'
+        bundle = work / 'dist/fixture.mjs'
+        bundle.parent.mkdir()
+        vendor = work / 'src/vendor'
+        vendor.mkdir(parents=True)
+        (vendor / 'ephemeral-ui').symlink_to(ROOT / 'frontend/src/vendor/ephemeral-ui')
         subprocess.run([str(ROOT / 'frontend/node_modules/.bin/esbuild'), str(ROOT / 'frontend/e2e/agent-tree-studio.ts'), '--bundle', '--platform=node', '--format=esm', '--target=node22', f'--tsconfig={ROOT}/frontend/tsconfig.json', '--preserve-symlinks', "--banner:js=import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);", f'--outfile={bundle}'], cwd=ROOT, check=True)
         env = {'HOME': str(work), 'PATH': os.environ['PATH'], 'LANG': 'C.UTF-8', 'TERM': 'xterm-256color',
                'TERN_CONFIG_DIR': str(work / 'config'), 'TERN_DAEMON_SOCKET': str(work / 'daemon.sock')}
@@ -62,6 +66,10 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
                     ctl('shot', 'startup-failure')
                     raise RuntimeError('The real overlay did not render. Inspect fixture-stderr.log and startup-state.json.')
                 time.sleep(.2)
+                scope = json.loads(ctl('dump', '.eu .eu-card.eui-host'))['elements']
+                head = json.loads(ctl('dump', '.eu .eui-host-head'))['elements']
+                if not scope or scope[0]['backgroundColor'] == 'rgba(0, 0, 0, 0)' or not head or head[0]['rect'][3] != 24:
+                    raise RuntimeError('The compact kit scope did not style the real host note at its declared 24px header height.')
                 ctl('wait', '600')
                 ctl('shot', 'collapsed')
                 ctl('record', 'start', 'expansion', 'fps', '30')
@@ -102,7 +110,7 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
                 if not bodies or bodies[0]['rect'][3] != 176:
                     raise RuntimeError('Reduced motion did not immediately expose the full fixture context and child.')
                 (out / 'expanded-tree.json').write_text(nested)
-                (out / 'verification.json').write_text(json.dumps({'renderer': 'real Tern offscreen studio', 'mouse_expansion': True, 'keyboard_nested_expansion': True, 'reduced_motion_full_height': True, 'desktop_access': False}, indent=2) + '\n')
+                (out / 'verification.json').write_text(json.dumps({'renderer': 'real Tern offscreen studio', 'mouse_expansion': True, 'keyboard_nested_expansion': True, 'reduced_motion_full_height': True, 'native_kit_scope': True, 'desktop_access': False}, indent=2) + '\n')
             finally:
                 if proc.poll() is None:
                     ctl('quit')

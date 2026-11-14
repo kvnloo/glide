@@ -2,7 +2,9 @@
 import { connect, ui } from '@stencil-hq/tern'
 
 import { agentTreeFixture } from '../src/agents/fixture.js'
-import { EuiCards } from '../src/eui/cards.js'
+import { EuiCards, euiStyles } from '../src/eui/cards.js'
+import { hostSnapshot } from '../src/eui/hostSnapshot.js'
+import { euiCardNode } from '../src/view/euiCard.js'
 import { openAgents, type AgentsSheetHost } from '../src/overlays/agents.js'
 import type { Overlay } from '../src/overlays/overlay.js'
 import { STYLES } from '../src/view/styles.js'
@@ -15,13 +17,18 @@ const surface = session.open({ title: 'Glide · synthetic agent tree' })
 surface.palette(dashTernPalette())
 surface.stylesheet('wal', walCss(dashPalette()))
 surface.stylesheet('hermes', STYLES)
+surface.stylesheet('ephemeral-ui', euiStyles())
 const all = agentTreeFixture()
+const scopeCard = {
+  spec: { kind: 'note', app: 'atlas' }, app: 'atlas', label: 'Synthetic scope check',
+  node: hostSnapshot({ kind: 'note', app: 'atlas', title: 'Native scope check', summary: 'Synthetic verification only.', rows: [] }, 'done')
+}
 let overlay: Overlay | undefined
 let queued = false
 const draw = () => {
   queued = false
   surface.render({
-    main: [ui.text({ key: 'fixture', text: 'Glide · HEADLESS native Tern · synthetic agents' })],
+    main: [ui.text({ key: 'fixture', text: 'Glide · HEADLESS native Tern · synthetic agents' }), euiCardNode('scope-card', scopeCard, eui)],
     layer: overlay ? [overlay.node('layer.overlay-1')] : []
   })
   surface.focus(overlay?.focus?.('layer.overlay-1') ?? null)

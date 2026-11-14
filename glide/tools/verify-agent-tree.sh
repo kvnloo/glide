@@ -9,7 +9,7 @@ while [ "$(awk '/MemAvailable/{print $2}' /proc/meminfo)" -lt 6291456 ]; do
   sleep 30
 done
 cd frontend
-bun run test src/__tests__/agentTree.test.ts src/__tests__/sheetModes.test.ts src/__tests__/agents.test.ts src/__tests__/agentTreeOverlay.test.ts src/__tests__/subagentTranscript.test.ts src/__tests__/subagentEvents.test.ts src/__tests__/glideWidgets.test.ts
+bun run test src/__tests__/agentTree.test.ts src/__tests__/sheetModes.test.ts src/__tests__/agents.test.ts src/__tests__/agentTreeOverlay.test.ts src/__tests__/subagentTranscript.test.ts src/__tests__/subagentEvents.test.ts src/__tests__/glideWidgets.test.ts src/__tests__/styles.test.ts src/__tests__/euiCards.test.ts src/__tests__/euiHostLayout.test.ts src/__tests__/intelDesign.test.ts src/__tests__/euiApp.test.ts src/__tests__/contrast.test.ts
 bun run typecheck
 bun run lint
 bun run check:strict

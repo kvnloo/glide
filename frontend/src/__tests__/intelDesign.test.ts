@@ -80,9 +80,9 @@ describe('intel card height', () => {
   it('drops the kit rules for the hidden hero head and the stage floor it overrides', () => {
     const css = euiStyles()
     expect(css).not.toMatch(/\.is-(title|eyebrow)\b/)
-    expect(css).not.toMatch(/\[data-eu\] \.is-head\s*(\{|>\s*\.is-act)/)
-    expect(css).not.toMatch(/\[data-eu\] \.is-stage\s*\{/)
-    expect(css).toMatch(/\[data-eu\] \.is-root\s*>\s*\*\s*,\s*\[data-eu\] \.is-pane\s*>\s*\*/)
+    expect(css).not.toMatch(/\.eu \.is-head\s*(\{|>\s*\.is-act)/)
+    expect(css).not.toMatch(/\.eu \.is-stage\s*\{/)
+    expect(css).toMatch(/\.eu \.is-root\s*>\s*\*\s*,\s*\.eu \.is-pane\s*>\s*\*/)
   })
 })
 

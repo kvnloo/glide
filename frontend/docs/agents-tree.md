@@ -45,11 +45,14 @@ model IDs were unavailable. There was no independent cross-judge.
 - Collapsible regions keep stable native keys and animate height and opacity.
 - Reduced motion disables those transitions.
 - Fixtures use synthetic agent names, tasks, paths, and timestamps.
+- The kit uses the shorter `.eu` scope class; host theme data attributes remain.
+  The 256 KiB surface limit and 12 KiB inline/headroom reservation are unchanged.
 
 ## Verification
 
 Run `bash glide/tools/verify-agent-tree.sh` for focused behavior tests and project
-guards. The seven selected files pass all 62 tests. Typecheck and lint pass;
+guards. The 13 selected files pass all 277 tests, including the stylesheet byte-cap and
+snapshot checks. Typecheck and lint pass;
 the strict gate reports eight errors in three untouched files. Separate size and
 suppression checks each report one untouched test file. The normal app bundle passes.
 

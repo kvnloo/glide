@@ -3,5 +3,6 @@
   "mouse_expansion": true,
   "keyboard_nested_expansion": true,
   "reduced_motion_full_height": true,
+  "native_kit_scope": true,
   "desktop_access": false
 }
