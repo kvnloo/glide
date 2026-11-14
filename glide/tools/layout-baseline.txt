@@ -516,8 +516,8 @@ frontend/src/voice/orbitTargets.ts
 frontend/e2e/army/tests/test_runs_dir.py
 frontend/src/__tests__/euiHostLayout.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/designTokens.test.ts  # vitest only collects frontend/src
-frontend/scripts/verify-studio.ts  # upstream: kvnloo/glide#293; native studio verification uses frontend SDK resolution
-frontend/src/__tests__/studio.test.ts  # upstream: kvnloo/glide#293; frontend Vitest discovery
-frontend/src/__tests__/studioCommand.test.ts  # upstream: kvnloo/glide#293; frontend Vitest discovery
-frontend/src/__tests__/tasteCommand.test.ts  # upstream: kvnloo/glide#293; split existing command tests within the size limit
-frontend/src/wire/studio.ts  # upstream: kvnloo/glide#293; frontend zod dependency boundary
+frontend/scripts/verify-studio.ts  # upstream: kvnloo/glide#336; brief-required frontend SDK integration
+frontend/src/__tests__/studio.test.ts  # upstream: kvnloo/glide#336; frontend Vitest discovery
+frontend/src/__tests__/studioCommand.test.ts  # upstream: kvnloo/glide#336; frontend Vitest discovery
+frontend/src/__tests__/tasteCommand.test.ts  # upstream: kvnloo/glide#336; split existing command tests within the size limit
+frontend/src/wire/studio.ts  # upstream: kvnloo/glide#336; frontend zod dependency boundary

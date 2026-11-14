@@ -37,10 +37,21 @@ bun run typecheck
 bun run lint
 ```
 
-`frontend/scripts/verify-studio.ts` is the native integration check.
-Bundle it with the frontend's esbuild settings, then run the bundle in the isolated studio under `flock /tmp/glide-studio-heavy.lock`.
-Set `GLIDE_STUDIO_DIR`, `GLIDE_STUDIO_CONTROL`, and the isolated Tern daemon and Wayland environment.
-The check requires more than 6 GiB of available memory.
-It creates a synthetic project and an owned bridge, types the real command, inspects Tern's native layer tree,
-checks that the project file is unchanged, and captures two stills and a screen recording.
-It does not query a model. Full suites run through the fleet-runner CI mirror.
+Set `GLIDE_STUDIO_DIR`, `GLIDE_STUDIO_CONTROL`, `TERN_DAEMON_SOCKET`, `TERN_CONFIG_DIR`,
+`XDG_RUNTIME_DIR`, and `WAYLAND_DISPLAY` to the existing app and an owned headless studio.
+Never point this check at the user's desktop. Set `GLIDE_STUDIO_GEOMETRY` to the isolated window's rectangle when needed.
+Then run from the repository root:
+
+```sh
+bash glide/tools/verify-studio.sh glide/docs/proofs/studio
+```
+
+The launcher takes `/tmp/glide-studio-heavy.lock`, waits for more than 6 GiB of available memory,
+and bundles the typechecked `frontend/scripts/verify-studio.ts` controller.
+The controller creates a synthetic project, an owned bridge, and a disposable Tern session.
+It focuses that session, types the real command, inspects Tern's native layer tree,
+checks that the project file is unchanged, and captures two stills and an MP4.
+For the web fallback it waits for the credential-free URL before recording or capturing the editor.
+The native recording includes typing the command; the web recording starts after authentication.
+It closes the owned session and bridge after the check. It does not query a model.
+Full suites run through the fleet-runner CI mirror.

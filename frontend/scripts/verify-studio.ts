@@ -8,7 +8,7 @@ import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { connect, ui } from '@stencil-hq/tern'
 
 import { glideCommand, type GlideHost } from '../src/commands/glide.js'
@@ -101,9 +101,17 @@ if (process.argv[2] === '--pane') {
   const sessionName = 'atlas-studio-' + randomUUID().slice(0, 8)
   const ctl = (...args: string[]) => exec('tern', ['ctl', '--control', control, ...args], { timeout: 30_000 })
   try {
+    const client = await import(pathToFileURL(join(app, 'tern/bridge-client.mjs')).href)
+    let healthy = false
     for (let n = 0; n < 100; n++) {
-      try { await readFile(discovery); break } catch { await delay(100) }
+      try {
+        const info = record(await readFile(discovery, 'utf8'))
+        if (info && record(await client.requestJSON(info, '/health'))?.['ok'] === true) { healthy = true; break }
+      } catch { /* The owned child has not finished binding its port. */ }
+      if (bridge.exitCode !== null) break
+      await delay(100)
     }
+    assert(healthy, 'Owned bridge did not become healthy')
     const run = (action: string, selected: string) => exec(node, ['--input-type=module', '-e', STUDIO_RUNTIME, '--', action, selected], { env, timeout: 45_000 })
     const inspected = studioSnapshot(JSON.parse((await run('snapshot', 'atlas')).stdout))
     assert.equal(inspected.project?.title, 'Atlas launch')
@@ -123,7 +131,8 @@ if (process.argv[2] === '--pane') {
     assert((await ctl('tree')).stdout.includes('Glide / Studio'), 'Owned Studio pane is not visible')
     const geometry = process.env['GLIDE_STUDIO_GEOMETRY']
     await exec('grim', [...(geometry ? ['-g', geometry] : ['-o', 'HEADLESS-1']), join(out, 'before.png')])
-    recorder = spawn('wf-recorder', ['--no-dmabuf', '-o', 'HEADLESS-1', ...(geometry ? ['-g', geometry] : []), '-r', '15', '-c', 'libx264', '-p', 'preset=ultrafast', '-p', 'crf=18', '-f', join(out, 'raw.mp4'), '-y'], { stdio: 'ignore' })
+    const recordVideo = () => spawn('wf-recorder', ['--no-dmabuf', '--no-damage', '-o', 'HEADLESS-1', ...(geometry ? ['-g', geometry] : []), '-r', '15', '-c', 'libx264', '-p', 'preset=ultrafast', '-p', 'crf=18', '-f', join(out, 'raw.mp4'), '-y'], { stdio: 'ignore' })
+    if (inspected.mode === 'native') recorder = recordVideo()
     await delay(600)
     for (const char of '/glide studio atlas') { await ctl('type', JSON.stringify(char)); await delay(40) }
     await ctl('key', 'Enter')
@@ -149,10 +158,23 @@ if (process.argv[2] === '--pane') {
         await delay(250)
       }
       assert(redirected, 'Editor did not redirect to its credential-free project URL')
+    } else {
+      let loaded = false
+      for (let n = 0; n < 120; n++) {
+        if ((await ctl('tree')).stdout.includes('headline: Built on atlas')) { loaded = true; break }
+        await delay(250)
+      }
+      assert(loaded, 'Native add-on did not display the owned project')
     }
-    await delay(1000)
+    await delay(500)
+    const safeTree = (await ctl('tree')).stdout
+    assert(!safeTree.includes('token='), 'Credential-bearing URL is still visible')
+    // Web recording begins only after /open has redirected and the safe URL has painted.
+    if (inspected.mode === 'web') recorder = recordVideo()
+    await delay(2500)
     await exec('grim', [...(geometry ? ['-g', geometry] : ['-o', 'HEADLESS-1']), join(out, 'after.png')])
-    await writeFile(join(out, 'tree.json'), tree)
+    await delay(1000) // Keep the presented final frame in the recording before stopping it.
+    await writeFile(join(out, 'tree.json'), safeTree)
     assert.equal(await checksum(), before, 'Read-only preview changed project.json')
     await writeFile(join(out, 'verification.json'), JSON.stringify({ realTern: true, projectUnchanged: true, v0Migration: true, mode: inspected.mode, credentialFree: true }, null, 2))
     console.log(JSON.stringify({ out, mode: inspected.mode, checks: 'bridge auth, v0 migration, real command, native layer tree, project unchanged' }))
