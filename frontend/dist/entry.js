@@ -91569,7 +91569,16 @@ ${chartSvg(table3, entry.kind)}
 
 // src/wire/gev.ts
 function gevTool(name) {
-  return /^mcp_(?:gev|gods[-_]eye[-_]view)_(.+)$/.exec(name)?.[1];
+  return /^mcp__?(?:gev|gods[-_]eye[-_]view)__?(.+)$/.exec(name)?.[1];
+}
+function gevCallName(name, args) {
+  if (gevTool(name)) return name;
+  if (name !== "tool_call" || !Array.isArray(args["calls"])) return void 0;
+  for (const c of args["calls"]) {
+    const inner = isObj(c) && typeof c["name"] === "string" ? c["name"] : void 0;
+    if (inner && gevTool(inner)) return inner;
+  }
+  return void 0;
 }
 var isObj = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
 var hasView = (v) => isObj(v) && isObj(v["view"]) && typeof v["view"]["url"] === "string" && v["view"]["url"].includes("#v=");
@@ -91637,9 +91646,17 @@ function findSummary(v, depth = 0) {
   }
   return void 0;
 }
-function gevAnswer(name, result, resultText) {
+function unwrap2(text22) {
+  const m2 = text22 === void 0 ? null : /^\s*<untrusted_tool_result\b[^>]*>([\s\S]*?)(?:<\/untrusted_tool_result>\s*)?$/.exec(text22);
+  if (!m2?.[1]) return text22;
+  const body = m2[1];
+  const json = body.search(/^\s*[{[]/m);
+  return json >= 0 ? body.slice(json).trim() : body.trim();
+}
+function gevAnswer(name, result, rawText) {
   const tool = gevTool(name);
   if (!tool) return void 0;
+  const resultText = unwrap2(rawText);
   const sc = findStructured(result) ?? findStructured(resultText);
   if (!sc) return void 0;
   const view = sc.view;
@@ -91786,7 +91803,8 @@ var GevCards = class {
   /** `call`'s card, once per finished call; anything that is not a GEV answer is left alone. */
   show(call) {
     if (!call || call.outcome.kind !== "done" || this.#seen.has(call.id)) return;
-    const answer = gevAnswer(call.name, call.result, call.resultText);
+    const name = gevCallName(call.name, call.args);
+    const answer = name === void 0 ? void 0 : gevAnswer(name, call.result, call.resultText);
     const eui = this.eui();
     if (!answer || !eui) return;
     this.#seen.add(call.id);

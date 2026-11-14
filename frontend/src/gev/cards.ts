@@ -6,7 +6,7 @@ import type { EuiNativeHandle } from '../eui/host.js'
 import type { ToolCall } from '../model.js'
 
 import { record } from '../wire/json.js'
-import { embedUrl, gevAnswer } from '../wire/gev.js'
+import { embedUrl, gevAnswer, gevCallName } from '../wire/gev.js'
 
 import { gevCard, gevTitle, type GevCardState } from './card.js'
 import { type Browser, captureGlobe, openGlobe, paneBlock, ternBrowser } from './globe.js'
@@ -24,7 +24,8 @@ export class GevCards {
   /** `call`'s card, once per finished call; anything that is not a GEV answer is left alone. */
   show(call: ToolCall | undefined): void {
     if (!call || call.outcome.kind !== 'done' || this.#seen.has(call.id)) return
-    const answer = gevAnswer(call.name, call.result, call.resultText)
+    const name = gevCallName(call.name, call.args)
+    const answer = name === undefined ? undefined : gevAnswer(name, call.result, call.resultText)
     const eui = this.eui()
     if (!answer || !eui) return
     this.#seen.add(call.id)

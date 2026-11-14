@@ -12,9 +12,20 @@ export interface GevAnswer {
   readonly rows: readonly Readonly<Record<string, unknown>>[]
 }
 
-/** `mcp_gev_get_earthquakes` → `get_earthquakes`; any other tool is not GEV's. */
+/** `mcp__gev__get_earthquakes` (Hermes' MCP naming; older builds use single `_`) → `get_earthquakes`. */
 export function gevTool(name: string): string | undefined {
-  return /^mcp_(?:gev|gods[-_]eye[-_]view)_(.+)$/.exec(name)?.[1]
+  return /^mcp__?(?:gev|gods[-_]eye[-_]view)__?(.+)$/.exec(name)?.[1]
+}
+
+/** The GEV tool a call ran: its own name, or the first GEV call inside the deferred-tool bridge (`tool_call`). */
+export function gevCallName(name: string, args: Readonly<Record<string, unknown>>): string | undefined {
+  if (gevTool(name)) return name
+  if (name !== 'tool_call' || !Array.isArray(args['calls'])) return undefined
+  for (const c of args['calls']) {
+    const inner = isObj(c) && typeof c['name'] === 'string' ? c['name'] : undefined
+    if (inner && gevTool(inner)) return inner
+  }
+  return undefined
 }
 
 type Obj = Record<string, unknown>
@@ -81,9 +92,19 @@ function findSummary(v: unknown, depth = 0): string | undefined {
   return undefined
 }
 
-export function gevAnswer(name: string, result: unknown, resultText: string | undefined): GevAnswer | undefined {
+/** The payload inside Hermes' `<untrusted_tool_result>` safety envelope (its preamble is not the app's prose). */
+function unwrap(text: string | undefined): string | undefined {
+  const m = text === undefined ? null : /^\s*<untrusted_tool_result\b[^>]*>([\s\S]*?)(?:<\/untrusted_tool_result>\s*)?$/.exec(text)
+  if (!m?.[1]) return text
+  const body = m[1]
+  const json = body.search(/^\s*[{[]/m)
+  return json >= 0 ? body.slice(json).trim() : body.trim()
+}
+
+export function gevAnswer(name: string, result: unknown, rawText: string | undefined): GevAnswer | undefined {
   const tool = gevTool(name)
   if (!tool) return undefined
+  const resultText = unwrap(rawText)
   const sc = findStructured(result) ?? findStructured(resultText)
   if (!sc) return undefined
   const view = sc.view
