@@ -113,6 +113,8 @@ export interface ToolCall {
   /** Running, else how it ended; replaced whole when it changes (the call stays the same object). */
   outcome: ToolOutcome
   startedAt: number
+  /** Explicit tool.complete receipt, never synthesized by turn-end cleanup. */
+  completedAt?: number
   resultText?: string | undefined
   result?: unknown
   /** A unified diff of the files the call changed. */
@@ -201,6 +203,8 @@ export interface TurnEntry {
   /** Bumped on every change to the turn, so views rebuild only the turns that changed. */
   rev: number
   blocks: Block[]
+  /** This turn's latest explicit plan, including an empty clear. */
+  todos?: Todo[]
   startedAt: number
   /** Live while it streams, else how it ended; replaced whole when it changes (the turn stays the same object). */
   end: TurnEnd

@@ -371,6 +371,7 @@ frontend/src/__tests__/watchRecovery.test.ts
 frontend/src/__tests__/webErrors.test.ts
 frontend/src/__tests__/webFold.test.ts
 frontend/src/__tests__/widgetCheck.test.ts
+frontend/src/__tests__/workTree.test.ts
 frontend/src/__tests__/writeContextWarning.test.ts
 frontend/src/__tests__/writeContextWarningFold.test.ts
 frontend/src/__tests__/writeLint.test.ts
@@ -437,6 +438,8 @@ frontend/src/glideui/mounts.ts
 frontend/src/glideui/program.ts
 frontend/src/glideui/render.tsx
 frontend/src/glideui/widgets.tsx
+frontend/src/glideui/workTree.ts
+frontend/src/glideui/workTreeCard.tsx
 frontend/src/hermes/dictation.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/hermes/sessionTree.ts  # upstream: alt-glitch/hermes-tern PR 69
 frontend/src/host-lifecycle.ts

@@ -20,6 +20,8 @@ import { COMPOSER_ID, INPUT_ID, type SurfaceHost } from '../surface/host.js'
 import type { Transcript } from '../transcript/store.js'
 import type { EuiCards } from '../eui/cards.js'
 import type { GlideWidgets } from '../glideui/widgets.js'
+import type { WorkTreeCard } from '../glideui/workTreeCard.js'
+import { euiSheets } from '../eui/cards.js'
 import type { UiRender } from '../glideui/render.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
 import { type DockActions, dockNodes, widgetAside } from '../view/dock.js'
@@ -34,7 +36,7 @@ import type { LiveVoice } from '../voice/live.js'
 /** What a frame reads and the three things it changes: the pills' focus, the completion and the surface. */
 export interface FrameCx extends DockSources {
   readonly liveVoice: Pick<LiveVoice, 'node' | 'blocked'>
-  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'>
+  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'> & Partial<Pick<SurfaceHost, 'raw'>>
   readonly retention?: Retention | undefined
   /** The active gateway transport: attached gateways never attest file-locality. */
   readonly gateway?: Pick<GatewayClient, 'attached'>
@@ -44,10 +46,11 @@ export interface FrameCx extends DockSources {
   readonly charts: TableCharts
   readonly eui?: EuiCards
   /** Agent-mounted widgets around the composer (glide_ui_mount). */
+  readonly workTree?: Pick<WorkTreeCard, 'node'>
   readonly widgets?: Pick<GlideWidgets, 'nodes'>
   readonly overlays: readonly Overlay[]
   readonly stack: Pick<OverlayStack, 'rootOf'>
-  readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries'>
+  readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries' | 'lifetime' | 'live'>
   readonly prAside: Pick<PrAside, 'node' | 'open'>
   readonly sidebar: Pick<Sidebar, 'node'>
   readonly factory: Pick<FactoryPane, 'node' | 'open'>
@@ -106,7 +109,12 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   // Widgets only show what their host source holds: no control in one acts (nothing to send).
   const r: UiRender = { send: () => undefined, svg: markup => cx.eui?.svg(markup) }
   const w = cx.widgets
-  const slots = w ? { above: w.nodes('above-composer', r), ring: w.nodes('composer-ring', r), below: w.nodes('below-composer', r) } : {}
+  const work = cx.workTree?.node(cx.transcript, cx.session.info?.cwd ?? '', r, (name, css) => {
+    if (euiSheets.get(name) === css) return
+    euiSheets.set(name, css)
+    cx.surface.raw?.stylesheet(name, css)
+  })
+  const slots = { above: w?.nodes('above-composer', r) ?? [], ring: w?.nodes('composer-ring', r) ?? [], below: [...(work ? [work] : []), ...(w?.nodes('below-composer', r) ?? [])] }
   const chrome = {
     dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions, slots)],
     layer: [
