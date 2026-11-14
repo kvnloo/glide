@@ -10872,7 +10872,7 @@ var require_mock_interceptor = __commonJS({
 var require_mock_client = __commonJS({
   "node_modules/undici/lib/mock/mock-client.js"(exports, module) {
     "use strict";
-    var { promisify: promisify8 } = __require("node:util");
+    var { promisify: promisify10 } = __require("node:util");
     var Client = require_client();
     var { buildMockDispatch } = require_mock_utils();
     var {
@@ -10912,7 +10912,7 @@ var require_mock_client = __commonJS({
         return new MockInterceptor(opts, this[kDispatches]);
       }
       async [kClose]() {
-        await promisify8(this[kOriginalClose])();
+        await promisify10(this[kOriginalClose])();
         this[kConnected] = 0;
         this[kMockAgent][Symbols.kClients].delete(this[kOrigin]);
       }
@@ -10925,7 +10925,7 @@ var require_mock_client = __commonJS({
 var require_mock_pool = __commonJS({
   "node_modules/undici/lib/mock/mock-pool.js"(exports, module) {
     "use strict";
-    var { promisify: promisify8 } = __require("node:util");
+    var { promisify: promisify10 } = __require("node:util");
     var Pool = require_pool();
     var { buildMockDispatch } = require_mock_utils();
     var {
@@ -10965,7 +10965,7 @@ var require_mock_pool = __commonJS({
         return new MockInterceptor(opts, this[kDispatches]);
       }
       async [kClose]() {
-        await promisify8(this[kOriginalClose])();
+        await promisify10(this[kOriginalClose])();
         this[kConnected] = 0;
         this[kMockAgent][Symbols.kClients].delete(this[kOrigin]);
       }
@@ -18087,12 +18087,12 @@ var require_eventsource_stream = __commonJS({
       }
       return true;
     }
-    function isFieldName(line, length, field) {
+    function isFieldName(line2, length, field) {
       if (length !== field.length) {
         return false;
       }
       for (let i = 0; i < length; i++) {
-        if (line[i] !== field[i]) {
+        if (line2[i] !== field[i]) {
           return false;
         }
       }
@@ -18203,25 +18203,25 @@ var require_eventsource_stream = __commonJS({
        * @param {Buffer} line
        * @param {EventStreamEvent} event
        */
-      parseLine(line, event) {
-        if (line.length === 0) {
+      parseLine(line2, event) {
+        if (line2.length === 0) {
           return;
         }
-        const colonPosition = line.indexOf(COLON);
+        const colonPosition = line2.indexOf(COLON);
         if (colonPosition === 0) {
           return;
         }
-        let fieldLength = line.length;
-        let valueStart = line.length;
+        let fieldLength = line2.length;
+        let valueStart = line2.length;
         if (colonPosition !== -1) {
           fieldLength = colonPosition;
           valueStart = colonPosition + 1;
-          if (line[valueStart] === SPACE2) {
+          if (line2[valueStart] === SPACE2) {
             ++valueStart;
           }
         }
-        if (isFieldName(line, fieldLength, DATA)) {
-          const value = line.toString("utf8", valueStart);
+        if (isFieldName(line2, fieldLength, DATA)) {
+          const value = line2.toString("utf8", valueStart);
           if (event.data === void 0) {
             event.data = value;
           } else {
@@ -18230,20 +18230,20 @@ ${value}`;
           }
           return;
         }
-        if (isFieldName(line, fieldLength, RETRY2)) {
-          if (isASCIINumberBytes(line, valueStart)) {
-            event.retry = line.toString("utf8", valueStart);
+        if (isFieldName(line2, fieldLength, RETRY2)) {
+          if (isASCIINumberBytes(line2, valueStart)) {
+            event.retry = line2.toString("utf8", valueStart);
           }
           return;
         }
-        if (isFieldName(line, fieldLength, ID)) {
-          if (isValidLastEventIdBytes(line, valueStart)) {
-            event.id = line.toString("utf8", valueStart);
+        if (isFieldName(line2, fieldLength, ID)) {
+          if (isValidLastEventIdBytes(line2, valueStart)) {
+            event.id = line2.toString("utf8", valueStart);
           }
           return;
         }
-        if (isFieldName(line, fieldLength, EVENT)) {
-          const value = line.toString("utf8", valueStart);
+        if (isFieldName(line2, fieldLength, EVENT)) {
+          const value = line2.toString("utf8", valueStart);
           if (value.length > 0) {
             event.event = value;
           }
@@ -22859,11 +22859,11 @@ function fileHref(path2, cwd, opts = {}) {
   }
   try {
     const url = pathToFileURL(isAbsolute(path2) ? path2 : resolve(cwd, path2));
-    const line = positive(opts.line);
+    const line2 = positive(opts.line);
     const end = positive(opts.endLine);
     const col = positive(opts.col);
-    if (line) {
-      url.hash = "L" + line + (end && end > line ? "-L" + end : col ? "C" + col : "");
+    if (line2) {
+      url.hash = "L" + line2 + (end && end > line2 ? "-L" + end : col ? "C" + col : "");
     }
     return url.href;
   } catch {
@@ -22885,24 +22885,24 @@ function markdownFileTarget(target2, cwd) {
   if (!anchored) {
     return fileHref(path2, cwd);
   }
-  const line = Number(anchored[2]);
-  return fileHref(path2, cwd, anchored[3] ? { line, endLine: Number(anchored[3]) } : { line });
+  const line2 = Number(anchored[2]);
+  return fileHref(path2, cwd, anchored[3] ? { line: line2, endLine: Number(anchored[3]) } : { line: line2 });
 }
-function escaped(line, at2) {
+function escaped(line2, at2) {
   let n4 = 0;
-  for (let i = at2 - 1; i >= 0 && line[i] === "\\"; i--) {
+  for (let i = at2 - 1; i >= 0 && line2[i] === "\\"; i--) {
     n4++;
   }
   return n4 % 2 === 1;
 }
-function linkAt(line, at2) {
+function linkAt(line2, at2) {
   let depth = 1;
   let labelEnd2 = at2 + 1;
-  while (labelEnd2 < line.length && depth) {
-    if (!escaped(line, labelEnd2)) {
-      if (line[labelEnd2] === "[") {
+  while (labelEnd2 < line2.length && depth) {
+    if (!escaped(line2, labelEnd2)) {
+      if (line2[labelEnd2] === "[") {
         depth++;
-      } else if (line[labelEnd2] === "]") {
+      } else if (line2[labelEnd2] === "]") {
         depth--;
       }
     }
@@ -22910,17 +22910,17 @@ function linkAt(line, at2) {
       labelEnd2++;
     }
   }
-  if (depth || line[labelEnd2 + 1] !== "(") {
+  if (depth || line2[labelEnd2 + 1] !== "(") {
     return void 0;
   }
   const destStart = labelEnd2 + 2;
   let close = destStart;
   let parentheses = 0;
-  while (close < line.length) {
-    if (!escaped(line, close)) {
-      if (line[close] === "(") {
+  while (close < line2.length) {
+    if (!escaped(line2, close)) {
+      if (line2[close] === "(") {
         parentheses++;
-      } else if (line[close] === ")") {
+      } else if (line2[close] === ")") {
         if (!parentheses) {
           break;
         }
@@ -22929,16 +22929,16 @@ function linkAt(line, at2) {
     }
     close++;
   }
-  return close < line.length ? { destStart, close } : void 0;
+  return close < line2.length ? { destStart, close } : void 0;
 }
-function rewriteLine(line, cwd, safeDisplay = false) {
+function rewriteLine(line2, cwd, safeDisplay = false) {
   let output = "";
   let ticks = 0;
   let i = 0;
-  while (i < line.length) {
-    if (line.charCodeAt(i) === 96 && !escaped(line, i)) {
+  while (i < line2.length) {
+    if (line2.charCodeAt(i) === 96 && !escaped(line2, i)) {
       let end = i + 1;
-      while (line.charCodeAt(end) === 96) {
+      while (line2.charCodeAt(end) === 96) {
         end++;
       }
       const count6 = end - i;
@@ -22947,30 +22947,30 @@ function rewriteLine(line, cwd, safeDisplay = false) {
       } else if (ticks === count6) {
         ticks = 0;
       }
-      output += line.slice(i, end);
+      output += line2.slice(i, end);
       i = end;
       continue;
     }
-    if (ticks || line[i] !== "[" || escaped(line, i) || i > 0 && line[i - 1] === "!") {
-      output += line[i++];
+    if (ticks || line2[i] !== "[" || escaped(line2, i) || i > 0 && line2[i - 1] === "!") {
+      output += line2[i++];
       continue;
     }
-    const link3 = linkAt(line, i);
+    const link3 = linkAt(line2, i);
     if (!link3) {
-      output += line[i++];
+      output += line2[i++];
       continue;
     }
-    const raw2 = line.slice(link3.destStart, link3.close);
+    const raw2 = line2.slice(link3.destStart, link3.close);
     const angle = raw2.startsWith("<") && raw2.endsWith(">");
     const dest = angle ? raw2.slice(1, -1) : raw2;
     const href = angle || !/\s/.test(dest) ? markdownFileTarget(dest, cwd) : void 0;
     if (safeDisplay && displayText(dest) !== dest) {
-      output += line.slice(i + 1, link3.destStart - 2) + " (" + displayText(dest) + ")";
+      output += line2.slice(i + 1, link3.destStart - 2) + " (" + displayText(dest) + ")";
     } else if (!href) {
-      output += line.slice(i, link3.close + 1);
+      output += line2.slice(i, link3.close + 1);
     } else {
       const safe3 = /[()]/.test(href) ? "<" + href + ">" : href;
-      output += line.slice(i, link3.destStart) + safe3 + ")";
+      output += line2.slice(i, link3.destStart) + safe3 + ")";
     }
     i = link3.close + 1;
   }
@@ -22981,20 +22981,20 @@ function markdownLinks(markdown2, cwd, safeDisplay = false) {
     return markdown2;
   }
   let fence;
-  return (markdown2.match(/[^\n]*\n|[^\n]+$/g) ?? []).map((line) => {
-    const opening = /^ {0,3}([\x60]{3,}|~{3,})/.exec(line);
+  return (markdown2.match(/[^\n]*\n|[^\n]+$/g) ?? []).map((line2) => {
+    const opening = /^ {0,3}([\x60]{3,}|~{3,})/.exec(line2);
     if (fence) {
-      const closing = /^ {0,3}([\x60]{3,}|~{3,})\s*$/.exec(line);
+      const closing = /^ {0,3}([\x60]{3,}|~{3,})\s*$/.exec(line2);
       if (closing && closing[1]?.[0] === fence.mark && closing[1].length >= fence.length) {
         fence = void 0;
       }
-      return line;
+      return line2;
     }
     if (opening?.[1]) {
       fence = { mark: opening[1][0] ?? "", length: opening[1].length };
-      return line;
+      return line2;
     }
-    return /^(?: {4}|\t)/.test(line) ? line : rewriteLine(line, cwd, safeDisplay);
+    return /^(?: {4}|\t)/.test(line2) ? line2 : rewriteLine(line2, cwd, safeDisplay);
   }).join("");
 }
 function displayMarkdown(markdown2, cwd) {
@@ -24550,7 +24550,7 @@ var LaneStrip = class {
     if (!lanes2.length && !this.#live) return null;
     const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 waiting for a voice call";
     const said = /* @__PURE__ */ new Set();
-    const rows = lanes2.map((lane, i) => {
+    const rows2 = lanes2.map((lane, i) => {
       const quote2 = laneQuote(lane, said);
       return /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lane", children: [
         this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
@@ -24566,8 +24566,8 @@ var LaneStrip = class {
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
       this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
         this.#orbitNode(lanes2),
-        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows }, "rows")
-      ] }, "orbit") : rows
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows2 }, "rows")
+      ] }, "orbit") : rows2
     ] }, "lanes");
   }
 };
@@ -24663,6 +24663,110 @@ function actionsRow(buttons) {
   ] }, "actions");
 }
 
+// src/glideui/motion.tsx
+var MOTION_SHEET = "glide-motion";
+var FRAMES = 16;
+var LEAD_MS = 120;
+var FRAME_MS = 30;
+function ease(time3) {
+  let low = 0, high = 1;
+  for (let i = 0; i < 20; i++) {
+    const t2 = (low + high) / 2;
+    const x = 3 * (1 - t2) ** 2 * t2 * 0.45 + 3 * (1 - t2) * t2 ** 2 * 0.1 + t2 ** 3;
+    if (x < time3) low = t2;
+    else high = t2;
+  }
+  const t = (low + high) / 2;
+  return 3 * (1 - t) * t ** 2 + t ** 3;
+}
+function countFrames(value) {
+  const match = /^([\p{Sc}+−-]?)(-?\d+(?:,\d{3})*(?:\.\d+)?)(\s*(?:%|×|[kKmMbB]|ms|s|GB|MB|KB|px|checks|commits)?)$/u.exec(value);
+  if (!match) return [];
+  const [, prefix2 = "", digits = "", suffix = ""] = match;
+  const target2 = Number(digits.replaceAll(",", ""));
+  if (!Number.isFinite(target2)) return [];
+  const decimals = digits.split(".")[1]?.length ?? 0;
+  if (decimals > 6) return [];
+  return Array.from({ length: FRAMES }, (_2, i) => {
+    if (i === FRAMES - 1) return value;
+    const scaled = target2 * (i === 0 ? 0 : ease(i / (FRAMES - 1)));
+    const [whole = "", fraction2] = scaled.toFixed(decimals).split(".");
+    const formatted = digits.includes(",") ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : whole;
+    return `${prefix2}${formatted}${fraction2 === void 0 ? "" : "." + fraction2}${suffix}`;
+  });
+}
+function liveCard(n4) {
+  switch (n4.typeName) {
+    case "Card":
+      if (n4.props.status === "done" || n4.props.status === "error") return false;
+      return n4.props.status === "running" || n4.props.status === "pending" || n4.props.children.some(liveCard);
+    case "Row":
+    case "Section":
+      return n4.props.children.some(liveCard);
+    case "Steps":
+      return n4.props.items.some((s2) => s2.status === "active");
+    default:
+      return false;
+  }
+}
+function figure(value, role, tone2, entrance = true) {
+  const frames = entrance ? countFrames(value) : [];
+  if (!frames.length) return ui.text({ key: "v", role, text: value, ...tone2 ? { tone: tone2 } : {} });
+  return html.span({ key: "v", role, class: "glide-count", aria: value, ...tone2 ? { tone: tone2 } : {} }, [
+    html.span({ key: "final", class: "glide-count-final" }, value),
+    ...frames.map((text22, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text22))
+  ]);
+}
+var ROOT = "[data-glide-motion]";
+var LIVE = "[data-glide-motion='live']";
+var ENTER = "[data-glide-enter='yes']";
+var ROWS = [
+  "[data-role='glide.body']>*",
+  "[data-role='glide.list']>*",
+  "[data-role='glide.flow.row']>*",
+  "[data-role='glide.table'] .sf-tbl-body>.sf-tbl-row",
+  "[data-role='glide.steps'] .sf-ck-item",
+  "[data-role='glide.kv']>.sf-kv-item"
+];
+var rows = (suffix = "") => ROWS.map((selector) => `${ENTER} ${selector}${suffix}`).join(",");
+var MOTION_CSS = `
+${ROOT}{position:relative;--glide-ease:cubic-bezier(0.45,0,0.1,1)}
+${ROOT} [data-role='omp.btn']{box-shadow:none!important}
+${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline 180ms var(--glide-ease) both}
+${ENTER}>[data-role='glide.card']{animation:glide-shell 180ms var(--glide-ease) both}
+${rows()},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${Array.from({ length: 8 }, (_2, i) => `${rows(`:nth-child(${i + 1})`)}{animation-delay:${120 + i * 10}ms}`).join("\n")}
+${rows(":nth-child(n+9)")}{animation-delay:200ms}
+${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar 480ms var(--glide-ease) 120ms backwards}
+${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow 480ms var(--glide-ease) 120ms backwards}
+${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${ROOT} .glide-count{position:relative;display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
+${ROOT} .glide-count-final{animation:glide-count-final 600ms step-end backwards}
+${ROOT} .glide-count-frame{position:absolute;left:0;top:0;opacity:0;pointer-events:none;animation:glide-count-frame ${FRAME_MS}ms step-end}
+${Array.from({ length: FRAMES }, (_2, i) => `${ROOT} .glide-count-f${i}{animation-delay:${LEAD_MS + i * FRAME_MS}ms}`).join("\n")}
+${LIVE} [data-role='glide.meter'] .sf-mt-track{position:relative;overflow:hidden}
+${LIVE} [data-role='glide.meter'] .sf-mt-track::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--sf-accent) 12%,transparent) 50%,transparent 65%);animation:glide-shimmer 3200ms var(--glide-ease) 700ms infinite}
+${LIVE} [data-role='glide.spark']{animation:glide-drift 4200ms ease-in-out 700ms infinite}
+${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards,glide-drift 4200ms ease-in-out 700ms infinite}
+${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--sf-accent);pointer-events:none;animation:glide-tick 2800ms ease-in-out 700ms infinite}
+@keyframes glide-outline{from{opacity:0;transform:scaleX(.02)}to{opacity:1;transform:scaleX(1)}}
+@keyframes glide-shell{from{opacity:0}to{opacity:1}}
+@keyframes glide-reveal{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glide-grow{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+@keyframes glide-bar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes glide-count-frame{from{opacity:1}to{opacity:0}}
+@keyframes glide-count-final{from{opacity:0}to{opacity:1}}
+@keyframes glide-shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes glide-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(1px)}}
+@keyframes glide-tick{0%,100%{opacity:.45}50%{opacity:.8}}
+@media (prefers-reduced-motion: reduce){
+${ROOT},${ROOT} *,${ROOT}::before,${ROOT}::after,${ROOT} *::after{animation:none!important;transition:none!important;transform:none!important}
+${ROOT} .glide-count-frame{display:none!important}
+${ROOT} .glide-count-final{opacity:1!important}
+${ROOT}::before,${ROOT}::after,${LIVE} [data-role='glide.meter'] .sf-mt-track::after{display:none!important}
+}
+`;
+
 // src/glideui/render.tsx
 var span2 = (t, s2) => s2 ? { t, s: s2 } : { t };
 var toneStyle = (tone2) => tone2 === void 0 || tone2 === "neutral" ? void 0 : tone2;
@@ -24680,10 +24784,13 @@ function node2(n4, key3, r) {
   switch (n4.typeName) {
     case "Card": {
       const p3 = n4.props;
-      return /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
-        /* @__PURE__ */ jsx("col", { gap: "md", role: "glide.body", children: kids(p3.children, r) }, "body"),
-        p3.source ? /* @__PURE__ */ jsx("text", { role: "glide.source", text: p3.source, wrap: "word" }, "src") : null
-      ] }, key3);
+      return html.div(
+        { key: key3, attrs: { "data-glide-motion": liveCard(n4) ? "live" : "still", "data-glide-enter": r.entrance === false ? "no" : "yes" } },
+        /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
+          /* @__PURE__ */ jsx("col", { gap: "md", role: "glide.body", children: kids(p3.children, r) }, "body"),
+          p3.source ? /* @__PURE__ */ jsx("text", { role: "glide.source", text: p3.source, wrap: "word" }, "src") : null
+        ] }, "card")
+      );
     }
     case "Section": {
       const p3 = n4.props;
@@ -24701,14 +24808,14 @@ function node2(n4, key3, r) {
     case "Hero": {
       const p3 = n4.props;
       return /* @__PURE__ */ jsxs("col", { gap: "none", role: "glide.hero", children: [
-        /* @__PURE__ */ jsx("text", { role: "glide.hero.value", text: p3.value, ...toneStyle(p3.tone) ? { tone: toneStyle(p3.tone) } : {} }, "v"),
+        figure(p3.value, "glide.hero.value", p3.tone, r.entrance),
         /* @__PURE__ */ jsx("text", { role: "glide.label", text: p3.label, truncate: "end" }, "l"),
         p3.detail ? /* @__PURE__ */ jsx("text", { role: "glide.hero.detail", text: p3.detail, wrap: "word" }, "d") : null
       ] }, key3);
     }
     case "Stats":
       return /* @__PURE__ */ jsx("row", { gap: "lg", role: "glide.stats", wrap: true, children: n4.props.items.map((s2, i) => /* @__PURE__ */ jsxs("col", { gap: "none", min: { w: "10ch" }, role: "glide.stat", children: [
-        /* @__PURE__ */ jsx("text", { role: "glide.stat.value", text: s2.value, ...toneStyle(s2.tone) ? { tone: toneStyle(s2.tone) } : {} }, "v"),
+        figure(s2.value, "glide.stat.value", s2.tone, r.entrance),
         /* @__PURE__ */ jsx("text", { role: "glide.label", text: s2.label, truncate: "end" }, "l")
       ] }, `s${i}`)) }, key3);
     case "Text": {
@@ -24726,18 +24833,18 @@ function node2(n4, key3, r) {
       return /* @__PURE__ */ jsx("meter", { label: p3.label, role: "glide.meter", value: clamp(p3.value), ...p3.total ? { total: p3.total } : {}, ...toneStyle(p3.tone) ? { tone: toneStyle(p3.tone) } : {} }, key3);
     }
     case "Table": {
-      const { columns, rows } = n4.props;
+      const { columns, rows: rows2 } = n4.props;
       const first = columns[0]?.id ?? "";
       const table3 = /* @__PURE__ */ jsx(
         "table",
         {
           cols: columns.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns.some((x) => x.grow) ? { grow: 1 } : {} })),
           role: "glide.table",
-          rows: rows.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
+          rows: rows2.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
         },
         "t"
       );
-      const open5 = rows.filter((row2) => row2.intent);
+      const open5 = rows2.filter((row2) => row2.intent);
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.table.wrap", children: [
         table3,
         open5.length === 0 ? null : /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.table.open", wrap: true, children: open5.map((row2, i) => {
@@ -25030,7 +25137,7 @@ function euiCardNode(card, view, eui, popup = false) {
   if (view.ui) {
     const send2 = view.send ?? (() => void 0);
     return /* @__PURE__ */ jsxs("col", { role: "glide.host", children: [
-      node2(view.ui, "ui", { send: send2, svg: (markup) => eui.svg(markup) }),
+      node2(view.ui, "ui", { send: send2, entrance: view.entrance, svg: (markup) => eui.svg(markup) }),
       view.error === void 0 ? null : /* @__PURE__ */ jsx("text", { role: "eui.error", text: view.error, wrap: "word" }, "err")
     ] }, view.identity === void 0 ? card : `${card}.${view.identity}`);
   }
@@ -25043,12 +25150,12 @@ function euiCardNode(card, view, eui, popup = false) {
     eui.click(card, id3);
   });
   return html.div(
-    { key: key3, attrs: { "data-eui": "card", "data-eu": "", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: root7.t === "el" ? root7.cls : "", role: "eui.card" },
+    { key: key3, attrs: { "data-eui": "card", "data-eu": "", "data-eui-kind": view.spec.kind, "data-eui-app": view.app, ...popup ? { "data-eui-popup": "" } : {} }, class: `eu${root7.t === "el" && root7.cls ? ` ${root7.cls}` : ""}`, role: "eui.card" },
     root7.t === "el" ? root7.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `t${i}`, eui, activate)) : []
   );
 }
-function euiPopupNode(key3, head2, view, eui) {
-  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, head: head2, modal: true, role: "eui.popup", size: "lg", children: euiCardNode("card", view, eui, true) }, key3);
+function euiPopupNode(key3, head2, view, eui, size = "lg") {
+  return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: head2, ...size === "full" ? {} : { head: head2 }, modal: true, role: "eui.popup", size, children: euiCardNode("card", view, eui, true) }, key3);
 }
 
 // ../glide/frontend/lanesPopup.ts
@@ -25140,7 +25247,7 @@ function lanesCard(src, bound2, roles, focus2) {
       { attrs: { title: "Lane state comes from the lane broker; a model pick is saved on this device (the broker has no binding endpoint)" } }
     )
   ]);
-  const rows = lanes2.map((lane, i) => {
+  const rows2 = lanes2.map((lane, i) => {
     const binding = bound2[lane.role];
     const current = binding ?? lane.model;
     const info = laneModel(current, binding ? null : lane.resolved, roles);
@@ -25149,7 +25256,7 @@ function lanesCard(src, bound2, roles, focus2) {
     const waiting5 = !live && lane.state === "idle";
     const tone2 = waiting5 ? NIGHT.agree : DOT[lane.state];
     const id3 = info.via ? `${info.via} \u2192 ${info.target ?? "unresolved"}` : info.id;
-    const line = isDead ? `Not answering${lane.error ? ` (${clip2(lane.error, 80)})` : ""}. Pick another model below.` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `Working on \u201C${clip2(lane.researching, 100)}\u201D` : live ? "no blackboard entry yet" : "";
+    const line2 = isDead ? `Not answering${lane.error ? ` (${clip2(lane.error, 80)})` : ""}. Pick another model below.` : lane.entry ? `\u201C${clip2(lane.entry.text, 110)}\u201D` : lane.researching ? `Working on \u201C${clip2(lane.researching, 100)}\u201D` : live ? "no blackboard entry yet" : "";
     const badges = [
       ...info.provider === "unknown" ? [] : [badge([dot(hue, 6), text22(PROVIDERS[info.provider].label.toUpperCase())], hue, rgba(hue, 0.45), { "data-lane-provider": `${lane.role}=${info.provider}` })],
       ...info.billing === "unknown" ? [] : [badge([text22(BILLING[info.billing].toUpperCase())], BILL_TONE[info.billing], NIGHT.borderStrong, { "data-lane-billing": `${lane.role}=${info.billing}` })],
@@ -25175,15 +25282,15 @@ function lanesCard(src, bound2, roles, focus2) {
         ])
       ]),
       el("div", "display:flex;flex-wrap:wrap;gap:5px;padding-left:24px", badges),
-      ...line ? [el("span", `padding-left:24px;font-size:13px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text22(line)], { attrs: { "data-lane-line": lane.role } })] : [],
+      ...line2 ? [el("span", `padding-left:24px;font-size:13px;line-height:18px;color:${isDead ? NIGHT.danger : NIGHT.text2}`, [text22(line2)], { attrs: { "data-lane-line": lane.role } })] : [],
       el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:24px", [
         el("span", micro, [text22("REBIND")]),
         ...laneChoices(lane, bound2).map((m2, j) => {
           const on = current === m2;
           const c = laneModel(m2, null, roles);
-          const short = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
+          const short2 = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
           const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
-          const label = twin ? `${short} \xB7 plan` : short;
+          const label = twin ? `${short2} \xB7 plan` : short2;
           return el(
             "button",
             `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
@@ -25198,8 +25305,8 @@ function lanesCard(src, bound2, roles, focus2) {
       ])
     ]);
   });
-  const keyRow = (title, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
-    el("span", `${micro};width:62px;flex:none`, [text22(title)]),
+  const keyRow = (title2, items) => el("div", "display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px", [
+    el("span", `${micro};width:62px;flex:none`, [text22(title2)]),
     ...items
   ]);
   const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:12px;color:${NIGHT.text2}`, [mark2, text22(label)]);
@@ -25222,7 +25329,7 @@ function lanesCard(src, bound2, roles, focus2) {
   );
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
-    el("div", "display:flex;flex-direction:column", rows),
+    el("div", "display:flex;flex-direction:column", rows2),
     legend,
     el("div", "display:flex;justify-content:flex-end", [close])
   ])]);
@@ -27648,7 +27755,7 @@ function focus(d, el) {
   const next2 = one(d, "next") || "not learned yet";
   const fact = (k, v) => el("div", [el("small", [text2(k)], "ah-k"), el("b", [text2(v)], "ah-v")], "ah-fact");
   const status = on ? `Deep work until ${one(d, "until")}` : done ? "Block done" : `Ready for ${total ?? 50} minutes of deep work`;
-  const line = on ? held ? `${asks(held)} held for the digest` : "Asks wait here for the digest" : done ? held ? `${asks(held)} handed back in the digest below` : "Nothing was held" : `Best window next: ${next2}`;
+  const line2 = on ? held ? `${asks(held)} held for the digest` : "Asks wait here for the digest" : done ? held ? `${asks(held)} handed back in the digest below` : "Nothing was held" : `Best window next: ${next2}`;
   return el("div", [
     el("div", [
       ringSvg(on ? left : done ? total ?? 1 : void 0, on ? total : done ? total ?? 1 : void 0, done ? "var(--h-mutedFg)" : void 0),
@@ -27659,7 +27766,7 @@ function focus(d, el) {
     ], "ah-ring"),
     el("div", [
       el("div", [el("i", [], on ? "ah-led ah-on" : "ah-led"), text2(status)], "ah-status"),
-      el("span", [text2(line)], held ? "ah-pill ah-held" : "ah-pill"),
+      el("span", [text2(line2)], held ? "ah-pill ah-held" : "ah-pill"),
       el("div", [fact("phase", one(d, "phase")), fact("flow", one(d, "flow")), fact("bedtime", one(d, "bedtime"))], "ah-facts")
     ], "ah-side")
   ], `ah-hero ah-focus${on ? " ah-live" : done ? " ah-done" : ""}`);
@@ -28148,15 +28255,15 @@ import { promisify } from "node:util";
 function tasteBoard(raw2) {
   const value = record(raw2);
   const url = value?.["url"];
-  const title = value?.["title"];
-  if (typeof url !== "string" || typeof title !== "string") {
+  const title2 = value?.["title"];
+  if (typeof url !== "string" || typeof title2 !== "string") {
     throw new Error("Invalid Taste Atlas board reply");
   }
   const parsed2 = new URL(url);
   if (parsed2.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsed2.hostname) || parsed2.username || parsed2.password || parsed2.search || parsed2.hash || !/^\/(?:boards|s\/[a-z0-9-]{4,40}\/)$/.test(parsed2.pathname)) {
     throw new Error("Taste Atlas requires a loopback board URL");
   }
-  return { url, title };
+  return { url, title: title2 };
 }
 function tasteCard(board, block) {
   if (!Number.isSafeInteger(block) || block <= 0) {
@@ -28198,6 +28305,204 @@ async function openTastePane(board) {
 async function focusTastePane(block) {
   if (!Number.isSafeInteger(block) || block <= 0) throw new Error("Taste pane needs a valid block");
   await promisify(execFile)("tern", ["focus", String(block), "--json"], { timeout: 2e4, shell: false });
+}
+
+// ../glide/frontend/studio.ts
+import { execFile as execFile2 } from "node:child_process";
+import { promisify as promisify2 } from "node:util";
+
+// src/wire/studio.ts
+var title = string2().check(_minLength(1), _maxLength(200));
+var projectSchema = object({
+  schema: literal("fframestudio.project/1"),
+  id: title,
+  title,
+  videos: array(object({
+    id: title,
+    name: title,
+    scenes: array(object({ id: title, name: title, clipIds: array(title) })),
+    clips: array(object({
+      id: title,
+      name: title,
+      mediaId: nullable(string2()),
+      attached: array(object({ id: title, kind: title, field: optional2(title) }))
+    }))
+  }))
+});
+var snapshotSchema = object({ mode: _enum(["native", "web"]), url: string2(), project: nullable(projectSchema) });
+function studioSnapshot(raw2) {
+  const result = snapshotSchema.parse(raw2);
+  const url = new URL(result.url);
+  if (url.protocol !== "http:" || url.hostname !== "127.0.0.1" || url.username || url.password || url.search || url.pathname !== "/" || url.hash && !/^#\/p\/[\w-][\w.-]*$/.test(url.hash)) {
+    throw new Error("Studio requires a credential-free HTTP loopback URL");
+  }
+  return result;
+}
+
+// ../glide/frontend/studioRuntime.ts
+var STUDIO_RUNTIME = String.raw`
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const exec = promisify(execFile);
+const tern = args => exec('tern', args, { timeout: 20000, maxBuffer: 4 * 1024 * 1024 });
+const [action, selected = ''] = process.argv.slice(1);
+try {
+  if (selected && !/^[\w-][\w.-]*$/.test(selected)) throw Error('Invalid project id');
+  const config = process.env.TERN_CONFIG_DIR || path.join(os.homedir(), '.config/tern');
+  const plugins = path.join(config, 'plugins');
+  let linked;
+  try { linked = (await fs.readFile(path.join(plugins, 'fframestudio.path'), 'utf8')).trim(); } catch {}
+  const root = process.env.GLIDE_STUDIO_DIR || (linked ? path.dirname(linked) : path.join(plugins, 'fframestudio', '..'));
+  const app = name => pathToFileURL(path.join(root, name)).href;
+  let lifecycle, client;
+  try {
+    lifecycle = await import(app('tern/lifecycle.mjs'));
+    client = await import(app('tern/bridge-client.mjs'));
+  } catch { throw Error('Set GLIDE_STUDIO_DIR to the fframestudio checkout, or link its tern plugin. Install its existing dependencies first.'); }
+  const info = await lifecycle.ensureBridge();
+  if (action === 'snapshot') {
+    let native = false;
+    try {
+      const list = JSON.parse((await tern(['plugin', 'list', '--json'])).stdout);
+      const installed = linked || path.join(plugins, 'fframestudio');
+      native = list.plugins?.some(p => p.id === 'fframestudio' && p.status === 'ready') &&
+        await fs.realpath(installed) === await fs.realpath(path.join(root, 'tern'));
+    } catch {}
+    let project = null;
+    if (selected) {
+      const raw = await client.requestJSON(info, '/lib/' + client.projectID(selected) + '/project.json');
+      const { fromV0 } = await import(app('web/src/doc/project.js'));
+      const doc = fromV0(raw);
+      // Return only the read-only preview fields, never credentials, media paths or editor text.
+      project = { schema: doc.schema, id: doc.id, title: doc.title || doc.id, videos: doc.videos.map(v => ({
+        id: v.id, name: v.name || v.id, scenes: v.scenes.map(s => ({ id: s.id, name: s.name || s.id, clipIds: s.clipIds })),
+        clips: v.clips.map(c => ({ id: c.id, name: c.name || c.id, mediaId: c.mediaId || null,
+          attached: c.attached.map(a => ({ id: a.id, kind: a.kind || 'layer', ...(a.field ? { field: a.field } : {}) })) }))
+      })) };
+    }
+    console.log(JSON.stringify({ mode: native ? 'native' : 'web', url: info.url + '/' + (selected ? '#/p/' + selected : ''), project }));
+  } else {
+    const owner = process.env.TERN_PANE || '';
+    if (!/^[1-9][0-9]*$/.test(owner) || !Number.isSafeInteger(Number(owner))) throw Error('Studio needs a local Tern pane. The safe editor URL is shown in the card.');
+    if (action === 'native') {
+      const discovery = process.env.FFS_BRIDGE_FILE || path.join(os.homedir(), '.config/fframestudio/bridge.json');
+      await tern(['split', owner, 'right', '--json', '--', 'env', 'FFS_BRIDGE_FILE=' + discovery, process.execPath, path.join(root, 'tern/app.mjs'), ...(selected ? ['--project', selected] : [])]);
+    } else if (action === 'web') {
+      const { controlFile } = await import(app('tern/tern-control.mjs'));
+      // The existing helper keeps /open's credential in a private, temporary file, not argv/output.
+      await controlFile('browser open ' + JSON.stringify(client.editorURL(info, selected || undefined)) + '\n', tern);
+    } else throw Error('Unknown studio action');
+    console.log(JSON.stringify({ opened: true }));
+  }
+} catch (error) {
+  // Never serialize exec errors: they contain child output and possibly private paths.
+  const message = error?.code || error?.cmd ? 'Studio launch failed. Check the installed app and local Tern pane.' : error.message;
+  console.log(JSON.stringify({ error: message }));
+  process.exitCode = 1;
+}
+`;
+
+// ../glide/frontend/studio.ts
+function studioTree(project) {
+  const items = [];
+  let omitted = 0;
+  const add2 = (item3) => items.length < 80 ? items.push(item3) : omitted++;
+  for (const video of project?.videos ?? []) {
+    const grouped = new Set(video.scenes.flatMap((scene2) => scene2.clipIds));
+    const scenes = [...video.scenes, ...video.clips.filter((clip4) => !grouped.has(clip4.id)).map((clip4) => ({ id: clip4.id, name: clip4.name, clipIds: [clip4.id] }))];
+    const clips = new Map(video.clips.map((clip4) => [clip4.id, clip4]));
+    for (const scene2 of scenes) {
+      const group = `${video.name} / ${scene2.name}`;
+      if (!scene2.clipIds.length) add2({ id: `${video.id}/${scene2.id}`, group, label: scene2.name, detail: "No layers" });
+      for (const id3 of scene2.clipIds) {
+        const clip4 = clips.get(id3);
+        if (!clip4) continue;
+        const key3 = `${video.id}/${scene2.id}/${clip4.id}`;
+        if (clip4.mediaId) add2({ id: `${key3}/media`, group, label: clip4.name, detail: "Media layer" });
+        for (const layer of clip4.attached) add2({ id: `${key3}/${layer.id}`, group, label: layer.field ?? layer.kind, detail: `${clip4.name} / ${layer.kind}` });
+        if (!clip4.mediaId && !clip4.attached.length) add2({ id: `${video.id}/${clip4.id}`, group, label: clip4.name, detail: "No layers" });
+      }
+    }
+  }
+  if (omitted) items.push({ id: "omitted", label: `${omitted} more layers`, detail: "Open the studio for the full project" });
+  return items;
+}
+function studioCard(state) {
+  const snapshot4 = "snapshot" in state ? state.snapshot : void 0;
+  const rows2 = studioTree(snapshot4?.project ?? null);
+  return {
+    kind: "studio",
+    app: "glide",
+    title: "fframestudio",
+    ui: { type: "element", typeName: "Card", props: {
+      title: snapshot4?.project?.title ?? "fframestudio",
+      app: "glide",
+      status: state.phase === "starting" ? "running" : state.phase === "error" ? "error" : "done",
+      source: "Local studio",
+      children: [
+        { type: "element", typeName: "Text", props: { body: state.phase === "starting" ? "Opening studio\u2026" : state.phase === "error" ? state.message : snapshot4?.mode === "native" ? "Native studio open beside chat" : "Web editor open in a Tern browser pane" } },
+        ...snapshot4 ? [{ type: "element", typeName: "Kv", props: { items: [{ k: "Editor", v: snapshot4.url }, { k: "Preview", v: "Read-only \xB7 scenes \u2192 layers" }] } }] : [],
+        { type: "element", typeName: "Section", props: { title: "Project layers", aside: "Read-only", children: rows2.length ? [
+          { type: "element", typeName: "List", props: { items: rows2 } }
+        ] : [{ type: "element", typeName: "Text", props: { body: snapshot4?.project ? "This project has no scenes or layers." : "Select a project with /glide studio <project-id>." } }] } }
+      ]
+    } }
+  };
+}
+async function studioRuntime(action, project = "") {
+  if (project && !/^[\w-][\w.-]*$/.test(project)) throw new Error("Usage: /glide studio [project-id]");
+  let stdout;
+  try {
+    stdout = (await promisify2(execFile2)(process.execPath, ["--input-type=module", "-e", STUDIO_RUNTIME, "--", action, project], {
+      timeout: 45e3,
+      maxBuffer: 4 * 1024 * 1024,
+      shell: false
+    })).stdout;
+  } catch (error) {
+    const reply3 = record(record(error)?.["stdout"]);
+    throw new Error(typeof reply3?.["error"] === "string" ? reply3["error"] : "Studio could not start. Check GLIDE_STUDIO_DIR and the existing app dependencies.");
+  }
+  const reply2 = record(stdout);
+  if (typeof reply2?.["error"] === "string") throw new Error(reply2["error"]);
+  if (action !== "snapshot" && reply2?.["opened"] !== true) throw new Error("Tern did not confirm opening the studio");
+  return reply2;
+}
+
+// ../glide/frontend/studioCommand.ts
+async function studioCommand(host2, project) {
+  const ref = host2.session.ref;
+  const cards = host2.eui?.host;
+  if (!ref.live || !cards) return;
+  const current = () => host2.session.ref === ref && host2.session.ref.live === ref.live;
+  const ignore3 = () => void 0;
+  let handle3;
+  let snapshot4;
+  try {
+    handle3 = cards.publishNative(studioCard({ phase: "starting" }), ignore3);
+    snapshot4 = studioSnapshot(await studioRuntime("snapshot", project));
+    if (!current()) {
+      handle3.revoke();
+      return;
+    }
+    await studioRuntime(snapshot4.mode, project);
+    if (!current()) {
+      handle3.revoke();
+      return;
+    }
+    handle3.update(studioCard({ phase: "open", snapshot: snapshot4 }), ignore3);
+  } catch (error) {
+    if (!current()) {
+      handle3?.revoke();
+      return;
+    }
+    const message = error instanceof Error ? error.message : "Studio unavailable";
+    handle3?.update(studioCard({ phase: "error", message, ...snapshot4 ? { snapshot: snapshot4 } : {} }), ignore3);
+    host2.transcript.notice(`/glide studio: ${message}`, "error");
+  }
 }
 
 // src/commands/glide.ts
@@ -28354,6 +28659,10 @@ async function glideCommand(host2, arg) {
   };
   const [verb, ...rest] = arg.trim().split(/\s+/);
   try {
+    if (verb === "studio") {
+      await studioCommand(host2, rest.join(" ") || process.env["GLIDE_STUDIO_PROJECT"] || "");
+      return;
+    }
     if (verb === "taste") {
       const board = tasteBoard(await call("taste"));
       if (host2.session.ref !== ref || host2.session.ref.live !== sid) return;
@@ -28872,7 +29181,7 @@ function noticeReport(items) {
   return [
     "Snapshot at open time. Up to eight notices are retained. On overflow, only the newest sticky error and the newest notice are protected; others may have been omitted.",
     "",
-    ...lines.flatMap((line) => line.split(/\r\n|\r|\n/).map((part) => `    ${part}`))
+    ...lines.flatMap((line2) => line2.split(/\r\n|\r|\n/).map((part) => `    ${part}`))
   ].join("\n");
 }
 function noticeLine(text22) {
@@ -29034,8 +29343,8 @@ function sessionHost(cx, literal3 = false) {
       await cx.life.resume(id3);
       return durable(cx.state.ref) === id3;
     },
-    panel: (title, text22) => {
-      cx.transcript.panel(title, text22);
+    panel: (title2, text22) => {
+      cx.transcript.panel(title2, text22);
       cx.changed();
     },
     compressing: (state) => {
@@ -29072,7 +29381,7 @@ function sessionHost(cx, literal3 = false) {
 }
 
 // src/hermes/connect.ts
-import { execFile as execFile2 } from "node:child_process";
+import { execFile as execFile3 } from "node:child_process";
 var command = object({ argv: tuple([string2()], string2()), env: _catch(record2(string2(), string2()), {}) });
 function readHermesCommand(raw2) {
   return raw2 ? command.safeParse(parseJson(raw2)).data : void 0;
@@ -29093,12 +29402,12 @@ var AttachError = class extends Error {
   terminal;
 };
 var runFile = (file2, args, env2) => new Promise((resolve11) => {
-  execFile2(file2, args, { encoding: "utf8", env: env2, maxBuffer: 1024 * 1024, timeout: ATTACH_TIMEOUT_MS }, (error, stdout, stderr) => {
+  execFile3(file2, args, { encoding: "utf8", env: env2, maxBuffer: 1024 * 1024, timeout: ATTACH_TIMEOUT_MS }, (error, stdout, stderr) => {
     const code7 = error ? typeof error.code === "number" ? error.code : 1 : 0;
     resolve11({ code: code7, stderr: stderr || (error && !stdout ? error.message : ""), stdout });
   });
 });
-var lastJson = (text22) => text22.split("\n").reverse().map((line) => line.trim()).filter(Boolean).map((line) => parseJson(line)).find((value) => value !== void 0);
+var lastJson = (text22) => text22.split("\n").reverse().map((line2) => line2.trim()).filter(Boolean).map((line2) => parseJson(line2)).find((value) => value !== void 0);
 function attachGateway(hermes, run8 = runFile, env2 = process.env) {
   return async (start, recover) => {
     const [file2, ...args] = hermes.argv;
@@ -29634,7 +29943,7 @@ var agentHandlers = {
 
 // src/hermes/stderr.ts
 var PROBLEM = /Traceback|\b[A-Z][A-Za-z]*(?:Error|Exception)\b:|CRITICAL|\[gateway-turn\]|\[gateway-exit\]|^gateway (?:absent|conflict|draining|inaccessible|incompatible|starting|unavailable): /;
-var stderrLooksLikeProblem = (line) => PROBLEM.test(line);
+var stderrLooksLikeProblem = (line2) => PROBLEM.test(line2);
 
 // src/chrome/backendNotes.ts
 var STDERR_LINE_CAP = 120;
@@ -30063,9 +30372,9 @@ function load() {
     }
     const entries2 = [];
     let current = [];
-    for (const line of readFileSync5(file, "utf8").split("\n")) {
-      if (line.startsWith("+")) {
-        current.push(line.slice(1));
+    for (const line2 of readFileSync5(file, "utf8").split("\n")) {
+      if (line2.startsWith("+")) {
+        current.push(line2.slice(1));
       } else if (current.length) {
         entries2.push(current.join("\n"));
         current = [];
@@ -30080,8 +30389,8 @@ function load() {
   }
   return cache;
 }
-function append(line) {
-  const trimmed = line.trim();
+function append(line2) {
+  const trimmed = line2.trim();
   if (!trimmed) {
     return;
   }
@@ -30133,39 +30442,39 @@ function markdownDecor(text22) {
   };
   let at2 = 0;
   let fenced = false;
-  for (const line of text22.split("\n")) {
-    const end = at2 + line.length;
-    if (FENCE.test(line)) {
+  for (const line2 of text22.split("\n")) {
+    const end = at2 + line2.length;
+    if (FENCE.test(line2)) {
       mark2(at2, end, "dim");
       fenced = !fenced;
     } else if (fenced) {
       mark2(at2, end, "code");
     } else {
-      blockMarks(line, at2, mark2);
+      blockMarks(line2, at2, mark2);
     }
     at2 = end + 1;
   }
   return runs(marks2);
 }
-function blockMarks(line, at2, mark2) {
-  if (RULE.test(line)) {
-    return mark2(at2, at2 + line.length, "dim");
+function blockMarks(line2, at2, mark2) {
+  if (RULE.test(line2)) {
+    return mark2(at2, at2 + line2.length, "dim");
   }
   let body = 0;
-  const heading5 = HEADING.exec(line);
-  const quote2 = heading5 ? null : QUOTE.exec(line);
+  const heading5 = HEADING.exec(line2);
+  const quote2 = heading5 ? null : QUOTE.exec(line2);
   if (heading5) {
     const { marker = "" } = heading5.groups ?? {};
     mark2(at2, at2 + marker.length, "dim");
     body = heading5[0].length;
-    mark2(at2 + body, at2 + line.length, "strong");
+    mark2(at2 + body, at2 + line2.length, "strong");
   } else if (quote2) {
     const { marker = "" } = quote2.groups ?? {};
     mark2(at2, at2 + marker.length, "dim");
     body = marker.length;
-    mark2(at2 + body, at2 + line.length, "muted");
+    mark2(at2 + body, at2 + line2.length, "muted");
   }
-  const list10 = LIST.exec(line.slice(body));
+  const list10 = LIST.exec(line2.slice(body));
   if (list10) {
     const { box, bullet = "", indent: indent2 = "" } = list10.groups ?? {};
     const start = body + indent2.length;
@@ -30176,10 +30485,10 @@ function blockMarks(line, at2, mark2) {
     }
     body += list10[0].length;
   }
-  inlineMarks(line, body, at2, mark2);
+  inlineMarks(line2, body, at2, mark2);
 }
-function inlineMarks(line, from, at2, mark2) {
-  let rest = " ".repeat(from) + line.slice(from);
+function inlineMarks(line2, from, at2, mark2) {
+  let rest = " ".repeat(from) + line2.slice(from);
   const take = (start, len) => {
     rest = rest.slice(0, start) + "\0".repeat(len) + rest.slice(start + len);
   };
@@ -30231,12 +30540,12 @@ function listNewline(text22, cursor) {
   const start = text22.lastIndexOf("\n", cursor - 1) + 1;
   const nl = text22.indexOf("\n", cursor);
   const end = nl < 0 ? text22.length : nl;
-  const line = text22.slice(start, end);
-  const m2 = LIST.exec(line);
+  const line2 = text22.slice(start, end);
+  const m2 = LIST.exec(line2);
   if (!m2 || cursor - start < m2[0].length) {
     return void 0;
   }
-  if (!line.slice(m2[0].length).trim()) {
+  if (!line2.slice(m2[0].length).trim()) {
     return { cursor: start, from: start, text: "", to: end };
   }
   const [, indent2 = "", bullet = "", gap = " ", box] = m2;
@@ -30294,9 +30603,9 @@ function doubled(text22, open5, close, marker) {
 function markedRun(text22, at2, marker) {
   const start = text22.lastIndexOf("\n", at2 - 1) + 1;
   const nl = text22.indexOf("\n", at2);
-  const line = text22.slice(start, nl < 0 ? text22.length : nl);
+  const line2 = text22.slice(start, nl < 0 ? text22.length : nl);
   const re2 = marker === "**" ? /\*\*(?=\S)([^\n]*?\S)\*\*/g : /(?<![\w_])_(?=[^\s_])([^\n_]*?[^\s_])_(?![\w_])/g;
-  for (const m2 of line.matchAll(re2)) {
+  for (const m2 of line2.matchAll(re2)) {
     const open5 = start + m2.index;
     const close = open5 + m2[0].length - marker.length;
     if (at2 > open5 + marker.length - 1 && at2 <= close) {
@@ -30542,14 +30851,14 @@ var VimComposer = class {
   }
   #line(n4) {
     const lines = this.composer.text.split("\n");
-    return lines.slice(0, Math.max(0, Math.min(n4, lines.length - 1))).reduce((sum, line) => sum + line.length + 1, 0);
+    return lines.slice(0, Math.max(0, Math.min(n4, lines.length - 1))).reduce((sum, line2) => sum + line2.length + 1, 0);
   }
   #vertical(delta) {
     const { text: text22, cursor } = this.composer;
     const start = lineStart2(text22, cursor);
-    const line = text22.slice(0, start).split("\n").length - 1;
+    const line2 = text22.slice(0, start).split("\n").length - 1;
     this.#column ??= [...segments.segment(text22.slice(start, cursor))].length;
-    const target2 = this.#line(line + delta);
+    const target2 = this.#line(line2 + delta);
     const graphemes3 = [...segments.segment(text22.slice(target2, lineEnd2(text22, target2)))];
     return target2 + (graphemes3[this.#column]?.index ?? lineEnd2(text22, target2) - target2);
   }
@@ -30692,8 +31001,8 @@ var VimComposer = class {
     if (this.#operator === operator) {
       const { text: text22, cursor } = this.composer;
       const start = lineStart2(text22, cursor);
-      const line = text22.slice(0, start).split("\n").length - 1;
-      this.#operate(operator, { from: start, to: lineEnd2(text22, this.#line(line + count6 - 1)), linewise: true });
+      const line2 = text22.slice(0, start).split("\n").length - 1;
+      this.#operate(operator, { from: start, to: lineEnd2(text22, this.#line(line2 + count6 - 1)), linewise: true });
       return;
     }
     this.#operator = operator;
@@ -31144,8 +31453,8 @@ var Composer = class {
     if (!onEdge) {
       const col = this.cursor - start;
       const target2 = dir2 < 0 ? lineStart(this.text, start - 1) : end + 1;
-      const line = this.text.slice(target2, lineEnd(this.text, target2));
-      return this.#move(target2 + boundaryAt(line, Math.min(col, line.length)));
+      const line2 = this.text.slice(target2, lineEnd(this.text, target2));
+      return this.#move(target2 + boundaryAt(line2, Math.min(col, line2.length)));
     }
     return this.#history(dir2);
   }
@@ -31533,7 +31842,7 @@ function maskedOverlay(host2, prompt) {
     { id: "password", label: "Password", masked: true, value: new Composer() }
   ] : [{ id: "value", label: code7 ? "Type the code" : "Hidden while you type", masked: !code7, value: new Composer() }];
   let at2 = 0;
-  const title = method === "sudo" ? "Password for sudo" : method === "secret" ? prompt.prompt || `Value for ${prompt.envVar || "a secret"}` : method === "vault.unlock_prompt" ? `Master password for ${prompt.manager || "the password manager"}` : login ? `Save a login for ${site || "this site"}` : `Code for ${site || "this site"}`;
+  const title2 = method === "sudo" ? "Password for sudo" : method === "secret" ? prompt.prompt || `Value for ${prompt.envVar || "a secret"}` : method === "vault.unlock_prompt" ? `Master password for ${prompt.manager || "the password manager"}` : login ? `Save a login for ${site || "this site"}` : `Code for ${site || "this site"}`;
   const note = method === "secret" ? prompt.envVar : code7 ? [prompt.hint, "typed into the page only \xB7 never shown to the model"].filter(Boolean).join(" \xB7 ") : "";
   const sending = { busy: false, error: "" };
   const finish = (cancel3) => {
@@ -31551,7 +31860,7 @@ function maskedOverlay(host2, prompt) {
     cancel: () => finish(true),
     focus: (id3) => `${id3}.body.${fields[at2]?.id ?? "value"}`,
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
-      /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title }, "question"),
+      /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title2 }, "question"),
       note ? /* @__PURE__ */ jsx("text", { spans: [{ s: method === "secret" ? "mono dim" : "muted", t: note }], wrap: "word" }, "note") : null,
       prompt.command ? /* @__PURE__ */ jsx("code", { lang: "bash", text: prompt.command }, "command") : null,
       fields.map((f2, i) => /* @__PURE__ */ jsx(
@@ -31847,8 +32156,8 @@ var pendingRow = object({
   user: _catch(string2(), "")
 });
 function pendingRows(info) {
-  const { pending_submissions: rows } = info ?? {};
-  return Array.isArray(rows) ? rowsOf(pendingRow, rows) : void 0;
+  const { pending_submissions: rows2 } = info ?? {};
+  return Array.isArray(rows2) ? rowsOf(pendingRow, rows2) : void 0;
 }
 var settle = _catch(object({ admission_id: loose(string2()), outcome: optional2(unknown()) }), {});
 function cancelledAdmission(payload) {
@@ -31969,8 +32278,8 @@ function previewRows(r) {
   }
 }
 function noticeLine2(text22) {
-  const line = firstLine(text22);
-  return /^\[[A-Z][A-Z -]*:\s*(?<said>[^\]]*)\]?$/.exec(line)?.groups?.["said"]?.trim() || line;
+  const line2 = firstLine(text22);
+  return /^\[[A-Z][A-Z -]*:\s*(?<said>[^\]]*)\]?$/.exec(line2)?.groups?.["said"]?.trim() || line2;
 }
 function firstLine(text22) {
   return (text22.split("\n").find((l) => l.trim()) ?? "").trim();
@@ -32540,9 +32849,9 @@ function dispatcher(cx, unknown4 = () => void 0, onShown = () => void 0) {
 // src/gateway/eventLog.ts
 import { appendFileSync as appendFileSync3 } from "node:fs";
 function eventLog(path2) {
-  const write = (line) => {
+  const write = (line2) => {
     if (path2) {
-      appendFileSync3(path2, `${JSON.stringify(line)}
+      appendFileSync3(path2, `${JSON.stringify(line2)}
 `);
     }
   };
@@ -32676,6 +32985,7 @@ function focusDoc(startedAt, minutes, now) {
   return {
     id: "focus",
     title: "Focus",
+    status: left > 0 ? "running" : "done",
     slots: {
       left: slot("Hero", { value: left > 0 ? clock2(left) : "Done", label: `of ${minutes} min focus` }),
       meter: slot("Meter", { label: left > 0 ? `Focus \xB7 ${clock2(left)} left` : "Focus block done", value: 1 - done, total: `${minutes} min` }),
@@ -32758,8 +33068,8 @@ var dictationLine = object({
   state: optional2(_enum(["idle", "listening", "transcribing"])),
   text: optional2(string2())
 });
-function dictationEvent(line) {
-  const { data } = dictationLine.safeParse(parseJson(line));
+function dictationEvent(line2) {
+  const { data } = dictationLine.safeParse(parseJson(line2));
   if (data?.error !== void 0) {
     return { kind: "error", message: data.error };
   }
@@ -32811,9 +33121,9 @@ function hermesRecorder(env2 = process.env) {
       let rest = "";
       let idle = false;
       let killer;
-      const send2 = (line) => {
+      const send2 = (line2) => {
         if (child.stdin.writable) {
-          child.stdin.write(`${line}
+          child.stdin.write(`${line2}
 `);
         }
       };
@@ -32821,8 +33131,8 @@ function hermesRecorder(env2 = process.env) {
       child.stdout.setEncoding("utf8").on("data", (chunk) => {
         const lines = (rest + chunk).split("\n");
         rest = lines.pop() ?? "";
-        for (const line of lines) {
-          const event = dictationEvent(line);
+        for (const line2 of lines) {
+          const event = dictationEvent(line2);
           idle ||= event?.kind === "state" && event.state === "idle";
           if (event) {
             on(event);
@@ -32944,7 +33254,7 @@ var HostLifecycle = class {
 
 // src/artifacts.ts
 var import_undici = __toESM(require_undici(), 1);
-import { execFile as execFile3 } from "node:child_process";
+import { execFile as execFile4 } from "node:child_process";
 import { createHash as createHash3 } from "node:crypto";
 import { lookup as dnsLookup } from "node:dns/promises";
 import { mkdir, open, readFile as readFile2, rename, rm as rm2, stat, writeFile as writeFile2 } from "node:fs/promises";
@@ -32952,8 +33262,8 @@ import { isIP as isIP2 } from "node:net";
 import { homedir as homedir5 } from "node:os";
 import { dirname as dirname3, extname as extname2, join as join6, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { promisify as promisify2 } from "node:util";
-var run2 = promisify2(execFile3);
+import { promisify as promisify3 } from "node:util";
+var run2 = promisify3(execFile4);
 var MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i;
 var MAX_BYTES = 128 * 1024 * 1024;
 var CACHE = join6(process.env["XDG_CACHE_HOME"] || join6(homedir5(), ".cache"), "glide", "artifacts");
@@ -33241,13 +33551,13 @@ function modelPayload(arg) {
 }
 
 // src/pane-launcher.ts
-import { execFile as execFile5 } from "node:child_process";
-import { promisify as promisify4 } from "node:util";
+import { execFile as execFile6 } from "node:child_process";
+import { promisify as promisify5 } from "node:util";
 
 // src/watch/spec.ts
-import { execFile as execFile4 } from "node:child_process";
-import { promisify as promisify3 } from "node:util";
-var run3 = promisify3(execFile4);
+import { execFile as execFile5 } from "node:child_process";
+import { promisify as promisify4 } from "node:util";
+var run3 = promisify4(execFile5);
 var WATCH_ENV = "HERMES_TERN_WATCH";
 function readWatchSpec(env2 = process.env) {
   return readWatchSpecText(env2[WATCH_ENV]);
@@ -33303,7 +33613,7 @@ async function openHermesSplit(args, cwd, env2 = process.env) {
 }
 
 // src/pane-launcher.ts
-async function launchPane(argv, cwd, env2 = process.env, execute = promisify4(execFile5)) {
+async function launchPane(argv, cwd, env2 = process.env, execute = promisify5(execFile6)) {
   const split2 = hermesSplit(env2, [], argv);
   if (!split2) {
     return false;
@@ -33712,9 +34022,9 @@ function taskGoals(call) {
 function agentNode(a2, now, solo) {
   const status = SUBAGENT_LOOK[a2.status].row;
   const running2 = a2.status === "running";
-  const title = `Open ${solo ? "the agent" : agentName(a2)} beside the chat`;
+  const title2 = `Open ${solo ? "the agent" : agentName(a2)} beside the chat`;
   return pressable(
-    { action: `open-agent=${a2.id}`, key: solo?.key ?? a2.key, menu: [`open-agent=${a2.id}`], name: title },
+    { action: `open-agent=${a2.id}`, key: solo?.key ?? a2.key, menu: [`open-agent=${a2.id}`], name: title2 },
     /* @__PURE__ */ jsx(
       "agent",
       {
@@ -33733,7 +34043,7 @@ function agentNode(a2, now, solo) {
         },
         status,
         task: a2.goal,
-        title,
+        title: title2,
         ...running2 && a2.tool ? {
           tool: {
             ...optional("age", a2.toolSince ? age(a2.toolSince, a2.toolSince.at, now) : void 0),
@@ -34305,9 +34615,9 @@ var SubagentTranscript = class {
   }
 };
 var ms = (seconds) => seconds === null || seconds === void 0 ? void 0 : Math.round(seconds * 1e3);
-function stepsOf(rows) {
+function stepsOf(rows2) {
   const steps = [];
-  for (const row2 of rows) {
+  for (const row2 of rows2) {
     const at2 = ms(row2.timestamp);
     const text22 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
@@ -34333,23 +34643,83 @@ function agentSteps(a2) {
   return a2.status === "running" && a2.tool && a2.toolCount > stored ? [...steps, { args: a2.toolPreview ?? "", at: a2.toolSince?.at, kind: "tool", name: a2.tool, running: true }] : steps;
 }
 
+// src/agents/tree.ts
+function agentForest(agents2) {
+  const nodes = new Map(agents2.map((agent2) => [agent2.id, { agent: agent2, children: [] }]));
+  const roots = [];
+  for (const node4 of nodes.values()) {
+    const seen = /* @__PURE__ */ new Set([node4.agent.id]);
+    let parent = node4.agent.parentId ? nodes.get(node4.agent.parentId) : void 0;
+    const direct = parent;
+    while (parent && !seen.has(parent.agent.id)) {
+      seen.add(parent.agent.id);
+      parent = parent.agent.parentId ? nodes.get(parent.agent.parentId) : void 0;
+    }
+    if (!direct || parent) roots.push(node4);
+    else direct.children.push(node4);
+  }
+  return roots;
+}
+function agentBranches(agents2, runningOnly) {
+  const keep = (nodes) => nodes.flatMap((node4) => {
+    const children3 = keep(node4.children);
+    return !runningOnly || isRunning(node4.agent) || children3.length ? [{ ...node4, children: children3 }] : [];
+  });
+  return keep(agentForest(agents2));
+}
+function visibleAgents(nodes, expanded) {
+  return nodes.flatMap((node4) => [node4.agent, ...expanded.includes(node4.agent.id) ? visibleAgents(node4.children, expanded) : []]);
+}
+var line = (text22) => text22.replace(/\s+/g, " ").trim();
+var short = (text22, max) => text22.length > max ? `${text22.slice(0, max - 1)}\u2026` : text22;
+function agentContext(agent2) {
+  const steps = agentSteps(agent2);
+  const tools2 = steps.filter((step) => step.kind === "tool");
+  const files = /* @__PURE__ */ new Set();
+  for (const tool of tools2) {
+    if (!["read_file", "write_file", "edit_file", "patch", "apply_patch"].includes(tool.name)) continue;
+    const call = tool.call;
+    const path2 = call?.["path"] ?? call?.["file_path"] ?? call?.["target_file"];
+    if (typeof path2 === "string" && path2.trim()) files.add(path2);
+    const patch6 = call?.["patch"] ?? call?.["patch_text"];
+    if (typeof patch6 === "string") {
+      for (const match of patch6.matchAll(/^\*\*\* (?:Update|Add|Delete) File: (.+)$/gm)) {
+        if (match[1]) files.add(match[1].trim());
+      }
+    }
+  }
+  const latest2 = steps.at(-1);
+  const thought = steps.findLast((step) => step.kind === "think");
+  return {
+    current: agent2.tool ? line(`${agent2.tool} ${agent2.toolPreview ?? ""}`) : latest2 ? line(latest2.kind === "tool" ? `${latest2.name} ${latest2.args}` : latest2.text) : agent2.status === "queued" ? "Waiting for a slot" : agent2.summary ?? "No step reported yet",
+    tools: tools2.slice(-3).map((tool) => line(`${tool.name} ${tool.args}`)),
+    files: [...files],
+    thinking: thought && thought.kind !== "tool" ? short(line(thought.text), 180) : ""
+  };
+}
+
 // src/agents/hub.ts
 var NONE = { kind: "none" };
 var LIST2 = { kind: "list" };
 function initialHub(agents2, focus2) {
-  return {
-    ask: NONE,
-    selected: focus2 ?? agents2.find(isRunning)?.id ?? agents2[0]?.id,
-    tab: agents2.some(isRunning) ? "running" : "all",
-    view: LIST2
-  };
+  const expanded = [];
+  let ancestor = agents2.find((a2) => a2.id === focus2);
+  const seen = /* @__PURE__ */ new Set();
+  while (ancestor?.parentId && !seen.has(ancestor.parentId)) {
+    seen.add(ancestor.parentId);
+    expanded.push(ancestor.parentId);
+    ancestor = agents2.find((a2) => a2.id === ancestor?.parentId);
+  }
+  const tab3 = focus2 || !agents2.some(isRunning) ? "all" : "running";
+  const visible2 = visibleAgents(agentBranches(agents2, tab3 === "running"), expanded);
+  return { ask: NONE, expanded, selected: visible2.find((a2) => a2.id === focus2)?.id ?? visible2[0]?.id, tab: tab3, view: LIST2 };
 }
 function currentAgent(state, agents2) {
   const id3 = state.view.kind === "timeline" ? state.view.agent : state.selected;
   return agents2.find((a2) => a2.id === id3);
 }
 function shownAgents(state, agents2) {
-  return state.tab === "running" ? agents2.filter(isRunning) : [...agents2];
+  return visibleAgents(agentBranches(agents2, state.tab === "running"), state.expanded);
 }
 function stepIds(a2) {
   return agentSteps(a2).map((_2, i) => `e${i}`);
@@ -34364,6 +34734,32 @@ function reduceHub(state, action, agents2) {
       return { state: { ...state, tab: action.tab } };
     case "select":
       return { state: { ...state, ask: state.ask.kind === "confirmStop" ? NONE : state.ask, selected: action.id } };
+    case "toggle": {
+      const id3 = action.id ?? state.selected;
+      if (!id3 || !shownAgents(state, agents2).some((x) => x.id === id3)) return { state };
+      const expanded = state.expanded.includes(id3) ? state.expanded.filter((x) => x !== id3) : [...state.expanded, id3];
+      return { state: { ...state, ask: NONE, expanded, selected: id3 } };
+    }
+    case "expand": {
+      if (!a2) return { state };
+      if (!state.expanded.includes(a2.id)) return reduceHub(state, { type: "toggle" }, agents2);
+      const find4 = (nodes) => {
+        for (const node4 of nodes) {
+          if (node4.agent.id === a2.id) return node4.children[0]?.agent;
+          const child2 = find4(node4.children);
+          if (child2) return child2;
+        }
+        return void 0;
+      };
+      const child = find4(agentBranches(agents2, state.tab === "running"));
+      return child ? { state: { ...state, selected: child.id } } : { state };
+    }
+    case "collapse": {
+      if (!a2) return { state };
+      if (state.expanded.includes(a2.id)) return reduceHub(state, { type: "toggle" }, agents2);
+      const parent = shownAgents(state, agents2).find((x) => x.id === a2.parentId);
+      return parent ? { state: { ...state, selected: parent.id } } : { state };
+    }
     case "step": {
       if (state.view.kind !== "timeline" || !a2) {
         return { state };
@@ -34386,7 +34782,7 @@ function reduceHub(state, action, agents2) {
     case "pause":
       return { effect: { kind: "pause" }, state };
     case "steer":
-      return running(a2) ? { state: { ...state, ask: { kind: "steering", text: "" } } } : { state };
+      return running(a2) && a2.steerable !== false ? { state: { ...state, ask: { kind: "steering", text: "" } } } : { state };
     case "steerEdit":
       return state.ask.kind === "steering" ? { state: { ...state, ask: { kind: "steering", text: action.text } } } : { state };
     case "steerCancel":
@@ -34437,9 +34833,10 @@ function hubKey(state, k, agents2) {
     const moved3 = moveSelection(k, ids, view.step ?? ids.at(-1));
     return moved3 === void 0 ? void 0 : { id: moved3, type: "step" };
   }
-  if (k.name === "enter") {
-    return { type: "beside" };
-  }
+  if (k.name === "enter" && bare) return { type: "toggle" };
+  if (k.name === "right" && bare) return { type: "expand" };
+  if (k.name === "left" && bare) return { type: "collapse" };
+  if (k.name === "o" && bare) return { type: "beside" };
   if (k.name === "t" && bare) {
     return { type: "watch" };
   }
@@ -34457,6 +34854,7 @@ function hubKey(state, k, agents2) {
   return moved2 === void 0 ? void 0 : { id: moved2, type: "select" };
 }
 var HUB_CLICKS = {
+  toggle: () => ({ type: "toggle" }),
   beside: () => ({ type: "beside" }),
   cancel: () => ({ type: "stopCancel" }),
   close: () => ({ type: "back" }),
@@ -34552,6 +34950,91 @@ function relativePath(path2, o) {
   return o.home && path2.startsWith(`${o.home}/`) ? `~${path2.slice(o.home.length)}` : path2.replace(/^\.\//, "");
 }
 
+// src/agents/treeView.tsx
+var HEADER = 64;
+var CONTEXT = 112;
+function agentTreeFocus(nodes, selected, prefix2) {
+  for (const node4 of nodes) {
+    const path2 = `${prefix2}.${node4.agent.key}`;
+    if (node4.agent.id === selected) return `${path2}.head`;
+    const child = agentTreeFocus(node4.children, selected, `${path2}.body.children`);
+    if (child) return child;
+  }
+  return null;
+}
+function agentTreeNodes(nodes, state, now, toggle, style2) {
+  const height = (node4) => HEADER + (state.expanded.includes(node4.agent.id) ? CONTEXT + node4.children.reduce((sum, child) => sum + height(child), 0) : 0);
+  const draw = (node4, depth, visible2) => {
+    const a2 = node4.agent;
+    const open5 = state.expanded.includes(a2.id);
+    const selected = state.selected === a2.id;
+    const context = agentContext(a2);
+    const look2 = SUBAGENT_LOOK[a2.status];
+    const bodyHeight = open5 ? CONTEXT + node4.children.reduce((sum, child) => sum + height(child), 0) : 0;
+    const detail = (label, text22) => /* @__PURE__ */ jsxs(html.div, { class: "agent-context-line", children: [
+      /* @__PURE__ */ jsx(html.span, { class: "agent-context-label", children: label }, "label"),
+      /* @__PURE__ */ jsx(html.span, { class: "agent-context-text", title: text22, children: text22 }, "value")
+    ] }, label);
+    return /* @__PURE__ */ jsxs(html.div, { attrs: { role: "treeitem", "aria-level": String(depth + 1), "aria-expanded": String(open5), "aria-selected": String(selected), "data-agent-id": a2.id }, children: [
+      /* @__PURE__ */ jsxs(
+        "el",
+        {
+          tag: "button",
+          aria: `${open5 ? "Collapse" : "Expand"} ${agentName(a2)}: ${a2.goal}`,
+          attrs: { "data-agent-toggle": a2.id, "data-selected": String(selected) },
+          class: "agent-tree-head",
+          disabled: !visible2,
+          onClick: () => toggle(a2.id),
+          children: [
+            /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", children: [
+              /* @__PURE__ */ jsx("text", { text: open5 ? "\u2304" : "\u203A", tone: "muted" }, "chevron"),
+              /* @__PURE__ */ jsx("text", { grow: 1, text: agentName(a2), truncate: "end", wrap: "none" }, "name"),
+              /* @__PURE__ */ jsx("badge", { text: look2.word, tone: look2.tone }, "state"),
+              /* @__PURE__ */ jsx("text", { role: "hermes.agent-tree.time", text: duration3(Math.max(0, isRunning(a2) ? now - a2.startedAt : a2.duration ?? 0)) }, "time")
+            ] }, "name"),
+            /* @__PURE__ */ jsx("text", { role: "hermes.agent-tree.task", text: a2.goal, truncate: "end", wrap: "none" }, "task")
+          ]
+        },
+        "head"
+      ),
+      /* @__PURE__ */ jsxs(html.div, { class: "agent-tree-body", attrs: {
+        "aria-hidden": String(!open5),
+        "data-open": String(open5),
+        ...style2 ? { "data-eui-s": style2(`height:${bodyHeight}px`) } : {}
+      }, children: [
+        /* @__PURE__ */ jsxs(html.div, { class: "agent-context", children: [
+          detail("Current step", context.current),
+          detail("Last tools", context.tools.join(" \xB7 ") || "No tool calls reported"),
+          detail("Files touched", context.files.join(" \xB7 ") || "No file paths reported"),
+          detail("Thinking", context.thinking || (a2.steps ? "No thinking excerpt reported" : "Reading the transcript\u2026"))
+        ] }, "context"),
+        /* @__PURE__ */ jsx(html.div, { class: "agent-tree-children", attrs: { role: "group" }, children: node4.children.map((child) => draw(child, depth + 1, visible2 && open5)) }, "children")
+      ] }, "body")
+    ] }, a2.key);
+  };
+  return nodes.map((node4) => draw(node4, 0, true));
+}
+var AGENT_TREE_CSS = `
+[data-role='hermes.agents'] [data-role='omp.actions'] { flex-wrap:wrap; }
+[data-role='hermes.agents'] [data-role='omp.btn'] { box-shadow:none; }
+[data-agent-tree] { font-size:13px; min-width:0; max-height:60vh; overflow:auto; }
+[data-agent-tree] * { box-sizing:border-box; }
+[data-agent-tree] .sf-badge { font-size:11px; }
+[data-agent-tree] .agent-tree-head { display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:4px; width:100%; height:${HEADER}px; min-height:${HEADER}px; padding:10px 12px; text-align:left; border:none; border-bottom:1px solid var(--l2); border-radius:0; background:transparent; color:var(--t1); cursor:pointer; }
+[data-agent-tree] .agent-tree-head[data-selected='true'] { background:var(--l2); border-left:2px solid var(--sf-p-accent,var(--accent)); }
+[data-agent-tree] .agent-tree-head:focus-visible { outline:1px solid var(--sf-p-accent,var(--accent)); outline-offset:-2px; }
+[data-agent-tree] [data-role='hermes.agent-tree.task'] { font-size:12px; color:var(--t2); }
+[data-agent-tree] [data-role='hermes.agent-tree.time'] { font-size:11px; font-variant-numeric:tabular-nums; color:var(--t2); }
+[data-agent-tree] .agent-tree-body { overflow:hidden; opacity:1; transition:height 200ms ease,opacity 160ms ease; }
+[data-agent-tree] .agent-tree-body[data-open='false'] { height:0; opacity:0; pointer-events:none; }
+[data-agent-tree] .agent-context { height:${CONTEXT}px; padding:8px 12px; }
+[data-agent-tree] .agent-context-line { display:flex; align-items:center; height:24px; min-height:24px; gap:12px; }
+[data-agent-tree] .agent-context-label { width:92px; flex-shrink:0; font-size:11px; color:var(--t2); }
+[data-agent-tree] .agent-context-text { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:12px; color:var(--t1); }
+[data-agent-tree] .agent-tree-children { margin-left:16px; border-left:1px solid var(--l3); }
+@media (prefers-reduced-motion: reduce) { [data-agent-tree] .agent-tree-body { transition:none; } }
+`;
+
 // src/view/ui/jobTiles.tsx
 var JOB_TILE_LIMIT = 4;
 function jobTiles(children3, key3 = "tiles") {
@@ -34573,8 +35056,8 @@ function jobTile(o) {
 var PROGRESS_CHARS = 160;
 var PROGRESS_LINES = 2;
 function compact2(text22) {
-  const line = text22.replace(/\s+/g, " ").trim();
-  return line.length > PROGRESS_CHARS ? `${line.slice(0, PROGRESS_CHARS - 1)}\u2026` : line;
+  const line2 = text22.replace(/\s+/g, " ").trim();
+  return line2.length > PROGRESS_CHARS ? `${line2.slice(0, PROGRESS_CHARS - 1)}\u2026` : line2;
 }
 function intent(text22) {
   const args = record(text22);
@@ -34584,9 +35067,9 @@ function intent(text22) {
 function agentProgress(a2) {
   const lines = [];
   for (const e of a2.steps ?? []) {
-    const line = e.kind === "assistant" ? compact2(e.text) : e.kind === "tool" ? intent(e.args || e.name) : "";
-    if (line && lines.at(-1) !== line) {
-      lines.push(line);
+    const line2 = e.kind === "assistant" ? compact2(e.text) : e.kind === "tool" ? intent(e.args || e.name) : "";
+    if (line2 && lines.at(-1) !== line2) {
+      lines.push(line2);
     }
   }
   const preview5 = a2.toolPreview && intent(a2.toolPreview);
@@ -34643,7 +35126,7 @@ function agentTile(a2, now) {
     actions: { click: `open-agent=${a2.id}`, menu: [`open-agent=${a2.id}`] },
     children: [
       a2.tool ? /* @__PURE__ */ jsx("text", { role: "omp.job.tile.figure", spans: [{ t: a2.tool }], truncate: "end", wrap: "none" }, "figure") : null,
-      ...a2.lines.map((line, i) => /* @__PURE__ */ jsx("text", { role: "omp.job.tile.note", spans: [{ s: "dim", t: line }], truncate: "end", wrap: "none" }, `note-${i}`))
+      ...a2.lines.map((line2, i) => /* @__PURE__ */ jsx("text", { role: "omp.job.tile.note", spans: [{ s: "dim", t: line2 }], truncate: "end", wrap: "none" }, `note-${i}`))
     ],
     dot: { s: look2.tone, t: "\u25CF", ...a2.status === "running" ? { fx: "pulse" } : {} },
     hint: `${look2.word} \xB7 Open ${a2.name} beside the chat`,
@@ -34748,22 +35231,22 @@ function diagnosticsOf(value) {
     for (const candidateRow of file2["diagnostics"]) {
       const row2 = record(candidateRow);
       const tone2 = severity(row2?.["severity"]);
-      const line = row2?.["line"];
+      const line2 = row2?.["line"];
       const col = row2?.["col"];
       const message = row2?.["message"];
-      if (!tone2 || !positive2(line) || !positive2(col) || typeof message !== "string") {
+      if (!tone2 || !positive2(line2) || !positive2(col) || typeof message !== "string") {
         return void 0;
       }
       const endLine = row2?.["end_line"];
       const endCol = row2?.["end_col"];
       const hasEnd = endLine !== void 0 || endCol !== void 0;
-      if (hasEnd && (!positive2(endLine) || !positive2(endCol) || endLine < line || endLine === line && endCol < col)) {
+      if (hasEnd && (!positive2(endLine) || !positive2(endCol) || endLine < line2 || endLine === line2 && endCol < col)) {
         return void 0;
       }
       const source3 = row2?.["source"];
       group.diagnostics.push({
         col,
-        line,
+        line: line2,
         message,
         severity: tone2,
         ...hasEnd && positive2(endLine) && positive2(endCol) ? { end: { col: endCol, line: endLine } } : {},
@@ -35054,17 +35537,17 @@ function lspDetail({ args, result }) {
 var COUNT_LIMIT = 200;
 function readCounts(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return void 0;
-  const rows = [];
+  const rows2 = [];
   let seen = 0;
   let invalid2 = false;
   for (const path2 in value) {
     if (!Object.hasOwn(value, path2)) continue;
-    if (seen++ >= COUNT_LIMIT) return { rows, clipped: true, invalid: invalid2 };
+    if (seen++ >= COUNT_LIMIT) return { rows: rows2, clipped: true, invalid: invalid2 };
     const n4 = Reflect.get(value, path2);
-    if (path2 && typeof n4 === "number" && Number.isSafeInteger(n4) && n4 >= 0) rows.push({ path: path2, count: n4 });
+    if (path2 && typeof n4 === "number" && Number.isSafeInteger(n4) && n4 >= 0) rows2.push({ path: path2, count: n4 });
     else invalid2 = true;
   }
-  return { rows, clipped: false, invalid: invalid2 };
+  return { rows: rows2, clipped: false, invalid: invalid2 };
 }
 function searchDetail({ args, result }) {
   const matches3 = list(result?.["matches"]);
@@ -35283,7 +35766,7 @@ function taskCard(call, d, now) {
   const goals = tasks.length ? tasks.map((t) => t.goal ?? "") : d.goal ? [d.goal] : [];
   const agents2 = call.subagents ?? [];
   const wait = agentWaitNode(agents2, now);
-  const rows = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
+  const rows2 = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
   const context = d.context ?? (tasks.length === 1 ? tasks[0]?.context : void 0);
   const working = agents2.some((a2) => a2.status === "running" || a2.status === "queued") || !agents2.length && d.dispatched;
   const settled2 = agents2.filter((a2) => a2.status !== "running" && a2.status !== "queued");
@@ -35311,7 +35794,7 @@ function taskCard(call, d, now) {
     // The agents first; the brief they share stays folded.
     body: [
       ...limited ? [/* @__PURE__ */ jsx("text", { role: "hermes.task.iteration-limit", text: ITERATION_LIMIT_NOTICE, wrap: "word" }, "iteration-limit")] : [],
-      ...rows,
+      ...rows2,
       ...context ? [briefNode("Shared brief", context)] : []
     ],
     folded: limited ? false : void 0,
@@ -35612,12 +36095,12 @@ function latest(entries2) {
 }
 function summary(view) {
   const g = glance(view);
-  const title = plain(view.title);
+  const title2 = plain(view.title);
   if (!g || view.state !== "live") {
-    return title;
+    return title2;
   }
-  const figure = [g.label, g.text, g.trend?.text].filter(Boolean).join(" ");
-  return title ? `${title} \u2014 ${figure}` : figure;
+  const figure2 = [g.label, g.text, g.trend?.text].filter(Boolean).join(" ");
+  return title2 ? `${title2} \u2014 ${figure2}` : figure2;
 }
 function glanceSpans(g) {
   return [...g.label ? [sp(`${g.label} `, "muted")] : [], sp(g.text, "num strong"), ...g.trend ? [sp(` ${g.trend.text}`, toneStyle2(g.trend.tone))] : []];
@@ -35680,7 +36163,7 @@ function figureSpans(g) {
 function tile({ process: p3, view }) {
   const live = view.state === "live" ? view : void 0;
   const g = live && glance(live);
-  const title = plain(live?.title ?? "") || plain(p3.command.split(/\r?\n/, 1)[0] ?? "") || p3.id;
+  const title2 = plain(live?.title ?? "") || plain(p3.command.split(/\r?\n/, 1)[0] ?? "") || p3.id;
   const visual = tileVisual(live?.blocks[0]);
   const look2 = PROCESS_LOOK[p3.state.status];
   return jobTile({
@@ -35691,7 +36174,7 @@ function tile({ process: p3, view }) {
     ],
     dot: { ...optional("s", toneStyle2(look2.tone)), t: look2.glyph, ...p3.state.status === "running" ? { fx: "pulse" } : {} },
     key: p3.id,
-    title,
+    title: title2,
     tone: look2.tone,
     trailing: /* @__PURE__ */ jsx("text", { role: "omp.job.tile.id", spans: [sp(p3.id, "dim")], wrap: "none" }, "id")
   });
@@ -35857,17 +36340,17 @@ function retainedGenericText(call) {
 }
 function webPage(call, index2) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return void 0;
-  const rows = resultOf(call)?.["results"];
-  if (!Array.isArray(rows)) return void 0;
-  const row2 = rows[index2];
+  const rows2 = resultOf(call)?.["results"];
+  if (!Array.isArray(rows2)) return void 0;
+  const row2 = rows2[index2];
   if (!row2 || typeof row2 !== "object" || Array.isArray(row2)) return void 0;
   const value = record(row2)?.["content"];
   return typeof value === "string" && value.length > RESULT_PREVIEW_LIMIT ? { row: row2, text: value } : void 0;
 }
 function hasRetainedWeb(call) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return false;
-  const rows = resultOf(call)?.["results"];
-  return Array.isArray(rows) && rows.some((_2, index2) => webPage(call, index2) !== void 0);
+  const rows2 = resultOf(call)?.["results"];
+  return Array.isArray(rows2) && rows2.some((_2, index2) => webPage(call, index2) !== void 0);
 }
 function retainedResultText(candidate) {
   if (!candidate.web) return retainedGenericText(candidate.call);
@@ -35898,9 +36381,9 @@ function retainedResults(entries2) {
       if (call.name !== "web_extract") continue;
       const ordinal = ++webOrdinal;
       if (call.outcome.kind === "running") continue;
-      const rows = resultOf(call)?.["results"];
-      if (!Array.isArray(rows)) continue;
-      for (let index2 = 0; index2 < rows.length; index2++) {
+      const rows2 = resultOf(call)?.["results"];
+      if (!Array.isArray(rows2)) continue;
+      for (let index2 = 0; index2 < rows2.length; index2++) {
         const page = webPage(call, index2);
         if (page) add2({
           call,
@@ -36169,8 +36652,8 @@ function hostOf(target2) {
 }
 function sections(script) {
   const out = [];
-  for (const line of script.split("\n")) {
-    const m2 = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line);
+  for (const line2 of script.split("\n")) {
+    const m2 = /^\s*(?:echo\s+|Write-Host\s+)?["']?\s*(?:={2,}|-{3,}|#{2,})\s*(.+?)\s*(?:={2,}|-{3,}|#{2,})\s*["']?\s*$/.exec(line2) ?? /^\s*#\s+([A-Z][^#]{3,60})$/.exec(line2);
     if (m2?.[1] && !/^!/.test(m2[1])) {
       out.push(m2[1].replace(/\s+/g, " "));
     }
@@ -36186,24 +36669,24 @@ function head(segment) {
   const cmd = w.shift();
   return cmd ? { args: w, cmd: base(cmd), raw: cmd } : void 0;
 }
-function segments2(line) {
+function segments2(line2) {
   const out = [];
   let cur = "";
   let q2;
-  for (let i = 0; i < line.length; i++) {
-    const c = line.charAt(i);
+  for (let i = 0; i < line2.length; i++) {
+    const c = line2.charAt(i);
     if (q2) {
       cur += c;
-      if (c === q2 && line[i - 1] !== "\\") {
+      if (c === q2 && line2[i - 1] !== "\\") {
         q2 = void 0;
       }
     } else if (c === "'" || c === '"') {
       q2 = c;
       cur += c;
-    } else if (c === "\n" || c === ";" || c === "|" || c === "&" && line[i + 1] === "&") {
+    } else if (c === "\n" || c === ";" || c === "|" || c === "&" && line2[i + 1] === "&") {
       out.push(cur);
       cur = "";
-      if (line[i + 1] === c) {
+      if (line2[i + 1] === c) {
         i++;
       }
     } else {
@@ -36228,35 +36711,35 @@ function describe3(command2, budget, depth) {
     return "Run a command";
   }
   const docs = [];
-  const line = text22.replace(/<<-?\s*['"]?(\w+)['"]?([^\n]*)\n([\s\S]*?)\n\s*\1\s*(?=\n|$)/g, (_m, _tag, rest, body) => {
+  const line2 = text22.replace(/<<-?\s*['"]?(\w+)['"]?([^\n]*)\n([\s\S]*?)\n\s*\1\s*(?=\n|$)/g, (_m, _tag, rest, body) => {
     docs.push(body);
     return rest;
   });
   const labels = docs.flatMap(sections);
-  const steps = segments2(line).flatMap((s2) => head(s2) ?? []);
+  const steps = segments2(line2).flatMap((s2) => head(s2) ?? []);
   const real = steps.filter((s2) => !SETUP.has(s2.cmd));
   const remote = real.find((s2) => s2.cmd === "ssh");
-  let title;
+  let title2;
   if (remote) {
     const host2 = operand(remote.args, /* @__PURE__ */ new Set(["-p", "-i", "-o", "-l", "-J", "-F"]))?.replace(/^[^@]+@/, "");
     const after3 = remote.args.slice(remote.args.findIndex((a2) => a2.replace(/^[^@]+@/, "") === host2) + 1).join(" ");
     const inner = after3 ? describe3(after3, budget, depth + 1) : "Open a shell";
     if (inner === void 0) return void 0;
-    title = host2 ? `${inner} on ${host2}` : inner;
+    title2 = host2 ? `${inner} on ${host2}` : inner;
   } else {
     const main = real.find((s2) => !FILTERS.has(s2.cmd)) ?? real[0];
     const describe5 = main && Object.hasOwn(COMMANDS, main.cmd) ? COMMANDS[main.cmd] : void 0;
-    const ps = main && !describe5 && /^\$|^[A-Z][a-z]+-[A-Z]/.test(main.raw) ? powershellScript(line) : void 0;
-    title = ps ? ps : main ? describe5?.(main.args) ?? `Run ${main.cmd}` : steps[0] ? `Run ${steps[0].cmd}` : void 0;
+    const ps = main && !describe5 && /^\$|^[A-Z][a-z]+-[A-Z]/.test(main.raw) ? powershellScript(line2) : void 0;
+    title2 = ps ? ps : main ? describe5?.(main.args) ?? `Run ${main.cmd}` : steps[0] ? `Run ${steps[0].cmd}` : void 0;
   }
-  title ??= "Run a command";
+  title2 ??= "Run a command";
   if (labels.length) {
-    const two = `${title}: ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` +${labels.length - 2}` : ""}`;
-    title = two.length <= MAX2 ? two : `${title}: ${clip3(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
-  } else if (docs.length && /^Read input|^Read /.test(title) && real[0]?.cmd === "cat") {
-    title = `Write ${base(operands(real[0].args).at(-1) ?? "a file")}`;
+    const two = `${title2}: ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` +${labels.length - 2}` : ""}`;
+    title2 = two.length <= MAX2 ? two : `${title2}: ${clip3(labels[0] ?? "", { max: 32 })}${labels.length > 1 ? ` +${labels.length - 1}` : ""}`;
+  } else if (docs.length && /^Read input|^Read /.test(title2) && real[0]?.cmd === "cat") {
+    title2 = `Write ${base(operands(real[0].args).at(-1) ?? "a file")}`;
   }
-  return clip3(title.charAt(0).toUpperCase() + title.slice(1), { max: MAX2 });
+  return clip3(title2.charAt(0).toUpperCase() + title2.slice(1), { max: MAX2 });
 }
 function commandLine(command2, n4 = 96) {
   const flat2 = command2.replace(/<<-?\s*['"]?(\w+)['"]?[\s\S]*?\n\s*\1\s*(?=\n|$)/g, "<<'$1' \u2026").replace(/\s+/g, " ").trim();
@@ -36315,17 +36798,17 @@ async function ensureMethod(gw2, caller, method) {
 function blockOf(input2) {
   const r = record(input2);
   const id3 = r?.["target_id"];
-  const title = r?.["title"];
+  const title2 = r?.["title"];
   const url = r?.["url"];
   const owned = r?.["owned"];
   const available = r?.["available"];
   const owner2 = r?.["owner"];
-  if (typeof id3 !== "string" || !validBrowserId(id3) || typeof title !== "string" || typeof url !== "string" || typeof owned !== "boolean" || typeof available !== "boolean" || owner2 !== void 0 && owner2 !== null && (typeof owner2 !== "number" || !Number.isSafeInteger(owner2))) {
+  if (typeof id3 !== "string" || !validBrowserId(id3) || typeof title2 !== "string" || typeof url !== "string" || typeof owned !== "boolean" || typeof available !== "boolean" || owner2 !== void 0 && owner2 !== null && (typeof owner2 !== "number" || !Number.isSafeInteger(owner2))) {
     throw new Error("Invalid native browser blocks reply from Hermes");
   }
   return {
     target_id: id3,
-    title,
+    title: title2,
     url,
     owned,
     available,
@@ -36363,15 +36846,15 @@ async function browserTarget(gw2, action, caller, targetId, frame2) {
   requireCaller(caller);
   const data = record(raw2);
   const returned = data?.["target_id"];
-  const title = data?.["title"];
+  const title2 = data?.["title"];
   const url = data?.["url"];
   const selectedFrame = data?.["frame"];
-  if (returned !== targetId || typeof title !== "string" || typeof url !== "string" || data?.["in_tern"] !== true || selectedFrame !== void 0 && selectedFrame !== null && typeof selectedFrame !== "string") {
+  if (returned !== targetId || typeof title2 !== "string" || typeof url !== "string" || data?.["in_tern"] !== true || selectedFrame !== void 0 && selectedFrame !== null && typeof selectedFrame !== "string") {
     throw new Error("Invalid native browser target confirmation from Hermes");
   }
   return {
     target_id: returned,
-    title,
+    title: title2,
     url,
     in_tern: true,
     ...typeof selectedFrame === "string" ? { frame: selectedFrame } : {}
@@ -36400,15 +36883,15 @@ function ternTargetOf(call) {
   }
   const target2 = record(resultOf(call)?.["tern_target"]);
   const id3 = target2?.["target_id"];
-  const title = target2?.["title"];
+  const title2 = target2?.["title"];
   const url = target2?.["url"];
   const frame2 = target2?.["frame"];
-  if (target2?.["in_tern"] !== true || typeof id3 !== "string" || !validBrowserId(id3) || typeof title !== "string" || typeof url !== "string" || frame2 !== void 0 && frame2 !== null && typeof frame2 !== "string") {
+  if (target2?.["in_tern"] !== true || typeof id3 !== "string" || !validBrowserId(id3) || typeof title2 !== "string" || typeof url !== "string" || frame2 !== void 0 && frame2 !== null && typeof frame2 !== "string") {
     return void 0;
   }
   return {
     target_id: id3,
-    title,
+    title: title2,
     url,
     ...typeof frame2 === "string" ? { frame: frame2 } : {}
   };
@@ -36576,9 +37059,9 @@ function confirmedWriteArtifact(call, cx) {
     return void 0;
   }
   const mime = reportedMime(result)?.split(";")[0]?.trim().toLowerCase();
-  const figure = writableFigure(path2, source3, call, mime);
-  if (figure) {
-    return { kind: "node", node: figure };
+  const figure2 = writableFigure(path2, source3, call, mime);
+  if (figure2) {
+    return { kind: "node", node: figure2 };
   }
   if (mediaFamily(path2, mime) !== "model") {
     return void 0;
@@ -36905,7 +37388,7 @@ function answerRow(key3, text22, picked) {
 
 // src/connections/live.ts
 var num5 = (v) => typeof v === "number" && Number.isFinite(v) ? v : void 0;
-function liveCard(payload, session2) {
+function liveCard2(payload, session2) {
   const r = record(payload);
   const id3 = typeof r?.["op_id"] === "string" ? r["op_id"] : "";
   const seq = num5(r?.["seq"]);
@@ -36925,9 +37408,9 @@ function applyFrame(card, frame2) {
   if (!r || !op || card.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
     return void 0;
   }
-  const rows = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
+  const rows2 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
   const before2 = new Map(card.targets.map((t) => [t.name, t]));
-  const targets = rows.length ? rows.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card.targets;
+  const targets = rows2.length ? rows2.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card.targets;
   return { ...card, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets };
 }
 function verbOf(t) {
@@ -36996,8 +37479,8 @@ var NOTE = {
   interrupt: "The turn stopped before every app connected.",
   stopped: "Hermes stopped watching these links."
 };
-function button2(key3, label, role, act, title, name = label) {
-  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional("role", act ? void 0 : "hermes.connect.busy"), ...optional("title", title), children: /* @__PURE__ */ jsx("text", { text: label, wrap: "none" }, "t") }, act ? "face" : key3);
+function button2(key3, label, role, act, title2, name = label) {
+  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional("role", act ? void 0 : "hermes.connect.busy"), ...optional("title", title2), children: /* @__PURE__ */ jsx("text", { text: label, wrap: "none" }, "t") }, act ? "face" : key3);
   return act ? pressable({ action: act, key: key3, name, role }, face) : face;
 }
 var SENDING = { approve: "Connecting\u2026", retry: "Retrying\u2026", skip: "Skipping\u2026" };
@@ -37092,10 +37575,10 @@ function hunks(diff2) {
 function diffStats(diff2) {
   let added = 0;
   let removed = 0;
-  for (const line of diff2.split("\n")) {
-    if (line.startsWith("+") && !line.startsWith("+++")) {
+  for (const line2 of diff2.split("\n")) {
+    if (line2.startsWith("+") && !line2.startsWith("+++")) {
       added++;
-    } else if (line.startsWith("-") && !line.startsWith("---")) {
+    } else if (line2.startsWith("-") && !line2.startsWith("---")) {
       removed++;
     }
   }
@@ -37512,25 +37995,25 @@ function lintText(text22, limit = 2e3, singleLine = false) {
 }
 function v4aLintNodes(d, call) {
   if (!v4aLintNeedsAttention(call) || !d.v4aLint) return [];
-  const rows = [];
+  const rows2 = [];
   if (d.v4aLint.failure) {
     const failure6 = lintText(patchContextWarning(call) ? "Apply phase failed (state may be inconsistent \u2014 run `git diff` to assess)." : d.v4aLint.failure);
-    rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
-    if (failure6.clipped) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
-    if (failure6.escaped) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
+    if (failure6.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
+    if (failure6.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
   }
   d.v4aLint.errors.forEach(({ path: path2, output, message }, i) => {
     const name = lintText(path2, 256, true);
     const report = output ? lintText(output, 1e3) : void 0;
     const summary4 = message ? lintText(message, 1e3) : void 0;
-    rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
-    if (summary4) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
-    if (report) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
-    if (name.clipped || summary4?.clipped || report?.clipped) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
-    if (name.escaped || summary4?.escaped || report?.escaped) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
+    if (summary4) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
+    if (report) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
+    if (name.clipped || summary4?.clipped || report?.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
+    if (name.escaped || summary4?.escaped || report?.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
   });
-  if (d.v4aLint.uninspected) rows.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
-  return rows;
+  if (d.v4aLint.uninspected) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
+  return rows2;
 }
 function lintNodes(d, call) {
   if (!writeLintNeedsAttention(call) && !patchLintNeedsAttention(call) || !d.lintError) return [];
@@ -38044,18 +38527,18 @@ function countPath(path2) {
   }).join("");
 }
 function countCard(call, d, pattern) {
-  const rows = d.counts?.rows ?? [];
-  const rendered = rows.map((row2) => ({ ...row2, display: countPath(row2.path) }));
+  const rows2 = d.counts?.rows ?? [];
+  const rendered = rows2.map((row2) => ({ ...row2, display: countPath(row2.path) }));
   const notices = [
     ...d.total !== void 0 ? [`Hermes total count: ${d.totalLowerBound || d.truncated ? "at least " : ""}${d.total}`] : [],
     ...d.omitted ? ["Hermes omitted some search results"] : [],
     ...d.truncated ? ["Search results truncated upstream"] : [],
     ...d.counts?.clipped ? ["Count entries clipped in view"] : [],
-    ...rows.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
+    ...rows2.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
     ...rendered.some((row2) => row2.display !== countPathPrefix(row2.path)) ? ["Control characters escaped in view"] : [],
     ...d.counts?.invalid ? ["Invalid count entries omitted"] : [],
     ...!d.counts && d.resultPresent && call.outcome.kind !== "running" ? [d.total === 0 && !d.omitted && !d.countsMalformed ? "No per-file counts returned" : "Per-file counts unavailable"] : [],
-    ...d.counts && !rows.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
+    ...d.counts && !rows2.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
   ];
   return {
     body: [
@@ -38063,9 +38546,9 @@ function countCard(call, d, pattern) {
       ...disclosures(notices),
       ...errorNotice(call)
     ],
-    folded: rows.length > 20,
+    folded: rows2.length > 20,
     frame: "inline",
-    meta: [...d.counts ? [`${plural(rows.length, "retained count")} shown`] : [], ...notices],
+    meta: [...d.counts ? [`${plural(rows2.length, "retained count")} shown`] : [], ...notices],
     name: "grep",
     target: pattern,
     targetKind: "pattern",
@@ -38432,8 +38915,8 @@ function promptSources(sources) {
       const out = [];
       const shapes = /* @__PURE__ */ new Map();
       let used = 0;
-      for (const line of lines) {
-        const trimmed = line.trimStart();
+      for (const line2 of lines) {
+        const trimmed = line2.trimStart();
         if (trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
           continue;
         }
@@ -38443,7 +38926,7 @@ function promptSources(sources) {
           continue;
         }
         shapes.set(shape2, repeats + 1);
-        const sample = clip3(line, { max: MAX_SAMPLE_LINE_CHARS });
+        const sample = clip3(line2, { max: MAX_SAMPLE_LINE_CHARS });
         if (used + byteLength(sample) > limit) {
           break;
         }
@@ -38903,11 +39386,11 @@ var LineMatcher = class {
   /** Every hit: the line's index, the pattern's index and its captures by group position. */
   matchLines(lines) {
     const hits = [];
-    lines.forEach((text22, line) => {
+    lines.forEach((text22, line2) => {
       this.#patterns.forEach((re2, pattern) => {
         const m2 = re2.exec(text22);
         if (m2) {
-          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m2.groups?.[name]), line, pattern });
+          hits.push({ captures: (this.#names[pattern] ?? []).map((name) => m2.groups?.[name]), line: line2, pattern });
         }
       });
     });
@@ -39124,7 +39607,7 @@ function parseSpec(value, errors) {
     errors.push("spec: expected an object");
     return void 0;
   }
-  const title = str4(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
+  const title2 = str4(value["title"], "title", errors, { cut: MAX_TITLE_CHARS, required: true });
   const rules = list2(value["rules"], "rules", errors, 1, MAX_RULES)?.map((r, i) => parseRule(r, `rules[${i}]`, errors));
   const blocks2 = list2(value["blocks"], "blocks", errors, 1, MAX_BLOCKS)?.map((b, i) => parseBlock(b, `blocks[${i}]`, errors));
   let headline;
@@ -39136,10 +39619,10 @@ function parseSpec(value, errors) {
     }
   }
   const stage = value["stage"] === void 0 ? void 0 : fieldName(value["stage"], "stage", errors);
-  if (errors.length || title === void 0 || !rules?.every(isDefined) || !blocks2?.every(isDefined)) {
+  if (errors.length || title2 === void 0 || !rules?.every(isDefined) || !blocks2?.every(isDefined)) {
     return void 0;
   }
-  return { blocks: blocks2, rules, title, ...headline ? { headline } : {}, ...stage ? { stage } : {} };
+  return { blocks: blocks2, rules, title: title2, ...headline ? { headline } : {}, ...stage ? { stage } : {} };
 }
 function parseRule(value, where, errors) {
   if (!isRecord(value)) {
@@ -39323,7 +39806,7 @@ var MAX_BAR_ITEMS = 16;
 var MAX_GRID_ITEMS = 48;
 var cut2 = (text22, max) => text22.length > max ? `${text22.slice(0, max - 1)}\u2026` : text22;
 var CONTROLS = /[\x00-\x08\x0b-\x1f\x7f]/g;
-var clean = (line) => withoutEscapes(line.replace(/\t/g, " ")).replace(CONTROLS, "");
+var clean = (line2) => withoutEscapes(line2.replace(/\t/g, " ")).replace(CONTROLS, "");
 var SourceLineReader = class {
   constructor(source3) {
     this.source = source3;
@@ -39362,7 +39845,7 @@ var SourceLineReader = class {
 function emptySeries() {
   return { count: 0, first: 0, last: 0, max: -Infinity, min: Infinity, recent: [], ring: [], sum: 0, updatedAt: 0, values: 0 };
 }
-function pushMatch(s2, value, text22, line, t) {
+function pushMatch(s2, value, text22, line2, t) {
   s2.count++;
   const bucket = s2.recent.at(-1);
   if (bucket?.t === t) {
@@ -39389,7 +39872,7 @@ function pushMatch(s2, value, text22, line, t) {
   if (text22) {
     s2.text = text22;
   }
-  s2.line = line;
+  s2.line = line2;
   s2.updatedAt = t;
 }
 function rateWindowMs(now, startTime) {
@@ -39517,13 +40000,13 @@ var ChartRuntime = class {
   #recordLines(stats, lines, t) {
     let fresh = 0;
     let tailFrom = 0;
-    lines.forEach((line, i) => {
-      if (!line.trim()) {
+    lines.forEach((line2, i) => {
+      if (!line2.trim()) {
         return;
       }
       fresh++;
       if (stats.head.length < SAMPLE_HEAD_LINES) {
-        stats.head.push(line);
+        stats.head.push(line2);
         tailFrom = i + 1;
       }
     });
@@ -39532,9 +40015,9 @@ var ChartRuntime = class {
     }
     const newest = [];
     for (let i = lines.length - 1; i >= tailFrom && newest.length < SAMPLE_TAIL_LINES; i--) {
-      const line = lines[i] ?? "";
-      if (line.trim()) {
-        newest.push(line);
+      const line2 = lines[i] ?? "";
+      if (line2.trim()) {
+        newest.push(line2);
       }
     }
     if (newest.length) {
@@ -39585,7 +40068,7 @@ var ChartRuntime = class {
     const hits = entry.matcher.matchLines(lines);
     const capture = (captures, at2) => at2 < 0 ? void 0 : captures[at2];
     for (const hit of hits) {
-      const line = lines[hit.line] ?? "";
+      const line2 = lines[hit.line] ?? "";
       for (const rule of entry.rules[hit.pattern] ?? []) {
         const key3 = capture(hit.captures, rule.key)?.trim() ?? "";
         for (const c of rule.captures) {
@@ -39595,13 +40078,13 @@ var ChartRuntime = class {
           }
           const value = c.text ? Number.NaN : parseValue(captured) * rule.scale;
           if (Number.isFinite(value)) {
-            this.#push(c.field, key3, value, void 0, line, t);
+            this.#push(c.field, key3, value, void 0, line2, t);
           } else {
-            this.#push(c.field, key3, void 0, captured.trim(), line, t);
+            this.#push(c.field, key3, void 0, captured.trim(), line2, t);
           }
         }
         if (rule.count !== void 0) {
-          this.#push(rule.count, key3, void 0, void 0, line, t);
+          this.#push(rule.count, key3, void 0, void 0, line2, t);
         }
       }
     }
@@ -39613,14 +40096,14 @@ var ChartRuntime = class {
     const unmatched = lines.slice(lastMatched + 1).filter((l) => l.trim()).length;
     this.#unmatchedLines = lastMatched >= 0 ? unmatched : this.#unmatchedLines + unmatched;
     for (let i = lines.length - 1; i >= 0; i--) {
-      const line = lines[i]?.trim();
-      if (line && !matched2.has(i)) {
-        this.#lastUnmatchedLine = cut2(line, MAX_STAGE_CHARS);
+      const line2 = lines[i]?.trim();
+      if (line2 && !matched2.has(i)) {
+        this.#lastUnmatchedLine = cut2(line2, MAX_STAGE_CHARS);
         break;
       }
     }
   }
-  #push(name, key3, value, text22, line, t) {
+  #push(name, key3, value, text22, line2, t) {
     let field = this.#fields.get(name);
     if (!field) {
       const all8 = emptySeries();
@@ -39632,9 +40115,9 @@ var ChartRuntime = class {
       series = emptySeries();
       field.keys.set(key3, series);
     }
-    pushMatch(series, value, text22, line, t);
+    pushMatch(series, value, text22, line2, t);
     if (series !== field.all) {
-      pushMatch(field.all, value, text22, line, t);
+      pushMatch(field.all, value, text22, line2, t);
     }
   }
   /** First and last lines per source, most active first, for the author and the dry run. */
@@ -39848,8 +40331,8 @@ function keyLabels(keys3) {
   if (!keys3.length || !keys3.every((k) => k.includes("/"))) {
     return keys3.slice();
   }
-  const short = keys3.map((k) => k.slice(k.lastIndexOf("/") + 1));
-  return short.every(Boolean) && new Set(short).size === short.length ? short : keys3.slice();
+  const short2 = keys3.map((k) => k.slice(k.lastIndexOf("/") + 1));
+  return short2.every(Boolean) && new Set(short2).size === short2.length ? short2 : keys3.slice();
 }
 function gridTone(tones, text22) {
   const lower = text22.toLowerCase();
@@ -40158,8 +40641,8 @@ function processStatus(entry) {
 }
 function lastLine(output) {
   const lines = withoutEscapes(output).split("\n");
-  for (const line of lines.toReversed()) {
-    const draws = line.split("\r");
+  for (const line2 of lines.toReversed()) {
+    const draws = line2.split("\r");
     const text22 = (draws.findLast((d) => d.trim()) ?? "").replace(/\s+/g, " ").trim();
     if (text22) {
       return text22;
@@ -40373,9 +40856,9 @@ var Processes = class {
       this.#failures = 0;
       this.#sid = sid;
     }
-    let rows;
+    let rows2;
     try {
-      rows = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
+      rows2 = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
     } catch {
       const unknown4 = sid === this.#host.sid && this.#failed();
       return unknown4 || changed ? this.#host.changed() : void 0;
@@ -40387,7 +40870,7 @@ var Processes = class {
     const now = Date.now();
     const touched = /* @__PURE__ */ new Set();
     const listed2 = /* @__PURE__ */ new Set();
-    for (const row2 of rows) {
+    for (const row2 of rows2) {
       if (!row2.session_id) {
         continue;
       }
@@ -40866,8 +41349,8 @@ function commandAfterHeredocs(command2, start, heredocs) {
     while (cursor <= command2.length) {
       const newlineIndex = command2.indexOf("\n", cursor);
       const lineEnd3 = newlineIndex === -1 ? command2.length : newlineIndex;
-      const line = command2.slice(cursor, lineEnd3).replace(/\r$/u, "");
-      const comparableLine = heredoc.stripTabs ? line.replace(/^\t+/u, "") : line;
+      const line2 = command2.slice(cursor, lineEnd3).replace(/\r$/u, "");
+      const comparableLine = heredoc.stripTabs ? line2.replace(/^\t+/u, "") : line2;
       cursor = newlineIndex === -1 ? command2.length : newlineIndex + 1;
       if (comparableLine === heredoc.delimiter) {
         foundDelimiter = true;
@@ -41621,14 +42104,14 @@ function bashCard(call, d, instead) {
   const output = (d.output ?? call.resultText)?.replace(/\s*\[Command interrupted\]\s*$/, "");
   const error = d.error;
   const command2 = commandOf(call, d);
-  const line = commandLine(command2);
+  const line2 = commandLine(command2);
   const running2 = call.outcome.kind === "running";
   const recreated = terminalRecreationNeedsAttention(call, d);
   const masked = terminalMaskedNeedsAttention(call, d);
   const asyncNotify = terminalAsyncNotifyNeedsAttention(call, d);
   return {
     body: [
-      ...command2 && command2 !== line ? [/* @__PURE__ */ jsx("code", { lang: "bash", max: { h: "12lines" }, role: "omp.tool.command", text: command2 }, "cmd")] : [],
+      ...command2 && command2 !== line2 ? [/* @__PURE__ */ jsx("code", { lang: "bash", max: { h: "12lines" }, role: "omp.tool.command", text: command2 }, "cmd")] : [],
       ...instead ? [instead] : output ? [/* @__PURE__ */ jsx("ansi", { follow: true, max: { h: "20lines" }, text: output }, "out")] : [],
       ...error ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: error }], wrap: "word" }, "err")] : [],
       ...recreated ? [/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: "Hermes reports the execution environment was recreated; background processes and unpersisted files may be lost." }], wrap: "word" }, "recreated")] : [],
@@ -41641,7 +42124,7 @@ function bashCard(call, d, instead) {
     name: "bash",
     preview: { tail: running2 ? 4 : 3 },
     // A short command is the head's target; a longer one shows whole in the body instead.
-    target: command2 === line ? line || void 0 : void 0,
+    target: command2 === line2 ? line2 || void 0 : void 0,
     targetKind: "command",
     title: describeCommand(command2)
   };
@@ -41649,12 +42132,12 @@ function bashCard(call, d, instead) {
 function backgroundCard(call, d, now) {
   const w = watchersOf(call);
   const id3 = processIdOf(call) ?? call.process?.id;
-  const line = id3 ? processLine(call, id3, now) : void 0;
+  const line2 = id3 ? processLine(call, id3, now) : void 0;
   const chart = call.process?.chart && primaryNode(call.process.chart);
-  const card = bashCard(call, d, line && chart ? /* @__PURE__ */ jsxs("col", { gap: "xs", children: [
-    line,
+  const card = bashCard(call, d, line2 && chart ? /* @__PURE__ */ jsxs("col", { gap: "xs", children: [
+    line2,
     chart
-  ] }, "process") : line);
+  ] }, "process") : line2);
   return {
     ...card,
     badges: [
@@ -41663,7 +42146,7 @@ function backgroundCard(call, d, now) {
       ...w.patterns.map((p3) => ({ text: `watch: ${clip3(p3, { mark: "line", max: 32 })}` })),
       ...w.heartbeat ? [{ text: `every ${w.heartbeat}s` }] : []
     ],
-    folded: line ? false : card.folded
+    folded: line2 ? false : card.folded
   };
 }
 function processLine(call, id3, now) {
@@ -41764,7 +42247,7 @@ function fetchCard(call, d) {
     title: "Fetch"
   };
 }
-function sourceRow(key3, title, url) {
+function sourceRow(key3, title2, url) {
   let host2 = "";
   try {
     host2 = url ? new URL(url).hostname.replace(/^www\./, "") : "";
@@ -41773,7 +42256,7 @@ function sourceRow(key3, title, url) {
   }
   return /* @__PURE__ */ jsxs("row", { role: "omp.tool.source", children: [
     /* @__PURE__ */ jsx("text", { role: "omp.tool.chip", spans: [{ t: (host2.charAt(0) || "\xB7").toUpperCase() }] }, "d"),
-    /* @__PURE__ */ jsx("text", { spans: [url ? { href: url, t: title } : { t: title }] }, "t"),
+    /* @__PURE__ */ jsx("text", { spans: [url ? { href: url, t: title2 } : { t: title2 }] }, "t"),
     host2 ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: host2 }] }, "m") : null
   ] }, key3);
 }
@@ -41923,7 +42406,6 @@ function countSummary(items, tallies) {
 // src/overlays/agents.tsx
 var KEY = "agents";
 var TICK_MS2 = 1e3;
-var RECENT = 6;
 function openAgents(host2, focus2) {
   const agents2 = () => host2.agents.all();
   let state = initialHub(agents2(), focus2?.id);
@@ -41990,6 +42472,7 @@ function openAgents(host2, focus2) {
     key: KEY,
     modal: true,
     cancel: close,
+    focus: (id3) => state.view.kind === "list" && state.ask.kind === "none" ? agentTreeFocus(agentBranches(agents2(), state.tab === "running"), state.selected, `${id3}.hub.tree`) : null,
     // Ends with the sheet, however it closed (Esc, a session switch replacing the overlays).
     onClose: () => {
       stopTicking();
@@ -41998,7 +42481,7 @@ function openAgents(host2, focus2) {
     node: (id3) => {
       const now = Date.now();
       const watched = state.view.kind === "timeline" ? currentAgent(state, agents2()) : void 0;
-      host2.agents.follow(currentAgent(state, agents2()));
+      host2.agents.follow(watched ?? shownAgents(state, agents2()).filter((a2) => state.expanded.includes(a2.id)));
       return watched ? timelineNode(watched, now, id3) : hubNode(now, id3);
     },
     onKey: (k) => {
@@ -42009,6 +42492,12 @@ function openAgents(host2, focus2) {
   const steerProps = (a2) => state.ask.kind === "steering" && a2 ? { placeholder: `Steer ${agentName(a2)}: type, then Enter (Esc cancels)`, query: state.ask.text } : {};
   const actions = (a2, inTimeline) => {
     const running2 = Boolean(a2 && isRunning(a2));
+    if (state.ask.kind === "confirmStop") {
+      return [
+        { id: "cancel", keys: ["esc"], label: "Cancel" },
+        { id: "confirm", keys: ["enter"], label: "Stop", danger: true }
+      ];
+    }
     if (state.ask.kind === "steering") {
       return [
         { end: true, id: "steer-cancel", keys: ["esc"], label: "Cancel" },
@@ -42018,12 +42507,13 @@ function openAgents(host2, focus2) {
     return [
       ...inTimeline ? [] : [
         { id: "watch", keys: ["t"], label: "Timeline" },
-        { id: "beside", keys: ["enter"], label: "Open beside", primary: true },
+        { id: "toggle", keys: ["enter"], label: "Toggle" },
+        { id: "beside", keys: ["o"], label: "Beside" },
         { id: "pause", keys: ["p"], label: host2.agents.paused ? "Resume spawns" : "Pause spawns" }
       ],
       // A finished agent takes neither: the buttons go rather than sit disabled.
       ...running2 ? [
-        { ...optional("disabled", a2?.steerable === false ? "Not taking steering now" : void 0), id: "steer", keys: ["s"], label: "Steer" },
+        ...a2?.steerable === false ? [] : [{ id: "steer", keys: ["s"], label: "Steer" }],
         { danger: true, id: "stop", keys: ["x"], label: "Stop" }
       ] : [],
       { end: true, id: "close", keys: ["esc"], label: inTimeline ? "Back" : "Close" }
@@ -42036,44 +42526,25 @@ function openAgents(host2, focus2) {
     const running2 = all8.filter(isRunning).length;
     act({ ids: list10.map((x) => x.id), type: "listed" });
     const a2 = list10.find((x) => x.id === state.selected);
-    const columns = [
-      { format: "num", head: "Tools", id: "tools", priority: 3 },
-      { format: "elapsed", head: "Time", id: "time", priority: 5 }
-    ];
-    return /* @__PURE__ */ jsx(
-      "picker",
-      {
-        actions: actions(a2, false),
-        columns,
-        ...optional("confirm", stopping() && a2 ? { act: "confirm", label: "Stop", text: `Stop ${agentName(a2)}? Its partial work returns to Hermes.` } : void 0),
-        empty: state.tab === "running" ? "No agents running. Tab shows finished ones." : "No subagents in this session yet",
-        icon: "agents",
-        items: all8.map((x) => hubItem(x, now)),
-        layout: all8.some((x) => x.depth) ? "tree" : "rows",
-        noun: "agents",
-        onAction: handlers3,
-        onActivate: (ev) => act({ id: ev.item, type: "beside" }),
-        onSelect: (ev) => click({ id: ev.item, type: "select" }),
-        order: list10.map((x) => x.id),
-        preview: "side",
-        ...optional("selected", state.selected),
-        size: "lg",
-        subtitle: [
-          { s: "muted", t: summary2(all8) },
-          ...host2.agents.paused ? [{ s: "warning", t: " \xB7 spawns paused (gateway-wide)" }] : []
-        ],
-        tab: state.tab,
-        tabs: [
-          { count: running2, id: "running", label: "Running" },
-          { count: all8.length, id: "all", label: "All" }
-        ],
-        title: "Agents",
-        total: all8.length,
-        ...steerProps(a2),
-        children: a2 ? hubPreview(a2, now, briefFor(host2, a2)) : null
-      },
-      nativeOverlayKey(id3)
-    );
+    return /* @__PURE__ */ jsx("overlay", { anchor: "center", aria: "Agents", head: "Agents", modal: true, role: "hermes.agents", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
+      /* @__PURE__ */ jsx("text", { text: `${summary2(all8)}${host2.agents.paused ? " \xB7 spawns paused (gateway-wide)" : ""}`, tone: "muted" }, "summary"),
+      /* @__PURE__ */ jsxs("row", { gap: "sm", children: [
+        button({ key: "running", label: `Running \xB7 ${running2}${state.tab === "running" ? " \xB7 selected" : ""}`, onClick: () => click({ type: "tab", tab: "running" }) }),
+        button({ key: "all", label: `All \xB7 ${all8.length}${state.tab === "all" ? " \xB7 selected" : ""}`, onClick: () => click({ type: "tab", tab: "all" }) })
+      ] }, "tabs"),
+      /* @__PURE__ */ jsx(html.div, { attrs: { "data-agent-tree": "", role: "tree", "aria-label": "Subagents" }, children: agentTreeNodes(agentBranches(all8, state.tab === "running"), state, now, (agent2) => click({ type: "toggle", id: agent2 }), host2.eui ? (css2) => host2.eui?.style(css2) ?? "" : void 0) }, "tree"),
+      list10.length ? null : /* @__PURE__ */ jsx("text", { text: state.tab === "running" ? "No agents running. Tab shows finished ones." : "No subagents in this session yet", tone: "muted" }, "empty"),
+      state.ask.kind === "steering" ? /* @__PURE__ */ jsx("text", { text: `Steer ${a2 ? agentName(a2) : "agent"}: ${state.ask.text}\u258F` }, "steering") : null,
+      stopping() && a2 ? /* @__PURE__ */ jsx("text", { text: `Stop ${agentName(a2)}? Its partial work returns to Hermes.`, tone: "warning" }, "confirm") : null,
+      /* @__PURE__ */ jsx("text", { text: "\u2191 \u2193 select \xB7 \u2192 expand / child \xB7 \u2190 collapse / parent \xB7 Enter toggle", tone: "muted" }, "hint"),
+      actionsRow(actions(a2, false).map((action) => ({
+        key: action.id,
+        label: action.label,
+        keys: action.keys,
+        ...optional("kind", "danger" in action && action.danger ? "danger" : "primary" in action && action.primary ? "primary" : void 0),
+        onClick: () => handlers3[action.id]?.({})
+      })))
+    ] }, "hub") }, nativeOverlayKey(id3));
   }
   function timelineNode(a2, now, id3) {
     const entries2 = agentSteps(a2);
@@ -42132,58 +42603,9 @@ var ARG_CHARS = 600;
 function elapsed(a2, now) {
   return duration3(isRunning(a2) ? now - a2.startedAt : a2.duration ?? 0);
 }
-function hubItem(a2, now) {
-  return {
-    ...optional("chips", a2.model ? [{ text: a2.model.split("/").at(-1) ?? a2.model }] : void 0),
-    depth: a2.depth ?? 0,
-    detail: a2.goal,
-    dot: SUBAGENT_LOOK[a2.status].tone,
-    facts: { time: elapsed(a2, now), tools: a2.toolCount },
-    id: a2.id,
-    label: agentName(a2),
-    title: a2.goal
-  };
-}
 function briefFor(host2, a2) {
   const call = host2.transcript.delegations().find((c) => c.subagents?.includes(a2));
   return call ? briefOf(call, a2.index) : void 0;
-}
-function hubPreview(a2, now, brief) {
-  const recent = agentSteps(a2).slice(-RECENT);
-  const look2 = SUBAGENT_LOOK[a2.status];
-  return [
-    // A new node each time the selection moves: its timers need their true ages.
-    agentNode(a2, now),
-    /* @__PURE__ */ jsx(
-      "kv",
-      {
-        items: facts([
-          ["Status", [{ s: look2.tone, t: look2.word }]],
-          ["Model", a2.model],
-          ["Time", elapsed(a2, now)],
-          ["Tools", String(a2.toolCount)],
-          ["Ended", a2.exitReason?.replace(/_/g, " ")],
-          ["Steering", isRunning(a2) && a2.steerable !== void 0 ? a2.steerable ? "open" : "closed" : void 0],
-          ["ID", [{ s: "mono dim", t: a2.id }]]
-        ]),
-        role: "omp.hub.kv"
-      },
-      "facts"
-    ),
-    /* @__PURE__ */ jsx("section", { head: "Task", children: /* @__PURE__ */ jsx("md", { text: a2.goal }, "goal") }, "task"),
-    ...brief ? [
-      /* @__PURE__ */ jsx("section", { collapsed: true, collapsible: true, head: "Brief", children: /* @__PURE__ */ jsx("md", { text: brief }, "text") }, "brief")
-    ] : [],
-    ...a2.summary ? [
-      /* @__PURE__ */ jsx("section", { head: "Result", children: /* @__PURE__ */ jsx("md", { text: a2.summary }, "summary") }, "result")
-    ] : [],
-    ...recent.length ? [
-      /* @__PURE__ */ jsx("section", { head: "Recent activity", role: "omp.hub.activity", children: recent.map((e, i) => /* @__PURE__ */ jsxs("row", { gap: "sm", role: "omp.hub.activity.row", children: [
-        /* @__PURE__ */ jsx("text", { spans: [{ s: "dim mono", t: clock3(e.at) }], wrap: "none" }, "at"),
-        /* @__PURE__ */ jsx("text", { grow: 1, spans: stepSpans(e), truncate: "end", wrap: "none" }, "what")
-      ] }, `r${i}`)) }, "recent")
-    ] : []
-  ];
 }
 function stepItem(e, id3, a2) {
   if (e.kind === "tool") {
@@ -42243,22 +42665,6 @@ function stepPreview(e, a2, now, prevAt, brief) {
     ),
     ...callNodes(e)
   ];
-}
-function stepSpans(e) {
-  switch (e.kind) {
-    case "tool":
-      return [
-        { s: "mono", t: e.name },
-        { s: "muted", t: ` ${e.args}` }
-      ];
-    case "think":
-      return [{ s: "muted", t: oneLine2(e.text) }];
-    case "kickoff":
-      return [{ s: "dim", t: "Task: " }, { t: oneLine2(e.text) }];
-    case "assistant":
-    case "note":
-      return [{ t: oneLine2(e.text) }];
-  }
 }
 function clock3(at2) {
   return at2 === void 0 ? "" : new Date(at2).toTimeString().slice(0, 8);
@@ -43126,9 +43532,9 @@ function openBrowserBlocks(host2) {
 }
 
 // src/git/status.ts
-import { execFile as execFile6 } from "node:child_process";
-import { promisify as promisify5 } from "node:util";
-var run4 = promisify5(execFile6);
+import { execFile as execFile7 } from "node:child_process";
+import { promisify as promisify6 } from "node:util";
+var run4 = promisify6(execFile7);
 async function git(cwd, ...args) {
   const { stdout } = await run4("git", ["-C", cwd, ...args], { maxBuffer: 16 * 1024 * 1024, timeout: 1e4 });
   return stdout;
@@ -43138,27 +43544,27 @@ function parseStatus(text22) {
   const state = { ahead: 0, behind: 0, files: [] };
   const records2 = text22.split("\0");
   for (let i = 0; i < records2.length; i++) {
-    const line = records2[i] ?? "";
-    if (line.startsWith("# branch.head ")) {
-      const head2 = line.slice(14);
+    const line2 = records2[i] ?? "";
+    if (line2.startsWith("# branch.head ")) {
+      const head2 = line2.slice(14);
       state.branch = head2 === "(detached)" ? void 0 : head2;
-    } else if (line.startsWith("# branch.upstream ")) {
-      state.upstream = line.slice(18);
-    } else if (line.startsWith("# branch.ab ")) {
-      const [, a2, b] = line.match(/\+(\d+) -(\d+)/) ?? [];
+    } else if (line2.startsWith("# branch.upstream ")) {
+      state.upstream = line2.slice(18);
+    } else if (line2.startsWith("# branch.ab ")) {
+      const [, a2, b] = line2.match(/\+(\d+) -(\d+)/) ?? [];
       state.ahead = Number(a2 ?? 0);
       state.behind = Number(b ?? 0);
-    } else if (line.startsWith("1 ") || line.startsWith("2 ")) {
-      const parts3 = line.split(" ");
+    } else if (line2.startsWith("1 ") || line2.startsWith("2 ")) {
+      const parts3 = line2.split(" ");
       const xy = parts3[1] ?? "..";
-      const path2 = parts3.slice(line.startsWith("1 ") ? 8 : 9).join(" ");
-      const from = line.startsWith("2 ") ? records2[++i] : void 0;
+      const path2 = parts3.slice(line2.startsWith("1 ") ? 8 : 9).join(" ");
+      const from = line2.startsWith("2 ") ? records2[++i] : void 0;
       const code7 = (xy[0] !== "." ? xy[0] : xy[1]) ?? "";
       state.files.push({ additions: 0, deletions: 0, from, path: path2, staged: xy[0] !== ".", status: KIND[code7] ?? "modified" });
-    } else if (line.startsWith("u ")) {
-      state.files.push({ additions: 0, deletions: 0, path: line.split(" ").slice(10).join(" "), staged: false, status: "conflicted" });
-    } else if (line.startsWith("? ")) {
-      state.files.push({ additions: 0, deletions: 0, path: line.slice(2), staged: false, status: "untracked" });
+    } else if (line2.startsWith("u ")) {
+      state.files.push({ additions: 0, deletions: 0, path: line2.split(" ").slice(10).join(" "), staged: false, status: "conflicted" });
+    } else if (line2.startsWith("? ")) {
+      state.files.push({ additions: 0, deletions: 0, path: line2.slice(2), staged: false, status: "untracked" });
     }
   }
   return state;
@@ -43223,25 +43629,25 @@ function reviewHunks(raw2) {
     removed = [];
     added = [];
   };
-  for (const line of body.split("\n")) {
-    const header = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
+  for (const line2 of body.split("\n")) {
+    const header = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line2);
     if (header) {
       flush();
       oldLine = Number(header[1]);
       newLine = Number(header[2]);
-      current = { header: line, pairs: [] };
+      current = { header: line2, pairs: [] };
       result.push(current);
-    } else if (current && line.startsWith(" ")) {
+    } else if (current && line2.startsWith(" ")) {
       flush();
-      const text22 = line.slice(1);
+      const text22 = line2.slice(1);
       current.pairs.push({
         old: { change: "context", line: oldLine++, text: text22 },
         next: { change: "context", line: newLine++, text: text22 }
       });
-    } else if (current && line.startsWith("-")) {
-      removed.push({ change: "removed", line: oldLine++, text: line.slice(1) });
-    } else if (current && line.startsWith("+")) {
-      added.push({ change: "added", line: newLine++, text: line.slice(1) });
+    } else if (current && line2.startsWith("-")) {
+      removed.push({ change: "removed", line: oldLine++, text: line2.slice(1) });
+    } else if (current && line2.startsWith("+")) {
+      added.push({ change: "added", line: newLine++, text: line2.slice(1) });
     }
   }
   flush();
@@ -43255,10 +43661,10 @@ function reviewTargets(hunks2) {
 }
 function reviewSide(hunk, side2) {
   return hunk.pairs.map((pair3) => {
-    const line = side2 === "old" ? pair3.old : pair3.next;
-    if (!line) return "       ";
-    const sign = line.change === "added" ? "+" : line.change === "removed" ? "-" : " ";
-    return String(line.line).padStart(4, " ") + " " + sign + " " + line.text;
+    const line2 = side2 === "old" ? pair3.old : pair3.next;
+    if (!line2) return "       ";
+    const sign = line2.change === "added" ? "+" : line2.change === "removed" ? "-" : " ";
+    return String(line2.line).padStart(4, " ") + " " + sign + " " + line2.text;
   }).join("\n");
 }
 
@@ -43940,7 +44346,7 @@ function pickerValue(model, provider) {
 function openModelPicker(host2) {
   let state = "loading";
   let message = "";
-  let rows = [];
+  let rows2 = [];
   let providers = [];
   let current = "";
   let query2 = "";
@@ -43963,7 +44369,7 @@ function openModelPicker(host2) {
       rememberCaps(list10);
       const names = providerDisplayNames(list10);
       providers = list10.map((provider, i) => ({ name: names[i] ?? provider.name, provider }));
-      rows = providers.flatMap(
+      rows2 = providers.flatMap(
         ({ provider, name }) => (provider.models ?? []).map((model) => ({
           id: `${provider.slug}	${model}`,
           model,
@@ -43972,8 +44378,8 @@ function openModelPicker(host2) {
         }))
       );
       const currentProvider = list10.find((p3) => p3.is_current)?.slug ?? r.provider ?? "";
-      current = rows.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows.find((row2) => row2.model === r.model)?.id ?? "";
-      selected = current || rows[0]?.id;
+      current = rows2.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows2.find((row2) => row2.model === r.model)?.id ?? "";
+      selected = current || rows2[0]?.id;
       state = "ready";
     } catch (error) {
       state = "error";
@@ -43982,7 +44388,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const choose = async (id3, confirmed2 = false) => {
-    const row2 = rows.find((r) => r.id === id3);
+    const row2 = rows2.find((r) => r.id === id3);
     if (!row2 || busy) {
       return;
     }
@@ -44012,7 +44418,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const view = () => {
-    const inScope = scope2 === ALL2 ? rows : rows.filter((r) => `provider:${r.provider.slug}` === scope2);
+    const inScope = scope2 === ALL2 ? rows2 : rows2.filter((r) => `provider:${r.provider.slug}` === scope2);
     const ranked = rank(inScope, query2, (r) => `${modelSearchText(r.model)} ${r.providerName} ${r.provider.slug}`);
     const hits = {};
     const order2 = [];
@@ -44045,10 +44451,10 @@ function openModelPicker(host2) {
     modal: true,
     node: (id3) => {
       const { hits, order: order2 } = view();
-      const priced = rows.some((r) => r.provider.pricing?.[r.model]);
+      const priced = rows2.some((r) => r.provider.pricing?.[r.model]);
       const columns = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
       const scopes = [
-        { count: rows.length, icon: "list", id: ALL2, label: "All models" },
+        { count: rows2.length, icon: "list", id: ALL2, label: "All models" },
         ...providers.map(({ provider, name }) => ({
           count: provider.models?.length ?? 0,
           ...optional("dot", provider.warning ? "warning" : void 0),
@@ -44058,7 +44464,7 @@ function openModelPicker(host2) {
           mark: { seed: provider.slug, text: name }
         }))
       ];
-      const row2 = rows.find((r) => r.id === selected);
+      const row2 = rows2.find((r) => r.id === selected);
       const levels = levelsFor(row2 && caps(row2));
       return /* @__PURE__ */ jsx(
         "picker",
@@ -44074,7 +44480,7 @@ function openModelPicker(host2) {
           ...optional("empty", query2 ? void 0 : "No models in this scope"),
           hits,
           icon: "cpu",
-          items: rows.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
+          items: rows2.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
           layout: "rows",
           ...optional("message", state === "error" ? message : void 0),
           noun: "models",
@@ -44128,7 +44534,7 @@ function openModelPicker(host2) {
             }
           } : {},
           title: "Models",
-          total: rows.length,
+          total: rows2.length,
           children: row2 ? preview2(row2, row2.id === current) : null
         },
         nativeOverlayKey(id3)
@@ -44152,14 +44558,14 @@ function openModelPicker(host2) {
         return true;
       }
       if (k.ctrl && k.name === "e") {
-        const row2 = rows.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         const levels = levelsFor(row2 && caps(row2));
         const at2 = levels.findIndex((l) => l.id === effort2);
         effort2 = levels[(at2 + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort2;
         return true;
       }
       if (k.ctrl && k.name === "f") {
-        const row2 = rows.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         if (row2 && fastable(row2)) {
           fast = !fast;
           fastTouched = true;
@@ -44228,9 +44634,9 @@ function preview2(row2, isCurrent) {
     ] : [],
     ...row2.provider.api_url ? [{ k: [{ t: "Endpoint" }], v: [{ s: "mono dim", t: row2.provider.api_url }] }] : []
   ];
-  const short = row2.model.split("/").at(-1) ?? row2.model;
+  const short2 = row2.model.split("/").at(-1) ?? row2.model;
   return [
-    /* @__PURE__ */ jsx("text", { role: "omp.picker.title", text: short }, "title"),
+    /* @__PURE__ */ jsx("text", { role: "omp.picker.title", text: short2 }, "title"),
     /* @__PURE__ */ jsx(
       "text",
       {
@@ -44430,8 +44836,8 @@ function parsePlan(text22) {
   const headings = [];
   let fence;
   let offset = 0;
-  for (const line of text22.split("\n")) {
-    const marker = line.match(/^ {0,3}((?:\x60{3,}|~{3,}))(.*)$/);
+  for (const line2 of text22.split("\n")) {
+    const marker = line2.match(/^ {0,3}((?:\x60{3,}|~{3,}))(.*)$/);
     if (fence) {
       if (marker && marker[1]?.[0] === fence.marker && (marker[1]?.length ?? 0) >= fence.length && !marker[2]?.trim()) {
         fence = void 0;
@@ -44439,7 +44845,7 @@ function parsePlan(text22) {
     } else if (marker) {
       fence = { length: marker[1]?.length ?? 0, marker: marker[1]?.[0] ?? "" };
     } else {
-      const heading5 = line.match(/^ {0,3}(#{1,6})[\t ]+(.+?)\s*$/);
+      const heading5 = line2.match(/^ {0,3}(#{1,6})[\t ]+(.+?)\s*$/);
       if (heading5) {
         headings.push({
           level: heading5[1]?.length ?? 0,
@@ -44448,7 +44854,7 @@ function parsePlan(text22) {
         });
       }
     }
-    offset += line.length + 1;
+    offset += line2.length + 1;
   }
   if (!headings.length) {
     return void 0;
@@ -44931,7 +45337,7 @@ function openPlanReview(host2) {
 }
 
 // src/overlays/pullRequests.tsx
-import { execFile as execFile7 } from "node:child_process";
+import { execFile as execFile8 } from "node:child_process";
 
 // src/github/pullRequest.ts
 var CHECK_FIELDS = `
@@ -45238,8 +45644,8 @@ function parseActivity(data) {
   return items.sort((a2, b) => Date.parse(a2.at) - Date.parse(b.at));
 }
 var fileRow = object({ filename: text6, previous_filename: text6, status: text6, additions: count2, deletions: count2, patch: text6 });
-function parseFiles(rows) {
-  return rowsOf(fileRow, Array.isArray(rows) ? rows : []).map((r) => ({
+function parseFiles(rows2) {
+  return rowsOf(fileRow, Array.isArray(rows2) ? rows2 : []).map((r) => ({
     additions: r.additions,
     deletions: r.deletions,
     patch: r.patch || void 0,
@@ -46571,15 +46977,15 @@ function collectText(node4, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join20;
+  let join21;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join20 = void 0;
+      join21 = void 0;
     } else if (lines[index2]) {
-      if (typeof join20 === "number") result.push(join20);
+      if (typeof join21 === "number") result.push(join21);
       result.push(lines[index2]);
-      join20 = 0;
+      join21 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -46858,13 +47264,13 @@ function hr(state, node4) {
 function iframe(state, node4) {
   const properties2 = node4.properties || {};
   const source3 = String(properties2.src || "");
-  const title = String(properties2.title || "");
-  if (source3 && title) {
+  const title2 = String(properties2.title || "");
+  if (source3 && title2) {
     const result = {
       type: "link",
       title: null,
       url: state.resolve(source3),
-      children: [{ type: "text", value: title }]
+      children: [{ type: "text", value: title2 }]
     };
     state.patch(node4, result);
     return result;
@@ -47479,20 +47885,20 @@ function table(state, node4) {
   }
   state.inTable = true;
   const { align, headless } = inspect(node4);
-  const rows = state.toSpecificContent(state.all(node4), createRow);
+  const rows2 = state.toSpecificContent(state.all(node4), createRow);
   if (headless) {
-    rows.unshift(createRow());
+    rows2.unshift(createRow());
   }
   let rowIndex = -1;
-  while (++rowIndex < rows.length) {
-    const row2 = rows[rowIndex];
+  while (++rowIndex < rows2.length) {
+    const row2 = rows2[rowIndex];
     const cells2 = state.toSpecificContent(row2.children, createCell);
     row2.children = cells2;
   }
   let columns = 1;
   rowIndex = -1;
-  while (++rowIndex < rows.length) {
-    const cells2 = rows[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = -1;
     while (++cellIndex < cells2.length) {
       const cell4 = cells2[cellIndex];
@@ -47508,14 +47914,14 @@ function table(state, node4) {
           while (++otherRowIndex < rowIndex + rowSpan) {
             let colIndex = cellIndex - 1;
             while (++colIndex < cellIndex + colSpan) {
-              if (!rows[otherRowIndex]) {
+              if (!rows2[otherRowIndex]) {
                 break;
               }
               const newCells = [];
               if (otherRowIndex !== rowIndex || colIndex !== cellIndex) {
                 newCells.push({ type: "tableCell", children: [] });
               }
-              rows[otherRowIndex].children.splice(colIndex, 0, ...newCells);
+              rows2[otherRowIndex].children.splice(colIndex, 0, ...newCells);
             }
           }
         }
@@ -47529,8 +47935,8 @@ function table(state, node4) {
     if (cells2.length > columns) columns = cells2.length;
   }
   rowIndex = -1;
-  while (++rowIndex < rows.length) {
-    const cells2 = rows[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = cells2.length - 1;
     while (++cellIndex < columns) {
       cells2.push({ type: "tableCell", children: [] });
@@ -47541,7 +47947,7 @@ function table(state, node4) {
     align.push(null);
   }
   state.inTable = false;
-  const result = { type: "table", align, children: rows };
+  const result = { type: "table", align, children: rows2 };
   state.patch(node4, result);
   return result;
 }
@@ -48372,11 +48778,11 @@ function gfmFootnoteToMarkdown(options) {
     return value;
   }
 }
-function mapExceptFirst(line, index2, blank2) {
-  return index2 === 0 ? line : mapAll(line, index2, blank2);
+function mapExceptFirst(line2, index2, blank2) {
+  return index2 === 0 ? line2 : mapAll(line2, index2, blank2);
 }
-function mapAll(line, index2, blank2) {
-  return (blank2 ? "" : "    ") + line;
+function mapAll(line2, index2, blank2) {
+  return (blank2 ? "" : "    ") + line2;
 }
 
 // node_modules/mdast-util-gfm-strikethrough/lib/index.js
@@ -48519,7 +48925,7 @@ function markdownTable(table3, options) {
     const row3 = cellMatrix[rowIndex];
     const sizes2 = sizeMatrix[rowIndex];
     columnIndex = -1;
-    const line = [];
+    const line2 = [];
     while (++columnIndex < mostCellsPerRow) {
       const cell4 = row3[columnIndex] || "";
       let before2 = "";
@@ -48542,29 +48948,29 @@ function markdownTable(table3, options) {
         }
       }
       if (settings2.delimiterStart !== false && !columnIndex) {
-        line.push("|");
+        line2.push("|");
       }
       if (settings2.padding !== false && // Don’t add the opening space if we’re not aligning and the cell is
       // empty: there will be a closing space.
       !(settings2.alignDelimiters === false && cell4 === "") && (settings2.delimiterStart !== false || columnIndex)) {
-        line.push(" ");
+        line2.push(" ");
       }
       if (settings2.alignDelimiters !== false) {
-        line.push(before2);
+        line2.push(before2);
       }
-      line.push(cell4);
+      line2.push(cell4);
       if (settings2.alignDelimiters !== false) {
-        line.push(after3);
+        line2.push(after3);
       }
       if (settings2.padding !== false) {
-        line.push(" ");
+        line2.push(" ");
       }
       if (settings2.delimiterEnd !== false || columnIndex !== mostCellsPerRow - 1) {
-        line.push("|");
+        line2.push("|");
       }
     }
     lines.push(
-      settings2.delimiterEnd === false ? line.join("").replace(/ +$/, "") : line.join("")
+      settings2.delimiterEnd === false ? line2.join("").replace(/ +$/, "") : line2.join("")
     );
   }
   return lines.join("\n");
@@ -48659,8 +49065,8 @@ function blockquote2(node4, _2, state, info) {
   exit3();
   return value;
 }
-function map2(line, _2, blank2) {
-  return ">" + (blank2 ? "" : " ") + line;
+function map2(line2, _2, blank2) {
+  return ">" + (blank2 ? "" : " ") + line2;
 }
 
 // node_modules/mdast-util-to-markdown/lib/util/pattern-in-scope.js
@@ -48788,8 +49194,8 @@ function code2(node4, _2, state, info) {
   exit3();
   return value;
 }
-function map3(line, _2, blank2) {
-  return (blank2 ? "" : "    ") + line;
+function map3(line2, _2, blank2) {
+  return (blank2 ? "" : "    ") + line2;
 }
 
 // node_modules/mdast-util-to-markdown/lib/util/check-quote.js
@@ -49352,11 +49758,11 @@ function listItem(node4, parent, state, info) {
   );
   exit3();
   return value;
-  function map4(line, index2, blank2) {
+  function map4(line2, index2, blank2) {
     if (index2) {
-      return (blank2 ? "" : " ".repeat(size)) + line;
+      return (blank2 ? "" : " ".repeat(size)) + line2;
     }
-    return (blank2 ? bullet : bullet + " ".repeat(size - bullet.length)) + line;
+    return (blank2 ? bullet : bullet + " ".repeat(size - bullet.length)) + line2;
   }
 }
 
@@ -52362,18 +52768,18 @@ var eol = /\r?\n|\r/g;
 function indentLines(value, map4) {
   const result = [];
   let start = 0;
-  let line = 0;
+  let line2 = 0;
   let match;
   while (match = eol.exec(value)) {
     one7(value.slice(start, match.index));
     result.push(match[0]);
     start = match.index + match[0].length;
-    line++;
+    line2++;
   }
   one7(value.slice(start));
   return result.join("");
   function one7(value2) {
-    result.push(map4(value2, line, !value2));
+    result.push(map4(value2, line2, !value2));
   }
 }
 
@@ -52500,11 +52906,11 @@ function track(config3) {
   const options = config3 || {};
   const now = options.now || {};
   let lineShift = options.lineShift || 0;
-  let line = now.line || 1;
+  let line2 = now.line || 1;
   let column2 = now.column || 1;
   return { move, current, shift };
   function current() {
-    return { now: { line, column: column2 }, lineShift };
+    return { now: { line: line2, column: column2 }, lineShift };
   }
   function shift(value) {
     lineShift += value;
@@ -52513,7 +52919,7 @@ function track(config3) {
     const value = input2 || "";
     const chunks2 = value.split(/\r?\n|\r/g);
     const tail = chunks2[chunks2.length - 1];
-    line += chunks2.length - 1;
+    line2 += chunks2.length - 1;
     column2 = chunks2.length === 1 ? column2 + tail.length : 1 + tail.length + lineShift;
     return value;
   }
@@ -54943,13 +55349,13 @@ var Preprocessor = class {
     return this.droppedBufferSize + this.pos;
   }
   getError(code7, cpOffset) {
-    const { line, col, offset } = this;
+    const { line: line2, col, offset } = this;
     const startCol = col + cpOffset;
     const startOffset = offset + cpOffset;
     return {
       code: code7,
-      startLine: line,
-      endLine: line,
+      startLine: line2,
+      endLine: line2,
       startCol,
       endCol: startCol,
       startOffset,
@@ -68369,14 +68775,14 @@ function createTokenizer(parser, initialize, from) {
     const {
       _bufferIndex,
       _index,
-      line,
+      line: line2,
       column: column2,
       offset
     } = point5;
     return {
       _bufferIndex,
       _index,
-      line,
+      line: line2,
       column: column2,
       offset
     };
@@ -69917,8 +70323,8 @@ function strong3(state, node4) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/table.js
 function table2(state, node4) {
-  const rows = state.all(node4);
-  const firstRow = rows.shift();
+  const rows2 = state.all(node4);
+  const firstRow = rows2.shift();
   const tableContent = [];
   if (firstRow) {
     const head2 = {
@@ -69930,12 +70336,12 @@ function table2(state, node4) {
     state.patch(node4.children[0], head2);
     tableContent.push(head2);
   }
-  if (rows.length > 0) {
+  if (rows2.length > 0) {
     const body = {
       type: "element",
       tagName: "tbody",
       properties: {},
-      children: state.wrap(rows, true)
+      children: state.wrap(rows2, true)
     };
     const start = pointStart(node4.children[1]);
     const end = pointEnd(node4.children[node4.children.length - 1]);
@@ -72452,7 +72858,7 @@ function browsableUrl(url) {
 function openUrl(url) {
   const safe3 = browsableUrl(url);
   if (safe3) {
-    execFile7(process.platform === "darwin" ? "open" : "xdg-open", [safe3], () => {
+    execFile8(process.platform === "darwin" ? "open" : "xdg-open", [safe3], () => {
     });
   }
 }
@@ -73081,9 +73487,9 @@ function openSessionInfo(host2) {
 import { basename as basename4 } from "node:path";
 
 // src/hermes/sessionList.ts
-import { execFile as execFile8 } from "node:child_process";
-import { promisify as promisify6 } from "node:util";
-var run5 = promisify6(execFile8);
+import { execFile as execFile9 } from "node:child_process";
+import { promisify as promisify7 } from "node:util";
+var run5 = promisify7(execFile9);
 var LIMIT = 200;
 var listRow = object({
   session_id: string2(),
@@ -73623,8 +74029,8 @@ function thoughtLine(markdown2) {
   );
 }
 function thoughtTitle(item3) {
-  const line = thoughtLine(item3.text);
-  return item3.label ? line ? `${item3.label}: ${line}` : item3.label : line;
+  const line2 = thoughtLine(item3.text);
+  return item3.label ? line2 ? `${item3.label}: ${line2}` : item3.label : line2;
 }
 
 // src/overlays/sessions/rows.ts
@@ -73753,7 +74159,7 @@ function stepOf(row2) {
   if (held !== void 0) {
     return held;
   }
-  const line = stepLabel({
+  const line2 = stepLabel({
     args: row2.args,
     argsText: "",
     context: "",
@@ -73763,8 +74169,8 @@ function stepOf(row2) {
     startedAt: 0,
     via: { kind: "direct" }
   });
-  stepLines.set(row2, line);
-  return line;
+  stepLines.set(row2, line2);
+  return line2;
 }
 function rowNode2(row2) {
   switch (row2.kind) {
@@ -73881,8 +74287,8 @@ var PreviewLoader = class {
     this.#done(id3, entry);
   }
   /** Appends the rows not seen yet; how many it kept. */
-  #keep(entry, rows) {
-    const fresh = rows.filter((r) => !entry.seen.has(r.key));
+  #keep(entry, rows2) {
+    const fresh = rows2.filter((r) => !entry.seen.has(r.key));
     for (const r of fresh) {
       entry.seen.add(r.key);
     }
@@ -73930,12 +74336,12 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
     workspace = key3;
     sessions = listed2.filter((s2) => s2.messages > 0 || isCurrent(s2));
     tab3 = sessions.some((s2) => inWorkspace(s2, workspace)) ? "here" : "all";
-    selected = rows().find((s2) => !isCurrent(s2))?.id ?? rows()[0]?.id;
+    selected = rows2().find((s2) => !isCurrent(s2))?.id ?? rows2()[0]?.id;
     state = "ready";
     host2.changed();
   };
   const here = (s2) => inWorkspace(s2, workspace);
-  const rows = () => tab3 === "here" ? sessions.filter(here) : sessions;
+  const rows2 = () => tab3 === "here" ? sessions.filter(here) : sessions;
   const resume = (id3) => {
     const s2 = sessions.find((x) => x.id === id3);
     if (!s2) {
@@ -74028,7 +74434,7 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
   };
   const view = (now) => {
     const rank0 = (x) => x.pinned ? 0 : tab3 === "all" && here(x) ? 1 : 2;
-    const list10 = query2 ? rows() : [...rows()].sort((a2, b) => rank0(a2) - rank0(b));
+    const list10 = query2 ? rows2() : [...rows2()].sort((a2, b) => rank0(a2) - rank0(b));
     const ranked = rank(list10, query2, (s2) => `${sessionLabel(s2)}
 ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
     const hits = {};
@@ -74103,7 +74509,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           focus: focus2,
           hits,
           icon: "history",
-          items: rows().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
+          items: rows2().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
           layout: "cards",
           noun: "sessions",
           onAction: {
@@ -74159,7 +74565,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
             { count: sessions.length, id: "all", label: "All folders" }
           ],
           title: "Sessions",
-          total: rows().length,
+          total: rows2().length,
           children: pane?.nodes ?? null
         },
         nativeOverlayKey(id3)
@@ -74265,11 +74671,11 @@ async function readValue(access, field) {
 }
 function readProfile(access) {
   return ordered(access.gw, async () => {
-    const rows = [];
+    const rows2 = [];
     for (const field of PROFILE_PREFERENCES) {
-      rows.push({ field, value: await readValue(access, field) });
+      rows2.push({ field, value: await readValue(access, field) });
     }
-    return rows;
+    return rows2;
   });
 }
 function writeProfile(access, field, requested, expected) {
@@ -74355,7 +74761,7 @@ var SettingsSheet = class {
     this.#message = "";
     this.#host.changed();
     try {
-      const rows = await readProfile({
+      const rows2 = await readProfile({
         active: () => this.#live() && this.#generation === generation,
         gw: this.#host.gw,
         sid: this.#sid,
@@ -74364,7 +74770,7 @@ var SettingsSheet = class {
       if (!this.#live() || generation !== this.#generation) {
         return;
       }
-      this.#rows = new Map(rows.map((row2) => [row2.field.key, row2]));
+      this.#rows = new Map(rows2.map((row2) => [row2.field.key, row2]));
       this.#status = "ready";
     } catch (error) {
       if (!this.#live() || generation !== this.#generation) {
@@ -74533,7 +74939,7 @@ var SettingsSheet = class {
       if (!this.#searching && this.#page !== `profile.${group}`) {
         continue;
       }
-      const rows = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
+      const rows2 = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
         control: this.#control(row2),
         hint: `${row2.field.hint}
 Confirmed profile value: ${row2.value}`,
@@ -74541,7 +74947,7 @@ Confirmed profile value: ${row2.value}`,
         label: row2.field.label,
         ...this.#busy === row2.field.key ? { disabled: "Waiting for Hermes readback." } : {}
       }));
-      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows, title: `${group} \xB7 saved Hermes profile defaults` });
+      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows: rows2, title: `${group} \xB7 saved Hermes profile defaults` });
     }
     return sections2;
   }
@@ -74724,8 +75130,8 @@ Confirmed profile value: ${row2.value}`,
       this.#host.changed();
       return true;
     }
-    const rows = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
-    const selected = moveSelection(key3, rows, this.#selected);
+    const rows2 = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
+    const selected = moveSelection(key3, rows2, this.#selected);
     if (selected !== void 0) {
       this.#selected = selected;
       this.#host.changed();
@@ -75753,7 +76159,7 @@ var COUNCIL_SCHEMA = "glide.council-run/v1";
 var MINERALS = new Set(Object.keys(MINERAL));
 var SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/;
 var KEYS3 = {
-  run: ["schema", "brief", "rounds", "seats", "events", "verdicts", "outcome"],
+  run: ["schema", "brief", "constraints", "rounds", "seats", "events", "verdicts", "outcome"],
   seat: ["id", "name", "family", "mineral", "crew"],
   turn: ["type", "seat", "round", "cites"],
   spawn: ["type", "seat"],
@@ -75839,6 +76245,7 @@ function readRun(raw2) {
     seats: Object.freeze(seats),
     events: Object.freeze(events),
     verdicts: Object.freeze(verdicts),
+    ...d["constraints"] === void 0 ? {} : { constraints: Object.freeze(list9(d["constraints"], "constraints", 0, 8).map((v, i) => str5(v, `constraints.${i}`, 160))) },
     ...d["outcome"] === void 0 ? {} : { outcome: str5(d["outcome"], "outcome", 160) }
   });
 }
@@ -75865,6 +76272,7 @@ function demoRun() {
   const run8 = parseCouncilRun({
     schema: COUNCIL_SCHEMA,
     brief: "Should a small team ship a plugin before its launcher?",
+    constraints: ["Keep the first release small.", "Use installation receipts to decide what comes next."],
     rounds: 4,
     seats,
     events,
@@ -75883,7 +76291,7 @@ var TURN_MS = 520;
 var SPAWN_MS = 90;
 var FLY_MS = 220;
 var THREAD_MS = 360;
-var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+var ease2 = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 function schedule(run8) {
   const at2 = [];
   let t = 0;
@@ -76069,8 +76477,9 @@ var STARS = (() => {
   const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
   return Array.from({ length: 46 }, () => [rnd(), rnd(), rnd() * 0.7 + 0.25, rnd() * 0.35 + 0.08]);
 })();
-function instrumentSvg(run8, frame2, size = 480) {
+function instrumentSvg(run8, frame2, size = 480, options = {}) {
   const m2 = moment(run8, frame2);
+  if (options.reduce) m2.since = TURN_MS;
   const c = size / 2;
   const orbit = size * 0.335;
   const R = Math.max(18, size * 0.064);
@@ -76093,7 +76502,7 @@ function instrumentSvg(run8, frame2, size = 480) {
     tag2("radialGradient", { id: "tb", cx: c - table3 * 0.35, cy: c - table3 * 0.4, r: table3 * 1.5, ...user }, stop(0, "#24231e") + stop(0.55, "#151511") + stop(1, "#0b0b09")) + tag2("linearGradient", { id: "br", x1: c - table3, y1: c - table3, x2: c + table3, y2: c + table3, ...user }, stop(0, "#f0d7a0") + stop(0.5, "#9c7a43") + stop(1, "#3d2e14")) + tag2("radialGradient", { id: "bf", cx: c - ringMin * 0.3, cy: c - ringMin * 0.35, r: ringMin * 1.1, ...user }, stop(0, "#f6dfa6") + stop(0.55, "#c49a55") + stop(1, "#5e4318")) + tag2("radialGradient", { id: "wm", cx: "50%", cy: "50%", r: "50%" }, stop(0, "#f2c66a", 0.28) + stop(1, "#f2c66a", 0))
   );
   s2 += tag2("rect", { width: size, height: size, fill: NIGHT.canvas });
-  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
+  for (const [x, y, r, o] of options.clean ? [] : STARS) if (Math.hypot(x * size - c, y * size - c) > table3 + 6) s2 += tag2("circle", { cx: x * size, cy: y * size, r, fill: "#f3e6c8", "fill-opacity": o });
   s2 += tag2("circle", { cx: c, cy: c, r: c - 3, stroke: "url(#br)", "stroke-opacity": 0.7, "stroke-width": 1, fill: "none" });
   for (let i = 0; i < 72; i++) {
     const a2 = i * Math.PI / 36, r1 = c - 7, r2 = c - (i % 6 === 0 ? 16 : 11);
@@ -76109,12 +76518,12 @@ function instrumentSvg(run8, frame2, size = 480) {
     s2 += tag2("circle", { cx: c, cy: c, r, fill: "none", stroke: now ? NIGHT.strong : NIGHT.action, "stroke-opacity": now ? 0.95 : past ? 0.5 : 0.2, "stroke-width": now ? 1.8 : 0.7 });
     if (ringGap >= 12 || i % 2 === 1 || now) {
       s2 += tag2("rect", { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: "#12120f" });
-      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
+      s2 += tag2("text", { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, "font-size": options.clean ? 11 : 8.5, "font-family": MONO, "text-anchor": "middle" }, String(i + 1).padStart(2, "0"));
     }
   }
   if (m2.speaking >= 0 && cur?.type === "turn") {
     const p3 = pos[m2.speaking];
-    const k = ease(m2.since / THREAD_MS);
+    const k = ease2(m2.since / THREAD_MS);
     const targets = cur.cites.filter((j) => j !== m2.speaking);
     if (p3 && !targets.length) {
       s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
@@ -76128,7 +76537,7 @@ function instrumentSvg(run8, frame2, size = 480) {
       if (k >= 1) s2 += tag2("circle", { cx: q2.x, cy: q2.y, r: R + 6, fill: "none", stroke: NIGHT.strong, "stroke-opacity": 0.35, "stroke-width": 0.8 });
     }
   }
-  if (m2.running) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
+  if (m2.running && !options.clean) s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 1.5, fill: "url(#wm)" });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "#c49a55" });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.82, fill: "url(#bf)", "fill-opacity": 0.92 });
   s2 += tag2("circle", { cx: c, cy: c, r: ringMin * 0.66, fill: "none", stroke: "#3b2a0e", "stroke-opacity": 0.45, "stroke-width": 0.6 });
@@ -76142,8 +76551,8 @@ function instrumentSvg(run8, frame2, size = 480) {
     crew.forEach((stone, k) => {
       const ang = p3.a + (k - (crew.length - 1) / 2) * step;
       const on = frame2.t === null || k < (m2.lit[i] ?? 0);
-      const born = m2.running ? m2.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
+      const born = m2.running && !options.reduce ? m2.born.get(`${i}.${k}`) : void 0;
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease2((t - born) / FLY_MS));
       const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
       s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
     });
@@ -76152,9 +76561,166 @@ function instrumentSvg(run8, frame2, size = 480) {
     const plaqueY = p3.y > c ? p3.y - R - 36 : p3.y + R + 6;
     s2 += tag2("rect", { x: p3.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: "#0f0f0c", "fill-opacity": 0.82, stroke: NIGHT.border, "stroke-width": 0.6 });
     s2 += tag2("text", { x: p3.x, y: plaqueY + 15, fill: NIGHT.text, "font-size": 14, "font-family": SERIF, "text-anchor": "middle" }, esc2(seat.name));
-    s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
+    if (!options.clean) s2 += tag2("text", { x: p3.x, y: plaqueY + 25, fill: NIGHT.text3, "font-size": 7, "letter-spacing": 0.8, "font-family": MONO, "text-anchor": "middle" }, esc2(MINERAL[seat.mineral].label.toUpperCase()));
   });
   return tag2("svg", { xmlns: "http://www.w3.org/2000/svg", width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s2);
+}
+
+// ../glide/frontend/councilExchange.ts
+var DELIVERY_MS = 900;
+var CLAUSE_MS = 650;
+function reportClauses(run8) {
+  const clauses = [{ label: "Verdict", text: run8.outcome ?? (run8.verdicts.length ? "Recorded seat replies" : "No verdict recorded") }];
+  for (const stance of ["agree", "dissent", "abstain"]) {
+    const replies = run8.verdicts.filter((v) => v.stance === stance);
+    const label = stance === "agree" ? "Agreements" : stance === "dissent" ? "Dissent" : "Abstentions";
+    clauses.push({ label, text: replies.length ? replies.map((v) => `${run8.seats[v.seat]?.name ?? "Seat"}: ${v.text}`).join(" ") : "None recorded." });
+  }
+  const receipts = run8.seats.flatMap((seat, i) => {
+    const turn2 = run8.events.findLast((e) => e.type === "turn" && e.seat === i && e.cites.length > 0);
+    return turn2?.type === "turn" ? [`Round ${turn2.round}: ${seat.name} cited ${turn2.cites.map((s2) => run8.seats[s2]?.name ?? "Seat").join(", ")}.`] : [];
+  });
+  clauses.push({ label: "Receipts", text: receipts.length ? receipts.join(" ") : "No citation receipts recorded." });
+  return clauses;
+}
+function exchangeTiming(run8, reduce = false) {
+  const typing = reduce ? 0 : Math.min(3200, Math.max(900, (run8.brief.length + (run8.constraints ?? []).join("").length) * 24));
+  const working = typing + (reduce ? 0 : DELIVERY_MS);
+  const report = working + schedule(run8).total;
+  return { typing, working, report, total: report + (reduce ? 0 : reportClauses(run8).length * CLAUSE_MS) };
+}
+function exchangeAt(run8, t, reduce = false) {
+  const elapsed2 = Math.max(0, t ?? 0);
+  const timing = exchangeTiming(run8, reduce);
+  const phase = t === null ? "seated" : elapsed2 < timing.typing ? "brief" : elapsed2 < timing.working ? "sending" : elapsed2 < timing.report ? "working" : elapsed2 < timing.total ? "report" : "done";
+  const frame2 = { t: t === null || elapsed2 < timing.working ? null : Math.min(schedule(run8).total, elapsed2 - timing.working) };
+  const closed = closedSeats(run8, frame2);
+  const { at: at2 } = schedule(run8);
+  const delivery = phase === "sending" ? (elapsed2 - timing.typing) / DELIVERY_MS : phase === "brief" || phase === "seated" ? 0 : 1;
+  const characters = run8.brief.length + (run8.constraints ?? []).join("").length;
+  let typed = phase === "brief" ? Math.floor(characters * elapsed2 / timing.typing) : characters;
+  const brief = run8.brief.slice(0, typed);
+  typed -= run8.brief.length;
+  const constraints = (run8.constraints ?? []).map((text22) => {
+    const line2 = text22.slice(0, Math.max(0, typed));
+    typed -= text22.length;
+    return line2;
+  });
+  return {
+    phase,
+    elapsed: elapsed2,
+    reduce,
+    frame: frame2,
+    delivery,
+    brief,
+    constraints,
+    seats: run8.seats.map((_2, i) => {
+      const received = t !== null && delivery >= (i + 1) / run8.seats.length;
+      const drafting = run8.events.some((e, k) => e.type === "turn" && e.seat === i && frame2.t !== null && frame2.t >= (at2[k] ?? 0) && frame2.t < (at2[k] ?? 0) + TURN_MS);
+      return { received, state: closed.has(i) ? "done" : frame2.t !== null ? drafting ? "drafting" : "thinking" : received ? "received" : "waiting" };
+    }),
+    clauses: phase === "done" ? reportClauses(run8) : phase === "report" ? reportClauses(run8).slice(0, 1 + Math.floor((elapsed2 - timing.report) / CLAUSE_MS)) : []
+  };
+}
+function deliverySvg(run8, view, size) {
+  if (view.phase !== "sending" && view.phase !== "report" || view.reduce) return "";
+  const center = size / 2;
+  const converge = view.phase === "report";
+  const marks2 = run8.seats.map((seat, i) => {
+    const progress = converge ? Math.min(1, (view.elapsed - exchangeTiming(run8).report) / CLAUSE_MS) : Math.max(0, Math.min(1, view.delivery * run8.seats.length - i));
+    if (progress >= 1) return "";
+    const angle = -Math.PI / 2 + Math.PI / run8.seats.length + i * Math.PI * 2 / run8.seats.length;
+    const radius = size * 0.335 * (converge ? 1 - progress : progress);
+    const x = center + Math.cos(angle) * radius;
+    const y = center + Math.sin(angle) * radius;
+    return `<g data-envelope="${seat.id}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" stroke="${MINERAL[seat.mineral].base}" fill="${NIGHT.canvas}" stroke-width="1.5"><rect x="-13" y="-9" width="26" height="18" rx="2"/><path d="M-13-9L0 1L13-9" fill="none"/></g>`;
+  }).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${marks2}</svg>`;
+}
+function councilOrbSvg(seconds, amplitude, reduce, ink3 = "#d7b986") {
+  const level = Math.max(0, Math.min(1, amplitude));
+  const source3 = orbSvg("speaking", reduce ? 0.6 : seconds, true);
+  const scale = reduce ? 1 : 0.9 + level * 0.14;
+  const hue = reduce ? ink3 : `#${[1, 3, 5].map((at2) => Math.round(parseInt(ink3.slice(at2, at2 + 2), 16) * (1 - level * 0.25) + 255 * level * 0.25).toString(16).padStart(2, "0")).join("")}`;
+  return source3.replace(/width="68" height="68"/, 'width="320" height="320"').replace(/#[0-9a-f]{6}/gi, hue).replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`).replace("</svg>", "</g></svg>");
+}
+
+// ../glide/frontend/councilSpeech.ts
+import { execFile as execFile10 } from "node:child_process";
+import { mkdtemp as mkdtemp3, rm as rm4, writeFile as writeFile4 } from "node:fs/promises";
+import { tmpdir as tmpdir3 } from "node:os";
+import { join as join12 } from "node:path";
+import { promisify as promisify8 } from "node:util";
+var exec = promisify8(execFile10);
+function pcmSpeech(wav) {
+  if (wav.length < 44 || wav.toString("ascii", 0, 4) !== "RIFF" || wav.toString("ascii", 8, 12) !== "WAVE") throw new Error("Speech engine returned no PCM WAV");
+  let rate = 0;
+  let channels = 0;
+  let data = Buffer.alloc(0);
+  for (let at2 = 12; at2 + 8 <= wav.length; ) {
+    const name = wav.toString("ascii", at2, at2 + 4);
+    const length = wav.readUInt32LE(at2 + 4);
+    const start = at2 + 8;
+    if (name === "fmt " && length >= 16 && start + 16 <= wav.length) {
+      if (wav.readUInt16LE(start) !== 1 || wav.readUInt16LE(start + 14) !== 16) throw new Error("Speech WAV must use signed 16-bit PCM");
+      channels = wav.readUInt16LE(start + 2);
+      rate = wav.readUInt32LE(start + 4);
+    }
+    if (name === "data") {
+      data = wav.subarray(start, Math.min(wav.length, start + length));
+      break;
+    }
+    at2 = start + length + length % 2;
+  }
+  if (!rate || !channels || !data.length) throw new Error("Speech WAV has no samples");
+  const samplesPerMs = rate * channels / 1e3;
+  const duration4 = data.length / 2 / samplesPerMs;
+  const levels = [];
+  for (let ms2 = 0; ms2 < duration4; ms2 += 50) {
+    const begin = Math.floor(ms2 * samplesPerMs);
+    const end = Math.min(data.length / 2, Math.floor((ms2 + 50) * samplesPerMs));
+    let sum = 0;
+    for (let n4 = begin; n4 < end; n4++) sum += (data.readInt16LE(n4 * 2) / 32768) ** 2;
+    levels.push(Math.min(1, Math.sqrt(sum / Math.max(1, end - begin)) * 2));
+  }
+  return { duration: duration4, level: (ms2) => ms2 < 0 || ms2 >= duration4 ? 0 : levels[Math.floor(ms2 / 50)] ?? 0 };
+}
+var platformSpeech = {
+  async speak(text22, signal, playing) {
+    const dir2 = await mkdtemp3(join12(tmpdir3(), "glide-council-speech-"));
+    try {
+      let wav;
+      for (const engine of ["espeak-ng", "espeak"]) {
+        try {
+          const result = await exec(engine, ["--stdout", "--", text22], { encoding: "buffer", signal, maxBuffer: 16 * 1024 * 1024, timeout: 3e4 });
+          wav = result.stdout;
+          break;
+        } catch (error) {
+          if (signal.aborted) throw error;
+          if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw new Error("Platform speech synthesis failed");
+        }
+      }
+      if (!wav) throw new Error("Read aloud needs espeak-ng or espeak and paplay on this platform. The council remains available as text.");
+      const audio = pcmSpeech(wav);
+      const file2 = join12(dir2, "sentence.wav");
+      await writeFile4(file2, wav, { signal });
+      if (signal.aborted) return;
+      await new Promise((resolve11, reject) => {
+        const child = execFile10("paplay", [file2], { signal, timeout: Math.ceil(audio.duration) + 1e4 }, (error) => {
+          if (error) reject(new Error(signal.aborted ? "Reading cancelled" : "Platform audio playback failed. Check paplay and the audio output."));
+          else resolve11();
+        });
+        child.once("spawn", () => {
+          playing(audio);
+        });
+      });
+    } finally {
+      await rm4(dir2, { recursive: true, force: true });
+    }
+  }
+};
+function speechSentences(text22) {
+  return text22.match(/[^.!?]+[.!?]+(?:["']|$)?|[^.!?]+$/g)?.map((s2) => s2.trim()).filter(Boolean) ?? [];
 }
 
 // ../glide/frontend/councilPopup.ts
@@ -76163,6 +76729,9 @@ var APP3 = "glide";
 var TICK_MS5 = 110;
 var CONVENE_ID = 1;
 var CLOSE_ID2 = 2;
+var READ_ID = 3;
+var MUTE_ID = 4;
+var RETURN_ID = 5;
 var realClock = {
   now: () => performance.now(),
   every: (tick2, ms2) => {
@@ -76193,7 +76762,7 @@ async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get = fetch) {
   }
 }
 var STANCE = { agree: { label: "AGREE", color: NIGHT.agree }, dissent: { label: "DISSENT", color: NIGHT.danger }, abstain: { label: "ABSTAIN", color: NIGHT.text3 } };
-function councilCard(src, frame2, size = 480, sideHeader = false) {
+function councilCard(src, frame2, size = 480, sideHeader = false, reading = {}) {
   let next2 = 10;
   const text22 = (value) => ({ t: "text", text: value });
   const el = (tag3, style2, kids2, opts = {}) => ({
@@ -76207,11 +76776,12 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
     kids: kids2
   });
   const svg4 = (markup, w, style2 = "") => ({ t: "svg", svg: markup, w, h: w, cls: "", style: style2 });
-  const micro = `font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${NIGHT.text3}`;
+  const micro = `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${NIGHT.text3}`;
   const { run: run8 } = src;
-  const done = frame2.t !== null && frame2.t >= schedule(run8).total;
+  const exchange = exchangeAt(run8, frame2.t, reading.reduceMotion);
+  const done = exchange.phase === "done";
   const playing = frame2.t !== null && !done;
-  const shown3 = closedSeats(run8, frame2);
+  const shown3 = closedSeats(run8, exchange.frame);
   const agree = run8.verdicts.filter((v) => v.stance === "agree").length;
   const dissent = run8.verdicts.filter((v) => v.stance === "dissent").length;
   const abstain = run8.verdicts.filter((v) => v.stance === "abstain").length;
@@ -76220,14 +76790,15 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
       el("span", micro, [text22("COUNCIL \xB7 GLIDE \xB7 SOCRATIC")]),
       el(
         "span",
-        `font-family:${MONO};font-size:10px;letter-spacing:.16em;padding:2px 8px;border-radius:999px;` + (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
+        `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};padding:2px 8px;border-radius:999px;` + (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
         [text22(src.live ? `LIVE \xB7 ${src.from.toUpperCase()}` : "DEMO")],
         { attrs: { "data-council-source": src.live ? "live" : "demo" } }
       )
     ]),
     el("h3", `margin:0;font-family:${SERIF};font-weight:500;font-size:${sideHeader ? "24px;line-height:28px" : "30px;line-height:34px"};color:${NIGHT.text}`, [text22("Socratic council")]),
     el("span", `${micro};margin-top:6px`, [text22("THE BRIEF")]),
-    el("p", `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:13px;line-height:20px;color:${NIGHT.text}`, [text22(run8.brief)])
+    el("p", `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:13px;line-height:20px;color:${NIGHT.text};min-height:40px`, [text22(exchange.brief || " ")], { attrs: { "data-council-brief": exchange.phase } }),
+    ...exchange.constraints.map((constraint) => el("p", `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text22(`\xB7 ${constraint}`)]))
   ]);
   const carried = agree > dissent;
   const verdictBox = el("div", `padding:12px 14px;border-radius:12px;border:1px solid ${done ? carried ? "rgba(152,207,139,0.45)" : "rgba(227,127,101,0.45)" : NIGHT.border};background-color:rgba(28,28,24,0.55)`, [
@@ -76240,18 +76811,25 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
   const seats = el("div", sideHeader ? "display:flex;flex-wrap:wrap;gap:6px" : "display:flex;flex-direction:column;gap:2px", run8.seats.map((seat, i) => {
     const v = run8.verdicts.find((x) => x.seat === i);
     const open5 = v !== void 0 && shown3.has(i);
-    const stance = open5 ? [el("span", `${sideHeader ? "" : "margin-left:auto;"}font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${STANCE[v.stance].color}`, [text22(STANCE[v.stance].label)], { attrs: { "data-council-stance": v.stance } })] : [];
-    if (sideHeader) return el("div", `display:flex;gap:6px;align-items:center;padding:3px 10px 3px 4px;border-radius:999px;border:1px solid ${NIGHT.border}`, [
-      svg4(swatchSvg(seat.mineral, 16), 16, "flex:none"),
+    const state = exchange.seats[i];
+    const received = state?.received ?? false;
+    const stateText = `${received ? "RECEIVED \xB7 " : ""}${state?.state.toUpperCase() ?? "WAITING"}`;
+    const ink3 = received ? MINERAL[seat.mineral].base : NIGHT.text3;
+    const pulse = reading.reduceMotion || state?.state === "done" || state?.state === "waiting" ? 1 : 0.7 + 0.3 * Math.sin(exchange.elapsed / 220 + i) ** 2;
+    const stance = open5 ? [el("span", `${sideHeader ? "" : "margin-left:auto;"}font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${STANCE[v.stance].color}`, [text22(STANCE[v.stance].label)], { attrs: { "data-council-stance": v.stance } })] : [];
+    if (sideHeader) return el("div", `display:flex;gap:6px;align-items:center;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid ${received ? ink3 : NIGHT.border}`, [
+      svg4(state?.state === "thinking" || state?.state === "drafting" ? councilOrbSvg(exchange.elapsed / 1e3, pulse, Boolean(reading.reduceMotion), MINERAL[seat.mineral].base).replace('width="320" height="320"', 'width="16" height="16"') : swatchSvg(seat.mineral, 16), 16, `flex:none;opacity:${pulse.toFixed(2)}`),
       el("span", `font-family:${SERIF};font-size:15px;color:${NIGHT.text}`, [text22(seat.name)]),
-      ...open5 ? stance : [el("span", `font-size:12px;color:${NIGHT.text3}`, [text22(v ? "\u2026" : "\u2014")])]
-    ]);
+      el("span", `font-family:${MONO};font-size:11px;color:${ink3}`, [text22(stateText)]),
+      ...stance
+    ], { attrs: { "data-council-seat": seat.id, "data-council-state": state?.state ?? "waiting", "data-council-received": String(received) } });
     return el("div", `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
       svg4(swatchSvg(seat.mineral, 30), 30, "flex:none"),
       el("div", "display:flex;flex-direction:column;gap:2px;flex:1;min-width:0", [
         el("div", "display:flex;align-items:baseline;gap:8px", [
           el("span", `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text22(seat.name)]),
           el("span", micro, [text22(`${MINERAL[seat.mineral].label.toUpperCase()} \xB7 ${seat.family.toUpperCase()}`)]),
+          el("span", `font-family:${MONO};font-size:11px;color:${ink3}`, [text22(stateText)]),
           ...stance
         ]),
         el("span", `font-size:13px;line-height:18px;color:${open5 ? NIGHT.text2 : NIGHT.text3}`, [text22(open5 ? v.text : v ? "\u2026" : "no verdict recorded")])
@@ -76262,46 +76840,149 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
     "button",
     gold ? `flex:1;padding:11px 16px;border-radius:12px;border:1px solid ${GOLD.rim};border-bottom-color:${GOLD.shade};background-color:${GOLD.fill}` : `padding:11px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el("span", gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text22(label)])],
-    { id: id3, attrs: { "data-eui-action": id3 === CONVENE_ID ? "convene" : "close" } }
+    { id: id3, attrs: { "data-eui-action": id3 === CONVENE_ID ? "convene" : id3 === READ_ID ? "read-aloud" : id3 === MUTE_ID ? "mute" : "close", ...id3 === READ_ID || id3 === MUTE_ID ? { "aria-pressed": String(id3 === READ_ID ? Boolean(reading.readAloud) : Boolean(reading.muted)) } : {}, ...id3 === CONVENE_ID && playing ? { disabled: "true" } : {} } }
   );
   const convene = playing ? "Convening\u2026" : frame2.t === null ? "Convene council  \u2192" : "Replay the council  \u2192";
-  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:16px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text}`, [
+  return el("div", "", [el("section", `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:16px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${reading.opacity ?? 1}`, [
     ...sideHeader ? [] : [header],
     el("div", "display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start", [
-      el("div", `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg4(instrumentSvg(run8, frame2, size), size, "max-width:100%;height:auto")]),
+      el("div", `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg4(instrumentSvg(run8, exchange.frame, size, { reduce: reading.reduceMotion, clean: true }).replace("</svg>", `${deliverySvg(run8, exchange, size)}</svg>`), size, "max-width:100%;height:auto")]),
       el("div", `flex:1 1 280px;display:flex;flex-direction:column;gap:${sideHeader ? 8 : 12}px;min-width:0`, [
         ...sideHeader ? [header] : [],
         verdictBox,
-        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:15px;line-height:20px;color:${NIGHT.text2}`, [text22(narration(run8, frame2))]),
+        el("p", `margin:0;font-family:${SERIF};font-style:italic;font-size:15px;line-height:20px;color:${NIGHT.text2}`, [text22(exchange.phase === "brief" ? "Writing the brief\u2026" : exchange.phase === "sending" ? "Sending the brief to each seat\u2026" : narration(run8, exchange.frame))]),
         el("div", "display:flex;gap:8px", [button3(CONVENE_ID, convene, true), button3(CLOSE_ID2, "Close", false)]),
-        seats
+        el("div", "display:flex;gap:8px;align-items:center", [button3(READ_ID, reading.readAloud ? "Read aloud: on" : "Read aloud", false), button3(MUTE_ID, reading.muted ? "Unmute" : "Mute", false)]),
+        ...reading.voiceStatus ? [el("p", `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text22(reading.voiceStatus)], { attrs: { role: "status" } })] : [],
+        seats,
+        ...exchange.clauses.length ? [el("div", `display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;padding:12px;border-top:1px solid ${NIGHT.borderStrong}`, exchange.clauses.map((clause) => el("div", "display:flex;flex-direction:column;gap:3px", [
+          el("span", `${micro};color:${NIGHT.strong}`, [text22(clause.label.toUpperCase())]),
+          el("p", `margin:0;font-size:13px;line-height:19px;color:${NIGHT.text2}`, [text22(clause.text)])
+        ])), { attrs: { "data-council-report": exchange.phase, "aria-live": "polite" } })] : []
       ])
     ]),
     // The popup's title already says live or demo; a short pane has no row to spare for the provenance line.
-    ...sideHeader ? [] : [el("span", `font-family:${MONO};font-size:10px;color:${NIGHT.text3};text-align:center`, [text22(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])]
+    ...sideHeader ? [] : [el("span", `font-family:${MONO};font-size:11px;color:${NIGHT.text3};text-align:center`, [text22(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])]
   ])]);
 }
-function openCouncilPopup(host2, src, clock5 = realClock) {
+function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
   const eui = host2.eui;
   if (!eui) {
     host2.transcript.notice("/council needs a pane with ephemeral-ui cards", "warning");
     return void 0;
   }
-  const total = schedule(src.run).total;
+  const reduceMotion = options.reduceMotion ?? host2.tern?.caps.reduceMotion ?? false;
+  const timing = exchangeTiming(src.run, reduceMotion);
+  const speech2 = options.speech ?? platformSpeech;
   let start = null;
   let stop3;
-  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock5.now() - start) });
+  let readAloud = false;
+  let muted = false;
+  let closed = false;
+  let briefRead = false;
+  let reportRead = false;
+  let controller;
+  let held;
+  let speaking;
+  let voiceStatus = "";
+  let voiceView = false;
+  let viewAt = clock5.now();
+  const elapsed2 = () => start === null ? null : held?.elapsed ?? Math.min(timing.total, clock5.now() - start);
   const halt = () => {
     stop3?.();
     stop3 = void 0;
   };
+  const release = () => {
+    if (held && start !== null) start += clock5.now() - held.since;
+    held = void 0;
+  };
+  const returnToCard = () => {
+    controller?.abort();
+    controller = void 0;
+    speaking = void 0;
+    voiceStatus = "";
+    release();
+    host2.changed();
+  };
+  const read = (text22) => {
+    returnToCard();
+    const current = new AbortController();
+    controller = current;
+    held = { elapsed: elapsed2() ?? 0, since: clock5.now() };
+    voiceStatus = "Preparing local speech\u2026";
+    void (async () => {
+      try {
+        for (const caption of speechSentences(text22)) {
+          if (current.signal.aborted) break;
+          await speech2.speak(caption, current.signal, (audio) => {
+            if (closed || current.signal.aborted || controller !== current) return;
+            speaking = { caption, audio, at: clock5.now() };
+            voiceStatus = "";
+            host2.changed();
+          });
+        }
+      } catch (error) {
+        if (!closed && !current.signal.aborted && controller === current) {
+          voiceStatus = error instanceof Error ? error.message : "Read aloud failed. The council remains available as text.";
+          readAloud = false;
+          host2.transcript.notice(voiceStatus, "warning");
+        }
+      } finally {
+        if (controller === current) {
+          controller = void 0;
+          speaking = void 0;
+          release();
+          host2.changed();
+        }
+      }
+    })();
+  };
+  const tick2 = () => {
+    const t = elapsed2();
+    if (readAloud && !muted && !controller && t !== null) {
+      if (!briefRead && t >= timing.typing && t < timing.working) {
+        briefRead = true;
+        read([src.run.brief, ...src.run.constraints ?? []].join(" "));
+      } else if (!reportRead && t >= timing.total) {
+        reportRead = true;
+        read(reportClauses(src.run).map((c) => `${c.label}. ${c.text}`).join(" "));
+      }
+    }
+    if (t !== null && t >= timing.total && !controller && clock5.now() - viewAt >= 180) halt();
+    host2.changed();
+  };
+  const animate = () => {
+    if (!stop3) stop3 = clock5.every(tick2, TICK_MS5);
+  };
   const convene = () => {
+    returnToCard();
     halt();
+    briefRead = false;
+    reportRead = false;
     start = clock5.now();
-    stop3 = clock5.every(() => {
-      if (clock5.now() - (start ?? 0) >= total) halt();
-      host2.changed();
-    }, TICK_MS5);
+    animate();
+    if (reduceMotion && readAloud && !muted) {
+      briefRead = true;
+      read([src.run.brief, ...src.run.constraints ?? []].join(" "));
+    }
+    host2.changed();
+  };
+  const activate = (n4) => {
+    if (n4 === RETURN_ID) returnToCard();
+    else if (n4 === CONVENE_ID && !stop3) convene();
+    else if (n4 === CLOSE_ID2) host2.close(overlay2);
+    else if (n4 === MUTE_ID) {
+      muted = !muted;
+      if (muted) returnToCard();
+    } else if (n4 === READ_ID) {
+      readAloud = !readAloud;
+      if (!readAloud) returnToCard();
+      else if (start !== null) {
+        reportRead = false;
+        animate();
+        tick2();
+      }
+    }
     host2.changed();
   };
   const overlay2 = {
@@ -76309,29 +76990,47 @@ function openCouncilPopup(host2, src, clock5 = realClock) {
     modal: true,
     focus: () => null,
     node: (id3) => {
-      const f2 = frame2();
+      const voice = speaking;
+      if (voiceView !== Boolean(voice)) {
+        voiceView = Boolean(voice);
+        viewAt = clock5.now();
+      }
+      const opacity = reduceMotion ? 1 : Math.min(1, 0.45 + (clock5.now() - viewAt) / 180 * 0.55);
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
         label: "Socratic council",
         identity: "council",
-        node: councilCard(src, f2, 320, true),
-        activate: (n4) => {
-          if (n4 === CONVENE_ID && !stop3) convene();
-          else if (n4 === CLOSE_ID2) host2.close(overlay2);
-        }
+        node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock5.now() - voice.at) / 1e3, voice.audio.level(clock5.now() - voice.at), reduceMotion), reduceMotion, opacity) : councilCard(src, { t: elapsed2() }, 320, true, { readAloud, muted, reduceMotion, voiceStatus, opacity }),
+        activate
       };
-      return euiPopupNode(nativeOverlayKey(id3), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui);
+      return euiPopupNode(nativeOverlayKey(id3), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui, voice ? "full" : "lg");
     },
     onKey: (key3) => {
-      if (key3.name === "escape") host2.close(overlay2);
+      if (controller) returnToCard();
+      else if (key3.name === "escape") host2.close(overlay2);
+      else if (key3.name === "m") activate(MUTE_ID);
+      else if (key3.name === "r") activate(READ_ID);
       else if ((key3.name === "enter" || key3.name === "space") && !stop3) convene();
       return true;
     },
-    onClose: halt
+    onClose: () => {
+      closed = true;
+      halt();
+      returnToCard();
+    }
   };
   host2.open(overlay2);
   return overlay2;
+}
+function councilSpeakingCard(caption, orb, reduce, opacity) {
+  const text22 = (value) => ({ t: "text", text: value });
+  const el = (id3, tag3, style2, kids2, attrs = {}, click = false) => ({ t: "el", id: id3, tag: tag3, cls: "", style: style2, kids: kids2, attrs, click });
+  return el(20, "div", "", [el(RETURN_ID, "section", `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [
+    { t: "svg", svg: orb, w: 320, h: 320, cls: "", style: "max-width:100%;height:auto" },
+    el(21, "p", `margin:0;font-size:${TYPE.name}px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text22(caption)], { "data-council-caption": "", "aria-live": "polite" }),
+    el(RETURN_ID, "button", `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text22("Return to card \xB7 any key")], { "data-eui-action": "return-to-card" }, true)
+  ], { "data-council-speaking": "", "data-reduced-motion": String(reduce), role: "button", "aria-label": "Return to council card" }, true)]);
 }
 function publishCouncilCard(host2, src, clock5) {
   const cards = host2.eui?.host;
@@ -76600,8 +77299,8 @@ function decodeEuiKit(raw2) {
   if (!text22 || Buffer.byteLength(text22) > 1024 * 1024) throw new TypeError("Invalid kit document size");
   const parsed2 = kitDoc.safeParse(JSON.parse(text22));
   if (!parsed2.success) throw new TypeError("Invalid kit document");
-  const { title, ...fields } = parsed2.data;
-  const doc = title === void 0 ? fields : { ...fields, title };
+  const { title: title2, ...fields } = parsed2.data;
+  const doc = title2 === void 0 ? fields : { ...fields, title: title2 };
   freeze(doc);
   return doc;
 }
@@ -76843,7 +77542,7 @@ function hosts2(doc, tab3) {
     { label: "Need you", value: String(blocked2), tone: blocked2 ? "warning" : "success" },
     { label: "Pods", value: String(pods.length) }
   ] });
-  const rows = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
+  const rows2 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
     const [badge, tone2] = AGENT_STATE[a2.state] ?? [a2.state, "neutral"];
     const resumable = g.kind.toLowerCase() === "hermes" && !a2.id.startsWith("process:") && !/^\d+$/.test(a2.id);
     const reachable = h2.online && a2.state !== "offline";
@@ -76860,7 +77559,7 @@ function hosts2(doc, tab3) {
     };
   })));
   const bare = list10.filter((h2) => !h2.harnesses.some((g) => g.agents.length)).map((h2) => h2.online ? h2.label : `${h2.label} (offline)`);
-  slots["hosts.agents"] = slot("List", { items: rows, numbered: false });
+  slots["hosts.agents"] = slot("List", { items: rows2, numbered: false });
   slots["hosts.quiet"] = slot("Text", { body: bare.length ? `No agents reported: ${bare.join(", ")}` : "Every host reports agents.", tone: "muted" });
   const GAUGES = ["cpu", "mem", "disk", "gpu"];
   slots["hosts.machines"] = slot("Table", {
@@ -76955,12 +77654,12 @@ function factorySpine(nodes, edges, W = 920) {
   const used = [0, 1, 2, 3].filter((c) => nodes.some((n4) => col(n4) === c));
   const slotOf = (c) => Math.max(0, used.indexOf(c));
   const colW = (W - 16) / Math.max(1, used.length), rowH = 38, top = 24, pw = Math.min(190, colW - 28);
-  const rows = Math.max(1, ...used.map((c) => nodes.filter((n4) => col(n4) === c).length));
-  const H2 = top + rows * rowH + 4;
+  const rows2 = Math.max(1, ...used.map((c) => nodes.filter((n4) => col(n4) === c).length));
+  const H2 = top + rows2 * rowH + 4;
   const pos = /* @__PURE__ */ new Map();
   for (const c of used) {
     const here = nodes.filter((n4) => col(n4) === c);
-    const y0 = top + (rows - here.length) * rowH / 2 + rowH / 2;
+    const y0 = top + (rows2 - here.length) * rowH / 2 + rowH / 2;
     here.forEach((n4, i) => pos.set(n4.id, { x: 8 + colW * slotOf(c) + colW / 2, y: y0 + i * rowH }));
   }
   const heads = used.map((c) => `<text x="${8 + colW * slotOf(c) + colW / 2}" y="12" text-anchor="middle" font-size="10" letter-spacing="1" fill="var(--muted)" font-family="monospace">${(COLS[c] ?? "").toUpperCase()} \xB7 ${nodes.filter((n4) => col(n4) === c).length}</text>`);
@@ -77500,7 +78199,7 @@ async function intelCommand(host2, arg) {
         const action = decodeIntelIntent(detail);
         let command2;
         let entity;
-        let title;
+        let title2;
         let showDetail = (text22) => text22;
         switch (action.action) {
           case "tab":
@@ -77514,7 +78213,7 @@ async function intelCommand(host2, arg) {
             if (!row2) throw new Error("Climb unavailable in this snapshot");
             command2 = "climb";
             entity = row2.id;
-            title = intelReadableTitle(row2.label);
+            title2 = intelReadableTitle(row2.label);
             showDetail = (text22) => intelDetailBody("climb", text22, row2);
             break;
           }
@@ -77524,7 +78223,7 @@ async function intelCommand(host2, arg) {
             if (!row2) throw new Error("Skill unavailable in this snapshot");
             command2 = "skill";
             entity = row2.skill;
-            title = intelReadableTitle(row2.skill);
+            title2 = intelReadableTitle(row2.skill);
             showDetail = (text22) => intelDetailBody("skill", text22, row2);
             break;
           }
@@ -77534,7 +78233,7 @@ async function intelCommand(host2, arg) {
             if (!row2) throw new Error("Failure unavailable in this snapshot");
             command2 = "failure";
             entity = row2.sig;
-            title = presentation.card.data.failures.find((f2) => f2.sig === action.entities.sig)?.sig ?? "Failure details";
+            title2 = presentation.card.data.failures.find((f2) => f2.sig === action.entities.sig)?.sig ?? "Failure details";
             showDetail = (text22) => intelDetailBody("failure", text22, row2);
             break;
           }
@@ -77544,7 +78243,7 @@ async function intelCommand(host2, arg) {
           }
         }
         const reply2 = await request(`${command2} ${intelEntity(entity)}`);
-        if (active2(context)) host2.control().panel(title, showDetail(intelText(reply2)));
+        if (active2(context)) host2.control().panel(title2, showDetail(intelText(reply2)));
       } catch (error) {
         if (active2(context)) host2.transcript.notice(`Intel action: ${error instanceof Error ? error.message : String(error)}`, "warning");
       }
@@ -77567,12 +78266,12 @@ async function intelCommand(host2, arg) {
 
 // src/commands/refused.ts
 var words2 = (arg) => arg.trim().split(/\s+/).filter(Boolean);
-async function cliPanel(host2, title, argv) {
+async function cliPanel(host2, title2, argv) {
   const r = await rpc(host2.gw, "cli.exec", { argv });
   if (r?.blocked) {
     return host2.transcript.notice(r.hint || `\`hermes ${argv.join(" ")}\` cannot run here.`, "warning");
   }
-  host2.transcript.panel(title, r?.output?.trim() || "(no output)");
+  host2.transcript.panel(title2, r?.output?.trim() || "(no output)");
   if (r?.code) {
     host2.transcript.notice(`\`hermes ${argv.join(" ")}\` exited with code ${r.code}.`, "warning");
   }
@@ -77607,9 +78306,9 @@ ${done}` : done, r?.connected ? "info" : "warning");
   }
   note(r?.connected ? `Browser connected: ${r.url || "(url unavailable)"}` : "Browser not connected (set browser.cdp_url in config.yaml to attach one).");
 }
-function pluginLines(rows) {
+function pluginLines(rows2) {
   const mark2 = (status = "") => status === "enabled" ? "\u2713" : status === "disabled" ? "\u2717" : "\xB7";
-  return rows.map((p3) => {
+  return rows2.map((p3) => {
     const facts2 = [p3.version, p3.source, p3.status === "enabled" || p3.status === "disabled" ? "" : p3.status].filter(Boolean).join(", ");
     return `- ${mark2(p3.status)} **${p3.name}**${facts2 ? ` (${facts2})` : ""}${p3.description ? ` \u2014 ${p3.description}` : ""}`;
   });
@@ -77623,11 +78322,11 @@ async function plugins(host2, arg) {
     );
   }
   const r = await rpc(host2.gw, "plugins.manage", { action: "list" });
-  const rows = r?.plugins ?? [];
-  const user = rows.filter((p3) => p3.source !== "bundled");
-  const shown3 = sub === "all" || !user.length ? rows : user;
-  const hidden2 = rows.length - shown3.length;
-  if (!rows.length) {
+  const rows2 = r?.plugins ?? [];
+  const user = rows2.filter((p3) => p3.source !== "bundled");
+  const shown3 = sub === "all" || !user.length ? rows2 : user;
+  const hidden2 = rows2.length - shown3.length;
+  if (!rows2.length) {
     return host2.transcript.notice("No plugins installed.");
   }
   host2.transcript.panel(
@@ -77811,7 +78510,7 @@ async function rewind(host2, intent5, arg = "") {
 }
 function compressReport(summary4) {
   const head2 = summary4?.headline ? `${summary4.noop ? "" : "\u2713 "}${summary4.headline}` : "\u2713 Transcript compressed.";
-  return [head2, ...[summary4?.token_line, summary4?.note].filter(Boolean).map((line) => `  ${line}`)].join("\n");
+  return [head2, ...[summary4?.token_line, summary4?.note].filter(Boolean).map((line2) => `  ${line2}`)].join("\n");
 }
 async function compress(host2, arg) {
   if (!host2.sid) {
@@ -77847,8 +78546,8 @@ async function compress(host2, arg) {
   const num8 = (v) => typeof v === "number" && v > 0 ? v : void 0;
   const kept = result.status === "noop" || result.status === "aborted" || Boolean(summary4?.noop || summary4?.aborted || summary4?.refused_would_grow);
   if (result.status !== "pending") {
-    const line = lineTokens(summary4?.token_line ?? "");
-    host2.compressing(kept ? "none" : { after: num8(result["after_tokens"]) ?? line.after, before: num8(result["before_tokens"]) ?? line.before });
+    const line2 = lineTokens(summary4?.token_line ?? "");
+    host2.compressing(kept ? "none" : { after: num8(result["after_tokens"]) ?? line2.after, before: num8(result["before_tokens"]) ?? line2.before });
   }
   if (result.status !== "noop") {
     await host2.reload();
@@ -77864,8 +78563,8 @@ async function branch(host2, arg) {
   if (!host2.sid) {
     return host2.notice("No active session.", "warning");
   }
-  const title = arg.trim();
-  const result = await mutateSession(host2.gw, host2.sid, "branch", title ? { title } : {});
+  const title2 = arg.trim();
+  const result = await mutateSession(host2.gw, host2.sid, "branch", title2 ? { title: title2 } : {});
   const child = result.branched_session_id;
   if (typeof child !== "string" || !child) {
     throw new Error("the gateway did not name the branch");
@@ -77874,7 +78573,7 @@ async function branch(host2, arg) {
     return;
   }
   const info = await rpc(host2.gw, "session.info", { session_id: child }).catch(() => null);
-  host2.notice(`Branched \u2192 ${info?.title?.trim() || title || child}`);
+  host2.notice(`Branched \u2192 ${info?.title?.trim() || title2 || child}`);
 }
 async function save(host2) {
   if (!host2.sid) {
@@ -78247,7 +78946,7 @@ var COMMANDS3 = [
     run: (host2) => openBranchTree(host2)
   },
   {
-    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | lanes | theme auto|dash|default|export | glass demo]",
+    help: "Onboard to local intelligence: this machine, z0, and a local corrections memory [off | recall <words> | taste | studio [project-id] | lanes | theme auto|dash|default|export | glass demo]",
     name: "glide",
     run: (host2, arg) => arg.trim() === "lanes" ? glideLanes(host2) : glideCommand(host2, arg)
   },
@@ -78553,11 +79252,11 @@ function effectiveShortcuts(raw2) {
 function shortcutGroups(actions = APP_SHORTCUTS) {
   const groups = /* @__PURE__ */ new Map();
   for (const action of actions) {
-    const rows = groups.get(action.group) ?? [];
-    rows.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
-    groups.set(action.group, rows);
+    const rows2 = groups.get(action.group) ?? [];
+    rows2.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
+    groups.set(action.group, rows2);
   }
-  return [...groups].map(([group, rows]) => ({ group, rows }));
+  return [...groups].map(([group, rows2]) => ({ group, rows: rows2 }));
 }
 
 // src/overlays/help.tsx
@@ -78621,29 +79320,29 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
   ];
   const sections2 = /* @__PURE__ */ new Map();
   for (const section of [...HOTKEYS, ...shortcutGroups(actions)]) {
-    const rows = sections2.get(section.group) ?? [];
-    for (const [keys3, title] of section.rows) {
-      if (!rows.some(([prior, label]) => label === title && prior.join(" ") === keys3.join(" "))) {
-        rows.push([[...keys3], title]);
+    const rows2 = sections2.get(section.group) ?? [];
+    for (const [keys3, title2] of section.rows) {
+      if (!rows2.some(([prior, label]) => label === title2 && prior.join(" ") === keys3.join(" "))) {
+        rows2.push([[...keys3], title2]);
       }
     }
-    sections2.set(section.group, rows);
+    sections2.set(section.group, rows2);
   }
   const commandGroups = /* @__PURE__ */ new Map();
   for (const category of categories) {
-    const rows = commandGroups.get(category.name) ?? [];
+    const rows2 = commandGroups.get(category.name) ?? [];
     for (const pair3 of category.pairs) {
-      if (!rows.some(([command2]) => command2 === pair3[0])) {
-        rows.push([...pair3]);
+      if (!rows2.some(([command2]) => command2 === pair3[0])) {
+        rows2.push([...pair3]);
       }
     }
-    commandGroups.set(category.name, rows);
+    commandGroups.set(category.name, rows2);
   }
   const overlay2 = {
     key: KEY12,
     modal: true,
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Commands and shortcuts", modal: true, role: "omp.overlay.hotkeys", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "lg", children: [
-      [...sections2].map(([group, rows]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
+      [...sections2].map(([group, rows2]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
         "table",
         {
           cols: [
@@ -78651,7 +79350,7 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
             { grow: 1, head: "Action", id: "action" }
           ],
           role: "omp.hotkeys.table",
-          rows: rows.map(([keys3, action], i) => ({
+          rows: rows2.map(([keys3, action], i) => ({
             cells: {
               action: [{ t: action }],
               keys: keys3.flatMap((k, j) => [...j ? [{ s: "dim", t: " " }] : [], { s: "key", t: k }])
@@ -78694,22 +79393,22 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join13 } from "node:path";
+import { join as join14 } from "node:path";
 
 // src/config/dataDir.ts
 import { homedir as homedir9 } from "node:os";
-import { join as join12 } from "node:path";
-var dataDir = (env2 = process.env) => join12(env2["HERMES_HOME"] || join12(homedir9(), ".hermes"), "plugin-data", "glide");
+import { join as join13 } from "node:path";
+var dataDir = (env2 = process.env) => join13(env2["HERMES_HOME"] || join13(homedir9(), ".hermes"), "plugin-data", "glide");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join13(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join14(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join13(dir2, "panes"), { recursive: true });
+    mkdirSync4(join14(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -78727,9 +79426,9 @@ function forgetPane(launch3, dir2 = dataDir()) {
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
 import { homedir as homedir10 } from "node:os";
-import { dirname as dirname6, join as join14 } from "node:path";
+import { dirname as dirname6, join as join15 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "glide", "settings.json");
+  return join15(env2["HERMES_HOME"] || join15(homedir10(), ".hermes"), "glide", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
@@ -78872,9 +79571,9 @@ var SurfaceLifecycle = class {
   #stalled = false;
   #skippedSheets = /* @__PURE__ */ new Set();
   #watchdog;
-  constructor(tern, title, host2) {
+  constructor(tern, title2, host2) {
     this.#tern = tern;
-    this.#title = title;
+    this.#title = title2;
     this.#host = host2;
     this.#surface = this.#open();
   }
@@ -79038,7 +79737,7 @@ var SurfaceLifecycle = class {
 // src/eui/cards.ts
 import { createHash as createHash5 } from "node:crypto";
 import { readFileSync as readFileSync8 } from "node:fs";
-import { dirname as dirname7, join as join16, resolve as resolve8 } from "node:path";
+import { dirname as dirname7, join as join17, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -79060,8 +79759,8 @@ function decodeEuiCard(body, kinds) {
   if (!kinds.includes(parsed2.data.kind)) {
     return { error: `unknown kind ${parsed2.data.kind}` };
   }
-  const { kind, app: app2, title } = parsed2.data;
-  return title === void 0 ? { kind, app: app2 } : { kind, app: app2, title };
+  const { kind, app: app2, title: title2 } = parsed2.data;
+  return title2 === void 0 ? { kind, app: app2 } : { kind, app: app2, title: title2 };
 }
 
 // ../glide/frontend/intentCards.ts
@@ -79087,8 +79786,8 @@ function waveSvg(words3) {
   }).join("");
   return { t: "svg", w, h: h2, cls: "ih-wave", style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}"><g fill="var(--h-primary)" opacity="0.55">${rects}</g></svg>` };
 }
-function clauseRuns(ask, rows) {
-  const hits = rows.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
+function clauseRuns(ask, rows2) {
+  const hits = rows2.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
   const runs3 = [];
   let at2 = 0;
   for (const x of hits) {
@@ -79129,8 +79828,8 @@ function contract(d, el) {
   const ok3 = crit.filter((r) => evidenced(r.value)).length;
   const sample = one6(d, "sample");
   const synthetic = (panel) => sample.split(",").map((s2) => s2.trim()).includes(panel);
-  const head2 = (title, note, panel) => el("div", [
-    el("b", [text18(title)], "ih-h"),
+  const head2 = (title2, note, panel) => el("div", [
+    el("b", [text18(title2)], "ih-h"),
     el("span", [text18(note)], "ih-hnote"),
     ...panel && synthetic(panel) ? [el("span", [text18("sample data")], "ih-sample")] : []
   ], "ih-head");
@@ -79454,10 +80153,10 @@ function fleetFit(kind) {
       } : g);
     }
     for (const [list10, row2, cap2] of fit.caps) if (is3(n4, list10) && !opened.has(MORE2 + ":" + n4.id)) {
-      const rows = els(kids2, row2);
-      const kept = rows.filter((k) => picked.has(k.id) || marks2 !== "" && has(k, marks2));
+      const rows2 = els(kids2, row2);
+      const kept = rows2.filter((k) => picked.has(k.id) || marks2 !== "" && has(k, marks2));
       let room = cap2 - kept.length;
-      const hidden2 = rows.filter((k) => !kept.includes(k) && room-- <= 0);
+      const hidden2 = rows2.filter((k) => !kept.includes(k) && room-- <= 0);
       if (!hidden2.length) continue;
       const last = kids2.findLastIndex((k) => is3(k, row2));
       const more = el("button", "fl-tag fl-more", control(n4.id, MORE2), { type: "button" }, [{ t: "text", text: hidden2.length + " more" }]);
@@ -79613,8 +80312,8 @@ var EuiHostCards = class {
     if (this.#closed || this.#revoking || !port || !owner2 || !owner2.sessionId || owner2.signal.aborted || !owner2.isCurrent() || !port.active()) throw new Error("Host card needs an active session");
     this.sync();
     if (owner2.signal.aborted || !owner2.isCurrent() || !port.active()) throw new Error("Host card owner changed");
-    const title = content5.data.title ?? content5.data.kind;
-    const entry = port.append(title);
+    const title2 = content5.data.title ?? content5.data.kind;
+    const entry = port.append(title2);
     if (this.#closed || owner2.signal.aborted || !owner2.isCurrent() || !port.contains(entry) || !port.active()) {
       throw new Error("Host card owner changed while publishing");
     }
@@ -79640,7 +80339,7 @@ var EuiHostCards = class {
           throw new Error("Host card owner changed");
         }
         entry.title = content6.data.title ?? content6.data.kind;
-        slot2 = this.#install(entry, content6, owner3);
+        slot2 = this.#install(entry, content6, owner3, false);
         this.#changed(slot2.key);
       },
       revoke: () => {
@@ -79665,6 +80364,7 @@ var EuiHostCards = class {
         identity: "host-" + revision,
         node: null,
         ui: content5.data.ui,
+        entrance: slot2.entrance,
         ...content5.error === void 0 ? {} : { error: content5.error },
         send: (intent5) => {
           if (slot2.revision !== revision || !this.#current(slot2) || !this.#port?.active()) return;
@@ -79723,8 +80423,9 @@ var EuiHostCards = class {
   #kit(raw2, intent5, refresh2) {
     return { kind: "kit", data: decodeEuiKit(raw2), intent: intent5, refresh: refresh2, refreshing: false, accepting: false };
   }
-  #install(entry, content5, owner2) {
+  #install(entry, content5, owner2, entrance = true) {
     const slot2 = {
+      entrance,
       entry,
       key: "main." + entry.id + ".host",
       revision: ++this.#revision,
@@ -79862,7 +80563,7 @@ var EuiHostCards = class {
 
 // src/eui/sandbox.js
 import { existsSync as existsSync3, readFileSync as readFileSync7 } from "node:fs";
-import { join as join15 } from "node:path";
+import { join as join16 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -90390,9 +91091,9 @@ var HTMLDocument = class extends Document2 {
   }
   set title(textContent3) {
     const { head: head2 } = this;
-    let title = head2.getElementsByTagName("title").at(0);
-    if (title)
-      title.textContent = textContent3;
+    let title2 = head2.getElementsByTagName("title").at(0);
+    if (title2)
+      title2.textContent = textContent3;
     else {
       head2.insertBefore(
         this.createElement("title"),
@@ -90599,12 +91300,12 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE2 = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join15(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join15(dir2, "data", match[1] + ".json");
+  const file2 = join16(dir2, "data", match[1] + ".json");
   return existsSync3(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
@@ -90805,13 +91506,13 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync7(join15(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K2 = ctx.__EUI;
   await K2.loadApps();
-  const themes = JSON.parse(readFileSync7(join15(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
   K2.theme.themes = themes;
   K2.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join15(dir2, "kit.css");
+  const kitCss2 = join16(dir2, "kit.css");
   const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   K2.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
@@ -90983,7 +91684,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = (dir2 ? readFileSync8(join16(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
+  const kit = (dir2 ? readFileSync8(join17(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -91037,13 +91738,13 @@ function compactCss(css2) {
     }
     out = out.slice(0, at2) + out.slice(end + 1);
   }
-  return minifyCss(out.replaceAll("[data-eui='card']", "[data-eu]").replace(/container-type\s*:[^;}]*;?/g, ""));
+  return minifyCss(out.replaceAll("[data-eui='card']", ".eu").replace(/container-type\s*:[^;}]*;?/g, ""));
 }
 function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync8(join16(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join17(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -91178,6 +91879,8 @@ var EuiCards = class {
       this.#sink.stylesheet(KIT_SHEET, euiStyles());
       euiSheets.set(GLIDE_UI_SHEET, UI_CSS);
       this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS);
+      euiSheets.set(MOTION_SHEET, MOTION_CSS);
+      this.#sink.stylesheet(MOTION_SHEET, MOTION_CSS);
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false;
@@ -91261,7 +91964,7 @@ var SurfaceHost = class {
   #missing = /* @__PURE__ */ new Set();
   #focus = INPUT_ID;
   #palette;
-  constructor(tern, title, styles, events) {
+  constructor(tern, title2, styles, events) {
     const host2 = {
       changed: () => events.changed(),
       report: (message) => events.report(message),
@@ -91280,7 +91983,7 @@ var SurfaceHost = class {
         events.recovered(surface);
       }
     };
-    this.#life = new SurfaceLifecycle(tern, title, host2);
+    this.#life = new SurfaceLifecycle(tern, title2, host2);
     this.#track(this.raw);
     this.raw.stylesheet("glide", styles);
   }
@@ -91543,13 +92246,13 @@ function hermesTableChartPlanner(env2 = process.env) {
 
 // src/transcript/tableCharts.ts
 var NUMBER = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)%?$/;
-var cells = (line) => line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((s2) => s2.trim());
+var cells = (line2) => line2.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((s2) => s2.trim());
 function analyzeTable(source3) {
   if (source3.length > 8192 || /[\\`<>]/.test(source3) || [...source3].some((c) => c !== "\n" && c.charCodeAt(0) < 32)) {
     return;
   }
-  const rows = source3.trim().split("\n").map(cells);
-  const [header, delimiter, ...body] = rows;
+  const rows2 = source3.trim().split("\n").map(cells);
+  const [header, delimiter, ...body] = rows2;
   if (!header || header.length !== 2 || header.some((s2) => !s2) || !delimiter || delimiter.length !== 2 || !delimiter.every((s2) => /^:?-{3,}:?$/.test(s2)) || body.length < 2 || body.length > 24 || body.some((row2) => row2.length !== 2 || !row2[0] || NUMBER.test(row2[0]) || !NUMBER.test(row2[1] ?? ""))) {
     return;
   }
@@ -91570,16 +92273,16 @@ function tableSlices(markdown2) {
   let offset = 0;
   let fence = "";
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i] ?? "";
-    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    const line2 = lines[i] ?? "";
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line2)?.[1];
     if (marker) {
       if (!fence) {
         fence = marker;
       } else if (marker[0] === fence[0] && marker.length >= fence.length) {
         fence = "";
       }
-    } else if (!fence && /^ {0,3}\|/.test(line) && /^ {0,3}\|/.test(lines[i + 1] ?? "")) {
-      let source3 = line;
+    } else if (!fence && /^ {0,3}\|/.test(line2) && /^ {0,3}\|/.test(lines[i + 1] ?? "")) {
+      let source3 = line2;
       let end = i + 1;
       while (end < lines.length && /^ {0,3}\|/.test(lines[end] ?? "")) {
         source3 += lines[end] ?? "";
@@ -91593,7 +92296,7 @@ function tableSlices(markdown2) {
       i = end - 1;
       continue;
     }
-    offset += line.length;
+    offset += line2.length;
   }
   return result;
 }
@@ -91895,18 +92598,18 @@ function isPreformatted(text22) {
 }
 function hardBreaks(text22) {
   let fenced = false;
-  return text22.split("\n").map((line, i, all8) => {
-    if (/^\s*(```|~~~)/.test(line)) {
+  return text22.split("\n").map((line2, i, all8) => {
+    if (/^\s*(```|~~~)/.test(line2)) {
       fenced = !fenced;
-      return line;
+      return line2;
     }
     const next2 = all8[i + 1];
-    return fenced || !line.trim() || next2 === void 0 || !next2.trim() ? line : `${line}  `;
+    return fenced || !line2.trim() || next2 === void 0 || !next2.trim() ? line2 : `${line2}  `;
   }).join("\n");
 }
 
 // src/usage.ts
-var HEADER = /^\s*(?:[^\p{L}\p{N}*\s]\S*\s+)?\*\*(?<title>.+?)\*\*\s*(?<inline>.*)$/u;
+var HEADER2 = /^\s*(?:[^\p{L}\p{N}*\s]\S*\s+)?\*\*(?<title>.+?)\*\*\s*(?<inline>.*)$/u;
 var SUFFIX = { b: 1e9, k: 1e3, m: 1e6 };
 function parseCount(raw2) {
   const m2 = /^~?\s*(?<digits>[\d,]*\.?\d+)\s*(?<suffix>[kmb])?$/i.exec(raw2.trim());
@@ -91938,17 +92641,17 @@ function limits(inline) {
   }
   return out;
 }
-function pair2(line) {
-  const m2 = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line)?.groups;
+function pair2(line2) {
+  const m2 = /^\s*(?<key>[^:]{1,40}):\s+(?<value>.+?)\s*$/.exec(line2)?.groups;
   return m2 ? { key: m2["key"] ?? "", value: (m2["value"] ?? "").replace(/^`(.*)`$/, "$1") } : void 0;
 }
-function crumb(line) {
-  const m2 = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line)?.groups;
+function crumb(line2) {
+  const m2 = /^\s*[•\-*]\s*(?<label>.+?):\s*(?<tokens>~?[\d.,]+\s*[kmb]?)(?:\s*\(~?(?<pct>\d+(?:\.\d+)?)%\))?\s*$/i.exec(line2)?.groups;
   const tokens2 = m2 ? parseCount(m2["tokens"] ?? "") : NaN;
   return m2 && Number.isFinite(tokens2) ? { label: m2["label"] ?? "", pct: m2["pct"] ? Number(m2["pct"]) : void 0, tokens: tokens2 } : void 0;
 }
-function build2(title, inline, body) {
-  const name = title.replace(/:$/, "").trim();
+function build2(title2, inline, body) {
+  const name = title2.replace(/:$/, "").trim();
   const lower = name.toLowerCase();
   const lines = body.filter((l) => l.trim());
   if (lower.includes("rate limit")) {
@@ -91960,7 +92663,7 @@ function build2(title, inline, body) {
     return items.length ? { items, kind: "breakdown", note: /_\((.*?)\)_/.exec(inline)?.[1], title: name } : text20(name, inline, lines);
   }
   if (lower.includes("session") || lower.includes("token usage")) {
-    const rows = [];
+    const rows2 = [];
     let context;
     for (const l of lines) {
       const p3 = pair2(l);
@@ -91970,28 +92673,28 @@ function build2(title, inline, body) {
       if (Number.isFinite(used) && max > 0) {
         context = { max, used };
       } else if (p3) {
-        rows.push(p3);
+        rows2.push(p3);
       }
     }
-    return rows.length || context ? { context, kind: "session", rows, title: name } : text20(name, inline, lines);
+    return rows2.length || context ? { context, kind: "session", rows: rows2, title: name } : text20(name, inline, lines);
   }
   if (lower.includes("credit")) {
-    const rows = [];
+    const rows2 = [];
     const notes = [];
     for (const l of lines) {
       const p3 = pair2(l);
       if (p3) {
-        rows.push(p3);
+        rows2.push(p3);
       } else {
         notes.push(l.trim());
       }
     }
-    return rows.length ? { kind: "credits", notes, rows, title: name } : text20(name, inline, lines);
+    return rows2.length ? { kind: "credits", notes, rows: rows2, title: name } : text20(name, inline, lines);
   }
   return text20(name, inline, lines);
 }
-function text20(title, inline, lines) {
-  return { kind: "text", text: [inline, ...lines].filter(Boolean).join("\n"), title };
+function text20(title2, inline, lines) {
+  return { kind: "text", text: [inline, ...lines].filter(Boolean).join("\n"), title: title2 };
 }
 function parseUsage(raw2) {
   const sections2 = [];
@@ -92002,15 +92705,15 @@ function parseUsage(raw2) {
       sections2.push(build2(head2.title, head2.inline, head2.body));
     }
   };
-  for (const line of raw2.replace(/\r/g, "").split("\n")) {
-    const h2 = HEADER.exec(line);
+  for (const line2 of raw2.replace(/\r/g, "").split("\n")) {
+    const h2 = HEADER2.exec(line2);
     if (h2) {
       flush();
       head2 = { body: [], inline: (h2.groups?.["inline"] ?? "").trim(), title: h2.groups?.["title"] ?? "" };
     } else if (head2) {
-      head2.body.push(line);
-    } else if (line.trim()) {
-      preamble.push(line);
+      head2.body.push(line2);
+    } else if (line2.trim()) {
+      preamble.push(line2);
     }
   }
   flush();
@@ -92034,10 +92737,10 @@ function slashBody(e) {
 function textBody(text22, key3) {
   return isPreformatted(text22) ? /* @__PURE__ */ jsx("ansi", { text: text22 }, key3) : /* @__PURE__ */ jsx("md", { children: hardBreaks(text22) }, key3);
 }
-function heading4(icon, title, note) {
+function heading4(icon, title2, note) {
   return /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", children: [
     /* @__PURE__ */ jsx("icon", { name: icon }, "icon"),
-    /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: title }, ...note ? [{ s: "dim", t: `  ${note}` }] : []] }, "title")
+    /* @__PURE__ */ jsx("text", { spans: [{ s: "strong", t: title2 }, ...note ? [{ s: "dim", t: `  ${note}` }] : []] }, "title")
   ] }, "head");
 }
 function usageSection(s2, i) {
@@ -92103,9 +92806,9 @@ function limitsTable(items) {
     "limits"
   );
 }
-function sessionBody(rows, context) {
-  const model = rows.find((r) => /^model$/i.test(r.key));
-  const rest = rows.filter((r) => r !== model);
+function sessionBody(rows2, context) {
+  const model = rows2.find((r) => /^model$/i.test(r.key));
+  const rest = rows2.filter((r) => r !== model);
   const out = [];
   if (model) {
     out.push(
@@ -92148,7 +92851,7 @@ function sessionBody(rows, context) {
   }
   return out;
 }
-function pairTable(rows, id3) {
+function pairTable(rows2, id3) {
   return /* @__PURE__ */ jsx(
     "table",
     {
@@ -92156,7 +92859,7 @@ function pairTable(rows, id3) {
         { id: "k", truncate: "end" },
         { align: "end", id: "v", grow: 1 }
       ],
-      rows: rows.map((r, i) => ({
+      rows: rows2.map((r, i) => ({
         cells: {
           k: [{ s: "muted", t: r.key }],
           v: /^https?:\/\//.test(r.value) ? [{ href: r.value, s: "link", t: r.value }] : [{ s: /^[\d$,.%\s-]+$/.test(r.value) ? "num" : "", t: r.value }]
@@ -92273,8 +92976,8 @@ function artifactCard(call, card, context) {
   const path2 = typeof resolved === "string" ? resolved : typeof specified === "string" ? specified : card.target;
   let href;
   if (context.hostLocal && path2) {
-    const line = call.name === "read_file" ? firstLine3(result?.["content"]) : void 0;
-    href = fileHref(path2, context.cwd, line === void 0 ? void 0 : { line });
+    const line2 = call.name === "read_file" ? firstLine3(result?.["content"]) : void 0;
+    href = fileHref(path2, context.cwd, line2 === void 0 ? void 0 : { line: line2 });
   }
   const base3 = {
     ...card,
@@ -92285,23 +92988,23 @@ function artifactCard(call, card, context) {
     return base3;
   }
   const confirmed2 = confirmedWriteArtifact2(call, context.cwd, context.hostLocal);
-  const figure = confirmed2 ? writtenArtifactNode(confirmed2, context.media) : void 0;
-  if (!figure) {
+  const figure2 = confirmed2 ? writtenArtifactNode(confirmed2, context.media) : void 0;
+  if (!figure2) {
     return base3;
   }
   const diff2 = result?.["diff"];
   const content5 = call.args["content"] ?? call.args["contents"];
   const hasDiffCard = typeof diff2 === "string" && diff2.length > 0 && !diff2.startsWith("@@ -0,0 ");
   const extra = hasDiffCard && typeof content5 === "string" ? [/* @__PURE__ */ jsx("code", { numbers: true, text: content5.replace(/\n$/, "") }, "artifact-source")] : [];
-  return { ...base3, body: [figure, ...card.body, ...extra], folded: false, preview: void 0 };
+  return { ...base3, body: [figure2, ...card.body, ...extra], folded: false, preview: void 0 };
 }
 function firstLine3(value) {
   if (typeof value !== "string") {
     return void 0;
   }
   const match = /^ *([1-9]\d*)\|/m.exec(value);
-  const line = match?.[1] ? Number(match[1]) : void 0;
-  return line !== void 0 && Number.isSafeInteger(line) ? line : void 0;
+  const line2 = match?.[1] ? Number(match[1]) : void 0;
+  return line2 !== void 0 && Number.isSafeInteger(line2) ? line2 : void 0;
 }
 
 // src/view/tools/media.tsx
@@ -92752,11 +93455,11 @@ function steerNode(b, state) {
     ] }, "how")
   ] }, b.id);
 }
-function copyButton(text22, id3, role, title, cx) {
+function copyButton(text22, id3, role, title2, cx) {
   const copied = cx.copied === id3;
   return pressable(
-    { key: "copy", name: copied ? "Copied" : title, onClick: () => cx.copy(text22, id3) },
-    /* @__PURE__ */ jsx("icon", { name: copied ? "check" : "copy", role, title: copied ? "Copied" : title }, "face")
+    { key: "copy", name: copied ? "Copied" : title2, onClick: () => cx.copy(text22, id3) },
+    /* @__PURE__ */ jsx("icon", { name: copied ? "check" : "copy", role, title: copied ? "Copied" : title2 }, "face")
   );
 }
 function usageNode(turn2, answer, cx) {
@@ -92766,7 +93469,7 @@ function usageNode(turn2, answer, cx) {
   const output = u.output ?? u.completion ?? 0;
   const total = u.total || input2 + output || turn2.tickTokens || 0;
   const cost = typeof u.cost_usd === "number" && u.cost_usd > 0 ? ` \xB7 $${u.cost_usd.toFixed(2)}` : "";
-  const title = `This turn: ${duration3(ms2)} \xB7 ${total.toLocaleString()} tokens (${input2.toLocaleString()} in \xB7 ${output.toLocaleString()} out)${cost}`;
+  const title2 = `This turn: ${duration3(ms2)} \xB7 ${total.toLocaleString()} tokens (${input2.toLocaleString()} in \xB7 ${output.toLocaleString()} out)${cost}`;
   const tps = (typeof u.avg_tps === "number" && u.avg_tps > 0 ? u.avg_tps : void 0) ?? turn2.tps;
   const facts2 = total ? [
     ["time", "time", duration3(ms2)],
@@ -92776,7 +93479,7 @@ function usageNode(turn2, answer, cx) {
     ...cost ? [["cost", "cost", cost.replace(/^ · /, "")]] : []
   ] : [];
   const detail = [
-    title,
+    title2,
     turn2.cacheHit !== void 0 ? `${turn2.cacheHit}% of the prompt came from the cache` : "",
     tps ? `${tps.toFixed(1)} tokens per second (recent calls)` : ""
   ].filter(Boolean).join("\n");
@@ -92796,21 +93499,21 @@ function compactionNode(c, key3, id3, now) {
   const took2 = done?.endedAt && done.endedAt - c.startedAt >= 1e3 ? duration3(done.endedAt - c.startedAt) : "";
   const facts2 = !done ? [tokens2] : [tokens2, done.messages ? `${done.messages.toLocaleString()} messages summarized` : "", took2, c.manual ? "/compress" : ""];
   const detail = facts2.filter(Boolean).join(" \xB7 ");
-  const line = /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "hermes.compaction.line", ...optional("title", running2 ? void 0 : COMPACTED_TITLE), children: [
+  const line2 = /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "hermes.compaction.line", ...optional("title", running2 ? void 0 : COMPACTED_TITLE), children: [
     running2 ? shimmerText({ key: "what", text: "Compacting context" }) : /* @__PURE__ */ jsx("icon", { name: "compaction" }, "icon"),
     running2 ? null : /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: "Context compacted" }], wrap: "none" }, "what"),
     running2 ? /* @__PURE__ */ jsx("elapsed", { age: age(c, c.startedAt, now), format: "short" }, "age") : null,
     detail ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: `\xB7 ${detail}` }], truncate: "end", wrap: "none" }, "facts") : null
   ] }, "head");
   if (!done?.summary) {
-    return /* @__PURE__ */ jsx("col", { role: "hermes.compaction", children: line }, key3);
+    return /* @__PURE__ */ jsx("col", { role: "hermes.compaction", children: line2 }, key3);
   }
   return foldSection({
     body: [
       /* @__PURE__ */ jsx("text", { role: "hermes.compaction.lead", spans: [{ s: "dim", t: "The summary the agent goes on from:" }], wrap: "word" }, "lead"),
       /* @__PURE__ */ jsx("md", { children: done.summary }, "summary")
     ],
-    head: line,
+    head: line2,
     id: id3,
     key: key3,
     role: "hermes.compaction"
@@ -93238,6 +93941,7 @@ var Retention = class {
 
 // src/view/styles.ts
 var STYLES = minifyCss(css`
+  ${AGENT_TREE_CSS}
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
      native button sits where omp's meter sits, so the working row above the glass never covers
      it, and reaches 8px into the glass for a 20px focus/pointer target. */
@@ -94403,7 +95107,7 @@ function isVersionSkew(code7, message) {
   }
   return code7 === RPC_UNKNOWN_METHOD || code7 === RPC_INVALID_PARAMS && VERSION_SKEW_RE.test(message) || code7 === void 0 && VERSION_SKEW_RE.test(message);
 }
-var ROWS = [
+var ROWS2 = [
   [
     (code7, text22) => (code7 === RPC_SESSION_NOT_FOUND || code7 === void 0) && /session not found/i.test(text22),
     () => "This chat is no longer attached to the backend (it was idle or the backend restarted). Your history is saved: type /resume to reopen it."
@@ -94436,7 +95140,7 @@ function describeRpcError(error) {
   if (isVersionSkew(code7, text22)) {
     return "Tern and the Hermes backend are out of sync (different versions). Run `hermes update`, then start `hermes tern` again.";
   }
-  for (const [match, say] of ROWS) {
+  for (const [match, say] of ROWS2) {
     const m2 = match(code7, text22);
     if (m2) {
       return say(m2 === true ? null : m2);
@@ -94571,8 +95275,8 @@ async function runSlash(text22, cx, resolve11 = true, literal3 = false) {
   if (!sid) {
     return;
   }
-  const title = `/${name}${arg ? ` ${arg}` : ""}`;
-  const report = isReportCommand(name, arg) ? { ticket: cx.host.operations.begin(title, sid) } : void 0;
+  const title2 = `/${name}${arg ? ` ${arg}` : ""}`;
+  const report = isReportCommand(name, arg) ? { ticket: cx.host.operations.begin(title2, sid) } : void 0;
   if (report && !report.ticket) {
     return;
   }
@@ -94581,7 +95285,7 @@ async function runSlash(text22, cx, resolve11 = true, literal3 = false) {
     if (stale()) {
       return;
     }
-    await dispatched(r, cx, { arg, title, ...report ? { report } : {} });
+    await dispatched(r, cx, { arg, title: title2, ...report ? { report } : {} });
   } catch (error) {
     if (stale()) {
       return;
@@ -94599,7 +95303,7 @@ async function runSlash(text22, cx, resolve11 = true, literal3 = false) {
         if (stale()) {
           return;
         }
-        await dispatched(r, cx, { arg, title, ...report ? { report } : {} });
+        await dispatched(r, cx, { arg, title: title2, ...report ? { report } : {} });
       } catch (dispatchFailure) {
         if (stale()) {
           return;
@@ -94614,7 +95318,7 @@ async function runSlash(text22, cx, resolve11 = true, literal3 = false) {
   }
   cx.changed();
 }
-async function dispatched(raw2, cx, { arg, report, title }) {
+async function dispatched(raw2, cx, { arg, report, title: title2 }) {
   const { dispatch: d, output, warning } = commandEnvelope(raw2);
   if (report && (!d || d.type === "exec" || d.type === "plugin")) {
     const text22 = d ? d.output : output;
@@ -94633,7 +95337,7 @@ async function dispatched(raw2, cx, { arg, report, title }) {
   }
   if (!d) {
     if (output?.trim()) {
-      cx.transcript.panel(title, output);
+      cx.transcript.panel(title2, output);
     }
     return;
   }
@@ -94641,13 +95345,13 @@ async function dispatched(raw2, cx, { arg, report, title }) {
     case "exec":
     case "plugin":
       if (d.output?.trim()) {
-        cx.transcript.panel(title, d.output);
+        cx.transcript.panel(title2, d.output);
       }
       return;
     case "alias":
       return runSlash(`/${d.target}${arg ? ` ${arg}` : ""}`, cx, true, true);
     case "skill":
-      return d.message?.trim() ? cx.prompt({ display: d.display || title, images: cx.attachments.take(), kind: "command", text: d.message }) : cx.transcript.notice(`${title}: the skill sent no message`, "error");
+      return d.message?.trim() ? cx.prompt({ display: d.display || title2, images: cx.attachments.take(), kind: "command", text: d.message }) : cx.transcript.notice(`${title2}: the skill sent no message`, "error");
     case "send":
       if (d.notice?.trim()) {
         cx.transcript.notice(d.notice);
@@ -94989,16 +95693,16 @@ function openAutomation(host2, which) {
 
 // src/overlays/historySearch.tsx
 function openPromptHistorySearch(host2, composer2, history2 = load()) {
-  const rows = history2.map((text22, index2) => {
+  const rows2 = history2.map((text22, index2) => {
     const search3 = text22.replace(/\s+/g, " ").trim();
     return { id: String(index2), text: text22, search: search3, label: search3.length > 140 ? search3.slice(0, 140) + "\u2026" : search3 };
   }).filter((row2) => row2.search.length > 0).reverse();
   let query2 = "";
-  let shown3 = rows.map((row2) => row2.id);
+  let shown3 = rows2.map((row2) => row2.id);
   let selected = shown3[0];
   let alive = true;
   const refresh2 = () => {
-    const matches3 = rank(rows, query2, (row2) => row2.search);
+    const matches3 = rank(rows2, query2, (row2) => row2.search);
     shown3 = matches3.map((match) => match.item.id);
     if (selected === void 0 || !shown3.includes(selected)) {
       selected = shown3[0];
@@ -95007,7 +95711,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
   };
   const fill = (id3 = selected) => {
     if (!alive || id3 === void 0 || !shown3.includes(id3)) return;
-    const picked = rows.find((row2) => row2.id === id3);
+    const picked = rows2.find((row2) => row2.id === id3);
     if (!picked) return;
     host2.close(overlay2);
     composer2.set(picked.text, { literal: true });
@@ -95022,7 +95726,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
     node: (root7) => {
       const matches3 = refresh2();
       const hits = {};
-      const items = rows.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
+      const items = rows2.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
       for (const { item: item3, positions } of matches3) {
         if (positions.length) hits[item3.id] = hitRuns(positions, item3.label.length);
       }
@@ -95060,7 +95764,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
           size: "lg",
           state: "ready",
           title: "Prompt history",
-          total: rows.length
+          total: rows2.length
         },
         nativeOverlayKey(root7)
       );
@@ -95225,9 +95929,9 @@ var BindingPreferences = class {
 
 // src/shortcuts/model-cycle.ts
 function availableModels(options) {
-  const rows = (options.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
+  const rows2 = (options.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
   const seen = /* @__PURE__ */ new Set();
-  return rows.filter((row2) => {
+  return rows2.filter((row2) => {
     const id3 = modelId(row2);
     if (seen.has(id3)) {
       return false;
@@ -95254,15 +95958,15 @@ function cycleTarget(available, recent, active2, direction) {
     seen.add(id3);
     return true;
   });
-  const rows = valid2.length > 1 ? valid2 : available;
-  if (rows.length < 2) {
+  const rows2 = valid2.length > 1 ? valid2 : available;
+  if (rows2.length < 2) {
     return null;
   }
-  const at2 = rows.findIndex((row2) => modelId(row2) === modelId(active2));
+  const at2 = rows2.findIndex((row2) => modelId(row2) === modelId(active2));
   if (at2 < 0) {
-    return direction === 1 ? rows[0] ?? null : rows[rows.length - 1] ?? null;
+    return direction === 1 ? rows2[0] ?? null : rows2[rows2.length - 1] ?? null;
   }
-  return rows[(at2 + direction + rows.length) % rows.length] ?? null;
+  return rows2[(at2 + direction + rows2.length) % rows2.length] ?? null;
 }
 function cycleModel(host2, direction) {
   const owner2 = host2.session.ref;
@@ -95323,8 +96027,8 @@ function cycleModel(host2, direction) {
 
 // src/surface/osc.ts
 import { hostname } from "node:os";
-function setTabTitle(title, out = process.stdout) {
-  out.write(`\x1B]2;${title.replace(/[\x00-\x1f]/g, " ")}\x07`);
+function setTabTitle(title2, out = process.stdout) {
+  out.write(`\x1B]2;${title2.replace(/[\x00-\x1f]/g, " ")}\x07`);
 }
 function reportCwd(cwd, out = process.stdout) {
   out.write(`\x1B]7;file://${hostname()}${encodeURI(cwd)}\x07`);
@@ -95607,7 +96311,7 @@ function shellsOf(processes, now) {
 
 // src/shortcuts/palette.tsx
 function paletteRows(catalog = {}) {
-  const rows = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const add2 = (raw2, description, group) => {
     const name = /^\/?[a-z][\w-]*/i.exec(raw2.trim())?.[0]?.replace(/^\//, "").toLowerCase();
@@ -95615,7 +96319,7 @@ function paletteRows(catalog = {}) {
       return;
     }
     seen.add(name);
-    rows.push({ id: `/${name}`, name: `/${name}`, description, group });
+    rows2.push({ id: `/${name}`, name: `/${name}`, description, group });
   };
   for (const c of localCommands()) {
     add2(c.name, c.help ?? "Hermes command", "Tern / Hermes");
@@ -95625,7 +96329,7 @@ function paletteRows(catalog = {}) {
       add2(raw2, description.replace(/\s*\(usage: .+\)\s*$/, ""), category.name);
     }
   }
-  return rows;
+  return rows2;
 }
 function openCommandPalette(host2) {
   const sid = host2.session.ref.live;
@@ -95973,13 +96677,13 @@ var ServerQueue = class {
   /** Input ids of own admissions the FIFO has listed. */
   #listed = /* @__PURE__ */ new Set();
   /** Another session: its FIFO from the resume snapshot, and none of the last one's bookkeeping. */
-  reset(rows) {
+  reset(rows2) {
     this.#own.length = 0;
     this.#shown.clear();
     this.#queuedOnly.clear();
     this.#listed.clear();
     this.rows = [];
-    this.update(rows);
+    this.update(rows2);
   }
   /** A prompt about to be admitted behind the turn; its row shows at once. */
   admit(own14) {
@@ -96015,13 +96719,13 @@ var ServerQueue = class {
    * in order: this pane's admissions that started, and another viewer's rows this pane saw move
    * from queued to started (a resume snapshot's started row is already in the replayed history).
    */
-  update(rows) {
-    if (!rows) {
+  update(rows2) {
+    if (!rows2) {
       return [];
     }
     const was = new Set(this.rows.filter((r) => r.status === "queued").map((r) => r.admission_id));
     const owed = [];
-    for (const row2 of rows) {
+    for (const row2 of rows2) {
       if (row2.status === "queued") {
         this.#queuedOnly.add(row2.admission_id);
         const own15 = this.#own.find((o) => o.inputId === row2.input_id);
@@ -96048,8 +96752,8 @@ var ServerQueue = class {
         owed.push({ own: own14, text: own14?.display ?? row2.user });
       }
     }
-    this.rows = rows;
-    const listed2 = new Set(rows.map((r) => r.input_id));
+    this.rows = rows2;
+    const listed2 = new Set(rows2.map((r) => r.input_id));
     for (const own14 of [...this.#own]) {
       if (listed2.has(own14.inputId)) {
         this.#listed.add(own14.inputId);
@@ -96071,12 +96775,12 @@ var ServerQueue = class {
   }
   /** The rows that still wait, oldest first: the FIFO's, then admissions it does not list yet. */
   queued() {
-    const rows = this.rows.filter(isServerQueued).map((row2) => {
+    const rows2 = this.rows.filter(isServerQueued).map((row2) => {
       const own14 = this.#own.find((o) => o.inputId === row2.input_id);
       return own14 ? ownRow(own14) : { kind: "theirs", row: row2, text: row2.user };
     });
     const listed2 = new Set(this.rows.map((r) => r.input_id));
-    return [...rows, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
+    return [...rows2, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
   }
 };
 
@@ -96527,8 +97231,8 @@ ${composer2.text}` : text22, { pasted: composer2.pasted }),
     transcript.user({ text: `!${command2}` });
     this.#cx.changed();
     try {
-      for (const line of shellLines(await shellExec(this.#cx.gw, sid, command2))) {
-        transcript.notice(line.text, line.failed ? "warning" : "info");
+      for (const line2 of shellLines(await shellExec(this.#cx.gw, sid, command2))) {
+        transcript.notice(line2.text, line2.failed ? "warning" : "info");
       }
     } catch (error) {
       transcript.notice(`!${command2} did not run: ${shellError(error)}.`, "error");
@@ -96916,15 +97620,15 @@ function shellsPill(s2, onOpen, focused) {
   const n4 = live ? s2.running : s2.exited;
   const charts = live ? s2.charts ?? [] : [];
   const fresh = latest(charts)?.view;
-  const figure = fresh && glance(fresh);
-  const title = ["Background processes  \u2325J", ...charts.map((c) => `${c.process.id}  ${summary(c.view)}`)].join("\n");
+  const figure2 = fresh && glance(fresh);
+  const title2 = ["Background processes  \u2325J", ...charts.map((c) => `${c.process.id}  ${summary(c.view)}`)].join("\n");
   const card = hovercard(charts);
   return pill({
     children: [
       /* @__PURE__ */ jsx("icon", { name: "terminal" }, "icon"),
       live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "spin") : /* @__PURE__ */ jsx("icon", { name: s2.tone === "success" ? "done" : s2.tone === "error" ? "failed" : "aborted", tone: s2.tone }, "end"),
       /* @__PURE__ */ jsx("text", { spans: [{ ...optional("s", live ? void 0 : "muted"), t: `${plural(n4, "shell")}${live ? "" : " exited"}` }], wrap: "none" }, "text"),
-      figure ? /* @__PURE__ */ jsx("text", { role: "omp.hud.glance", spans: glanceSpans(figure), wrap: "none" }, "glance") : null,
+      figure2 ? /* @__PURE__ */ jsx("text", { role: "omp.hud.glance", spans: glanceSpans(figure2), wrap: "none" }, "glance") : null,
       fresh ? miniSpark(fresh) : null
     ],
     focused,
@@ -96932,7 +97636,7 @@ function shellsPill(s2, onOpen, focused) {
     key: "shells",
     name: `${plural(n4, "shell")}${live ? " running" : " exited"}`,
     onClick: onOpen,
-    title
+    title: title2
   });
 }
 function prsPillNode(p3, onOpen, focused) {
@@ -97157,11 +97861,11 @@ function euiHostPort(host2, active2) {
         isCurrent: () => ticket.isCurrent() && host2.session.ref.live === sessionId && host2.transcript.lifetime === lifetime
       };
     },
-    append: (title) => {
+    append: (title2) => {
       const entry = {
         id: host2.transcript.id("eui"),
         kind: "panel",
-        title,
+        title: title2,
         text: "This host card is no longer active. Reopen the flow to review current data."
       };
       host2.transcript.push(entry);
@@ -97319,7 +98023,7 @@ var Agents = class {
   /** Rows whose end the host heard of. */
   #ended = /* @__PURE__ */ new WeakSet();
   /** The agent the hub shows: its transcript is read while it can grow. */
-  #followed;
+  #followed = [];
   /** What each followed agent's transcript read gave, by subagent id. */
   #transcripts = /* @__PURE__ */ new Map();
   /**
@@ -97350,7 +98054,7 @@ var Agents = class {
     }
     this.#listed.clear();
     this.#transcripts.clear();
-    this.#followed = void 0;
+    this.#followed = [];
   }
   /**
    * Takes over each dispatched delegate_task call not tracked yet, and polls while a row needs it.
@@ -97398,18 +98102,12 @@ var Agents = class {
       this.#poller.poke();
     }
   }
-  /**
-   * The agent the hub shows (undefined when it closes). Its stored transcript is read now and
-   * then every second while it can grow; one agent at a time.
-   */
-  follow(a2) {
-    if (a2 === this.#followed) {
-      return;
-    }
-    this.#followed = a2;
-    if (a2 && !this.#visibleAgents().includes(a2)) {
-      this.#poller.poke();
-    }
+  /** Read the exposed tree contexts, one timeline, or none after the hub closes. */
+  follow(agents2) {
+    const next2 = agents2 === void 0 ? [] : "id" in agents2 ? [agents2] : agents2;
+    if (next2.length === this.#followed.length && next2.every((a2, i) => a2 === this.#followed[i])) return;
+    this.#followed = [...next2];
+    if (next2.some((a2) => !this.#visibleAgents().includes(a2))) this.#poller.poke();
   }
   /** Queues steering text into a running agent; the owner answers `queued` or `rejected`. */
   async steer(a2, text22) {
@@ -97482,8 +98180,7 @@ var Agents = class {
   }
   /** The followed agent's transcript may still grow (or was never read). */
   #followedGrows() {
-    const a2 = this.#followed;
-    return Boolean(a2 && !this.#transcripts.get(a2.id)?.finished);
+    return this.#followed.some((a2) => !this.#transcripts.get(a2.id)?.finished);
   }
   #visibleAgents() {
     return this.#host.transcript.delegations().flatMap(
@@ -97499,8 +98196,8 @@ var Agents = class {
       await this.#poll(changed, ticket);
     }
     const visible2 = this.#visibleAgents();
-    if (this.#followed && !visible2.includes(this.#followed)) {
-      visible2.push(this.#followed);
+    for (const a2 of this.#followed) {
+      if (!visible2.includes(a2)) visible2.push(a2);
     }
     for (const a2 of visible2) {
       if (!ticket.isCurrent()) {
@@ -97524,9 +98221,9 @@ var Agents = class {
     if (!sid) {
       return;
     }
-    let rows;
+    let rows2;
     try {
-      rows = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
+      rows2 = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
     } catch {
       return;
     }
@@ -97535,7 +98232,7 @@ var Agents = class {
     }
     const owners = this.#owners();
     const present = /* @__PURE__ */ new Set();
-    for (const row2 of rows) {
+    for (const row2 of rows2) {
       const id3 = row2.subagent_id;
       if (!id3) {
         continue;
@@ -98300,12 +98997,12 @@ var CODES = {
 };
 function factoryProblem(error) {
   const reason2 = error && typeof error === "object" && "data" in error && error.data && typeof error.data === "object" && "reason" in error.data && typeof error.data.reason === "string" ? error.data.reason : "";
-  const line = ((error instanceof Error ? error.message : String(error)).split(/\r?\n/, 1)[0] ?? "").replace(/^Error:\s*/, "").replace(/\s+/g, " ").trim();
-  const code7 = reason2 || /\b[a-z]+(?:_[a-z]+)+\b/.exec(line)?.[0] || "";
+  const line2 = ((error instanceof Error ? error.message : String(error)).split(/\r?\n/, 1)[0] ?? "").replace(/^Error:\s*/, "").replace(/\s+/g, " ").trim();
+  const code7 = reason2 || /\b[a-z]+(?:_[a-z]+)+\b/.exec(line2)?.[0] || "";
   if (CODES[code7]) return CODES[code7];
-  if (/^gateway not (?:connected|running)\b/.test(line)) return { label: "Hermes is reconnecting", hint: RETRY };
-  if (/timed out/i.test(line)) return { label: "Factory check timed out", hint: RETRY };
-  return { label: "Last check failed", hint: !line || code7 || !/\s/.test(line) ? RETRY : line.slice(0, 96) };
+  if (/^gateway not (?:connected|running)\b/.test(line2)) return { label: "Hermes is reconnecting", hint: RETRY };
+  if (/timed out/i.test(line2)) return { label: "Factory check timed out", hint: RETRY };
+  return { label: "Last check failed", hint: !line2 || code7 || !/\s/.test(line2) ? RETRY : line2.slice(0, 96) };
 }
 var FactoryPane = class {
   #host;
@@ -98696,7 +99393,7 @@ var Sidebar = class {
 };
 
 // src/chrome/theme.ts
-import { execFile as execFile9, spawnSync as spawnSync3 } from "node:child_process";
+import { execFile as execFile11, spawnSync as spawnSync3 } from "node:child_process";
 
 // src/chrome/palette.ts
 var NOUS = {
@@ -98793,7 +99490,7 @@ function styleAccent(p3, style2) {
 
 // src/chrome/theme.ts
 var ternCtl = (args) => new Promise((resolve11, reject) => {
-  execFile9("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
+  execFile11("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
 });
 var ternCtlSync = (args) => void spawnSync3("tern", ["ctl", ...args], { timeout: 2e3, stdio: "ignore" });
 var atProcessEnd = (end) => {
@@ -98969,9 +99666,9 @@ var Theme = class {
 };
 
 // src/glideui/widgets.tsx
-import { execFile as execFile10 } from "node:child_process";
+import { execFile as execFile12 } from "node:child_process";
 import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
-import { basename as basename8, dirname as dirname8, join as join17 } from "node:path";
+import { basename as basename8, dirname as dirname8, join as join18 } from "node:path";
 
 // src/glideui/checks.ts
 var MIN_TEXT_PX = 11;
@@ -99023,9 +99720,9 @@ function checkPalette(p3) {
 }
 
 // src/glideui/widgets.tsx
-var statusFile = (settings2) => join17(dirname8(settings2), "ui-status.json");
+var statusFile = (settings2) => join18(dirname8(settings2), "ui-status.json");
 var gitCommits = (cwd) => new Promise((resolve11) => {
-  execFile10("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
+  execFile12("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
   });
 });
@@ -99098,6 +99795,7 @@ var GlideWidgets = class {
       const tree = this.#tree(w);
       if (!tree) continue;
       if (slot2 !== "composer-ring") {
+        this.#host.sheet?.(MOTION_SHEET, MOTION_CSS);
         out.push(node2(tree, w.id, r));
         continue;
       }
@@ -99105,13 +99803,13 @@ var GlideWidgets = class {
       const parts3 = tree.typeName === "Card" ? tree.props.children : [tree];
       const pick2 = (k) => parts3.find((p3) => p3.typeName === k);
       const meter = pick2("Meter");
-      const title = tree.typeName === "Card" ? tree.props.title : "";
-      const figure = pick2("Hero")?.props.value ?? pick2("Text")?.props.body ?? meter?.props.label ?? "";
+      const title2 = tree.typeName === "Card" ? tree.props.title : "";
+      const figure2 = pick2("Hero")?.props.value ?? pick2("Text")?.props.body ?? meter?.props.label ?? "";
       out.push(
         /* @__PURE__ */ jsxs("row", { align: "center", gap: "xs", role: "glide.ring.chip", children: [
           /* @__PURE__ */ jsx(html.span, { role: "glide.ring.dot" }, "dot"),
-          title ? /* @__PURE__ */ jsx("text", { role: "glide.ring.label", text: title.charAt(0).toUpperCase() + title.slice(1), wrap: "none" }, "t") : null,
-          /* @__PURE__ */ jsx("text", { role: "glide.ring.value", text: String(figure), wrap: "none" }, "v")
+          title2 ? /* @__PURE__ */ jsx("text", { role: "glide.ring.label", text: title2.charAt(0).toUpperCase() + title2.slice(1), wrap: "none" }, "t") : null,
+          /* @__PURE__ */ jsx("text", { role: "glide.ring.value", text: String(figure2), wrap: "none" }, "v")
         ] }, `${w.id}.chip`)
       );
       if (meter) {
@@ -99267,7 +99965,7 @@ var ConnectWatcher = class {
       return;
     }
     const sid = session2 || this.#host.sid();
-    const live = sid ? liveCard(payload, sid) : void 0;
+    const live = sid ? liveCard2(payload, sid) : void 0;
     if (live) {
       this.#draw(live);
     } else {
@@ -99289,7 +99987,7 @@ var ConnectWatcher = class {
       return;
     }
     const sid = session2 || this.#host.sid();
-    const live = sid ? liveCard(payload, sid) : void 0;
+    const live = sid ? liveCard2(payload, sid) : void 0;
     if (live && !live.card.settled) {
       this.#draw(live);
     }
@@ -99586,13 +100284,13 @@ import { basename as basename9, isAbsolute as isAbsolute9 } from "node:path";
 import { fileURLToPath as fileURLToPath11 } from "node:url";
 
 // src/hermes/clipboardImage.ts
-import { execFile as execFile11 } from "node:child_process";
+import { execFile as execFile13 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
-import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
-import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
-import { join as join18, resolve as resolve10 } from "node:path";
+import { mkdtemp as mkdtemp4, rm as rm5 } from "node:fs/promises";
+import { homedir as homedir11, tmpdir as tmpdir4 } from "node:os";
+import { join as join19, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
-  execFile11(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
+  execFile13(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
       return fail2(error);
     }
@@ -99658,12 +100356,12 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp3(join18(tmpdir3(), "glide-clipboard-"));
+  const dir2 = await mkdtemp4(join19(tmpdir4(), "glide-clipboard-"));
   try {
-    const path2 = await extract(join18(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join19(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
-    await rm4(dir2, { force: true, recursive: true });
+    await rm5(dir2, { force: true, recursive: true });
   }
 }
 function imagePathOf(text22, cwd) {
@@ -100230,8 +100928,8 @@ var VimPreference = class {
 };
 
 // src/github/branch.ts
-import { execFile as execFile12 } from "node:child_process";
-import { promisify as promisify7 } from "node:util";
+import { execFile as execFile14 } from "node:child_process";
+import { promisify as promisify9 } from "node:util";
 
 // src/github/hosts.ts
 var GITHUB = "github.com";
@@ -100274,7 +100972,7 @@ function githubHosts(env2 = process.env) {
 var untrustedText = (host2) => `Not read: ${host2} is not github.com or a GitHub Enterprise host you listed, so tern sends it no token. If you trust it, add it to ${HOSTS_SETTING} and open a new pane.`;
 
 // src/github/branch.ts
-var run7 = promisify7(execFile12);
+var run7 = promisify9(execFile14);
 function parseRemote(url, hosts3 = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
@@ -100369,8 +101067,8 @@ function layerOf(raw2) {
   const p3 = layerRow.safeParse(raw2).data;
   return p3 && { head: p3.head.ref, number: p3.number, state: p3.merged_at ? "merged" : p3.state };
 }
-function parseStacks(host2, repository, rows) {
-  return rowsOf(stackRow, Array.isArray(rows) ? rows : []).map((s2) => ({
+function parseStacks(host2, repository, rows2) {
+  return rowsOf(stackRow, Array.isArray(rows2) ? rows2 : []).map((s2) => ({
     base: s2.base,
     host: host2,
     key: stackKey(host2, repository, s2.number),
@@ -100494,7 +101192,7 @@ function due(remote, updatedAt, now) {
       return remote.last?.at !== updatedAt && now - remote.failedAt >= RETRY_MS;
   }
 }
-var pageLength = (rows) => Array.isArray(rows) ? rows.length : 0;
+var pageLength = (rows2) => Array.isArray(rows2) ? rows2.length : 0;
 var MUTATIONS = {
   close: "mutation($id: ID!) { closePullRequest(input: {pullRequestId: $id}) { clientMutationId } }",
   draft: "mutation($id: ID!) { convertPullRequestToDraft(input: {pullRequestId: $id}) { clientMutationId } }",
@@ -100645,9 +101343,9 @@ var PullRequests = class {
       read: async (e) => {
         const files = [];
         for (let page = 1; page <= 3; page++) {
-          const rows = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page}`);
-          files.push(...parseFiles(rows));
-          if (pageLength(rows) < 100) {
+          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page}`);
+          files.push(...parseFiles(rows2));
+          if (pageLength(rows2) < 100) {
             break;
           }
         }
@@ -100805,11 +101503,11 @@ var PullRequests = class {
         }
         asked2.add(key3);
         try {
-          const rows = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
+          const rows2 = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
           if (!ticket.isCurrent()) {
             return false;
           }
-          parseStacks(host2, e.ref.repository, rows).forEach((s2) => this.#stacks.set(s2.key, s2));
+          parseStacks(host2, e.ref.repository, rows2).forEach((s2) => this.#stacks.set(s2.key, s2));
         } catch {
         }
       }
@@ -101190,7 +101888,7 @@ var OperationalSheets = class {
     }
   }
   /** Claim the sheet before asynchronous work: a close fences its reply. */
-  begin(title, sid) {
+  begin(title2, sid) {
     if (this.host.session.ref.live !== sid) {
       return void 0;
     }
@@ -101199,7 +101897,7 @@ var OperationalSheets = class {
     if (top?.modal && top !== this.#sheet) {
       return void 0;
     }
-    const report = { title, text: "", status: "loading" };
+    const report = { title: title2, text: "", status: "loading" };
     const sheet = openOperationalOverlay(this, report);
     this.#sheet = sheet;
     return { epoch: ++this.#epoch, owner: this.host.session.ref, report, sheet, sid };
@@ -101225,8 +101923,8 @@ var OperationalSheets = class {
       this.host.close(ticket.sheet);
     }
   }
-  showText(title, text22) {
-    this.finish(this.begin(title, this.host.session.ref.live), text22);
+  showText(title2, text22) {
+    this.finish(this.begin(title2, this.host.session.ref.live), text22);
   }
   /** The real canonical tools.show RPC: read-only, not slash-output sniffing. */
   async showTools(arg = "") {
@@ -101254,8 +101952,8 @@ var OperationalSheets = class {
     const arg = argument.trim().toLowerCase();
     const view = operationalView(service, arg);
     const label = service.toUpperCase();
-    const title = view ? "/" + service + (arg ? " " + arg : "") : label + " management unavailable";
-    const ticket = this.begin(title, sid);
+    const title2 = view ? "/" + service + (arg ? " " + arg : "") : label + " management unavailable";
+    const ticket = this.begin(title2, sid);
     if (!ticket) {
       return;
     }
@@ -101760,16 +102458,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync7, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync6 } from "node:fs";
-import { join as join19 } from "node:path";
+import { join as join20 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe2 = (id3) => /^[\w.-]{1,128}$/.test(id3);
-function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join20(dataDir(), "charts"), now = Date.now) {
   return {
     load(id3) {
       if (!safe2(id3)) {
         return void 0;
       }
-      const value = readJsonFile(join19(dir2, `${id3}.json`));
+      const value = readJsonFile(join20(dir2, `${id3}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -101787,9 +102485,9 @@ function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
       }
       try {
         mkdirSync7(dir2, { recursive: true });
-        writeFileSync6(join19(dir2, `${id3}.json`), JSON.stringify(value));
+        writeFileSync6(join20(dir2, `${id3}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join19(dir2, name);
+          const file2 = join20(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -102436,8 +103134,8 @@ var SessionLifecycle = class {
       return;
     }
     if (r) {
-      const title = typeof r.info?.title === "string" ? r.info.title.trim() : "";
-      host2.transcript.notice(`Resumed ${title ? `\u201C${title}\u201D` : "the session"} after the pane restarted.`);
+      const title2 = typeof r.info?.title === "string" ? r.info.title.trim() : "";
+      host2.transcript.notice(`Resumed ${title2 ? `\u201C${title2}\u201D` : "the session"} after the pane restarted.`);
     }
   }
   /** After a reconnect (or a replay gap): resumes the shown session under `id` (its runtime id or subscription died). */
@@ -102453,7 +103151,7 @@ var SessionLifecycle = class {
     host2.changed();
   }
   /** Closes the open session and starts a fresh one with an empty transcript, named `title` if given. */
-  async newSession(title, cwd = this.#host.launch.sessionCwd) {
+  async newSession(title2, cwd = this.#host.launch.sessionCwd) {
     if (this.#refuseSwitch()) {
       return;
     }
@@ -102482,8 +103180,8 @@ var SessionLifecycle = class {
       this.#settle(token);
     }
     const sid = host2.state.ref.live;
-    if (title && sid) {
-      await host2.rename(sid, title);
+    if (title2 && sid) {
+      await host2.rename(sid, title2);
     }
   }
   /** Resumes stored session `id`: its history replaces the transcript, and the session it leaves is closed. */
@@ -102671,8 +103369,8 @@ var SessionTitle = class {
     return this.#text;
   }
   /** Names the session `title` (trimmed) on the strip and the tab; true when it changed. */
-  set(title) {
-    const next2 = title?.trim();
+  set(title2) {
+    const next2 = title2?.trim();
     if (!next2 || next2 === this.#text) {
       return false;
     }
@@ -102681,9 +103379,9 @@ var SessionTitle = class {
     return true;
   }
   /** Another session is shown: its own name (or none yet) on the tab, and a read of the list. */
-  adopt(title) {
+  adopt(title2) {
     this.#text = "";
-    this.set(title);
+    this.set(title2);
     this.read();
   }
   /**
@@ -102696,11 +103394,11 @@ var SessionTitle = class {
     this.#timer = setTimeout(() => void this.#fetch(), READ_MS);
   }
   /** Names session `sid` (`/new <title>`) with the gateway's rename mutation. */
-  async rename(sid, title) {
+  async rename(sid, title2) {
     const host2 = this.#host;
     try {
-      const r = await mutateSession(host2.gw, sid, "rename", { title });
-      if (sid === host2.session.ref.live && this.set(String(r?.title ?? title))) {
+      const r = await mutateSession(host2.gw, sid, "rename", { title: title2 });
+      if (sid === host2.session.ref.live && this.set(String(r?.title ?? title2))) {
         host2.changed();
       }
     } catch (error) {
@@ -102788,8 +103486,8 @@ function splitPrompt(raw2) {
     for (const m2 of context.matchAll(CONTEXT_REF)) {
       const ref = `@${m2[1]}:${m2[2]}`;
       const end = context.indexOf("\n", m2.index);
-      const line = context.slice(m2.index, end < 0 ? void 0 : end);
-      const disk = /available on disk at `([^`]+)`/.exec(line)?.[1];
+      const line2 = context.slice(m2.index, end < 0 ? void 0 : end);
+      const disk = /available on disk at `([^`]+)`/.exec(line2)?.[1];
       if (!text22.includes(ref) && !files.some((f2) => f2.ref === ref)) {
         files.push({ ref, ...disk ? { path: disk } : {} });
       }
@@ -103169,8 +103867,8 @@ var Transcript = class {
   notice(text22, tone2 = "info") {
     this.push({ id: this.id("n"), kind: "notice", text: text22, tone: tone2 });
   }
-  panel(title, text22) {
-    this.push({ id: this.id("p"), kind: "panel", text: text22, title });
+  panel(title2, text22) {
+    this.push({ id: this.id("p"), kind: "panel", text: text22, title: title2 });
   }
   /** message.start: opens the live turn, unless one is already streaming. */
   messageStart(at2 = Date.now()) {
@@ -104288,7 +104986,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     changed,
     gw: gw2,
     // A command's dispatch envelope from outside a typed command (a goal or loop sheet's button).
-    runDispatch: (raw2, title2) => dispatched(raw2, act().slash, { arg: "", title: title2 }),
+    runDispatch: (raw2, title3) => dispatched(raw2, act().slash, { arg: "", title: title3 }),
     get sid() {
       return session2.ref.live;
     },
@@ -104309,7 +105007,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   const sidebar2 = new Sidebar(chat);
   const factory3 = new FactoryPane(chat, () => void fleetCommand(chat, "factory"));
   const automation = new Automation(live);
-  const title = new SessionTitle(chat);
+  const title2 = new SessionTitle(chat);
   const hud2 = new Hud({ changed, open: (pill2) => act().openPill(pill2) });
   const todoHud = new TodoHud();
   const prs = new PullRequests({ changed, cwd: () => session2.info?.cwd || null, links: (sid) => linkedPullRequests(gw2, sid), sid: () => session2.ref.live });
@@ -104414,7 +105112,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     sidebar: sidebar2,
     state: session2,
     timers,
-    title,
+    title: title2,
     todoHud,
     transcript
   };
@@ -104428,7 +105126,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
       gw: gw2,
       launch: launch3,
       operations,
-      rename: (sid, text22) => title.rename(sid, text22),
+      rename: (sid, text22) => title2.rename(sid, text22),
       shownElsewhere: (id3) => viewer.shown(id3),
       request: (req) => act().onRequest(req),
       sheets: sheets2,
@@ -104932,7 +105630,7 @@ var App = class {
         sid: () => this.session.ref.live,
         changed: () => this.changed(),
         notice: (text22, tone2) => this.notice(text22, tone2),
-        panel: (title, text22) => this.transcript.panel(title, text22)
+        panel: (title2, text22) => this.transcript.panel(title2, text22)
       });
     } finally {
       if (grid && !this.#surface.closed) this.#surface.resume();
@@ -104957,9 +105655,9 @@ var App = class {
   control(literal3 = false) {
     return sessionHost(this.#act.host, literal3);
   }
-  newSession(title) {
+  newSession(title2) {
     void this.liveVoice.control("stop");
-    return this.stores.life.newSession(title);
+    return this.stores.life.newSession(title2);
   }
   resume(id3) {
     void this.liveVoice.control("stop");
@@ -105187,7 +105885,7 @@ var WS_CLOSING = 2;
 var WS_CLOSED = 3;
 var RECONNECT_BASE_MS = 1e3;
 var RECONNECT_MAX_MS = 3e4;
-var truncateLine = (line) => line.length > MAX_LOG_LINE_BYTES ? `${line.slice(0, MAX_LOG_LINE_BYTES)}\u2026 [truncated ${line.length} bytes]` : line;
+var truncateLine = (line2) => line2.length > MAX_LOG_LINE_BYTES ? `${line2.slice(0, MAX_LOG_LINE_BYTES)}\u2026 [truncated ${line2.length} bytes]` : line2;
 var _USERINFO_FALLBACK_RE = /^([a-z][a-z0-9+.-]*:\/\/)[^/?#@]*@/i;
 var redactUrl = (raw2) => {
   if (!raw2) {
@@ -105603,9 +106301,9 @@ var GatewayClient = class extends EventEmitter2 {
     this.startReadyTimer("websocket", safeAttachUrl);
     const WebSocketCtor = this.webSocketCtor();
     if (typeof WebSocketCtor === "undefined") {
-      const line = `[startup] WebSocket API unavailable; cannot attach to ${safeAttachUrl}`;
-      this.pushLog(line);
-      this.publish({ type: "gateway.stderr", payload: { line } });
+      const line2 = `[startup] WebSocket API unavailable; cannot attach to ${safeAttachUrl}`;
+      this.pushLog(line2);
+      this.publish({ type: "gateway.stderr", payload: { line: line2 } });
       this.handleTransportExit(1, this.text("libText.gateway.websocketUnavailable"));
       return;
     }
@@ -105676,9 +106374,9 @@ var GatewayClient = class extends EventEmitter2 {
         );
       });
       ws.addEventListener("error", () => {
-        const line = "[gateway] websocket transport error";
-        this.pushLog(line);
-        this.publish({ type: "gateway.stderr", payload: { line } });
+        const line2 = "[gateway] websocket transport error";
+        this.pushLog(line2);
+        this.publish({ type: "gateway.stderr", payload: { line: line2 } });
       });
     } catch (err) {
       this.pushLog(`[startup] failed to connect websocket gateway ${safeAttachUrl} (constructor error)`);
@@ -105708,19 +106406,19 @@ var GatewayClient = class extends EventEmitter2 {
     }
     this.startLocalGateway();
   }
-  pushLog(line) {
-    this.logs.push(truncateLine(line));
+  pushLog(line2) {
+    this.logs.push(truncateLine(line2));
   }
   /** Record a client-side diagnostic line in the /logs tail (raw wire text the UI replaced with plain copy). */
-  recordLog(line) {
-    this.pushLog(line);
+  recordLog(line2) {
+    this.pushLog(line2);
   }
   // Death-explaining breadcrumbs (spawn / exit / kill / replace) — kept in the
   // in-memory tail for /logs AND handed to `onLifecycle` (Ink persists them to the
   // gateway crash log so the reason survives a parent exit).
-  lifecycle(line) {
-    this.pushLog(line);
-    this.options.onLifecycle?.(line);
+  lifecycle(line2) {
+    this.pushLog(line2);
+    this.options.onLifecycle?.(line2);
   }
   webSocketCtor() {
     return typeof WebSocket === "undefined" ? this.options.fallbackWebSocket : WebSocket;
