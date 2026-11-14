@@ -17,6 +17,7 @@ import { OrbActivity, type OrbState, ThinkingOrb } from '../chrome/orb.js'
 import { type LaneFeed, LaneStrip } from '../voice/lanes.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
 import { focusBlock } from '../voice/orbit.js'
+import { CleanView, cleanFocus, cleanPalette } from '../voice/cleanFocus.js'
 import { refreshFocusBlock } from '../commands/glide.js'
 import { noticeReport } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
@@ -100,6 +101,7 @@ export class App implements ChatPorts {
   #surface!: SurfaceHost
   readonly #orbActivity = new OrbActivity()
   #orb: ThinkingOrb | undefined
+  #clean: CleanView | undefined
   #lanes: LaneStrip | undefined
   #orbSid: string | null = null
   #wasLive = false
@@ -189,6 +191,7 @@ export class App implements ChatPorts {
           this.#orb.environment({ visible: this.#visible })
         }
         this.#lanes?.surface(surface)
+        this.#clean?.surface(surface)
         this.#retention = this.#tern.caps.features.includes('settle')
           ? new Retention(surface, () => this.changed(), () => ({ entries: this.transcript.entries, lifetime: this.transcript.lifetime }))
           : undefined
@@ -212,6 +215,7 @@ export class App implements ChatPorts {
     this.laneFeed = s.laneFeed
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
+      this.#clean = new CleanView(this.#tern, this.#surface.motion, () => cleanPalette(s.theme.wal), () => this.changed())
       // A clicked planet opens the lanes popup on its lane's row.
       if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion, i => void openLanesPopup(this, this.laneFeed, undefined, i))
     }
@@ -228,6 +232,7 @@ export class App implements ChatPorts {
       eui: this.eui,
       ...(this.#orb ? { orb: this.#orb } : {}),
       ...(this.#lanes ? { lanes: this.#lanes } : {}),
+      clean: () => this.#clean?.node() ?? null,
       gateway: this.#gw,
       surface: this.#surface,
       retention: this.#retention
@@ -294,7 +299,10 @@ export class App implements ChatPorts {
         if (this.#surface.state !== 'visible') {
           return
         }
-        if (this.#retention && key.ctrl && key.name === 'home' && !this.overlays.at(-1)?.modal) {
+        // Any key restores the normal view from the clean one, and does nothing else.
+        if (cleanFocus.on) {
+          cleanFocus.exit()
+        } else if (this.#retention && key.ctrl && key.name === 'home' && !this.overlays.at(-1)?.modal) {
           this.#retention.request(true)
         } else {
           onKey(key, this.#act.keys, this.overlays.at(-1))
@@ -324,6 +332,7 @@ export class App implements ChatPorts {
     this.tableCharts.close()
     this.eui.close()
     this.#orb?.close()
+    this.#clean?.close()
     this.#lanes?.close()
     this.#surface?.dispose()
     this.#act.dispose()
@@ -357,7 +366,8 @@ export class App implements ChatPorts {
     const modal = this.overlays.at(-1)?.modal === true
     this.#lanes?.update(live, modal, orbState, focusBlock.active())
     // While the lanes orbit, the orbit's centre is the voice orb: the composer's copy stays hidden and still.
-    this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true)
+    this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true || cleanFocus.on)
+    this.#clean?.update(orbState)
     if (!this.#view || this.#surface.closed) {
       return
     }
@@ -597,4 +607,3 @@ export class App implements ChatPorts {
     return applyEffort(this, value, scope)
   }
 }
-

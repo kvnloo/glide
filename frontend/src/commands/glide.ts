@@ -5,7 +5,7 @@
 import { createHash } from 'node:crypto'
 
 import type { EuiCards } from '../eui/cards.js'
-import type { EuiApprovalContext, EuiHostHandle, EuiOperation } from '../eui/host.js'
+import type { EuiApprovalContext, EuiAside, EuiHostHandle, EuiOperation } from '../eui/host.js'
 import { MAX_HOST_ROWS } from '../wire/euiHostCard.js'
 import { DIGEST_APP, FOCUS_APP, HOURS_APP, WIND_APP } from '../../../glide/frontend/attentionCards.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
@@ -16,8 +16,10 @@ import { commandReply } from '../wire/json.js'
 import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
 import type { ThemeMode } from '../settings.js'
 import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
+import { studioCommand } from '../../../glide/frontend/studioCommand.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
+import { cleanFocus } from '../voice/cleanFocus.js'
 import type { Lane, LaneFeed } from '../voice/lanes.js'
 import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
@@ -181,6 +183,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
   const [verb, ...rest] = arg.trim().split(/\s+/)
 
   try {
+    if (verb === 'studio') {
+      await studioCommand(host, rest.join(' ') || process.env['GLIDE_STUDIO_PROJECT'] || '')
+      return
+    }
     if (verb === 'taste') {
       const board = tasteBoard(await call('taste'))
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
@@ -189,6 +195,12 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       cards.publish(tasteCard(board, block), async () => {
         try { await focusTastePane(block) } catch (error) { fail(error) }
       })
+      return
+    }
+    if (verb === 'focus' && rest[0] === 'clean') {
+      // The clean view only stands over a running block, wherever it started: ask the plugin first.
+      focusBlock.note(glideFocus.parse(await call('focus', { action: 'show' })))
+      if (!cleanFocus.enter()) host.transcript.notice('/glide focus clean shows over a deep-work block: start one with /glide focus start', 'warning')
       return
     }
     if (verb === 'focus') {
@@ -512,9 +524,9 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
   const settle = (f: GlideFocus) => {
     liveFocus.get(cards)?.update(...ended(f, liveMinutes.get(cards)))
   }
-  const card = (f: GlideFocus): [unknown, EuiOperation] => f.block
+  const card = (f: GlideFocus): [unknown, EuiOperation, EuiAside?] => f.block
     ? (liveMinutes.set(cards, f.block.minutes ?? f.block.minutes_left), [{
-        kind: 'approve', app: FOCUS_APP, title: `Deep-work block on until ${f.block.until}`, summary: 'Agent asks are held for one digest. Critical alerts still pass.',
+        kind: 'approve', app: FOCUS_APP, title: `Deep-work block on until ${f.block.until}`, summary: 'Agent asks are held for one digest. Critical alerts still pass. /glide focus clean clears the screen to the orb and ring.',
         rows: focusRows(f),
         approval: { label: 'End block', description: 'Ends the block and hands back everything Glide held as one digest.' }
       }, guarded(async ({ signal }) => {
@@ -522,7 +534,7 @@ export async function focusCommand(cards: Cards, call: FocusCall, sub: string, f
         if (signal.aborted) return
         settle(done)
         digest(done)
-      })])
+      }), { label: 'Clean screen', run: () => { focusBlock.note(f); cleanFocus.enter() } }])
     : [{
         kind: 'approve', app: FOCUS_APP, title: 'Your attention', summary: source(f), rows: focusRows(f),
         approval: { label: 'Start block', description: `For the next ${BLOCK} minutes Hermes keeps replies short and holds non-critical questions and notifications for one digest at the end. Critical alerts still pass.` }

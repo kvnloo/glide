@@ -8,7 +8,7 @@ import { decodeEuiKit, kitInput, kitNotes, type EuiKitDoc } from '../wire/euiKit
 import type { UiIntent, UiNode } from '../glideui/library.js'
 
 import type { EuiCardView } from './cards.js'
-import { HOST_APPROVE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
+import { HOST_APPROVE_ID, HOST_ASIDE_ID, hostSnapshot, type HostCardStatus } from './hostSnapshot.js'
 import { type FleetFit, fleetFit } from './fleetFit.js'
 import { kitSnapshot } from './kitSnapshot.js'
 import type { EuiMounted, EuiSandbox } from './sandbox.js'
@@ -28,10 +28,12 @@ export interface EuiApprovalContext {
   readonly signal: AbortSignal
 }
 export type EuiOperation = (context: EuiApprovalContext) => void | Promise<void>
+/** A host-owned side button beside the approval: never model-supplied, repeatable, consumes nothing. */
+export interface EuiAside { readonly label: string; readonly run: () => void }
 export interface EuiHostHandle {
   readonly id: EntryId
   readonly revision: number
-  update(data: unknown, operation?: EuiOperation): void
+  update(data: unknown, operation?: EuiOperation, aside?: EuiAside): void
   revoke(): void
 }
 export interface EuiKitContext extends Ticket {
@@ -63,6 +65,7 @@ type Content = {
   readonly kind: 'rows'
   readonly data: EuiHostCardData
   operation: EuiOperation | undefined
+  readonly aside: EuiAside | undefined
   status: HostCardStatus
 } | {
   readonly kind: 'kit'
@@ -81,6 +84,7 @@ interface Slot {
   readonly entry: PanelEntry
   readonly key: string
   revision: number
+  readonly entrance: boolean
   readonly content: Content
   readonly owner: EuiHostOwner
   readonly controller: AbortController
@@ -111,9 +115,9 @@ export class EuiHostCards {
   }
   get size(): number { return this.#slots.size }
 
-  publish(raw: unknown, operation?: EuiOperation): EuiHostHandle {
-    const handle = this.#publish(this.#rows(raw, operation))
-    return { ...handle, get revision() { return handle.revision }, update: (raw, run) => handle.update(this.#rows(raw, run)) }
+  publish(raw: unknown, operation?: EuiOperation, aside?: EuiAside): EuiHostHandle {
+    const handle = this.#publish(this.#rows(raw, operation, aside))
+    return { ...handle, get revision() { return handle.revision }, update: (raw, run, aside) => handle.update(this.#rows(raw, run, aside)) }
   }
 
   /** Only a trusted caller receives this publication's intent callback and abort lifetime. */
@@ -160,7 +164,7 @@ export class EuiHostCards {
           throw new Error('Host card owner changed')
         }
         entry.title = content.data.title ?? content.data.kind
-        slot = this.#install(entry, content, owner)
+        slot = this.#install(entry, content, owner, false)
         this.#changed(slot.key)
       },
       revoke: () => {
@@ -181,7 +185,7 @@ export class EuiHostCards {
     if (content.kind === 'native') {
       return {
         spec: content.data, app: content.data.app, label: content.data.title, identity: 'host-' + revision,
-        node: null, ui: content.data.ui, ...(content.error === undefined ? {} : { error: content.error }),
+        node: null, ui: content.data.ui, entrance: slot.entrance, ...(content.error === undefined ? {} : { error: content.error }),
         send: (intent: UiIntent) => {
           if (slot.revision !== revision || !this.#current(slot) || !this.#port?.active()) return
           void this.#runKit(slot, () => content.intent(intent, this.#context(slot)))
@@ -191,7 +195,7 @@ export class EuiHostCards {
     return {
       spec: content.data, app: content.data.app, label: content.data.title ?? content.data.kind,
       identity: 'host-' + revision,
-      node: content.kind === 'rows' ? hostSnapshot(content.data, content.status)
+      node: content.kind === 'rows' ? hostSnapshot(content.data, content.status, content.aside?.label)
         : kitSnapshot(kitNode(content), kitNotes(content.data), content.refresh !== undefined, content.refreshing, content.error),
       activate: id => {
         if (slot.revision !== revision) return
@@ -225,18 +229,19 @@ export class EuiHostCards {
     }
   }
 
-  #rows(raw: unknown, operation: EuiOperation | undefined): Content {
+  #rows(raw: unknown, operation: EuiOperation | undefined, aside?: EuiAside): Content {
     const data = decodeEuiHostCard(raw, this.#kinds)
     if (Boolean(data.approval) !== (typeof operation === 'function')) {
       throw new TypeError('An approval needs its separate host operation; read-only cards have none')
     }
-    return { kind: 'rows', data, operation, status: 'pending' }
+    return { kind: 'rows', data, operation, aside, status: 'pending' }
   }
   #kit(raw: unknown, intent: EuiKitIntent, refresh: EuiKitRefresh | undefined): Content {
     return { kind: 'kit', data: decodeEuiKit(raw), intent, refresh, refreshing: false, accepting: false }
   }
-  #install(entry: PanelEntry, content: Content, owner: EuiHostOwner): Slot {
+  #install(entry: PanelEntry, content: Content, owner: EuiHostOwner, entrance = true): Slot {
     const slot: Slot = {
+      entrance,
       entry, key: 'main.' + entry.id + '.host', revision: ++this.#revision,
       content, owner, controller: new AbortController(),
       onAbort: () => {
@@ -319,6 +324,12 @@ export class EuiHostCards {
   }
   #approve(slot: Slot, id: number) {
     const content = slot.content
+    if (content.kind === 'rows' && id === HOST_ASIDE_ID && content.aside && content.status === 'pending' &&
+      this.#current(slot) && this.#port?.active()) {
+      content.aside.run()
+      this.#changed(slot.key)
+      return
+    }
     if (content.kind !== 'rows' || id !== HOST_APPROVE_ID || !this.#current(slot) || !this.#port?.active() ||
       content.status !== 'pending' || !content.operation) return
     const run = content.operation
