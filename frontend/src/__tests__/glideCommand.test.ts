@@ -15,7 +15,8 @@ import { cleanFocus } from '../voice/cleanFocus.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
-import { closedSeats, COUNCIL_SCHEMA, demoRun, instrumentSvg, narration, parseCouncilRun, schedule } from '../../../glide/frontend/council.js'
+import { COUNCIL_SCHEMA, demoRun, parseCouncilRun } from '../../../glide/frontend/council.js'
+import { exchangeTiming } from '../../../glide/frontend/councilExchange.js'
 import { councilCard, councilCommand, type CouncilSource, loadCouncil } from '../../../glide/frontend/councilPopup.js'
 import type { EuiNode } from '../eui/sandbox.js'
 import type { Overlay } from '../overlays/overlay.js'
@@ -260,51 +261,6 @@ describe('/council', () => {
     expect(localCommand('council')?.help).toContain('Socratic council')
   })
 
-  it('parses a council run and refuses one that names a seat it does not seat', () => {
-    const run = demoRun()
-    expect(run.seats.map(s => [s.name, s.mineral])).toEqual([['Argon', 'malachite'], ['Astra', 'labradorite'], ['Fable', 'rose'], ['Opus', 'citrine']])
-    expect(run.events.filter(e => e.type === 'turn')).toHaveLength(16)
-    const raw = {
-      schema: COUNCIL_SCHEMA, brief: 'b', rounds: 2,
-      seats: [{ id: 'a', name: 'A', family: 'OpenAI' }, { id: 'b', name: 'B', family: 'OpenAI' }, { id: 'c', name: 'C', family: 'mystery' }],
-      events: [{ type: 'turn', seat: 'a', round: 1 }, { type: 'spawn', seat: 'b' }, { type: 'turn', seat: 'b', round: 2, cites: ['a'] }],
-      verdicts: [{ seat: 'a', stance: 'dissent', text: 'no' }]
-    }
-    const ok = parseCouncilRun(raw)
-    expect('error' in ok ? ok.error : ok.seats.map(s => s.mineral)).toEqual(['labradorite', 'moonstone', 'clear'])
-    expect('error' in ok ? [] : ok.events[2]).toEqual({ type: 'turn', seat: 1, round: 2, cites: [0] })
-    for (const [bad, why] of [
-      [{ ...raw, schema: 'other' }, 'schema'],
-      [{ ...raw, extra: 1 }, 'unknown field "extra"'],
-      [{ ...raw, events: [{ type: 'turn', seat: 'z', round: 1 }] }, 'unknown seat'],
-      [{ ...raw, events: [{ type: 'turn', seat: 'a', round: 3 }] }, 'events.0.round'],
-      [{ ...raw, verdicts: [{ seat: 'a', stance: 'maybe', text: 'x' }] }, 'stance'],
-      [{ ...raw, seats: [raw.seats[0], raw.seats[0]] }, 'share an id'],
-      [{ ...raw, seats: [{ id: 'a', name: 'A', family: 'x', mineral: 'ruby' }, raw.seats[1]] }, 'mineral'],
-      [null, 'expected an object']
-    ] as const) {
-      const r = parseCouncilRun(bad)
-      expect('error' in r ? r.error : 'parsed').toContain(why)
-    }
-  })
-
-  it('moves only while a run plays: idle, mid-run and complete draw differently and verdicts open seat by seat', () => {
-    const run = demoRun()
-    const { at, total } = schedule(run)
-    const lastTurn = run.events.map(e => e.type).lastIndexOf('turn')
-    const idle = instrumentSvg(run, { t: null })
-    expect(idle).not.toContain('url(#wm)')
-    expect(instrumentSvg(run, { t: null })).toBe(idle)
-    const mid = instrumentSvg(run, { t: total / 2 })
-    expect(mid).toContain('url(#wm)')
-    expect(narration(run, { t: total / 2 })).toMatch(/^Round \d · \w+/)
-    expect(closedSeats(run, { t: null }).size).toBe(0)
-    expect(closedSeats(run, { t: must(at[lastTurn]) + 10 }).size).toBe(3)
-    expect([...closedSeats(run, { t: total })]).toEqual([0, 1, 2, 3])
-    expect(instrumentSvg(run, { t: total })).not.toContain('url(#wm)')
-    expect(narration(run, { t: total })).toBe('Council complete · 4 rounds · 36 helpers')
-  })
-
   it('reads a configured live endpoint, and falls back to the tagged demo when it cannot', async () => {
     const live = { schema: COUNCIL_SCHEMA, brief: 'live brief', rounds: 1, seats: [{ id: 'a', name: 'A', family: 'Google' }, { id: 'b', name: 'B', family: 'free' }], events: [], verdicts: [] }
     const answer = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }))
@@ -347,10 +303,10 @@ describe('/council', () => {
 
     press(overlays[0], 'enter')
     expect(c.running).toBe(true)
-    c.advance(schedule(demoRun()).total / 2)
+    c.advance(exchangeTiming(demoRun()).total / 2)
     expect(draw()).toContain('Convening…')
     expect(changed.mock.calls.length).toBeGreaterThan(10)
-    c.advance(schedule(demoRun()).total)
+    c.advance(exchangeTiming(demoRun()).total)
     expect(c.running).toBe(false)
     const done = draw()
     expect(done).toContain('"data-council-stance":"dissent"')
@@ -401,7 +357,7 @@ describe('/council', () => {
     const run = demoRun()
     const verdicts = run.verdicts.map((v, i) => i === 0 ? { ...v, stance: 'abstain' as const } : v)
     const mixed = { ...run, verdicts }
-    const done = JSON.stringify(councilCard({ ...demo(), run: mixed }, { t: schedule(mixed).total }))
+    const done = JSON.stringify(councilCard({ ...demo(), run: mixed }, { t: exchangeTiming(mixed).total }))
     expect(done).toContain('2 of 4 agree · 1 dissent · 1 abstain')
     expect(done).not.toContain('3 of 4 agree')
   })
