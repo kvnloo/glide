@@ -53,7 +53,9 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     else:
         ctl('tab', 'close')
         raise RuntimeError('The isolated studio tab did not mount the motion verifier')
+    opacity = json.loads((STUDIO / 'tern/cfg/settings.json').read_text())['opacity']
     try:
+        ctl('glass', '100')
         ctl('reduce-motion', 'off')
         ctl('key', 'r')
         time.sleep(0.22)
@@ -100,6 +102,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         shot('reduced')
         (OUT / 'reduced-counts.json').write_text(json.dumps(ctl('dump', '.glide-count-frame'), indent=2))
     finally:
+        ctl('glass', str(opacity))
         ctl('reduce-motion', 'off')
         ctl('key', 'q')
         ctl('tab', 'close')

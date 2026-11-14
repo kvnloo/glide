@@ -15,7 +15,7 @@ To repeat the capture on the configured studio, run this command from the worktr
 python3 frontend/e2e/capture-card-motion.py
 ```
 
-The driver takes `/tmp/glide-studio-heavy.lock`, waits for more than 6 GiB of available memory, and creates its own Tern tab. It records only the `so.stencil.tern` window on the studio display. It stops its recorder, closes its tab, and restores normal motion after the test.
+The driver takes `/tmp/glide-studio-heavy.lock`, waits for more than 6 GiB of available memory, and creates its own Tern tab. It records only the `so.stencil.tern` window on the studio display. The window is temporarily opaque so the studio's film wallpaper cannot tint the recording. The driver stops its recorder, closes its tab, and restores the configured opacity and normal motion after the test.
 
 Run the focused tests from `frontend/`:
 
