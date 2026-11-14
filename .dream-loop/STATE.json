@@ -1,6 +1,6 @@
 {
   "status": "blocked-before-qualified-baseline",
-  "updated_utc": "2026-11-14T21:46:35.809963+00:00",
+  "updated_utc": "2026-11-14T22:11:11.728978+00:00",
   "branch": "feat/w8-cohesion-dreamloop",
   "source_revision": "653d6e98c669f9293c4d4d5f625714a398345dbe",
   "worktree": "/mnt/zer0models/worktrees/glide-w8-cohesion",
@@ -54,8 +54,9 @@
     "dash_theme": {
       "error": "no theme called \"dash\"",
       "exit": 1,
-      "receipt": "native/isolated-theme-rejected/receipt.json",
-      "available_kib": 6407116,
+      "receipt": "native/post-attachment-theme-rejected/receipt.json",
+      "post_attachment": true,
+      "available_kib": 8726976,
       "threshold_kib": 4194304,
       "tested_binaries": {
         "mbp_installed_sha256": "c6cc3765acade43c12ca90a7f97c78f47d242231bb035f89ec6de689fc96e759",
@@ -63,16 +64,20 @@
       }
     },
     "free_vision": {
-      "status": "no usable configured credential",
-      "resolver": "hermes_cli.config.get_env_value",
-      "providers_checked": [
-        "OPENROUTER_API_KEY",
-        "NVIDIA_API_KEY",
-        "GROQ_API_KEY"
-      ],
+      "status": "configured OpenRouter free daily quota exhausted",
+      "resolver": "hermes_cli.auth.read_credential_pool, read-only",
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "http_status": 429,
+      "daily_limit": 1000,
+      "remaining": 0,
+      "reset_utc": "2026-11-15T00:00:00+00:00",
       "probe_exit": 1,
-      "probe_log": "free-vision-g0.log",
-      "model_requests": 0,
+      "probe_logs": [
+        "free-vision-rate-limit-1.log",
+        "free-vision-g0.log"
+      ],
+      "model_requests": 2,
+      "retry_backoff_seconds": 60,
       "paid_tools_used": false
     }
   },
@@ -90,8 +95,13 @@
       "exit": 0,
       "passed": 7
     },
+    "free_vision_http_guards": {
+      "command": "python3 .dream-loop/test_free_vision_probe.py",
+      "exit": 0,
+      "passed": 4
+    },
     "syntax": {
-      "command": "python3 -m py_compile .dream-loop/checkpoint.py .dream-loop/free-vision-probe.py .dream-loop/native-baseline.py .dream-loop/native-sweep.py .dream-loop/test_native_baseline.py .dream-loop/verify-board.py",
+      "command": "python3 -m py_compile .dream-loop/checkpoint.py .dream-loop/free-vision-probe.py .dream-loop/native-baseline.py .dream-loop/native-sweep.py .dream-loop/test_free_vision_probe.py .dream-loop/test_native_baseline.py .dream-loop/verify-board.py",
       "exit": 0
     },
     "product_vitest": "not run",
@@ -113,5 +123,5 @@
   "board_url": "https://0.taila30dc.ts.net:8789/s/w8-baseline-recovery-blo-077f/preview/",
   "board_kind": "diagnostic only; no accepted candidate",
   "pr": null,
-  "resume": "Repair isolated Dash discovery and supply a usable free vision credential to the judge process. Validate the unexecuted sweep prototype before counting populated baselines. Then begin production UI rounds; keep only independently judged wins."
+  "resume": "Repair isolated Dash discovery. The OpenRouter login-store key resolves, but its free daily quota resets at 2026-11-15T00:00:00+00:00. Do not rotate keys or use a paid route. Qualify free vision after reset. Validate the unexecuted sweep prototype before counting populated baselines. Then begin production UI rounds; keep only independently judged wins."
 }

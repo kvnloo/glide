@@ -1,0 +1,24 @@
+MESA-INTEL: warning: Haswell Vulkan support is incomplete
+ WARN wgpu_core::instance: Feature MAPPABLE_PRIMARY_BUFFERS enabled on a discrete gpu. This is a massive performance footgun and likely not what you wanted
+tern: control on /tmp/glide-w8-cohesion/tern/ctl-1794693228976997074.sock
+tern: serving (`tern ctl quit` stops)
+> account signed-in atlas
+< {"ok":true}
+> resize 1060 596
+< {"ok":true}
+> appearance dark
+< {"ok":true}
+> run "env PATH=/tmp/glide-w8-cohesion/bin:/home/kvn/.bun/bin:/home/kvn/.local/bin:/home/kvn/.local/share/../bin:/home/kvn/.local/bin:/home/kvn/.bun/bin:/home/kvn/.npm-global/bin:/home/kvn/.grok/bin:/usr/local/sbin:/usr/local/bin:/usr/bin HOME=/tmp/glide-w8-cohesion/home HERMES_HOME=/tmp/glide-w8-cohesion/profile TERN_CONFIG_DIR=/tmp/glide-w8-cohesion/tern/config TERN_DAEMON_SOCKET=/tmp/glide-w8-cohesion/tern/daemon.sock XDG_CONFIG_HOME=/tmp/glide-w8-cohesion/home/.config XDG_DATA_HOME=/tmp/glide-w8-cohesion/home/.local/share XDG_CACHE_HOME=/tmp/glide-w8-cohesion/home/.cache XDG_STATE_HOME=/tmp/glide-w8-cohesion/tern/state PYTHONPATH=/tmp/glide-w8-cohesion/hermes-stock HERMES_PYTHON_SRC_ROOT=/tmp/glide-w8-cohesion/hermes-stock HERMES_NODE=/usr/bin/node PI_CODING_AGENT_DIR=/tmp/glide-w8-cohesion/home/.omp/agent /home/kvn/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main tern --new --provider custom --model fake-model 2>/tmp/glide-w8-cohesion/baseline-retry-1794693228975368452/app.log"
+< {"ok":true}
+> tree
+< {"ok":true,"tree":[{"tag":"main","id":"panel","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"div","class":"tn-stage","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"i","class":"tn-pip-g tl","re
+> tree
+< {"ok":true,"tree":[{"tag":"main","id":"panel","class":"ph-chat","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"div","class":"tn-stage","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"i","class"
+> tree
+< {"ok":true,"tree":[{"tag":"main","id":"panel","class":"ph-chat","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"div","class":"tn-stage","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"i","class"
+> tree
+< {"ok":true,"tree":[{"tag":"main","id":"panel","class":"ph-chat","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"div","class":"tn-stage","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"i","class"
+> tree
+< {"ok":true,"tree":[{"tag":"main","id":"panel","class":"ph-chat","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"div","class":"tn-stage","rect":[3.0,37.0,1054.0,556.0],"children":[{"tag":"i","class"
+> theme dark dash
+< {"ok":false,"error":"no theme called \"dash\""}

@@ -118,8 +118,6 @@ def main(sweep=None, fixture_env=None):
             ctl('account', 'signed-in', 'atlas')
             ctl('resize', '1060', '596')
             ctl('appearance', 'dark')
-            ctl('theme', 'dark', 'dash')
-            (OUT / 'appearance-state.json').write_text(ctl('state'))
             command_env = ' '.join(key + '=' + __import__('shlex').quote(env[key]) for key in ('PATH', 'HOME', 'HERMES_HOME', 'TERN_CONFIG_DIR', 'TERN_DAEMON_SOCKET', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME', 'XDG_STATE_HOME', 'PYTHONPATH', 'HERMES_PYTHON_SRC_ROOT', 'HERMES_NODE', 'PI_CODING_AGENT_DIR', *[key for key in env if key.startswith('GLIDE_')]))
             ctl('run', json.dumps('env ' + command_env + ' ' + __import__('shlex').join(hermes) + ' tern --new --provider custom --model fake-model 2>' + str(OUT / 'app.log')))
             # A cold disposable stock runtime can take several minutes to prepare.
@@ -136,6 +134,9 @@ def main(sweep=None, fixture_env=None):
             else:
                 (OUT / 'startup.tree.json').write_text(tree)
                 raise RuntimeError('Glide did not reach its composer. Inspect startup.tree.json and logs.')
+            ctl('theme', 'dark', 'dash')
+            ctl('wait', '500')
+            (OUT / 'appearance-state.json').write_text(ctl('state'))
             ctl('shot', 'welcome')
             receipt['captures'].append('welcome')
             if sweep:

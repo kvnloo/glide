@@ -1,1 +1,2 @@
-No usable OpenRouter credential is configured
+credential_source=read-only Hermes pool
+Free route rate limited. Retry-After=None reset=1794700800000 detail={"error":{"message":"Rate limit exceeded: free-models-per-day-high-balance. ","code":429,"metadata":{"headers":{"X-RateLimit-Limit":"1000","X-RateLimit-Remaining":"0","X-RateLimit-Reset":"1794700800000"},"limit_source":"openrouter_free_tier_daily","remedy_hint":"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.","provider_name":null}}}

@@ -20,6 +20,9 @@ for suffix in ('', 'assets/welcome-native.png', 'assets/welcome-preview.png', 'a
     else:
         assert b'Seven offline readiness and isolation regression tests pass.' in data
         assert b'After: no candidate' in data
+        assert b'0 of 1,000 free daily requests remaining' in data
+        assert b'2026-11-15 00:00 UTC' in data
+        assert b'after the native composer mounts' in data
     checks.append({'url': url + suffix, 'status': status, 'content_type': mime, 'sha256': hashlib.sha256(data).hexdigest()})
 report = {'url': url, 'kind': 'diagnostic only; no accepted candidate', 'checks': checks}
 (root / 'board-publication.json').write_text(json.dumps(report, indent=2) + '\n')
