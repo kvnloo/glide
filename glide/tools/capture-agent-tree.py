@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Capture and exercise the real agents overlay in an owned, offscreen Tern studio."""
+import argparse
+import fcntl
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+import time
+
+ROOT = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--out', type=Path, default=ROOT / 'docs/images/agent-tree')
+args = parser.parse_args()
+out = args.out.resolve()
+out.mkdir(parents=True, exist_ok=True)
+
+with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
+    fcntl.flock(lock, fcntl.LOCK_EX)
+    while int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:'))) < 6291456:
+        print('Waiting for MemAvailable > 6 GiB', flush=True)
+        time.sleep(30)
+    started_at = time.time()
+    with tempfile.TemporaryDirectory(prefix='glide-agent-tree-') as work:
+        work = Path(work)
+        bundle = work / 'dist/fixture.mjs'
+        bundle.parent.mkdir()
+        vendor = work / 'src/vendor'
+        vendor.mkdir(parents=True)
+        (vendor / 'ephemeral-ui').symlink_to(ROOT / 'frontend/src/vendor/ephemeral-ui')
+        subprocess.run([str(ROOT / 'frontend/node_modules/.bin/esbuild'), str(ROOT / 'frontend/e2e/agent-tree-studio.ts'), '--bundle', '--platform=node', '--format=esm', '--target=node22', f'--tsconfig={ROOT}/frontend/tsconfig.json', '--preserve-symlinks', "--banner:js=import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);", f'--outfile={bundle}'], cwd=ROOT, check=True)
+        env = {'HOME': str(work), 'PATH': os.environ['PATH'], 'LANG': 'C.UTF-8', 'TERM': 'xterm-256color',
+               'TERN_CONFIG_DIR': str(work / 'config'), 'TERN_DAEMON_SOCKET': str(work / 'daemon.sock')}
+        # No host display, session socket, profile, or gateway environment is inherited.
+        control = work / 'ctl.sock'
+        tern = shutil.which('tern')
+        if not tern:
+            raise RuntimeError('Tern is unavailable. No desktop fallback is allowed.')
+        def ctl(*command):
+            result = subprocess.run([tern, 'ctl', '--control', str(control), *command], env=env, capture_output=True, text=True, check=True)
+            return result.stdout
+        with open(out / 'studio.log', 'w') as log:
+            proc = subprocess.Popen([tern, 'serve', '--control', str(control), '--out', str(out), '--dir', str(work)], env=env, stdout=log, stderr=subprocess.STDOUT)
+            try:
+                for _ in range(100):
+                    if control.exists():
+                        break
+                    if proc.poll() is not None:
+                        raise RuntimeError('Owned Tern exited. Inspect studio.log.')
+                    time.sleep(.1)
+                else:
+                    raise RuntimeError('Owned Tern control endpoint did not appear.')
+                ctl('resize', '1440', '1000')
+                ctl('appearance', 'dark')
+                ctl('run', json.dumps(f'{shutil.which("node")} {bundle} 2>{out}/fixture-stderr.log'))
+                for _ in range(100):
+                    tree = ctl('tree')
+                    if 'Planner' in tree:
+                        break
+                    time.sleep(.1)
+                else:
+                    (out / 'startup-tree.json').write_text(tree)
+                    (out / 'startup-state.json').write_text(ctl('state'))
+                    ctl('shot', 'startup-failure')
+                    raise RuntimeError('The real overlay did not render. Inspect fixture-stderr.log and startup-state.json.')
+                time.sleep(.2)
+                scope = json.loads(ctl('dump', '.eu .eu-card.eui-host'))['elements']
+                head = json.loads(ctl('dump', '.eu .eui-host-head'))['elements']
+                if not scope or scope[0]['backgroundColor'] == 'rgba(0, 0, 0, 0)' or not head or head[0]['rect'][3] != 24:
+                    raise RuntimeError('The compact kit scope did not style the real host note at its declared 24px header height.')
+                ctl('wait', '600')
+                ctl('shot', 'collapsed')
+                ctl('record', 'start', 'expansion', 'fps', '30')
+                ctl('wait', '600')
+                ctl('click', '[data-agent-toggle=planner]')
+                ctl('wait', '320')
+                expanded = ctl('tree')
+                if 'UI worker' not in expanded or 'Current step' not in expanded:
+                    raise RuntimeError('Mouse expansion did not expose context and children.')
+                ctl('key', 'Right')
+                ctl('key', 'Enter')
+                ctl('wait', '320')
+                nested = ctl('tree')
+                if 'Keyboard checks' not in nested:
+                    raise RuntimeError('Keyboard expansion did not expose the nested child.')
+                ctl('shot', 'expanded')
+                ctl('wait', '800')
+                ctl('key', 'Left')
+                ctl('wait', '320')
+                ctl('key', 'Left')
+                ctl('key', 'Enter')
+                ctl('wait', '320')
+                ctl('record', 'stop')
+                (out / 'expanded-layout.json').write_text(ctl('dump', '[data-agent-tree]'))
+                ctl('reduce-motion', 'on')
+                ctl('click', '[data-agent-toggle=planner]')
+                time.sleep(.1)
+                ctl('wait', '1')
+                reduced = ctl('tree')
+                (out / 'reduced-motion-tree.json').write_text(reduced)
+                pending = list(json.loads(reduced)['tree'])
+                bodies = []
+                while pending:
+                    node = pending.pop(0)
+                    if 'agent-tree-body' in node.get('class', ''):
+                        bodies.append(node)
+                    pending.extend(node.get('children', []))
+                if not bodies or bodies[0]['rect'][3] != 176:
+                    raise RuntimeError('Reduced motion did not immediately expose the full fixture context and child.')
+                (out / 'expanded-tree.json').write_text(nested)
+                (out / 'verification.json').write_text(json.dumps({'renderer': 'real Tern offscreen studio', 'mouse_expansion': True, 'keyboard_nested_expansion': True, 'reduced_motion_full_height': True, 'native_kit_scope': True, 'desktop_access': False}, indent=2) + '\n')
+            finally:
+                if proc.poll() is None:
+                    ctl('quit')
+                proc.wait()
+        media = out / 'serve'
+        files = [media / name for name in ('collapsed.png', 'expanded.png', 'expansion.mp4')]
+        if any(not file.is_file() or file.stat().st_size == 0 or file.stat().st_mtime < started_at for file in files):
+            raise RuntimeError('Tern did not produce all requested media files.')
+        print(json.dumps({'stills': [str(file) for file in files[:2]], 'clip': str(files[2])}))

@@ -12,6 +12,10 @@ dictation.py  # upstream: alt-glitch/hermes-tern PR 71
 docs/BUNDLE-ARTIFACT.md
 docs/DESIGN-LANGUAGE.md
 docs/MEDIA-DELIVERY.md
+docs/images/agent-tree/serve/collapsed.png
+docs/images/agent-tree/serve/expanded.png
+docs/images/agent-tree/serve/expansion.mp4
+docs/images/agent-tree/verification.json
 docs/images/agent-wait-after.png
 docs/images/agent-wait-before.png
 docs/images/agent-wait-dock.png
@@ -26,6 +30,7 @@ ephemeral_cards.py
 frontend/PLAN-REVIEW.md
 frontend/SHORTCUTS.md
 frontend/bench/retention.ts
+frontend/docs/agents-tree.md
 frontend/docs/artifacts-links.md
 frontend/docs/browser-blocks.md
 frontend/docs/btw-operational-sheets.md
@@ -37,6 +42,7 @@ frontend/docs/vim-editor.md
 frontend/docs/voice.md
 frontend/e2e/JOURNEYS.md
 frontend/e2e/REPORT.md
+frontend/e2e/agent-tree-studio.ts
 frontend/e2e/army/.gitignore
 frontend/e2e/army/DESIGN.md
 frontend/e2e/army/JOURNEY.md
@@ -160,6 +166,8 @@ frontend/src/__tests__/__snapshots__/golden/context-meter.json
 frontend/src/__tests__/a11y.test.ts  # upstream: alt-glitch/hermes-tern PR 70
 frontend/src/__tests__/actionsSplit.test.ts
 frontend/src/__tests__/agentTiles.test.ts
+frontend/src/__tests__/agentTree.test.ts
+frontend/src/__tests__/agentTreeOverlay.test.ts
 frontend/src/__tests__/architectureBoard.test.ts
 frontend/src/__tests__/artifactAttachments.test.ts
 frontend/src/__tests__/artifactClipboard.test.ts
@@ -371,8 +379,11 @@ frontend/src/__tests__/writeRefusal.test.ts
 frontend/src/__tests__/writeRefusalFold.test.ts
 frontend/src/__tests__/writeWarningIntegration.test.ts
 frontend/src/__tests__/writtenArtifacts.test.ts
+frontend/src/agents/fixture.ts
 frontend/src/agents/ownership.ts
 frontend/src/agents/tiles.tsx
+frontend/src/agents/tree.ts
+frontend/src/agents/treeView.tsx
 frontend/src/app/actions-session.ts
 frontend/src/app/actions-ui.ts
 frontend/src/app/agent-pane.ts
