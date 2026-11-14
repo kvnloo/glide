@@ -59,6 +59,8 @@ const heartbeat = setInterval(() => {
       event('message.complete', { status: 'complete', text: 'Search and keyboard flow verified. SAMPLE receipt.' })
     } else if (input.action === 'reset') {
       app.transcript.reset({ session: 'other', usage: undefined })
+    } else if (input.action === 'quit') {
+      app.quit()
     }
     app.changed()
   }

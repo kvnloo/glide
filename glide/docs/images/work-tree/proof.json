@@ -1,0 +1,22 @@
+{
+  "status": "interaction-checks-passed",
+  "synthetic": true,
+  "host": "real Tern window on owned headless Sway",
+  "isolation": "Owned headless endpoint, no physical display; shared studio kept untouched",
+  "runtime": "/tmp/glide-work-tree-tg0HFZ",
+  "checks": [
+    "gateway start mounts",
+    "read/edit/create events",
+    "native task tab click",
+    "nested tasks",
+    "reduced motion",
+    "auto-collapse and receipt",
+    "native expand click",
+    "session reset"
+  ],
+  "visualReview": {
+    "status": "blocked",
+    "reason": "Native Tern first-run omp update dialog obscures the real window. Desktop driver unavailable; Jev routing returned no_key. Captures are raw evidence, not film-ready proof.",
+    "mobile": "412px native layout unverified; cropped draft removed."
+  }
+}

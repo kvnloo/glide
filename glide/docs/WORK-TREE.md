@@ -38,6 +38,27 @@ The shared motion layer and subagent pane are unchanged. The work tree's own CSS
 
 `frontend/src/__tests__/workTree.test.ts` covers file states, parallel edits, late results, partial results, nested plans, explicit clears, bridge calls, malformed parent edges, binding, expansion, and stale controls. Golden replays include the new dock card.
 
-`glide/tools/work-tree-shots.mjs` drives the real App and SDK in a real Tern window on an owned headless Sway compositor. Its synthetic gateway feeds normal tool and todo events. The verifier clicks native controls, captures desktop and phone layouts, toggles reduced motion, checks the receipt, and resets the transcript. No model requests or physical-display input are permitted by that fixture.
+`glide/tools/work-tree-shots.mjs` drives the real App and SDK in a real Tern window on an owned headless Sway compositor. Its synthetic gateway feeds normal tool and todo events. The verifier clicks native controls, captures the desktop layout, toggles reduced motion, checks the receipt, and resets the transcript. No model requests or physical-display input are permitted by that fixture.
 
-Capture files use the HEADLESS prefix because the shared studio is active for other workers. The proof uses separate configuration, HOME, daemon socket, and control socket. The real Tern renderer produces the PNGs and MP4.
+Capture files use the HEADLESS prefix because the shared studio is active for other workers. The fixture uses separate configuration, HOME, PATH, data directories, daemon socket, control socket, and headless Sway compositor. Grim and wf-recorder capture that compositor's real Tern window, never the physical display.
+
+## Verification status
+
+Frontend source revision: `6e64d74`. The [corrected fleet mirror](https://github.com/kvnloo/fleet-runner/actions/runs/43572071336) verified that revision. Later changes only affect this document and the capture fixture/artifacts.
+
+| Check | Result |
+| --- | --- |
+| Seven focused Vitest files | Exit 0: 98 tests passed, including golden replays |
+| `bun run typecheck` | Exit 0; two external Hermes diagnostics excluded by the existing checker |
+| `bun run lint` | Exit 0: 0 file-rule pairs |
+| Fleet `bun run test --reporter=default --reporter=junit --outputFile.junit=../out/frontend.xml` | Exit 0: 2,876 passed, 5 skipped, 1 todo |
+| Fleet `bun run bundle` | Exit 0 |
+| Fleet checked-in bundle guard | Passed: `frontend/dist/entry.js` untouched |
+| Native interaction fixture | Exit 0: tool updates, native tabs, reduced-motion toggle, collapse, expand, reset, and App shutdown |
+| Visual review | Blocked: native first-run Tern dialog covers part of the window; raw captures are not film-ready |
+
+The native fixture ran with `flock /tmp/glide-studio-heavy.lock` and more than 6 GiB available memory. `serve` could not load the custom Dash theme; the owned native window could. A first-run “Let Tern keep omp up to date?” dialog remains despite isolated agent configuration. The desktop-control driver is unavailable, and Jev routing returned `no_key`; no GUI-control bypass was attempted. `proof.json` distinguishes passing interaction checks from blocked visual review. The cropped phone draft was removed; a native 412 px layout is not verified.
+
+The mirror remains red on baseline failures: 27 layout violations already present at `cb01b71`, three Python failures (323 passed), and the existing size violations in `glideCommand.test.ts` and `app/chat.ts`. This branch's own layout entries are documented and `transcript/store.ts` remains at its original 600-line limit. Optional local `check:strict` and `check:suppressions` also fail on existing shared renderer/theme typing and test-suppression issues. These failures were not hidden or weakened.
+
+Raw evidence is under `glide/docs/images/work-tree/`: live FILES, live TASKS, receipt, reduced-motion stills, native tree/layout dumps, and a 5.46-second H.264 MP4. Inspect the native-dialog obstruction before using any capture in the launch film.
