@@ -10,7 +10,7 @@ import pytest
 
 pytest.importorskip("hermes_cli.skin_engine")
 
-from hermes_tern_plugin.live_skin import glide_skin  # noqa: E402
+from hermes_tern_plugin.live_skin import glide_skin
 
 
 def _call(**args):
