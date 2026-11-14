@@ -47,9 +47,11 @@ export function gevCard(a: GevAnswer, s: GevCardState): UiNode {
   kids.push(s.png
     ? { type: 'element', typeName: 'Picture', props: { png: s.png, w: s.size?.w ?? 1280, h: s.size?.h ?? 800, alt: `God's Eye View: ${a.summary}` } }
     : { type: 'element', typeName: 'Text', props: { body: s.failed ? `Globe unavailable: ${s.failed}` : 'Rendering the globe in God\'s Eye View…', tone: 'muted' } })
-  kids.push({ type: 'element', typeName: 'Row', props: { children: [
-    { type: 'element', typeName: 'Hero', props: { value: a.total === undefined ? '—' : String(a.total), label: a.layers.length ? a.layers.join(' · ') : gevTitle(a.tool) } },
-    { type: 'element', typeName: 'Text', props: { body: a.summary } }
+  const summary: UiNode = { type: 'element', typeName: 'Text', props: { body: a.summary } }
+  // A count only when the app gave one: a pass time or a brief has none, and a dash is not a number.
+  kids.push(a.total === undefined ? summary : { type: 'element', typeName: 'Row', props: { children: [
+    { type: 'element', typeName: 'Hero', props: { value: String(a.total), label: a.layers.length ? a.layers.join(' · ') : gevTitle(a.tool) } },
+    summary
   ] } })
   if (cols.length && a.rows.length) {
     kids.push({ type: 'element', typeName: 'Table', props: {

@@ -91738,9 +91738,10 @@ function gevCard(a2, s2) {
   const cols = columns(a2.rows);
   const kids2 = [];
   kids2.push(s2.png ? { type: "element", typeName: "Picture", props: { png: s2.png, w: s2.size?.w ?? 1280, h: s2.size?.h ?? 800, alt: `God's Eye View: ${a2.summary}` } } : { type: "element", typeName: "Text", props: { body: s2.failed ? `Globe unavailable: ${s2.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
-  kids2.push({ type: "element", typeName: "Row", props: { children: [
-    { type: "element", typeName: "Hero", props: { value: a2.total === void 0 ? "\u2014" : String(a2.total), label: a2.layers.length ? a2.layers.join(" \xB7 ") : gevTitle(a2.tool) } },
-    { type: "element", typeName: "Text", props: { body: a2.summary } }
+  const summary4 = { type: "element", typeName: "Text", props: { body: a2.summary } };
+  kids2.push(a2.total === void 0 ? summary4 : { type: "element", typeName: "Row", props: { children: [
+    { type: "element", typeName: "Hero", props: { value: String(a2.total), label: a2.layers.length ? a2.layers.join(" \xB7 ") : gevTitle(a2.tool) } },
+    summary4
   ] } });
   if (cols.length && a2.rows.length) {
     kids2.push({ type: "element", typeName: "Table", props: {

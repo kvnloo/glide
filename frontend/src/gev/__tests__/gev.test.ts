@@ -59,6 +59,11 @@ describe('gevCard', () => {
     expect(card.props.skin).toBe('gev')
     expect(card.props.children.map(c => c.typeName)).toEqual(['Picture', 'Row', 'Table', 'Buttons'])
   })
+  it('shows no count when the app gave none (a pass time, a brief)', () => {
+    const card = gevCard({ ...a, tool: 'next_satellite_pass', total: undefined, rows: [] }, { capturing: false, png: 'iVBOR' })
+    if (card.typeName !== 'Card') throw new Error('not a card')
+    expect(card.props.children.map(c => c.typeName)).toEqual(['Picture', 'Text', 'Buttons'])
+  })
   it('says the globe is rendering until the capture lands', () => {
     const card = gevCard(a, { capturing: true })
     if (card.typeName !== 'Card') throw new Error('not a card')
