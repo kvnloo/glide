@@ -21,7 +21,7 @@ let queued = false
 const draw = () => {
   queued = false
   surface.render({
-    main: [ui.text({ key: 'fixture', text: 'Glide · isolated studio · synthetic agents' })],
+    main: [ui.text({ key: 'fixture', text: 'Glide · HEADLESS native Tern · synthetic agents' })],
     layer: overlay ? [overlay.node('layer.overlay-1')] : []
   })
   surface.focus(overlay?.focus?.('layer.overlay-1') ?? null)

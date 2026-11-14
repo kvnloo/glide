@@ -78,10 +78,11 @@ export function agentTreeNodes(nodes: readonly AgentBranch[], state: HubState, n
 
 export const AGENT_TREE_CSS = `
 [data-role='hermes.agents'] [data-role='omp.actions'] { flex-wrap:wrap; }
+[data-role='hermes.agents'] [data-role='omp.btn'] { box-shadow:none; }
 [data-agent-tree] { font-size:13px; min-width:0; max-height:60vh; overflow:auto; }
 [data-agent-tree] * { box-sizing:border-box; }
 [data-agent-tree] .sf-badge { font-size:11px; }
-[data-agent-tree] .agent-tree-head { display:flex; flex-direction:column; justify-content:center; gap:4px; width:100%; height:${HEADER}px; min-height:${HEADER}px; padding:10px 12px; text-align:left; border:none; border-bottom:1px solid var(--l2); border-radius:0; background:transparent; color:var(--t1); cursor:pointer; }
+[data-agent-tree] .agent-tree-head { display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:4px; width:100%; height:${HEADER}px; min-height:${HEADER}px; padding:10px 12px; text-align:left; border:none; border-bottom:1px solid var(--l2); border-radius:0; background:transparent; color:var(--t1); cursor:pointer; }
 [data-agent-tree] .agent-tree-head[data-selected='true'] { background:var(--l2); border-left:2px solid var(--sf-p-accent,var(--accent)); }
 [data-agent-tree] .agent-tree-head:focus-visible { outline:1px solid var(--sf-p-accent,var(--accent)); outline-offset:-2px; }
 [data-agent-tree] [data-role='hermes.agent-tree.task'] { font-size:12px; color:var(--t2); }

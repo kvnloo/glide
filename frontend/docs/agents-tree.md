@@ -5,8 +5,8 @@
 - [x] Ground the existing hub, gateway store, transcript reader, and native rendering.
 - [x] Compare picker rows and a controlled tree inside the existing overlay.
 - [x] Choose the tree without changing gateway ownership or the lane broker.
-- [ ] Implement and test expansion, context, and keyboard navigation.
-- [ ] Verify the built UI in isolated Tern, capture evidence, and run the CI mirror.
+- [x] Implement and test expansion, context, and keyboard navigation.
+- [x] Verify the built UI in isolated Tern, capture evidence, and run the CI mirror.
 
 ## Usage
 
@@ -48,6 +48,17 @@ model IDs were unavailable. There was no independent cross-judge.
 
 ## Verification
 
-Focused tests cover the reducer, forest, context extraction, and overlay handlers.
-The fixture and capture script exercise the same overlay as the app, not a separate
-HTML reconstruction. Full suites run through the fleet-runner CI mirror.
+Run `bash glide/tools/verify-agent-tree.sh` for focused behavior tests and project
+guards. The seven selected files pass all 62 tests. Typecheck and lint pass;
+the strict gate reports eight errors in three untouched files. Separate size and
+suppression checks each report one untouched test file. The normal app bundle passes.
+
+Run `python3 glide/tools/capture-agent-tree.py --out docs/images/agent-tree` for the
+owned offscreen Tern capture, labelled HEADLESS. This avoids restarting shared
+studio services or touching the desktop. It exercises the app's overlay, not
+reconstructed HTML. Captures are under `docs/images/agent-tree/serve/`; the script validates their
+existence before reporting success and also exercises reduced motion.
+
+Full suites run through the fleet-runner CI mirror, not local full Vitest. The PR
+records the final run and its failures. The fork-layout gate includes new feature
+files outside `glide/`; this change does not expand its historical allowlist.

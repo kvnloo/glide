@@ -184,7 +184,7 @@ export function openAgents(host: AgentsSheetHost, focus?: { id: string; watch?: 
         ? []
         : [
             { id: 'watch', keys: ['t'], label: 'Timeline' },
-            { id: 'toggle', keys: ['enter'], label: 'Toggle', primary: true },
+            { id: 'toggle', keys: ['enter'], label: 'Toggle' },
             { id: 'beside', keys: ['o'], label: 'Beside' },
             { id: 'pause', keys: ['p'], label: host.agents.paused ? 'Resume spawns' : 'Pause spawns' }
           ]),
@@ -214,8 +214,8 @@ export function openAgents(host: AgentsSheetHost, focus?: { id: string; watch?: 
         <col gap="sm" key="hub">
           <text key="summary" text={`${summary(all)}${host.agents.paused ? ' · spawns paused (gateway-wide)' : ''}`} tone="muted" />
           <row gap="sm" key="tabs">
-            {button({ key: 'running', label: `Running · ${running}`, ...optional('kind', state.tab === 'running' ? 'primary' as const : undefined), onClick: () => click({ type: 'tab', tab: 'running' }) })}
-            {button({ key: 'all', label: `All · ${all.length}`, ...optional('kind', state.tab === 'all' ? 'primary' as const : undefined), onClick: () => click({ type: 'tab', tab: 'all' }) })}
+            {button({ key: 'running', label: `Running · ${running}${state.tab === 'running' ? ' · selected' : ''}`, onClick: () => click({ type: 'tab', tab: 'running' }) })}
+            {button({ key: 'all', label: `All · ${all.length}${state.tab === 'all' ? ' · selected' : ''}`, onClick: () => click({ type: 'tab', tab: 'all' }) })}
           </row>
           <html.div key="tree" attrs={{ 'data-agent-tree': '', role: 'tree', 'aria-label': 'Subagents' }}>
             {agentTreeNodes(agentBranches(all, state.tab === 'running'), state, now, agent => click({ type: 'toggle', id: agent }), host.eui ? css => host.eui?.style(css) ?? '' : undefined)}

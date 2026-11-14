@@ -22,6 +22,7 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
     while int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:'))) < 6291456:
         print('Waiting for MemAvailable > 6 GiB', flush=True)
         time.sleep(30)
+    started_at = time.time()
     with tempfile.TemporaryDirectory(prefix='glide-agent-tree-') as work:
         work = Path(work)
         bundle = work / 'fixture.mjs'
@@ -48,6 +49,7 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
                 else:
                     raise RuntimeError('Owned Tern control endpoint did not appear.')
                 ctl('resize', '1440', '1000')
+                ctl('appearance', 'dark')
                 ctl('run', json.dumps(f'{shutil.which("node")} {bundle} 2>{out}/fixture-stderr.log'))
                 for _ in range(100):
                     tree = ctl('tree')
@@ -59,6 +61,8 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
                     (out / 'startup-state.json').write_text(ctl('state'))
                     ctl('shot', 'startup-failure')
                     raise RuntimeError('The real overlay did not render. Inspect fixture-stderr.log and startup-state.json.')
+                time.sleep(.2)
+                ctl('wait', '600')
                 ctl('shot', 'collapsed')
                 ctl('record', 'start', 'expansion', 'fps', '30')
                 ctl('wait', '600')
@@ -81,10 +85,30 @@ with open('/tmp/glide-studio-heavy.lock', 'a') as lock:
                 ctl('key', 'Enter')
                 ctl('wait', '320')
                 ctl('record', 'stop')
+                (out / 'expanded-layout.json').write_text(ctl('dump', '[data-agent-tree]'))
+                ctl('reduce-motion', 'on')
+                ctl('click', '[data-agent-toggle=planner]')
+                time.sleep(.1)
+                ctl('wait', '1')
+                reduced = ctl('tree')
+                (out / 'reduced-motion-tree.json').write_text(reduced)
+                pending = list(json.loads(reduced)['tree'])
+                bodies = []
+                while pending:
+                    node = pending.pop(0)
+                    if 'agent-tree-body' in node.get('class', ''):
+                        bodies.append(node)
+                    pending.extend(node.get('children', []))
+                if not bodies or bodies[0]['rect'][3] != 176:
+                    raise RuntimeError('Reduced motion did not immediately expose the full fixture context and child.')
                 (out / 'expanded-tree.json').write_text(nested)
-                (out / 'verification.json').write_text(json.dumps({'renderer': 'real Tern offscreen studio', 'mouse_expansion': True, 'keyboard_nested_expansion': True, 'desktop_access': False}, indent=2) + '\n')
+                (out / 'verification.json').write_text(json.dumps({'renderer': 'real Tern offscreen studio', 'mouse_expansion': True, 'keyboard_nested_expansion': True, 'reduced_motion_full_height': True, 'desktop_access': False}, indent=2) + '\n')
             finally:
                 if proc.poll() is None:
                     ctl('quit')
                 proc.wait()
-        print(json.dumps({'stills': [str(out / 'collapsed.png'), str(out / 'expanded.png')], 'clip': str(out / 'expansion.mp4')}))
+        media = out / 'serve'
+        files = [media / name for name in ('collapsed.png', 'expanded.png', 'expansion.mp4')]
+        if any(not file.is_file() or file.stat().st_size == 0 or file.stat().st_mtime < started_at for file in files):
+            raise RuntimeError('Tern did not produce all requested media files.')
+        print(json.dumps({'stills': [str(file) for file in files[:2]], 'clip': str(files[2])}))

@@ -100,8 +100,8 @@ describe('design checks', () => {
   })
 
   it('refuse a composer ring without a Meter, since only the Meter draws round the border', () => {
-    const hero: UiNode = { type: 'element', typeName: 'Hero', props: { value: '25:00' } }
-    const meter: UiNode = { type: 'element', typeName: 'Meter', props: { value: 0.5 } }
+    const hero: UiNode = { type: 'element', typeName: 'Hero', props: { value: '25:00', label: 'Time left' } }
+    const meter: UiNode = { type: 'element', typeName: 'Meter', props: { value: 0.5, label: 'Focus' } }
     const card = (children: UiNode[]): UiNode => ({ type: 'element', typeName: 'Card', props: { title: 'focus', children } })
     expect(checkTree(card([hero]), 'composer-ring')[0]).toMatch(/composer-ring needs a Meter/)
     expect(checkTree(card([meter, hero]), 'composer-ring')).toEqual([])

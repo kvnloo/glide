@@ -3,8 +3,7 @@
 // transcript, keys go to the top overlay or the composer, and every change
 // schedules one frame of the whole view (app/frame.ts); the SDK diffs it into
 // frame ops. App is the composition root: it makes the stores (app/stores.ts)
-// and the actions over them (app/actions.ts), lends them as ChatPorts, and
-// runs the pane until it quits.
+// and the actions over them (app/actions.ts), lends them as ChatPorts, and runs the pane until it quits.
 
 import type { ScrollTo, Session, TspEvent } from '@stencil-hq/tern'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
