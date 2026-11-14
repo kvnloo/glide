@@ -23,7 +23,7 @@ try {
     client = await import(app('tern/bridge-client.mjs'));
   } catch { throw Error('Set GLIDE_STUDIO_DIR to the fframestudio checkout, or link its tern plugin. Install its existing dependencies first.'); }
   const info = await lifecycle.ensureBridge();
-  if (action === 'inspect') {
+  if (action === 'snapshot') {
     let native = false;
     try {
       const list = JSON.parse((await tern(['plugin', 'list', '--json'])).stdout);
@@ -48,7 +48,8 @@ try {
     const owner = process.env.TERN_PANE || '';
     if (!/^[1-9][0-9]*$/.test(owner) || !Number.isSafeInteger(Number(owner))) throw Error('Studio needs a local Tern pane. The safe editor URL is shown in the card.');
     if (action === 'native') {
-      await tern(['split', owner, 'right', '--json', '--', process.execPath, path.join(root, 'tern/app.mjs'), ...(selected ? ['--project', selected] : [])]);
+      const discovery = process.env.FFS_BRIDGE_FILE || path.join(os.homedir(), '.config/fframestudio/bridge.json');
+      await tern(['split', owner, 'right', '--json', '--', 'env', 'FFS_BRIDGE_FILE=' + discovery, process.execPath, path.join(root, 'tern/app.mjs'), ...(selected ? ['--project', selected] : [])]);
     } else if (action === 'web') {
       const { controlFile } = await import(app('tern/tern-control.mjs'));
       // The existing helper keeps /open's credential in a private, temporary file, not argv/output.

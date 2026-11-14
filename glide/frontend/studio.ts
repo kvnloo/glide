@@ -59,7 +59,7 @@ export function studioCard(state: StudioState): EuiNativeCard {
 }
 
 /** Child output is parsed at this boundary. The runtime never returns its bridge token. */
-export async function studioRuntime(action: 'inspect' | 'native' | 'web', project = ''): Promise<unknown> {
+export async function studioRuntime(action: 'snapshot' | 'native' | 'web', project = ''): Promise<unknown> {
   if (project && !/^[\w-][\w.-]*$/.test(project)) throw new Error('Usage: /glide studio [project-id]')
   let stdout: string
   try {
@@ -72,6 +72,6 @@ export async function studioRuntime(action: 'inspect' | 'native' | 'web', projec
   }
   const reply = record(stdout)
   if (typeof reply?.['error'] === 'string') throw new Error(reply['error'])
-  if (action !== 'inspect' && reply?.['opened'] !== true) throw new Error('Tern did not confirm opening the studio')
+  if (action !== 'snapshot' && reply?.['opened'] !== true) throw new Error('Tern did not confirm opening the studio')
   return reply
 }

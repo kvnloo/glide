@@ -1,4 +1,9 @@
+import { spawnSync } from 'node:child_process'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { STUDIO_RUNTIME } from '../../../glide/frontend/studioRuntime.js'
+import { record } from '../wire/json.js'
 
 import { studioCard, studioSnapshot, studioTree } from '../../../glide/frontend/studio.js'
 
@@ -11,6 +16,15 @@ const project = {
 const snapshot = () => studioSnapshot({ mode: 'web', url: 'http://127.0.0.1:7878/#/p/atlas', project })
 
 describe('studio preview', () => {
+  it('executes the real Node adapter instead of entering the reserved inspect debugger', () => {
+    const result = spawnSync(process.execPath, ['--input-type=module', '-e', STUDIO_RUNTIME, '--', 'snapshot', 'atlas'], {
+      encoding: 'utf8', env: { ...process.env, GLIDE_STUDIO_DIR: join(tmpdir(), 'glide-studio-deliberately-missing-checkout') }
+    })
+    expect(result.status).toBe(1)
+    expect(record(result.stdout)).toEqual({ error: expect.stringContaining('Set GLIDE_STUDIO_DIR') })
+    expect(result.stdout).not.toContain('Debugger')
+  })
+
   it('groups clips and their real attachments under scenes, including ungrouped clips', () => {
     expect(studioTree(snapshot().project)).toEqual([
       { id: 'film/opening/hero/media', group: 'Film / Opening', label: 'Hero', detail: 'Media layer' },

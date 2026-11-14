@@ -23,7 +23,7 @@ function setup() {
   const panels = () => transcript.entries.filter(e => e.kind === 'panel').map(e => ofKind(e, 'panel'))
   const view = () => eui.hostView(must(panels()[0]))
   vi.mocked(execFile).mockImplementation(stub((_file: string, args: string[], _options: unknown, callback: (error: null, value: { stdout: string }) => void) => {
-    callback(null, { stdout: JSON.stringify(args.at(-2) === 'inspect' ? snapshot : { opened: true }) })
+    callback(null, { stdout: JSON.stringify(args.at(-2) === 'snapshot' ? snapshot : { opened: true }) })
   }))
   return { host, session, transcript, request, panels, view }
 }
@@ -39,9 +39,9 @@ describe('/glide studio', () => {
     expect(f.view()?.node).toBeNull()
     expect(JSON.stringify(f.view()?.ui)).toContain('Web editor open')
     expect(f.request).not.toHaveBeenCalled()
-    // Without this boundary Node treats "inspect" as its debugger subcommand.
-    expect(vi.mocked(execFile).mock.calls[0]?.[1]?.slice(-3)).toEqual(['--', 'inspect', ''])
-    expect(vi.mocked(execFile).mock.calls.map(call => call[1]?.slice(-2))).toEqual([['inspect', ''], ['web', '']])
+    // The action must not be Node's reserved "inspect" subcommand, even after --.
+    expect(vi.mocked(execFile).mock.calls[0]?.[1]?.slice(-3)).toEqual(['--', 'snapshot', ''])
+    expect(vi.mocked(execFile).mock.calls.map(call => call[1]?.slice(-2))).toEqual([['snapshot', ''], ['web', '']])
   })
 
   it('opens the native add-on for a selected project when discovery confirms it', async () => {
@@ -50,7 +50,7 @@ describe('/glide studio', () => {
       callback(null, { stdout: JSON.stringify({ ...snapshot, mode: 'native' }) })
     }))
     await glideCommand(f.host, 'studio atlas')
-    expect(vi.mocked(execFile).mock.calls.map(call => call[1]?.slice(-2))).toEqual([['inspect', 'atlas'], ['native', 'atlas']])
+    expect(vi.mocked(execFile).mock.calls.map(call => call[1]?.slice(-2))).toEqual([['snapshot', 'atlas'], ['native', 'atlas']])
     expect(JSON.stringify(f.view()?.ui)).toContain('Native studio open')
   })
 

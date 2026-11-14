@@ -2,7 +2,7 @@
 // GLIDE_STUDIO_DIR=/path/to/fframestudio node BUNDLED_FILE OUT_DIR
 import assert from 'node:assert/strict'
 import { execFile, spawn } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -98,29 +98,31 @@ if (process.argv[2] === '--pane') {
   const env = { ...process.env, HOME: home, FFS_BRIDGE_FILE: discovery, GLIDE_STUDIO_PROOF: work }
   const bridge = spawn(node, [join(app, 'bridge/bridge.mjs'), '--quiet', '--port', String(port), '--root', join(home, 'fframestudio'), '--theme-home', home], { env, stdio: 'ignore' })
   let recorder: ReturnType<typeof spawn> | undefined
-  let tab: string | undefined
+  const sessionName = 'atlas-studio-' + randomUUID().slice(0, 8)
   const ctl = (...args: string[]) => exec('tern', ['ctl', '--control', control, ...args], { timeout: 30_000 })
   try {
     for (let n = 0; n < 100; n++) {
       try { await readFile(discovery); break } catch { await delay(100) }
     }
     const run = (action: string, selected: string) => exec(node, ['--input-type=module', '-e', STUDIO_RUNTIME, '--', action, selected], { env, timeout: 45_000 })
-    const inspected = studioSnapshot(JSON.parse((await run('inspect', 'atlas')).stdout))
+    const inspected = studioSnapshot(JSON.parse((await run('snapshot', 'atlas')).stdout))
     assert.equal(inspected.project?.title, 'Atlas launch')
     assert.equal(studioTree(inspected.project)[0]?.label, 'headline')
     assert(!JSON.stringify(inspected).includes('token'))
-    await assert.rejects(run('inspect', '../escape'))
-    const launched = record((await exec('tern', ['new', 'tab', '--json', '--cwd', process.cwd(), '--', 'env', `HOME=${home}`, `FFS_BRIDGE_FILE=${discovery}`, `GLIDE_STUDIO_DIR=${app}`, `GLIDE_STUDIO_PROOF=${work}`, node, fileURLToPath(import.meta.url), '--pane'], { timeout: 30_000 })).stdout)
-    // Keep only this owned tab's id for cleanup. The native daemon response contains no credentials.
+    await assert.rejects(run('snapshot', '../escape'))
+    const launched = record((await exec('tern', ['new', 'session', sessionName, '--json', '--cwd', process.cwd(), '--', 'env', `HOME=${home}`, `FFS_BRIDGE_FILE=${discovery}`, `GLIDE_STUDIO_DIR=${app}`, `GLIDE_STUDIO_PROOF=${work}`, node, fileURLToPath(import.meta.url), '--pane'], { timeout: 30_000 })).stdout)
+    const block = typeof launched?.['block'] === 'number' ? String(launched['block']) : undefined
+    assert(block, 'Tern did not return the owned pane ID')
+    await exec('tern', ['focus', block, '--json'])
     await writeFile(join(out, 'launch.json'), JSON.stringify(launched, null, 2))
-    tab = typeof launched?.['block'] === 'number' ? String(launched['block']) : undefined
     for (let n = 0; n < 100; n++) {
       try { await readFile(join(work, 'ready')); break } catch { await delay(100) }
     }
     await readFile(join(work, 'ready'))
     await delay(500)
-    await ctl('shot', join(out, 'before'))
+    assert((await ctl('tree')).stdout.includes('Glide / Studio'), 'Owned Studio pane is not visible')
     const geometry = process.env['GLIDE_STUDIO_GEOMETRY']
+    await exec('grim', [...(geometry ? ['-g', geometry] : ['-o', 'HEADLESS-1']), join(out, 'before.png')])
     recorder = spawn('wf-recorder', ['--no-dmabuf', '-o', 'HEADLESS-1', ...(geometry ? ['-g', geometry] : []), '-r', '15', '-c', 'libx264', '-p', 'preset=ultrafast', '-p', 'crf=18', '-f', join(out, 'raw.mp4'), '-y'], { stdio: 'ignore' })
     await delay(600)
     for (const char of '/glide studio atlas') { await ctl('type', JSON.stringify(char)); await delay(40) }
@@ -134,17 +136,36 @@ if (process.argv[2] === '--pane') {
     // Check the user-facing native card, not a self-reported receipt alone.
     assert(tree.includes('Atlas launch') && tree.includes('headline'), 'Project layer card missing from native Tern tree')
     assert(tree.includes('Web editor open') || tree.includes('Native studio open'), 'Studio launch did not reach the open state')
-    await delay(2000) // /open has redirected before any web pixel capture.
-    await exec('grim', ['-o', 'HEADLESS-1', ...(geometry ? ['-g', geometry] : []), join(out, 'after.png')])
+    if (inspected.mode === 'web') {
+      const hasEditor = (value: unknown): boolean => {
+        if (Array.isArray(value)) return value.some(hasEditor)
+        const object = record(value)
+        return object !== undefined && (object['url'] === inspected.url || Object.values(object).some(hasEditor))
+      }
+      let redirected = false
+      for (let n = 0; n < 60; n++) {
+        const inventory = record((await exec('tern', ['browser', JSON.stringify({ op: 'blocks' }), '--timeout', '15'])).stdout)
+        if (hasEditor(inventory?.['ok'])) { redirected = true; break }
+        await delay(250)
+      }
+      assert(redirected, 'Editor did not redirect to its credential-free project URL')
+    }
+    await delay(1000)
+    await exec('grim', [...(geometry ? ['-g', geometry] : ['-o', 'HEADLESS-1']), join(out, 'after.png')])
     await writeFile(join(out, 'tree.json'), tree)
     assert.equal(await checksum(), before, 'Read-only preview changed project.json')
     await writeFile(join(out, 'verification.json'), JSON.stringify({ realTern: true, projectUnchanged: true, v0Migration: true, mode: inspected.mode, credentialFree: true }, null, 2))
     console.log(JSON.stringify({ out, mode: inspected.mode, checks: 'bridge auth, v0 migration, real command, native layer tree, project unchanged' }))
   } finally {
-    if (recorder) { recorder.kill('SIGINT'); await new Promise(resolve => recorder?.once('exit', resolve)) }
-    if (tab) await exec('tern', ['close', tab, '--json']).catch(() => undefined)
-    bridge.kill('SIGTERM')
-    await new Promise(resolve => bridge.once('exit', resolve))
+    if (recorder && recorder.exitCode === null && recorder.signalCode === null) {
+      recorder.kill('SIGINT')
+      await new Promise(resolve => recorder?.once('exit', resolve))
+    }
+    await exec('tern', ['kill', 'session', sessionName, '--json']).catch(() => undefined)
+    if (bridge.exitCode === null && bridge.signalCode === null) {
+      bridge.kill('SIGTERM')
+      await new Promise(resolve => bridge.once('exit', resolve))
+    }
     await rm(work, { recursive: true, force: true })
   }
 }

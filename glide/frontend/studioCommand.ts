@@ -12,7 +12,7 @@ export async function studioCommand(host: GlideHost, project: string): Promise<v
   let snapshot: StudioSnapshot | undefined
   try {
     handle = cards.publishNative(studioCard({ phase: 'starting' }), ignore)
-    snapshot = studioSnapshot(await studioRuntime('inspect', project))
+    snapshot = studioSnapshot(await studioRuntime('snapshot', project))
     if (!current()) { handle.revoke(); return }
     await studioRuntime(snapshot.mode, project)
     if (!current()) { handle.revoke(); return }
