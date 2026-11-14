@@ -92,7 +92,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
     const send = view.send ?? (() => undefined)
     return (
       <col key={view.identity === undefined ? card : `${card}.${view.identity}`} role="glide.host">
-        {glideNode(view.ui, 'ui', { send, svg: markup => eui.svg(markup) })}
+        {glideNode(view.ui, 'ui', { send, entrance: view.entrance, svg: markup => eui.svg(markup) })}
         {view.error === undefined ? null : <text key="err" role="eui.error" text={view.error} wrap="word" />}
       </col>
     )

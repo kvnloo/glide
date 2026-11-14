@@ -47,6 +47,18 @@ loopback (127.0.0.0/8, `::1` or `localhost`). Without a named token file, or wit
 a non-loopback URL, there is no strip and no request. Malformed status or unknown states are refused, not
 guessed. [Lanes](../src/voice/lanes.tsx) · [Tests](../src/__tests__/lanes.test.ts)
 
+## Clean focus
+
+During a deep-work block, `/glide focus clean` or the block card's Clean screen
+button clears the pane to the thinking orb inside the ring timer, over the
+wallpaper. The orb is the library orb: it breathes slowly, and its hue drifts
+from the theme accent toward the palette's most distinct bright hue, leaning
+further with agent state (idle, thinking, tool running). Only the ring glows.
+Reduced motion holds both still. Any key, or the block ending, restores the
+normal view. [Clean view](../src/voice/cleanFocus.tsx) · [Tests](../src/__tests__/cleanFocus.test.ts)
+
+![Clean focus: the orb and ring over the wallpaper](../../docs/images/focus-clean-after.png)
+
 ## OMP verification (from frontend)
 
     bun run check

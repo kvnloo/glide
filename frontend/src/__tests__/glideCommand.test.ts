@@ -10,7 +10,8 @@ import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards, euiDir, euiStyles } from '../eui/cards.js'
 import type { EuiOperation } from '../eui/host.js'
-import { HOST_APPROVE_ID } from '../eui/hostSnapshot.js'
+import { HOST_APPROVE_ID, HOST_ASIDE_ID } from '../eui/hostSnapshot.js'
+import { cleanFocus } from '../voice/cleanFocus.js'
 import { SessionState } from '../session/state.js'
 import { Transcript } from '../transcript/store.js'
 
@@ -528,12 +529,17 @@ describe('/glide focus', () => {
     expect(titles()).toEqual(['Deep-work block on until 09:50'])
     const running = JSON.stringify(view(0))
     for (const s of ['ah-live', 'min left', 'Deep work until 09:50', '2 asks held for the digest', 'End block', 'ih-hold']) expect(running).toContain(s)
+    // The running card's Clean screen button clears the screen; it calls nothing and leaves End block armed.
+    const calls = request.mock.calls.length
+    must(view(0).activate)(HOST_ASIDE_ID)
+    expect([running.includes('Clean screen'), cleanFocus.on, request.mock.calls.length, JSON.stringify(view(0)).includes('End block')]).toEqual([true, true, calls, true])
+    cleanFocus.exit()
 
     must(view(0).activate)(HOST_APPROVE_ID)
     await settle()
     expect(request.mock.calls.at(-1)).toEqual(['glide.focus', { session_id: 'glide-session', action: 'stop' }])
     expect(titles()).toEqual(['Deep-work block ended', 'While you were in deep work: 2 held'])
-    expect(JSON.stringify(view(0))).not.toContain('End block')
+    expect(JSON.stringify(view(0))).not.toMatch(/End block|Clean screen/)
     const after = JSON.stringify(view(0))
     for (const s of ['Start another block', '50', 'min done']) expect(after).toContain(s)
     const digest = JSON.stringify(view(1))
