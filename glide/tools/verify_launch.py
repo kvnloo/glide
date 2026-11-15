@@ -13,6 +13,7 @@ import io
 import json
 import os
 from pathlib import Path
+import signal
 import sys
 import tempfile
 
@@ -32,8 +33,17 @@ def main() -> None:
     options = argparse.ArgumentParser(description=__doc__)
     options.add_argument("--glide-source", type=Path, default=ROOT / "glide")
     source = options.parse_args().glide_source.resolve()
+
+    def interrupted(signum, _frame):
+        raise SystemExit(128 + signum)
+
+    signal.signal(signal.SIGTERM, interrupted)
     with tempfile.TemporaryDirectory(prefix="glide-launch-verify-") as temporary:
         home = Path(temporary)
+        owner_cache = Path.home() / ".hermes" / "cache" / "uv"
+        if owner_cache.is_dir():
+            (home / "cache").mkdir()
+            (home / "cache" / "uv").symlink_to(owner_cache, target_is_directory=True)
         os.environ.update(HERMES_HOME=str(home), HERMES_TERN_CHANNELS=str(home / "channels.json"))
         os.environ.pop("TERN_PANE", None)
         os.environ.pop("HERMES_TERN", None)
