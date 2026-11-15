@@ -14827,7 +14827,7 @@ var require_util4 = __commonJS({
           if (encoding === "failure") {
             encoding = "UTF-8";
           }
-          return decode3(bytes, encoding);
+          return decode4(bytes, encoding);
         }
         case "ArrayBuffer": {
           const sequence = combineByteSequences(bytes);
@@ -14844,7 +14844,7 @@ var require_util4 = __commonJS({
         }
       }
     }
-    function decode3(ioQueue, encoding) {
+    function decode4(ioQueue, encoding) {
       const bytes = combineByteSequences(ioQueue);
       const BOMEncoding = BOMSniffing(bytes);
       let slice = 0;
@@ -27380,8 +27380,8 @@ function digest(d, el) {
     ], "ah-item")) : [el("li", [el("span", [text2("Nothing waited for you. Pick the next thing.")], "ah-title")], "ah-item")], "ah-list")
   ], "ah-hero ah-digest");
 }
-var hourOf = (clock6) => {
-  const m2 = /(\d{1,2}):(\d\d)/.exec(clock6);
+var hourOf = (clock7) => {
+  const m2 = /(\d{1,2}):(\d\d)/.exec(clock7);
   return m2 ? Number(m2[1]) + Number(m2[2]) / 60 : void 0;
 };
 var BAND_W = 480;
@@ -46377,15 +46377,15 @@ function collectText(node4, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join20;
+  let join21;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join20 = void 0;
+      join21 = void 0;
     } else if (lines[index2]) {
-      if (typeof join20 === "number") result.push(join20);
+      if (typeof join21 === "number") result.push(join21);
       result.push(lines[index2]);
-      join20 = 0;
+      join21 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -73877,7 +73877,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const { hits, order: order2 } = view(now);
       const s2 = sessions.find((x) => x.id === selected);
       const hereCount = sessions.filter(here).length;
-      const project = workspace ? basename4(workspace) : "This folder";
+      const project2 = workspace ? basename4(workspace) : "This folder";
       const pane = s2 ? sessionDetail({
         copied: copied.value === s2.id,
         focus: (key3) => focusBlock2(key3),
@@ -73905,7 +73905,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           ],
           ...optional("confirm", deleting ? { act: "confirm", label: "Delete", text: `Delete \u201C${sessionLabel(sessions.find((x) => x.id === deleting) ?? { preview: "", title: "" })}\u201D?` } : void 0),
           current: sessions.filter(isCurrent).map((x) => x.id),
-          empty: tab3 === "here" ? `No sessions in ${project} yet. Tab shows every folder.` : "No saved sessions yet",
+          empty: tab3 === "here" ? `No sessions in ${project2} yet. Tab shows every folder.` : "No saved sessions yet",
           focus: focus2,
           hits,
           icon: "history",
@@ -73961,7 +73961,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           subtitle: [{ s: "muted", t: workspace ? homeTilde(workspace, launchEnv().home) : "" }],
           tab: tab3,
           tabs: [
-            { count: hereCount, id: "here", label: project },
+            { count: hereCount, id: "here", label: project2 },
             { count: sessions.length, id: "all", label: "All folders" }
           ],
           title: "Sessions",
@@ -76087,7 +76087,7 @@ function councilCard(src, frame2, size = 480, sideHeader = false) {
     ...sideHeader ? [] : [el("span", `font-family:${MONO};font-size:10px;color:${NIGHT.text3};text-align:center`, [text22(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])]
   ])]);
 }
-function openCouncilPopup(host2, src, clock6 = realClock) {
+function openCouncilPopup(host2, src, clock7 = realClock) {
   const eui = host2.eui;
   if (!eui) {
     host2.transcript.notice("/council needs a pane with ephemeral-ui cards", "warning");
@@ -76096,16 +76096,16 @@ function openCouncilPopup(host2, src, clock6 = realClock) {
   const total = schedule(src.run).total;
   let start = null;
   let stop3;
-  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock6.now() - start) });
+  const frame2 = () => ({ t: start === null ? null : Math.min(total, clock7.now() - start) });
   const halt = () => {
     stop3?.();
     stop3 = void 0;
   };
   const convene = () => {
     halt();
-    start = clock6.now();
-    stop3 = clock6.every(() => {
-      if (clock6.now() - (start ?? 0) >= total) halt();
+    start = clock7.now();
+    stop3 = clock7.every(() => {
+      if (clock7.now() - (start ?? 0) >= total) halt();
       host2.changed();
     }, TICK_MS4);
     host2.changed();
@@ -76139,7 +76139,7 @@ function openCouncilPopup(host2, src, clock6 = realClock) {
   host2.open(overlay2);
   return overlay2;
 }
-function publishCouncilCard(host2, src, clock6) {
+function publishCouncilCard(host2, src, clock7) {
   const cards = host2.eui?.host;
   if (!cards) {
     host2.transcript.notice("/council card needs an attached session with ephemeral-ui cards", "warning");
@@ -76164,11 +76164,11 @@ function publishCouncilCard(host2, src, clock6) {
       handle3.update(data, open5);
     } catch {
     }
-    openCouncilPopup(host2, src, clock6);
+    openCouncilPopup(host2, src, clock7);
   };
   const handle3 = cards.publish(data, open5);
 }
-async function councilCommand(host2, arg, load3 = loadCouncil, clock6) {
+async function councilCommand(host2, arg, load3 = loadCouncil, clock7) {
   const verb = arg.trim().toLowerCase();
   if (verb !== "" && verb !== "card") {
     host2.transcript.notice("Usage: /council [card]", "warning");
@@ -76177,8 +76177,8 @@ async function councilCommand(host2, arg, load3 = loadCouncil, clock6) {
   const src = await load3();
   if (src.note) host2.transcript.notice(`/council: ${src.note}`, "warning");
   try {
-    if (verb === "card") publishCouncilCard(host2, src, clock6);
-    else openCouncilPopup(host2, src, clock6);
+    if (verb === "card") publishCouncilCard(host2, src, clock7);
+    else openCouncilPopup(host2, src, clock7);
   } catch (e) {
     host2.transcript.notice(`/council: ${e instanceof Error ? e.message : String(e)}`, "error");
   }
@@ -77524,11 +77524,11 @@ async function captureGlobe(url, owner2, browser2 = ternBrowser, budgetMs = 3e4)
       settled2 = r["value"] === true ? settled2 + 1 : 0;
       await sleep(settled2 ? 1200 : 700);
     }
-    const shot = await browser2({ op: "capture", block, format: "png" }, 3e4);
-    if (typeof shot["data"] !== "string") throw new Error("capture returned no image");
-    const w = typeof shot["width"] === "number" ? shot["width"] : 1280;
-    const h2 = typeof shot["height"] === "number" ? shot["height"] : 800;
-    return { png: shot["data"], w, h: h2 };
+    const shot2 = await browser2({ op: "capture", block, format: "png" }, 3e4);
+    if (typeof shot2["data"] !== "string") throw new Error("capture returned no image");
+    const w = typeof shot2["width"] === "number" ? shot2["width"] : 1280;
+    const h2 = typeof shot2["height"] === "number" ? shot2["height"] : 800;
+    return { png: shot2["data"], w, h: h2 };
   } finally {
     await browser2({ op: "close", block }).catch(() => void 0);
   }
@@ -79524,8 +79524,8 @@ async function researchCommand(host2, arg, o = {}) {
   handle3 = eui.host.publishNative(card(), intent5);
   if (owner2 !== void 0) {
     void captureGlobe(embedUrl(url), owner2, browser2, 6e4).then(
-      (shot) => {
-        view = { ...view, capturing: false, png: shot.png, size: { w: shot.w, h: shot.h } };
+      (shot2) => {
+        view = { ...view, capturing: false, png: shot2.png, size: { w: shot2.w, h: shot2.h } };
       },
       (e) => {
         view = { ...view, capturing: false, failed: e instanceof Error ? e.message : String(e) };
@@ -79533,6 +79533,88 @@ async function researchCommand(host2, arg, o = {}) {
     ).then(push3);
   }
   play();
+}
+
+// src/commands/film.ts
+import { readFile as readFile5 } from "node:fs/promises";
+import { homedir as homedir9 } from "node:os";
+import { join as join12 } from "node:path";
+
+// src/wire/fframestudio.ts
+var bridge = object({ url: string2().check(_regex(/^http:\/\/127\.0\.0\.1:\d+$/)), token: string2().check(_regex(/^[\w.-]+$/)), root: string2() });
+var shot = object({ id: string2(), name: string2(), t0: number2(), t1: number2() });
+var project = object({
+  id: string2().check(_regex(/^[\w.-]+$/)),
+  title: string2(),
+  kind: optional2(string2()),
+  duration_s: optional2(nullable(number2())),
+  shots: array(shot),
+  renders: optional2(array(unknown()))
+});
+var library = object({ projects: array(object({ id: string2(), title: string2(), duration_s: optional2(nullable(number2())), shots: optional2(number2()) })) });
+var decode3 = (schema2, text22) => {
+  const r = schema2.safeParse(parseJson(text22));
+  return r.success ? r.data : void 0;
+};
+var filmBridge = (text22) => decode3(bridge, text22);
+var filmProject = (text22) => decode3(project, text22);
+var filmLibrary = (text22) => decode3(library, text22);
+var editorUrl = (b, id3) => `${b.url}/open?token=${encodeURIComponent(b.token)}&to=${encodeURIComponent(`#/p/${id3}`)}`;
+
+// src/commands/film.ts
+var clock5 = (s2) => `${Math.floor(s2 / 60)}:${(s2 % 60).toFixed(1).padStart(4, "0")}`;
+function filmCard(p3, opened) {
+  const len = p3.duration_s ?? p3.shots.at(-1)?.t1 ?? 0;
+  return { type: "element", typeName: "Card", props: { title: p3.title, app: "FFRAMESTUDIO", status: opened ? "done" : "running", children: [
+    { type: "element", typeName: "Stats", props: { items: [
+      { label: "Length", value: `${len.toFixed(1)} s`, tone: "accent" },
+      { label: "Shots", value: String(p3.shots.length) },
+      { label: "Renders", value: String(p3.renders?.length ?? 0) },
+      { label: "Kind", value: p3.kind ?? "fframes" }
+    ] } },
+    { type: "element", typeName: "Section", props: { title: "Shots", aside: `${p3.shots.length}`, children: [
+      { type: "element", typeName: "List", props: { numbered: true, items: p3.shots.slice(0, 8).map((s2) => ({ id: s2.id, label: s2.name, value: `${clock5(s2.t0)}\u2013${clock5(s2.t1)}` })) } }
+    ] } },
+    { type: "element", typeName: "Buttons", props: { items: [{ label: opened ? "Open again in fframestudio" : "Opening fframestudio\u2026", intent: { action: "open", entities: { project: p3.id } }, primary: true }] } }
+  ] } };
+}
+async function filmCommand(host2, arg, d = {}) {
+  const read = d.read ?? ((path2) => readFile5(path2, "utf8"));
+  const file2 = d.bridgeFile ?? process.env["FFRAMESTUDIO_BRIDGE"] ?? join12(homedir9(), ".config", "fframestudio", "bridge.json");
+  const b = filmBridge(await read(file2).catch(() => ""));
+  if (!b) {
+    host2.transcript.notice("/film needs fframestudio: run `npm run bridge` in its checkout", "warning");
+    return;
+  }
+  const id3 = arg.trim();
+  if (!id3) {
+    const lib = filmLibrary(await read(join12(b.root, "projects", "library.json")).catch(() => ""));
+    host2.transcript.panel("/film <project>", lib ? lib.projects.map((p4) => `${p4.id.padEnd(30)} ${p4.title}`).join("\n") : "The fframestudio library is empty.");
+    return;
+  }
+  const p3 = /^[\w.-]+$/.test(id3) ? filmProject(await read(join12(b.root, "projects", id3, "project.json")).catch(() => "")) : void 0;
+  if (!p3) {
+    host2.transcript.notice(`/film: no fframestudio project "${id3}"`, "warning");
+    return;
+  }
+  const eui = host2.eui;
+  if (!eui) {
+    host2.transcript.notice("/film needs inline cards", "warning");
+    return;
+  }
+  const browser2 = d.browser ?? ternBrowser;
+  const owner2 = "owner" in d ? d.owner : paneBlock();
+  let handle3;
+  const open5 = async () => {
+    if (owner2 === void 0) throw new Error("not inside a Tern pane");
+    await browser2({ op: "open", owner: owner2, url: editorUrl(b, p3.id), how: "below" });
+  };
+  const card = (opened) => ({ kind: "fframes-film", app: "fframestudio", title: p3.title, ui: filmCard(p3, opened) });
+  const intent5 = async (detail) => {
+    if (record(detail)?.["action"] === "open") await open5().catch((e) => host2.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, "warning"));
+  };
+  handle3 = eui.host.publishNative(card(false), intent5);
+  await open5().then(() => handle3?.update(card(true), intent5), (e) => host2.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, "warning"));
 }
 
 // src/commands/refused.ts
@@ -80232,6 +80314,11 @@ var COMMANDS3 = [
     run: (host2, arg) => researchCommand(host2, arg)
   },
   {
+    name: "film",
+    help: "fframes films from the fframestudio library: a card plus the editor under the pane [project]; no project lists them",
+    run: (host2, arg) => filmCommand(host2, arg)
+  },
+  {
     name: "intel",
     help: "Local intelligence [hill|skills|memory|failures|trace]",
     run: (host2, arg) => intelCommand(host2, arg)
@@ -80669,22 +80756,22 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join13 } from "node:path";
+import { join as join14 } from "node:path";
 
 // src/config/dataDir.ts
-import { homedir as homedir9 } from "node:os";
-import { join as join12 } from "node:path";
-var dataDir = (env2 = process.env) => join12(env2["HERMES_HOME"] || join12(homedir9(), ".hermes"), "plugin-data", "glide");
+import { homedir as homedir10 } from "node:os";
+import { join as join13 } from "node:path";
+var dataDir = (env2 = process.env) => join13(env2["HERMES_HOME"] || join13(homedir10(), ".hermes"), "plugin-data", "glide");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join13(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join14(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join13(dir2, "panes"), { recursive: true });
+    mkdirSync4(join14(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -80701,10 +80788,10 @@ function forgetPane(launch3, dir2 = dataDir()) {
 
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { dirname as dirname6, join as join14 } from "node:path";
+import { homedir as homedir11 } from "node:os";
+import { dirname as dirname6, join as join15 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "glide", "settings.json");
+  return join15(env2["HERMES_HOME"] || join15(homedir11(), ".hermes"), "glide", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
@@ -81013,7 +81100,7 @@ var SurfaceLifecycle = class {
 // src/eui/cards.ts
 import { createHash as createHash5 } from "node:crypto";
 import { readFileSync as readFileSync8 } from "node:fs";
-import { dirname as dirname7, join as join16, resolve as resolve8 } from "node:path";
+import { dirname as dirname7, join as join17, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -81859,7 +81946,7 @@ var EuiHostCards = class {
 
 // src/eui/sandbox.js
 import { existsSync as existsSync3, readFileSync as readFileSync7 } from "node:fs";
-import { join as join15 } from "node:path";
+import { join as join16 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -92596,12 +92683,12 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE2 = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join15(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join15(dir2, "data", match[1] + ".json");
+  const file2 = join16(dir2, "data", match[1] + ".json");
   return existsSync3(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
@@ -92802,13 +92889,13 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync7(join15(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K2 = ctx.__EUI;
   await K2.loadApps();
-  const themes = JSON.parse(readFileSync7(join15(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
   K2.theme.themes = themes;
   K2.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join15(dir2, "kit.css");
+  const kitCss2 = join16(dir2, "kit.css");
   const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   K2.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
@@ -92980,7 +93067,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = (dir2 ? readFileSync8(join16(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
+  const kit = (dir2 ? readFileSync8(join17(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -93040,7 +93127,7 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync8(join16(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join17(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -93840,8 +93927,8 @@ var GevCards = class {
     }
     if (owner2 === void 0) return;
     void captureGlobe(embedUrl(answer.url), owner2, this.browser).then(
-      (shot) => {
-        state = { capturing: false, png: shot.png, size: { w: shot.w, h: shot.h } };
+      (shot2) => {
+        state = { capturing: false, png: shot2.png, size: { w: shot2.w, h: shot2.h } };
       },
       (e) => {
         state = { capturing: false, failed: e instanceof Error ? e.message : String(e) };
@@ -101084,7 +101171,7 @@ var Theme = class {
 // src/glideui/widgets.tsx
 import { execFile as execFile11 } from "node:child_process";
 import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
-import { basename as basename8, dirname as dirname8, join as join17 } from "node:path";
+import { basename as basename8, dirname as dirname8, join as join18 } from "node:path";
 
 // src/glideui/checks.ts
 var MIN_TEXT_PX = 11;
@@ -101136,7 +101223,7 @@ function checkPalette(p3) {
 }
 
 // src/glideui/widgets.tsx
-var statusFile = (settings2) => join17(dirname8(settings2), "ui-status.json");
+var statusFile = (settings2) => join18(dirname8(settings2), "ui-status.json");
 var gitCommits = (cwd) => new Promise((resolve11) => {
   execFile11("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
@@ -101702,8 +101789,8 @@ import { fileURLToPath as fileURLToPath11 } from "node:url";
 import { execFile as execFile12 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp3, rm as rm4 } from "node:fs/promises";
-import { homedir as homedir11, tmpdir as tmpdir3 } from "node:os";
-import { join as join18, resolve as resolve10 } from "node:path";
+import { homedir as homedir12, tmpdir as tmpdir3 } from "node:os";
+import { join as join19, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
   execFile12(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
@@ -101771,9 +101858,9 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp3(join18(tmpdir3(), "glide-clipboard-"));
+  const dir2 = await mkdtemp3(join19(tmpdir3(), "glide-clipboard-"));
   try {
-    const path2 = await extract(join18(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join19(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm4(dir2, { force: true, recursive: true });
@@ -101792,7 +101879,7 @@ function imagePathOf(text22, cwd) {
       return void 0;
     }
   }
-  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir11());
+  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir12());
   if (!IMAGE2.test(raw2)) {
     return void 0;
   }
@@ -103873,16 +103960,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync7, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync6 } from "node:fs";
-import { join as join19 } from "node:path";
+import { join as join20 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe2 = (id3) => /^[\w.-]{1,128}$/.test(id3);
-function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join20(dataDir(), "charts"), now = Date.now) {
   return {
     load(id3) {
       if (!safe2(id3)) {
         return void 0;
       }
-      const value = readJsonFile(join19(dir2, `${id3}.json`));
+      const value = readJsonFile(join20(dir2, `${id3}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -103900,9 +103987,9 @@ function chartMemory(dir2 = join19(dataDir(), "charts"), now = Date.now) {
       }
       try {
         mkdirSync7(dir2, { recursive: true });
-        writeFileSync6(join19(dir2, `${id3}.json`), JSON.stringify(value));
+        writeFileSync6(join20(dir2, `${id3}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join19(dir2, name);
+          const file2 = join20(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -104143,13 +104230,13 @@ function cadence(loop) {
   const s2 = loop.interval_seconds;
   return `every ${s2 % 3600 === 0 ? `${s2 / 3600}h` : s2 % 60 === 0 ? `${s2 / 60}m` : `${s2}s`}`;
 }
-var clock5 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+var clock6 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 function goalView(goal) {
   if (!goal || goal.status !== "active" && goal.status !== "paused") {
     return null;
   }
   const barrier = goal.status === "active" ? goal.wait_barrier : null;
-  const wait = barrier ? [barrier.type === "until" ? `until ${clock5(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
+  const wait = barrier ? [barrier.type === "until" ? `until ${clock6(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
   return {
     criteria: goal.subgoals ?? [],
     detail: barrier ? wait : goal.status === "paused" ? goal.paused_reason ?? "" : "",

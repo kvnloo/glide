@@ -39,6 +39,7 @@ import { factoryCommand } from './factory.js'
 import { fleetCommand } from './fleet.js'
 import { intelCommand } from './intel.js'
 import { researchCommand } from '../gev/research/index.js'
+import { filmCommand } from './film.js'
 import { glideCommand, glideLanes } from './glide.js'
 import { REFUSED_COMMANDS, type RefusedHost } from './refused.js'
 import { SESSION_COMMANDS } from './session.js'
@@ -393,6 +394,11 @@ const COMMANDS: readonly LocalCommand[] = [
     name: 'research',
     help: "Deep research replayed as a live God's Eye View card [case]; no case lists them",
     run: (host, arg) => researchCommand(host, arg)
+  },
+  {
+    name: 'film',
+    help: 'fframes films from the fframestudio library: a card plus the editor under the pane [project]; no project lists them',
+    run: (host, arg) => filmCommand(host, arg)
   },
   {
     name: 'intel',
