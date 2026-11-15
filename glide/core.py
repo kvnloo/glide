@@ -197,9 +197,11 @@ def set_enabled(home: Path, on: bool) -> dict:
     return status(home)
 
 
-def recall(home: Path, query: str) -> list[dict]:
-    """z0intelligence's unified corrections when installed; the local BM25 store otherwise."""
-    z0 = z0int_corrections(query)
+def recall(home: Path, query: str, *, local: bool = False) -> list[dict]:
+    """z0intelligence's unified corrections when installed; the local BM25 store otherwise.
+
+    local=True reads only this profile's store (onboarding's self-test checks what Glide kept)."""
+    z0 = None if local else z0int_corrections(query)
     if z0:
         return z0
     memory = GlideMemory(home)

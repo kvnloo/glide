@@ -49,7 +49,7 @@ def _probe(home: Path, record: dict) -> dict:
     """Recall a kept correction by its own content words; it must come back among the quoted three."""
     words = [w for w in source.tokens(record["text"]) if w not in core._STOP]
     query = " ".join(words)[:512]
-    hits = core.recall(home, query) if query else []
+    hits = core.recall(home, query, local=True) if query else []
     return {"text": record["text"], "query": query, "ok": any(h["text"] == record["text"] for h in hits)}
 
 

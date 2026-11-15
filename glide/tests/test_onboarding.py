@@ -25,6 +25,13 @@ def test_onboard_builds_lists_and_self_tests_recall_but_leaves_quoting_off(home)
     assert json.loads((home / "glide" / "onboarding.json").read_text()) == receipt
 
 
+def test_self_test_checks_the_local_store_even_when_z0int_answers(home, monkeypatch):
+    # A live z0intelligence returns the user's global corrections, not what this profile kept.
+    monkeypatch.setattr(core, "z0int_corrections", lambda query: [{"text": "unrelated", "source": "z0int"}])
+    assert onboarding.run(home)["ok"]
+    assert core.recall(home, "push main tests")[0]["text"] == "unrelated"  # turns still prefer z0int
+
+
 def test_enable_turns_quoting_on_only_after_every_check_passes(home):
     assert onboarding.run(home, enable=True)["on"] and core.enabled(home)
     assert onboarding.run(home, enable=True)["ok"]  # idempotent: a rerun rebuilds and stays on
