@@ -1,0 +1,15 @@
+{
+  "status": "blocked",
+  "source_revision": "653d6e98c669f9293c4d4d5f625714a398345dbe",
+  "threshold_kib": 4194304,
+  "samples": [
+    {
+      "time": 1794693228.9756007,
+      "available_kib": 8726976
+    }
+  ],
+  "captures": [],
+  "display_access": false,
+  "reason": "Command '['/tmp/glide-w8-cohesion/bin/tern', 'ctl', '--control', '/tmp/glide-w8-cohesion/tern/ctl-1794693228976997074.sock', 'theme', 'dark', 'dash']' returned non-zero exit status 1.",
+  "memory_after_kib": 8491936
+}

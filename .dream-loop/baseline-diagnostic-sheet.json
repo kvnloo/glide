@@ -1,0 +1,32 @@
+{
+  "inputs": [
+    {
+      "path": "/workspace/hermes-home/profiles/clean/cache/scratch/cohesion/omp-ref.png",
+      "sha256": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+      "size": [
+        1060,
+        596
+      ]
+    },
+    {
+      "path": "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/native/verified-startup/serve/welcome-preview.png",
+      "sha256": "6d41c1411a7ca45e88b996e903e3a1faa7628e36b4add0798dd30dbe75a6493c",
+      "size": [
+        1060,
+        596
+      ]
+    }
+  ],
+  "labels": [
+    "TARGET: omp grammar, not palette",
+    "REAL TERN: unqualified theme, no candidate"
+  ],
+  "box": null,
+  "native": false,
+  "output_size": [
+    1600,
+    471
+  ],
+  "output_sha256": "aad5fb7a0133d6d2b11eca0dd52d158f72fc23a233da06ab1e0822070af7e8d6",
+  "warning": "Native source pixels may still be downscaled by the viewer; verify delivered dimensions."
+}

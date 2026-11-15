@@ -11,11 +11,12 @@ import type { Transcript } from '../../frontend/src/transcript/store.js'
 import { euiPopupNode, type EuiRender } from '../../frontend/src/view/euiCard.js'
 
 import {
-  closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, narration, parseCouncilRun, swatchSvg
+  closedSeats, type CouncilRun, demoRun, type Frame, MINERAL, parseCouncilRun
 } from './council.js'
-import { councilOrbSvg, deliverySvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
+import { councilOrbSvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
 import { type CouncilSpeech, type SpeechAudio, platformSpeech, speechSentences } from './councilSpeech.js'
-import { GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'
+import { GOLD, MONO, NIGHT, TYPE } from './tokens.js'
+import { STAGE_CAPTION, STAGE_ORB, STAGE_STYLE, STAGE_ZONE } from '../../frontend/src/voice/stage.js'
 
 export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'
 const APP = 'glide'
@@ -91,6 +92,25 @@ export async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get: typeo
 const STANCE = { agree: { label: 'AGREE', color: NIGHT.agree }, dissent: { label: 'DISSENT', color: NIGHT.danger }, abstain: { label: 'ABSTAIN', color: NIGHT.text3 } }
 
 /** The popup's card at one moment, as the same node data the ephemeral-ui sandbox produces. */
+/** The council's one picture, flat: seats on a hairline ring, lit as they speak, filled as they close. */
+function seatRing(run: CouncilRun, exchange: ReturnType<typeof exchangeAt>, size: number): string {
+  const c = size / 2, r = size * 0.3, dot = size * 0.045
+  let s = `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${NIGHT.border}" stroke-width="1"/>`
+  run.seats.forEach((seat, i) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / run.seats.length
+    const x = c + r * Math.cos(a), y = c + r * Math.sin(a)
+    const state = exchange.seats[i]?.state ?? 'waiting'
+    const busy = state === 'thinking' || state === 'drafting'
+    s += `<line x1="${c}" y1="${c}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${NIGHT.border}" stroke-width="1" stroke-opacity="${busy ? 1 : 0.4}"/>`
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${dot}" fill="${state === 'done' ? NIGHT.text2 : NIGHT.canvas}" stroke="${busy ? NIGHT.text : NIGHT.text3}" stroke-width="1.2"/>`
+    // Every label centres under (or over, for the top seat) its dot, so none can leave the square.
+    const ly = y + (Math.sin(a) < -0.5 ? -dot - 6 : dot + 14)
+    s += `<text x="${x.toFixed(1)}" y="${ly.toFixed(1)}" fill="${NIGHT.text2}" font-size="11" font-family="${MONO}" text-anchor="middle">${seat.name.replace(/[<&]/g, '')}</text>`
+  })
+  s += `<circle cx="${c}" cy="${c}" r="${dot * 0.8}" fill="${exchange.phase === 'done' ? NIGHT.text : NIGHT.text3}"/>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${s}</svg>`
+}
+
 /** `sideHeader` moves the title and brief beside the instrument so the card is no taller than it (a popup in a short pane). */
 export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHeader = false, reading: CouncilReading = {}): EuiNode {
   let next = 10
@@ -98,8 +118,6 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({
     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids
   })
-  const svg = (markup: string, w: number, style = ''): EuiNode => ({ t: 'svg', svg: markup, w, h: w, cls: '', style })
-  const micro = `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${NIGHT.text3}`
   const { run } = src
   const exchange = exchangeAt(run, frame.t, reading.reduceMotion)
   const done = exchange.phase === 'done'
@@ -108,93 +126,54 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
   const agree = run.verdicts.filter(v => v.stance === 'agree').length
   const dissent = run.verdicts.filter(v => v.stance === 'dissent').length
   const abstain = run.verdicts.filter(v => v.stance === 'abstain').length
-
-  const header = el('div', 'display:flex;flex-direction:column;gap:4px', [
-    el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px', [
-      el('span', micro, [text('COUNCIL · GLIDE · SOCRATIC')]),
-      el('span', `font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};padding:2px 8px;border-radius:999px;` +
-        (src.live ? `color:${NIGHT.agree};border:1px solid rgba(152,207,139,0.45)` : `color:${NIGHT.strong};border:1px solid ${NIGHT.muted}`),
-      [text(src.live ? `LIVE · ${src.from.toUpperCase()}` : 'DEMO')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })
-    ]),
-    el('h3', `margin:0;font-family:${SERIF};font-weight:500;font-size:${sideHeader ? '24px;line-height:28px' : '30px;line-height:34px'};color:${NIGHT.text}`, [text('Socratic council')]),
-    el('span', `${micro};margin-top:6px`, [text('THE BRIEF')]),
-    el('p', `margin:0;padding-bottom:8px;border-bottom:1px solid ${NIGHT.borderStrong};font-size:13px;line-height:20px;color:${NIGHT.text};min-height:40px`, [text(exchange.brief || ' ')], { attrs: { 'data-council-brief': exchange.phase } }),
-    ...exchange.constraints.map(constraint => el('p', `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(`· ${constraint}`)]))
-  ])
-
-  // The verdict's tone is the majority's: a 3-1 agreement is a decision, its one dissent is in the line under it.
-  const carried = agree > dissent
-  const verdictBox = el('div', `padding:12px 14px;border-radius:12px;border:1px solid ${done ? (carried ? 'rgba(152,207,139,0.45)' : 'rgba(227,127,101,0.45)') : NIGHT.border};background-color:rgba(28,28,24,0.55)`, [
-    el('div', 'display:flex;align-items:center;gap:8px', [
-      el('span', `width:8px;height:8px;border-radius:4px;flex:none;background-color:${done ? (carried ? NIGHT.agree : NIGHT.danger) : NIGHT.muted}`, []),
-      el('span', `font-family:${SERIF};font-size:20px;line-height:26px;color:${NIGHT.text}`, [text(done ? (run.outcome ?? 'The council has spoken') : frame.t === null ? 'The council is seated' : 'The council is sitting')])
-    ]),
-    el('span', `display:block;margin-top:4px;font-size:13px;line-height:18px;color:${NIGHT.text3}`, [text(done
-      ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}`
-      : `${run.seats.length} seats · ${run.rounds} rounds · verdicts appear as each seat closes`)])
-  ])
-
-  const seats = el('div', sideHeader ? 'display:flex;flex-wrap:wrap;gap:6px' : 'display:flex;flex-direction:column;gap:2px', run.seats.map((seat, i) => {
-    const v = run.verdicts.find(x => x.seat === i)
-    const open = v !== undefined && shown.has(i)
+  const micro = `font-family:${MONO};font-size:${TYPE.meta}px;color:${NIGHT.text3}`
+  const button = (id: number, label: string, primary = false) => el('button',
+    `min-height:44px;padding:7px 16px;border-radius:8px;border:1px solid ${primary ? NIGHT.action : NIGHT.borderStrong};background-color:${primary ? NIGHT.action : 'transparent'};font-family:var(--sans);font-size:13px`,
+    [el('span', `color:${primary ? GOLD.ink : NIGHT.text2}`, [text(label)])],
+    { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : id === READ_ID ? 'read-aloud' : id === MUTE_ID ? 'mute' : 'close',
+      ...((id === READ_ID || id === MUTE_ID) ? { 'aria-pressed': String(id === READ_ID ? Boolean(reading.readAloud) : Boolean(reading.muted)) } : {}),
+      ...(id === CONVENE_ID && playing ? { disabled: 'true' } : {}) } })
+  const iconSize = Math.min(size, 20)
+  const table = Math.min(size, sideHeader ? 140 : 168)
+  const orb: EuiNode = { t: 'svg', svg: councilOrbSvg(exchange.elapsed / 1000, .7, Boolean(reading.reduceMotion), NIGHT.text2), w: iconSize, h: iconSize, cls: '', style: 'flex:none' }
+  const seats = run.seats.map((seat, i) => {
     const state = exchange.seats[i]
-    const received = state?.received ?? false
-    const stateText = `${received ? 'RECEIVED · ' : ''}${state?.state.toUpperCase() ?? 'WAITING'}`
-    const ink = received ? MINERAL[seat.mineral].base : NIGHT.text3
-    const pulse = reading.reduceMotion || state?.state === 'done' || state?.state === 'waiting' ? 1 : .7 + .3 * Math.sin(exchange.elapsed / 220 + i) ** 2
-    const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
-    // A short pane gets one line per seat; the verdict prose lives in the transcript card.
-    if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid ${received ? ink : NIGHT.border}`, [
-      svg(state?.state === 'thinking' || state?.state === 'drafting' ? councilOrbSvg(exchange.elapsed / 1000, pulse, Boolean(reading.reduceMotion), MINERAL[seat.mineral].base).replace('width="320" height="320"', 'width="16" height="16"') : swatchSvg(seat.mineral, 16), 16, `flex:none;opacity:${pulse.toFixed(2)}`),
-      el('span', `font-family:${SERIF};font-size:15px;color:${NIGHT.text}`, [text(seat.name)]),
-      el('span', `font-family:${MONO};font-size:11px;color:${ink}`, [text(stateText)]),
-      ...stance
-    ], { attrs: { 'data-council-seat': seat.id, 'data-council-state': state?.state ?? 'waiting', 'data-council-received': String(received) } })
-    return el('div', `display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid ${NIGHT.border}`, [
-      svg(swatchSvg(seat.mineral, 30), 30, 'flex:none'),
-      el('div', 'display:flex;flex-direction:column;gap:2px;flex:1;min-width:0', [
-        el('div', 'display:flex;align-items:baseline;gap:8px', [
-          el('span', `font-family:${SERIF};font-size:17px;color:${NIGHT.text}`, [text(seat.name)]),
-          el('span', micro, [text(`${MINERAL[seat.mineral].label.toUpperCase()} · ${seat.family.toUpperCase()}`)]),
-          el('span', `font-family:${MONO};font-size:11px;color:${ink}`, [text(stateText)]),
-          ...stance
-        ]),
-        el('span', `font-size:13px;line-height:18px;color:${open ? NIGHT.text2 : NIGHT.text3}`, [text(open ? v.text : v ? '…' : 'no verdict recorded')])
-      ])
-    ])
-  }))
-
-  // The label is a span: the kit sheet's button rules outrank an inline rule on the button itself.
-  const button = (id: number, label: string, gold: boolean) => el('button',
-    gold ? `flex:1;padding:11px 16px;border-radius:12px;border:1px solid ${GOLD.rim};border-bottom-color:${GOLD.shade};background-color:${GOLD.fill}`
-      : `padding:11px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el('span', gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text(label)])],
-    { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : id === READ_ID ? 'read-aloud' : id === MUTE_ID ? 'mute' : 'close', ...((id === READ_ID || id === MUTE_ID) ? { 'aria-pressed': String(id === READ_ID ? Boolean(reading.readAloud) : Boolean(reading.muted)) } : {}), ...(id === CONVENE_ID && playing ? { disabled: 'true' } : {}) } })
-  // Again only replays the run it read: say so, rather than promise a fresh council.
-  const convene = playing ? 'Convening…' : frame.t === null ? 'Convene council  →' : 'Replay the council  →'
-
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:14px;padding:${sideHeader ? 14 : 18}px;border-radius:16px;border:1px solid ${NIGHT.border};background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${reading.opacity ?? 1}`, [
-    ...(sideHeader ? [] : [header]),
-    el('div', 'display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start', [
-      el('div', `flex:1 1 ${Math.min(340, size)}px;display:flex;justify-content:center`, [svg(instrumentSvg(run, exchange.frame, size, { reduce: reading.reduceMotion, clean: true }).replace('</svg>', `${deliverySvg(run, exchange, size)}</svg>`), size, 'max-width:100%;height:auto')]),
-      el('div', `flex:1 1 280px;display:flex;flex-direction:column;gap:${sideHeader ? 8 : 12}px;min-width:0`, [
-        ...(sideHeader ? [header] : []),
-        verdictBox,
-        el('p', `margin:0;font-family:${SERIF};font-style:italic;font-size:15px;line-height:20px;color:${NIGHT.text2}`, [text(exchange.phase === 'brief' ? 'Writing the brief…' : exchange.phase === 'sending' ? 'Sending the brief to each seat…' : narration(run, exchange.frame))]),
-        el('div', 'display:flex;gap:8px', [button(CONVENE_ID, convene, true), button(CLOSE_ID, 'Close', false)]),
-        el('div', 'display:flex;gap:8px;align-items:center', [button(READ_ID, reading.readAloud ? 'Read aloud: on' : 'Read aloud', false), button(MUTE_ID, reading.muted ? 'Unmute' : 'Mute', false)]),
-        ...(reading.voiceStatus ? [el('p', `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(reading.voiceStatus)], { attrs: { role: 'status' } })] : []),
-        seats,
-        ...(exchange.clauses.length ? [el('div', `display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;padding:12px;border-top:1px solid ${NIGHT.borderStrong}`, exchange.clauses.map(clause => el('div', 'display:flex;flex-direction:column;gap:3px', [
-          el('span', `${micro};color:${NIGHT.strong}`, [text(clause.label.toUpperCase())]),
-          el('p', `margin:0;font-size:13px;line-height:19px;color:${NIGHT.text2}`, [text(clause.text)])
-        ])), { attrs: { 'data-council-report': exchange.phase, 'aria-live': 'polite' } })] : [])
+    const v = run.verdicts.find(v => v.seat === i)
+    const open = v !== undefined && shown.has(i)
+    return el('div', 'flex:1 1 152px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:44px;padding:6px 0', [
+      el('div', `display:flex;align-items:baseline;gap:8px;font-size:13px;color:${NIGHT.text}`, [
+        text(seat.name), el('span', micro, [text(state?.state ?? 'waiting')]),
+        ...(open ? [el('span', micro, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : [])
+      ]),
+      ...(!sideHeader && open ? [el('span', `font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(v.text)])] : [])
+    ], { attrs: { 'data-council-seat': seat.id, 'data-council-state': state?.state ?? 'waiting', 'data-council-received': String(state?.received ?? false) } })
+  })
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:8px;border:1px solid ${NIGHT.border};background-color:var(--l1);font-family:var(--sans);color:${NIGHT.text};opacity:${reading.opacity ?? 1}`, [
+    el('div', 'display:flex;align-items:center;gap:8px;min-height:24px', [orb,
+      el('span', `font-size:13px;font-weight:500;color:${NIGHT.text}`, [text('Socratic council')]),
+      el('span', micro, [text(src.live ? 'LIVE' : 'SAMPLE')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })
+    ]),
+    // The table stays: it is the council's one picture. Clean mode draws it in one stone and one gold.
+    el('div', 'display:flex;flex-wrap:wrap;gap:14px;align-items:center', [
+      { t: 'svg', svg: seatRing(run, exchange, table), w: table, h: table, cls: '', style: 'flex:none;max-width:100%;height:auto' },
+      el('div', 'flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:8px', [
+        el('p', `margin:0;font-size:13px;line-height:20px;color:${NIGHT.text}`, [text(exchange.brief || ' ')], { attrs: { 'data-council-brief': exchange.phase } }),
+        ...(exchange.constraints.length ? [el('p', `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(exchange.constraints.join(' · '))])] : []),
+        el('div', 'display:flex;flex-direction:column;gap:3px', [
+          el('span', `font-size:15px;font-weight:500;color:${NIGHT.text}`, [text(done ? run.outcome ?? 'The council has spoken' : playing ? 'The council is sitting' : 'The council is seated')]),
+          el('span', micro, [text(done ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}` : `${run.seats.length} seats · ${run.rounds} rounds`)])
+        ])
       ])
     ]),
-    // The popup's title already says live or demo; a short pane has no row to spare for the provenance line.
-    ...(sideHeader ? [] : [el('span', `font-family:${MONO};font-size:11px;color:${NIGHT.text3};text-align:center`, [text(src.live
-      ? `live run read from ${src.from} · this card draws it and computes nothing`
-      : `demo run · ${src.from} · set ${COUNCIL_URL_ENV} to read a live council`)])])
+    el('div', `display:flex;flex-wrap:wrap;gap:0 14px;border-top:1px solid ${NIGHT.border};border-bottom:1px solid ${NIGHT.border}`, seats),
+    ...(exchange.clauses.length ? [el('div', 'display:flex;flex-direction:column;gap:8px', exchange.clauses.map(clause => el('div', 'display:flex;flex-direction:column;gap:3px', [
+      el('span', micro, [text(clause.label)]), el('p', `margin:0;font-size:13px;line-height:19px;color:${NIGHT.text2}`, [text(clause.text)])
+    ])), { attrs: { 'data-council-report': exchange.phase, 'aria-live': 'polite' } })] : []),
+    el('div', 'display:flex;flex-wrap:wrap;gap:8px', [
+      button(CONVENE_ID, playing ? 'Convening…' : frame.t === null ? 'Convene council →' : 'Replay the council →', true),
+      button(READ_ID, reading.readAloud ? 'Read aloud: on' : 'Read aloud'), button(MUTE_ID, reading.muted ? 'Unmute' : 'Mute'), button(CLOSE_ID, 'Close')
+    ]),
+    ...(reading.voiceStatus ? [el('p', `margin:0;font-size:12px;color:${NIGHT.text2}`, [text(reading.voiceStatus)], { attrs: { role: 'status' } })] : [])
   ])])
 }
 
@@ -320,7 +299,7 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
       const opacity = reduceMotion ? 1 : Math.min(1, .45 + (clock.now() - viewAt) / 180 * .55)
       const view = {
         spec: { kind: 'council', app: APP }, app: APP, label: 'Socratic council', identity: 'council',
-        node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock.now() - voice.at) / 1000, voice.audio.level(clock.now() - voice.at), reduceMotion), reduceMotion, opacity)
+        node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock.now() - voice.at) / 1000, voice.audio.level(clock.now() - voice.at), reduceMotion, NIGHT.text2), reduceMotion, opacity)
           : councilCard(src, { t: elapsed() }, 320, true, { readAloud, muted, reduceMotion, voiceStatus, opacity }),
         activate
       }
@@ -340,13 +319,16 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
   return overlay
 }
 
-function councilSpeakingCard(caption: string, orb: string, reduce: boolean, opacity: number): EuiNode {
+/** The shared stage while real council audio plays; exported for fixture capture. */
+export function councilSpeakingCard(caption: string, orb: string, reduce: boolean, opacity: number): EuiNode {
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (id: number, tag: string, style: string, kids: readonly EuiNode[], attrs: Record<string, string> = {}, click = false): EuiNode => ({ t: 'el', id, tag, cls: '', style, kids, attrs, click })
-  return el(20, 'div', '', [el(RETURN_ID, 'section', `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [
-    { t: 'svg', svg: orb, w: 320, h: 320, cls: '', style: 'max-width:100%;height:auto' },
-    el(21, 'p', `margin:0;font-size:${TYPE.name}px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),
-    el(RETURN_ID, 'button', `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text('Return to card · any key')], { 'data-eui-action': 'return-to-card' }, true)
+  return el(20, 'div', '', [el(RETURN_ID, 'section', `${STAGE_STYLE};opacity:${opacity}`, [
+    el(22, 'div', `display:flex;align-items:center;justify-content:center;width:${STAGE_ZONE}px;height:${STAGE_ZONE}px;flex:none`, [
+      { t: 'svg', svg: orb, w: STAGE_ORB, h: STAGE_ORB, cls: '', style: 'max-width:100%;height:auto' }
+    ]),
+    el(21, 'p', `${STAGE_CAPTION};text-align:center`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),
+    el(RETURN_ID, 'button', `min-height:44px;margin-top:8px;padding:7px 16px;font:400 12px var(--sans);color:${NIGHT.text2};background-color:${NIGHT.canvas};border:1px solid ${NIGHT.border};border-radius:8px`, [text('Return to card · any key')], { 'data-eui-action': 'return-to-card' }, true)
   ], { 'data-council-speaking': '', 'data-reduced-motion': String(reduce), role: 'button', 'aria-label': 'Return to council card' }, true)])
 }
 

@@ -1,0 +1,59 @@
+{
+  "trial": 2,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "A",
+    "A": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 2,
+        "density": 3,
+        "dash": 4,
+        "glass": 3,
+        "cohesion": 3,
+        "vocabulary": 3,
+        "motion": 0,
+        "phone": 4
+      },
+      "weighted": 62
+    },
+    "B": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 1,
+        "density": 1,
+        "dash": 3,
+        "glass": 2,
+        "cohesion": 3,
+        "vocabulary": 2,
+        "motion": 0,
+        "phone": 2
+      },
+      "weighted": 41
+    },
+    "image_grounding": [
+      "All three images are 1472\u00d7947; A and B label desktop 1060\u00d7596 and phone 412\u00d7915 surfaces.",
+      "TARGET places a compact, unboxed omp identity above a quiet tip and composer; A uses an unboxed Hermes portrait/name/version lockup with a muted instruction beneath it on both surfaces.",
+      "B encloses Hermes in wide bordered banners on both surfaces, enlarges the portrait, and omits A's quiet instruction."
+    ],
+    "defects_A": [
+      "Desktop and phone: large empty regions remain; no composer or recommended action is visible.",
+      "Card headers, focus/council stages, timer typography, and end-card consistency are not shown.",
+      "Motion cannot be judged from a still; its zero score records absent evidence, not a demonstrated failure."
+    ],
+    "defects_B": [
+      "Desktop is the worst panel: the welcome banner stretches far beyond its content, repeating the explicitly rejected full-width portrait-card treatment.",
+      "Phone repeats the boxed welcome treatment rather than the requested compact unboxed lockup.",
+      "Both surfaces omit the quiet tip and show no composer or recommended action.",
+      "Card-body grammar beyond the welcome banner, focus/council stages, and motion remain unverified."
+    ],
+    "cohesion": "unverified",
+    "reason": "A better matches TARGET's compact identity, quiet guidance, and restraint on both desktop and phone, with no visible regression. B spends width and borders on identity rather than useful content. Both retain Hermes and a restrained dark/cream appearance without visible decorative gold. Neither proves the broader product grammar or interactions. This is not owner approval."
+  },
+  "hashes": {
+    "target": "ea3550a54c4ca4a4dca5f01aec4d113bf6b9de4de4d5eab70f75f3cfe4f0d4f7",
+    "parent": "980d0b5ee4284437fc61aa4788d6e0a1eae38022896ae252a373e807f9f182c8",
+    "candidate": "7d79a7ddb35509bfcb64b4f49a51662a0146b7a2203d31d20144c6a65b90e8de"
+  }
+}

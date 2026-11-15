@@ -1,0 +1,37 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/welcomeCohesion.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [32m✓[39m src/__tests__/welcomeCohesion.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 16:46:38
+[2m   Duration [22m 1.04s[2m (transform 64ms, setup 0ms, import 99ms, tests 11ms, environment 1ms)[22m
+
+nodes-build
+nodes-html
+agents-tree-desktop
+agents-tree-phone
+council-brief-desktop
+council-brief-phone
+council-report-desktop
+council-report-phone
+focus-stage-desktop
+focus-stage-phone
+focus-desktop
+focus-phone
+hosts-desktop
+hosts-phone
+receipt-desktop
+receipt-phone
+welcome-desktop
+welcome-phone
+work-receipt-desktop
+work-receipt-phone
+work-tree-desktop
+work-tree-phone
+{"captures": 20, "out": "/tmp/glide-w8-cohesion/headless-round01"}

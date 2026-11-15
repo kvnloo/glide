@@ -34,7 +34,8 @@ class Gateway extends EventEmitter {
 const tern = await connect({ app: 'hermes', features: ['edit', 'undo', 'send'], version: 'SAMPLE-work-tree' })
 if (!tern) throw new Error('SDK handshake failed')
 const gw = new Gateway()
-const app = new App(tern, gw, 'SAMPLE', { settings: { load: () => ({ theme: 'dash', thoughts: false, jobCharts: false, tableCharts: 'off' }), save: () => { throw new Error('No settings writes') } } })
+const settings = { theme: 'dash', thoughts: false, jobCharts: false, tableCharts: 'off' }
+const app = new App(tern, gw, 'SAMPLE', { settings: { load: () => settings, save: next => { Object.assign(settings, next) } } })
 process.once('SIGTERM', () => app.quit())
 const event = (type, payload) => gw.emit('event', { type, session_id: sid, payload })
 let sequence = 0

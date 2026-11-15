@@ -6,10 +6,12 @@ import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
 import { AGENT_TREE_CSS } from '../agents/treeView.js'
+import { WELCOME_CSS } from './welcome.js'
 import { MONO, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 export const STYLES = minifyCss(css`
   ${AGENT_TREE_CSS}
+  ${WELCOME_CSS}
   /* Tern draws omp's hairline on the glass's top edge (top -12px, its track 11.5px down). The
      native button sits where omp's meter sits, so the working row above the glass never covers
      it, and reaches 8px into the glass for a 20px focus/pointer target. */

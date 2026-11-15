@@ -1,0 +1,57 @@
+{
+  "trial": 1,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "B",
+    "A": {
+      "scores": {
+        "glanceable": 2,
+        "actionable": 0,
+        "density": 1,
+        "dash": 3,
+        "glass": 2,
+        "cohesion": 2,
+        "vocabulary": 2,
+        "motion": 0,
+        "phone": 2
+      },
+      "weighted": 32
+    },
+    "B": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 2,
+        "density": 4,
+        "dash": 4,
+        "glass": 2,
+        "cohesion": 4,
+        "vocabulary": 4,
+        "motion": 0,
+        "phone": 4
+      },
+      "weighted": 86
+    },
+    "image_grounding": [
+      "All three images are 1472\u00d7947; A and B each show desktop and phone fixtures.",
+      "TARGET has a compact, centered, unboxed omp lockup with a muted tip beneath it; A places Hermes inside wide bordered strips.",
+      "B retains the Hermes portrait at a smaller scale beside the name and version, with a centered 'Ask anything, or type / for commands.' caption on both surfaces."
+    ],
+    "defects_A": [
+      "Both surfaces repeat the rejected boxed welcome treatment; the desktop strip contains substantial unused horizontal space.",
+      "Portrait dominates the small identity block rather than supporting a compact lockup.",
+      "No quiet tip or visible next-step guidance."
+    ],
+    "defects_B": [
+      "Both surfaces lack a visible composer or actionable control; the caption supplies guidance but does not demonstrate interaction.",
+      "Card typography, focus/council stages, timer glow, and motion are not shown and cannot be verified."
+    ],
+    "cohesion": "unverified",
+    "reason": "B improves the demonstrated welcome grammar on both desktop and phone without a visible regression: compact unboxed identity, restrained portrait, centered alignment, and quiet guidance. A's desktop welcome strip is its worst panel; the phone repeats that structural defect. Neither introduces decorative gold or visible clipping. Motion scores reflect absent evidence, not demonstrated failure. This is not owner approval."
+  },
+  "hashes": {
+    "target": "ea3550a54c4ca4a4dca5f01aec4d113bf6b9de4de4d5eab70f75f3cfe4f0d4f7",
+    "parent": "980d0b5ee4284437fc61aa4788d6e0a1eae38022896ae252a373e807f9f182c8",
+    "candidate": "7d79a7ddb35509bfcb64b4f49a51662a0146b7a2203d31d20144c6a65b90e8de"
+  }
+}

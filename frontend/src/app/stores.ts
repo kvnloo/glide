@@ -324,6 +324,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     }
   })
   /** Whose colors the surface wears, and the gateway's skin. */
+  const windowTheme = ternWindowTheme()
   const theme = new Theme({
     palette: palette => {
       setSvgInk(palette)
@@ -335,7 +336,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
       else euiSheets.set(name, css)
       surface().raw.stylesheet(name, css)
     },
-    windowTheme: ternWindowTheme(),
+    ...(windowTheme ? { windowTheme } : {}),
     style: () => widgets.style,
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')

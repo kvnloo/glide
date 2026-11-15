@@ -1,0 +1,10 @@
+{
+  "image_dimensions": {"width": 1060, "height": 590},
+  "visible_text_strings": [
+    "Starting blocked z0intelligence router",
+    "Lesson stored.",
+    "BWS: Fix Hermes BWS sync launch error"
+  ],
+  "main_card_layout": "Dark chat interface with stacked rounded tool-result cards, a Bash command and output panel, a lesson confirmation card, and a rounded message composer at the bottom.",
+  "image_actually_visible": true
+}

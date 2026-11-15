@@ -153,7 +153,7 @@ function html(node: EuiNode): string {
   return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
     '<style>' + style + '</style><main class="transcript">' +
     '<div class="glide-head"><b>Glide</b><span>· Local intelligence</span><span class="sample-pill">SAMPLE</span></div>' +
-    '<section class="intel-frame"><div data-eui="card" data-eu="" data-eui-kind="intel-suite" data-eui-app="glide">' + kids +
+    '<section class="intel-frame"><div class="eu k-intel-suite ' + escapeHtml(node.t === 'el' ? node.cls : '') + '" data-eui="card" data-eu="" data-eui-kind="intel-suite" data-eui-app="glide">' + kids +
     '</div></section></main><pre id="metrics" hidden></pre>' + measure + '</html>'
 }
 

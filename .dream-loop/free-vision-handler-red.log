@@ -1,0 +1,59 @@
+E.E.
+======================================================================
+ERROR: test_malformed_quota_response_still_stops (__main__.QuotaHandlerTests.test_malformed_quota_response_still_stops)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/free-vision-probe.py", line 40, in limited
+    return original(request, *args, **kwargs)
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+urllib.error.HTTPError: HTTP Error 429: fixture
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_free_vision_probe.py", line 40, in test_malformed_quota_response_still_stops
+    self.scope['limited']('https://example.invalid')
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/free-vision-probe.py", line 45, in limited
+    detail = json.dumps({'error': json.loads(raw)['error']})
+             ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+======================================================================
+ERROR: test_quota_stops_and_omits_account_and_credential (__main__.QuotaHandlerTests.test_quota_stops_and_omits_account_and_credential)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/free-vision-probe.py", line 40, in limited
+    return original(request, *args, **kwargs)
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/hermes-home/tools/python-3.14.9+20261021-linux-x64/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+urllib.error.HTTPError: HTTP Error 429: fixture
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/test_free_vision_probe.py", line 28, in test_quota_stops_and_omits_account_and_credential
+    self.scope['limited']('https://example.invalid')
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/free-vision-probe.py", line 45, in limited
+    detail = json.dumps({'error': json.loads(raw)['error']})
+             ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.061s
+
+FAILED (errors=2)

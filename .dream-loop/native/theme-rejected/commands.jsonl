@@ -1,0 +1,4 @@
+{"args": ["account", "signed-in", "atlas"], "exit": 0, "stdout": "{\"ok\":true}\n", "stderr": ""}
+{"args": ["resize", "1060", "596"], "exit": 0, "stdout": "{\"ok\":true}\n", "stderr": ""}
+{"args": ["appearance", "dark"], "exit": 0, "stdout": "{\"ok\":true}\n", "stderr": ""}
+{"args": ["theme", "dark", "dash"], "exit": 1, "stdout": "{\"ok\":false,\"error\":\"no theme called \\\"dash\\\"\"}\n", "stderr": ""}

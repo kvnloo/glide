@@ -1,0 +1,130 @@
+{
+  "status": "judged",
+  "selected": "tie",
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "cf0785b4dd66eb3f4fa4d040145966436731b724fa33bea55c0d0696d849e9d2",
+    "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+  },
+  "verdicts": [
+    {
+      "trial": 1,
+      "exit": 0,
+      "selected": "tie",
+      "data": {
+        "winner": "tie",
+        "A": {
+          "scores": {
+            "glanceable": 2,
+            "actionable": 0,
+            "density": 1,
+            "dash": 4,
+            "glass": 3,
+            "cohesion": 2,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 35
+        },
+        "B": {
+          "scores": {
+            "glanceable": 4,
+            "actionable": 3,
+            "density": 3,
+            "dash": 1,
+            "glass": 1,
+            "cohesion": 3,
+            "vocabulary": 3,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 48
+        },
+        "image_grounding": [
+          "All three images are 1060\u00d7596. TARGET centers a compact unboxed omp lockup above a quiet two-line tip and bottom composer.",
+          "A places the Hermes portrait, name, and version inside a nearly full-width bordered header; almost everything below is empty.",
+          "B visibly repeats TARGET: three amber warnings, centered omp identity, a raised confirmation pill, and a rounded bottom composer."
+        ],
+        "defects_A": [
+          "Retains the rejected full-width boxed welcome treatment, although the portrait itself is compact.",
+          "No quiet tip, visible composer, or recommended action.",
+          "Excessive unused space leaves the welcome surface functionally empty."
+        ],
+        "defects_B": [
+          "Copies omp identity instead of retaining Hermes.",
+          "Blue-gray surfaces depart from the requested Living Night palette.",
+          "Amber warnings and yellow-green metadata distribute accent color beyond one recommended action.",
+          "Confirmation pill and composer use oversized rounding and visible shadows rather than the specified restrained card grammar."
+        ],
+        "cohesion": "unverified",
+        "reason": "B follows the target's compact centered welcome rhythm substantially better, but regresses Hermes identity, palette, and card restraint. A preserves identity and a closer palette but fails the expressly requested unboxed welcome layout. Neither improves the grammar without regression. Motion, phone layouts, focus, council, and end-card consistency are not shown; zero motion and phone scores indicate absent evidence, not observed malfunction. This is not owner approval."
+      },
+      "hashes": {
+        "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "parent": "cf0785b4dd66eb3f4fa4d040145966436731b724fa33bea55c0d0696d849e9d2",
+        "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+      }
+    },
+    {
+      "trial": 2,
+      "exit": 0,
+      "selected": "tie",
+      "data": {
+        "winner": "tie",
+        "A": {
+          "scores": {
+            "glanceable": 3,
+            "actionable": 3,
+            "density": 3,
+            "dash": 1,
+            "glass": 2,
+            "cohesion": 2,
+            "vocabulary": 2,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 43
+        },
+        "B": {
+          "scores": {
+            "glanceable": 2,
+            "actionable": 0,
+            "density": 1,
+            "dash": 4,
+            "glass": 3,
+            "cohesion": 2,
+            "vocabulary": 1,
+            "motion": 0,
+            "phone": 0
+          },
+          "weighted": 34
+        },
+        "image_grounding": [
+          "TARGET and A are visibly identical: a centered, unboxed omp lockup, quiet two-line tip, status pill, and bottom composer; each image is 1060\u00d7596.",
+          "A has three amber warning rows, a green status check, and a visibly shadowed, heavily rounded composer.",
+          "B is 1060\u00d7596 and places the Hermes portrait, name, and version inside a wide bordered header, leaving almost the entire remaining canvas empty."
+        ],
+        "defects_A": [
+          "Does not retain Hermes identity.",
+          "Multiple colored statuses compete rather than reserving gold for one recommended action.",
+          "Composer and status pill depart from the specified restrained 8px, shadow-free card grammar."
+        ],
+        "defects_B": [
+          "Retains the explicitly rejected wide boxed welcome treatment instead of a compact unboxed lockup.",
+          "Header contains substantial unused horizontal space; the remaining surface is almost entirely vacant.",
+          "No quiet tip or visible next action."
+        ],
+        "cohesion": "unverified",
+        "reason": "A reproduces the target layout but loses Hermes identity and Living Night styling. B preserves identity and the dark palette but regresses the requested welcome grammar and useful density. Neither improves the target grammar without regression. Motion, phone behavior, and focus/council consistency are not demonstrated; their scores award no unsupported credit. This is not owner approval."
+      },
+      "hashes": {
+        "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+        "parent": "cf0785b4dd66eb3f4fa4d040145966436731b724fa33bea55c0d0696d849e9d2",
+        "candidate": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878"
+      }
+    }
+  ],
+  "owner_approval": false,
+  "calibration": true
+}
