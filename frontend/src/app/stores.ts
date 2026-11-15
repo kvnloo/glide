@@ -57,7 +57,7 @@ import { PromptQueue } from '../turn/queue.js'
 import { canDrain, canSwitch, PromptRouter } from '../turn/router.js'
 import type { WelcomeContext } from '../view/welcome.js'
 import { LiveVoice } from '../voice/live.js'
-import { laneFeedFromEnv } from '../voice/lanes.js'
+import { laneFeedFromEnv } from '../../../glide/frontend/lanes.js'
 import { TalkGateway } from '../voice/talk-gateway.js'
 
 import type { AppActions } from './actions.js'

@@ -7,6 +7,7 @@
 import type { EditEvent, ImageProps, JSX, SendEvent, Tone } from '@stencil-hq/tern'
 
 import { agentHovercard } from '../agents/tiles.js'
+import type { LaneView } from '../../../glide/frontend/lanes.js'
 import type { BtwNotice } from '../btw.js'
 import type { Pill } from '../chrome/hud.js'
 import type { Reconnecting } from '../chrome/reconnect.js'
@@ -576,3 +577,22 @@ function composerNode(cx: DockContext, on: DockActions): JSX.Element {
 }
 
 export { imageChip } from './image-chip.js'
+
+/** Glide: the live call's helper lanes under the live controls, one small orb per lane (glide/frontend/lanes.ts). */
+export function laneStripNode(v: LaneView): JSX.Element {
+  return (
+    <col key="live-lanes" role="omp.live.lanes">
+      <text key="head" spans={[{ s: 'muted', t: v.head }]} wrap="none" />
+      {v.rows.map((r, i) => (
+        <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
+          {r.orb ? <image key="orb" role="omp.live.lane.orb" {...r.orb} /> : null}
+          <col key="text">
+            <text key="who" spans={r.who} wrap="none" />
+            {r.doing ? <text key="doing" spans={[{ s: 'dim', t: r.doing }]} wrap="none" /> : null}
+            {r.entry ? <text key="entry" spans={[{ s: 'muted', t: r.entry }]} wrap="none" /> : null}
+          </col>
+        </row>
+      ))}
+    </col>
+  )
+}

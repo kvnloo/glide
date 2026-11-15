@@ -5,9 +5,15 @@
 import { readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import type { JSX, Session, Surface } from '@stencil-hq/tern'
+import { type OrbState, ThinkingOrb } from '../../frontend/src/chrome/orb.js'
 
-import { type OrbState, ThinkingOrb } from '../chrome/orb.js'
+// tsc and esbuild resolve @stencil-hq/tern only from frontend/, so this module draws nothing itself:
+// it hands a plain view model to laneStripNode (frontend/src/view/dock.tsx).
+type Session = ConstructorParameters<typeof ThinkingOrb>[0]
+type Surface = ConstructorParameters<typeof ThinkingOrb>[1]
+export type LaneSpan = { s?: 'strong' | 'muted' | 'dim' | 'error' | 'warning' | 'success'; t: string }
+export interface LaneRow { orb: ReturnType<ThinkingOrb['props']> | null; who: LaneSpan[]; doing: string | null; entry: string | null }
+export interface LaneView { head: string; rows: LaneRow[] }
 
 export const LANE_STATES = ['idle', 'thinking', 'answered', 'verified', 'corrected', 'dead'] as const
 export type LaneState = (typeof LANE_STATES)[number]
@@ -206,7 +212,7 @@ export class LaneStrip {
   }
 
   /** Shown while the lane broker has an open call, or while this pane's live voice runs (then it says why it is empty). */
-  node(): JSX.Element | null {
+  view(): LaneView | null {
     const call = this.#feed.call
     const lanes = this.lanes()
     if (!lanes.length && !this.#live) return null
@@ -215,28 +221,22 @@ export class LaneStrip {
       : this.#feed.error
         ? `Lanes · ${this.#feed.error}`
         : 'Lanes · no open lane call (the lane broker runs the Hermes app Live path)'
-    return (
-      <col key="live-lanes" role="omp.live.lanes">
-        <text key="head" spans={[{ s: 'muted', t: head }]} wrap="none" />
-        {lanes.map((lane, i) => (
-          <row align="start" gap="sm" key={`l${i}`} role="omp.live.lane">
-            {this.#orbs[i] ? <image key="orb" role="omp.live.lane.orb" {...this.#orbs[i].props()} /> : null}
-            <col key="text">
-              <text key="who" spans={[
-                { s: 'strong', t: lane.role },
-                { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
-                lane.state === 'dead'
-                  ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
-                  : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
-                    : lane.state === 'verified' ? { s: 'success', t: 'verified' }
-                      : { t: lane.state }
-              ]} wrap="none" />
-              {lane.researching ? <text key="doing" spans={[{ s: 'dim', t: (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) }]} wrap="none" /> : null}
-              {lane.entry ? <text key="entry" spans={[{ s: 'muted', t: entryLine(lane.entry) }]} wrap="none" /> : null}
-            </col>
-          </row>
-        ))}
-      </col>
-    )
+    return {
+      head,
+      rows: lanes.map((lane, i): LaneRow => ({
+        orb: this.#orbs[i]?.props() ?? null,
+        who: [
+          { s: 'strong', t: lane.role },
+          { s: 'muted', t: ' · ' + (lane.resolved && lane.resolved !== lane.model ? `${lane.model}→${lane.resolved}` : lane.model) + ' · ' },
+          lane.state === 'dead'
+            ? { s: 'error', t: 'dead' + (lane.error ? ` (${clip(lane.error, 60)})` : '') }
+            : lane.state === 'corrected' ? { s: 'warning', t: 'corrected' }
+              : lane.state === 'verified' ? { s: 'success', t: 'verified' }
+                : { t: lane.state }
+        ],
+        doing: lane.researching ? (lane.state === 'thinking' ? 'researching: ' : 'last: ') + clip(lane.researching, 100) : null,
+        entry: lane.entry ? entryLine(lane.entry) : null
+      }))
+    }
   }
 }
