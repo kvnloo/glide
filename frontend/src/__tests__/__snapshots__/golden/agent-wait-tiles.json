@@ -134,7 +134,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -187,6 +187,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      }
@@ -327,7 +336,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -380,6 +389,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      }
@@ -647,7 +665,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -700,6 +718,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -1413,7 +1440,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -1466,6 +1493,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -2452,7 +2488,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -2505,6 +2541,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -3617,7 +3662,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -3670,6 +3715,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -4976,7 +5030,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -5029,6 +5083,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -6586,7 +6649,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -6639,6 +6702,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -8321,7 +8393,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -8374,6 +8446,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -9973,7 +10054,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -10026,6 +10107,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -11471,7 +11561,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -11524,6 +11614,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },
@@ -12294,7 +12393,7 @@
     "layer": [],
     "main": [
      {
-      "k": "card",
+      "k": "col",
       "p": {
        "role": "omp.welcome",
        "key": "w0"
@@ -12347,6 +12446,15 @@
           ]
          }
         ]
+       },
+       {
+        "k": "text",
+        "p": {
+         "role": "omp.welcome.tip",
+         "text": "Ask anything, or type / for commands.",
+         "wrap": "word",
+         "key": "tip"
+        }
        }
       ]
      },

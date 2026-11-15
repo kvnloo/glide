@@ -290,12 +290,13 @@ describe('/council', () => {
     expect(idle).toContain('"data-council-source":"demo"')
     expect(idle).toContain('Convene council')
     expect(idle).not.toContain('data-council-stance')
-    // Fits a short pane: the header rides in the side column, so nothing stacks above the instrument.
-    expect(idle.indexOf('COUNCIL · GLIDE · SOCRATIC')).toBeGreaterThan(idle.indexOf('"w":320,"h":320'))
-    expect(idle).not.toContain('read a live council') // the popup title already says demo
-    expect(idle.match(/"w":16,"h":16/g)).toHaveLength(4) // seats ride as small chips, not four stacked 30px rows
+    // The owner replaced the giant instrument and mineral chips with one compact neutral head.
+    expect(idle).toContain('Socratic council')
+    expect(idle).toContain('"w":20,"h":20')
+    expect(idle).not.toContain('"w":320,"h":320')
+    expect(idle.match(/data-council-seat/g)).toHaveLength(4)
     await settle()
-    expect(blobs.some(b => b.includes('url(#tb)'))).toBe(true)
+    expect(blobs.some(b => b.startsWith('<svg'))).toBe(true)
     expect(c.running).toBe(false)
 
     press(overlays[0], 'enter')
@@ -372,13 +373,13 @@ describe('/council', () => {
     expect('error' in run ? run.error : 'parsed').toContain('already has a verdict')
   })
 
-  it('draws the card from node data only: the instrument and every seat stone are SVG images', () => {
+  it('draws a neutral head orb and a flat seat ring from node data, without mineral seat illustrations', () => {
     const { card } = council()
     const svgs: string[] = []
     const walk = (n: EuiNode) => { if (n.t === 'svg') svgs.push(n.svg); else if (n.t === 'el') n.kids.forEach(walk) }
     walk(card())
-    expect(svgs).toHaveLength(5)
-    expect(svgs.slice(1).map(s => /<g clip-path/.test(s))).toEqual([true, true, true, true])
+    expect(svgs).toHaveLength(2)
+    for (const svg of svgs) expect(svg).not.toMatch(/clip-path|Gradient/)
   })
 })
 

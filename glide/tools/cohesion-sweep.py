@@ -26,6 +26,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('out')
     parser.add_argument('--only', default='nodes,council,glass,intel,lanes,taste,theme')
+    parser.add_argument('--surfaces', help='Optional comma-separated node fixture names')
     args=parser.parse_args()
     out=Path(args.out).resolve();out.mkdir(parents=True,exist_ok=True)
     env=dict(os.environ)
@@ -35,6 +36,9 @@ def main():
     chrome.chmod(0o755)
     env['PATH']=str(bin_dir)+':'+env['PATH']
     env['GLIDE_CHROMIUM']=env.get('GLIDE_CHROMIUM','/usr/bin/google-chrome-stable')
+    patterns=['glide/frontend/*.ts','frontend/src/view/*.tsx','frontend/src/voice/*.ts*','frontend/src/glideui/*.tsx','glide/tools/cohesion-*']
+    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for pattern in patterns for p in ROOT.glob(pattern)}
+    (out/'source-at-start.json').write_text(json.dumps(sources,indent=2))
     results=[]
     def run(cmd, name):
         deadline=time.monotonic()+45*60
@@ -61,6 +65,8 @@ def main():
                 run(['node','--input-type=module','-e',build], 'nodes-build')
                 run(['node','frontend/dist/cohesion-nodes.mjs',str(folder)], 'nodes-html')
                 for html in sorted(folder.glob('*.html')):
+                    if args.surfaces and html.stem not in args.surfaces.split(','):
+                        continue
                     for size,w,h in [('desktop',1060,596),('phone',412,915)]:
                         run([str(chrome),f'--window-size={w},{h}',f'--screenshot={folder/(html.stem+"-"+size+".png")}',html.as_uri()],html.stem+'-'+size)
             else:
@@ -73,7 +79,9 @@ def main():
     files=[]
     for image in sorted(out.glob('*/archive/*.png')):
         files.append({'path':str(image.relative_to(out)),'sha256':hashlib.sha256(image.read_bytes()).hexdigest()})
-    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for pattern in ['glide/frontend/*.ts','frontend/src/view/*.tsx','frontend/src/voice/cleanFocus.tsx','frontend/src/glideui/*.tsx'] for p in ROOT.glob(pattern)}
+    drift=[name for name,digest in sources.items() if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest]
+    if drift:
+        raise RuntimeError('Source changed during capture: '+', '.join(drift))
     (out/'receipt.json').write_text(json.dumps({'kind':'HEADLESS','synthetic':True,'native':False,'source_revision':env.get('GLIDE_SOURCE_SHA'),'sources':sources,'captures':files,'commands':results},indent=2))
     print(json.dumps({'captures':len(files),'out':str(out)}),flush=True)
 

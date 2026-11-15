@@ -7,7 +7,8 @@ import { html, type JSX, type Session, type Surface } from '@stencil-hq/tern'
 
 import { mix } from '../hermes/theme.js'
 import { LIBRARY_STATE, type OrbScene, type OrbState, ThinkingOrb } from '../chrome/orb.js'
-import { DASH, MONO, TYPE } from '../../../glide/frontend/tokens.js'
+import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
+import { STAGE_CAPTION, STAGE_ORB, STAGE_STYLE, STAGE_ZONE } from './stage.js'
 import { ROLE_RAMP } from '../../../glide/frontend/orbitTokens.js'
 import type { WalPalette } from '../../../glide/frontend/wal.js'
 import { focusBlock, orbMarks } from './orbit.js'
@@ -94,12 +95,12 @@ export const cleanPulse = (seconds: number, reduce = false) => (reduce ? 1 : 1 +
 const n = (v: number) => v.toFixed(1)
 const SOURCE = 64
 /** The orb image's size in px, and the ring's: the orb sits inside the ring with room to breathe. */
-export const CLEAN_ORB = 200
-export const CLEAN_RING = 300
+export const CLEAN_ORB = STAGE_ORB
+export const CLEAN_RING = STAGE_ZONE
 
 /** One frame of the clean orb: the library frame for `state`, inked along the palette ramp, nearer marks brighter. */
 export function cleanOrbSvg(p: CleanPalette, state: OrbState, seconds: number, reduce = false): string {
-  const hue = cleanInk(p, state, seconds, reduce)
+  const hue = p.bg === DASH.bg && state !== 'error' ? NIGHT.text2 : cleanInk(p, state, seconds, reduce)
   const animated = !reduce && state !== 'idle' && state !== 'waiting' && state !== 'error'
   const body = orbMarks(LIBRARY_STATE[state], seconds, animated, white => mix(hue, p.bg, Math.min(1, Math.max(0, white)) * 0.55))
   const k = cleanPulse(seconds, reduce)
@@ -132,11 +133,12 @@ export function cleanRingSvg(p: CleanPalette, left: number, total: number, track
 
 /** Centres the ring on the pane and the orb in the ring; nothing else is drawn, so Tern's glass shows round it. */
 export const CLEAN_CSS = `
-.glide-clean { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: transparent; pointer-events: none; }
+.glide-clean { ${STAGE_STYLE}; pointer-events: none; }
 .glide-clean-ring { position: relative; width: ${CLEAN_RING}px; height: ${CLEAN_RING}px; }
 .glide-clean-ring > * { position: absolute; left: 0; top: 0; }
 .glide-clean-orb { position: absolute; left: ${(CLEAN_RING - CLEAN_ORB) / 2}px; top: ${(CLEAN_RING - CLEAN_ORB) / 2}px; width: ${CLEAN_ORB}px; height: ${CLEAN_ORB}px; }
-.glide-clean-left { font: 500 ${TYPE.small}px/1.4 ${MONO}; letter-spacing: .08em; opacity: .72; }
+.glide-clean-left { ${STAGE_CAPTION}; }
+.glide-stage-controls { min-height:44px; margin-top:8px; }
 `
 
 /** The whole clean view: the ring with the orb in it and the minutes left under it. */
@@ -150,6 +152,7 @@ export function cleanNode(ring: { blob: string }, orb: { blob?: string; alt?: st
         </html.div>
       </html.div>
       <html.span class="glide-clean-left" key="left" text={`${left} min left`} />
+      <html.div class="glide-stage-controls" key="controls" attrs={{ 'aria-hidden': 'true' }} />
     </html.div>
   )
 }

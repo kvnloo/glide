@@ -7,8 +7,8 @@ import { NO_DRIFT, tokenDrift } from './helpers/tokenDrift.js'
 
 describe('compact welcome lockup', () => {
   it('uses an unboxed column and keeps the optional mark at 32 px', () => {
-    const node = JSON.parse(JSON.stringify(welcomeNode('welcome', { logo: 'sample-mark', version: 'v0.2.0' })))
-    expect(node).toMatchObject({ k: 'col', p: { role: 'omp.welcome' } })
+    const node = welcomeNode('welcome', { logo: 'sample-mark', version: 'v0.2.0' })
+    expect(node).toMatchObject({ kind: 'col', props: { role: 'omp.welcome' } })
     const out = JSON.stringify(node)
     expect(out).not.toContain('"k":"card"')
     expect(out).toContain('"w":32')

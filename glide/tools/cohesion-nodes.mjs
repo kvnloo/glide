@@ -16,7 +16,8 @@ import { initialHub } from '../../frontend/src/agents/hub.js'
 import { agentTreeNodes } from '../../frontend/src/agents/treeView.js'
 import { WorkTreeCard } from '../../frontend/src/glideui/workTreeCard.js'
 import { Transcript } from '../../frontend/src/transcript/store.js'
-import { councilCard } from '../frontend/councilPopup.js'
+import { councilCard, councilSpeakingCard } from '../frontend/councilPopup.js'
+import { councilOrbSvg } from '../frontend/councilExchange.js'
 import { demoRun } from '../frontend/council.js'
 import { exchangeTiming } from '../frontend/councilExchange.js'
 import { dashPalette } from '../frontend/dash.js'
@@ -60,6 +61,7 @@ function page(name, tree, extra = '') {
 blobs.set('logo', 'data:image/png;base64,'+readFileSync(resolve('frontend/assets/logo.png')).toString('base64'))
 page('welcome', welcomeNode('welcome', { version:'v0.2.0', logo:'logo' }))
 page('focus-stage', cleanNode({blob:svg(cleanRingSvg(DASH_CLEAN,25,50,NIGHT.border))},{blob:svg(cleanOrbSvg(DASH_CLEAN,'thinking',1.2,true))},25))
+page('council-stage', euiCardNode('speaking', {spec:{kind:'council',app:'glide'},app:'glide',label:'Council',node:councilSpeakingCard('Ship the plugin first.',councilOrbSvg(1.2,.6,true,NIGHT.text2),true,1)},render))
 const agents=agentTreeFixture(50000)
 const hub={...initialHub(agents), expanded:['planner']}
 page('agents-tree', {type:'el',props:{tag:'div',attrs:{'data-agent-tree':'',role:'tree'},children:agentTreeNodes(agentBranches(agents,false),hub,50000,()=>{},render.style)}})

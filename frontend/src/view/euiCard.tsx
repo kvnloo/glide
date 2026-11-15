@@ -92,7 +92,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
     const send = view.send ?? (() => undefined)
     return (
       <col key={view.identity === undefined ? card : `${card}.${view.identity}`} role="glide.host">
-        {glideNode(view.ui, 'ui', { send, entrance: view.entrance, svg: markup => eui.svg(markup) })}
+        {glideNode(view.ui, 'ui', { send, entrance: view.entrance ?? true, svg: markup => eui.svg(markup) })}
         {view.error === undefined ? null : <text key="err" role="eui.error" text={view.error} wrap="word" />}
       </col>
     )
@@ -109,7 +109,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
   const key = view.identity === undefined ? card : `${card}.${view.identity}`
   const activate = view.activate ?? ((id: number) => { eui.click(card, id) })
 
-  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eu': '', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: `eu${root.t === 'el' && root.cls ? ` ${root.cls}` : ''}`, role: 'eui.card' },
+  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eu': '', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: `eu${view.spec.kind === 'intel-suite' ? ' k-intel-suite' : ''}${root.t === 'el' && root.cls ? ` ${root.cls}` : ''}`, role: 'eui.card' },
     root.t === 'el' ? root.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `t${i}`, eui, activate)) : [])
 }
 
