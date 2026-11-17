@@ -308,9 +308,37 @@ def frontend_env(args: argparse.Namespace, resume: Optional[str], restored: Opti
     return env
 
 
+THEMES = Path(__file__).resolve().parent / "glide" / "themes"
+
+
+def install_themes(environ: Optional[dict[str, str]] = None) -> list[Path]:
+    """Copies the themes the plugin ships (Dash's black and gold) into omp's theme folder, where Tern lists
+    them too (`theme_dark: "dash"`); a file already the same is left alone. The paths written."""
+    environ = os.environ if environ is None else environ
+    home = Path(environ.get("PI_CODING_AGENT_DIR") or Path(environ.get("HOME") or Path.home()) / ".omp" / "agent")
+    written = []
+    for theme in sorted(THEMES.glob("*.json")):
+        target = home / "themes" / theme.name
+        body = theme.read_bytes()
+        try:
+            if target.read_bytes() == body:
+                continue
+        except OSError:
+            pass
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(body)
+        except OSError as e:
+            print(f"hermes tern: could not install the {theme.stem} theme ({e})", file=sys.stderr)
+            continue
+        written.append(target)
+    return written
+
+
 def run(args: argparse.Namespace, channel: Optional[str] = None) -> None:
     if _subcommand(args):
         return
+    install_themes()
     channel = _opt(args, "channel") or channel or channels.default_channel()
     front = channels.frontend_dir(channel) if channel else FRONTEND
     bundle = front / "dist" / "entry.js"

@@ -9,8 +9,8 @@ import { dirname, join } from 'node:path'
 import type { ChartMode } from './transcript/tableCharts.js'
 import { readSettings, readStoredSettings, settingsOf } from './wire/files.js'
 
-/** Whose colors the surface wears: Tern's theme, the Nous palette, the Hermes skin, or the wallpaper (pywal). */
-export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto'
+/** Whose colors the surface wears: Tern's theme, the Nous palette, the Hermes skin, the wallpaper (pywal), or Dash's black and gold. */
+export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto' | 'dash'
 
 export interface Settings {
   theme?: ThemeMode | undefined
