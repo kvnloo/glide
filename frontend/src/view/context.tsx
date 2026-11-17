@@ -2,14 +2,18 @@
 // The meter/report entry pattern comes from Can Bölük / Stencil's ui-tsp and downstream Hermes ui-tsp.
 import type { JSX } from '@stencil-hq/tern'
 
-import { optional } from '../core/assert.js'
 import { contextPercent, contextShare, CONTEXT_THRESHOLDS, type ContextWindow } from '../session/context.js'
 
 import { compact } from './time.js'
 
-export function contextMeter(context: ContextWindow | undefined, onOpen: () => void): JSX.Element {
-  const percent = context ? `${contextPercent(context)}%` : undefined
-  const label = percent ? `${percent} context` : 'Context unknown'
+/** omp's hairline above the text box. Nothing until a model call measures the window: a bare `?` read as a stray glyph. */
+export function contextMeter(context: ContextWindow | undefined, onOpen: () => void): JSX.Element | null {
+  if (!context) {
+    return null
+  }
+
+  const percent = `${contextPercent(context)}%`
+  const label = `${percent} context`
 
   return (
     <el
@@ -19,16 +23,16 @@ export function contextMeter(context: ContextWindow | undefined, onOpen: () => v
       onClick={onOpen}
       role="omp.composer.context.action"
       tag="button"
-      title={context ? `${context.used.toLocaleString()} of ${context.max.toLocaleString()} tokens · Show context window` : 'Context usage is not available · Show context window'}
+      title={`${context.used.toLocaleString()} of ${context.max.toLocaleString()} tokens · Show context window`}
     >
       <meter
         key="meter"
-        label={percent ?? '?'}
+        label={percent}
         role="omp.composer.context"
         style="bar"
         thresholds={CONTEXT_THRESHOLDS}
-        {...optional('total', context ? compact(context.max) : undefined)}
-        {...optional('value', context ? contextShare(context) : undefined)}
+        total={compact(context.max)}
+        value={contextShare(context)}
       />
     </el>
   )

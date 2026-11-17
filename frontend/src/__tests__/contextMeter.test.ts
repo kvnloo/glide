@@ -52,7 +52,7 @@ describe('context-window math', () => {
   })
 
   it('emits the visual warning thresholds on the native meter', () => {
-    expect(tree(contextMeter({ max: 1000, used: 600 }, vi.fn())).c?.[0]?.p).toMatchObject({
+    expect(tree(must(contextMeter({ max: 1000, used: 600 }, vi.fn()))).c?.[0]?.p).toMatchObject({
       thresholds: { bad: 0.85, warn: 0.6 }, value: 0.6
     })
     expect(contextFacts({ compressions: 0, context_max: 1000, context_used: 0 })).toContainEqual({ k: 'Compactions', v: '0' })
@@ -72,17 +72,16 @@ describe('context-window math', () => {
 })
 
 describe('native context action and sheet', () => {
-  it('is a named native button for measured or unknown usage', () => {
-    for (const context of [undefined, { max: 1000, used: 250 }]) {
-      const onOpen = vi.fn()
-      const n = contextMeter(context, onOpen)
-      const json = tree(n)
-      expect(json.p).toMatchObject({ attrs: { 'aria-haspopup': 'dialog' }, tag: 'button' })
-      expect(json.p?.['aria']).toBe(context ? 'Show context window: 25% context' : 'Show context window: Context unknown')
-      expect(json.c?.[0]?.p?.['label']).toBe(context ? '25%' : '?')
-      if (n instanceof Node) click(n)
-      expect(onOpen).toHaveBeenCalledOnce()
-    }
+  it('is a named native button for measured usage, and draws nothing (no stray ?) before a model call measures it', () => {
+    expect(contextMeter(undefined, vi.fn())).toBeNull()
+    const onOpen = vi.fn()
+    const n = must(contextMeter({ max: 1000, used: 250 }, onOpen))
+    const json = tree(n)
+    expect(json.p).toMatchObject({ attrs: { 'aria-haspopup': 'dialog' }, tag: 'button' })
+    expect(json.p?.['aria']).toBe('Show context window: 25% context')
+    expect(json.c?.[0]?.p?.['label']).toBe('25%')
+    if (n instanceof Node) click(n)
+    expect(onOpen).toHaveBeenCalledOnce()
   })
 
   it('wires the drawn composer action to the read-only sheet without a prompt', async () => {

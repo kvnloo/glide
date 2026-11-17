@@ -44,6 +44,8 @@ def _hermes_home(tmp_path, monkeypatch):
     # Frontend channels: an empty registry unless a test writes one, never the real shared one.
     monkeypatch.delenv("TERN_PANE", raising=False)  # the suite may run inside a real Tern pane
     monkeypatch.setenv("HERMES_TERN_CHANNELS", str(tmp_path / "tern-channels" / "channels.json"))
+    # `hermes tern` installs the shipped themes into omp's folder: a test's, never the real one.
+    monkeypatch.setenv("PI_CODING_AGENT_DIR", str(tmp_path / "omp-agent"))
 
 
 class _RepoRootIsNotATestPackage:

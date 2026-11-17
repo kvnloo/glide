@@ -51,11 +51,16 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
   else host.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`)
 }
 
-/** `/glide theme auto|default|export`: wear the wallpaper's pywal colors, go back, or write them out. */
+/** `/glide theme auto|dash|default|export`: wear the wallpaper's pywal colors or Dash's black and gold, go back, or write them out. */
 export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
     host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
+    return
+  }
+  if (sub === 'dash') {
+    host.setTheme?.('dash')
+    host.transcript.notice("Glide theme now wears Dash's black and gold")
     return
   }
   if (sub === 'export') {
@@ -70,7 +75,7 @@ export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub
     host.transcript.notice('Glide palette exported. Other tools can now wear your wallpaper colours too.')
     return
   }
-  host.transcript.notice('Usage: /glide theme auto|default|export', 'warning')
+  host.transcript.notice('Usage: /glide theme auto|dash|default|export', 'warning')
 }
 
 const glideMemory = z.object({
