@@ -1,0 +1,343 @@
+verify-2	Set up job	﻿2026-11-14T07:33:01.6830241Z Current runner version: '2.338.2'
+verify-2	Set up job	2026-11-14T07:33:01.6851672Z ##[group]Runner Image Provisioner
+verify-2	Set up job	2026-11-14T07:33:01.6852394Z Hosted Compute Agent
+verify-2	Set up job	2026-11-14T07:33:01.6852962Z Version: 20261103.629
+verify-2	Set up job	2026-11-14T07:33:01.6853588Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+verify-2	Set up job	2026-11-14T07:33:01.6854187Z Build Date: 2026-11-03T17:26:59Z
+verify-2	Set up job	2026-11-14T07:33:01.6855102Z Worker ID: {3a122afd-30bd-4954-8628-f5aaed3e0982}
+verify-2	Set up job	2026-11-14T07:33:01.6855705Z Region: westus2
+verify-2	Set up job	2026-11-14T07:33:01.6856506Z Cloud: Azure
+verify-2	Set up job	2026-11-14T07:33:01.6857001Z ##[endgroup]
+verify-2	Set up job	2026-11-14T07:33:01.6858155Z ##[group]Operating System
+verify-2	Set up job	2026-11-14T07:33:01.6858781Z Ubuntu
+verify-2	Set up job	2026-11-14T07:33:01.6859274Z 24.04.5
+verify-2	Set up job	2026-11-14T07:33:01.6859702Z LTS
+verify-2	Set up job	2026-11-14T07:33:01.6860245Z ##[endgroup]
+verify-2	Set up job	2026-11-14T07:33:01.6860744Z ##[group]Runner Image
+verify-2	Set up job	2026-11-14T07:33:01.6861283Z Image: ubuntu-24.04
+verify-2	Set up job	2026-11-14T07:33:01.6861798Z Version: 20261111.370.1
+verify-2	Set up job	2026-11-14T07:33:01.6862650Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+verify-2	Set up job	2026-11-14T07:33:01.6864196Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+verify-2	Set up job	2026-11-14T07:33:01.6865224Z ##[endgroup]
+verify-2	Set up job	2026-11-14T07:33:01.6866131Z ##[group]GITHUB_TOKEN Permissions
+verify-2	Set up job	2026-11-14T07:33:01.6867948Z Contents: read
+verify-2	Set up job	2026-11-14T07:33:01.6868492Z Metadata: read
+verify-2	Set up job	2026-11-14T07:33:01.6868993Z ##[endgroup]
+verify-2	Set up job	2026-11-14T07:33:01.6870714Z Secret source: Actions
+verify-2	Set up job	2026-11-14T07:33:01.6871519Z Cache mode: write
+verify-2	Set up job	2026-11-14T07:33:01.6872368Z Prepare workflow directory
+verify-2	Set up job	2026-11-14T07:33:01.7132134Z Prepare all required actions
+verify-2	Set up job	2026-11-14T07:33:01.7174364Z Getting action download info
+verify-2	Set up job	2026-11-14T07:33:02.0239188Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+verify-2	Set up job	2026-11-14T07:33:02.1531292Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+verify-2	Set up job	2026-11-14T07:33:02.4016858Z Complete job name: verify-2
+verify-2	Run actions/checkout@v4	﻿2026-11-14T07:33:02.4698035Z ##[group]Run actions/checkout@v4
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4699002Z with:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4699368Z   path: .fleet
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4699758Z   persist-credentials: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4700185Z   repository: kvnloo/fleet-runner
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4703165Z   token: ***
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4703525Z   ssh-strict: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4703895Z   ssh-user: git
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4704241Z   clean: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4704746Z   sparse-checkout-cone-mode: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4705181Z   fetch-depth: 1
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4705529Z   fetch-tags: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4705892Z   show-progress: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4706257Z   lfs: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4706595Z   submodules: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4706958Z   set-safe-directory: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4707365Z   allow-unsafe-pr-checkout: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.4707988Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6551430Z Syncing repository: kvnloo/fleet-runner
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6553431Z ##[group]Getting Git version info
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6554509Z Working directory is '/home/runner/work/fleet-runner/fleet-runner/.fleet'
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6556034Z [command]/usr/bin/git version
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6625571Z git version 2.56.1
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6629821Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6640627Z Temporarily overriding HOME='/home/runner/work/_temp/57e6871d-74c1-4b55-be1a-9aa47c531f47' before making global git config changes
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6642436Z Adding repository directory to the temporary git global config as a safe directory
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6644993Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/fleet-runner/fleet-runner/.fleet
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6684482Z ##[group]Initializing the repository
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6687184Z [command]/usr/bin/git init /home/runner/work/fleet-runner/fleet-runner/.fleet
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6776061Z hint: Using 'master' as the name for the initial branch. This default branch name
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6777352Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6778875Z hint: to use in all of your new repositories, which will suppress this warning,
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6779801Z hint: call:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6780514Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6781135Z hint: 	git config --global init.defaultBranch <name>
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6781904Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6782611Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6783767Z hint: 'development'. The just-created branch can be renamed via this command:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6784813Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6785328Z hint: 	git branch -m <name>
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6785913Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6786692Z hint: Disable this message with "git config set advice.defaultBranchName false"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6788097Z Initialized empty Git repository in /home/runner/work/fleet-runner/fleet-runner/.fleet/.git/
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6790217Z [command]/usr/bin/git remote add origin https://github.com/kvnloo/fleet-runner
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6832198Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6833173Z ##[group]Disabling automatic garbage collection
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6835857Z [command]/usr/bin/git config --local gc.auto 0
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6864234Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6865229Z ##[group]Setting up auth
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6869736Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.6901241Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7229186Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7266265Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7486015Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7525176Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7751291Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7802048Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7803129Z ##[group]Fetching the repository
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:02.7816102Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e3d05a099e274b6b46876a7f5d00d17b5f9c9c9c:refs/remotes/origin/main
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1019042Z From https://github.com/kvnloo/fleet-runner
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1019873Z  * [new ref]         e3d05a099e274b6b46876a7f5d00d17b5f9c9c9c -> origin/main
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1022552Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1023227Z ##[group]Determining the checkout info
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1025127Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1030120Z [command]/usr/bin/git sparse-checkout disable
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1086737Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1129921Z ##[group]Checking out the ref
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1133074Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1188558Z Switched to a new branch 'main'
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1192605Z branch 'main' set up to track 'origin/main'.
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1198043Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1240303Z [command]/usr/bin/git log -1 --format=%H
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1269222Z e3d05a099e274b6b46876a7f5d00d17b5f9c9c9c
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1277726Z ##[group]Removing auth
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1281164Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1315288Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1524838Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1556471Z http.https://github.com/.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1564900Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1601172Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1807511Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.1844436Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2052872Z ##[endgroup]
+verify-2	Run actions/checkout@v4	﻿2026-11-14T07:33:03.2367224Z ##[group]Run actions/checkout@v4
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2367692Z with:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2368029Z   repository: kvnloo/glide
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2368452Z   ref: d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2368931Z   path: target
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2369282Z   persist-credentials: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2369679Z   submodules: recursive
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2372595Z   token: ***
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2372942Z   ssh-strict: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2373287Z   ssh-user: git
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2373619Z   clean: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2373971Z   sparse-checkout-cone-mode: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2374380Z   fetch-depth: 1
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2374918Z   fetch-tags: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2375282Z   show-progress: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2375638Z   lfs: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2375977Z   set-safe-directory: true
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2376381Z   allow-unsafe-pr-checkout: false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.2376785Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3070575Z Syncing repository: kvnloo/glide
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3080185Z ##[group]Getting Git version info
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3081686Z Working directory is '/home/runner/work/fleet-runner/fleet-runner/target'
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3125410Z [command]/usr/bin/git version
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3148651Z git version 2.56.1
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3166561Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3178677Z Temporarily overriding HOME='/home/runner/work/_temp/ba819abc-2504-41d0-84a6-3697618bc381' before making global git config changes
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3180171Z Adding repository directory to the temporary git global config as a safe directory
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3182951Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/fleet-runner/fleet-runner/target
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3216964Z ##[group]Initializing the repository
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3220393Z [command]/usr/bin/git init /home/runner/work/fleet-runner/fleet-runner/target
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3260267Z hint: Using 'master' as the name for the initial branch. This default branch name
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3262045Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3263137Z hint: to use in all of your new repositories, which will suppress this warning,
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3264264Z hint: call:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3265184Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3265771Z hint: 	git config --global init.defaultBranch <name>
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3266489Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3267032Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3267756Z hint: 'development'. The just-created branch can be renamed via this command:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3268421Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3268799Z hint: 	git branch -m <name>
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3269333Z hint:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3269835Z hint: Disable this message with "git config set advice.defaultBranchName false"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3270668Z Initialized empty Git repository in /home/runner/work/fleet-runner/fleet-runner/target/.git/
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3272003Z [command]/usr/bin/git remote add origin https://github.com/kvnloo/glide
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3335270Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3335956Z ##[group]Disabling automatic garbage collection
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3338422Z [command]/usr/bin/git config --local gc.auto 0
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3370729Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3371461Z ##[group]Setting up auth
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3377247Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3408491Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3632001Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3676166Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3916464Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.3956335Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.4169409Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.4213477Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.4214188Z ##[group]Fetching the repository
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:03.4221385Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4559747Z From https://github.com/kvnloo/glide
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4561164Z  * branch            d47eafff6a77fada044c6786c2861f70ba4015f5 -> FETCH_HEAD
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4564194Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4564974Z ##[group]Determining the checkout info
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4567652Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4572810Z [command]/usr/bin/git sparse-checkout disable
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4620130Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4661969Z ##[group]Checking out the ref
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.4665881Z [command]/usr/bin/git checkout --progress --force d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5625976Z Note: switching to 'd47eafff6a77fada044c6786c2861f70ba4015f5'.
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5626567Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5626780Z You are in 'detached HEAD' state. You can look around, make experimental
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5627409Z changes and commit them, and you can discard any commits you make in this
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5628029Z state without impacting any branches by switching back to a branch.
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5628391Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5628689Z If you want to create a new branch to retain commits you create, you may
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5629312Z do so (now or later) by using -c with the switch command. Example:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5629651Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5629895Z   git switch -c <new-branch-name>
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5630142Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5630303Z Or undo this operation with:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5630547Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5630701Z   git switch -
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5630925Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5631271Z Turn off this advice by setting config variable advice.detachedHead to false
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5631648Z 
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5631904Z HEAD is now at d47eaff Verify native card motion and reduced-motion lifecycle
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5636523Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5637226Z ##[group]Setting up auth for fetching submodules
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5642230Z [command]/usr/bin/git config --global http.https://github.com/.extraheader AUTHORIZATION: basic ***
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5688582Z [command]/usr/bin/git config --global --unset-all url.https://github.com/.insteadOf
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5723438Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf git@github.com:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5758341Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf org-7121943@github.com:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5790607Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5791066Z ##[group]Fetching submodules
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.5793760Z [command]/usr/bin/git submodule sync --recursive
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6000327Z [command]/usr/bin/git -c protocol.version=2 submodule update --init --force --depth=1 --recursive
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6212947Z [command]/usr/bin/git submodule foreach --recursive git config --local gc.auto 0
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6422763Z ##[endgroup]
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6464979Z [command]/usr/bin/git log -1 --format=%H
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6494465Z d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6502819Z ##[group]Removing auth
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6506611Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6543139Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6771559Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6800874Z http.https://github.com/.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6809990Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.6859275Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.7070384Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.7107809Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Run actions/checkout@v4	2026-11-14T07:33:04.7312961Z ##[endgroup]
+verify-2	Run python3 .fleet/executor.py execute	﻿2026-11-14T07:33:04.7452629Z ##[group]Run python3 .fleet/executor.py execute
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7453082Z ^[[36;1mpython3 .fleet/executor.py execute^[[0m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7474969Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7475319Z env:
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7475562Z   INPUT_REPOSITORY: kvnloo/glide
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7475853Z   INPUT_SHA: d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7570814Z   INPUT_COMMAND: echo IyEvdXNyL2Jpbi9lbnYgYmFzaAojIHJldXNlLWNoZWNrZWQ6IGZsZWV0LWF2cmVhL3ZlcmlmeS55bWwgKHVzZWQgYXMgdGhlIHRyYW5zcG9ydCkgLS0gZ2xpZGUncyBvd24gd29ya2Zsb3dzIGNhbid0IHJ1biAoQWN0aW9ucyBHaXRIdWItZGlzYWJsZWQpOyB0aGlzIG9ubHkgcmVwbGF5cyB0aGVpciBzdGVwcwojIE1pcnJvcnMga3ZubG9vL2dsaWRlIC5naXRodWIvd29ya2Zsb3dzL3tnbGlkZSxjaGVja3N9LnltbCBzdGVwcy4gSk9CPWdsaWRlfHB5dGhvbnxmcm9udGVuZHxsaW50fGJ1bmRsZSBbQkFTRT1zaGFdCnNldCAtZXVvIHBpcGVmYWlsCkpPQj0ke0pPQjo/fTsgbWtkaXIgLXAgb3V0OyBUPSQobWt0ZW1wIC1kKQpnaXQgZmV0Y2ggLS1uby10YWdzIC0tdW5zaGFsbG93IG9yaWdpbiA+L2Rldi9udWxsIDI+JjEgfHwgdHJ1ZQpuZWVkX2J1bigpIHsgY29tbWFuZCAtdiBidW4gPi9kZXYvbnVsbCB8fCB7IGN1cmwgLWZzU0wgaHR0cHM6Ly9idW4uc2gvaW5zdGFsbCB8IGJhc2ggLXMgYnVuLXYxLjQuMyA+L2Rldi9udWxsIDI+JjE7IH07IGV4cG9ydCBQQVRIPSRIT01FLy5idW4vYmluOiRQQVRIOyBidW4gLS12ZXJzaW9uOyB9Cm5lZWRfdXYoKSB7IGNvbW1hbmQgLXYgdXYgPi9kZXYvbnVsbCB8fCB7IGN1cmwgLUxzU2YgaHR0cHM6Ly9hc3RyYWwuc2gvdXYvaW5zdGFsbC5zaCB8IHNoID4vZGV2L251bGwgMj4mMTsgfTsgZXhwb3J0IFBBVEg9JEhPTUUvLmxvY2FsL2JpbjokUEFUSDsgdXYgLS12ZXJzaW9uOyB9CmNhc2UgJEpPQiBpbgpnbGlkZSkKICBnaXQgZmV0Y2ggLS1uby10YWdzIGh0dHBzOi8vZ2l0aHViLmNvbS9hbHQtZ2xpdGNoL2hlcm1lcy10ZXJuLmdpdCBtYWluOnJlZnMvcmVtb3Rlcy91cHN0cmVhbS9tYWluCiAgcHl0aG9uMyBnbGlkZS90b29scy9jaGVja19sYXlvdXQucHkgLS11cHN0cmVhbSB1cHN0cmVhbS9tYWluCiAgcHl0aG9uMyBnbGlkZS90b29scy9jaGVja191cHN0cmVhbV9zeW5jLnB5CiAgcHl0aG9uMyBnbGlkZS90b29scy9jaGVja19wcml2YWN5LnB5IC0tdXBzdHJlYW0gdXBzdHJlYW0vbWFpbgogIHB5dGhvbjMgLW0gdmVudiAkVC92ICYmICRUL3YvYmluL3BpcCBpbnN0YWxsIC1xIHB5dGVzdCBweWRhbnRpYwogIGNkIGdsaWRlOyAkVC92L2Jpbi9weXRob24gLW0gcHl0ZXN0IC1xIC0taWdub3JlPXRlc3RzL3Rlc3RfbWVtb3J5X2NvcmUucHkgLS1qdW5pdHhtbD0uLi9vdXQvZ2xpZGUueG1sIDI+JjEgfCB0YWlsIC1uIDI1OyB0ZXN0ICR7UElQRVNUQVRVU1swXX0gLWVxIDA7IGNkIC4uCiAgOzsKcHl0aG9uKQogIG5lZWRfdXYKICBnaXQgY2xvbmUgLXEgaHR0cHM6Ly9naXRodWIuY29tL2t2bmxvby9oZXJtZXMtYWdlbnQuZ2l0IC5oZXJtZXMtYWdlbnQKICBnaXQgLUMgLmhlcm1lcy1hZ2VudCBjaGVja291dCAtcSAwYWM0ZTlkZjM5ZWVjZjNjZTY5YTNlYTNjODBhNmRjNzBkZDdkY2Q1CiAgcHl0aG9uMyAtbSB1bml0dGVzdCBkaXNjb3ZlciAtcyB0ZXN0cyAtcCB0ZXN0X2NpX3Bpbl9jb250cmFjdC5weSAyPiYxIHwgdGFpbCAtbiAzCiAgdXYgc3luYyAtcSAtLXByb2plY3QgLmhlcm1lcy1hZ2VudCAtLWZyb3plbiAtLXB5dGhvbiAzLjE0CiAgdXYgcnVuIC0tcHJvamVjdCAuaGVybWVzLWFnZW50IC0tZnJvemVuIC0tbm8tc3luYyAtLXdpdGggcHl0ZXN0IC0td2l0aCBweXRlc3QtYXN5bmNpbyBweXRob24gLW0gcHl0ZXN0IC1xIC0tanVuaXR4bWw9b3V0L3B5dGhvbi54bWwgMj4mMSB8IHRhaWwgLW4gMjU7IHRlc3QgJHtQSVBFU1RBVFVTWzBdfSAtZXEgMAogIDs7CmZyb250ZW5kfGxpbnQpCiAgbmVlZF9idW47IG5lZWRfdXY7IFNIQT0kKHB5dGhvbjMgdGVzdHMvdGVzdF9jaV9waW5fY29udHJhY3QucHkgcGluIC0tbG9jayBmcm9udGVuZC9oZXJtZXMtc3JjLmxvY2spCiAgZ2l0IGluaXQgLXEgLmhlcm1lcy1hZ2VudCAmJiBnaXQgLUMgLmhlcm1lcy1hZ2VudCBmZXRjaCAtcSAtLWRlcHRoIDEgaHR0cHM6Ly9naXRodWIuY29tL05vdXNSZXNlYXJjaC9oZXJtZXMtYWdlbnQuZ2l0ICIkU0hBIiAmJiBnaXQgLUMgLmhlcm1lcy1hZ2VudCBjaGVja291dCAtcSBGRVRDSF9IRUFECiAgZXhwb3J0IEhFUk1FU19TUkM9JFBXRC8uaGVybWVzLWFnZW50IE9QRU5VSV9URUxFTUVUUllfRElTQUJMRUQ9MSBET19OT1RfVFJBQ0s9MQogIGlmIFsgJEpPQiA9IGZyb250ZW5kIF07IHRoZW4gdXYgc3luYyAtcSAtLXByb2plY3QgLmhlcm1lcy1hZ2VudCAtLWZyb3plbiAtLXB5dGhvbiAzLjE0OyBleHBvcnQgUEFUSD0kUFdELy5oZXJtZXMtYWdlbnQvLnZlbnYvYmluOiRQQVRIOyBmaQogIGNkIGZyb250ZW5kOyBub2RlIHNjcmlwdHMvaGVybWVzLXNyYy5tanMgJiYgYnVuIGluc3RhbGwgLS1mcm96ZW4tbG9ja2ZpbGUgPi9kZXYvbnVsbAogIGlmIFsgJEpPQiA9IGZyb250ZW5kIF07IHRoZW4KICAgIGJ1biBydW4gdHlwZWNoZWNrCiAgICBidW4gcnVuIHRlc3QgLS1yZXBvcnRlcj1kZWZhdWx0IC0tcmVwb3J0ZXI9anVuaXQgLS1vdXRwdXRGaWxlLmp1bml0PS4uL291dC9mcm9udGVuZC54bWwgMj4mMSB8IHRhaWwgLW4gMjA7IHRlc3QgJHtQSVBFU1RBVFVTWzBdfSAtZXEgMAogICAgYnVuIHJ1biBidW5kbGUgMj4mMSB8IHRhaWwgLW4gNTsgdGVzdCAke1BJUEVTVEFUVVNbMF19IC1lcSAwCiAgZWxzZQogICAgYnVuIHJ1biBsaW50OyBidW4gcnVuIGNoZWNrOnNpemU7IGJ1biBydW4gY2hlY2s6c3RyaWN0OyBidW4gcnVuIGNoZWNrOnN1cHByZXNzaW9ucyAgIyBzZXBhcmF0ZSBzdGF0ZW1lbnRzOiBzZXQgLWUgaWdub3JlcyBmYWlsdXJlcyBpbnNpZGUgYSBub24tZmluYWwgJiYgZWxlbWVudAogIGZpCiAgY2QgLi4KICA7OwpidW5kbGUpCiAgQkFTRT0ke0JBU0U6P307IGdpdCBmZXRjaCAtcSAtLW5vLXRhZ3Mgb3JpZ2luICIkQkFTRSIgfHwgdHJ1ZQogIGlmIGdpdCBkaWZmIC0tbmFtZS1vbmx5ICIkQkFTRSIuLi5IRUFEIHwgZ3JlcCAtRnhxIGZyb250ZW5kL2Rpc3QvZW50cnkuanM7IHRoZW4gZWNobyAiUFIgdG91Y2hlcyBmcm9udGVuZC9kaXN0L2VudHJ5LmpzIjsgZXhpdCAxOyBmaQogIGVjaG8gImRpc3QgdW50b3VjaGVkIgogIDs7CmVzYWMKZWNobyAiOjpjaS1taXJyb3I6OiBKT0I9JEpPQiBQQVNTIHNoYT0kKGdpdCByZXYtcGFyc2UgSEVBRCkiCg== | base64 -d > /tmp/ci.sh; JOB=frontend BASE= bash /tmp/ci.sh
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7665760Z   INPUT_RUNNER: ubuntu-latest
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7666023Z   INPUT_INDEX: 2
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7666232Z   INPUT_TIMEOUT: 30
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7666437Z   INPUT_FETCH: out/**
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7666652Z   INPUT_PACKAGE_INDEX: 
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:33:04.7666871Z ##[endgroup]
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3146764Z 1.4.3
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3147511Z uv 0.13.8 (x86_64-unknown-linux-gnu)
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3148260Z hermes-src: /home/runner/work/fleet-runner/fleet-runner/target/.hermes-agent @ b3746e35ddd32079697728e2df57a9d78f1e9e32
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3150088Z $ node scripts/typecheck.mjs
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3150500Z typecheck: ok (2 diagnostics inside @hermes/shared left to Hermes)
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3151530Z  ^[[32m✓^[[39m src/__tests__/backendNotes.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3152141Z  ^[[32m✓^[[39m src/__tests__/subagentTranscript.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3152712Z  ^[[32m✓^[[39m src/__tests__/hermesSplit.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3153222Z  ^[[32m✓^[[39m src/__tests__/holdVoice.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 38^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3153841Z  ^[[32m✓^[[39m src/__tests__/artifactClipboard.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3154818Z  ^[[32m✓^[[39m src/__tests__/plan-editor.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3155466Z  ^[[32m✓^[[39m src/__tests__/moa.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3155987Z  ^[[32m✓^[[39m src/__tests__/actionsSplit.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 76^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3156918Z  ^[[32m✓^[[39m src/__tests__/glideUiTokens.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3157455Z  ^[[32m✓^[[39m src/__tests__/styles.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3157975Z  ^[[32m✓^[[39m src/__tests__/tokenDrift.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 5^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3158496Z  ^[[32m✓^[[39m src/__tests__/vendorKitCopy.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3159042Z  ^[[32m✓^[[39m src/__tests__/compactCommand.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3159322Z 
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3159577Z ^[[2m Test Files ^[[22m ^[[1m^[[32m256 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[90m (257)^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3160122Z ^[[2m      Tests ^[[22m ^[[1m^[[32m2872 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m5 skipped^[[39m^[[2m | ^[[22m^[[90m1 todo^[[39m^[[90m (2878)^[[39m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3160540Z ^[[2m   Start at ^[[22m 07:33:36
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3160965Z ^[[2m   Duration ^[[22m 92.74s^[[2m (transform 5.30s, setup 0ms, import 65.78s, tests 92.78s, environment 20ms)^[[22m
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3161245Z 
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3161478Z JUNIT report written to /home/runner/work/fleet-runner/fleet-runner/target/out/frontend.xml
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3161868Z $ node scripts/hermes-src.mjs && node scripts/build.mjs
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3162325Z hermes-src: /home/runner/work/fleet-runner/fleet-runner/target/.hermes-agent @ b3746e35ddd32079697728e2df57a9d78f1e9e32
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3167815Z ::ci-mirror:: JOB=frontend PASS sha=d47eafff6a77fada044c6786c2861f70ba4015f5
+verify-2	Run python3 .fleet/executor.py execute	2026-11-14T07:35:10.3168111Z 
+verify-2	Run actions/upload-artifact@v4	﻿2026-11-14T07:35:10.3331373Z ##[group]Run actions/upload-artifact@v4
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3331649Z with:
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3331823Z   name: fleet-result-2
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3332039Z   path: /home/runner/work/_temp/fleet-result-2/
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3332316Z   retention-days: 7
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3332509Z   if-no-files-found: error
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3332697Z   compression-level: 6
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3332867Z   overwrite: false
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3333057Z   include-hidden-files: false
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.3333262Z ##[endgroup]
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.4733006Z (node:6409) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.4733715Z (Use `node --trace-deprecation ...` to show where the warning was created)
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.4797883Z With the provided path, there will be 2 files uploaded
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.4798683Z Artifact name is valid!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.4798994Z Root directory input is valid!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.8930613Z Beginning upload of artifact content to blob storage
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:10.9091137Z (node:6409) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.2475162Z Uploaded bytes 3483
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.3265038Z Finished uploading artifact content to blob storage!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.3265838Z SHA256 digest of uploaded artifact zip is 4cf01e0d73eacbe0ec2ad8f95b921160868bbe5eee3d6683efa79693e8f0a671
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.3275241Z Finalizing artifact upload
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7187065Z Artifact fleet-result-2.zip successfully finalized. Artifact ID 14104539172
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7187934Z Artifact fleet-result-2 has been successfully uploaded! Final size is 3483 bytes. Artifact ID is 14104539172
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7193010Z Artifact download URL: https://github.com/kvnloo/fleet-runner/actions/runs/43571603577/artifacts/14104539172
+verify-2	Run actions/upload-artifact@v4	﻿2026-11-14T07:35:11.7373083Z ##[group]Run actions/upload-artifact@v4
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7373324Z with:
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7373494Z   name: fleet-files-2
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7373742Z   path: /home/runner/work/fleet-runner/fleet-runner/target/out/**
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7391303Z   retention-days: 7
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7391764Z   if-no-files-found: warn
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7391967Z   compression-level: 6
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7392149Z   overwrite: false
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7392332Z   include-hidden-files: false
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.7392529Z ##[endgroup]
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.8769883Z (node:6422) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.8770845Z (Use `node --trace-deprecation ...` to show where the warning was created)
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.8811567Z With the provided path, there will be 1 file uploaded
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.8816253Z Artifact name is valid!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:11.8816831Z Root directory input is valid!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.2481653Z Beginning upload of artifact content to blob storage
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.3106767Z (node:6422) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.7908704Z Uploaded bytes 111232
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.8666906Z Finished uploading artifact content to blob storage!
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.8667683Z SHA256 digest of uploaded artifact zip is c02cc00267ab0cc969910fedd04ae7265a6e155b2ce5c4492bffb5def1585763
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:12.8668920Z Finalizing artifact upload
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:13.2624859Z Artifact fleet-files-2.zip successfully finalized. Artifact ID 14104539180
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:13.2625699Z Artifact fleet-files-2 has been successfully uploaded! Final size is 111232 bytes. Artifact ID is 14104539180
+verify-2	Run actions/upload-artifact@v4	2026-11-14T07:35:13.2630503Z Artifact download URL: https://github.com/kvnloo/fleet-runner/actions/runs/43571603577/artifacts/14104539180
+verify-2	Post Run actions/checkout@v4	﻿2026-11-14T07:35:13.2811052Z Post job cleanup.
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3500848Z [command]/usr/bin/git version
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3566883Z git version 2.56.1
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3597461Z Temporarily overriding HOME='/home/runner/work/_temp/ad0914f9-2863-4f95-abdc-b43ba94e16b4' before making global git config changes
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3598650Z Adding repository directory to the temporary git global config as a safe directory
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3602155Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/fleet-runner/fleet-runner/target
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3634774Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3666086Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3888999Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.3919715Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.4154421Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.4199995Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Post Run actions/checkout@v4	﻿2026-11-14T07:35:13.4551434Z Post job cleanup.
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5346568Z [command]/usr/bin/git version
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5412515Z git version 2.56.1
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5425157Z Temporarily overriding HOME='/home/runner/work/_temp/3280495c-9c82-4e4c-b7d6-0a8d4fba3174' before making global git config changes
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5426380Z Adding repository directory to the temporary git global config as a safe directory
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5427469Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/fleet-runner/fleet-runner/.fleet
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5463182Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5494367Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5721936Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.5761620Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.6001782Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+verify-2	Post Run actions/checkout@v4	2026-11-14T07:35:13.6037784Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+verify-2	Complete job	﻿2026-11-14T07:35:13.6380552Z Cleaning up orphan processes
+verify-2	Complete job	2026-11-14T07:35:13.6696876Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

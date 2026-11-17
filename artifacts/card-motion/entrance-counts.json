@@ -1,0 +1,2321 @@
+{
+  "ok": true,
+  "header": {
+    "scenario": "live",
+    "shot": "dump",
+    "page": "tern",
+    "viewport": {
+      "width": 1060.0,
+      "height": 596.0,
+      "deviceScaleFactor": 1.0
+    },
+    "theme": "dark",
+    "htmlClass": "tn-themed lay-tiles tn-heads-never mat-clear chosen-glass dense-compact tabs-h glass csd"
+  },
+  "elements": [
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone.off>div.tn-body>div.tv>div.tv-grid>div.tv-blocks>div.tv-block>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "visible": false,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        195.0,
+        147.0,
+        17.92,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        195.0,
+        147.0,
+        35.84,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        195.0,
+        147.0,
+        35.84,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        195.0,
+        147.0,
+        53.77,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        195.0,
+        147.0,
+        53.77,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        195.0,
+        147.0,
+        53.77,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        195.0,
+        147.0,
+        53.77,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        195.0,
+        147.0,
+        53.77,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        195.0,
+        147.0,
+        89.61,
+        33.59
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "32px",
+      "fontWeight": "600",
+      "color": "rgb(185, 155, 103)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        335.16,
+        171.8,
+        10.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        335.16,
+        171.8,
+        10.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        335.16,
+        171.8,
+        10.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        335.16,
+        171.8,
+        10.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        335.16,
+        171.8,
+        10.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        335.16,
+        171.8,
+        20.41,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        428.75,
+        171.8,
+        40.81,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        428.75,
+        171.8,
+        40.81,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        428.75,
+        171.8,
+        40.81,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        428.75,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f0",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(2)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f1",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(3)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f2",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(4)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f3",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(5)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f4",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(6)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f5",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(7)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f6",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(8)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f7",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(9)",
+      "rect": [
+        522.34,
+        171.8,
+        51.0,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f8",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(10)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f9",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(11)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f10",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(12)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f11",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(13)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f12",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(14)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f13",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(15)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f14",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(16)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    },
+    {
+      "path": "main#panel>div.tn-stage>section.tn-pane.on.lone>div.tn-body>div.tv.covered>div.tv-cover>div.sf-region.sf-main>div.sf.sf-col.gap-none>div.sf.sf-el>div.sf.sf-card.noic>div.sf-card-body>div.sf.sf-col.gap-md>div.sf.sf-row.gap-lg.al-center>div.sf.sf-col.gap-none>div.sf.sf-row.gap-lg.wrap>div.sf.sf-col.gap-none>span.sf.sf-el.glide-count>span.sf.sf-el.glide-count-frame.glide-count-f15",
+      "nth": "main:nth-of-type(1)>div:nth-of-type(1)>section:nth-of-type(3)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(4)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(1)>div:nth-of-type(2)>div:nth-of-type(1)>div:nth-of-type(3)>span:nth-of-type(1)>span:nth-of-type(17)",
+      "rect": [
+        522.34,
+        171.8,
+        61.2,
+        16.0
+      ],
+      "visible": true,
+      "fontFamily": "\"SF Mono\", \"Ioskeley Mono Term\", monospace, \"Ioskeley Mono Term\", monospace",
+      "fontSize": "17px",
+      "fontWeight": "600",
+      "color": "rgb(228, 221, 209)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "0",
+      "transform": "none"
+    }
+  ]
+}

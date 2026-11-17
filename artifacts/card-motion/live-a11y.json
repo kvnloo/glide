@@ -1,0 +1,1261 @@
+{
+  "ok": true,
+  "id": 0,
+  "role": "Window",
+  "name": "Default",
+  "bounds": [
+    0.0,
+    0.0,
+    1060.0,
+    596.0
+  ],
+  "children": [
+    {
+      "id": 4294967301,
+      "role": "Main",
+      "bounds": [
+        3.0,
+        37.0,
+        1054.0,
+        556.0
+      ],
+      "actions": [
+        "scroll-into-view",
+        "show-context-menu"
+      ],
+      "children": [
+        {
+          "id": 4294967311,
+          "role": "GenericContainer",
+          "bounds": [
+            3.0,
+            37.0,
+            1054.0,
+            556.0
+          ],
+          "actions": [
+            "scroll-into-view",
+            "show-context-menu"
+          ],
+          "children": [
+            {
+              "id": 21474838422,
+              "role": "Region",
+              "name": "Shell block",
+              "bounds": [
+                3.0,
+                37.0,
+                1054.0,
+                556.0
+              ],
+              "actions": [
+                "scroll-into-view",
+                "show-context-menu"
+              ],
+              "children": [
+                {
+                  "id": 21474838452,
+                  "role": "GenericContainer",
+                  "bounds": [
+                    6.0,
+                    40.0,
+                    1048.0,
+                    550.0
+                  ],
+                  "actions": [
+                    "scroll-into-view",
+                    "show-context-menu"
+                  ],
+                  "children": [
+                    {
+                      "id": 21474838449,
+                      "role": "GenericContainer",
+                      "bounds": [
+                        6.0,
+                        40.0,
+                        1048.0,
+                        550.0
+                      ],
+                      "actions": [
+                        "scroll-into-view",
+                        "show-context-menu"
+                      ],
+                      "children": [
+                        {
+                          "id": 21474838444,
+                          "role": "GenericContainer",
+                          "bounds": [
+                            16.0,
+                            50.0,
+                            1038.0,
+                            540.0
+                          ],
+                          "actions": [
+                            "scroll-into-view",
+                            "show-context-menu"
+                          ],
+                          "children": [
+                            {
+                              "id": 21474838463,
+                              "role": "MultilineTextInput",
+                              "name": "Terminal input",
+                              "states": [
+                                "focused",
+                                "focusable"
+                              ],
+                              "bounds": [
+                                16.0,
+                                82.0,
+                                2.0,
+                                16.0
+                              ],
+                              "actions": [
+                                "focus",
+                                "blur",
+                                "scroll-into-view",
+                                "set-value",
+                                "replace-selected-text",
+                                "set-text-selection",
+                                "show-context-menu"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 21474838472,
+                          "role": "GenericContainer",
+                          "bounds": [
+                            16.0,
+                            50.0,
+                            1028.0,
+                            530.0
+                          ],
+                          "actions": [
+                            "scroll-into-view",
+                            "show-context-menu"
+                          ],
+                          "children": [
+                            {
+                              "id": 21474838508,
+                              "role": "Group",
+                              "bounds": [
+                                16.0,
+                                50.0,
+                                1028.0,
+                                530.0
+                              ],
+                              "actions": [
+                                "click",
+                                "scroll-into-view",
+                                "scroll-up",
+                                "scroll-down",
+                                "set-scroll-offset",
+                                "show-context-menu"
+                              ],
+                              "children": [
+                                {
+                                  "id": 21474838525,
+                                  "role": "Label",
+                                  "value": "GLIDE / NATIVE CARD MOTION \u00b7 SYNTHETIC \u00b7 R replay \u00b7 D done \u00b7 N next",
+                                  "bounds": [
+                                    166.0,
+                                    73.0,
+                                    442.2,
+                                    14.0
+                                  ]
+                                },
+                                {
+                                  "id": 30064773140,
+                                  "role": "Group",
+                                  "bounds": [
+                                    181.0,
+                                    115.0,
+                                    698.0,
+                                    28.0
+                                  ],
+                                  "actions": [
+                                    "click",
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 30064773149,
+                                      "role": "Label",
+                                      "value": "Atlas \u00b7 live checks",
+                                      "bounds": [
+                                        193.0,
+                                        120.0,
+                                        148.2,
+                                        17.0
+                                      ]
+                                    },
+                                    {
+                                      "id": 30064773143,
+                                      "role": "Label",
+                                      "value": "Running",
+                                      "bounds": [
+                                        819.8,
+                                        121.5,
+                                        42.2,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 30064773148,
+                                  "role": "GenericContainer",
+                                  "name": "1,248",
+                                  "bounds": [
+                                    195.0,
+                                    147.0,
+                                    124.2,
+                                    33.6
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 30064773147,
+                                      "role": "Label",
+                                      "value": "1,248",
+                                      "bounds": [
+                                        195.0,
+                                        143.0,
+                                        89.6,
+                                        40.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 30064773184,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    195.0,
+                                    180.6,
+                                    124.2,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 30064773172,
+                                      "role": "Label",
+                                      "value": "Checks passed",
+                                      "bounds": [
+                                        195.0,
+                                        181.6,
+                                        97.2,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 30064773182,
+                                  "role": "Label",
+                                  "value": "Synthetic atlas workspace",
+                                  "bounds": [
+                                    195.0,
+                                    196.6,
+                                    115.2,
+                                    31.0
+                                  ]
+                                },
+                                {
+                                  "id": 30064773193,
+                                  "role": "GenericContainer",
+                                  "name": "24",
+                                  "bounds": [
+                                    335.2,
+                                    171.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 30064773192,
+                                      "role": "Label",
+                                      "value": "24",
+                                      "bounds": [
+                                        335.2,
+                                        168.8,
+                                        20.4,
+                                        21.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838615,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    335.2,
+                                    187.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838612,
+                                      "role": "Label",
+                                      "value": "Workers",
+                                      "bounds": [
+                                        335.2,
+                                        188.8,
+                                        52.4,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838622,
+                                  "role": "GenericContainer",
+                                  "name": "98.4%",
+                                  "bounds": [
+                                    428.8,
+                                    171.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838623,
+                                      "role": "Label",
+                                      "value": "98.4%",
+                                      "bounds": [
+                                        428.8,
+                                        168.8,
+                                        51.0,
+                                        21.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838653,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    428.8,
+                                    187.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838658,
+                                      "role": "Label",
+                                      "value": "Pass rate",
+                                      "bounds": [
+                                        428.8,
+                                        188.8,
+                                        67.3,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838659,
+                                  "role": "GenericContainer",
+                                  "name": "12.50s",
+                                  "bounds": [
+                                    522.3,
+                                    171.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838660,
+                                      "role": "Label",
+                                      "value": "12.50s",
+                                      "bounds": [
+                                        522.3,
+                                        168.8,
+                                        61.2,
+                                        21.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838692,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    522.3,
+                                    187.8,
+                                    77.6,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838684,
+                                      "role": "Label",
+                                      "value": "Elapsed",
+                                      "bounds": [
+                                        522.3,
+                                        188.8,
+                                        52.4,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838688,
+                                  "role": "Meter",
+                                  "value": 72.0,
+                                  "bounds": [
+                                    195.0,
+                                    238.6,
+                                    670.0,
+                                    11.5
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ]
+                                },
+                                {
+                                  "id": 21474838703,
+                                  "role": "Figure",
+                                  "name": "Synthetic throughput",
+                                  "bounds": [
+                                    195.0,
+                                    284.1,
+                                    327.0,
+                                    41.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838719,
+                                      "role": "Label",
+                                      "value": "Synthetic throughput",
+                                      "bounds": [
+                                        195.0,
+                                        310.1,
+                                        138.0,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838718,
+                                  "role": "Figure",
+                                  "name": "Checks per batch",
+                                  "bounds": [
+                                    538.0,
+                                    260.1,
+                                    327.0,
+                                    89.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838715,
+                                      "role": "GenericContainer",
+                                      "name": "A",
+                                      "bounds": [
+                                        538.0,
+                                        302.8,
+                                        24.0,
+                                        21.3
+                                      ],
+                                      "actions": [
+                                        "scroll-into-view",
+                                        "show-context-menu"
+                                      ]
+                                    },
+                                    {
+                                      "id": 21474838702,
+                                      "role": "GenericContainer",
+                                      "name": "B",
+                                      "bounds": [
+                                        565.0,
+                                        281.4,
+                                        24.0,
+                                        42.7
+                                      ],
+                                      "actions": [
+                                        "scroll-into-view",
+                                        "show-context-menu"
+                                      ]
+                                    },
+                                    {
+                                      "id": 21474838707,
+                                      "role": "GenericContainer",
+                                      "name": "C",
+                                      "bounds": [
+                                        592.0,
+                                        293.6,
+                                        24.0,
+                                        30.5
+                                      ],
+                                      "actions": [
+                                        "scroll-into-view",
+                                        "show-context-menu"
+                                      ]
+                                    },
+                                    {
+                                      "id": 21474838694,
+                                      "role": "GenericContainer",
+                                      "name": "D",
+                                      "bounds": [
+                                        619.0,
+                                        269.2,
+                                        24.0,
+                                        54.9
+                                      ],
+                                      "actions": [
+                                        "scroll-into-view",
+                                        "show-context-menu"
+                                      ]
+                                    },
+                                    {
+                                      "id": 21474838722,
+                                      "role": "GenericContainer",
+                                      "name": "E",
+                                      "bounds": [
+                                        646.0,
+                                        260.1,
+                                        24.0,
+                                        64.0
+                                      ],
+                                      "actions": [
+                                        "scroll-into-view",
+                                        "show-context-menu"
+                                      ]
+                                    },
+                                    {
+                                      "id": 21474838724,
+                                      "role": "Label",
+                                      "value": "Checks per batch",
+                                      "bounds": [
+                                        538.0,
+                                        334.1,
+                                        110.4,
+                                        14.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838730,
+                                  "role": "Label",
+                                  "value": "01",
+                                  "bounds": [
+                                    205.0,
+                                    376.0,
+                                    15.0,
+                                    14.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838721,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    230.0,
+                                    367.0,
+                                    537.0,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838727,
+                                      "role": "Label",
+                                      "value": "Typecheck",
+                                      "bounds": [
+                                        230.0,
+                                        366.0,
+                                        70.2,
+                                        17.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838737,
+                                  "role": "Label",
+                                  "value": "No diagnostics",
+                                  "bounds": [
+                                    230.0,
+                                    382.0,
+                                    109.2,
+                                    17.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838734,
+                                  "role": "Label",
+                                  "value": "124 checks",
+                                  "bounds": [
+                                    777.0,
+                                    374.0,
+                                    78.0,
+                                    17.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838740,
+                                  "role": "Label",
+                                  "value": "02",
+                                  "bounds": [
+                                    205.0,
+                                    426.0,
+                                    15.0,
+                                    14.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838731,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    230.0,
+                                    417.0,
+                                    544.8,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838735,
+                                      "role": "Label",
+                                      "value": "Lint",
+                                      "bounds": [
+                                        230.0,
+                                        416.0,
+                                        31.2,
+                                        17.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838742,
+                                  "role": "Label",
+                                  "value": "No errors",
+                                  "bounds": [
+                                    230.0,
+                                    432.0,
+                                    70.2,
+                                    17.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838754,
+                                  "role": "Label",
+                                  "value": "48 checks",
+                                  "bounds": [
+                                    784.8,
+                                    424.0,
+                                    70.2,
+                                    17.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838750,
+                                  "role": "Label",
+                                  "value": "03",
+                                  "bounds": [
+                                    205.0,
+                                    476.0,
+                                    15.0,
+                                    14.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838741,
+                                  "role": "GenericContainer",
+                                  "bounds": [
+                                    230.0,
+                                    467.0,
+                                    580.3,
+                                    16.0
+                                  ],
+                                  "actions": [
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": 21474838746,
+                                      "role": "Label",
+                                      "value": "End-to-end",
+                                      "bounds": [
+                                        230.0,
+                                        466.0,
+                                        78.0,
+                                        17.0
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 21474838757,
+                                  "role": "Label",
+                                  "value": "Running on atlas",
+                                  "bounds": [
+                                    230.0,
+                                    482.0,
+                                    124.8,
+                                    17.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838747,
+                                  "role": "Label",
+                                  "value": "Live",
+                                  "bounds": [
+                                    827.3,
+                                    475.5,
+                                    20.7,
+                                    14.0
+                                  ]
+                                },
+                                {
+                                  "id": 21474838751,
+                                  "role": "Button",
+                                  "name": "Complete checks",
+                                  "states": [
+                                    "focusable"
+                                  ],
+                                  "bounds": [
+                                    195.0,
+                                    517.0,
+                                    143.0,
+                                    28.0
+                                  ],
+                                  "actions": [
+                                    "click",
+                                    "focus",
+                                    "scroll-into-view",
+                                    "show-context-menu"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 21474838530,
+                              "role": "Group",
+                              "bounds": [
+                                16.0,
+                                580.0,
+                                1028.0,
+                                0.0
+                              ],
+                              "actions": [
+                                "click",
+                                "scroll-into-view",
+                                "show-context-menu"
+                              ]
+                            },
+                            {
+                              "id": 21474838518,
+                              "role": "Group",
+                              "bounds": [
+                                16.0,
+                                50.0,
+                                1028.0,
+                                530.0
+                              ],
+                              "actions": [
+                                "click",
+                                "scroll-into-view",
+                                "show-context-menu"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 21474838488,
+                  "role": "Button",
+                  "name": "Pane menu",
+                  "description": "Drag to move the pane \u2303\u2325\u2190\u2191\u2192\u2193 \u00b7 click for its menu",
+                  "states": [
+                    "focusable",
+                    "haspopup:menu"
+                  ],
+                  "bounds": [
+                    513.0,
+                    43.0,
+                    34.0,
+                    16.0
+                  ],
+                  "actions": [
+                    "click",
+                    "focus",
+                    "scroll-into-view",
+                    "show-context-menu"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4294967329,
+      "role": "Navigation",
+      "name": "Tabs",
+      "bounds": [
+        0.0,
+        0.0,
+        1060.0,
+        40.0
+      ],
+      "actions": [
+        "scroll-into-view",
+        "show-context-menu"
+      ],
+      "children": [
+        {
+          "id": 4294967764,
+          "role": "Button",
+          "name": "Signed in to Stencil as @kvnloo",
+          "states": [
+            "focusable",
+            "haspopup:dialog"
+          ],
+          "bounds": [
+            12.0,
+            7.0,
+            30.0,
+            26.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu"
+          ]
+        },
+        {
+          "id": 4294967758,
+          "role": "Button",
+          "name": "Switch session",
+          "description": "Default \u00b7 Switch session\u2026 Ctrl+Shift+Space",
+          "states": [
+            "focusable",
+            "haspopup:dialog"
+          ],
+          "bounds": [
+            50.0,
+            7.0,
+            79.5,
+            26.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu"
+          ]
+        },
+        {
+          "id": 4294967331,
+          "role": "TabList",
+          "name": "Tabs",
+          "bounds": [
+            137.5,
+            0.0,
+            586.5,
+            40.0
+          ],
+          "actions": [
+            "click",
+            "scroll-into-view",
+            "scroll-left",
+            "scroll-right",
+            "set-scroll-offset",
+            "show-context-menu"
+          ],
+          "children": [
+            {
+              "id": 47244641847,
+              "role": "Tab",
+              "name": "Glide \u00b7 working",
+              "description": "Glide Ctrl+Shift+1 exec /home/kvn/.hermes/profiles/clean/cache/scratch/studio/launch-pane-live.s",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                80.0,
+                7.0,
+                86.0,
+                26.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 38654707243,
+              "role": "Tab",
+              "name": "cd /mnt/zer0models/worktrees/glide-anim/frontend && /home/kvn/.bun/bin/bun \u00b7 working",
+              "description": "cd /mnt/zer0models/worktrees/glide-anim/frontend && /home/kvn/.bun/bin/bun Ctrl+Shift+2",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                168.0,
+                7.0,
+                277.0,
+                26.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 21474837456,
+              "role": "Tab",
+              "name": "cd /mnt/zer0models/worktrees/glide-anim/frontend && /home/kvn/.bun/bin/bun \u00b7 working",
+              "description": "cd /mnt/zer0models/worktrees/glide-anim/frontend && /home/kvn/.bun/bin/bun Ctrl+Shift+3",
+              "states": [
+                "focusable",
+                "selected"
+              ],
+              "bounds": [
+                447.0,
+                7.0,
+                277.0,
+                26.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4294967332,
+          "role": "Button",
+          "name": "New tab",
+          "description": "New tab Ctrl+Shift+T",
+          "states": [
+            "focusable",
+            "collapsed",
+            "haspopup:menu"
+          ],
+          "bounds": [
+            728.0,
+            6.0,
+            28.0,
+            28.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu",
+            "expand"
+          ]
+        },
+        {
+          "id": 4294967356,
+          "role": "Group",
+          "name": "Blocks",
+          "bounds": [
+            768.0,
+            6.0,
+            148.0,
+            28.0
+          ],
+          "actions": [
+            "scroll-into-view",
+            "show-context-menu"
+          ],
+          "children": [
+            {
+              "id": 4294967357,
+              "role": "Button",
+              "name": "Files",
+              "description": "Show Files Ctrl+Shift+E",
+              "states": [
+                "focusable",
+                "unchecked"
+              ],
+              "bounds": [
+                768.0,
+                6.0,
+                28.0,
+                28.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 4294967359,
+              "role": "Button",
+              "name": "Split right",
+              "description": "Split right Ctrl+Shift+Enter",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                798.0,
+                6.0,
+                28.0,
+                28.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 4294967361,
+              "role": "Button",
+              "name": "Split down",
+              "description": "Split down Ctrl+Shift+O",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                828.0,
+                6.0,
+                28.0,
+                28.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 4294967363,
+              "role": "Button",
+              "name": "Find",
+              "description": "Find in scrollback Ctrl+Shift+F",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                858.0,
+                6.0,
+                28.0,
+                28.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            },
+            {
+              "id": 4294967365,
+              "role": "Button",
+              "name": "Run a command",
+              "description": "Run a command\u2026 Ctrl+Shift+P",
+              "states": [
+                "focusable"
+              ],
+              "bounds": [
+                888.0,
+                6.0,
+                28.0,
+                28.0
+              ],
+              "actions": [
+                "click",
+                "focus",
+                "scroll-into-view",
+                "show-context-menu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4294967405,
+          "role": "Button",
+          "name": "Inbox",
+          "description": "Nothing needs you Ctrl+Shift+I",
+          "states": [
+            "focusable",
+            "collapsed",
+            "haspopup:dialog"
+          ],
+          "bounds": [
+            920.0,
+            6.0,
+            28.0,
+            28.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu",
+            "expand"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4294967695,
+      "role": "Region",
+      "name": "Notifications",
+      "states": [
+        "live:polite"
+      ],
+      "bounds": [
+        704.0,
+        50.0,
+        344.0,
+        0.0
+      ],
+      "actions": [
+        "scroll-into-view",
+        "show-context-menu"
+      ]
+    },
+    {
+      "id": 12884902665,
+      "role": "Group",
+      "name": "Window",
+      "bounds": [
+        964.0,
+        6.0,
+        88.0,
+        28.0
+      ],
+      "actions": [
+        "scroll-into-view",
+        "show-context-menu"
+      ],
+      "children": [
+        {
+          "id": 12884902720,
+          "role": "Button",
+          "name": "Minimize",
+          "states": [
+            "focusable"
+          ],
+          "bounds": [
+            964.0,
+            6.0,
+            28.0,
+            28.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu"
+          ]
+        },
+        {
+          "id": 12884902722,
+          "role": "Button",
+          "name": "Maximize",
+          "states": [
+            "focusable"
+          ],
+          "bounds": [
+            994.0,
+            6.0,
+            28.0,
+            28.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu"
+          ]
+        },
+        {
+          "id": 12884902724,
+          "role": "Button",
+          "name": "Close",
+          "states": [
+            "focusable"
+          ],
+          "bounds": [
+            1024.0,
+            6.0,
+            28.0,
+            28.0
+          ],
+          "actions": [
+            "click",
+            "focus",
+            "scroll-into-view",
+            "show-context-menu"
+          ]
+        }
+      ]
+    }
+  ]
+}
