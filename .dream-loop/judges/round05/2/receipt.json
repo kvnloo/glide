@@ -1,0 +1,56 @@
+{
+  "trial": 2,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "A",
+    "A": {
+      "scores": {
+        "glanceable": 5,
+        "actionable": 5,
+        "density": 5,
+        "dash": 5,
+        "glass": 5,
+        "cohesion": 5,
+        "vocabulary": 4,
+        "motion": 5,
+        "phone": 5
+      },
+      "weighted": 99,
+      "calculated_weighted": 99.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 5,
+        "density": 3,
+        "dash": 2,
+        "glass": 5,
+        "cohesion": 3,
+        "vocabulary": 4,
+        "motion": 4,
+        "phone": 4
+      },
+      "weighted": 74,
+      "calculated_weighted": 74.0
+    },
+    "image_grounding": [
+      "TARGET (1060\u00d7596) uses a compact, unboxed omp lockup above a quiet tip rather than a full-width identity card.",
+      "A (1472\u00d71894 contact sheet) shows neutral dotted orbs across desktop and phone; gold and glow are confined to the focus timer rings.",
+      "B (1472\u00d71894 contact sheet) shows larger gold council orbs and green focus orbs; both council captions remain visibly separated from readable return controls."
+    ],
+    "defects_A": [],
+    "defects_B": [
+      "Council panels are the worst offenders: oversized gold orbs turn neutral stage identity into decorative emphasis.",
+      "Focus panels introduce green orb ink alongside the gold ring, violating the neutral-ink requirement.",
+      "Council and focus use visibly different orb scales and caption treatments, weakening the shared stage grammar."
+    ],
+    "cohesion": "one product",
+    "reason": "A better matches the centered, restrained stage grammar across all four panels without a visible regression. Its consistent neutral orbs preserve hierarchy and reserve gold glow for the timer ring. Both candidates retain readable controls and caption clearance on desktop and phone, with no visible clipping. Intentional stage whitespace and quiet stills are not defects; interactions and font identities are unverified."
+  },
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "e571ac13a9a86dbb40173d287cb1bb0b7aacb3841853bc13f0be4d0a82f27a51",
+    "candidate": "d5768a778abacbec5de1a1d8da4cef55e12482ba1354bb16aca4955e0f1e0dbc"
+  }
+}

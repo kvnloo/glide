@@ -1,0 +1,19 @@
+Native captured before welcome
+Native captured before work-tree
+Native captured before work-tasks
+Native captured before work-receipt
+Native captured before council-brief
+Native captured before theme-picker
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 143, in <module>
+    if __name__ == '__main__': main()
+                               ~~~~^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 128, in main
+    action('quit')
+    ~~~~~~^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 108, in action
+    wait(lambda: state().get('sequence')==seq, name)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 61, in wait
+    raise RuntimeError('Timed out: '+label)
+RuntimeError: Timed out: quit

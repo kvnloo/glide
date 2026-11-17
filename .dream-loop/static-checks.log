@@ -1,0 +1,28 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+
+=== typecheck ===
+$ node scripts/typecheck.mjs
+typecheck: ok (2 diagnostics inside @hermes/shared left to Hermes)
+exit=0
+
+=== lint ===
+$ node scripts/lint.mjs
+src/__tests__/welcomeCohesion.test.ts:10:18 no-restricted-syntax: JSON.parse belongs at a boundary: wire/ decodes, tools/ reads tool details. See docs/conventions.md#json-parsing-at-the-boundary.
+lint: 1 failure(s) against scripts/lint-legacy.json:
+  src/__tests__/welcomeCohesion.test.ts no-restricted-syntax: 1 errors, over its ceiling of 0
+error: script "lint" exited with code 1
+exit=1
+
+=== complexity:check ===
+error: Script not found "complexity:check"
+exit=1
+
+=== types:check ===
+error: Script not found "types:check"
+exit=1
+
+=== hygiene:check ===
+error: Script not found "hygiene:check"
+exit=1

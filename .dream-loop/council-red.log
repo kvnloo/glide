@@ -1,0 +1,36 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/councilCohesion.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/councilCohesion.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 51[2mms[22m[39m
+[31m     [31m×[31m keeps the brief, seat state, and controls without display type or a giant instrument[39m[32m 46[2mms[22m[39m
+     [32m✓[39m uses design tokens[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 16:53:25
+[2m   Duration [22m 1.99s[2m (transform 1.52s, setup 0ms, import 1.66s, tests 51ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/councilCohesion.test.ts[2m > [22mcouncil shares the tool-card grammar[2m > [22mkeeps the brief, seat state, and controls without display type or a giant instrument
+[31m[1mAssertionError[22m: expected ';display:flex;flex-direction:column;g…' not to contain 'Cormorant'[39m
+
+Expected: [32m"Cormorant"[39m
+Received: [31m";display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:16px;border:1px solid rgba(236,232,223,0.18);background-color:#0c0c0a;color:#ECE8DF;opacity:1;display:flex;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;padding:2px 8px;border-radius:999px;color:#eccd8c;border:1px solid #B6A689;margin:0;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-weight:500;font-size:30px;line-height:34px;color:#ECE8DF;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;margin-top:6px;margin:0;padding-bottom:8px;border-bottom:1px solid rgba(236,232,223,0.24);font-size:13px;line-height:20px;color:#ECE8DF;min-height:40px;margin:0;font-size:12px;line-height:18px;color:#BBB5A9;margin:0;font-size:12px;line-height:18px;color:#BBB5A9;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;flex:1 1 340px;display:flex;justify-content:center;max-width:100%;height:auto;flex:1 1 280px;display:flex;flex-direction:column;gap:12px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid rgba(236,232,223,0.18);background-color:rgba(28,28,24,0.55);display:flex;align-items:center;gap:8px;width:8px;height:8px;border-radius:4px;flex:none;background-color:#B6A689;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:20px;line-height:26px;color:#ECE8DF;display:block;margin-top:4px;font-size:13px;line-height:18px;color:#ACA79D;margin:0;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-style:italic;font-size:15px;line-height:20px;color:#BBB5A9;display:flex;gap:8px;flex:1;padding:11px 16px;border-radius:12px;border:1px solid #f0d7a0;border-bottom-color:#9c7a43;background-color:#cfae74;color:#1d160b;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:20px;padding:11px 16px;border-radius:12px;border:1px solid rgba(236,232,223,0.24);background-color:transparent;color:#BBB5A9;font-size:13px;display:flex;gap:8px;align-items:center;padding:11px 16px;border-radius:12px;border:1px solid rgba(236,232,223,0.24);background-color:transparent;color:#BBB5A9;font-size:13px;padding:11px 16px;border-radius:12px;border:1px solid rgba(236,232,223,0.24);background-color:transparent;color:#BBB5A9;font-size:13px;display:flex;flex-direction:column;gap:2px;display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(236,232,223,0.18);flex:none;display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:17px;color:#ECE8DF;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;color:#ACA79D;font-size:13px;line-height:18px;color:#ACA79D;display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(236,232,223,0.18);flex:none;display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:17px;color:#ECE8DF;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;color:#ACA79D;font-size:13px;line-height:18px;color:#ACA79D;display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(236,232,223,0.18);flex:none;display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:17px;color:#ECE8DF;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;color:#ACA79D;font-size:13px;line-height:18px;color:#ACA79D;display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(236,232,223,0.18);flex:none;display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;font-family:'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', Georgia, serif;font-size:17px;color:#ECE8DF;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.16em;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;color:#ACA79D;font-size:13px;line-height:18px;color:#ACA79D;font-family:'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;font-size:11px;color:#ACA79D;text-align:center"[39m
+
+[36m [2m❯[22m src/__tests__/councilCohesion.test.ts:[2m16:24[22m[39m
+    [90m 14|[39m     const all = nodes(councilCard({ run: demoRun(), live: false, from:…
+    [90m 15|[39m     const styles = all.flatMap(n => n.t === 'text' ? [] : [n.style]).j…
+    [90m 16|[39m     [34mexpect[39m(styles)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'Cormorant'[39m)
+    [90m   |[39m                        [31m^[39m
+    [90m 17|[39m     [34mexpect[39m(styles)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'border-radius:16px'[39m)
+    [90m 18|[39m     expect(all.filter(n => n.t === 'svg').every(n => n.w <= 32)).toBe(…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+error: script "test" exited with code 1

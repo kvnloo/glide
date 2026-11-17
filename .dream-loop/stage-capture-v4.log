@@ -1,0 +1,19 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+nodes-build
+nodes-html
+council-stage-desktop
+council-stage-phone
+focus-stage-desktop
+focus-stage-phone
+{"captures": 4, "out": "/tmp/glide-w8-cohesion/headless-stage-before"}
+nodes-build
+nodes-html
+council-stage-desktop
+council-stage-phone
+focus-stage-desktop
+focus-stage-phone
+{"captures": 4, "out": "/tmp/glide-w8-cohesion/headless-round04"}
+intel
+{"captures": 14, "out": "/tmp/glide-w8-cohesion/headless-intel-corrected"}

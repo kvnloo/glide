@@ -1,0 +1,78 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/councilCohesion.test.ts src/__tests__/glideCommand.test.ts src/__tests__/talkNative.test.ts src/__tests__/designTokens.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/glideCommand.test.ts [2m([22m[2m25 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1246[2mms[22m[39m
+     [32m✓[39m declares the ask, drafts an unevidenced contract, and advances to work only on approve[32m 134[2mms[22m[39m
+     [32m✓[39m shows the proof card for the last ask, labelled sample, and asks for an ask first[32m 37[2mms[22m[39m
+     [32m✓[39m closes the approved rail with the receipt: every task succeeded, citing its hash[32m 37[2mms[22m[39m
+     [32m✓[39m asks for the ask when it is missing[32m 7[2mms[22m[39m
+     [32m✓[39m is a listed local command[32m 5[2mms[22m[39m
+     [32m✓[39m detects, then builds memory and turns recall on only after two taps[32m 45[2mms[22m[39m
+     [32m✓[39m chains router, hill climb and savings, one tap each, with the numbers the plugin returns[32m 33[2mms[22m[39m
+     [32m✓[39m shows a failed step as an error notice[32m 14[2mms[22m[39m
+     [32m✓[39m recalls and turns off on request[32m 22[2mms[22m[39m
+     [32m✓[39m says so when the backend is missing instead of drawing cards[32m 14[2mms[22m[39m
+     [32m✓[39m falls back to the plugin command on cores without plugin gateway methods[32m 22[2mms[22m[39m
+     [32m✓[39m shows the plugin command error instead of a card[32m 13[2mms[22m[39m
+     [32m✓[39m is a listed local command[32m 3[2mms[22m[39m
+     [32m✓[39m reads a configured live endpoint, and falls back to the tagged demo when it cannot[32m 250[2mms[22m[39m
+[31m     [31m×[31m opens as a popup card tagged demo, plays on Enter with a clock that stops at the end, and closes on Escape[39m[32m 211[2mms[22m[39m
+     [32m✓[39m says so instead of opening in a pane without cards, and rejects unknown arguments[32m 14[2mms[22m[39m
+     [32m✓[39m warns when a configured endpoint failed and still shows the demo, never a live tag[32m 87[2mms[22m[39m
+     [32m✓[39m posts a council card whose button opens the popup, and re-arms for the next tap[32m 132[2mms[22m[39m
+     [32m✓[39m counts abstentions separately instead of reporting them as agreement[32m 32[2mms[22m[39m
+     [32m✓[39m rejects two verdicts from the same seat[32m 6[2mms[22m[39m
+[31m     [31m×[31m draws the card from node data only: the instrument and every seat stone are SVG images[39m[32m 64[2mms[22m[39m
+     [32m✓[39m one focus card turns Start into the block ring into ended, and the digest collapses the held asks[32m 29[2mms[22m[39m
+     [32m✓[39m never leaves two live End block cards[32m 4[2mms[22m[39m
+     [32m✓[39m wind-down draws the day band and the note tomorrow starts from; hours shows learned windows[32m 7[2mms[22m[39m
+     [32m✓[39m styles its heroes with ah- classes no kit stylesheet uses[32m 1[2mms[22m[39m
+ [32m✓[39m src/__tests__/talkNative.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 721[2mms[22m[39m
+     [33m[2m✓[22m[39m decodes the real chord, paints a listening orb, and hangs up with another chord [33m 517[2mms[22m[39m
+ [32m✓[39m src/__tests__/councilCohesion.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/__tests__/designTokens.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/glideCommand.test.ts[2m > [22m/council[2m > [22mopens as a popup card tagged demo, plays on Enter with a clock that stops at the end, and closes on Escape
+[31m[1mAssertionError[22m: expected -1 to be greater than -1[39m
+[36m [2m❯[22m src/__tests__/glideCommand.test.ts:[2m294:56[22m[39m
+    [90m292|[39m     [34mexpect[39m(idle)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'data-council-stance'[39m)
+    [90m293|[39m     // Fits a short pane: the header rides in the side column, so noth…
+    [90m294|[39m     expect(idle.indexOf('COUNCIL · GLIDE · SOCRATIC')).toBeGreaterThan…
+    [90m   |[39m                                                        [31m^[39m
+    [90m295|[39m     expect(idle).not.toContain('read a live council') // the popup tit…
+    [90m296|[39m     expect(idle.match(/"w":16,"h":16/g)).toHaveLength(4) // seats ride…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/glideCommand.test.ts[2m > [22m/council[2m > [22mdraws the card from node data only: the instrument and every seat stone are SVG images
+[31m[1mAssertionError[22m: expected [ Array(1) ] to have a length of 5 but got 1[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m src/__tests__/glideCommand.test.ts:[2m380:18[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m62 passed[39m[22m[90m (64)[39m
+[2m   Start at [22m 16:54:52
+[2m   Duration [22m 24.77s[2m (transform 12.48s, setup 0ms, import 20.47s, tests 2.18s, environment 1ms)[22m
+
+    [90m378|[39m     const walk = (n: EuiNode) => { if (n.t === 'svg') svgs.push(n.svg)…
+    [90m379|[39m     [34mwalk[39m([34mcard[39m())
+    [90m380|[39m     [34mexpect[39m(svgs)[33m.[39m[34mtoHaveLength[39m([34m5[39m)
+    [90m   |[39m                  [31m^[39m
+    [90m381|[39m     expect(svgs.slice(1).map(s => /<g clip-path/.test(s))).toEqual([tr…
+    [90m382|[39m   })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+error: script "test" exited with code 1

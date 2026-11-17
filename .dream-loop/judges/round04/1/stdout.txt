@@ -1,0 +1,48 @@
+{
+  "winner": "tie",
+  "A": {
+    "scores": {
+      "glanceable": 4,
+      "actionable": 4,
+      "density": 4,
+      "dash": 2,
+      "glass": 5,
+      "cohesion": 2,
+      "vocabulary": 4,
+      "motion": 5,
+      "phone": 4
+    },
+    "weighted": 73
+  },
+  "B": {
+    "scores": {
+      "glanceable": 3,
+      "actionable": 3,
+      "density": 4,
+      "dash": 2,
+      "glass": 5,
+      "cohesion": 3,
+      "vocabulary": 4,
+      "motion": 5,
+      "phone": 3
+    },
+    "weighted": 67
+  },
+  "image_grounding": [
+    "TARGET is 1060×596: a compact, unboxed omp lockup sits above a quiet tip and composer.",
+    "A is 1472×1894: both upper council panels show a visibly larger gold particle orb than the green orb inside each lower focus ring.",
+    "B is 1472×1894: council and focus particle orbs appear similarly sized, but both council captions crowd the upper border of their return buttons."
+  ],
+  "defects_A": [
+    "Both council panels break the shared orb-scale grammar: their orbs dominate relative to the focus orbs.",
+    "Council captions are visibly larger than the restrained focus caption treatment.",
+    "Gold council particles and green focus particles introduce decorative state colors; gold is not reserved for one action."
+  ],
+  "defects_B": [
+    "Worst panels: both council views place the caption against the return-button border, compromising separation and readability.",
+    "Gold council particles and green focus particles retain decorative state coloring.",
+    "Focus captions lose A's visibly monospaced treatment."
+  ],
+  "cohesion": "inconsistent",
+  "reason": "B improves shared orb sizing and caption restraint but regresses council caption/control spacing on both desktop and phone. A reads more clearly but fails shared-stage scale. Neither improves the target grammar without regression. Both preserve opaque dark canvases, intentional stage whitespace, and glow confined to focus rings. Static restraint is acceptable; interactions and exact font identities remain unverified."
+}

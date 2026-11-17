@@ -1,0 +1,11 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ node scripts/typecheck.mjs
+typecheck: ok (2 diagnostics inside @hermes/shared left to Hermes)
+$ node scripts/lint.mjs
+lint: ok (0 file-rule pairs, 0 with ceilings)
+$ node scripts/check-strict.mjs
+check-strict: ok (0 files, 0 with ceilings)
+$ node scripts/check-size.mjs
+check-size: ok (666 files, 2 with ceilings)

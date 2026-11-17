@@ -1,0 +1,57 @@
+{
+  "trial": 2,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "A",
+    "A": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 5,
+        "density": 5,
+        "dash": 5,
+        "glass": 5,
+        "cohesion": 5,
+        "vocabulary": 4,
+        "motion": 5,
+        "phone": 5
+      },
+      "weighted": 95,
+      "calculated_weighted": 95.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 0,
+        "density": 2,
+        "dash": 3,
+        "glass": 2,
+        "cohesion": 3,
+        "vocabulary": 3,
+        "motion": 5,
+        "phone": 2
+      },
+      "weighted": 47,
+      "calculated_weighted": 47.0
+    },
+    "image_grounding": [
+      "All three images are 1472\u00d7947; A and B label desktop 1060\u00d7596 and phone 412\u00d7915 surfaces.",
+      "TARGET pairs an unboxed omp mark/name/version lockup with a quiet tip beneath; A retains this arrangement using Hermes identity and a compact approximately 32 px mark on both surfaces.",
+      "B places Hermes inside wide bordered panels on both surfaces, enlarges the portrait to approximately 48 px, and shows no welcome tip."
+    ],
+    "defects_A": [],
+    "defects_B": [
+      "Both panels repeat the explicitly rejected boxed welcome treatment instead of a compact unboxed lockup.",
+      "Portraits exceed the requested 32 px mark size.",
+      "The quiet tip and invitation to ask or use slash commands are absent on both surfaces.",
+      "Desktop panel width creates substantial unused interior space; phone repeats the same unnecessary container."
+    ],
+    "cohesion": "one product",
+    "reason": "A follows the target's compact identity-and-tip grammar on desktop and phone without a visible regression. B retains Hermes but violates the welcome scope through enlarged portraits, wide boxes, and missing guidance. Static quietness is acceptable; interaction behavior and exact font families are not verified from pixels. This is not owner approval."
+  },
+  "hashes": {
+    "target": "ea3550a54c4ca4a4dca5f01aec4d113bf6b9de4de4d5eab70f75f3cfe4f0d4f7",
+    "parent": "980d0b5ee4284437fc61aa4788d6e0a1eae38022896ae252a373e807f9f182c8",
+    "candidate": "7d79a7ddb35509bfcb64b4f49a51662a0146b7a2203d31d20144c6a65b90e8de"
+  }
+}

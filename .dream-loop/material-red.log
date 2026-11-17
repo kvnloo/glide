@@ -1,0 +1,186 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/cohesion.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/cohesion.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 319[2mms[22m[39m
+[31m     [31m×[31m uses an opaque layer and the shared hairline box for cards[39m[32m 145[2mms[22m[39m
+[31m     [31m×[31m keeps text on the canvas instead of glass tabs[39m[32m 64[2mms[22m[39m
+[31m     [31m×[31m keeps every plain or disabled button label readable[39m[32m 61[2mms[22m[39m
+[31m     [31m×[31m uses design tokens[39m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/cohesion.test.ts[2m > [22mDash transcript material[2m > [22muses an opaque layer and the shared hairline box for cards
+[31m[1mAssertionError[22m: expected ' background: rgba(12,12,10,0.73); -we…' to contain 'background: var(--l1)'[39m
+
+Expected: [32m"background: [7mvar(--l1)[27m"[39m
+Received: [31m"[7m [27mbackground: [7mrgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 1px 2px rgba(4,4,3,0.4), 0 18px 40px -18px rgba(4,4,3,0.85), inset 0 1px 0 rgba(236,232,223,0.08); transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); ; border-color: transparent; border-radius: 16px; ; background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; [27m"[39m
+
+[36m [2m❯[22m src/__tests__/cohesion.test.ts:[2m17:18[22m[39m
+    [90m 15|[39m   it('uses an opaque layer and the shared hairline box for cards', () …
+    [90m 16|[39m     [35mconst[39m card [33m=[39m [34mrule[39m(css[33m,[39m [32m'[data-eu][data-eui=card] .eu-card'[39m)
+    [90m 17|[39m     [34mexpect[39m(card)[33m.[39m[34mtoContain[39m([32m'background: var(--l1)'[39m)
+    [90m   |[39m                  [31m^[39m
+    [90m 18|[39m     [34mexpect[39m(card)[33m.[39m[34mtoContain[39m([32m'border-radius: 8px'[39m)
+    [90m 19|[39m     [34mexpect[39m(card)[33m.[39m[34mtoContain[39m([32m'box-shadow: none'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/cohesion.test.ts[2m > [22mDash transcript material[2m > [22mkeeps text on the canvas instead of glass tabs
+[31m[1mAssertionError[22m: expected '\n.sf, [data-eui=\'card\'], .sf-overl…' not to contain 'radial-gradient'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- radial-gradient[39m
+[31m+[39m
+[31m+ .sf, [data-eui='card'], .sf-overlay { --g-ease: cubic-bezier(.2, .7, .2, 1); --sf-card-bg: rgba(12,12,10,0.73); --pop-bg: rgba(12,12,10,0.73); --modal-bg: rgba(12,12,10,0.73); --glass-hi: rgba(236,232,223,0.1); }[39m
+[31m+ [data-eu][data-eui=card]:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }[39m
+[31m+ [data-eu][data-eui=card]:not([data-eui-popup])::before { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: radial-gradient(6px 6px at 4% 12%, #d7b986, #d7b986 25%, transparent 70%), radial-gradient(5px 5px at 96% 8%, #d7b986, #d7b986 25%, transparent 70%), radial-gradient(7px 7px at 2% 58%, rgba(215,185,134,0.8), rgba(215,185,134,0.8) 25%, transparent 70%), radial-gradient(6px 6px at 98% 46%, rgba(215,185,134,0.9), rgba(215,185,134,0.9) 25%, transparent 70%), radial-gradient(5px 5px at 6% 92%, rgba(215,185,134,0.8), rgba(215,185,134,0.8) 25%, transparent 70%), radial-gradient(6px 6px at 94% 88%, rgba(215,185,134,0.85), rgba(215,185,134,0.85) 25%, transparent 70%), radial-gradient(4px 4px at 12% 34%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%), radial-gradient(5px 5px at 89% 26%, rgba(215,185,134,0.75), rgba(215,185,134,0.75) 25%, transparent 70%), radial-gradient(4px 4px at 9% 74%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%), radial-gradient(4px 4px at 91% 66%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%); opacity: 0; }[39m
+[31m+ [data-eu][data-eui=card] .eu-card, .sf.sf-col.sf-col[data-role^='omp.editor'], .sf-overlay .sf-ov-card, .sf-col[data-role='omp.live.lanes'] { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 1px 2px rgba(4,4,3,0.4), 0 18px 40px -18px rgba(4,4,3,0.85), inset 0 1px 0 rgba(236,232,223,0.08); transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card { border-color: transparent; border-radius: 16px; }[39m
+[31m+ .sf-col[data-role='omp.live.lanes'] { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 16px; }[39m
+[31m+ .sf.sf-status:not(.transparent) { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 1px 0 rgba(236,232,223,0.1), 0 -1px 0 rgba(215,185,134,0.22); }[39m
+[31m+ .sf.sf-card { -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ .sf-overlay .sf-ov-card { box-shadow: 0 1px 2px rgba(4,4,3,0.4), 0 18px 40px -18px rgba(4,4,3,0.85), inset 0 1px 0 rgba(236,232,223,0.08), 0 0 0 1px rgba(215,185,134,0.18); }[39m
+[31m+ .sf-overlay .sf-ov-dim { background: rgba(4,4,3,0.4); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card::after, .sf.sf-col.sf-col[data-role^='omp.editor']::after, .sf-overlay .sf-ov-card::after, .sf-col[data-role='omp.live.lanes']::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: linear-gradient(180deg, rgba(236,232,223,0.3), rgba(236,232,223,0.1) 18%, rgba(236,232,223,0.05) 60%, rgba(215,185,134,0.16)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .9; transition: opacity .2s var(--g-ease); }[39m
+[31m+ .sf.sf-col.sf-col[data-role^='omp.editor']::after { opacity: 1; }[39m
+[31m+ .sf-place-dir, .sf-place-sep, .sf-t-dim { color: var(--t3); }[39m
+[31m+ .sf-t-muted { color: var(--t2); }[39m
+[31m+ .sf.sf-text, .sf.sf-card.nohead { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); padding: 6px 10px; margin: -6px -10px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ .sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }[39m
+[31m+ [data-eu][data-eui=card] .eui-host-head { width: fit-content; max-width: 100%; padding: 0 10px; border-radius: 12px; background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(4,4,3,0.45), 0 24px 48px -18px rgba(4,4,3,0.92), inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ .sf.sf-col.sf-col[data-role^='omp.editor']:hover { box-shadow: 0 2px 4px rgba(4,4,3,0.45), 0 24px 48px -18px rgba(4,4,3,0.92), inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card:hover::after, .sf.sf-col.sf-col[data-role^='omp.editor']:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }[39m
+[31m+ @keyframes glide-shimmer { from { opacity: .9; } to { opacity: 1; } }[39m
+[31m+ [data-eu][data-eui=card] .ih-hero, [data-eu][data-eui=card] .ah-hero { background: linear-gradient(180deg, rgba(236,232,223,0.05), transparent), rgba(12,12,10,0.26); border-color: rgba(215,185,134,0.22); transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }[39m
+[31m+ [data-eu][data-eui=card] .ih-hero:hover { border-color: rgba(215,185,134,0.4); box-shadow: inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ [data-eu][data-eui=card] .ih-lane, [data-eu][data-eui=card] .ih-flow, [data-eu][data-eui=card] .ih-host, [data-eu][data-eui=card] .ih-gate, [data-eu][data-eui=card] .ih-budget, [data-eu][data-eui=card] .ih-repo, [data-eu][data-eui=card] .ih-stamp, [data-eu][data-eui=card] .ah-fact, [data-eu][data-eui=card] .ah-ask { background: rgba(12,12,10,0.24); border-color: rgba(215,185,134,0.26); transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }[39m
+[31m+ [data-eu][data-eui=card] .ah-tile, [data-eu][data-eui=card] .ah-note { background: rgba(12,12,10,0.24); }[39m
+[31m+ [data-eu][data-eui=card] .ih-sample { background: rgba(12,12,10,0.45); border-color: rgba(215,185,134,0.45); color: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .ih-lane:hover, [data-eu][data-eui=card] .ih-host:hover, [data-eu][data-eui=card] .ih-gate:hover, [data-eu][data-eui=card] .ih-budget:hover { transform: translateY(-1px); border-color: rgba(215,185,134,0.6); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); }[39m
+[31m+ [data-eu][data-eui=card] .ih-key, [data-eu][data-eui=card] .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }[39m
+[31m+ [data-eu][data-eui=card] .ih-key:hover, [data-eu][data-eui=card] .eu-chip:hover { background-color: rgba(215,185,134,0.14); transform: translateY(-1px); box-shadow: 0 6px 12px -8px rgba(4,4,3,0.8); }[39m
+[31m+ [data-eu][data-eui=card] .ih-l-council, [data-eu][data-eui=card] .ih-gate, [data-eu][data-eui=card] .ih-pip { border-color: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .ih-l-council { box-shadow: 0 0 0 1px rgba(215,185,134,0.3); }[39m
+[31m+ [data-eu][data-eui=card] .ih-flowlink.ih-gated { background: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn { background: rgba(12,12,10,0.45); border-color: rgba(215,185,134,0.3); }[39m
+[31m+ /* Gold means one thing: the button to press. The card's approve button is the one solid fill, in dark ink. */[39m
+[31m+ [data-eu][data-eui=card] .eu-btn.eui-host-approve:not([disabled]) { background: #d7b986; border-color: #d7b986; color: #040403; }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn:hover { border-color: rgba(215,185,134,0.7); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); transform: translateY(-1px); }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }[39m
+[31m+ .hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }[39m
+[31m+ .hermes-press:hover { background-color: rgba(215,185,134,0.16); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); }[39m
+[31m+ @media (prefers-reduced-motion: reduce) {[39m
+[31m+   [data-eu][data-eui=card]:not([data-eui-popup])::before, [data-eu][data-eui=card] .eu-card:hover::after, .sf.sf-col.sf-col[data-role^='omp.editor']:hover::after { animation: none; }[39m
+[31m+   [data-eu][data-eui=card] .eu-card:hover, [data-eu][data-eui=card] .ih-lane:hover, [data-eu][data-eui=card] .ih-host:hover, [data-eu][data-eui=card] .ih-gate:hover, [data-eu][data-eui=card] .ih-budget:hover, [data-eu][data-eui=card] .ih-key:hover, [data-eu][data-eui=card] .eu-chip:hover, [data-eu][data-eui=card] .eu-btn:hover { transform: none; }[39m
+[31m+ }[39m
+[31m+ @media (prefers-reduced-transparency: reduce) {[39m
+[31m+   .sf, [data-eui='card'], .sf-overlay { --sf-card-bg: var(--card); --pop-bg: var(--card); --modal-bg: var(--card); }[39m
+[31m+   [data-eu][data-eui=card] .eu-card, .sf.sf-col.sf-col[data-role^='omp.editor'], .sf-overlay .sf-ov-card, .sf-col[data-role='omp.live.lanes'], .sf.sf-status:not(.transparent), .sf.sf-card, .sf.sf-text, .sf.sf-card.nohead, [data-eu][data-eui=card] .eui-host-head { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }[39m
+[31m+   .sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text { background: none; }[39m
+[31m+ }[39m
+[31m+[39m
+
+[36m [2m❯[22m src/__tests__/cohesion.test.ts:[2m24:21[22m[39m
+    [90m 22|[39m
+    [90m 23|[39m   [34mit[39m([32m'keeps text on the canvas instead of glass tabs'[39m[33m,[39m () [33m=>[39m {
+    [90m 24|[39m     [34mexpect[39m(css)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'radial-gradient'[39m)
+    [90m   |[39m                     [31m^[39m
+    [90m 25|[39m     [34mexpect[39m(css)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'linear-gradient'[39m)
+    [90m 26|[39m     [34mexpect[39m(css)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'translateY'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/cohesion.test.ts[2m > [22mDash transcript material[2m > [22mkeeps every plain or disabled button label readable
+[31m[1mAssertionError[22m: expected '\n.sf, [data-eui=\'card\'], .sf-overl…' to contain '.eu-btn:not(.primary)'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- .eu-btn:not(.primary)[39m
+[31m+[39m
+[31m+ .sf, [data-eui='card'], .sf-overlay { --g-ease: cubic-bezier(.2, .7, .2, 1); --sf-card-bg: rgba(12,12,10,0.73); --pop-bg: rgba(12,12,10,0.73); --modal-bg: rgba(12,12,10,0.73); --glass-hi: rgba(236,232,223,0.1); }[39m
+[31m+ [data-eu][data-eui=card]:not([data-eui-popup]) { position: relative; isolation: isolate; background: transparent; overflow: visible; }[39m
+[31m+ [data-eu][data-eui=card]:not([data-eui-popup])::before { content: ''; position: absolute; inset: -28px -120px; pointer-events: none; z-index: -1; background: radial-gradient(6px 6px at 4% 12%, #d7b986, #d7b986 25%, transparent 70%), radial-gradient(5px 5px at 96% 8%, #d7b986, #d7b986 25%, transparent 70%), radial-gradient(7px 7px at 2% 58%, rgba(215,185,134,0.8), rgba(215,185,134,0.8) 25%, transparent 70%), radial-gradient(6px 6px at 98% 46%, rgba(215,185,134,0.9), rgba(215,185,134,0.9) 25%, transparent 70%), radial-gradient(5px 5px at 6% 92%, rgba(215,185,134,0.8), rgba(215,185,134,0.8) 25%, transparent 70%), radial-gradient(6px 6px at 94% 88%, rgba(215,185,134,0.85), rgba(215,185,134,0.85) 25%, transparent 70%), radial-gradient(4px 4px at 12% 34%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%), radial-gradient(5px 5px at 89% 26%, rgba(215,185,134,0.75), rgba(215,185,134,0.75) 25%, transparent 70%), radial-gradient(4px 4px at 9% 74%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%), radial-gradient(4px 4px at 91% 66%, rgba(215,185,134,0.7), rgba(215,185,134,0.7) 25%, transparent 70%); opacity: 0; }[39m
+[31m+ [data-eu][data-eui=card] .eu-card, .sf.sf-col.sf-col[data-role^='omp.editor'], .sf-overlay .sf-ov-card, .sf-col[data-role='omp.live.lanes'] { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 1px 2px rgba(4,4,3,0.4), 0 18px 40px -18px rgba(4,4,3,0.85), inset 0 1px 0 rgba(236,232,223,0.08); transition: transform .2s var(--g-ease), box-shadow .2s var(--g-ease); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card { border-color: transparent; border-radius: 16px; }[39m
+[31m+ .sf-col[data-role='omp.live.lanes'] { position: relative; isolation: isolate; padding: 8px 12px; border-radius: 16px; }[39m
+[31m+ .sf.sf-status:not(.transparent) { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 1px 0 rgba(236,232,223,0.1), 0 -1px 0 rgba(215,185,134,0.22); }[39m
+[31m+ .sf.sf-card { -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ .sf-overlay .sf-ov-card { box-shadow: 0 1px 2px rgba(4,4,3,0.4), 0 18px 40px -18px rgba(4,4,3,0.85), inset 0 1px 0 rgba(236,232,223,0.08), 0 0 0 1px rgba(215,185,134,0.18); }[39m
+[31m+ .sf-overlay .sf-ov-dim { background: rgba(4,4,3,0.4); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card::after, .sf.sf-col.sf-col[data-role^='omp.editor']::after, .sf-overlay .sf-ov-card::after, .sf-col[data-role='omp.live.lanes']::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3; background: linear-gradient(180deg, rgba(236,232,223,0.3), rgba(236,232,223,0.1) 18%, rgba(236,232,223,0.05) 60%, rgba(215,185,134,0.16)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .9; transition: opacity .2s var(--g-ease); }[39m
+[31m+ .sf.sf-col.sf-col[data-role^='omp.editor']::after { opacity: 1; }[39m
+[31m+ .sf-place-dir, .sf-place-sep, .sf-t-dim { color: var(--t3); }[39m
+[31m+ .sf-t-muted { color: var(--t2); }[39m
+[31m+ .sf.sf-text, .sf.sf-card.nohead { background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); padding: 6px 10px; margin: -6px -10px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ .sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text { background: none; padding: 0; margin: 0; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; animation: none; }[39m
+[31m+ [data-eu][data-eui=card] .eui-host-head { width: fit-content; max-width: 100%; padding: 0 10px; border-radius: 12px; background: rgba(12,12,10,0.73); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 0 0 1px rgba(215,185,134,0.22), inset 0 1px 0 rgba(236,232,223,0.1); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(4,4,3,0.45), 0 24px 48px -18px rgba(4,4,3,0.92), inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ .sf.sf-col.sf-col[data-role^='omp.editor']:hover { box-shadow: 0 2px 4px rgba(4,4,3,0.45), 0 24px 48px -18px rgba(4,4,3,0.92), inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ [data-eu][data-eui=card] .eu-card:hover::after, .sf.sf-col.sf-col[data-role^='omp.editor']:hover::after { opacity: 1; animation: glide-shimmer 2.4s ease-in-out infinite alternate; }[39m
+[31m+ @keyframes glide-shimmer { from { opacity: .9; } to { opacity: 1; } }[39m
+[31m+ [data-eu][data-eui=card] .ih-hero, [data-eu][data-eui=card] .ah-hero { background: linear-gradient(180deg, rgba(236,232,223,0.05), transparent), rgba(12,12,10,0.26); border-color: rgba(215,185,134,0.22); transition: border-color .2s var(--g-ease), box-shadow .2s var(--g-ease); }[39m
+[31m+ [data-eu][data-eui=card] .ih-hero:hover { border-color: rgba(215,185,134,0.4); box-shadow: inset 0 1px 0 rgba(236,232,223,0.12); }[39m
+[31m+ [data-eu][data-eui=card] .ih-lane, [data-eu][data-eui=card] .ih-flow, [data-eu][data-eui=card] .ih-host, [data-eu][data-eui=card] .ih-gate, [data-eu][data-eui=card] .ih-budget, [data-eu][data-eui=card] .ih-repo, [data-eu][data-eui=card] .ih-stamp, [data-eu][data-eui=card] .ah-fact, [data-eu][data-eui=card] .ah-ask { background: rgba(12,12,10,0.24); border-color: rgba(215,185,134,0.26); transition: transform .18s var(--g-ease), border-color .18s, box-shadow .18s; }[39m
+[31m+ [data-eu][data-eui=card] .ah-tile, [data-eu][data-eui=card] .ah-note { background: rgba(12,12,10,0.24); }[39m
+[31m+ [data-eu][data-eui=card] .ih-sample { background: rgba(12,12,10,0.45); border-color: rgba(215,185,134,0.45); color: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .ih-lane:hover, [data-eu][data-eui=card] .ih-host:hover, [data-eu][data-eui=card] .ih-gate:hover, [data-eu][data-eui=card] .ih-budget:hover { transform: translateY(-1px); border-color: rgba(215,185,134,0.6); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); }[39m
+[31m+ [data-eu][data-eui=card] .ih-key, [data-eu][data-eui=card] .eu-chip { transition: background-color .18s var(--g-ease), transform .18s var(--g-ease), box-shadow .18s; }[39m
+[31m+ [data-eu][data-eui=card] .ih-key:hover, [data-eu][data-eui=card] .eu-chip:hover { background-color: rgba(215,185,134,0.14); transform: translateY(-1px); box-shadow: 0 6px 12px -8px rgba(4,4,3,0.8); }[39m
+[31m+ [data-eu][data-eui=card] .ih-l-council, [data-eu][data-eui=card] .ih-gate, [data-eu][data-eui=card] .ih-pip { border-color: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .ih-l-council { box-shadow: 0 0 0 1px rgba(215,185,134,0.3); }[39m
+[31m+ [data-eu][data-eui=card] .ih-flowlink.ih-gated { background: #d7b986; }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn { background: rgba(12,12,10,0.45); border-color: rgba(215,185,134,0.3); }[39m
+[31m+ /* Gold means one thing: the button to press. The card's approve button is the one solid fill, in dark ink. */[39m
+[31m+ [data-eu][data-eui=card] .eu-btn.eui-host-approve:not([disabled]) { background: #d7b986; border-color: #d7b986; color: #040403; }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn:hover { border-color: rgba(215,185,134,0.7); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); transform: translateY(-1px); }[39m
+[31m+ [data-eu][data-eui=card] .eu-btn:active, .sf-act:active { transform: scale(.97); transition-duration: .08s; }[39m
+[31m+ .hermes-press { transition: transform .15s var(--g-ease), background-color .18s, box-shadow .18s; }[39m
+[31m+ .hermes-press:hover { background-color: rgba(215,185,134,0.16); box-shadow: 0 6px 14px -8px rgba(4,4,3,0.8); }[39m
+[31m+ @media (prefers-reduced-motion: reduce) {[39m
+[31m+   [data-eu][data-eui=card]:not([data-eui-popup])::before, [data-eu][data-eui=card] .eu-card:hover::after, .sf.sf-col.sf-col[data-role^='omp.editor']:hover::after { animation: none; }[39m
+[31m+   [data-eu][data-eui=card] .eu-card:hover, [data-eu][data-eui=card] .ih-lane:hover, [data-eu][data-eui=card] .ih-host:hover, [data-eu][data-eui=card] .ih-gate:hover, [data-eu][data-eui=card] .ih-budget:hover, [data-eu][data-eui=card] .ih-key:hover, [data-eu][data-eui=card] .eu-chip:hover, [data-eu][data-eui=card] .eu-btn:hover { transform: none; }[39m
+[31m+ }[39m
+[31m+ @media (prefers-reduced-transparency: reduce) {[39m
+[31m+   .sf, [data-eui='card'], .sf-overlay { --sf-card-bg: var(--card); --pop-bg: var(--card); --modal-bg: var(--card); }[39m
+[31m+   [data-eu][data-eui=card] .eu-card, .sf.sf-col.sf-col[data-role^='omp.editor'], .sf-overlay .sf-ov-card, .sf-col[data-role='omp.live.lanes'], .sf.sf-status:not(.transparent), .sf.sf-card, .sf.sf-text, .sf.sf-card.nohead, [data-eu][data-eui=card] .eui-host-head { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }[39m
+[31m+   .sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text { background: none; }[39m
+[31m+ }[39m
+[31m+[39m
+
+[36m [2m❯[22m src/__tests__/cohesion.test.ts:[2m32:17[22m[39m
+    [90m 30|[39m
+    [90m 31|[39m   [34mit[39m([32m'keeps every plain or disabled button label readable'[39m[33m,[39m () [33m=>[39m {
+    [90m 32|[39m     [34mexpect[39m(css)[33m.[39m[34mtoContain[39m([32m'.eu-btn:not(.primary)'[39m)
+    [90m   |[39m                 [31m^[39m
+    [90m 33|[39m     [34mexpect[39m(css)[33m.[39m[34mtoContain[39m([32m'color: var(--t1)'[39m)
+    [90m 34|[39m     [34mexpect[39m(css)[33m.[39m[34mtoContain[39m([32m'min-height: 44px'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/cohesion.test.ts[2m > [22mDash transcript material[2m > [22muses design tokens
+[31m[1mError[22m: ENOENT: no such file or directory, open '/tmp/glide-w8-cohesion/headless-source/glide/frontend/cohesion.ts'[39m
+[36m [2m❯[22m src/__tests__/cohesion.test.ts:[2m38:23[22m[39m
+    [90m 36|[39m
+    [90m 37|[39m   [34mit[39m([32m'uses design tokens'[39m[33m,[39m () [33m=>[39m {
+    [90m 38|[39m     expect(tokenDrift(readFileSync(new URL('../../../glide/frontend/co…
+    [90m   |[39m                       [31m^[39m
+    [90m 39|[39m   })
+    [90m 40|[39m })
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m   Start at [22m 16:47:04
+[2m   Duration [22m 1.91s[2m (transform 592ms, setup 0ms, import 1.20s, tests 319ms, environment 0ms)[22m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+error: script "test" exited with code 1

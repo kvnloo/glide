@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 136, in <module>
+    if __name__ == '__main__': main()
+                               ~~~~^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 96, in main
+    shot(phase, 'welcome', 'Hermes')
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 70, in shot
+    result = ctl('shot', str(dest))
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 40, in ctl
+    raise RuntimeError('ctl rejected '+str(args)+': '+r.stdout+r.stderr)
+RuntimeError: ctl rejected ('shot', '/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/headless/native-final/before-welcome'): {"ok":false,"error":"shot: name must match [A-Za-z0-9_.-]+, got \"/mnt/zer0models/worktrees/glide-w8-cohesion/.dream-loop/headless/native-final/before-welcome\""}
+

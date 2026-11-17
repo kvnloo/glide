@@ -1,0 +1,35 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/cardKindScope.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/cardKindScope.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 20[2mms[22m[39m
+[31m     [31m×[31m emits the validated card kind alongside the shared eu root[39m[32m 17[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/cardKindScope.test.ts[2m > [22mkit CSS scope on the real renderer[2m > [22memits the validated card kind alongside the shared eu root
+[31m[1mAssertionError[22m: expected '{"k":"el","p":{"tag":"div","key":"sam…' to contain 'eu k-intel-suite'[39m
+
+Expected: [32m"eu k-intel-suite"[39m
+Received: [31m"{"k":"el","p":{"tag":"div","key":"sample","attrs":{"data-eui":"card","data-eu":"","data-eui-kind":"intel-suite","data-eui-app":"glide"},"class":"eu","role":"eui.card"}}"[39m
+
+[36m [2m❯[22m src/__tests__/cardKindScope.test.ts:[2m12:34[22m[39m
+    [90m 10|[39m       node: { t: 'el', tag: 'div', id: 0, cls: '', style: '', attrs: {…
+    [90m 11|[39m     }[33m,[39m render)
+    [90m 12|[39m     [34mexpect[39m([33mJSON[39m[33m.[39m[34mstringify[39m(node))[33m.[39m[34mtoContain[39m([32m'eu k-intel-suite'[39m)
+    [90m   |[39m                                  [31m^[39m
+    [90m 13|[39m   })
+    [90m 14|[39m })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 17:32:25
+[2m   Duration [22m 1.78s[2m (transform 996ms, setup 0ms, import 1.30s, tests 20ms, environment 1ms)[22m
+
+error: script "test" exited with code 1

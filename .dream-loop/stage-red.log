@@ -1,0 +1,410 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/stageCohesion.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [31m❯[39m src/__tests__/stageCohesion.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 205[2mms[22m[39m
+[31m     [31m×[31m keeps the focus canvas opaque and its caption readable[39m[32m 75[2mms[22m[39m
+[31m     [31m×[31m uses the same stage, orb zone, and caption for council playback[39m[32m 117[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/stageCohesion.test.ts[2m > [22mone quiet full-screen stage[2m > [22mkeeps the focus canvas opaque and its caption readable
+[31m[1mAssertionError[22m: expected '\n.glide-clean { height: 100%; displa…' to contain 'background-color:#0c0c0a'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- background-color:#0c0c0a[39m
+[31m+[39m
+[31m+ .glide-clean { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: transparent; pointer-events: none; }[39m
+[31m+ .glide-clean-ring { position: relative; width: 300px; height: 300px; }[39m
+[31m+ .glide-clean-ring > * { position: absolute; left: 0; top: 0; }[39m
+[31m+ .glide-clean-orb { position: absolute; left: 50px; top: 50px; width: 200px; height: 200px; }[39m
+[31m+ .glide-clean-left { font: 500 12px/1.4 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .08em; opacity: .72; }[39m
+[31m+[39m
+
+[36m [2m❯[22m src/__tests__/stageCohesion.test.ts:[2m9:23[22m[39m
+    [90m  7|[39m [34mdescribe[39m([32m'one quiet full-screen stage'[39m[33m,[39m () [33m=>[39m {
+    [90m  8|[39m   [34mit[39m([32m'keeps the focus canvas opaque and its caption readable'[39m[33m,[39m () [33m=>[39m {
+    [90m  9|[39m     [34mexpect[39m([33mCLEAN_CSS[39m)[33m.[39m[34mtoContain[39m([32m'background-color:#0c0c0a'[39m)
+    [90m   |[39m                       [31m^[39m
+    [90m 10|[39m     [34mexpect[39m([33mCLEAN_CSS[39m)[33m.[39m[34mtoContain[39m([32m'font:400 13px/20px var(--sans)'[39m)
+    [90m 11|[39m     [34mexpect[39m([33mCLEAN_CSS[39m)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'opacity: .72'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/stageCohesion.test.ts[2m > [22mone quiet full-screen stage[2m > [22muses the same stage, orb zone, and caption for council playback
+[31m[1mAssertionError[22m: expected '// /council: the Socratic council ins…' to contain 'STAGE_STYLE'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- STAGE_STYLE[39m
+[31m+ // /council: the Socratic council instrument as a popup, drawn as a trusted ephemeral-ui card in[39m
+[31m+ // the layer. It opens from the slash command or from the "Open the council" button of a council[39m
+[31m+ // card in the transcript. With GLIDE_COUNCIL_URL set it reads that endpoint's run; otherwise, or when[39m
+[31m+ // the endpoint fails, it shows the synthetic demo run under a visible "demo" tag. It never draws a[39m
+[31m+ // live verdict it did not read. The frame clock runs only while a run plays.[39m
+[31m+ import type { EuiApprovalContext, EuiHostCards } from '../../frontend/src/eui/host.js'[39m
+[31m+ import type { EuiNode } from '../../frontend/src/eui/sandbox.js'[39m
+[31m+ import { nativeOverlayKey } from '../../frontend/src/overlays/identity.js'[39m
+[31m+ import type { Overlay, OverlayHost } from '../../frontend/src/overlays/overlay.js'[39m
+[31m+ import type { Transcript } from '../../frontend/src/transcript/store.js'[39m
+[31m+ import { euiPopupNode, type EuiRender } from '../../frontend/src/view/euiCard.js'[39m
+[31m+[39m
+[31m+ import {[39m
+[31m+   closedSeats, type CouncilRun, demoRun, type Frame, MINERAL, parseCouncilRun[39m
+[31m+ } from './council.js'[39m
+[31m+ import { councilOrbSvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'[39m
+[31m+ import { type CouncilSpeech, type SpeechAudio, platformSpeech, speechSentences } from './councilSpeech.js'[39m
+[31m+ import { GOLD, MONO, NIGHT, TYPE } from './tokens.js'[39m
+[31m+[39m
+[31m+ export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'[39m
+[31m+ const APP = 'glide'[39m
+[31m+ const TICK_MS = 110[39m
+[31m+ export const CONVENE_ID = 1[39m
+[31m+ export const CLOSE_ID = 2[39m
+[31m+ export const READ_ID = 3[39m
+[31m+ export const MUTE_ID = 4[39m
+[31m+ export const RETURN_ID = 5[39m
+[31m+[39m
+[31m+ export interface CouncilOptions {[39m
+[31m+   readonly reduceMotion?: boolean[39m
+[31m+   readonly speech?: CouncilSpeech[39m
+[31m+ }[39m
+[31m+ export interface CouncilReading {[39m
+[31m+   readonly readAloud?: boolean[39m
+[31m+   readonly muted?: boolean[39m
+[31m+   readonly reduceMotion?: boolean[39m
+[31m+   readonly voiceStatus?: string[39m
+[31m+   readonly opacity?: number[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ /** A run and where it came from: `live` only when it was read and parsed from the configured endpoint. */[39m
+[31m+ export interface CouncilSource {[39m
+[31m+   readonly run: CouncilRun[39m
+[31m+   readonly live: boolean[39m
+[31m+   /** The endpoint's host for a live run; why the demo is shown otherwise. */[39m
+[31m+   readonly from: string[39m
+[31m+   /** Set when an endpoint was configured but could not be read. */[39m
+[31m+   readonly note?: string[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ export interface CouncilClock {[39m
+[31m+   now(): number[39m
+[31m+   /** Calls `tick` every `ms` until the returned cancel runs. */[39m
+[31m+   every(tick: () => void, ms: number): () => void[39m
+[31m+ }[39m
+[31m+ const realClock: CouncilClock = {[39m
+[31m+   now: () => performance.now(),[39m
+[31m+   every: (tick, ms) => { const id = setInterval(tick, ms); return () => { clearInterval(id) } }[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ export interface CouncilHost extends OverlayHost {[39m
+[31m+   readonly eui?: (EuiRender & { readonly host: Pick<EuiHostCards, 'publish'> }) | undefined[39m
+[31m+   readonly transcript: Pick<Transcript, 'notice'>[39m
+[31m+   readonly tern?: { readonly caps: { readonly reduceMotion?: boolean } }[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ /** The configured endpoint's run, else the demo run (with a note when the endpoint failed). */[39m
+[31m+ export async function loadCouncil(url = process.env[COUNCIL_URL_ENV], get: typeof fetch = fetch): Promise<CouncilSource> {[39m
+[31m+   const demo = (note?: string): CouncilSource => ({ run: demoRun(), live: false, from: 'synthetic seats and brief', ...(note ? { note } : {}) })[39m
+[31m+   if (!url?.trim()) return demo()[39m
+[31m+   let where: URL[39m
+[31m+   try {[39m
+[31m+     where = new URL(url)[39m
+[31m+     if (where.protocol !== 'http:' && where.protocol !== 'https:') throw new Error('expected an http(s) URL')[39m
+[31m+   } catch (e) {[39m
+[31m+     return demo(`${COUNCIL_URL_ENV} is not usable (${e instanceof Error ? e.message : String(e)}); showing the demo run`)[39m
+[31m+   }[39m
+[31m+   try {[39m
+[31m+     const res = await get(where, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(5000) })[39m
+[31m+     if (!res.ok) throw new Error(`HTTP ${res.status}`)[39m
+[31m+     const run = parseCouncilRun(await res.json())[39m
+[31m+     if ('error' in run) throw new Error(run.error)[39m
+[31m+     return { run, live: true, from: where.host }[39m
+[31m+   } catch (e) {[39m
+[31m+     return demo(`the council at ${where.host} could not be read (${e instanceof Error ? e.message : String(e)}); showing the demo run`)[39m
+[31m+   }[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ // ------------------------------------------------------------------ the card[39m
+[31m+[39m
+[31m+ const STANCE = { agree: { label: 'AGREE', color: NIGHT.agree }, dissent: { label: 'DISSENT', color: NIGHT.danger }, abstain: { label: 'ABSTAIN', color: NIGHT.text3 } }[39m
+[31m+[39m
+[31m+ /** The popup's card at one moment, as the same node data the ephemeral-ui sandbox produces. */[39m
+[31m+ /** `sideHeader` moves the title and brief beside the instrument so the card is no taller than it (a popup in a short pane). */[39m
+[31m+ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHeader = false, reading: CouncilReading = {}): EuiNode {[39m
+[31m+   let next = 10[39m
+[31m+   const text = (value: string): EuiNode => ({ t: 'text', text: value })[39m
+[31m+   const el = (tag: string, style: string, kids: readonly EuiNode[], opts: { id?: number; attrs?: Record<string, string> } = {}): EuiNode => ({[39m
+[31m+     t: 'el', tag, id: opts.id ?? next++, cls: '', style, attrs: opts.attrs ?? {}, click: opts.id !== undefined, kids[39m
+[31m+   })[39m
+[31m+   const { run } = src[39m
+[31m+   const exchange = exchangeAt(run, frame.t, reading.reduceMotion)[39m
+[31m+   const done = exchange.phase === 'done'[39m
+[31m+   const playing = frame.t !== null && !done[39m
+[31m+   const shown = closedSeats(run, exchange.frame)[39m
+[31m+   const agree = run.verdicts.filter(v => v.stance === 'agree').length[39m
+[31m+   const dissent = run.verdicts.filter(v => v.stance === 'dissent').length[39m
+[31m+   const abstain = run.verdicts.filter(v => v.stance === 'abstain').length[39m
+[31m+   const micro = `font-family:${MONO};font-size:${TYPE.meta}px;color:${NIGHT.text3}`[39m
+[31m+   const button = (id: number, label: string, primary = false) => el('button',[39m
+[31m+     `min-height:44px;padding:7px 16px;border-radius:8px;border:1px solid ${primary ? NIGHT.action : NIGHT.borderStrong};background-color:${primary ? NIGHT.action : 'transparent'};font-family:var(--sans);font-size:13px`,[39m
+[31m+     [el('span', `color:${primary ? GOLD.ink : NIGHT.text2}`, [text(label)])],[39m
+[31m+     { id, attrs: { 'data-eui-action': id === CONVENE_ID ? 'convene' : id === READ_ID ? 'read-aloud' : id === MUTE_ID ? 'mute' : 'close',[39m
+[31m+       ...((id === READ_ID || id === MUTE_ID) ? { 'aria-pressed': String(id === READ_ID ? Boolean(reading.readAloud) : Boolean(reading.muted)) } : {}),[39m
+[31m+       ...(id === CONVENE_ID && playing ? { disabled: 'true' } : {}) } })[39m
+[31m+   const iconSize = Math.min(size, 20)[39m
+[31m+   const orb: EuiNode = { t: 'svg', svg: councilOrbSvg(exchange.elapsed / 1000, .7, Boolean(reading.reduceMotion), NIGHT.text2), w: iconSize, h: iconSize, cls: '', style: 'flex:none' }[39m
+[31m+   const seats = run.seats.map((seat, i) => {[39m
+[31m+     const state = exchange.seats[i][39m
+[31m+     const v = run.verdicts.find(v => v.seat === i)[39m
+[31m+     const open = v !== undefined && shown.has(i)[39m
+[31m+     return el('div', 'flex:1 1 152px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:44px;padding:6px 0', [[39m
+[31m+       el('div', `display:flex;align-items:baseline;gap:8px;font-size:13px;color:${NIGHT.text}`, [[39m
+[31m+         text(seat.name), el('span', micro, [text(state?.state ?? 'waiting')]),[39m
+[31m+         ...(open ? [el('span', micro, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : [])[39m
+[31m+       ]),[39m
+[31m+       ...(!sideHeader && open ? [el('span', `font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(v.text)])] : [])[39m
+[31m+     ], { attrs: { 'data-council-seat': seat.id, 'data-council-state': state?.state ?? 'waiting', 'data-council-received': String(state?.received ?? false) } })[39m
+[31m+   })[39m
+[31m+   return el('div', '', [el('section', `display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:8px;border:1px solid ${NIGHT.border};background-color:var(--l1);font-family:var(--sans);color:${NIGHT.text};opacity:${reading.opacity ?? 1}`, [[39m
+[31m+     el('div', 'display:flex;align-items:center;gap:8px;min-height:24px', [orb,[39m
+[31m+       el('span', `font-size:13px;font-weight:500;color:${NIGHT.text}`, [text('Socratic council')]),[39m
+[31m+       el('span', micro, [text(src.live ? 'LIVE' : 'SAMPLE')], { attrs: { 'data-council-source': src.live ? 'live' : 'demo' } })[39m
+[31m+     ]),[39m
+[31m+     el('p', `margin:0;font-size:13px;line-height:20px;color:${NIGHT.text}`, [text(exchange.brief || ' ')], { attrs: { 'data-council-brief': exchange.phase } }),[39m
+[31m+     ...(exchange.constraints.length ? [el('p', `margin:0;font-size:12px;line-height:18px;color:${NIGHT.text2}`, [text(exchange.constraints.join(' · '))])] : []),[39m
+[31m+     el('div', 'display:flex;flex-direction:column;gap:3px', [[39m
+[31m+       el('span', `font-size:13px;font-weight:500;color:${NIGHT.text}`, [text(done ? run.outcome ?? 'The council has spoken' : playing ? 'The council is sitting' : 'The council is seated')]),[39m
+[31m+       el('span', micro, [text(done ? `${agree} of ${run.verdicts.length} agree · ${dissent} dissent${abstain ? ` · ${abstain} abstain` : ''}` : `${run.seats.length} seats · ${run.rounds} rounds`)])[39m
+[31m+     ]),[39m
+[31m+     el('div', `display:flex;flex-wrap:wrap;gap:0 14px;border-top:1px solid ${NIGHT.border};border-bottom:1px solid ${NIGHT.border}`, seats),[39m
+[31m+     ...(exchange.clauses.length ? [el('div', 'display:flex;flex-direction:column;gap:8px', exchange.clauses.map(clause => el('div', 'display:flex;flex-direction:column;gap:3px', [[39m
+[31m+       el('span', micro, [text(clause.label)]), el('p', `margin:0;font-size:13px;line-height:19px;color:${NIGHT.text2}`, [text(clause.text)])[39m
+[31m+     ])), { attrs: { 'data-council-report': exchange.phase, 'aria-live': 'polite' } })] : []),[39m
+[31m+     el('div', 'display:flex;flex-wrap:wrap;gap:8px', [[39m
+[31m+       button(CONVENE_ID, playing ? 'Convening…' : frame.t === null ? 'Convene council →' : 'Replay the council →', true),[39m
+[31m+       button(READ_ID, reading.readAloud ? 'Read aloud: on' : 'Read aloud'), button(MUTE_ID, reading.muted ? 'Unmute' : 'Mute'), button(CLOSE_ID, 'Close')[39m
+[31m+     ]),[39m
+[31m+     ...(reading.voiceStatus ? [el('p', `margin:0;font-size:12px;color:${NIGHT.text2}`, [text(reading.voiceStatus)], { attrs: { role: 'status' } })] : [])[39m
+[31m+   ])])[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ // ------------------------------------------------------------------ the popup[39m
+[31m+[39m
+[31m+ /** Opens the council popup; Enter convenes (plays the run), Escape closes. */[39m
+[31m+ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: CouncilClock = realClock, options: CouncilOptions = {}): Overlay | undefined {[39m
+[31m+   const eui = host.eui[39m
+[31m+   if (!eui) {[39m
+[31m+     host.transcript.notice('/council needs a pane with ephemeral-ui cards', 'warning')[39m
+[31m+     return undefined[39m
+[31m+   }[39m
+[31m+   const reduceMotion = options.reduceMotion ?? host.tern?.caps.reduceMotion ?? false[39m
+[31m+   const timing = exchangeTiming(src.run, reduceMotion)[39m
+[31m+   const speech = options.speech ?? platformSpeech[39m
+[31m+   let start: number | null = null[39m
+[31m+   let stop: (() => void) | undefined[39m
+[31m+   let readAloud = false[39m
+[31m+   let muted = false[39m
+[31m+   let closed = false[39m
+[31m+   let briefRead = false[39m
+[31m+   let reportRead = false[39m
+[31m+   let controller: AbortController | undefined[39m
+[31m+   let held: { elapsed: number; since: number } | undefined[39m
+[31m+   let speaking: { caption: string; audio: SpeechAudio; at: number } | undefined[39m
+[31m+   let voiceStatus = ''[39m
+[31m+   let voiceView = false[39m
+[31m+   let viewAt = clock.now()[39m
+[31m+   const elapsed = () => start === null ? null : held?.elapsed ?? Math.min(timing.total, clock.now() - start)[39m
+[31m+   const halt = () => { stop?.(); stop = undefined }[39m
+[31m+   const release = () => {[39m
+[31m+     if (held && start !== null) start += clock.now() - held.since[39m
+[31m+     held = undefined[39m
+[31m+   }[39m
+[31m+   const returnToCard = () => {[39m
+[31m+     controller?.abort()[39m
+[31m+     controller = undefined[39m
+[31m+     speaking = undefined[39m
+[31m+     voiceStatus = ''[39m
+[31m+     release()[39m
+[31m+     host.changed()[39m
+[31m+   }[39m
+[31m+   const read = (text: string) => {[39m
+[31m+     returnToCard()[39m
+[31m+     const current = new AbortController()[39m
+[31m+     controller = current[39m
+[31m+     held = { elapsed: elapsed() ?? 0, since: clock.now() }[39m
+[31m+     voiceStatus = 'Preparing local speech…'[39m
+[31m+     void (async () => {[39m
+[31m+       try {[39m
+[31m+         for (const caption of speechSentences(text)) {[39m
+[31m+           if (current.signal.aborted) break[39m
+[31m+           await speech.speak(caption, current.signal, audio => {[39m
+[31m+             if (closed || current.signal.aborted || controller !== current) return[39m
+[31m+             speaking = { caption, audio, at: clock.now() }[39m
+[31m+             voiceStatus = ''[39m
+[31m+             host.changed()[39m
+[31m+           })[39m
+[31m+         }[39m
+[31m+       } catch (error) {[39m
+[31m+         if (!closed && !current.signal.aborted && controller === current) {[39m
+[31m+           voiceStatus = error instanceof Error ? error.message : 'Read aloud failed. The council remains available as text.'[39m
+[31m+           readAloud = false[39m
+[31m+           host.transcript.notice(voiceStatus, 'warning')[39m
+[31m+         }[39m
+[31m+       } finally {[39m
+[31m+         if (controller === current) {[39m
+[31m+           controller = undefined[39m
+[31m+           speaking = undefined[39m
+[31m+           release()[39m
+[31m+           host.changed()[39m
+[31m+         }[39m
+[31m+       }[39m
+[31m+     })()[39m
+[31m+   }[39m
+[31m+   const tick = () => {[39m
+[31m+     const t = elapsed()[39m
+[31m+     if (readAloud && !muted && !controller && t !== null) {[39m
+[31m+       if (!briefRead && t >= timing.typing && t < timing.working) {[39m
+[31m+         briefRead = true[39m
+[31m+         read([src.run.brief, ...(src.run.constraints ?? [])].join(' '))[39m
+[31m+       } else if (!reportRead && t >= timing.total) {[39m
+[31m+         reportRead = true[39m
+[31m+         read(reportClauses(src.run).map(c => `${c.label}. ${c.text}`).join(' '))[39m
+[31m+       }[39m
+[31m+     }[39m
+[31m+     if (t !== null && t >= timing.total && !controller && clock.now() - viewAt >= 180) halt()[39m
+[31m+     host.changed()[39m
+[31m+   }[39m
+[31m+   const animate = () => { if (!stop) stop = clock.every(tick, TICK_MS) }[39m
+[31m+   const convene = () => {[39m
+[31m+     returnToCard()[39m
+[31m+     halt()[39m
+[31m+     briefRead = false[39m
+[31m+     reportRead = false[39m
+[31m+     start = clock.now()[39m
+[31m+     animate()[39m
+[31m+     if (reduceMotion && readAloud && !muted) {[39m
+[31m+       briefRead = true[39m
+[31m+       read([src.run.brief, ...(src.run.constraints ?? [])].join(' '))[39m
+[31m+     }[39m
+[31m+     host.changed()[39m
+[31m+   }[39m
+[31m+   const activate = (n: number) => {[39m
+[31m+     if (n === RETURN_ID) returnToCard()[39m
+[31m+     else if (n === CONVENE_ID && !stop) convene()[39m
+[31m+     else if (n === CLOSE_ID) host.close(overlay)[39m
+[31m+     else if (n === MUTE_ID) {[39m
+[31m+       muted = !muted[39m
+[31m+       if (muted) returnToCard()[39m
+[31m+     } else if (n === READ_ID) {[39m
+[31m+       readAloud = !readAloud[39m
+[31m+       if (!readAloud) returnToCard()[39m
+[31m+       else if (start !== null) { reportRead = false; animate(); tick() }[39m
+[31m+     }[39m
+[31m+     host.changed()[39m
+[31m+   }[39m
+[31m+   const overlay: Overlay = {[39m
+[31m+     key: 'glide-council', modal: true, focus: () => null,[39m
+[31m+     node: id => {[39m
+[31m+       const voice = speaking[39m
+[31m+       if (voiceView !== Boolean(voice)) { voiceView = Boolean(voice); viewAt = clock.now() }[39m
+[31m+       const opacity = reduceMotion ? 1 : Math.min(1, .45 + (clock.now() - viewAt) / 180 * .55)[39m
+[31m+       const view = {[39m
+[31m+         spec: { kind: 'council', app: APP }, app: APP, label: 'Socratic council', identity: 'council',[39m
+[31m+         node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock.now() - voice.at) / 1000, voice.audio.level(clock.now() - voice.at), reduceMotion), reduceMotion, opacity)[39m
+[31m+           : councilCard(src, { t: elapsed() }, 320, true, { readAloud, muted, reduceMotion, voiceStatus, opacity }),[39m
+[31m+         activate[39m
+[31m+       }[39m
+[31m+       return euiPopupNode(nativeOverlayKey(id), src.live ? 'Council · live' : 'Council · demo', view, eui, voice ? 'full' : 'lg')[39m
+[31m+     },[39m
+[31m+     onKey: key => {[39m
+[31m+       if (controller) returnToCard()[39m
+[31m+       else if (key.name === 'escape') host.close(overlay)[39m
+[31m+       else if (key.name === 'm') activate(MUTE_ID)[39m
+[31m+       else if (key.name === 'r') activate(READ_ID)[39m
+[31m+       else if ((key.name === 'enter' || key.name === 'space') && !stop) convene()[39m
+[31m+       return true[39m
+[31m+     },[39m
+[31m+     onClose: () => { closed = true; halt(); returnToCard() }[39m
+[31m+   }[39m
+[31m+   host.open(overlay)[39m
+[31m+   return overlay[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ function councilSpeakingCard(caption: string, orb: string, reduce: boolean, opacity: number): EuiNode {[39m
+[31m+   const text = (value: string): EuiNode => ({ t: 'text', text: value })[39m
+[31m+   const el = (id: number, tag: string, style: string, kids: readonly EuiNode[], attrs: Record<string, string> = {}, click = false): EuiNode => ({ t: 'el', id, tag, cls: '', style, kids, attrs, click })[39m
+[31m+   return el(20, 'div', '', [el(RETURN_ID, 'section', `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [[39m
+[31m+     { t: 'svg', svg: orb, w: 320, h: 320, cls: '', style: 'max-width:100%;height:auto' },[39m
+[31m+     el(21, 'p', `margin:0;font-size:${TYPE.name}px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),[39m
+[31m+     el(RETURN_ID, 'button', `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text('Return to card · any key')], { 'data-eui-action': 'return-to-card' }, true)[39m
+[31m+   ], { 'data-council-speaking': '', 'data-reduced-motion': String(reduce), role: 'button', 'aria-label': 'Return to council card' }, true)])[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ /** A council card in the transcript; its button opens the popup and re-arms for the next tap. */[39m
+[31m+ export function publishCouncilCard(host: CouncilHost, src: CouncilSource, clock?: CouncilClock): void {[39m
+[31m+   const cards = host.eui?.host[39m
+[31m+   if (!cards) {[39m
+[31m+     host.transcript.notice('/council card needs an attached session with ephemeral-ui cards', 'warning')[39m
+[31m+     return[39m
+[31m+   }[39m
+[31m+   const { run } = src[39m
+[31m+   const data = {[39m
+[31m+     kind: 'approve', app: APP, title: src.live ? 'Socratic council' : 'Socratic council · demo',[39m
+[31m+     summary: run.brief,[39m
+[31m+     rows: [[39m
+[31m+       { label: 'Seats', value: run.seats.map(s => `${s.name} (${MINERAL[s.mineral].label.toLowerCase()})`).join(', ') },[39m
+[31m+       { label: 'Rounds', value: run.rounds },[39m
+[31m+       ...(run.outcome ? [{ label: 'Outcome', value: run.outcome }] : []),[39m
+[31m+       { label: 'Source', value: src.live ? `live · ${src.from}` : 'demo run · synthetic seats and brief' }[39m
+[31m+     ],[39m
+[31m+     approval: { label: 'Open the council', description: 'Opens the council instrument in a popup. It only draws this run; nothing is sent or written.' }[39m
+[31m+   }[39m
+[31m+   const open = (_ctx: EuiApprovalContext) => {[39m
+[31m+     try { handle.update(data, open) } catch { /* the pane moved on; the popup still opens */ }[39m
+[31m+     openCouncilPopup(host, src, clock)[39m
+[31m+   }[39m
+[31m+   const handle = cards.publish(data, open)[39m
+[31m+ }[39m
+[31m+[39m
+[31m+ /** `/council` opens the popup; `/council card` posts the card whose button opens it. */[39m
+[31m+ export async function councilCommand(host: CouncilHost, arg: string, load: () => Promise<CouncilSource> = loadCouncil, clock?: CouncilClock): Promise<void> {[39m
+[31m+   const verb = arg.trim().toLowerCase()[39m
+[31m+   if (verb !== '' && verb !== 'card') {[39m
+[31m+     host.transcript.notice('Usage: /council [card]', 'warning')[39m
+[31m+     return[39m
+[31m+   }[39m
+[31m+   const src = await load()[39m
+[31m+   if (src.note) host.transcript.notice(`/council: ${src.note}`, 'warning')[39m
+[31m+   try {[39m
+[31m+     if (verb === 'card') publishCouncilCard(host, src, clock)[39m
+[31m+     else openCouncilPopup(host, src, clock)[39m
+[31m+   } catch (e) {[39m
+[31m+     host.transcript.notice(`/council: ${e instanceof Error ? e.message : String(e)}`, 'error')[39m
+[31m+   }[39m
+[31m+ }[39m
+[31m+[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 17:03:26
+[2m   Duration [22m 1.67s[2m (transform 845ms, setup 0ms, import 1.09s, tests 205ms, environment 0ms)[22m
+
+[36m [2m❯[22m src/__tests__/stageCohesion.test.ts:[2m14:21[22m[39m
+    [90m 12|[39m   })
+    [90m 13|[39m   it('uses the same stage, orb zone, and caption for council playback'…
+    [90m 14|[39m     [34mexpect[39m(council)[33m.[39m[34mtoContain[39m([32m'STAGE_STYLE'[39m)
+    [90m   |[39m                     [31m^[39m
+    [90m 15|[39m     [34mexpect[39m(council)[33m.[39m[34mtoContain[39m([32m'STAGE_CAPTION'[39m)
+    [90m 16|[39m     [34mexpect[39m(council)[33m.[39m[34mtoContain[39m([32m'w: STAGE_ORB, h: STAGE_ORB'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+error: script "test" exited with code 1

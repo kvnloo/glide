@@ -1,0 +1,60 @@
+{
+  "trial": 2,
+  "exit": 0,
+  "selected": "tie",
+  "data": {
+    "winner": "tie",
+    "A": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 4,
+        "density": 4,
+        "dash": 2,
+        "glass": 5,
+        "cohesion": 3,
+        "vocabulary": 4,
+        "motion": 5,
+        "phone": 4
+      },
+      "weighted": 75,
+      "calculated_weighted": 75.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 5,
+        "actionable": 4,
+        "density": 4,
+        "dash": 2,
+        "glass": 5,
+        "cohesion": 2,
+        "vocabulary": 3,
+        "motion": 5,
+        "phone": 4
+      },
+      "weighted": 76,
+      "calculated_weighted": 76.0
+    },
+    "image_grounding": [
+      "TARGET shows a compact, unboxed omp identity above a quiet tip; its displayed dimensions are 1060\u00d7596. A and B are 1472\u00d71894 contact sheets.",
+      "Both sheets show paired council stages above paired focus stages on opaque near-black canvases; only the focus rings visibly glow.",
+      "A places 'Ship the plugin first.' against the return button's upper border. B separates those elements but makes the council orb substantially larger than its focus orb."
+    ],
+    "defects_A": [
+      "Both upper council panels crowd the caption against the return control; these are A's worst panels.",
+      "Gold council particles and green focus particles introduce decorative identity/status color instead of reserving gold for one recommended action.",
+      "Council and focus do not visibly establish the specified shared 200px orb treatment."
+    ],
+    "defects_B": [
+      "Both upper council panels enlarge the orb substantially beyond the focus orb, breaking the shared-stage scale; these are B's worst panels.",
+      "Council captions are visibly larger than the restrained focus caption treatment rather than sharing one 13px caption grammar.",
+      "Gold council particles and green focus particles violate the restricted color vocabulary."
+    ],
+    "cohesion": "inconsistent",
+    "reason": "B improves caption separation and immediate readability but regresses shared orb scale and typographic restraint. A is quieter but crowds its council captions. Neither improves the target grammar without regression. Intentional stage whitespace and static motion are not defects; interaction behavior is unverified."
+  },
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "e571ac13a9a86dbb40173d287cb1bb0b7aacb3841853bc13f0be4d0a82f27a51",
+    "candidate": "d45197673261394b70788846c7cc153fc29874fd7ee76a17847c8a385a6c4cc5"
+  }
+}

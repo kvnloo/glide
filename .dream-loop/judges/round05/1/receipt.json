@@ -1,0 +1,56 @@
+{
+  "trial": 1,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "B",
+    "A": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 4,
+        "density": 4,
+        "dash": 2,
+        "glass": 5,
+        "cohesion": 3,
+        "vocabulary": 4,
+        "motion": 3,
+        "phone": 4
+      },
+      "weighted": 73,
+      "calculated_weighted": 73.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 5,
+        "actionable": 4,
+        "density": 5,
+        "dash": 5,
+        "glass": 5,
+        "cohesion": 5,
+        "vocabulary": 5,
+        "motion": 5,
+        "phone": 4
+      },
+      "weighted": 96,
+      "calculated_weighted": 96.0
+    },
+    "image_grounding": [
+      "TARGET is 1060\u00d7596: a compact, unboxed omp lockup sits above a quiet tip and composer.",
+      "A is 1472\u00d71894: both upper read-aloud panels use large gold particle orbs; both lower focus panels use green particles inside glowing gold timer rings.",
+      "B is 1472\u00d71894: all four panels use neutral particle orbs; upper captions and outlined return buttons share centered axes, while gold remains confined to the lower timer rings."
+    ],
+    "defects_A": [
+      "Worst panels: desktop and phone read-aloud stages. Decorative gold orbs violate the neutral-stage requirement and overpower the caption.",
+      "Both focus panels introduce green identity ink, breaking the shared neutral orb grammar.",
+      "Read-aloud orbs are visibly larger than focus orbs; caption scale and button fill also make the upper stages heavier than B."
+    ],
+    "defects_B": [],
+    "cohesion": "one product",
+    "reason": "B establishes a consistent, restrained orb/caption stage across desktop and phone without a visible regression. Captions clear the readable return controls in both variants; no clipping is visible. Intentional full-screen whitespace is appropriate. B confines glow and gold to focus timer rings. Motion scores assess visual restraint only; pixels do not verify animation, interaction, exact font families, or implementation dimensions."
+  },
+  "hashes": {
+    "target": "61c4a066bebbc62ad5d9490f634a23646fa269cdbd3bddf9605b1178be855878",
+    "parent": "e571ac13a9a86dbb40173d287cb1bb0b7aacb3841853bc13f0be4d0a82f27a51",
+    "candidate": "d5768a778abacbec5de1a1d8da4cef55e12482ba1354bb16aca4955e0f1e0dbc"
+  }
+}

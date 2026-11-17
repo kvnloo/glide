@@ -1,0 +1,62 @@
+{
+  "trial": 1,
+  "exit": 0,
+  "selected": "tie",
+  "data": {
+    "winner": "tie",
+    "A": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 3,
+        "density": 3,
+        "dash": 2,
+        "glass": 2,
+        "cohesion": 2,
+        "vocabulary": 2,
+        "motion": 5,
+        "phone": 2
+      },
+      "weighted": 53,
+      "calculated_weighted": 53.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 3,
+        "actionable": 3,
+        "density": 3,
+        "dash": 2,
+        "glass": 3,
+        "cohesion": 2,
+        "vocabulary": 2,
+        "motion": 5,
+        "phone": 2
+      },
+      "weighted": 55,
+      "calculated_weighted": 55.0
+    },
+    "image_grounding": [
+      "TARGET shows compact icon-led Bash and Learn headings, a monospace command/output body, and a divided completion footer; its displayed dimensions are 1060\u00d7596.",
+      "Both candidates show desktop and phone versions of Workspace ready, Neighborhood food atlas, and Local intelligence. B adds visibly lighter fills behind the first two surfaces; A leaves them nearly canvas-black.",
+      "Both Local intelligence phone panels wrap Trace onto another row and cut off the chart horizontally; blue plots, green SAMPLE badges, and white native-looking controls remain in both candidates."
+    ],
+    "defects_A": [
+      "Workspace ready: readable on both sizes, but the desktop receipt spreads two short values across an unnecessarily broad body; the fill barely separates from the canvas.",
+      "Neighborhood food atlas: the gold Open board invitation is clear on both sizes, but the card lacks the target's compact icon/verb/argument hierarchy and monospace treatment for the address.",
+      "Worst panels: both Local intelligence cards. White controls, blue chart material, green badges, and inconsistent typography break the shared card vocabulary.",
+      "Local intelligence has competing left edges for identity, controls, chart heading, and plot; bottom axis labels are visibly cut off, and the phone plot loses its right-hand data."
+    ],
+    "defects_B": [
+      "Workspace ready and Neighborhood food atlas gain useful material separation on desktop and phone, but square backing strips extend behind their headings, weakening the single rounded-box grammar.",
+      "The first two filled card families do not match the still canvas-dark Local intelligence material.",
+      "Workspace ready retains the desktop receipt's excessive horizontal spread; Neighborhood food atlas still lacks the compact icon/verb/argument hierarchy and monospace address treatment.",
+      "Worst panels: both Local intelligence cards retain white controls, blue plots, green badges, competing left edges, clipped bottom axis labels, and a horizontally truncated phone chart."
+    ],
+    "cohesion": "inconsistent",
+    "reason": "B improves card fill and makes the phone action taller, but introduces square header backings and stronger material inconsistency. Neither resolves the worst desktop/phone chart panels. Those regressions prevent a clean win. Static quietness is acceptable; empty fixture canvas is not penalized. Interaction and exact font identity are unverified. This is not owner approval."
+  },
+  "hashes": {
+    "target": "ec1ae5a994d2bc9522344438a71fb2682d7bf51e84203106365bc2a73ded81ce",
+    "parent": "ba82a27dbf585158126b0dfbb1554bd16972a98abe1960117501a0a0a78cde8b",
+    "candidate": "e10e3f7bc51a389b2751c23c396d8067b32e58112371fa496cf0dfcbe3dbd03f"
+  }
+}

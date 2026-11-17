@@ -1,0 +1,64 @@
+{
+  "trial": 2,
+  "exit": 0,
+  "selected": "candidate",
+  "data": {
+    "winner": "A",
+    "A": {
+      "scores": {
+        "glanceable": 4,
+        "actionable": 5,
+        "density": 4,
+        "dash": 5,
+        "glass": 5,
+        "cohesion": 4,
+        "vocabulary": 4,
+        "motion": 5,
+        "phone": 4
+      },
+      "weighted": 89,
+      "calculated_weighted": 89.0
+    },
+    "B": {
+      "scores": {
+        "glanceable": 2,
+        "actionable": 3,
+        "density": 1,
+        "dash": 2,
+        "glass": 2,
+        "cohesion": 2,
+        "vocabulary": 2,
+        "motion": 3,
+        "phone": 1
+      },
+      "weighted": 40,
+      "calculated_weighted": 40.0
+    },
+    "image_grounding": [
+      "TARGET is 1060\u00d7596: compact tool headings sit above hairline output boxes with aligned content and quiet completion footers.",
+      "A is 1472\u00d71894: all four desktop/phone brief/report panels use compact flat shells, SAMPLE tags, neutral seat rows, and one gold action per panel.",
+      "B is 1472\u00d71894: all four panels feature large mineral-seat diagrams; completed desktop content ends at a cut boundary, while the completed phone panel clips its final seat row."
+    ],
+    "defects_A": [
+      "All four headers use a noun title rather than the requested verb-plus-muted-argument tool heading.",
+      "Completed desktop and phone panels repeat the verdict in both the summary and report.",
+      "Completed report agreements form a continuous paragraph rather than clearly separated contributions."
+    ],
+    "defects_B": [
+      "All four panels prioritize oversized mineral theatre over compact tool-card content.",
+      "Gold decorates rings, seat identities, badges, and status treatments rather than remaining exclusive to the recommended action.",
+      "Large serif headings, status titles, seat labels, and buttons violate the restricted serif vocabulary.",
+      "Nested rounded status cards and pill-shaped seat badges fragment the single flat-shell grammar.",
+      "DEMO replaces the required truthful SAMPLE tag.",
+      "Completed desktop and phone are the worst panels: neither presents a readable completed report in the supplied capture; the phone also clips the final seat row.",
+      "Phone brief spends substantial vertical space on the diagram before reaching the question and controls."
+    ],
+    "cohesion": "one product",
+    "reason": "A better matches the target's compact rhythm, aligned content, restrained typography, and quiet shells without losing visible state, report text, or controls on either viewport. B regresses density, palette discipline, and completed-report visibility. Quiet static presentation is not penalized for lacking animation; interactions and exact font families remain unverified. This is not owner approval."
+  },
+  "hashes": {
+    "target": "ec1ae5a994d2bc9522344438a71fb2682d7bf51e84203106365bc2a73ded81ce",
+    "parent": "e8b0cd187d24e278513181003a14a49e93191fc89a18308db25681321d0047ae",
+    "candidate": "9785940b22c3dc456454d9f4668d2d464f0bd061b12320840748e265b300fd40"
+  }
+}

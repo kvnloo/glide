@@ -1,0 +1,34 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+/tmp/glide-w8-cohesion/headless-source/frontend/src/glideui/render.tsx:98:15 Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; total?: string; key: string; label: string; role: string; value: number; }' is not assignable to type 'ElementProps<"meter">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; total?: string; key: string; label: string; role: string; value: number; }' is not assignable to type 'Omit<CommonProps, keyof MeterProps>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'tone' are incompatible.
+      Type '"info" | "error" | "success" | "accent" | "warning" | undefined' is not assignable to type 'Tone'.
+        Type 'undefined' is not assignable to type 'Tone'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/glideui/render.tsx:139:20 Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; role: string; text: string; truncate: "end"; }' is not assignable to type 'ElementProps<"text">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; role: string; text: string; truncate: "end"; }' is not assignable to type 'Omit<CommonProps, keyof TextProps>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'tone' are incompatible.
+      Type '"info" | "error" | "success" | "accent" | "warning" | undefined' is not assignable to type 'Tone'.
+        Type 'undefined' is not assignable to type 'Tone'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/glideui/render.tsx:142:30 Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; text: string; }' is not assignable to type 'ElementProps<"badge">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; text: string; }' is not assignable to type 'Omit<CommonProps, "text">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'tone' are incompatible.
+      Type '"info" | "error" | "success" | "accent" | "warning" | undefined' is not assignable to type 'Tone'.
+        Type 'undefined' is not assignable to type 'Tone'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/glideui/render.tsx:165:93 Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; text: string; }' is not assignable to type 'ElementProps<"badge">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ tone?: "info" | "error" | "success" | "accent" | "warning" | undefined; key: string; text: string; }' is not assignable to type 'Omit<CommonProps, "text">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'tone' are incompatible.
+      Type '"info" | "error" | "success" | "accent" | "warning" | undefined' is not assignable to type 'Tone'.
+        Type 'undefined' is not assignable to type 'Tone'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/view/euiCard.tsx:95:35 Argument of type '{ send: (intent: Readonly<{ action: string; entities?: Readonly<Record<string, string | number>>; }>) => void; entrance: boolean | undefined; svg: (markup: string) => string | undefined; }' is not assignable to parameter of type 'UiRender' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'entrance' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/app/stores.ts:327:27 Argument of type '{ palette: (palette: Palette) => void; stylesheet: (name: string, css: string | null) => void; windowTheme: ((name: string | null) => void) | undefined; style: () => { readonly warmth?: number | undefined; readonly accent?: string | undefined; } | undefined; settings: SettingsSource; }' is not assignable to parameter of type 'ThemeHost' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'windowTheme' are incompatible.
+    Type '((name: string | null) => void) | undefined' is not assignable to type '(name: string | null) => void'.
+      Type 'undefined' is not assignable to type '(name: string | null) => void'.
+/tmp/glide-w8-cohesion/headless-source/frontend/src/__tests__/orbitDesign.test.ts:38:22 Property 'fast' comes from an index signature, so it must be accessed with ['fast'].
+/tmp/glide-w8-cohesion/headless-source/frontend/src/__tests__/welcomeCohesion.test.ts:10:85 Property 'toJSON' does not exist on type 'Element'.
+  Property 'toJSON' does not exist on type 'Span'.

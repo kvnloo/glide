@@ -1,0 +1,141 @@
+{
+  "status": "judged",
+  "selected": "candidate",
+  "hashes": {
+    "target": "ec1ae5a994d2bc9522344438a71fb2682d7bf51e84203106365bc2a73ded81ce",
+    "parent": "e8b0cd187d24e278513181003a14a49e93191fc89a18308db25681321d0047ae",
+    "candidate": "9785940b22c3dc456454d9f4668d2d464f0bd061b12320840748e265b300fd40"
+  },
+  "verdicts": [
+    {
+      "trial": 1,
+      "exit": 0,
+      "selected": "candidate",
+      "data": {
+        "winner": "B",
+        "A": {
+          "scores": {
+            "glanceable": 2,
+            "actionable": 3,
+            "density": 1,
+            "dash": 1,
+            "glass": 2,
+            "cohesion": 2,
+            "vocabulary": 1,
+            "motion": 3,
+            "phone": 1
+          },
+          "weighted": 36,
+          "calculated_weighted": 36.0
+        },
+        "B": {
+          "scores": {
+            "glanceable": 4,
+            "actionable": 4,
+            "density": 5,
+            "dash": 5,
+            "glass": 4,
+            "cohesion": 5,
+            "vocabulary": 4,
+            "motion": 5,
+            "phone": 5
+          },
+          "weighted": 90,
+          "calculated_weighted": 90.0
+        },
+        "image_grounding": [
+          "TARGET shows compact tool headers above hairline output boxes, with small monospace content and separated status footers; target image is 1060\u00d7596.",
+          "A places large orbital diagrams with colored mineral seats beside desktop content and above phone content. Its bottom completed panels are visibly cut off.",
+          "B uses compact icon/title/SAMPLE headers, neutral seat-state rows, and one gold action per panel. Both completed panels expose Verdict, Agreements, Dissent, Abstentions, and Receipts. A and B contact sheets are 1472\u00d71894; fixture labels specify 1060\u00d7596 desktop and 412\u00d7915 phone."
+        ],
+        "defects_A": [
+          "All four panels prioritize oversized mineral theatre over the compact tool-card grammar.",
+          "Gold orbital decoration and seat identity compete with the recommended action; completed-state chips introduce additional colored borders and text.",
+          "Serif headings, italic summaries, pill chips, and rounded nested status cards fragment the requested Hanken/mono vocabulary.",
+          "Desktop brief contains substantial unused space inside its shell.",
+          "Worst panels: completed desktop and completed phone are clipped, leaving no readable detailed report in the supplied views.",
+          "DEMO does not preserve the explicitly requested SAMPLE label."
+        ],
+        "defects_B": [
+          "Headers identify the council but do not fully express the target's icon\u2013verb\u2013muted-argument grammar.",
+          "Completed reports repeat the verdict above and below the seat row.",
+          "Agreement and receipt paragraphs could be separated by speaker for faster scanning, especially on phone.",
+          "Exact font families and 8px corner measurements cannot be established from pixels alone."
+        ],
+        "cohesion": "one product",
+        "reason": "B carries the target's compact hierarchy, aligned content, flat shells, restrained typography, and readable reports across all four surfaces without a visible regression. A's orbital ornament dominates both breakpoints and its completed panels lose content. B's quiet static affordances satisfy restraint; interaction behavior and the shared read-aloud stage remain unverified. This is not owner approval."
+      },
+      "hashes": {
+        "target": "ec1ae5a994d2bc9522344438a71fb2682d7bf51e84203106365bc2a73ded81ce",
+        "parent": "e8b0cd187d24e278513181003a14a49e93191fc89a18308db25681321d0047ae",
+        "candidate": "9785940b22c3dc456454d9f4668d2d464f0bd061b12320840748e265b300fd40"
+      }
+    },
+    {
+      "trial": 2,
+      "exit": 0,
+      "selected": "candidate",
+      "data": {
+        "winner": "A",
+        "A": {
+          "scores": {
+            "glanceable": 4,
+            "actionable": 5,
+            "density": 4,
+            "dash": 5,
+            "glass": 5,
+            "cohesion": 4,
+            "vocabulary": 4,
+            "motion": 5,
+            "phone": 4
+          },
+          "weighted": 89,
+          "calculated_weighted": 89.0
+        },
+        "B": {
+          "scores": {
+            "glanceable": 2,
+            "actionable": 3,
+            "density": 1,
+            "dash": 2,
+            "glass": 2,
+            "cohesion": 2,
+            "vocabulary": 2,
+            "motion": 3,
+            "phone": 1
+          },
+          "weighted": 40,
+          "calculated_weighted": 40.0
+        },
+        "image_grounding": [
+          "TARGET is 1060\u00d7596: compact tool headings sit above hairline output boxes with aligned content and quiet completion footers.",
+          "A is 1472\u00d71894: all four desktop/phone brief/report panels use compact flat shells, SAMPLE tags, neutral seat rows, and one gold action per panel.",
+          "B is 1472\u00d71894: all four panels feature large mineral-seat diagrams; completed desktop content ends at a cut boundary, while the completed phone panel clips its final seat row."
+        ],
+        "defects_A": [
+          "All four headers use a noun title rather than the requested verb-plus-muted-argument tool heading.",
+          "Completed desktop and phone panels repeat the verdict in both the summary and report.",
+          "Completed report agreements form a continuous paragraph rather than clearly separated contributions."
+        ],
+        "defects_B": [
+          "All four panels prioritize oversized mineral theatre over compact tool-card content.",
+          "Gold decorates rings, seat identities, badges, and status treatments rather than remaining exclusive to the recommended action.",
+          "Large serif headings, status titles, seat labels, and buttons violate the restricted serif vocabulary.",
+          "Nested rounded status cards and pill-shaped seat badges fragment the single flat-shell grammar.",
+          "DEMO replaces the required truthful SAMPLE tag.",
+          "Completed desktop and phone are the worst panels: neither presents a readable completed report in the supplied capture; the phone also clips the final seat row.",
+          "Phone brief spends substantial vertical space on the diagram before reaching the question and controls."
+        ],
+        "cohesion": "one product",
+        "reason": "A better matches the target's compact rhythm, aligned content, restrained typography, and quiet shells without losing visible state, report text, or controls on either viewport. B regresses density, palette discipline, and completed-report visibility. Quiet static presentation is not penalized for lacking animation; interactions and exact font families remain unverified. This is not owner approval."
+      },
+      "hashes": {
+        "target": "ec1ae5a994d2bc9522344438a71fb2682d7bf51e84203106365bc2a73ded81ce",
+        "parent": "e8b0cd187d24e278513181003a14a49e93191fc89a18308db25681321d0047ae",
+        "candidate": "9785940b22c3dc456454d9f4668d2d464f0bd061b12320840748e265b300fd40"
+      }
+    }
+  ],
+  "owner_approval": false,
+  "calibration": false
+}

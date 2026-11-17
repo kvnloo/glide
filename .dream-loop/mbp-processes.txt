@@ -1,0 +1,293 @@
+    PID     ELAPSED   RSS COMMAND
+      1  5-08:41:25  8920 /usr/lib/systemd/systemd --switched-root --system --deserialize=60 splash
+      2  5-08:41:25     0 [kthreadd]
+      3  5-08:41:25     0 [pool_workqueue_release]
+      4  5-08:41:25     0 [kworker/R-rcu_gp]
+      5  5-08:41:25     0 [kworker/R-sync_wq]
+      6  5-08:41:25     0 [kworker/R-kvfree_rcu_reclaim]
+      7  5-08:41:25     0 [kworker/R-slub_flushwq]
+      8  5-08:41:25     0 [kworker/R-netns]
+     10  5-08:41:25     0 [kworker/0:0H-kblockd]
+     13  5-08:41:25     0 [kworker/R-mm_percpu_wq]
+     15  5-08:41:25     0 [ksoftirqd/0]
+     16  5-08:41:25     0 [rcu_preempt]
+     17  5-08:41:25     0 [rcub/0]
+     18  5-08:41:25     0 [rcu_exp_par_gp_kthread_worker/0]
+     19  5-08:41:25     0 [rcu_exp_gp_kthread_worker]
+     20  5-08:41:25     0 [migration/0]
+     21  5-08:41:25     0 [kprobe-optimizer]
+     22  5-08:41:25     0 [idle_inject/0]
+     23  5-08:41:25     0 [cpuhp/0]
+     24  5-08:41:25     0 [cpuhp/1]
+     25  5-08:41:25     0 [idle_inject/1]
+     26  5-08:41:25     0 [migration/1]
+     27  5-08:41:25     0 [ksoftirqd/1]
+     29  5-08:41:25     0 [kworker/1:0H-kblockd]
+     30  5-08:41:25     0 [cpuhp/2]
+     31  5-08:41:25     0 [idle_inject/2]
+     32  5-08:41:25     0 [migration/2]
+     33  5-08:41:25     0 [ksoftirqd/2]
+     35  5-08:41:25     0 [kworker/2:0H-kblockd]
+     36  5-08:41:25     0 [cpuhp/3]
+     37  5-08:41:25     0 [idle_inject/3]
+     38  5-08:41:25     0 [migration/3]
+     39  5-08:41:25     0 [ksoftirqd/3]
+     41  5-08:41:25     0 [kworker/3:0H-kblockd]
+     42  5-08:41:25     0 [cpuhp/4]
+     43  5-08:41:25     0 [idle_inject/4]
+     44  5-08:41:25     0 [migration/4]
+     45  5-08:41:25     0 [ksoftirqd/4]
+     47  5-08:41:25     0 [kworker/4:0H-kblockd]
+     48  5-08:41:25     0 [cpuhp/5]
+     49  5-08:41:25     0 [idle_inject/5]
+     50  5-08:41:25     0 [migration/5]
+     51  5-08:41:25     0 [ksoftirqd/5]
+     53  5-08:41:25     0 [kworker/5:0H-kblockd]
+     54  5-08:41:25     0 [cpuhp/6]
+     55  5-08:41:25     0 [idle_inject/6]
+     56  5-08:41:25     0 [migration/6]
+     57  5-08:41:25     0 [ksoftirqd/6]
+     59  5-08:41:25     0 [kworker/6:0H-kblockd]
+     60  5-08:41:25     0 [cpuhp/7]
+     61  5-08:41:25     0 [idle_inject/7]
+     62  5-08:41:25     0 [migration/7]
+     63  5-08:41:25     0 [ksoftirqd/7]
+     65  5-08:41:25     0 [kworker/7:0H-kblockd]
+     66  5-08:41:25     0 [kdevtmpfs]
+     67  5-08:41:25     0 [kworker/R-inet_frag_wq]
+     68  5-08:41:25     0 [rcu_tasks_kthread]
+     69  5-08:41:25     0 [rcu_tasks_rude_kthread]
+     70  5-08:41:25     0 [kauditd]
+     71  5-08:41:25     0 [khungtaskd]
+     72  5-08:41:25     0 [oom_reaper]
+     74  5-08:41:25     0 [kworker/R-writeback]
+     75  5-08:41:25     0 [kcompactd0]
+     76  5-08:41:25     0 [ksmd]
+     77  5-08:41:25     0 [khugepaged]
+     78  5-08:41:25     0 [kworker/R-bio_complete]
+     79  5-08:41:25     0 [kworker/R-kblockd]
+     80  5-08:41:25     0 [kworker/R-blkcg_punt_bio]
+     81  5-08:41:25     0 [kworker/R-kintegrityd]
+     83  5-08:41:25     0 [irq/9-acpi]
+     88  5-08:41:24     0 [kworker/R-tpm_dev_wq]
+     89  5-08:41:24     0 [kworker/R-ata_sff]
+     90  5-08:41:24     0 [kworker/R-edac-poller]
+     91  5-08:41:24     0 [kworker/R-devfreq_wq]
+     92  5-08:41:24     0 [watchdogd]
+     94  5-08:41:24     0 [kworker/R-quota_events_unbound]
+     96  5-08:41:24     0 [kswapd0]
+     98  5-08:41:24     0 [kworker/R-kthrotld]
+     99  5-08:41:24     0 [irq/27-pciehp]
+    100  5-08:41:24     0 [irq/30-pciehp]
+    101  5-08:41:24     0 [irq/31-pciehp]
+    102  5-08:41:24     0 [irq/32-pciehp]
+    103  5-08:41:24     0 [irq/33-pciehp]
+    104  5-08:41:24     0 [irq/34-pciehp]
+    105  5-08:41:24     0 [kworker/R-acpi_thermal_pm]
+    106  5-08:41:24     0 [scsi_eh_0]
+    107  5-08:41:24     0 [kworker/R-scsi_tmf_0]
+    110  5-08:41:24     0 [kworker/R-mld]
+    111  5-08:41:24     0 [kworker/R-ipv6_addrconf]
+    112  5-08:41:24     0 [kworker/R-kstrp]
+    116  5-08:41:24     0 [kworker/R-zswap-shrink]
+    120  5-08:41:24     0 [kworker/0:1H-kblockd]
+    178  5-08:41:23     0 [scsi_eh_1]
+    179  5-08:41:23     0 [kworker/R-scsi_tmf_1]
+    180  5-08:41:23     0 [usb-storage]
+    181  5-08:41:23     0 [kworker/R-uas]
+    184  5-08:41:23     0 [kworker/7:1H-kblockd]
+    185  5-08:41:23     0 [kworker/5:1H-kblockd]
+    186  5-08:41:23     0 [kworker/3:1H-kblockd]
+    191  5-08:41:23     0 [kworker/1:1H-kblockd]
+    203  5-08:41:23     0 [kworker/R-btrfs-worker]
+    204  5-08:41:22     0 [kworker/R-btrfs-delalloc]
+    205  5-08:41:22     0 [kworker/R-btrfs-flush_delalloc]
+    206  5-08:41:22     0 [kworker/R-btrfs-cache]
+    207  5-08:41:22     0 [kworker/R-btrfs-fixup]
+    208  5-08:41:22     0 [kworker/R-btrfs-endio]
+    209  5-08:41:22     0 [kworker/R-btrfs-endio-meta]
+    210  5-08:41:22     0 [kworker/R-btrfs-rmw]
+    211  5-08:41:22     0 [kworker/R-btrfs-endio-write]
+    212  5-08:41:22     0 [kworker/R-btrfs-freespace-write]
+    213  5-08:41:22     0 [kworker/R-btrfs-delayed-meta]
+    214  5-08:41:22     0 [kworker/R-btrfs-qgroup-rescan]
+    215  5-08:41:22     0 [btrfs-cleaner]
+    216  5-08:41:22     0 [btrfs-transaction]
+    219  5-08:41:22     0 [kworker/4:1H-kblockd]
+    227  5-08:41:18     0 [kworker/2:1H-kblockd]
+    228  5-08:41:17     0 [kworker/R-amdgpu-reset-dev]
+    229  5-08:41:17     0 [kworker/R-ttm]
+    230  5-08:41:17     0 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+    231  5-08:41:17     0 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+    232  5-08:41:17     0 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+    233  5-08:41:17     0 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+    234  5-08:41:17     0 [kworker/R-dm_vblank_control_workqueue]
+    235  5-08:41:17     0 [kworker/R-hdmi_frl_status_polling_wq]
+    236  5-08:41:17     0 [card1-crtc0]
+    237  5-08:41:17     0 [card1-crtc1]
+    238  5-08:41:17     0 [card1-crtc2]
+    239  5-08:41:17     0 [card1-crtc3]
+    240  5-08:41:17     0 [card1-crtc4]
+    241  5-08:41:17     0 [card1-crtc5]
+    242  5-08:41:16     0 [kworker/R-gfx]
+    243  5-08:41:16     0 [kworker/R-comp_1.0.0]
+    244  5-08:41:16     0 [kworker/R-comp_1.1.1]
+    245  5-08:41:16     0 [kworker/R-sdma0]
+    246  5-08:41:16     0 [kworker/R-sdma1]
+    247  5-08:41:16     0 [kworker/R-uvd]
+    248  5-08:41:16     0 [kworker/R-vce0]
+    249  5-08:41:16     0 [kworker/R-vce1]
+    260  5-08:41:16     0 [kworker/6:1H-kblockd]
+    296  5-08:41:15     0 [psimon]
+    306  5-08:41:15 50184 /usr/lib/systemd/systemd-journald
+    331  5-08:41:15  1276 /usr/lib/systemd/systemd-userdbd
+    400  5-08:41:14     0 [psimon]
+    406  5-08:41:14  6196 /usr/lib/systemd/systemd-resolved
+    410  5-08:41:14  1864 /usr/lib/systemd/systemd-udevd
+    412  5-08:41:14  1604 /usr/lib/systemd/systemd-timesyncd
+    418  5-08:41:14     0 [psimon]
+    467  5-08:41:14     0 [irq/61-mei_me]
+    468  5-08:41:14     0 [kworker/R-ttm]
+    469  5-08:41:14     0 [card0-crtc0]
+    470  5-08:41:14     0 [card0-crtc1]
+    471  5-08:41:14     0 [card0-crtc2]
+    500  5-08:41:13     0 [kworker/R-cfg80211]
+    545  5-08:41:13     0 [kworker/R-rtw88_usb: tx wq]
+    588  5-08:41:12     0 [irq/68-brcmf_pcie_intr]
+    590  5-08:41:12     0 [kworker/R-msgbuf_txflow]
+    615  5-08:41:08  1096 /usr/bin/dbus-broker-launch --scope system --audit
+    616  5-08:41:08  1392 dbus-broker --log 10 --controller 9 --machine-id f267f7c903414207a3b2f890e04bc1f9 --max-bytes 536870912 --max-fds 4096 --max-matches 131072 --audit
+    617  5-08:41:08  8092 /usr/bin/ananicy-cpp start
+    618  5-08:41:08  6428 /usr/bin/NetworkManager --no-daemon
+    620  5-08:41:08  1764 avahi-daemon: running [mbp-39.local]
+    621  5-08:41:08  2104 /usr/lib/bluetooth/bluetoothd
+    624  5-08:41:08  3176 /usr/lib/systemd/systemd-logind
+    643  5-08:41:08   396 avahi-daemon: chroot helper
+    689  5-08:41:08  1584 /usr/lib/systemd/systemd-oomd
+    703  5-08:41:07  2328 /usr/bin/wpa_supplicant -u -s -O /run/wpa_supplicant
+    706  5-08:41:07  2056 sshd: /usr/bin/sshd -D [listener] 0 of 10-60 startups
+    708  5-08:41:07 44916 /usr/sbin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/run/tailscale/tailscaled.sock --port=41641
+    719  5-08:41:07  6616 /usr/lib/systemd/systemd --user
+    720  5-08:41:07  4340 /usr/lib/systemd/systemd --user
+    721  5-08:41:07 24332 /usr/bin/containerd
+    736  5-08:41:06   780 (sd-pam)
+    739  5-08:41:06   780 (sd-pam)
+    778  5-08:41:06  1132 /usr/bin/sddm
+    797  5-08:41:06 15852 rootlesskit --state-dir=/run/user/1001/dockerd-rootless --net=gvisor-tap-vsock --mtu=65520 --slirp4netns-sandbox=auto --slirp4netns-seccomp=auto --disable-host-loopback --port-driver=builtin --copy-up=/etc --copy-up=/run --propagation=rslave --detach-netns /home/agentjob/.local/bin/dockerd-rootless.sh
+    800  5-08:41:06  1524 /home/kvn/.t3/runtime/versions/0.1.6/t3 __service-launcher
+    802  5-08:41:06  3584 /usr/bin/gnome-keyring-daemon --foreground --components=pkcs11,secrets --control-directory=/run/user/1000/keyring
+    804  5-08:41:06  3384 /home/kvn/.no-mistakes/bin/no-mistakes daemon run --root /home/kvn/.no-mistakes
+    807  5-08:41:06   864 /usr/bin/tailscale file get --loop /home/kvn/.local/state/hermes-taildrop/incoming
+    809  5-08:41:06 12548 /home/kvn/.local/bin/tern remote serve --user --access /home/kvn/.config/tern/access.toml
+    810  5-08:41:06  3268 python3 /home/kvn/.local/bin/detent-sync-serve
+    817  5-08:41:06  1064 /usr/bin/dbus-broker-launch --scope user
+    833  5-08:41:06  1052 dbus-broker --log 11 --controller 10 --machine-id f267f7c903414207a3b2f890e04bc1f9 --max-bytes 100000000000000 --max-fds 25000000000000 --max-matches 5000000000
+    839  5-08:41:06   352 /proc/self/exe --state-dir=/run/user/1001/dockerd-rootless --net=gvisor-tap-vsock --mtu=65520 --slirp4netns-sandbox=auto --slirp4netns-seccomp=auto --disable-host-loopback --port-driver=builtin --copy-up=/etc --copy-up=/run --propagation=rslave --detach-netns /home/agentjob/.local/bin/dockerd-rootless.sh
+    896  5-08:41:06 18224 dockerd
+   1008  5-08:41:06   168 /home/kvn/.no-mistakes/bin/no-mistakes daemon log-sink --root /home/kvn/.no-mistakes
+   1052  5-08:41:06 13764 /usr/lib/Xorg -nolisten tcp -background none -seat seat0 vt2 -auth /run/sddm/xauth_VfUNPd -noreset -displayfd 16
+   1083  5-08:41:06 15712 /usr/bin/containerd --config /run/user/1001/docker/containerd/containerd.toml
+   1483  5-08:41:03  1072 /usr/lib/sddm/sddm-helper --socket /tmp/sddm-auth-25a37297-260e-4c16-877e-2874e4b44514 --id 2 --start /usr/bin/sddm-greeter-qt6 --socket /tmp/sddm-:0-loWoZl --user sddm --greeter
+   1514  5-08:41:03  4448 /usr/lib/systemd/systemd --user
+   1516  5-08:41:03   780 (sd-pam)
+   1527  5-08:41:02 28692 /usr/bin/sddm-greeter-qt6 --socket /tmp/sddm-:0-loWoZl
+   1529  5-08:41:02 30704 /home/kvn/.bun/bin/bun run index.ts
+   1539  5-08:41:02   512 /usr/bin/dbus-broker-launch --scope user
+   1545  5-08:41:02   668 dbus-broker --log 11 --controller 10 --machine-id f267f7c903414207a3b2f890e04bc1f9 --max-bytes 100000000000000 --max-fds 25000000000000 --max-matches 5000000000
+   1600  5-08:40:59 35400 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+   1616  5-08:40:59 131176 /usr/local/bin/k3s agent
+   1696  5-08:40:57 243288 /home/kvn/.t3/runtime/versions/0.1.6/t3 serve
+   2025  5-08:40:55  7248 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 397a4d6754f145e9a2bf083fd66e70512926bd2df42e7ffc14169ee577812641 -address /run/containerd/containerd.sock
+   2049  5-08:40:55    20 /package/admin/s6/command/s6-svscan -d4 -- /run/service
+   2117  5-08:40:54    20 s6-supervise s6-linux-init-shutdownd
+   2119  5-08:40:54    20 /package/admin/s6-linux-init/command/s6-linux-init-shutdownd -d3 -c /run/s6/basedir -g 3000 -C -B
+   2129  5-08:40:54    20 s6-supervise s6rc-oneshot-runner
+   2130  5-08:40:54    20 s6-supervise s6rc-fdholder
+   2138  5-08:40:54    20 /package/admin/s6/command/s6-ipcserverd -1 -- /package/admin/s6/command/s6-ipcserver-access -v0 -E -l0 -i data/rules -- /package/admin/s6/command/s6-sudod -t 30000 -- /package/admin/s6-rc/command/s6-rc-oneshot-run -l ../.. --
+   2169  5-08:40:54    20 s6-supervise home-assistant
+   2171  5-08:40:54 259888 python3 -m homeassistant --config /config
+   2232  5-08:40:51   568 /home/kvn/.t3/runtime/versions/0.1.6/resource-monitor/linux-x64/t3-resource-monitor
+   2844  5-08:40:29  5548 /bin/go2rtc -c /tmp/go2rtc-nh_0vmnd/go2rtc_s452w_f6.yaml
+   3342  5-08:39:55 83592 containerd 
+   4361  5-08:39:52 10716 /var/lib/rancher/k3s/data/18fd43a317b2366d41914bc17e9effe1cf7af9d12a97fcf5ec8909cb9cc4fdeb/bin/containerd-shim-runc-v2 -namespace k8s.io -id f0e22cd8bd04396a0b24e792fe6c4c86db625f094e55f57d74c964264ff77fed -address /run/k3s/containerd/containerd.sock
+   4410  5-08:39:52     8 /pause
+   4611  5-08:39:50 27368 /coredns -conf /etc/coredns/Corefile
+ 198136  3-13:28:11  4320 /usr/lib/xdg-desktop-portal
+ 198141  3-13:28:11   644 /usr/lib/xdg-permission-store
+ 198146  3-13:28:11  1864 /usr/lib/xdg-document-portal
+ 198152  3-13:28:11   504 fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+ 198186  3-13:28:11   748 /usr/bin/pipewire
+ 198187  3-13:28:11  3404 /usr/bin/wireplumber
+ 198228  3-13:28:10  1848 /usr/lib/power-profiles-daemon
+ 198261  3-13:28:09  5384 /usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+ 208182  3-13:23:29  4904 /usr/lib/upowerd
+ 208197  3-13:23:29  1756 /usr/lib/at-spi-bus-launcher
+ 208201  3-13:23:29   652 /usr/lib/gvfsd
+ 208213  3-13:23:29   640 /usr/lib/gvfsd-fuse /run/user/1000/gvfs -f
+ 701228  5-01:31:27  7476 /home/kvn/.local/bin/tern daemon --socket /run/user/1000/tern/daemon.sock
+ 701259  5-01:31:27   512 /bin/fish -l
+ 701275  5-01:31:27   508 /bin/fish -l
+ 701276  5-01:31:27   508 /bin/fish -l
+ 701325  5-01:31:27 110436 /home/kvn/.hermes/tools/python-3.14.9+20261021-linux-x64/bin/python3 -I -c import os, re, sys import contextlib, hashlib, io, pathlib, shutil, subprocess os.environ.pop('PYTHONHOME', None) os.environ.pop('PYTHONPATH', None) sys.path.insert(0, '/home/kvn/.hermes/hermes-agent') def _hermes_closure_repair():     import contextlib, hashlib, io, shutil, subprocess     from pathlib import Path     root = Path('/home/kvn/.hermes/hermes-agent')     git = root / '.git'     try:         if git.is_file():             text = git.read_text(encoding='utf-8-sig').strip()             git = root / text[7:].strip() if text.startswith('gitdir:') else git         fields = dict(line.partition('=')[::2] for line in (git / 'hermes-update-pull').read_text(encoding='utf-8-sig').splitlines())     except OSError:         return     pre = fields.get('pre', '').strip()     if not re.fullmatch('[0-9a-f]{40}|[0-9a-f]{64}', pre):         return     closure = git / 'hermes-update-recovery' / pre     files = (*('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py'), 'hermes_cli/__init__.py')      def blob_id(data):         return hashlib.new('sha1' if len(pre) == 40 else 'sha256', b'blob %d\0' % len(data) + data).hexdigest()      def verified():         try:             listed = dict(line.split(' ', 1)[::-1] for line in (closure / 'MANIFEST').read_text(encoding='utf-8-sig').splitlines())             return (set(listed) == set(files) and listed['hermes_cli/__init__.py'] == blob_id(b'')                     and all(blob_id((closure / rel).read_bytes()) == oid for rel, oid in listed.items()))         except (OSError, ValueError):             return False      if not verified():         exe = fields.get('git', '').strip()         if not (os.path.isabs(exe) and os.path.isfile(exe)):             names = ('git.exe',) if os.name == 'nt' else ('git',)             exe = next((os.path.join(d, n) for d in os.environ.get('PATH', '').split(os.pathsep) if os.path.isabs(d)                         for n in names if os.path.isfile(os.path.join(d, n))), '')         if not exe:             return          def git_out(*args):             done = subprocess.run([exe, '--no-replace-objects', '-C', str(root), *args], capture_output=True, timeout=60,                                   stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))             if done.returncode != 0:                 raise OSError(done.stderr)             return done.stdout          staging = closure.with_name('.%s.%d.launch' % (pre, os.getpid()))         try:             ids = {}             for entry in git_out('ls-tree', '-z', '--full-tree', pre, '--', *('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py')).split(b'\0'):                 meta, _, rel = entry.decode('utf-8', 'replace').partition('\t')                 if meta.split()[1:2] == ['blob']:                     ids[rel] = meta.split()[2]             blobs = {'hermes_cli/__init__.py': b''}             for rel in ('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py'):                 blobs[rel] = git_out('cat-file', 'blob', ids[rel])                 if blob_id(blobs[rel]) != ids[rel]:  # an object that inflates to bytes pre never had                     raise OSError('%s does not hash to %s' % (rel, ids[rel]))             blobs['MANIFEST'] = ''.join('%s %s\n' % (blob_id(data), rel) for rel, data in blobs.items()).encode('utf-8')             for rel, data in blobs.items():                 (staging / rel).parent.mkdir(parents=True, exist_ok=True)                 (staging / rel).write_bytes(data)             shutil.rmtree(closure, ignore_errors=True)             os.replace(staging, closure)         except (OSError, KeyError, subprocess.SubprocessError):             pass         finally:             shutil.rmtree(staging, ignore_errors=True)         if not verified():             return     for name in [n for n in sys.modules if n.split('.')[0] in ('hermes_cli', 'hermes_bootstrap', 'hermes_constants', 'pm')]:         del sys.modules[name]     tree = os.path.normcase(os.path.realpath(root))     sys.path[:] = [str(closure)] + [p for p in sys.path if p and os.path.normcase(os.path.realpath(p)) != tree                                     and not os.path.normcase(os.path.realpath(p)).startswith(tree + os.sep)]     sys.dont_write_bytecode = True     said = io.StringIO()     restored = False     try:         with contextlib.redirect_stderr(said):             from hermes_cli import _early_recovery             restored = _early_recovery.restore_interrupted_pull(root)     except Exception as exc:         said.write('hermes: the checkout cannot start after an interrupted `hermes update`, and it was not '                    'repaired: %s\n' % (exc,))     if restored:         sys.stderr.write('hermes: the checkout could not start after an interrupted `hermes update`; '                          'repaired it with the recovery code saved before the update.\n' + said.getvalue())         _early_recovery.relaunch_after_restore()     sys.stderr.write(said.getvalue() or 'hermes: the checkout cannot start after an interrupted `hermes update`; '                      'launch again once the update that owns it finishes.\n')     raise SystemExit(1) if sys.argv[1:2] == ['--print-runtime-command']:     sys.dont_write_bytecode = True     from pathlib import Path     try:         from hermes_cli import _early_recovery     except Exception as exc:         if _hermes_closure_repair() or not isinstance(exc, ImportError):             raise         _early_recovery = None  # a tree without the repair: the imports below report real damage     if _early_recovery is not None and _early_recovery.restore_interrupted_pull(Path('/home/kvn/.hermes/hermes-agent')):         _early_recovery.relaunch_after_restore()     from hermes_constants import get_default_hermes_root     os.environ['HERMES_HOME'] = os.environ.get('HERMES_HOME') or str(get_default_hermes_root())     from hermes_cli._launchers import print_runtime_command     print_runtime_command(Path('/home/kvn/.hermes/hermes-agent'), sys.argv[2:])     sys.exit(0) sys._hermes_pin_default_home = True try:     import hermes_bootstrap except Exception:     _hermes_closure_repair()     raise if not os.environ.get('HERMES_HOME'):     from hermes_constants import get_default_hermes_root     os.environ['HERMES_HOME'] = str(get_default_hermes_root()) if sys.argv[1:2] == ['--run-module']:     import runpy     if len(sys.argv) < 3: sys.exit('hermes: --run-module needs a module')     module = sys.argv.pop(2)     del sys.argv[1]     runpy.run_module(module, run_name='__main__', alter_sys=True)     sys.exit(0) from hermes_cli.main import main sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0]) sys.exit(main()) 
+1152948  3-03:41:38 10256 /var/lib/rancher/k3s/data/18fd43a317b2366d41914bc17e9effe1cf7af9d12a97fcf5ec8909cb9cc4fdeb/bin/containerd-shim-runc-v2 -namespace k8s.io -id bed52c8fb6c9e9ec8cec3ddcdcb81a6bff4476a8ee6f5d321008d607dac4149f -address /run/k3s/containerd/containerd.sock
+1152974  3-03:41:38     8 /pause
+1200562  4-19:41:24 20656 /home/kvn/.t3/tools/cloudflared/2026.10.4/linux-x64/cloudflared tunnel --no-autoupdate --loglevel info --output default --metrics 127.0.0.1:0 --protocol http2 run
+1442434  4-16:45:33   768 /usr/bin/dirmngr --homedir /etc/pacman.d/gnupg --supervised
+1509872  1-07:14:33   924 /usr/bin/ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o BatchMode=yes -L 127.0.0.1:8420:127.0.0.1:8420 kvn@100.113.138.100
+2489304  2-13:05:10  9140 /var/lib/rancher/k3s/data/18fd43a317b2366d41914bc17e9effe1cf7af9d12a97fcf5ec8909cb9cc4fdeb/bin/containerd-shim-runc-v2 -namespace k8s.io -id aa43fdb631272125f1a822e7c1836c0d8b00eaf605271ec432f96c9b6a25a3d9 -address /run/k3s/containerd/containerd.sock
+2489328  2-13:05:10     8 /pause
+2503271  2-12:57:00  9112 /var/lib/rancher/k3s/data/18fd43a317b2366d41914bc17e9effe1cf7af9d12a97fcf5ec8909cb9cc4fdeb/bin/containerd-shim-runc-v2 -namespace k8s.io -id a376d53559339dd1d2e7b83f724378da99a004480ed33b0a4917da95bc499c8f -address /run/k3s/containerd/containerd.sock
+2503296  2-12:57:00     8 /pause
+2503517  2-12:56:56 334608 /opt/hermes/.venv/bin/python -P -c import os, site, sys; sys.argv[0]='hermes'; site.addsitedir(os.environ['HERMES_SITE']); from hermes_cli.main import main; sys.exit(main()) gateway run
+3793597    03:44:15 560720 /home/kvn/.hermes/tools/python-3.14.9+20261021-linux-x64/bin/python3 -I -c import os, re, sys import contextlib, hashlib, io, pathlib, shutil, subprocess os.environ.pop('PYTHONHOME', None) os.environ.pop('PYTHONPATH', None) sys.path.insert(0, '/home/kvn/.hermes/hermes-agent') def _hermes_closure_repair():     import contextlib, hashlib, io, shutil, subprocess     from pathlib import Path     root = Path('/home/kvn/.hermes/hermes-agent')     git = root / '.git'     try:         if git.is_file():             text = git.read_text(encoding='utf-8-sig').strip()             git = root / text[7:].strip() if text.startswith('gitdir:') else git         fields = dict(line.partition('=')[::2] for line in (git / 'hermes-update-pull').read_text(encoding='utf-8-sig').splitlines())     except OSError:         return     pre = fields.get('pre', '').strip()     if not re.fullmatch('[0-9a-f]{40}|[0-9a-f]{64}', pre):         return     closure = git / 'hermes-update-recovery' / pre     files = (*('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py'), 'hermes_cli/__init__.py')      def blob_id(data):         return hashlib.new('sha1' if len(pre) == 40 else 'sha256', b'blob %d\0' % len(data) + data).hexdigest()      def verified():         try:             listed = dict(line.split(' ', 1)[::-1] for line in (closure / 'MANIFEST').read_text(encoding='utf-8-sig').splitlines())             return (set(listed) == set(files) and listed['hermes_cli/__init__.py'] == blob_id(b'')                     and all(blob_id((closure / rel).read_bytes()) == oid for rel, oid in listed.items()))         except (OSError, ValueError):             return False      if not verified():         exe = fields.get('git', '').strip()         if not (os.path.isabs(exe) and os.path.isfile(exe)):             names = ('git.exe',) if os.name == 'nt' else ('git',)             exe = next((os.path.join(d, n) for d in os.environ.get('PATH', '').split(os.pathsep) if os.path.isabs(d)                         for n in names if os.path.isfile(os.path.join(d, n))), '')         if not exe:             return          def git_out(*args):             done = subprocess.run([exe, '--no-replace-objects', '-C', str(root), *args], capture_output=True, timeout=60,                                   stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))             if done.returncode != 0:                 raise OSError(done.stderr)             return done.stdout          staging = closure.with_name('.%s.%d.launch' % (pre, os.getpid()))         try:             ids = {}             for entry in git_out('ls-tree', '-z', '--full-tree', pre, '--', *('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py')).split(b'\0'):                 meta, _, rel = entry.decode('utf-8', 'replace').partition('\t')                 if meta.split()[1:2] == ['blob']:                     ids[rel] = meta.split()[2]             blobs = {'hermes_cli/__init__.py': b''}             for rel in ('hermes_cli/_early_recovery.py', 'hermes_cli/update_lock.py', 'hermes_cli/update_custody.py'):                 blobs[rel] = git_out('cat-file', 'blob', ids[rel])                 if blob_id(blobs[rel]) != ids[rel]:  # an object that inflates to bytes pre never had                     raise OSError('%s does not hash to %s' % (rel, ids[rel]))             blobs['MANIFEST'] = ''.join('%s %s\n' % (blob_id(data), rel) for rel, data in blobs.items()).encode('utf-8')             for rel, data in blobs.items():                 (staging / rel).parent.mkdir(parents=True, exist_ok=True)                 (staging / rel).write_bytes(data)             shutil.rmtree(closure, ignore_errors=True)             os.replace(staging, closure)         except (OSError, KeyError, subprocess.SubprocessError):             pass         finally:             shutil.rmtree(staging, ignore_errors=True)         if not verified():             return     for name in [n for n in sys.modules if n.split('.')[0] in ('hermes_cli', 'hermes_bootstrap', 'hermes_constants', 'pm')]:         del sys.modules[name]     tree = os.path.normcase(os.path.realpath(root))     sys.path[:] = [str(closure)] + [p for p in sys.path if p and os.path.normcase(os.path.realpath(p)) != tree                                     and not os.path.normcase(os.path.realpath(p)).startswith(tree + os.sep)]     sys.dont_write_bytecode = True     said = io.StringIO()     restored = False     try:         with contextlib.redirect_stderr(said):             from hermes_cli import _early_recovery             restored = _early_recovery.restore_interrupted_pull(root)     except Exception as exc:         said.write('hermes: the checkout cannot start after an interrupted `hermes update`, and it was not '                    'repaired: %s\n' % (exc,))     if restored:         sys.stderr.write('hermes: the checkout could not start after an interrupted `hermes update`; '                          'repaired it with the recovery code saved before the update.\n' + said.getvalue())         _early_recovery.relaunch_after_restore()     sys.stderr.write(said.getvalue() or 'hermes: the checkout cannot start after an interrupted `hermes update`; '                      'launch again once the update that owns it finishes.\n')     raise SystemExit(1) if sys.argv[1:2] == ['--print-runtime-command']:     sys.dont_write_bytecode = True     from pathlib import Path     try:         from hermes_cli import _early_recovery     except Exception as exc:         if _hermes_closure_repair() or not isinstance(exc, ImportError):             raise         _early_recovery = None  # a tree without the repair: the imports below report real damage     if _early_recovery is not None and _early_recovery.restore_interrupted_pull(Path('/home/kvn/.hermes/hermes-agent')):         _early_recovery.relaunch_after_restore()     from hermes_constants import get_default_hermes_root     os.environ['HERMES_HOME'] = os.environ.get('HERMES_HOME') or str(get_default_hermes_root())     from hermes_cli._launchers import print_runtime_command     print_runtime_command(Path('/home/kvn/.hermes/hermes-agent'), sys.argv[2:])     sys.exit(0) sys._hermes_pin_default_home = True try:     import hermes_bootstrap except Exception:     _hermes_closure_repair()     raise if not os.environ.get('HERMES_HOME'):     from hermes_constants import get_default_hermes_root     os.environ['HERMES_HOME'] = str(get_default_hermes_root()) if sys.argv[1:2] == ['--run-module']:     import runpy     if len(sys.argv) < 3: sys.exit('hermes: --run-module needs a module')     module = sys.argv.pop(2)     del sys.argv[1]     runpy.run_module(module, run_name='__main__', alter_sys=True)     sys.exit(0) from hermes_cli.main import main sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0]) sys.exit(main())  gateway run
+3995372    01:27:46     0 [kworker/u32:2-writeback]
+4017684    01:09:11     0 [kworker/u32:7-btrfs-endio]
+4030927       59:04     0 [kworker/u32:15-btrfs-endio-meta]
+4030929       59:04     0 [kworker/u32:17-btrfs-endio-write]
+4041676       50:10     0 [kworker/u33:0-hci0]
+4060844       34:46     0 [kworker/5:0-mm_percpu_wq]
+4067628       29:31     0 [kworker/u32:6-btrfs-endio-meta]
+4067632       29:31     0 [kworker/u32:13-btrfs-endio-meta]
+4067679       29:30 32432 npm exec vite --host 127.0.0.1 --port 4195 --strictPort
+4067711       29:29 295668 node /home/kvn/q12-work/node_modules/.bin/vite --host 127.0.0.1 --port 4195 --strictPort
+4067720       29:29 19836 /home/kvn/q12-work/node_modules/@esbuild/linux-x64/bin/esbuild --service=0.25.12 --ping
+4069501       28:06     0 [kworker/u32:16-btrfs-endio-meta]
+4072880       25:31     0 [kworker/4:1-events]
+4075224       23:27     0 [kworker/2:2-events]
+4075848       22:56     0 [kworker/u33:1-hci0]
+4076951       21:56     0 [kworker/u32:1-btrfs-endio-meta]
+4078746       20:23     0 [kworker/1:0-events]
+4079359       19:52     0 [kworker/4:0-events]
+4088820       17:22     0 [kworker/3:0-cgroup_release]
+4090718       17:10     0 [kworker/6:0-events]
+4092679       16:57     0 [kworker/7:1-cgroup_release]
+4093998       16:48     0 [kworker/u32:0-btrfs-endio-write]
+4094872       16:36     0 [kworker/2:1-events]
+4097581       14:18     0 [kworker/1:1-events]
+4098022       13:52     0 [kworker/0:2-events]
+4103473       11:44     0 [kworker/u32:3-btrfs-endio-write]
+4103475       11:44     0 [kworker/u32:9-btrfs-endio-meta]
+4103826       11:27     0 [kworker/3:1-mm_percpu_wq]
+4103877       11:26     0 [kworker/7:0-mm_percpu_wq]
+4108492       07:56     0 [kworker/0:0-events]
+4113298       06:00     0 [kworker/6:1-cgroup_free]
+4113812       05:51     0 [kworker/5:2-cgroup_free]
+4118841       04:19     0 [kworker/2:0]
+4123063       03:10     0 [kworker/3:2]
+4123846       02:48     0 [kworker/0:1]
+4124358       02:23  6204 systemd-userwork: waiting...
+4125607       01:20  6224 systemd-userwork: waiting...
+4125727       01:17     0 [kworker/4:2-events]
+4125892       01:10 79032 /manager --config=/controller_manager_config.yaml --zap-log-level=2
+4126037       01:04     0 [kworker/u33:2]
+4126710       00:32     0 [kworker/1:2-events]
+4127068       00:15  6020 systemd-userwork: waiting...
+4127085       00:14     0 [kworker/7:2]
+4127357       00:02 14436 sshd-session: kvn [postauth]
+4127360       00:01  8856 sshd-session: kvn@notty
+4127361       00:01 10256 fish -c rsync --server --sender -ulogDtpre.iLsfxCIvu . workspace/ayo-runs/
+4127374       00:01  9952 rsync --server --sender -ulogDtpre.iLsfxCIvu . workspace/ayo-runs/
+4127406       00:00 14692 sshd-session: kvn [postauth]
+4127409       00:00  8620 sshd-session: kvn@notty
+4127410       00:00 10304 fish -c ps -eo pid,etime,rss,args
+4127423       00:00  4340 ps -eo pid,etime,rss,args

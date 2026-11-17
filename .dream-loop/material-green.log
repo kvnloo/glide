@@ -1,0 +1,18 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+$ vitest run src/__tests__/cohesion.test.ts src/__tests__/welcomeCohesion.test.ts src/__tests__/designTokens.test.ts src/__tests__/contrast.test.ts src/__tests__/glass.test.ts "--maxWorkers=1" --no-file-parallelism
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/tmp/glide-w8-cohesion/headless-source/frontend[39m
+
+ [32m✓[39m src/__tests__/glass.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 440[2mms[22m[39m
+ [32m✓[39m src/__tests__/contrast.test.ts [2m([22m[2m166 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/__tests__/designTokens.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 237[2mms[22m[39m
+ [32m✓[39m src/__tests__/cohesion.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/__tests__/welcomeCohesion.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m217 passed[39m[22m[90m (217)[39m
+[2m   Start at [22m 16:51:04
+[2m   Duration [22m 7.59s[2m (transform 2.04s, setup 0ms, import 4.50s, tests 788ms, environment 2ms)[22m
+

@@ -1,0 +1,33 @@
+source: Error encountered while sourcing file '/home/kvn/.local/share/omf/init.fish':
+source: No such file or directory
+
+
+=== typecheck ===
+$ node scripts/typecheck.mjs
+src/__tests__/welcomeCohesion.test.ts(10,85): error TS2339: Property 'toJSON' does not exist on type 'Element'.
+  Property 'toJSON' does not exist on type 'Span'.
+exit=1
+
+=== lint ===
+error: script "typecheck" exited with code 1
+$ node scripts/lint.mjs
+lint: ok (0 file-rule pairs, 0 with ceilings)
+exit=0
+
+=== check:strict ===
+$ node scripts/check-strict.mjs
+check-strict: 5 failure(s) against scripts/strict-ceilings.json:
+  src/glideui/render.tsx: 4 errors, over its ceiling of 0
+  src/view/euiCard.tsx: 1 errors, over its ceiling of 0
+  src/app/stores.ts: 1 errors, over its ceiling of 0
+  src/__tests__/orbitDesign.test.ts: 1 errors, over its ceiling of 0
+  src/__tests__/welcomeCohesion.test.ts: 1 errors, over its ceiling of 0
+error: script "check:strict" exited with code 1
+exit=1
+
+=== check:suppressions ===
+$ node scripts/check-suppressions.mjs
+check-suppressions: 1 suppression(s) with no reason (docs/conventions.md#suppressions):
+  src/__tests__/vendorKitCopy.test.ts:3 @ts-expect-error with no ` -- ` reason
+exit=1
+error: script "check:suppressions" exited with code 1

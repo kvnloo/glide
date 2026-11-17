@@ -1,0 +1,13 @@
+Native captured before welcome
+Native captured before work-tree
+Traceback (most recent call last):
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 143, in <module>
+    if __name__ == '__main__': main()
+                               ~~~~^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 111, in main
+    ctl('click', "[data-role='glide.tabs'] .sf-tab:nth-child(2)")
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/zer0models/worktrees/glide-w8-cohesion/glide/tools/cohesion-native.py", line 41, in ctl
+    raise RuntimeError('ctl rejected '+str(args)+': '+r.stdout+r.stderr)
+RuntimeError: ctl rejected ('click', "[data-role='glide.tabs'] .sf-tab:nth-child(2)"): {"ok":false,"error":"no element matches `[data-role='glide.tabs'] .sf-tab:nth-child(2)`"}
+
