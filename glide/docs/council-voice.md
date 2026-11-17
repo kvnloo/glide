@@ -28,6 +28,6 @@ bun run typecheck
 bun run lint
 ```
 
-The nine added tests cover the exchange projection, constraints, receipt provenance, reduced motion, PCM samples, and speech lifecycle. The full suites run through the fleet-runner CI mirror, not local Vitest.
+The ten added tests cover the exchange projection, constraints, receipt provenance, reduced motion, rendered-label contrast, PCM samples, and speech lifecycle. The full suites run through the fleet-runner CI mirror, not local Vitest.
 
-`glide/tools/council-native.mts` runs the production popup in a native Tern pane without a model or gateway. `glide/tools/council-capture.py OUT_DIR STUDIO_DIR SWAYMSG` captures that pane on an existing headless studio. The capture tool takes the shared heavy lock, waits for more than 6 GiB of available memory, and sends speech to a dedicated null sink. It never uses the live desktop or speakers.
+`glide/tools/council-native.mts` runs the production popup in a native Tern pane without a model or gateway. `glide/tools/council-native-build.mjs` bundles it with the production esbuild/JSX settings and one SDK instance. `glide/tools/council-capture.py OUT_DIR STUDIO_DIR SWAYMSG` builds and captures that pane on an existing headless studio. The capture tool takes the shared heavy lock, waits for more than 6 GiB of available memory, and sends speech to a dedicated null sink. It checks native key/click return, mute, brief/report playback, and a non-silent audio track. It never uses the live desktop or speakers.

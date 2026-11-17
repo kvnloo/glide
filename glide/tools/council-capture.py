@@ -8,6 +8,7 @@ The shared heavy lock and >6 GiB memory gate apply before any GUI process starts
 import fcntl
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import shlex
@@ -38,6 +39,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         print('Waiting for MemAvailable > 6 GiB', flush=True)
         time.sleep(30)
     assert (STUDIO / 'rt/wayland-1').is_socket(), 'Isolated studio unavailable. Do not use the live desktop.'
+    bundle = run(['node', str(ROOT / 'glide/tools/council-native-build.mjs')], cwd=ROOT).strip()
     env = dict(os.environ, XDG_RUNTIME_DIR=str(STUDIO / 'rt'), WAYLAND_DISPLAY='wayland-1',
                XDG_SESSION_TYPE='wayland', TERN_CONFIG_DIR=str(OUT / 'cfg'),
                TERN_DAEMON_SOCKET=str(OUT / 'daemon.sock'), XDG_STATE_HOME=str(OUT / 'state'),
@@ -51,6 +53,10 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     # A null sink accepts real synthesized PCM without playing it on Kevin's speakers.
     module = run(['pactl', 'load-module', 'module-null-sink', 'sink_name=glide_council_w5',
                   'sink_properties=device.description=CouncilVerification,priority.session=0']).strip()
+    # Match the settled state of a profile that has declined Tern's own omp manager prompt.
+    omp = OUT / 'cfg/omp'
+    omp.mkdir(parents=True, exist_ok=True)
+    (omp / 'state.json').write_text(json.dumps({'managed': False, 'checked': 0, 'no_build': False, 'offered': True}))
     ctl = str(OUT / 'ctl.sock')
     window = None
     recorder = None
@@ -67,6 +73,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
             time.sleep(.5)
         # Native account fixture applies only to this owned process and config.
         control('account', 'signed-in', 'atlas')
+        control('appearance', 'dark')
         control('theme', 'dark', 'dash')
         control('resize', '1440', '900')
         for _ in range(60):
@@ -75,7 +82,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
                 break
             time.sleep(.5)
         command = ['env', *[f'{key}={env[key]}' for key in ['PATH', 'LD_LIBRARY_PATH', 'ESPEAK_DATA_PATH', 'PULSE_SERVER', 'PULSE_SINK']],
-                   shutil.which('bun'), str(ROOT / 'glide/tools/council-native.mts')]
+                   shutil.which('node'), bundle]
         control('type', json.dumps('exec ' + shlex.join(command) + ' 2>' + shlex.quote(str(OUT / 'app.log'))))
         control('key', 'Enter')
         for _ in range(60):
@@ -95,7 +102,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         # Only this owned headless client is resized. No host compositor commands.
         run([swaymsg, '-s', sway, f'[pid={window.pid}] floating enable, resize set 1440 900, move position 0 0'], env=env)
         time.sleep(1)
-        recorder = subprocess.Popen(['wf-recorder', '-g', '0,0 1440x900', '-r', '15', '-c', 'libx264',
+        recorder = subprocess.Popen(['wf-recorder', '--audio=glide_council_w5.monitor', '-C', 'aac', '-g', '0,0 1440x900', '-r', '15', '-c', 'libx264',
                                      '-p', 'preset=ultrafast', '-p', 'crf=20', '-f', str(OUT / 'native-raw.mp4'), '-y'],
                                     env=env, stdout=log, stderr=log)
         control('key', 'Enter')
@@ -106,25 +113,31 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         # R during working enables reading the report. The brief reader is exercised on replay below.
         for _ in range(80):
             tree = control('tree')
-            if 'data-council-speaking' in tree:
+            if 'Return to card' in tree:
                 break
             time.sleep(.4)
         (OUT / 'speaking-tree.json').write_text(tree)
-        assert 'data-council-caption' in tree, 'Real platform playback never reached the orb'
+        assert 'Return to card' in tree, 'Real platform playback never reached the orb'
+        time.sleep(.35)  # Let the seekable card-to-orb fade reach its steady state.
         run(['grim', '-g', '0,0 1440x900', str(OUT / 'speaking.png')], env=env)
         control('key', 'x')
         time.sleep(.4)
         tree = control('tree')
-        assert 'data-council-report' in tree and 'data-council-speaking' not in tree, 'Any-key return failed'
+        assert 'VERDICT' in tree and 'RECEIPTS' in tree and 'Return to card' not in tree, 'Any-key return failed'
         run(['grim', '-g', '0,0 1440x900', str(OUT / 'report.png')], env=env)
         (OUT / 'report-tree.json').write_text(tree)
         control('key', 'Enter')
         time.sleep(4)
         tree = control('tree')
-        assert 'data-council-caption' in tree, 'Replay did not read the brief'
-        control('key', 'Escape')
+        assert 'Return to card' in tree, 'Replay did not read the brief'
+        (OUT / 'replay-tree.json').write_text(tree)
+        control('click', '.sf-layer button')
+        time.sleep(.4)
+        tree = control('tree')
+        assert 'Socratic council' in tree and 'Return to card' not in tree, 'Click return failed'
+        control('key', 'm')
         time.sleep(.3)
-        assert 'data-council-report' not in control('tree'), 'Returning from speech must keep the in-progress card'
+        assert 'Unmute' in control('tree'), 'Mute control failed'
         control('key', 'Escape')
         (OUT / 'receipt.json').write_text(json.dumps({'native': True, 'synthetic': True, 'platform_speech': True,
             'audio_sink': 'null', 'any_key_return': True, 'brief_and_report': True, 'memory_kib': memory()}, indent=2))
@@ -145,4 +158,12 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         run(['pactl', 'unload-module', module])
     run(['ffmpeg', '-y', '-i', str(OUT / 'native-raw.mp4'), '-c:v', 'libx264', '-preset', 'veryslow', '-threads', '2',
          '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(OUT / 'council.mp4')])
+    audio = subprocess.run(['ffmpeg', '-hide_banner', '-i', str(OUT / 'council.mp4'), '-vn', '-af', 'volumedetect', '-f', 'null', '-'],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True).stderr
+    (OUT / 'audio-check.txt').write_text(audio)
+    peak = re.search(r'max_volume: (-?[\d.]+) dB', audio)
+    assert peak and float(peak[1]) > -50, 'No audible speech reached the dedicated recording sink'
+    receipt = json.loads((OUT / 'receipt.json').read_text())
+    receipt.update(click_return=True, mute=True, audio_peak_db=float(peak[1]))
+    (OUT / 'receipt.json').write_text(json.dumps(receipt, indent=2))
     print(json.dumps({'stills': [str(OUT / 'brief.png'), str(OUT / 'report.png')], 'clip': str(OUT / 'council.mp4')}))

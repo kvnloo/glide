@@ -1,8 +1,11 @@
 import { closedSeats, COUNCIL_SCHEMA, demoRun, instrumentSvg, narration, parseCouncilRun, schedule } from '../../../glide/frontend/council.js'
 import { deliverySvg, exchangeAt, exchangeTiming, reportClauses } from '../../../glide/frontend/councilExchange.js'
 import { pcmSpeech, type CouncilSpeech, type SpeechAudio } from '../../../glide/frontend/councilSpeech.js'
-import { type CouncilHost, openCouncilPopup } from '../../../glide/frontend/councilPopup.js'
+import { councilCard, type CouncilHost, openCouncilPopup } from '../../../glide/frontend/councilPopup.js'
 import type { Overlay } from '../overlays/overlay.js'
+import type { EuiNode } from '../eui/sandbox.js'
+import { contrastRatio } from '../hermes/theme.js'
+import { NIGHT } from '../../../glide/frontend/tokens.js'
 import { EventEmitter } from 'node:events'
 import { Node, Session, Surface } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
@@ -101,6 +104,21 @@ describe('council exchange', () => {
     expect(view.seats.every(s => s.received)).toBe(true)
     expect(deliverySvg(run, view, 320)).not.toContain('data-envelope=')
     expect(exchangeAt(run, exchangeTiming(run, true).total, true).phase).toBe('done')
+  })
+
+  it('keeps every rendered received-state label readable on the council canvas', () => {
+    const run = demoRun()
+    const colors: string[] = []
+    const walk = (node: EuiNode) => {
+      if (node.t !== 'el') return
+      if (node.kids.some(k => k.t === 'text' && k.text.startsWith('RECEIVED'))) {
+        colors.push(must(node.style.match(/color:(#[0-9a-f]{6})/i)?.[1]))
+      }
+      node.kids.forEach(walk)
+    }
+    walk(councilCard({ run, live: false, from: 'synthetic' }, { t: exchangeTiming(run).working }, 320, true))
+    expect(colors).toHaveLength(run.seats.length)
+    for (const color of colors) expect(contrastRatio(color, NIGHT.canvas)).toBeGreaterThanOrEqual(4.5)
   })
 
   it('accepts optional explicit constraints without breaking v1 snapshots', () => {

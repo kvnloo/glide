@@ -140,12 +140,12 @@ export function councilCard(src: CouncilSource, frame: Frame, size = 480, sideHe
     const state = exchange.seats[i]
     const received = state?.received ?? false
     const stateText = `${received ? 'RECEIVED · ' : ''}${state?.state.toUpperCase() ?? 'WAITING'}`
-    const ink = received ? MINERAL[seat.mineral].base : NIGHT.text3
+    const ink = received ? MINERAL[seat.mineral].light : NIGHT.text3
     const pulse = reading.reduceMotion || state?.state === 'done' || state?.state === 'waiting' ? 1 : .7 + .3 * Math.sin(exchange.elapsed / 220 + i) ** 2
     const stance = open ? [el('span', `${sideHeader ? '' : 'margin-left:auto;'}font-family:${MONO};font-size:${TYPE.meta}px;letter-spacing:${TRACK.wide};color:${STANCE[v.stance].color}`, [text(STANCE[v.stance].label)], { attrs: { 'data-council-stance': v.stance } })] : []
     // A short pane gets one line per seat; the verdict prose lives in the transcript card.
     if (sideHeader) return el('div', `display:flex;gap:6px;align-items:center;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid ${received ? ink : NIGHT.border}`, [
-      svg(state?.state === 'thinking' || state?.state === 'drafting' ? councilOrbSvg(exchange.elapsed / 1000, pulse, Boolean(reading.reduceMotion), MINERAL[seat.mineral].base).replace('width="320" height="320"', 'width="16" height="16"') : swatchSvg(seat.mineral, 16), 16, `flex:none;opacity:${pulse.toFixed(2)}`),
+      svg(state?.state === 'thinking' || state?.state === 'drafting' ? councilOrbSvg(exchange.elapsed / 1000, pulse, Boolean(reading.reduceMotion), MINERAL[seat.mineral].light).replace('width="320" height="320"', 'width="16" height="16"') : swatchSvg(seat.mineral, 16), 16, `flex:none;opacity:${pulse.toFixed(2)}`),
       el('span', `font-family:${SERIF};font-size:15px;color:${NIGHT.text}`, [text(seat.name)]),
       el('span', `font-family:${MONO};font-size:11px;color:${ink}`, [text(stateText)]),
       ...stance
@@ -343,7 +343,7 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
 function councilSpeakingCard(caption: string, orb: string, reduce: boolean, opacity: number): EuiNode {
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (id: number, tag: string, style: string, kids: readonly EuiNode[], attrs: Record<string, string> = {}, click = false): EuiNode => ({ t: 'el', id, tag, cls: '', style, kids, attrs, click })
-  return el(20, 'div', '', [el(RETURN_ID, 'section', `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [
+  return el(20, 'div', '', [el(RETURN_ID, 'section', `position:absolute;inset:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:440px;padding:32px;background-color:${NIGHT.canvas};color:${NIGHT.text};opacity:${opacity}`, [
     { t: 'svg', svg: orb, w: 320, h: 320, cls: '', style: 'max-width:100%;height:auto' },
     el(21, 'p', `margin:0;font-size:${TYPE.name}px;line-height:24px;text-align:center;max-width:720px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, [text(caption)], { 'data-council-caption': '', 'aria-live': 'polite' }),
     el(RETURN_ID, 'button', `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text('Return to card · any key')], { 'data-eui-action': 'return-to-card' }, true)
