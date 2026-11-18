@@ -9,7 +9,9 @@
 #
 #   lab/studio.sh up|down|shot OUT.png|ctl ARGS...
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
-#        openai/gpt-oss-120b), STUDIO_BASE_URL (default Groq), STUDIO_KEY_ENV (default GROQ_API_KEY, read from
+#        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
+#        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
+#        STUDIO_KEY_ENV (default NVIDIA_API_KEY, read from
 #        STUDIO_KEY_FILE, default ~/.hermes/.env; it is copied only into the studio home's .env, mode 600), STUDIO_GW_MEM / STUDIO_TERN_MEM
 #        (cgroup caps, default 1G / 2G). Tern's Stencil sign-in comes from the session keyring: run where Tern is signed in.
 set -euo pipefail
@@ -24,21 +26,21 @@ stop() { for u in glide-studio-tern glide-studio-gw glide-studio-sway; do system
 home() {
   mkdir -p "$H/plugins" "$S/work"
   ln -sfn "$root" "$H/plugins/glide"
-  python3 - "$H" "${STUDIO_MODEL:-openai/gpt-oss-120b}" "${STUDIO_BASE_URL:-https://api.groq.com/openai/v1}" <<'PY'
+  python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL:-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
 import json, sys, pathlib
-home, model, base = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+home, model, base, provider = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
 (home / "config.yaml").write_text(json.dumps({
-    "model": {"provider": "custom", "default": model, "base_url": base},
+    "model": {"provider": provider, "default": model, "base_url": base},
     "approvals": {"mode": "off"},
     "auxiliary": {"title_generation": {"enabled": False}},
     "plugins": {"enabled": ["glide"], "disabled": []},
     "telemetry": {"shared_metrics": {"enabled": False, "send": False, "offer_version": 2}},
 }, indent=2))
 PY
-  local key_env=${STUDIO_KEY_ENV:-GROQ_API_KEY} key
+  local key_env=${STUDIO_KEY_ENV:-NVIDIA_API_KEY} key
   key=$(grep -m1 "^$key_env=" "${STUDIO_KEY_FILE:-$HOME/.hermes/.env}" | cut -d= -f2-)
   [ -n "$key" ] || { echo "studio: no $key_env in ~/.hermes/.env" >&2; exit 1; }
-  (umask 077; printf 'OPENAI_API_KEY=%s\n' "$key" > "$H/.env")
+  (umask 077; printf '%s=%s\n' "$key_env" "$key" > "$H/.env")
 }
 
 up() {
