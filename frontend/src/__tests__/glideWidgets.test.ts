@@ -126,7 +126,7 @@ describe('GlideWidgets', () => {
   it('reads only well-formed mounts from settings.json', () => {
     const h = home({ rev: 2, widgets: [{ id: 'commits', slot: 'below-composer', source: 'git.commits', program: COMMITS }, { id: 'Bad Id', slot: 'x' }] })
     expect(readUi(h.file).widgets.map(w => w.id)).toEqual(['commits'])
-    expect(readUi(join(h.file, 'missing'))).toEqual({ rev: 0, widgets: [] })
+    expect(readUi(join(h.file, 'missing'))).toEqual({ rev: 0, widgets: [], pages: [] })
   })
 
   it('mounts a valid program under the composer, reports it, and re-binds when the source refreshes', async () => {

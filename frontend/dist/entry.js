@@ -23918,7 +23918,7 @@ function roleChoices(role, current = []) {
   const ids = (ROLE_MODELS[role] ?? []).map((x) => x.id);
   return [.../* @__PURE__ */ new Set([...ids, ...current.filter(Boolean)])];
 }
-var deepen = (hex2) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex2.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
+var deepen = (hex3) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex3.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
 var providerHue = (id3, dark) => dark ? PROVIDERS[id3].hue : deepen(PROVIDERS[id3].hue);
 
 // ../glide/frontend/tokens.ts
@@ -25203,7 +25203,7 @@ var clip2 = (s2, n5) => s2.length > n5 ? s2.slice(0, n5 - 1) + "\u2026" : s2;
 var LANES_GLASS = "rgba(12,12,10,0.88)";
 var SPACE = { t: "text", text: " " };
 var spaced = (kids2) => kids2.flatMap((k, i) => i > 0 && k.t === "el" && kids2[i - 1]?.t === "el" ? [SPACE, k] : [k]);
-var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
+var rgba = (hex3, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16)).join(",")},${a2})`;
 var ROLES_SHOWN = ["fast", "small", "large", "council"];
 var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
 var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
@@ -25476,8 +25476,8 @@ var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
 var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
 function skinBackground(colors, polarity) {
   const value = (colors["background"] ?? "").trim();
-  const hex2 = value.startsWith("#") ? value : `#${value}`;
-  return value && relativeLuminance(hex2) !== null ? hex2 : SEEDS[polarity].bg;
+  const hex3 = value.startsWith("#") ? value : `#${value}`;
+  return value && relativeLuminance(hex3) !== null ? hex3 : SEEDS[polarity].bg;
 }
 function skinColors(colors, polarity) {
   const seeds = SEEDS[polarity];
@@ -25511,8 +25511,8 @@ var cleanFocus = {
   }
 };
 var DASH_CLEAN = { accent: DASH.gold, alt: ROLE_RAMP.small.dark, error: DASH.error, bg: DASH.bg };
-function hueSat(hex2) {
-  const ch = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+function hueSat(hex3) {
+  const ch = (i) => parseInt(hex3.slice(i, i + 2), 16) / 255;
   const r = ch(1), g = ch(3), b = ch(5);
   const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
   const h2 = d === 0 ? 0 : max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
@@ -27890,8 +27890,8 @@ import { basename as basename2, dirname as dirname2, join as join3 } from "node:
 
 // ../glide/frontend/glass.ts
 var HEX = /^#[0-9a-f]{6}$/i;
-function hsl(hex2) {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16) / 255);
+function hsl(hex3) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16) / 255);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const d = max - min;
@@ -27901,8 +27901,8 @@ function hsl(hex2) {
   const h2 = max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return { h: (h2 * 60 + 360) % 360, s: s2, l };
 }
-function saturateHex(hex2, s2) {
-  const rgb = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+function saturateHex(hex3, s2) {
+  const rgb = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16));
   const m2 = [
     [0.213 + 0.787 * s2, 0.715 - 0.715 * s2, 0.072 - 0.072 * s2],
     [0.213 - 0.213 * s2, 0.715 + 0.285 * s2, 0.072 - 0.072 * s2],
@@ -27958,8 +27958,8 @@ var HEAD = `${K} .eui-host-head`;
 var INNER = ".sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text";
 var RIMMED = [CARD, EDITOR, POPUP, LANES];
 var after = (sel) => sel.map((s2) => `${s2}::after`).join(", ");
-var rgba2 = (hex2, pct2) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+var rgba2 = (hex3, pct2) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16));
   return `rgba(${r},${g},${b},${Math.round(Math.min(100, pct2)) / 100})`;
 };
 function glassCss(p3) {
@@ -28045,9 +28045,9 @@ var PLAY_SHEET = "glide-glass-play";
 var PLAY_SECONDS = 10;
 var playInks = (p3) => [p3.fg, p3.accent, p3.glow, p3.muted, p3.dim, p3.error, p3.success, p3.warning, ...NIGHT_INKS];
 var stepsTo = (pct2) => [.../* @__PURE__ */ new Set([...SATURATE_STEPS.filter((s2) => s2 <= pct2 / 100), pct2 / 100])];
-function hueAt(ref, hex2) {
+function hueAt(ref, hex3) {
   const want = relativeLuminance(ref) ?? 0;
-  const hot = saturateHex(hex2, 1.8);
+  const hot = saturateHex(hex3, 1.8);
   let lo = 0;
   let hi = 1;
   for (let i = 0; i < 16; i++) {
@@ -28127,8 +28127,8 @@ function readWal(file2) {
   }
   return { special: { background, foreground }, colors };
 }
-function saturation(hex2) {
-  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+function saturation(hex3) {
+  const channel = (i) => parseInt(hex3.slice(i, i + 2), 16) / 255;
   const [r, g, b] = [channel(1), channel(3), channel(5)];
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
@@ -32302,8 +32302,8 @@ var WHOLE_PAGE = 500;
 var WHOLE_PAGES = 100;
 var LATEST_PAGE = 100;
 async function latestCompactions(gw2, sid) {
-  const page = await readTranscript(gw2, sid, null, LATEST_PAGE);
-  return page.rows.flatMap((row2) => compactionOf(row2) ?? []);
+  const page2 = await readTranscript(gw2, sid, null, LATEST_PAGE);
+  return page2.rows.flatMap((row2) => compactionOf(row2) ?? []);
 }
 async function allCompactions(gw2, sid, wanted) {
   const pages = [];
@@ -32311,15 +32311,15 @@ async function allCompactions(gw2, sid, wanted) {
   let calls = 0;
   do {
     calls++;
-    const page = await readTranscript(gw2, sid, cursor, WHOLE_PAGE);
+    const page2 = await readTranscript(gw2, sid, cursor, WHOLE_PAGE);
     if (!wanted()) {
       return void 0;
     }
-    if (page.reset && cursor !== null) {
+    if (page2.reset && cursor !== null) {
       pages.length = 0;
     }
-    pages.unshift(page.rows.flatMap((row2) => compactionOf(row2) ?? []));
-    cursor = page.next_cursor;
+    pages.unshift(page2.rows.flatMap((row2) => compactionOf(row2) ?? []));
+    cursor = page2.next_cursor;
   } while (cursor && calls < WHOLE_PAGES);
   return pages.flat();
 }
@@ -33001,6 +33001,98 @@ function focusDoc(startedAt, minutes, now) {
   };
 }
 
+// src/glideui/pages.ts
+import { pathToFileURL as pathToFileURL2 } from "node:url";
+var PAGE_HOWS = ["over", "beside", "below"];
+var pageUrl = (path2) => pathToFileURL2(path2).href;
+var hex = (v) => v && /^#[0-9a-f]{6}$/i.test(v) ? v : void 0;
+var luma = (h2) => {
+  const n5 = parseInt(h2.slice(1), 16);
+  return (0.2126 * (n5 >> 16) + 0.7152 * (n5 >> 8 & 255) + 0.0722 * (n5 & 255)) / 255;
+};
+function pageThemeOf(wal, palette) {
+  if (wal) return { dark: wal.dark, bg: wal.bg, surface: wal.layers[0] ?? wal.bg, fg: wal.fg, muted: wal.muted, accent: wal.accent, accentInk: wal.accentInk };
+  const t = palette?.dark ?? palette?.light;
+  const fg = hex(t?.["text"]);
+  const accent = hex(t?.["accent"]);
+  if (!t || !fg || !accent) return void 0;
+  const dark = luma(fg) > 0.5;
+  return { dark, bg: dark ? "#0e0c14" : "#f5f1ea", surface: dark ? "#17141f" : "#ece6dc", fg, muted: hex(t["muted"]) ?? fg, accent, accentInk: luma(accent) > 0.55 ? "#111111" : "#ffffff" };
+}
+function themeFunction(t) {
+  const vars = {
+    "--glide-bg": t.bg,
+    "--glide-surface": t.surface,
+    "--glide-fg": t.fg,
+    "--glide-muted": t.muted,
+    "--glide-accent": t.accent,
+    "--glide-accent-ink": t.accentInk
+  };
+  return `function () {
+  const t = ${JSON.stringify(t)}, v = ${JSON.stringify(vars)}, s = document.documentElement.style
+  for (const k in v) s.setProperty(k, v[k])
+  s.colorScheme = t.dark ? 'dark' : 'light'
+  document.documentElement.dataset.glideTheme = t.dark ? 'dark' : 'light'
+  window.__glideTheme = t
+  window.dispatchEvent(new CustomEvent('glide-theme', { detail: t }))
+  return true
+}`;
+}
+var GlidePages = class {
+  #browser;
+  #owner;
+  /** id → the `opened` stamp handled and the block it opened in. */
+  #open = /* @__PURE__ */ new Map();
+  #theme;
+  constructor(browser2, owner2) {
+    this.#browser = browser2;
+    this.#owner = owner2;
+  }
+  /** Opens every page asked for since it was last handled; the verdict per page handled now. */
+  async sync(pages) {
+    const out = {};
+    for (const p3 of pages) {
+      if (this.#open.get(p3.id)?.opened === p3.opened) continue;
+      out[p3.id] = await this.#openOne(p3);
+    }
+    for (const id3 of [...this.#open.keys()]) if (!pages.some((p3) => p3.id === id3)) this.#open.delete(id3);
+    return out;
+  }
+  /** The surface's colors changed: every open page wears them. A page whose block is gone is forgotten. */
+  async restyle(theme) {
+    this.#theme = theme;
+    if (!theme) return;
+    for (const [id3, o] of this.#open) {
+      await this.#apply(o.block).catch(() => this.#open.delete(id3));
+    }
+  }
+  async #openOne(p3) {
+    const owner2 = this.#owner();
+    if (owner2 === void 0) return { ok: false, problems: ["not inside a Tern pane"] };
+    const known3 = this.#open.get(p3.id);
+    try {
+      let block;
+      if (known3) {
+        block = await this.#browser({ op: "goto", block: known3.block, url: pageUrl(p3.path) }).then(() => known3.block, () => void 0);
+      }
+      if (block === void 0) {
+        const opened = await this.#browser({ op: "open", owner: owner2, url: pageUrl(p3.path), how: p3.how });
+        if (typeof opened["block"] !== "number") return { ok: false, problems: ["tern browser opened no block"] };
+        block = opened["block"];
+      }
+      this.#open.set(p3.id, { opened: p3.opened, block });
+      await this.#apply(block).catch(() => void 0);
+      setTimeout(() => void this.#apply(block).catch(() => void 0), 800).unref?.();
+      return { ok: true, block };
+    } catch (error) {
+      return { ok: false, problems: [error instanceof Error ? error.message : String(error)] };
+    }
+  }
+  async #apply(block) {
+    if (this.#theme) await this.#browser({ op: "eval", block, world: "page", function: themeFunction(this.#theme) });
+  }
+};
+
 // src/wire/files.ts
 function readJsonFile(file2) {
   try {
@@ -33040,13 +33132,21 @@ var mount = object({
   startedAt: loose(number2()),
   glow: loose(boolean2())
 });
+var page = object({
+  id: string2().check(_regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
+  title: string2().check(_maxLength(60)),
+  path: string2().check(_regex(/^\/.*\.html?$/i)),
+  how: _catch(_enum(PAGE_HOWS), "over"),
+  opened: _catch(number2(), 0)
+});
 var uiState = _catch(
   object({
     rev: _catch(number2(), 0),
     widgets: _catch(pipe(array(_catch(nullable(mount), null)), transform((list10) => list10.filter((w) => w !== null))), []),
+    pages: _catch(pipe(array(_catch(nullable(page), null)), transform((list10) => list10.filter((p3) => p3 !== null))), []),
     style: loose(object({ warmth: loose(number2()), accent: loose(string2().check(_regex(/^#[0-9a-f]{6}$/i))) }))
   }),
-  { rev: 0, widgets: [] }
+  { rev: 0, widgets: [], pages: [] }
 );
 function readUi(file2) {
   const stored = readJsonFile(file2);
@@ -34581,20 +34681,20 @@ var SubagentTranscript = class {
   async read() {
     let changed = false;
     for (let i = 0; i < MAX_PAGES; i++) {
-      const page = await this.#page();
-      this.running = page.running ?? false;
-      this.available = page.available ?? false;
+      const page2 = await this.#page();
+      this.running = page2.running ?? false;
+      this.available = page2.available ?? false;
       this.#endedUnavailable = !this.running && !this.available ? this.#endedUnavailable + 1 : 0;
-      if (page.reset) {
-        changed ||= this.rows.length > 0 || page.rows.length > 0;
-        this.rows = [...page.rows];
+      if (page2.reset) {
+        changed ||= this.rows.length > 0 || page2.rows.length > 0;
+        this.rows = [...page2.rows];
       } else {
-        changed ||= page.rows.length > 0;
-        this.rows.push(...page.rows);
+        changed ||= page2.rows.length > 0;
+        this.rows.push(...page2.rows);
       }
-      this.#cursor = page.next_cursor ?? this.#cursor;
-      this.#caughtUp = page.rows.length === 0;
-      if (this.#caughtUp || !page.next_cursor) {
+      this.#cursor = page2.next_cursor ?? this.#cursor;
+      this.#caughtUp = page2.rows.length === 0;
+      if (this.#caughtUp || !page2.next_cursor) {
         break;
       }
     }
@@ -36361,8 +36461,8 @@ function hasRetainedWeb(call) {
 function retainedResultText(candidate) {
   if (!candidate.web) return retainedGenericText(candidate.call);
   if (candidate.call.result !== candidate.web.result) return void 0;
-  const page = webPage(candidate.call, candidate.web.index);
-  return page && page.row === candidate.web.row ? page.text : void 0;
+  const page2 = webPage(candidate.call, candidate.web.index);
+  return page2 && page2.row === candidate.web.row ? page2.text : void 0;
 }
 function retainedResults(entries2) {
   const out = [];
@@ -36390,13 +36490,13 @@ function retainedResults(entries2) {
       const rows2 = resultOf(call)?.["results"];
       if (!Array.isArray(rows2)) continue;
       for (let index2 = 0; index2 < rows2.length; index2++) {
-        const page = webPage(call, index2);
-        if (page) add2({
+        const page2 = webPage(call, index2);
+        if (page2) add2({
           call,
-          text: page.text,
+          text: page2.text,
           turn: entry,
           rev: entry.rev,
-          web: { index: index2, ordinal, result: call.result, row: page.row }
+          web: { index: index2, ordinal, result: call.result, row: page2.row }
         });
       }
     }
@@ -37773,7 +37873,7 @@ function v4aValidationFailure(call) {
 
 // src/view/tools/lsp-links.ts
 import { isAbsolute as isAbsolute4, resolve as resolve4 } from "node:path";
-import { pathToFileURL as pathToFileURL2 } from "node:url";
+import { pathToFileURL as pathToFileURL3 } from "node:url";
 var SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 function safePath(path2) {
   return Boolean(path2.trim()) && !SCHEME.test(path2) && !path2.startsWith("//") && !Array.from(path2).some((char) => {
@@ -37793,7 +37893,7 @@ function lspFileHref(path2, context, range2) {
     return void 0;
   }
   try {
-    const url = pathToFileURL2(isAbsolute4(path2) ? path2 : resolve4(context.cwd, path2));
+    const url = pathToFileURL3(isAbsolute4(path2) ? path2 : resolve4(context.cwd, path2));
     if (range2 && Number.isSafeInteger(range2.start.line) && range2.start.line > 0 && Number.isSafeInteger(range2.start.col) && range2.start.col > 0) {
       const end = Number.isSafeInteger(range2.end.line) && range2.end.line > range2.start.line ? "-L" + range2.end.line : "C" + range2.start.col;
       url.hash = "L" + range2.start.line + end;
@@ -52306,8 +52406,8 @@ function decode2($0, $1, $22) {
   const head2 = $22.charCodeAt(0);
   if (head2 === 35) {
     const head3 = $22.charCodeAt(1);
-    const hex2 = head3 === 120 || head3 === 88;
-    return decodeNumericCharacterReference($22.slice(hex2 ? 2 : 1), hex2 ? 16 : 10);
+    const hex3 = head3 === 120 || head3 === 88;
+    return decodeNumericCharacterReference($22.slice(hex3 ? 2 : 1), hex3 ? 16 : 10);
   }
   return decodeNamedCharacterReference($22) || $0;
 }
@@ -74260,10 +74360,10 @@ var PreviewLoader = class {
     this.#cache.set(id3, entry);
     this.#changed();
     try {
-      const page = await this.#reader.page(id3, null, this.#pageSize);
+      const page2 = await this.#reader.page(id3, null, this.#pageSize);
       entry.status = "ready";
-      entry.next = page.next;
-      this.#keep(entry, page.rows);
+      entry.next = page2.next;
+      this.#keep(entry, page2.rows);
     } catch (error) {
       entry.status = "error";
       entry.error = errorText(error);
@@ -74276,13 +74376,13 @@ var PreviewLoader = class {
     this.#changed();
     try {
       for (let i = 0; i < EMPTY_PAGES && entry.next !== null; i++) {
-        const page = await this.#reader.page(id3, entry.next, this.#pageSize);
-        entry.next = page.next;
-        if (page.reset) {
+        const page2 = await this.#reader.page(id3, entry.next, this.#pageSize);
+        entry.next = page2.next;
+        if (page2.reset) {
           entry.rows = [];
           entry.seen.clear();
         }
-        if (this.#keep(entry, page.rows)) {
+        if (this.#keep(entry, page2.rows)) {
           break;
         }
       }
@@ -75242,11 +75342,11 @@ function openToolResults(host2) {
         return;
       }
       const candidate = current();
-      const page = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
-      if (!candidate || !page || page.end >= candidate.text.length) {
+      const page2 = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
+      if (!candidate || !page2 || page2.end >= candidate.text.length) {
         return;
       }
-      starts = [...starts, page.end];
+      starts = [...starts, page2.end];
     }
     revision++;
     host2.changed();
@@ -75267,7 +75367,7 @@ function openToolResults(host2) {
       const members = membership();
       const selectedResult = current();
       const candidate = owns() && selectedResult && present(selectedResult, members) ? selectedResult : void 0;
-      const page = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
+      const page2 = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
       const items = (owns() ? results : []).flatMap((result, index2) => present(result, members) ? [{
         id: String(index2),
         label: result.web ? `web_extract #${result.web.ordinal} \xB7 entry ${result.web.index + 1}` : safeResultText(result.call.name.slice(0, 100).replace(/[\ud800-\udbff]$/u, "\uFFFD")),
@@ -75277,8 +75377,8 @@ function openToolResults(host2) {
         "picker",
         {
           actions: [
-            { ...!page || starts.length === 1 ? { disabled: "First page" } : {}, id: "previous", keys: ["p"], label: "Previous" },
-            { ...!page || !candidate || page.end >= candidate.text.length ? { disabled: "Last page" } : starts.length >= RESULT_PAGE_LIMIT ? { disabled: "Page limit reached" } : {}, id: "next", keys: ["n"], label: "Next" },
+            { ...!page2 || starts.length === 1 ? { disabled: "First page" } : {}, id: "previous", keys: ["p"], label: "Previous" },
+            { ...!page2 || !candidate || page2.end >= candidate.text.length ? { disabled: "Last page" } : starts.length >= RESULT_PAGE_LIMIT ? { disabled: "Page limit reached" } : {}, id: "next", keys: ["n"], label: "Next" },
             { end: true, id: "close", keys: ["esc"], label: "Close" }
           ],
           empty: !source3.live ? "A live session is required." : results.length ? "This result is no longer available." : "No long retained text results in this session.",
@@ -75294,8 +75394,8 @@ function openToolResults(host2) {
           title: "80 most recent long retained results",
           total: items.length,
           children: candidate ? /* @__PURE__ */ jsxs("col", { children: [
-            /* @__PURE__ */ jsx("text", { text: `Page ${starts.length}${starts.length >= RESULT_PAGE_LIMIT && page && page.end < candidate.text.length ? " \xB7 inspection limit reached" : ""}. Retained text may already be truncated upstream; control characters are replaced.`, wrap: "word" }, "notice"),
-            page ? /* @__PURE__ */ jsx("code", { lang: "text", text: page.text, wrap: true }, "content") : /* @__PURE__ */ jsx("text", { text: "This page contains an oversized character sequence and cannot be shown safely.", wrap: "word" }, "unavailable")
+            /* @__PURE__ */ jsx("text", { text: `Page ${starts.length}${starts.length >= RESULT_PAGE_LIMIT && page2 && page2.end < candidate.text.length ? " \xB7 inspection limit reached" : ""}. Retained text may already be truncated upstream; control characters are replaced.`, wrap: "word" }, "notice"),
+            page2 ? /* @__PURE__ */ jsx("code", { lang: "text", text: page2.text, wrap: true }, "content") : /* @__PURE__ */ jsx("text", { text: "This page contains an oversized character sequence and cannot be shown safely.", wrap: "word" }, "unavailable")
           ] }, "page") : null
         },
         `view-${stamp}`
@@ -75496,11 +75596,11 @@ function recentVisualCandidates(entries2, scope2) {
 import { constants } from "node:fs";
 import { open as open2, realpath } from "node:fs/promises";
 import { isAbsolute as isAbsolute7 } from "node:path";
-import { pathToFileURL as pathToFileURL5 } from "node:url";
+import { pathToFileURL as pathToFileURL6 } from "node:url";
 
 // src/wire/card.ts
 import { basename as basename5, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
-import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL3 } from "node:url";
+import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL4 } from "node:url";
 function isCardContract(value) {
   const module = record(value);
   return Boolean(
@@ -75511,7 +75611,7 @@ function packagedCardUrl() {
   const here = dirname4(fileURLToPath5(import.meta.url));
   const source3 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
   const frontend = source3 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL3(join10(frontend, "openui/card.mjs")).href;
+  return pathToFileURL4(join10(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -75531,7 +75631,7 @@ async function openCardContract() {
 
 // src/wire/openui.ts
 import { basename as basename6, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
-import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
+import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL5 } from "node:url";
 import { readFile as readFile4 } from "node:fs/promises";
 function isOpenUiContract(value) {
   const module = record(value);
@@ -75543,7 +75643,7 @@ function packagedOpenUiUrl(path2) {
   const here = dirname5(fileURLToPath6(import.meta.url));
   const source3 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
   const frontend = source3 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL4(join11(frontend, "openui", path2)).href;
+  return pathToFileURL5(join11(frontend, "openui", path2)).href;
 }
 var packagedValidatorUrl = () => packagedOpenUiUrl("openui-preview/src/bundle.mjs");
 async function openUiContract() {
@@ -75752,7 +75852,7 @@ async function readPreparedVisual(path2, scope2, signal) {
     return Object.freeze({
       ...summarizeCard(prepared.card, prepared.id),
       path: loaded.path,
-      href: pathToFileURL5(loaded.path).href
+      href: pathToFileURL6(loaded.path).href
     });
   }
   const tools2 = await openUiContract();
@@ -75761,7 +75861,7 @@ async function readPreparedVisual(path2, scope2, signal) {
   const current = await tools2.fingerprints();
   signal?.throwIfAborted();
   tools2.assertCurrent(bundle, scope2, current);
-  return Object.freeze({ ...summarizeVisual(bundle), path: loaded.path, href: pathToFileURL5(loaded.path).href });
+  return Object.freeze({ ...summarizeVisual(bundle), path: loaded.path, href: pathToFileURL6(loaded.path).href });
 }
 
 // src/overlays/visual.tsx
@@ -76364,10 +76464,10 @@ function tag2(name, attrs, kids2 = "") {
   return kids2 ? `<${name}${a2}>${kids2}</${name}>` : `<${name}${a2}/>`;
 }
 var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
-var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
+var hex2 = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
 var toHex2 = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
 var mix2 = (a2, b, t) => {
-  const x = hex(a2), y = hex(b);
+  const x = hex2(a2), y = hex2(b);
   return toHex2(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
 };
 var D = Math.PI / 180;
@@ -102162,6 +102262,7 @@ var GlideWidgets = class {
   #unwatch;
   #tick;
   #closed = false;
+  #pages = /* @__PURE__ */ new Map();
   constructor(host2) {
     this.#host = host2;
   }
@@ -102205,6 +102306,9 @@ var GlideWidgets = class {
     }
     for (const id3 of [...this.#compiled.keys()]) if (!state.widgets.some((w) => w.id === id3)) this.#compiled.delete(id3);
     this.#problems = new Map(state.widgets.map((w) => [w.id, this.#check(w)]));
+    const pages = this.#host.pages;
+    if (pages) for (const [id3, v] of Object.entries(await pages.sync(state.pages ?? []))) this.#pages.set(id3, v);
+    if (this.#state !== state) return;
     this.#report(state, palette);
     this.#schedule();
     this.#host.changed();
@@ -102311,7 +102415,11 @@ var GlideWidgets = class {
       return [w.id, problems.length ? { ok: false, problems } : { ok: true }];
     }));
     const style2 = palette ? checkPalette(palette) : [];
-    const status = { rev: state.rev, at: Date.now(), widgets, style: style2.length ? { ok: false, problems: style2 } : { ok: true } };
+    const pages = Object.fromEntries((state.pages ?? []).flatMap((p3) => {
+      const v = this.#pages.get(p3.id);
+      return v ? [[p3.id, v]] : [];
+    }));
+    const status = { rev: state.rev, at: Date.now(), widgets, pages, style: style2.length ? { ok: false, problems: style2 } : { ok: true } };
     try {
       writeFileSync5(statusFile(this.#host.file), `${JSON.stringify(status, null, 2)}
 `);
@@ -104023,8 +104131,8 @@ var PullRequests = class {
       get: (e) => e.files,
       read: async (e) => {
         const files = [];
-        for (let page = 1; page <= 3; page++) {
-          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page}`);
+        for (let page2 = 1; page2 <= 3; page2++) {
+          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
           files.push(...parseFiles(rows2));
           if (pageLength(rows2) < 100) {
             break;
@@ -107843,8 +107951,11 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const laneFeed = laneFeedFromEnv(changed);
   laneFeed?.start();
+  const pages = new GlidePages(ternBrowser, paneBlock);
+  let themeRef;
   const widgets = new GlideWidgets({
     file: settingsFile2(),
+    pages,
     changed,
     cwd: () => session2.info?.cwd || void 0,
     restyled: () => {
@@ -107861,6 +107972,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     palette: (palette) => {
       setSvgInk(palette);
       surface().palette(palette);
+      void pages.restyle(pageThemeOf(themeRef?.wal, palette));
     },
     // Kept with the card sheets so a recovered surface gets the wallpaper variables again.
     stylesheet: (name, css2) => {
@@ -107872,6 +107984,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     style: () => widgets.style,
     settings: settings2
   }, process.env["GLIDE_AUTO_THEME"] === "1" ? "auto" : saved.theme ?? "tern");
+  themeRef = theme;
   const completion2 = new Completion(chat, gw2, () => session2.ref.live, () => session2.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
   return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree };
@@ -108456,8 +108569,8 @@ function randomUuid() {
   }
   bytes[6] = bytes[6] & 15 | 64;
   bytes[8] = bytes[8] & 63 | 128;
-  const hex2 = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `${hex2.slice(0, 8)}-${hex2.slice(8, 12)}-${hex2.slice(12, 16)}-${hex2.slice(16, 20)}-${hex2.slice(20)}`;
+  const hex3 = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex3.slice(0, 8)}-${hex3.slice(8, 12)}-${hex3.slice(12, 16)}-${hex3.slice(16, 20)}-${hex3.slice(20)}`;
 }
 
 // node_modules/@hermes/shared/src/gateway-canonical.ts

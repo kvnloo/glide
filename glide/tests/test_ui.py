@@ -104,6 +104,54 @@ def test_register_adds_the_three_tools():
                                 register_tool=lambda **kw: tools.__setitem__(kw["name"], kw),
                                 register_system_prompt_section=lambda id, content: sections.__setitem__(id, content))
     plugin.register(ctx)
-    assert sorted(tools) == ["glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
+    assert sorted(tools) == ["glide_page_open", "glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
     assert "never the model's temperature" in sections["glide.ui"]
     assert all(t["toolset"] == "glide" and t["schema"]["name"] == n for n, t in tools.items())
+
+
+def test_page_open_lists_and_reports_the_panes_verdict(tmp_path):
+    home = _home(tmp_path)
+    page = tmp_path / "blockworld.html"
+    page.write_text("<!doctype html><title>Blockworld</title>")
+    stop = _pane(home, lambda ids: {"widgets": {}, "pages": {"blockworld": {"ok": True, "block": 7}}})
+    try:
+        out = ui.open_page(home, {"id": "blockworld", "title": "Blockworld", "path": str(page)}, wait=2, now=5)
+    finally:
+        stop.set()
+    assert out == {"ok": True, "page": "blockworld", "opened": True, "how": "over"}
+    assert ui.state(home)["pages"] == [{"id": "blockworld", "title": "Blockworld", "path": str(page.resolve()), "how": "over", "opened": 5000}]
+
+
+def test_page_open_keeps_widgets_and_replaces_the_same_id(tmp_path):
+    home = _home(tmp_path)
+    page = tmp_path / "p.html"
+    page.write_text("<p>x</p>")
+    ui.mount(home, {"id": "commits", "slot": "below-composer", "source": "git.commits", "program": COMMITS}, wait=0)
+    ui.open_page(home, {"id": "piano", "title": "Piano", "path": str(page)}, wait=0, now=1)
+    ui.open_page(home, {"id": "piano", "title": "Piano 2", "path": str(page), "how": "beside"}, wait=0, now=2)
+    s = ui.state(home)
+    assert [w["id"] for w in s["widgets"]] == ["commits"]
+    assert [(p["title"], p["how"], p["opened"]) for p in s["pages"]] == [("Piano 2", "beside", 2000)]
+    ui.unmount(home, {"id": "commits"})
+    assert [p["id"] for p in ui.state(home)["pages"]] == ["piano"]
+
+
+def test_page_open_refuses_a_missing_or_non_html_file(tmp_path):
+    home = _home(tmp_path)
+    (tmp_path / "a.txt").write_text("x")
+    assert "write the page first" in ui.open_page(home, {"id": "a", "title": "A", "path": str(tmp_path / "no.html")}, wait=0)["error"]
+    assert ".html" in ui.open_page(home, {"id": "a", "title": "A", "path": str(tmp_path / "a.txt")}, wait=0)["error"]
+    assert ".html" in ui.open_page(home, {"id": "a", "title": "A", "path": "rel.html"}, wait=0)["error"]
+    assert ui.open_page(home, {"id": "a", "title": "A", "path": str(tmp_path / "a.txt"), "how": "sideways"}, wait=0)["error"].startswith("how")
+
+
+def test_page_the_pane_rejects_reports_problems(tmp_path):
+    home = _home(tmp_path)
+    page = tmp_path / "p.html"
+    page.write_text("<p>x</p>")
+    stop = _pane(home, lambda ids: {"widgets": {}, "pages": {"p": {"ok": False, "problems": ["not inside a Tern pane"]}}})
+    try:
+        out = ui.open_page(home, {"id": "p", "title": "P", "path": str(page)}, wait=2)
+    finally:
+        stop.set()
+    assert out == {"ok": False, "page": "p", "opened": False, "problems": ["not inside a Tern pane"]}

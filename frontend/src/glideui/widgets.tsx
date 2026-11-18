@@ -19,6 +19,7 @@ import { checkMarkup, checkPalette, checkTree } from './checks.js'
 import type { GlideDoc, UiNode } from './library.js'
 import { MOTION_CSS, MOTION_SHEET } from './motion.js'
 import { commitsDoc, focusDoc, type UiState, type WidgetMount, type WidgetSlot } from './mounts.js'
+import type { GlidePages, PageVerdict } from './pages.js'
 import { glide, type Glide } from './program.js'
 import { node, RING_SHEET, ringCss, UI_CSS, UI_SHEET, type UiRender } from './render.js'
 
@@ -38,6 +39,8 @@ export interface WidgetsHost {
   glide?(): Promise<Glide>
   /** Puts sheet `name` on the surface if it differs; called while widgets are drawn, so a recovered surface gets it back. */
   sheet?(name: string, css: string): void
+  /** Opens the agent's pages (the theme restyles them); none: pages are listed but not opened. */
+  readonly pages?: GlidePages | undefined
 }
 
 /** Where the pane reports each mount's verdict for the tools (`<home>/glide/ui-status.json`). */
@@ -66,6 +69,7 @@ export class GlideWidgets {
   #unwatch: (() => void) | undefined
   #tick: NodeJS.Timeout | undefined
   #closed = false
+  #pages = new Map<string, PageVerdict>()
 
   constructor(host: WidgetsHost) {
     this.#host = host
@@ -111,6 +115,9 @@ export class GlideWidgets {
     }
     for (const id of [...this.#compiled.keys()]) if (!state.widgets.some(w => w.id === id)) this.#compiled.delete(id)
     this.#problems = new Map(state.widgets.map(w => [w.id, this.#check(w)]))
+    const pages = this.#host.pages
+    if (pages) for (const [id, v] of Object.entries(await pages.sync(state.pages ?? []))) this.#pages.set(id, v)
+    if (this.#state !== state) return
     this.#report(state, palette)
     this.#schedule()
     this.#host.changed()
@@ -227,7 +234,8 @@ export class GlideWidgets {
       return [w.id, problems.length ? { ok: false, problems } : { ok: true }]
     }))
     const style = palette ? checkPalette(palette) : []
-    const status = { rev: state.rev, at: Date.now(), widgets, style: style.length ? { ok: false, problems: style } : { ok: true } }
+    const pages = Object.fromEntries((state.pages ?? []).flatMap(p => { const v = this.#pages.get(p.id); return v ? [[p.id, v]] : [] }))
+    const status = { rev: state.rev, at: Date.now(), widgets, pages, style: style.length ? { ok: false, problems: style } : { ok: true } }
     try {
       writeFileSync(statusFile(this.#host.file), `${JSON.stringify(status, null, 2)}\n`)
     } catch {

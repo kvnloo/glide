@@ -4,6 +4,7 @@
 // widget updates itself without the model writing it again. The documents here are pure; widgets.ts reads.
 
 import { slot, type GlideDoc } from './library.js'
+import type { PageMount } from './pages.js'
 
 export const WIDGET_SLOTS = ['above-composer', 'below-composer', 'composer-ring', 'sidebar'] as const
 export type WidgetSlot = (typeof WIDGET_SLOTS)[number]
@@ -26,6 +27,8 @@ export interface WidgetMount {
 export interface UiState {
   readonly rev: number
   readonly widgets: readonly WidgetMount[]
+  /** Whole apps the agent opened as pages (glide_page_open). */
+  readonly pages?: readonly PageMount[] | undefined
   readonly style?: { readonly warmth?: number | undefined; readonly accent?: string | undefined } | undefined
 }
 
