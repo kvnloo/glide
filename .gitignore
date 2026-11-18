@@ -6,3 +6,5 @@ uv.lock
 .hermes-agent/
 .hermes-test-core/
 .sync-results/
+.studio-proof/
+glide/docs/images/work-tree/

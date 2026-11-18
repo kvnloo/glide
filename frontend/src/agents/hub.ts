@@ -12,6 +12,7 @@ import { editQuery, moveSelection } from '../overlays/search.js'
 
 import { isRunning } from './rows.js'
 import { agentSteps } from './transcript.js'
+import { agentBranches, agentForest, visibleAgents } from './tree.js'
 
 export type HubTab = 'all' | 'running'
 
@@ -27,6 +28,7 @@ export interface HubState {
   readonly selected: string | undefined
   readonly view: HubView
   readonly ask: HubAsk
+  readonly expanded: readonly string[]
 }
 
 /** What a key or a click asks of the hub. */
@@ -36,6 +38,9 @@ export type HubAction =
   | { type: 'tab'; tab: HubTab }
   /** A row of the list. */
   | { type: 'select'; id: string }
+  | { type: 'toggle'; id?: string }
+  | { type: 'expand' }
+  | { type: 'collapse' }
   /** A step of the timeline. */
   | { type: 'step'; id: string }
   /** The list moved past the picked agent (a tab hides it): the first listed one is picked. */
@@ -72,12 +77,17 @@ const LIST: HubView = { kind: 'list' }
 
 /** The hub as it opens: on agent `focus` when given, else the first running one; Running when any runs. */
 export function initialHub(agents: readonly Subagent[], focus?: string): HubState {
-  return {
-    ask: NONE,
-    selected: focus ?? agents.find(isRunning)?.id ?? agents[0]?.id,
-    tab: agents.some(isRunning) ? 'running' : 'all',
-    view: LIST
+  const expanded: string[] = []
+  let ancestor = agents.find(a => a.id === focus)
+  const seen = new Set<string>()
+  while (ancestor?.parentId && !seen.has(ancestor.parentId)) {
+    seen.add(ancestor.parentId)
+    expanded.push(ancestor.parentId)
+    ancestor = agents.find(a => a.id === ancestor?.parentId)
   }
+  const tab = focus || !agents.some(isRunning) ? 'all' : 'running'
+  const visible = visibleAgents(agentBranches(agents, tab === 'running'), expanded)
+  return { ask: NONE, expanded, selected: visible.find(a => a.id === focus)?.id ?? visible[0]?.id, tab, view: LIST }
 }
 
 /** The agent the hub acts on: the one whose timeline is open, else the picked one. */
@@ -89,7 +99,7 @@ export function currentAgent(state: HubState, agents: readonly Subagent[]): Suba
 
 /** The agents the tab lists. */
 export function shownAgents(state: HubState, agents: readonly Subagent[]): Subagent[] {
-  return state.tab === 'running' ? agents.filter(isRunning) : [...agents]
+  return visibleAgents(agentBranches(agents, state.tab === 'running'), state.expanded)
 }
 
 /** The ids of `a`'s timeline steps, oldest first. */
@@ -114,6 +124,35 @@ export function reduceHub(state: HubState, action: HubAction, agents: readonly S
 
     case 'select':
       return { state: { ...state, ask: state.ask.kind === 'confirmStop' ? NONE : state.ask, selected: action.id } }
+
+    case 'toggle': {
+      const id = action.id ?? state.selected
+      if (!id || !shownAgents(state, agents).some(x => x.id === id)) return { state }
+      const expanded = state.expanded.includes(id) ? state.expanded.filter(x => x !== id) : [...state.expanded, id]
+      return { state: { ...state, ask: NONE, expanded, selected: id } }
+    }
+
+    case 'expand': {
+      if (!a) return { state }
+      if (!state.expanded.includes(a.id)) return reduceHub(state, { type: 'toggle' }, agents)
+      const find = (nodes: ReturnType<typeof agentForest>): Subagent | undefined => {
+        for (const node of nodes) {
+          if (node.agent.id === a.id) return node.children[0]?.agent
+          const child = find(node.children)
+          if (child) return child
+        }
+        return undefined
+      }
+      const child = find(agentBranches(agents, state.tab === 'running'))
+      return child ? { state: { ...state, selected: child.id } } : { state }
+    }
+
+    case 'collapse': {
+      if (!a) return { state }
+      if (state.expanded.includes(a.id)) return reduceHub(state, { type: 'toggle' }, agents)
+      const parent = shownAgents(state, agents).find(x => x.id === a.parentId)
+      return parent ? { state: { ...state, selected: parent.id } } : { state }
+    }
 
     case 'step': {
       if (state.view.kind !== 'timeline' || !a) {
@@ -147,7 +186,7 @@ export function reduceHub(state: HubState, action: HubAction, agents: readonly S
       return { effect: { kind: 'pause' }, state }
 
     case 'steer':
-      return running(a) ? { state: { ...state, ask: { kind: 'steering', text: '' } } } : { state }
+      return running(a) && a.steerable !== false ? { state: { ...state, ask: { kind: 'steering', text: '' } } } : { state }
 
     case 'steerEdit':
       return state.ask.kind === 'steering' ? { state: { ...state, ask: { kind: 'steering', text: action.text } } } : { state }
@@ -224,9 +263,10 @@ export function hubKey(state: HubState, k: Key, agents: readonly Subagent[]): Hu
     return moved === undefined ? undefined : { id: moved, type: 'step' }
   }
 
-  if (k.name === 'enter') {
-    return { type: 'beside' }
-  }
+  if (k.name === 'enter' && bare) return { type: 'toggle' }
+  if (k.name === 'right' && bare) return { type: 'expand' }
+  if (k.name === 'left' && bare) return { type: 'collapse' }
+  if (k.name === 'o' && bare) return { type: 'beside' }
 
   if (k.name === 't' && bare) {
     return { type: 'watch' }
@@ -251,6 +291,7 @@ export function hubKey(state: HubState, k: Key, agents: readonly Subagent[]): Hu
 
 /** The action each of the hub's buttons asks for, by its action id. */
 export const HUB_CLICKS = {
+  toggle: () => ({ type: 'toggle' }),
   beside: () => ({ type: 'beside' }),
   cancel: () => ({ type: 'stopCancel' }),
   close: () => ({ type: 'back' }),

@@ -104,6 +104,7 @@ export function focusDoc(startedAt: number, minutes: number, now: number): Glide
   return {
     id: 'focus',
     title: 'Focus',
+    status: left > 0 ? 'running' : 'done',
     slots: {
       left: slot('Hero', { value: left > 0 ? clock(left) : 'Done', label: `of ${minutes} min focus` }),
       meter: slot('Meter', { label: left > 0 ? `Focus · ${clock(left)} left` : 'Focus block done', value: 1 - done, total: `${minutes} min` }),

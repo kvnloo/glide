@@ -30,7 +30,7 @@ const FAMILY: Record<string, readonly Mineral[]> = {
 export const COUNCIL_SCHEMA = 'glide.council-run/v1'
 const MINERALS = new Set<string>(Object.keys(MINERAL))
 const SEAT_ID = /^[a-z0-9][a-z0-9._-]{0,39}$/
-const KEYS = { run: ['schema', 'brief', 'rounds', 'seats', 'events', 'verdicts', 'outcome'], seat: ['id', 'name', 'family', 'mineral', 'crew'],
+const KEYS = { run: ['schema', 'brief', 'constraints', 'rounds', 'seats', 'events', 'verdicts', 'outcome'], seat: ['id', 'name', 'family', 'mineral', 'crew'],
   turn: ['type', 'seat', 'round', 'cites'], spawn: ['type', 'seat'], verdict: ['seat', 'stance', 'text'] }
 
 class Bad extends Error {}
@@ -60,6 +60,7 @@ export type CouncilEvent =
 export interface CouncilVerdict { readonly seat: number; readonly stance: Stance; readonly text: string }
 export interface CouncilRun {
   readonly brief: string
+  readonly constraints?: readonly string[]
   readonly rounds: number
   readonly seats: readonly CouncilSeat[]
   readonly events: readonly CouncilEvent[]
@@ -121,6 +122,7 @@ function readRun(raw: unknown): CouncilRun {
   })
   return Object.freeze({
     brief: str(d['brief'], 'brief', 280), rounds, seats: Object.freeze(seats), events: Object.freeze(events), verdicts: Object.freeze(verdicts),
+    ...(d['constraints'] === undefined ? {} : { constraints: Object.freeze(list(d['constraints'], 'constraints', 0, 8).map((v, i) => str(v, `constraints.${i}`, 160))) }),
     ...(d['outcome'] === undefined ? {} : { outcome: str(d['outcome'], 'outcome', 160) })
   })
 }
@@ -149,6 +151,7 @@ export function demoRun(): CouncilRun {
   const run = parseCouncilRun({
     schema: COUNCIL_SCHEMA,
     brief: 'Should a small team ship a plugin before its launcher?',
+    constraints: ['Keep the first release small.', 'Use installation receipts to decide what comes next.'],
     rounds: 4,
     seats,
     events,
@@ -391,8 +394,9 @@ const STARS: [number, number, number, number][] = (() => {
 })()
 
 /** The instrument at one moment, `size` px square. */
-export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string {
+export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480, options: { reduce?: boolean | undefined; clean?: boolean } = {}): string {
   const m = moment(run, frame)
+  if (options.reduce) m.since = TURN_MS
   const c = size / 2
   const orbit = size * 0.335
   const R = Math.max(18, size * 0.064)
@@ -417,7 +421,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
 
   s += tag('rect', { width: size, height: size, fill: NIGHT.canvas })
   // night sky outside the table, very quiet
-  for (const [x, y, r, o] of STARS) if (Math.hypot(x * size - c, y * size - c) > table + 6) s += tag('circle', { cx: x * size, cy: y * size, r, fill: '#f3e6c8', 'fill-opacity': o })
+  for (const [x, y, r, o] of options.clean ? [] : STARS) if (Math.hypot(x * size - c, y * size - c) > table + 6) s += tag('circle', { cx: x * size, cy: y * size, r, fill: '#f3e6c8', 'fill-opacity': o })
   // the instrument bezel: brass hairline and ticks
   s += tag('circle', { cx: c, cy: c, r: c - 3, stroke: 'url(#br)', 'stroke-opacity': 0.7, 'stroke-width': 1, fill: 'none' })
   for (let i = 0; i < 72; i++) {
@@ -435,7 +439,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
     s += tag('circle', { cx: c, cy: c, r, fill: 'none', stroke: now ? NIGHT.strong : NIGHT.action, 'stroke-opacity': now ? 0.95 : past ? 0.5 : 0.2, 'stroke-width': now ? 1.8 : 0.7 })
     if (ringGap >= 12 || i % 2 === 1 || now) {
       s += tag('rect', { x: c - 9, y: c - r - 6, width: 18, height: 11, fill: '#12120f' })
-      s += tag('text', { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, 'font-size': 8.5, 'font-family': MONO, 'text-anchor': 'middle' }, String(i + 1).padStart(2, '0'))
+      s += tag('text', { x: c, y: c - r + 3, fill: now ? NIGHT.strong : NIGHT.text3, 'font-size': options.clean ? 11 : 8.5, 'font-family': MONO, 'text-anchor': 'middle' }, String(i + 1).padStart(2, '0'))
     }
   }
   // threads: round 1 answers the brief; later rounds answer the peers this turn cites
@@ -456,7 +460,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
     }
   }
   // the brief: a brass boss, warm only while the council sits
-  if (m.running) s += tag('circle', { cx: c, cy: c, r: ringMin * 1.5, fill: 'url(#wm)' })
+  if (m.running && !options.clean) s += tag('circle', { cx: c, cy: c, r: ringMin * 1.5, fill: 'url(#wm)' })
   s += tag('circle', { cx: c, cy: c, r: ringMin * 0.82, fill: '#c49a55' })
   s += tag('circle', { cx: c, cy: c, r: ringMin * 0.82, fill: 'url(#bf)', 'fill-opacity': 0.92 })
   s += tag('circle', { cx: c, cy: c, r: ringMin * 0.66, fill: 'none', stroke: '#3b2a0e', 'stroke-opacity': 0.45, 'stroke-width': 0.6 })
@@ -472,7 +476,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
     crew.forEach((stone, k) => {
       const ang = p.a + (k - (crew.length - 1) / 2) * step
       const on = frame.t === null || k < (m.lit[i] ?? 0)
-      const born = m.running ? m.born.get(`${i}.${k}`) : undefined
+      const born = m.running && !options.reduce ? m.born.get(`${i}.${k}`) : undefined
       const d = R + 6 + 9 * (born === undefined ? 1 : ease((t - born) / FLY_MS))
       const x = p.x + Math.cos(ang) * d, y = p.y + Math.sin(ang) * d
       s += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true })
@@ -483,7 +487,7 @@ export function instrumentSvg(run: CouncilRun, frame: Frame, size = 480): string
     const plaqueY = p.y > c ? p.y - R - 36 : p.y + R + 6
     s += tag('rect', { x: p.x - 34, y: plaqueY, width: 68, height: 30, rx: 6, fill: '#0f0f0c', 'fill-opacity': 0.82, stroke: NIGHT.border, 'stroke-width': 0.6 })
     s += tag('text', { x: p.x, y: plaqueY + 15, fill: NIGHT.text, 'font-size': 14, 'font-family': SERIF, 'text-anchor': 'middle' }, esc(seat.name))
-    s += tag('text', { x: p.x, y: plaqueY + 25, fill: NIGHT.text3, 'font-size': 7, 'letter-spacing': 0.8, 'font-family': MONO, 'text-anchor': 'middle' }, esc(MINERAL[seat.mineral].label.toUpperCase()))
+    if (!options.clean) s += tag('text', { x: p.x, y: plaqueY + 25, fill: NIGHT.text3, 'font-size': 7, 'letter-spacing': 0.8, 'font-family': MONO, 'text-anchor': 'middle' }, esc(MINERAL[seat.mineral].label.toUpperCase()))
   })
   return tag('svg', { xmlns: 'http://www.w3.org/2000/svg', width: size, height: size, viewBox: `0 0 ${size} ${size}` }, s)
 }

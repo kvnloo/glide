@@ -31,6 +31,7 @@ Then, in any Hermes chat (CLI, TUI, desktop or a messaging gateway):
 | `/glide off` | Stops quoting |
 | `/glide recall <words>` | Shows what would be quoted for those words |
 | `/glide taste` | Opens the optional local Taste Atlas brainstorm board beside chat in Tern; text frontends show its URL |
+| `/glide studio [project-id]` | Opens the optional fframestudio add-on or web editor in Tern, with a read-only project layer card. [Setup](docs/studio.md) |
 
 Nothing happens until you run `/glide build` and `/glide on`.
 
@@ -77,14 +78,14 @@ The webapp can load the external reference images already saved on a board.
 
 ## Security and privacy
 
-- **Network:** no telemetry or uploads. Only `/glide taste` reads the existing loopback Taste Atlas server.
-- **Reads outside its data:** Hermes' session database, read-only.
+- **Network:** no telemetry or uploads. `/glide taste` reads the loopback Taste Atlas server. `/glide studio` uses the local fframestudio bridge.
+- **Reads outside its data:** Hermes' session database and the explicitly selected studio project, read-only.
 - **Commands:** `/glide` (the overview only) runs `nvidia-smi` and, if installed, `z0int doctor --json`,
   each with a 20 s timeout, to describe the machine. Recall (and each turn, once on) runs
   z0int's `orientation.py --corrections --raw` reader with a 5 s timeout when z0int is installed.
   Nothing is installed.
-- **Writes:** only under `<profile>/glide/`.
-- **Background processes:** none.
+- **Writes:** memory stays under `<profile>/glide/`. The optional studio launcher uses fframestudio's existing discovery and temporary control files.
+- **Background processes:** none until `/glide studio` requests the existing fframestudio bridge. That app owns the bridge lifecycle.
 
 ## Optional: z0intelligence
 

@@ -16,6 +16,7 @@ import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { GlideWidgets } from '../glideui/widgets.js'
+import { WorkTreeCard } from '../glideui/workTreeCard.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
 import { dispatched } from '../commands/slash.js'
@@ -98,6 +99,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   /** Tells the plugin which session this pane shows (hermes/viewer.ts). */
   const viewer = new Viewer(gw)
   const transcript = new Transcript()
+  const workTree = new WorkTreeCard(changed)
   /** The working line's busy state and the compaction phase: their one owner. */
   const activity = new Activity()
   /** What the subagent, process and automation stores read of the app: the shown runtime id on each use. */
@@ -340,7 +342,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */
@@ -349,6 +351,7 @@ export function disposeStores(s: ChatStores) {
   s.liveVoice.dispose()
   s.theme.dispose()
   s.widgets.dispose()
+  s.workTree.dispose()
   s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()

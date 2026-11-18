@@ -142,6 +142,24 @@ describe('Agents', () => {
     expect(gw.sent('session.transcript')).toHaveLength(4)
   })
 
+  it('reads every exposed tree context and releases them when the hub closes', async () => {
+    vi.useFakeTimers()
+    const gw = new FakeGateway({ replies: {
+      'session.transcript': () => ({ available: true, next_cursor: null, reset: true, rows: ROWS, running: true })
+    } })
+    store = new Agents({ changed: () => undefined, gw: gw.client, sid: liveSessionId('s1'), transcript: dispatched(2) })
+    store.scan()
+    const all = store.all()
+    for (const a of all) a.status = 'done'
+    store.follow(all)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(new Set(gw.sent('session.transcript').map(p => p['subagent_id']))).toEqual(new Set(['sa-0-abcd', 'sa-1-abcd']))
+    const reads = gw.sent('session.transcript').length
+    store.follow(undefined)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(gw.sent('session.transcript')).toHaveLength(reads)
+  })
+
   it('reads progress for the four visible wait tiles without opening the hub', async () => {
     vi.useFakeTimers()
     const gw = new FakeGateway({ replies: {

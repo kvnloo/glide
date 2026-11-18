@@ -24,18 +24,18 @@ describe('host card layout', () => {
 
   it('fills the column with a flat omp box', () => {
     const css = euiStyles()
-    // The kit ships compacted under the [data-eu] root mark; the last rule for a selector is the one the cascade keeps.
+    // The kit ships compacted under the .eu root mark; the last rule for a selector is the one the cascade keeps.
     const rule = (sel: string): string => {
       const at = css.lastIndexOf(`${sel}{`)
       return at < 0 ? '' : css.slice(at, css.indexOf('}', at))
     }
-    expect(rule('[data-eu]')).not.toMatch(/max-width:\s*\d+px/)
-    expect(rule('[data-eu] .eu-card.eui-host')).toMatch(/padding:\s*14px/)
+    expect(rule('.eu')).not.toMatch(/max-width:\s*\d+px/)
+    expect(rule('.eu .eu-card.eui-host')).toMatch(/padding:\s*14px/)
     // One shell rule flattens every card, host and kit alike, past the kit's and the glass sheet's.
-    const shell = rule('[data-eu] :is([data-host] .eu-card,.eu-card):not(.gone)')
+    const shell = rule('.eu :is([data-host] .eu-card,.eu-card):not(.gone)')
     expect(shell).toMatch(/border-radius:\s*8px/)
     expect(shell).toMatch(/box-shadow:\s*none/)
-    expect(rule('[data-eu] .eui-host-head')).toMatch(/font:\s*500 13px/)
+    expect(rule('.eu .eui-host-head')).toMatch(/font:\s*500 13px/)
   })
 
   it('keeps contents at their own size in the wider column', () => {
@@ -45,9 +45,9 @@ describe('host card layout', () => {
       return at < 0 ? '' : css.slice(at, css.indexOf('}', at))
     }
     // omp has no full-width buttons; the hold button is content-width with one 1px outline.
-    expect(rule('[data-eu] .ih-hold')).toMatch(/width:\s*auto/)
-    expect(rule('[data-eu] .ih-hold')).toMatch(/border:\s*1px solid/)
-    expect(rule('[data-eu] .ah-fact')).not.toMatch(/flex:\s*1 1 0/)
-    expect(rule('[data-eu] .eu-card.eui-host>p')).toMatch(/max-width:\s*72ch/)
+    expect(rule('.eu .ih-hold')).toMatch(/width:\s*auto/)
+    expect(rule('.eu .ih-hold')).toMatch(/border:\s*1px solid/)
+    expect(rule('.eu .ah-fact')).not.toMatch(/flex:\s*1 1 0/)
+    expect(rule('.eu .eu-card.eui-host>p')).toMatch(/max-width:\s*72ch/)
   })
 })

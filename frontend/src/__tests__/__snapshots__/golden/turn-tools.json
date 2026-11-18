@@ -1026,6 +1026,174 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 0",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.muted",
+                   "text": "Waiting for file tools…",
+                   "wrap": "word",
+                   "key": "p1"
+                  }
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 0 files · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -1453,6 +1621,174 @@
              "tone": "error",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 0",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.muted",
+                   "text": "Waiting for file tools…",
+                   "wrap": "word",
+                   "key": "p1"
+                  }
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 0 files · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -2025,6 +2361,231 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p1"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 1 file · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ],
     "layer": [],
@@ -2555,6 +3116,131 @@
              "title": "Send  ⏎",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree.receipt",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "still",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  RECEIPT",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "done",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Turn ended · 1 file · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p1"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Show work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Show work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Show work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
            }
           ]
          }

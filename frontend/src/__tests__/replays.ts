@@ -195,6 +195,8 @@ export async function replay({ fixture: name, replies, steps }: Replay): Promise
   const answers: unknown[] = []
   const app = new App(tern.session, gw.client, '1.0.0')
   void app.run()
+  // Load the real adapter before recording frames, independent of module-cache timing.
+  await app.stores.workTree.ready()
 
   const press = async (k: Key) => {
     for (let turns = 0; !tern.reading; turns++) {

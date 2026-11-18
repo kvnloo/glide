@@ -13,6 +13,7 @@ import { decodeEuiCard } from '../wire/euiCard.js'
 import { decodeEuiHostCard, MAX_HOST_ROWS } from '../wire/euiHostCard.js'
 
 import { approvalCard } from './euiHostFixtures.js'
+import { motionCard } from './glideMotionFixtures.js'
 import { must, ofKind, stub, tree } from './fakes.js'
 
 function setup() {
@@ -32,6 +33,28 @@ function tap(view: EuiCardView) {
 }
 
 describe('host-owned card data', () => {
+  it('enters a native publication only once and keeps revised controls revision-checked', () => {
+    const { eui, view } = setup()
+    const oldRun = vi.fn(), nextRun = vi.fn()
+    const card = { kind: 'fixture', app: 'glide', title: 'Atlas', ui: motionCard() }
+    const handle = eui.host.publishNative(card, oldRun)
+    const first = view()
+    expect(first.entrance).toBe(true)
+    expect(JSON.stringify(tree(euiCardNode('native', first, eui)))).toContain('glide-count')
+    handle.update({ ...card, ui: motionCard(true) }, nextRun)
+    const next = view()
+    expect(next.entrance).toBe(false)
+    const rendered = JSON.stringify(tree(euiCardNode('native', next, eui)))
+    expect(rendered).not.toContain('glide-count')
+    expect(rendered).toContain('still')
+    expect(next.identity).not.toBe(first.identity)
+    first.send?.({ action: 'done' })
+    next.send?.({ action: 'done' })
+    expect(oldRun).not.toHaveBeenCalled()
+    expect(nextRun).toHaveBeenCalledTimes(1)
+    eui.close()
+  })
+
   it('renders supplied frozen values through the existing renderer without running an operation', () => {
     const { eui, view } = setup()
     const raw = approvalCard()

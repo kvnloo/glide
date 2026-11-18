@@ -79,7 +79,7 @@ describe('ephemeral-ui fences', () => {
   it('scopes the kit stylesheet under the card root and binds its host variables to Tern', () => {
     const css = euiStyles()
 
-    expect(css).toContain('[data-eu] .eu-card')
+    expect(css).toContain('.eu .eu-card')
     expect(css).not.toContain('[data-eui=card]')
     expect(css).toContain('--h-primary:var(--accent)')
     expect(css).not.toMatch(/(^|\n)body\s*\{/)
@@ -296,6 +296,7 @@ describe('ephemeral-ui cards in an answer', () => {
     const drawn = JSON.stringify(tree(entryNode(t, 'main.turn', cx)))
 
     expect(drawn).toContain('"role":"eui.card"')
+    expect(drawn).toMatch(/"class":"eu(?: |")/)
     expect(drawn).toContain('"data-eui-kind":"merge"')
     expect(drawn).toContain('Merged:')
     expect(drawn).toContain('All green.')
@@ -319,7 +320,7 @@ describe('ephemeral-ui kit stylesheet', () => {
   })
 
   it('lets native SVG callback buttons grow with wrapped labels', () => {
-    const rule = euiStyles().match(/\[data-eu\] \.eui-svg-controls>\.eu-btn\{([^}]*)\}/)?.[1]
+    const rule = euiStyles().match(/\.eu \.eui-svg-controls>\.eu-btn\{([^}]*)\}/)?.[1]
     expect(rule).toBeDefined()
     expect(rule).toMatch(/display:\s*block/)
     expect(rule).toMatch(/height:\s*auto/)

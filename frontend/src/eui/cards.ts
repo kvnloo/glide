@@ -18,6 +18,7 @@ import { INTENT_CSS } from '../../../glide/frontend/intentCards.js'
 import type { UiIntent, UiNode } from '../glideui/library.js'
 import { GEV_CSS, GEV_SHEET } from '../gev/skin.js'
 import { UI_CSS, UI_SHEET } from '../glideui/render.js'
+import { MOTION_CSS, MOTION_SHEET } from '../glideui/motion.js'
 
 import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
@@ -40,6 +41,8 @@ export interface EuiCardView {
   readonly activate?: (id: number) => void
   /** A native glide/v1 card (glideui/render.tsx) instead of a kit snapshot; `node` is then null. */
   readonly ui?: UiNode
+  /** False on replacements, whose revision-bearing native ids must not replay entrance. */
+  readonly entrance?: boolean
   readonly send?: (intent: UiIntent) => void
 }
 
@@ -127,7 +130,7 @@ ${FLEET_FIT_CSS}
 
 /**
  * Tern caps a surface's stylesheets at 256 KiB and drops `@container` rules, so the kit ships
- * without comments, container queries or spare whitespace, scoped by the short `[data-eu]` root mark.
+ * without comments, container queries or spare whitespace, scoped by the short `.eu` root class.
  */
 export function compactCss(css: string): string {
   let out = css.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -144,7 +147,7 @@ export function compactCss(css: string): string {
   }
 
   return minifyCss(out
-    .replaceAll("[data-eui='card']", '[data-eu]') // same specificity, 6 bytes shorter x ~2.3k scoped rules
+    .replaceAll("[data-eui='card']", '.eu') // Same specificity, fewer bytes for every scoped rule.
     .replace(/container-type\s*:[^;}]*;?/g, ''))
 }
 
@@ -340,6 +343,8 @@ export class EuiCards {
       this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS)
       euiSheets.set(GEV_SHEET, GEV_CSS)
       this.#sink.stylesheet(GEV_SHEET, GEV_CSS)
+      euiSheets.set(MOTION_SHEET, MOTION_CSS)
+      this.#sink.stylesheet(MOTION_SHEET, MOTION_CSS)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false

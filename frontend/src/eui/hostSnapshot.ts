@@ -7,9 +7,11 @@ import type { EuiNode } from './sandbox.js'
 
 export type HostCardStatus = 'pending' | 'running' | 'done' | 'failed'
 export const HOST_APPROVE_ID = 1
+/** The host-owned side button (EuiAside); element ids from the data start at 2. */
+export const HOST_ASIDE_ID = 0
 
 /** Only plain text and a fixed native button; no model-supplied markup, style or link targets. */
-export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): EuiNode {
+export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus, aside?: string): EuiNode {
   let next = 2
   const text = (value: string): EuiNode => ({ t: 'text', text: value })
   const el = (tag: string, kids: readonly EuiNode[], cls = '', attrs: Record<string, string> = {}): EuiNode => ({
@@ -35,6 +37,9 @@ export function hostSnapshot(data: EuiHostCardData, status: HostCardStatus): Eui
   ]
   if (data.approval) {
     kids.push(el('p', [text(data.approval.description)], 'eui-host-operation'))
+    if (aside !== undefined && status === 'pending') {
+      kids.push({ t: 'el', tag: 'button', id: HOST_ASIDE_ID, cls: 'eu-btn eui-host-aside', style: '', attrs: { 'data-eui-action': 'aside' }, click: true, kids: [text(aside)] })
+    }
     kids.push({
       t: 'el', tag: 'button', id: HOST_APPROVE_ID, cls: hold ? 'eu-btn eui-host-approve ih-hold' : 'eu-btn eui-host-approve', style: '',
       attrs: { 'data-eui-action': 'approve', ...(status === 'pending' ? {} : { disabled: 'true' }) },

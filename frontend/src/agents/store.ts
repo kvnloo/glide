@@ -76,7 +76,7 @@ export class Agents {
   /** Rows whose end the host heard of. */
   readonly #ended = new WeakSet<Subagent>()
   /** The agent the hub shows: its transcript is read while it can grow. */
-  #followed: Subagent | undefined
+  #followed: readonly Subagent[] = []
   /** What each followed agent's transcript read gave, by subagent id. */
   readonly #transcripts = new Map<string, SubagentTranscript>()
   /**
@@ -113,7 +113,7 @@ export class Agents {
 
     this.#listed.clear()
     this.#transcripts.clear()
-    this.#followed = undefined
+    this.#followed = []
   }
 
   /**
@@ -171,20 +171,12 @@ export class Agents {
     }
   }
 
-  /**
-   * The agent the hub shows (undefined when it closes). Its stored transcript is read now and
-   * then every second while it can grow; one agent at a time.
-   */
-  follow(a: Subagent | undefined) {
-    if (a === this.#followed) {
-      return
-    }
-
-    this.#followed = a
-
-    if (a && !this.#visibleAgents().includes(a)) {
-      this.#poller.poke()
-    }
+  /** Read the exposed tree contexts, one timeline, or none after the hub closes. */
+  follow(agents: Subagent | readonly Subagent[] | undefined) {
+    const next = agents === undefined ? [] : 'id' in agents ? [agents] : agents
+    if (next.length === this.#followed.length && next.every((a, i) => a === this.#followed[i])) return
+    this.#followed = [...next]
+    if (next.some(a => !this.#visibleAgents().includes(a))) this.#poller.poke()
   }
 
   /** Queues steering text into a running agent; the owner answers `queued` or `rejected`. */
@@ -283,9 +275,7 @@ export class Agents {
 
   /** The followed agent's transcript may still grow (or was never read). */
   #followedGrows(): boolean {
-    const a = this.#followed
-
-    return Boolean(a && !this.#transcripts.get(a.id)?.finished)
+    return this.#followed.some(a => !this.#transcripts.get(a.id)?.finished)
   }
 
   #visibleAgents(): Subagent[] {
@@ -305,8 +295,8 @@ export class Agents {
     }
 
     const visible = this.#visibleAgents()
-    if (this.#followed && !visible.includes(this.#followed)) {
-      visible.push(this.#followed)
+    for (const a of this.#followed) {
+      if (!visible.includes(a)) visible.push(a)
     }
 
     for (const a of visible) {

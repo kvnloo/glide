@@ -5,6 +5,7 @@
 
 import type { FileContext } from '../artifacts/links.js'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
+import type { JSX } from '@stencil-hq/tern'
 
 import type { FactoryPane } from '../chrome/factory.js'
 import type { Hud } from '../chrome/hud.js'
@@ -19,6 +20,8 @@ import { COMPOSER_ID, INPUT_ID, type SurfaceHost } from '../surface/host.js'
 import type { Transcript } from '../transcript/store.js'
 import type { EuiCards } from '../eui/cards.js'
 import type { GlideWidgets } from '../glideui/widgets.js'
+import type { WorkTreeCard } from '../glideui/workTreeCard.js'
+import { euiSheets } from '../eui/cards.js'
 import type { UiRender } from '../glideui/render.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
 import { type DockActions, dockNodes, widgetAside } from '../view/dock.js'
@@ -33,7 +36,7 @@ import type { LiveVoice } from '../voice/live.js'
 /** What a frame reads and the three things it changes: the pills' focus, the completion and the surface. */
 export interface FrameCx extends DockSources {
   readonly liveVoice: Pick<LiveVoice, 'node' | 'blocked'>
-  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'>
+  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'> & Partial<Pick<SurfaceHost, 'raw'>>
   readonly retention?: Retention | undefined
   /** The active gateway transport: attached gateways never attest file-locality. */
   readonly gateway?: Pick<GatewayClient, 'attached'>
@@ -43,10 +46,11 @@ export interface FrameCx extends DockSources {
   readonly charts: TableCharts
   readonly eui?: EuiCards
   /** Agent-mounted widgets around the composer (glide_ui_mount). */
+  readonly workTree?: Pick<WorkTreeCard, 'node'>
   readonly widgets?: Pick<GlideWidgets, 'nodes'>
   readonly overlays: readonly Overlay[]
   readonly stack: Pick<OverlayStack, 'rootOf'>
-  readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries'>
+  readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries' | 'lifetime' | 'live'>
   readonly prAside: Pick<PrAside, 'node' | 'open'>
   readonly sidebar: Pick<Sidebar, 'node'>
   readonly factory: Pick<FactoryPane, 'node' | 'open'>
@@ -69,6 +73,8 @@ export interface FrameCx extends DockSources {
   readonly orb?: Pick<ThinkingOrb, 'props'>
   /** The live call's helper lanes, drawn under the live controls; while they orbit, that scene is the voice orb. */
   readonly lanes?: Pick<LaneStrip, 'node' | 'orbiting'>
+  /** `/glide focus clean`: the clean view's layer while it is up; it then draws alone and keys go to the app. */
+  readonly clean?: () => JSX.Element | null
 }
 
 /** Draws one frame at `now`; nothing once the surface closed. */
@@ -88,11 +94,27 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
     cx.completion.update(cx.composer)
   }
 
+  // The clean view draws alone: no transcript rows and no dock (Tern keeps app sheets off its own regions, so
+  // hiding them has to be by not drawing them). Restoring redraws the transcript from the store as usual.
+  const clean = cx.clean?.() ?? null
+  if (clean) {
+    const quiet = { dock: [], layer: [clean] }
+    if (cx.retention) cx.retention.paint(quiet, [], entries, modal, new Set())
+    else cx.surface.render({ ...quiet, main: [] })
+    cx.surface.follow(null)
+    return
+  }
+
   const live = liveDock(cx.liveVoice.node(), cx.lanes?.node() ?? null)
   // Widgets only show what their host source holds: no control in one acts (nothing to send).
   const r: UiRender = { send: () => undefined, svg: markup => cx.eui?.svg(markup) }
   const w = cx.widgets
-  const slots = w ? { above: w.nodes('above-composer', r), ring: w.nodes('composer-ring', r), below: w.nodes('below-composer', r) } : {}
+  const work = cx.workTree?.node(cx.transcript, cx.session.info?.cwd ?? '', r, (name, css) => {
+    if (euiSheets.get(name) === css) return
+    euiSheets.set(name, css)
+    cx.surface.raw?.stylesheet(name, css)
+  })
+  const slots = { above: w?.nodes('above-composer', r) ?? [], ring: w?.nodes('composer-ring', r) ?? [], below: [...(work ? [work] : []), ...(w?.nodes('below-composer', r) ?? [])] }
   const chrome = {
     dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions, slots)],
     layer: [

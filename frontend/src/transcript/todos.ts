@@ -38,6 +38,7 @@ export function currentTodos(entries: readonly Entry[]): Todo[] | undefined {
       continue
     }
 
+    if (e.todos !== undefined) return e.todos
     const hit = e.blocks.findLast(b => b.kind === 'tool' && b.call.todos?.length)
 
     if (hit?.kind === 'tool') {

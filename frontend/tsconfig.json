@@ -20,6 +20,6 @@
     "noEmit": true,
     "preserveSymlinks": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/verify-studio.ts"],
   "exclude": ["node_modules", "dist"]
 }

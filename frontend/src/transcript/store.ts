@@ -371,9 +371,7 @@ export class Transcript {
 
     const before = this.currentTodos()
 
-    if (isTodoName(call.name)) {
-      call.todosBefore = before
-    }
+    if (isTodoName(call.name)) call.todosBefore = before
 
     // The call's own list shows while it runs (a merge patches the current one); tool.complete's
     // snapshot replaces it.
@@ -383,6 +381,7 @@ export class Transcript {
       call.todos = todosOf({ merge: d.merge, todos: d.todos }, before)
     }
 
+    if (call.todos !== undefined) turn.todos = call.todos
     turn.blocks.push({ call, id: call.id, kind: 'tool' })
     this.#touchTurn(turn)
   }
@@ -413,6 +412,7 @@ export class Transcript {
 
     const duration = typeof p.duration_s === 'number' ? Math.round(p.duration_s * 1000) : at - call.startedAt
     const summary = p.summary ?? undefined
+    call.completedAt = at
     call.resultText = p.result_text ?? undefined
     call.result = p.result
     call.diff = p.inline_diff ?? undefined
@@ -432,19 +432,19 @@ export class Transcript {
     if (Array.isArray(p.todos)) {
       call.todos = toTodos(p.todos)
     }
+    if (call.todos !== undefined) turn.todos = call.todos
 
     this.#touchTurn(turn)
   }
 
-  /** The newest todo snapshot lands on the newest todo tool call. */
   todos(todos: unknown[]) {
-    // An out-of-band todo.updated is a live projection, never a rewrite of a settled tool card.
+    const live = this.#live
+    if (!live) return
+    const snapshot = toTodos(todos)
     const found = this.#lastTool(c => isTodoName(c.name) && c.outcome.kind === 'running')
-
-    if (found) {
-      found.call.todos = toTodos(todos)
-      this.#touchTurn(found.turn)
-    }
+    if (found) found.call.todos = snapshot
+    live.todos = snapshot
+    this.#touchTurn(live)
   }
 
   complete(p: MessageCompletePayload, at = Date.now()) {
