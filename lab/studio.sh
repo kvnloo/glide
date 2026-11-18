@@ -49,8 +49,17 @@ PY
   (umask 077; printf '%s=%s\n' "$key_env" "$key" > "$H/.env"); fi
 }
 
+unlock() {  # Tern's Stencil sign-in needs the login keyring; it re-locks on its own, so unlock via the TPM-sealed helper.
+  local q=(busctl --user get-property org.freedesktop.secrets /org/freedesktop/secrets/collection/login
+    org.freedesktop.Secret.Collection Locked) u
+  export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}
+  timeout 8 "${q[@]}" 2>/dev/null | grep -q true || return 0
+  u=$(ls -t /mnt/zer0models/releases/host-storage/*/scripts/keyring-autounlock 2>/dev/null | head -1)
+  [ -n "$u" ] && timeout 30 /usr/bin/python3 "$u" >/dev/null 2>&1
+  timeout 8 "${q[@]}" 2>/dev/null | grep -q false || { echo "studio: login keyring locked; Tern can't sign in" >&2; exit 1; }
+}
 up() {
-  stop; home
+  stop; unlock; home
   mkdir -p "$R" && chmod 700 "$R"
   printf '%s\n' 'output HEADLESS-1 mode 1920x1080@60Hz scale 1' 'default_border none' 'gaps outer 0' \
     'for_window [app_id=".*"] fullscreen enable' > "$S/sway.conf"
