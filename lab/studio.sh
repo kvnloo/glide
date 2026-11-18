@@ -59,7 +59,7 @@ up() {
   for _ in $(seq 40); do [ -S "$R/wayland-1" ] && break; sleep 0.5; done
   [ -S "$R/wayland-1" ] || { echo "studio: sway gave no wayland-1" >&2; exit 1; }
   local env=(-E HERMES_HOME="$H" -E PATH="$(dirname "$HERMES_BIN"):$HOME/.local/bin:/usr/bin:/bin" -E LANG=C.UTF-8 -E TERM=xterm-256color)
-  systemd-run --user --unit=glide-studio-gw --slice=agent.slice -p MemoryMax=${STUDIO_GW_MEM:-1G} -p Nice=5 --working-directory="$S/work" "${env[@]}" "$HERMES_BIN" gateway run >/dev/null
+  systemd-run --user --unit=glide-studio-gw --slice=agent.slice -p MemoryMax=${STUDIO_GW_MEM:-2G} -p Nice=5 --working-directory="$S/work" "${env[@]}" "$HERMES_BIN" gateway run >/dev/null
   # Every take starts from an empty pane: Tern's daemon replays saved panes (and their old sessions).
   rm -rf "$S/tern/daemon.sock.state" "$S/tern/daemon.prompt"
   systemd-run --user --unit=glide-studio-tern --slice=agent.slice -p MemoryMax=${STUDIO_TERN_MEM:-2G} -p Nice=5 --working-directory="$S/work" "${env[@]}" \
