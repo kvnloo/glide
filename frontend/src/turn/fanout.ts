@@ -32,6 +32,8 @@ export interface ToolFanout {
   showImage(call: ToolCall | undefined): void
   /** Opens completed 3D outputs in native blocks, never replayed history. */
   showArtifacts(call: ToolCall | undefined): void
+  /** A God's Eye View answer as its card, with the real app's globe at the answer's view. */
+  showGev?(call: ToolCall | undefined): void
 }
 
 /**
@@ -41,6 +43,7 @@ export interface ToolFanout {
 export function afterToolComplete(p: Pick<ToolCompletePayload, 'name' | 'tool_id'>, cx: ToolFanout) {
   cx.showImage(cx.transcript.call(toolCallId(p.tool_id)))
   cx.showArtifacts(cx.transcript.call(toolCallId(p.tool_id)))
+  cx.showGev?.(cx.transcript.call(toolCallId(p.tool_id)))
   // A dispatched delegation: its agents' rows start following the owner.
   cx.agents.scan()
 

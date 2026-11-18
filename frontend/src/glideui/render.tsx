@@ -15,6 +15,8 @@ export interface UiRender {
   send(intent: UiIntent): void
   /** A blob id for a trusted host SVG; undefined drops the graphic. */
   svg?(markup: string): string | undefined
+  /** A blob id for a trusted host PNG (base64); undefined drops the picture. */
+  picture?(png: string): string | undefined
 }
 
 const span = (t: string, s?: string): Span => (s ? { t, s } : { t })
@@ -37,7 +39,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
     case 'Card': {
       const p = n.props
       return html.div({ key, attrs: { 'data-glide-motion': liveCard(n) ? 'live' : 'still', 'data-glide-enter': r.entrance === false ? 'no' : 'yes' } },
-        <card head={[span(p.title, 'strong'), ...(p.app ? [span('  ' + p.app, 'muted')] : [])]} key="card" role="glide.card" {...(p.status ? { status: p.status } : {})}>
+        <card head={[span(p.title, 'strong'), ...(p.app ? [span('  ' + p.app, 'muted')] : [])]} key="card" role={p.skin ? `${p.skin}.card` : 'glide.card'} {...(p.status ? { status: p.status } : {})}>
           <col gap="md" key="body" role="glide.body">{kids(p.children, r)}</col>
           {p.source ? <text key="src" role="glide.source" text={p.source} wrap="word" /> : null}
         </card>
@@ -200,6 +202,10 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
     case 'Graphic': {
       const blob = r.svg?.(n.props.svg)
       return blob === undefined ? <spacer key={key} size="none" /> : <col key={key} role="glide.graphic">{ui.image({ key: 'g', blob, w: n.props.w, h: n.props.h, alt: n.props.alt })}</col>
+    }
+    case 'Picture': {
+      const blob = r.picture?.(n.props.png)
+      return blob === undefined ? <spacer key={key} size="none" /> : <col key={key} role="glide.picture">{ui.image({ key: 'p', blob, w: n.props.w, h: n.props.h, alt: n.props.alt })}</col>
     }
   }
 }

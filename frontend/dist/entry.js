@@ -971,19 +971,19 @@ var require_util = __commonJS({
       let key3;
       let val;
       let kLen = 0;
-      for (let n4 = 0; n4 < headers.length; n4 += 2) {
-        key3 = headers[n4];
-        val = headers[n4 + 1];
+      for (let n5 = 0; n5 < headers.length; n5 += 2) {
+        key3 = headers[n5];
+        val = headers[n5 + 1];
         typeof key3 !== "string" && (key3 = key3.toString());
         typeof val !== "string" && (val = val.toString("utf8"));
         kLen = key3.length;
         if (kLen === 14 && key3[7] === "-" && (key3 === "content-length" || key3.toLowerCase() === "content-length")) {
           hasContentLength = true;
         } else if (kLen === 19 && key3[7] === "-" && (key3 === "content-disposition" || key3.toLowerCase() === "content-disposition")) {
-          contentDispositionIdx = n4 + 1;
+          contentDispositionIdx = n5 + 1;
         }
-        ret[n4] = key3;
-        ret[n4 + 1] = val;
+        ret[n5] = key3;
+        ret[n5 + 1] = val;
       }
       if (hasContentLength && contentDispositionIdx !== -1) {
         ret[contentDispositionIdx] = Buffer.from(ret[contentDispositionIdx]).toString("latin1");
@@ -3551,9 +3551,9 @@ var require_webidl = __commonJS({
       }
       return x;
     };
-    webidl.util.IntegerPart = function(n4) {
-      const r = Math.floor(Math.abs(n4));
-      if (n4 < 0) {
+    webidl.util.IntegerPart = function(n5) {
+      const r = Math.floor(Math.abs(n5));
+      if (n5 < 0) {
         return -1 * r;
       }
       return r;
@@ -4725,12 +4725,12 @@ var require_file = __commonJS({
     var { webidl } = require_webidl();
     var FileLike = class _FileLike {
       constructor(blobLike, fileName, options = {}) {
-        const n4 = fileName;
+        const n5 = fileName;
         const t = options.type;
         const d = options.lastModified ?? Date.now();
         this[kState] = {
           blobLike,
-          name: n4,
+          name: n5,
           type: t,
           lastModified: d
         };
@@ -5565,35 +5565,35 @@ var require_client_h1 = __commonJS({
       return await WebAssembly.instantiate(mod, {
         env: {
           /* eslint-disable camelcase */
-          wasm_on_url: (p3, at2, len) => {
+          wasm_on_url: (p3, at3, len) => {
             return 0;
           },
-          wasm_on_status: (p3, at2, len) => {
+          wasm_on_status: (p3, at3, len) => {
             assert(currentParser.ptr === p3);
-            const start = at2 - currentBufferPtr + currentBufferRef.byteOffset;
+            const start = at3 - currentBufferPtr + currentBufferRef.byteOffset;
             return currentParser.onStatus(new FastBuffer(currentBufferRef.buffer, start, len)) || 0;
           },
           wasm_on_message_begin: (p3) => {
             assert(currentParser.ptr === p3);
             return currentParser.onMessageBegin() || 0;
           },
-          wasm_on_header_field: (p3, at2, len) => {
+          wasm_on_header_field: (p3, at3, len) => {
             assert(currentParser.ptr === p3);
-            const start = at2 - currentBufferPtr + currentBufferRef.byteOffset;
+            const start = at3 - currentBufferPtr + currentBufferRef.byteOffset;
             return currentParser.onHeaderField(new FastBuffer(currentBufferRef.buffer, start, len)) || 0;
           },
-          wasm_on_header_value: (p3, at2, len) => {
+          wasm_on_header_value: (p3, at3, len) => {
             assert(currentParser.ptr === p3);
-            const start = at2 - currentBufferPtr + currentBufferRef.byteOffset;
+            const start = at3 - currentBufferPtr + currentBufferRef.byteOffset;
             return currentParser.onHeaderValue(new FastBuffer(currentBufferRef.buffer, start, len)) || 0;
           },
           wasm_on_headers_complete: (p3, statusCode, upgrade, shouldKeepAlive) => {
             assert(currentParser.ptr === p3);
             return currentParser.onHeadersComplete(statusCode, Boolean(upgrade), Boolean(shouldKeepAlive)) || 0;
           },
-          wasm_on_body: (p3, at2, len) => {
+          wasm_on_body: (p3, at3, len) => {
             assert(currentParser.ptr === p3);
-            const start = at2 - currentBufferPtr + currentBufferRef.byteOffset;
+            const start = at3 - currentBufferPtr + currentBufferRef.byteOffset;
             return currentParser.onBody(new FastBuffer(currentBufferRef.buffer, start, len)) || 0;
           },
           wasm_on_message_complete: (p3) => {
@@ -6316,9 +6316,9 @@ upgrade: ${upgrade}\r
         header += "connection: close\r\n";
       }
       if (Array.isArray(headers)) {
-        for (let n4 = 0; n4 < headers.length; n4 += 2) {
-          const key3 = headers[n4 + 0];
-          const val = headers[n4 + 1];
+        for (let n5 = 0; n5 < headers.length; n5 += 2) {
+          const key3 = headers[n5 + 0];
+          const val = headers[n5 + 1];
           if (Array.isArray(val)) {
             for (let i = 0; i < val.length; i++) {
               header += `${key3}: ${val[i]}\r
@@ -6836,9 +6836,9 @@ var require_client_h2 = __commonJS({
         return false;
       }
       const headers = {};
-      for (let n4 = 0; n4 < reqHeaders.length; n4 += 2) {
-        const key3 = reqHeaders[n4 + 0];
-        const val = reqHeaders[n4 + 1];
+      for (let n5 = 0; n5 < reqHeaders.length; n5 += 2) {
+        const key3 = reqHeaders[n5 + 0];
+        const val = reqHeaders[n5 + 1];
         if (Array.isArray(val)) {
           for (let i = 0; i < val.length; i++) {
             if (headers[key3]) {
@@ -9405,8 +9405,8 @@ var require_readable = __commonJS({
       if (state.bufferIndex) {
         const start = state.bufferIndex;
         const end = state.buffer.length;
-        for (let n4 = start; n4 < end; n4++) {
-          consumePush(consume2, state.buffer[n4]);
+        for (let n5 = start; n5 < end; n5++) {
+          consumePush(consume2, state.buffer[n5]);
         }
       } else {
         for (const chunk of state.buffer) {
@@ -14827,7 +14827,7 @@ var require_util4 = __commonJS({
           if (encoding === "failure") {
             encoding = "UTF-8";
           }
-          return decode3(bytes, encoding);
+          return decode4(bytes, encoding);
         }
         case "ArrayBuffer": {
           const sequence = combineByteSequences(bytes);
@@ -14844,7 +14844,7 @@ var require_util4 = __commonJS({
         }
       }
     }
-    function decode3(ioQueue, encoding) {
+    function decode4(ioQueue, encoding) {
       const bytes = combineByteSequences(ioQueue);
       const BOMEncoding = BOMSniffing(bytes);
       let slice = 0;
@@ -17418,34 +17418,34 @@ var require_receiver = __commonJS({
        * @param {number} n
        * @returns {Buffer}
        */
-      consume(n4) {
-        if (n4 > this.#byteOffset) {
+      consume(n5) {
+        if (n5 > this.#byteOffset) {
           throw new Error("Called consume() before buffers satiated.");
-        } else if (n4 === 0) {
+        } else if (n5 === 0) {
           return emptyBuffer;
         }
-        if (this.#buffers[0].length === n4) {
+        if (this.#buffers[0].length === n5) {
           this.#byteOffset -= this.#buffers[0].length;
           return this.#buffers.shift();
         }
-        const buffer = Buffer.allocUnsafe(n4);
+        const buffer = Buffer.allocUnsafe(n5);
         let offset = 0;
-        while (offset !== n4) {
+        while (offset !== n5) {
           const next2 = this.#buffers[0];
           const { length } = next2;
-          if (length + offset === n4) {
+          if (length + offset === n5) {
             buffer.set(this.#buffers.shift(), offset);
             break;
-          } else if (length + offset > n4) {
-            buffer.set(next2.subarray(0, n4 - offset), offset);
-            this.#buffers[0] = next2.subarray(n4 - offset);
+          } else if (length + offset > n5) {
+            buffer.set(next2.subarray(0, n5 - offset), offset);
+            this.#buffers[0] = next2.subarray(n5 - offset);
             break;
           } else {
             buffer.set(this.#buffers.shift(), offset);
             offset += next2.length;
           }
         }
-        this.#byteOffset -= n4;
+        this.#byteOffset -= n5;
         return buffer;
       }
       writeFragments(fragment2) {
@@ -20527,11 +20527,11 @@ function keyByte(b) {
 function valueByte(b) {
   return b >= 33 && b <= 126 && b !== 59;
 }
-function leadsWithParameter(bytes, at2) {
-  let i = at2;
+function leadsWithParameter(bytes, at3) {
+  let i = at3;
   while (i < bytes.length && keyByte(bytes[i] ?? 0))
     i++;
-  if (i === at2 || bytes[i] !== 61)
+  if (i === at3 || bytes[i] !== 61)
     return false;
   i++;
   while (i < bytes.length && valueByte(bytes[i] ?? 0))
@@ -20542,13 +20542,13 @@ function chunkEnd(body, start, limit) {
   const target2 = start + Math.max(1, limit);
   if (target2 >= body.length)
     return body.length;
-  const safe3 = (at2) => ((body[at2] ?? 0) & 192) !== 128 && !leadsWithParameter(body, at2);
-  for (let at2 = target2; at2 > start; at2--)
-    if (safe3(at2))
-      return at2;
-  for (let at2 = target2 + 1; at2 < body.length; at2++)
-    if (safe3(at2))
-      return at2;
+  const safe3 = (at3) => ((body[at3] ?? 0) & 192) !== 128 && !leadsWithParameter(body, at3);
+  for (let at3 = target2; at3 > start; at3--)
+    if (safe3(at3))
+      return at3;
+  for (let at3 = target2 + 1; at3 < body.length; at3++)
+    if (safe3(at3))
+      return at3;
   return body.length;
 }
 function chunks(body, limit) {
@@ -20566,10 +20566,10 @@ function concatBytes(parts3) {
   for (const part of parts3)
     size += part.length;
   const out = new Uint8Array(size);
-  let at2 = 0;
+  let at3 = 0;
   for (const part of parts3) {
-    out.set(part, at2);
-    at2 += part.length;
+    out.set(part, at3);
+    at3 += part.length;
   }
   return out;
 }
@@ -20858,15 +20858,15 @@ function partialSuffix(bytes, needle, from) {
   }
   return 0;
 }
-function matchPrefix(bytes, at2, prefix2) {
+function matchPrefix(bytes, at3, prefix2) {
   for (let k = 0; k < prefix2.length; k++) {
-    const b = bytes[at2 + k];
+    const b = bytes[at3 + k];
     if (b === void 0)
       return "need";
     if (b !== prefix2[k])
       return -1;
   }
-  return at2 + prefix2.length;
+  return at3 + prefix2.length;
 }
 function escapeAt(bytes, i) {
   const next2 = bytes[i + 1];
@@ -20935,9 +20935,9 @@ var InputParser = class {
         continue;
       }
       if (this.#paste) {
-        const at2 = indexOfSeq(bytes, PASTE_END, i);
-        if (at2 >= 0) {
-          i = at2 + PASTE_END.length;
+        const at3 = indexOfSeq(bytes, PASTE_END, i);
+        if (at3 >= 0) {
+          i = at3 + PASTE_END.length;
           this.#paste = false;
           continue;
         }
@@ -21281,16 +21281,16 @@ var KeyDecoder = class {
     let i = 0;
     while (i < bytes.length) {
       if (this.#paste) {
-        const at2 = indexOfSeq(bytes, PASTE_END2, i);
-        if (at2 < 0) {
+        const at3 = indexOfSeq(bytes, PASTE_END2, i);
+        if (at3 < 0) {
           const hold = partialSuffix(bytes, PASTE_END2, i);
           this.#paste.push(bytes.slice(i, bytes.length - hold));
           return bytes.length - hold;
         }
-        this.#paste.push(bytes.slice(i, at2));
+        this.#paste.push(bytes.slice(i, at3));
         out.push({ ...key("paste", NO_MODS), text: decoder3.decode(concatBytes(this.#paste)) });
         this.#paste = null;
-        i = at2 + PASTE_END2.length;
+        i = at3 + PASTE_END2.length;
         continue;
       }
       const used = this.#one(bytes, i, out, final);
@@ -21339,9 +21339,9 @@ var KeyDecoder = class {
     return used === 0 ? 0 : used + 1;
   }
   /** Decodes a CSI or SS3 sequence whose ESC is at `at` (`start` is where the key began). */
-  #sequence(bytes, at2, start, out, alt, final) {
-    const intro = bytes[at2 + 1];
-    let j = at2 + 2;
+  #sequence(bytes, at3, start, out, alt, final) {
+    const intro = bytes[at3 + 1];
+    let j = at3 + 2;
     while (j < bytes.length && (bytes[j] ?? 0) >= 48 && (bytes[j] ?? 0) <= 63)
       j++;
     while (j < bytes.length && (bytes[j] ?? 0) >= 32 && (bytes[j] ?? 0) <= 47)
@@ -21354,7 +21354,7 @@ var KeyDecoder = class {
     }
     if (f2 < 64 || f2 > 126)
       return j - start;
-    const params = decoder3.decode(bytes.subarray(at2 + 2, j));
+    const params = decoder3.decode(bytes.subarray(at3 + 2, j));
     if (intro === 91 && params === "200" && f2 === 126) {
       this.#paste = [];
       return j + 1 - start;
@@ -22082,21 +22082,21 @@ function rising(seq) {
 }
 function children(old, now, ops) {
   const before2 = /* @__PURE__ */ new Map();
-  old.children.forEach((tree, at2) => before2.set(tree.id, { at: at2, tree }));
+  old.children.forEach((tree, at3) => before2.set(tree.id, { at: at3, tree }));
   const kept = new Set(now.children.map((child) => child.id));
   for (const child of old.children)
     if (!kept.has(child.id))
       ops.push(["del", child.id]);
   const same = [];
-  now.children.forEach((child, at2) => {
+  now.children.forEach((child, at3) => {
     const o = before2.get(child.id);
     if (o && o.tree.kind === child.kind)
-      same.push({ at: at2, was: o.at });
+      same.push({ at: at3, was: o.at });
   });
   const stay = new Set(rising(same.map((s2) => s2.was)).map((k) => same[k]?.at));
   let next2 = null;
-  for (let at2 = now.children.length - 1; at2 >= 0; at2--) {
-    const child = now.children[at2];
+  for (let at3 = now.children.length - 1; at3 >= 0; at3--) {
+    const child = now.children[at3];
     if (!child)
       continue;
     const o = before2.get(child.id);
@@ -22106,7 +22106,7 @@ function children(old, now, ops) {
       ops.push(["del", child.id]);
       ops.push(["add", child.id, now.id, next2, child.wire()]);
     } else {
-      if (!stay.has(at2))
+      if (!stay.has(at3))
         ops.push(["move", child.id, now.id, next2]);
       diff(o.tree, child, ops);
     }
@@ -22194,8 +22194,8 @@ var Surface = class {
     this.send([["focus", id3]]);
   }
   /** Scrolls a node into view. */
-  reveal(id3, at2 = "nearest") {
-    this.send([["reveal", id3, at2]]);
+  reveal(id3, at3 = "nearest") {
+    this.send([["reveal", id3, at3]]);
   }
   /** Scrolls the scroll container at or above a node. */
   scroll(id3, to) {
@@ -22888,16 +22888,16 @@ function markdownFileTarget(target2, cwd) {
   const line2 = Number(anchored[2]);
   return fileHref(path2, cwd, anchored[3] ? { line: line2, endLine: Number(anchored[3]) } : { line: line2 });
 }
-function escaped(line2, at2) {
-  let n4 = 0;
-  for (let i = at2 - 1; i >= 0 && line2[i] === "\\"; i--) {
-    n4++;
+function escaped(line2, at3) {
+  let n5 = 0;
+  for (let i = at3 - 1; i >= 0 && line2[i] === "\\"; i--) {
+    n5++;
   }
-  return n4 % 2 === 1;
+  return n5 % 2 === 1;
 }
-function linkAt(line2, at2) {
+function linkAt(line2, at3) {
   let depth = 1;
-  let labelEnd2 = at2 + 1;
+  let labelEnd2 = at3 + 1;
   while (labelEnd2 < line2.length && depth) {
     if (!escaped(line2, labelEnd2)) {
       if (line2[labelEnd2] === "[") {
@@ -23006,63 +23006,63 @@ function ternSharesFrontendHost(env2 = process.env) {
 }
 
 // node_modules/thinking-orbs/dist/engine.es.js
-function U(n4, s2, t) {
-  return n4 + (s2 - n4) * t;
+function U(n5, s2, t) {
+  return n5 + (s2 - n5) * t;
 }
-function nt(n4) {
-  return n4 - Math.floor(n4);
+function nt(n5) {
+  return n5 - Math.floor(n5);
 }
-function G(n4, s2) {
-  const t = Math.floor(n4), r = Math.floor(s2);
-  let a2 = n4 - t, o = s2 - r;
+function G(n5, s2) {
+  const t = Math.floor(n5), r = Math.floor(s2);
+  let a2 = n5 - t, o = s2 - r;
   a2 = a2 * a2 * (3 - 2 * a2), o = o * o * (3 - 2 * o);
   const c = E(t, r), M = E(t + 1, r), h2 = E(t, r + 1), m2 = E(t + 1, r + 1);
   return c + (M - c) * a2 + (h2 - c) * o + (c - M - h2 + m2) * a2 * o;
 }
-function E(n4, s2) {
-  const t = Math.sin(n4 * 12.9898 + s2 * 78.233) * 43758.5453;
+function E(n5, s2) {
+  const t = Math.sin(n5 * 12.9898 + s2 * 78.233) * 43758.5453;
   return t - Math.floor(t);
 }
-function J(n4, s2) {
-  const t = Math.PI * (3 - Math.sqrt(5)), r = 1 - 2 * (n4 + 0.5) / s2, a2 = Math.sqrt(1 - r * r), o = n4 * t;
+function J(n5, s2) {
+  const t = Math.PI * (3 - Math.sqrt(5)), r = 1 - 2 * (n5 + 0.5) / s2, a2 = Math.sqrt(1 - r * r), o = n5 * t;
   return [a2 * Math.cos(o), r, a2 * Math.sin(o)];
 }
-function et(n4, s2) {
-  return Math.atan2(Math.sin(n4 - s2), Math.cos(n4 - s2));
+function et(n5, s2) {
+  return Math.atan2(Math.sin(n5 - s2), Math.cos(n5 - s2));
 }
-function _(n4, s2, t, r, a2) {
-  const o = Math.sin(s2), c = Math.cos(s2), M = Math.sin(n4), h2 = Math.cos(n4);
+function _(n5, s2, t, r, a2) {
+  const o = Math.sin(s2), c = Math.cos(s2), M = Math.sin(n5), h2 = Math.cos(n5);
   return (m2, D2, p3) => {
     const e = m2 * h2 + p3 * M, l = -m2 * M + p3 * h2, R = D2 * c - l * o, w = D2 * o + l * c;
     return [t + e * a2, r - R * a2, w];
   };
 }
-function rt(n4, s2, t, r = 0.3) {
+function rt(n5, s2, t, r = 0.3) {
   for (const a2 of s2) {
     const o = a2.a ?? 1, c = Math.min(1, Math.max(0, a2.white)), M = Math.round((t ? 1 - c : c) * 255);
-    n4.fillStyle = `rgba(${M},${M},${M},${o})`, n4.beginPath(), n4.arc(a2.x, a2.y, a2.r, 0, Math.PI * 2), n4.fill();
+    n5.fillStyle = `rgba(${M},${M},${M},${o})`, n5.beginPath(), n5.arc(a2.x, a2.y, a2.r, 0, Math.PI * 2), n5.fill();
   }
 }
-function it(n4, s2, t) {
+function it(n5, s2, t) {
   for (const r of s2) {
     const a2 = r.a ?? 1, o = Math.min(1, Math.max(0, r.white)), c = Math.round((t ? 1 - o : o) * 255);
-    n4.strokeStyle = `rgba(${c},${c},${c},${a2})`, n4.lineWidth = r.w, n4.beginPath(), n4.moveTo(r.x1, r.y1), n4.lineTo(r.x2, r.y2), n4.stroke();
+    n5.strokeStyle = `rgba(${c},${c},${c},${a2})`, n5.lineWidth = r.w, n5.beginPath(), n5.moveTo(r.x1, r.y1), n5.lineTo(r.x2, r.y2), n5.stroke();
   }
 }
-function L(n4, s2, t = 0.3) {
+function L(n5, s2, t = 0.3) {
   const r = [];
-  for (const a2 of n4)
+  for (const a2 of n5)
     (a2.a ?? 1) < 0.02 || (a2.r = Math.max(t, a2.r), r.push(a2));
   return r.sort((a2, o) => a2.z - o.z), { dots: r, lines: s2.filter((a2) => (a2.a ?? 1) >= 0.02) };
 }
-function ht(n4, s2, t) {
-  s2.lines.length && it(n4, s2.lines, t), rt(n4, s2.dots, t);
+function ht(n5, s2, t) {
+  s2.lines.length && it(n5, s2.lines, t), rt(n5, s2.dots, t);
 }
-function $(n4, s2) {
-  return (n4 / 300) ** s2;
+function $(n5, s2) {
+  return (n5 / 300) ** s2;
 }
-var Mt = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n4, t.rsPow ?? 0.6), h2 = [], m2 = t.ghostN ?? 150;
+var Mt = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.76, c = _(s2 * 0.4, 0.3, r, a2, 1), M = $(n5, t.rsPow ?? 0.6), h2 = [], m2 = t.ghostN ?? 150;
   for (let e = 0; e < m2; e++) {
     const l = J(e, m2), [R, w, i] = c(l[0] * o, l[1] * o, l[2] * o), u = (i / o + 1) / 2;
     h2.push({ x: R, y: w, z: i, r: 0.8 * M, white: 0.78, a: 0.1 + 0.22 * u });
@@ -23084,8 +23084,8 @@ var Mt = (n4, s2, t) => {
   }
   return L(h2, [], t.rMin);
 };
-function lt(n4, s2, t, r) {
-  const a2 = 2 * s2 * t + r, o = n4 % a2, c = new Array(s2).fill(0);
+function lt(n5, s2, t, r) {
+  const a2 = 2 * s2 * t + r, o = n5 % a2, c = new Array(s2).fill(0);
   let M = -1;
   if (o < 2 * s2 * t) {
     const h2 = Math.floor(o / t), m2 = (o - h2 * t) / t, p3 = 1 - (1 - Math.min(1, m2 / 0.7)) ** 3;
@@ -23100,8 +23100,8 @@ function lt(n4, s2, t, r) {
   }
   return { amount: c, active: M };
 }
-function pt(n4, s2, t) {
-  let [r, a2, o] = n4, c = false;
+function pt(n5, s2, t) {
+  let [r, a2, o] = n5, c = false;
   for (let M = 0; M < s2.length; M++) {
     if (t.amount[M] <= 0) continue;
     const h2 = s2[M], m2 = h2.axis === 0 ? r : h2.axis === 1 ? a2 : o;
@@ -23121,16 +23121,16 @@ function pt(n4, s2, t) {
   }
   return [r, a2, o, c];
 }
-function ut(n4) {
+function ut(n5) {
   const s2 = [];
-  for (let t = 0; t < n4; t++) {
+  for (let t = 0; t < n5; t++) {
     const r = Math.min(2, Math.floor(E(t, 2.3) * 3)), a2 = -1 + 0.5 * Math.min(3, Math.floor(E(t, 5.9) * 4)), o = E(t, 7.7) < 0.5 ? 1 : -1;
     s2.push({ axis: r, lo: a2, hi: a2 + 0.5, ang: o * Math.PI / 2 });
   }
   return s2;
 }
-var ft = (n4, s2, t) => {
-  const a2 = n4 / 2, o = n4 / 2, c = n4 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m2 = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n4, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
+var ft = (n5, s2, t) => {
+  const a2 = n5 / 2, o = n5 / 2, c = n5 / 2 * 0.82, M = 0.4 + 0.06 * Math.sin(s2 * 0.35), h2 = _(s2 * 0.5, M, a2, o, c), m2 = s2 * (0.5 + (1.7 - 0.5) * (t.scanMul ?? 1)), D2 = $(n5, t.rsPow ?? 0.6), p3 = t.dimBase ?? 1, e = [], l = t.latRings ?? 17, R = t.lonDensity ?? 44;
   for (let w = 0; w <= l; w++) {
     const i = -Math.PI / 2 + w / l * Math.PI, u = Math.cos(i), y = Math.sin(i), b = Math.max(1, Math.round(Math.abs(u) * R));
     for (let f2 = 0; f2 < b; f2++) {
@@ -23148,8 +23148,8 @@ var ft = (n4, s2, t) => {
   }
   return L(e, [], t.rMin);
 };
-var dt = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n4, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m2 = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
+var dt = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.82, c = _(s2 * 0.55, 0.35 + 0.1 * Math.sin(s2 * 0.9), r, a2, o), M = $(n5, t.rsPow ?? 0.6), h2 = t.moveCount ?? 14, m2 = ut(h2), D2 = lt(s2, h2, 0.42, 1.2), p3 = [], e = t.latRings ?? 15, l = t.lonDensity ?? 40;
   for (let R = 0; R <= e; R++) {
     const w = -Math.PI / 2 + R / e * Math.PI, i = Math.cos(w), u = Math.sin(w), y = Math.max(1, Math.round(Math.abs(i) * l));
     for (let b = 0; b < y; b++) {
@@ -23165,8 +23165,8 @@ var dt = (n4, s2, t) => {
   }
   return L(p3, [], t.rMin);
 };
-var bt = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n4, t.rsPow ?? 0.6), h2 = [], m2 = t.rings ?? 15, D2 = t.lonDensity ?? 40;
+var bt = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.874, c = _(s2 * 0.18, 0.38, r, a2, 1), M = $(n5, t.rsPow ?? 0.6), h2 = [], m2 = t.rings ?? 15, D2 = t.lonDensity ?? 40;
   for (let p3 = 0; p3 <= m2; p3++) {
     const e = -Math.PI / 2 + p3 / m2 * Math.PI, l = Math.cos(e), R = Math.sin(e), w = 0.62 * Math.sin(s2 * 2.1 - p3 * 0.52) + 0.38 * Math.sin(s2 * 1.27 + p3 * 0.83), i = o * (0.88 + 0.105 * w), u = Math.max(1, Math.round(Math.abs(l) * D2));
     for (let y = 0; y < u; y++) {
@@ -23182,26 +23182,26 @@ var bt = (n4, s2, t) => {
   }
   return L(h2, [], t.rMin);
 };
-function xt(n4) {
-  return n4 * n4 * (3 - 2 * n4);
+function xt(n5) {
+  return n5 * n5 * (3 - 2 * n5);
 }
-function st(n4) {
-  const s2 = n4.length, t = [];
+function st(n5) {
+  const s2 = n5.length, t = [];
   let r = 0;
   for (let a2 = 0; a2 < s2; a2++) {
-    const o = n4[a2], c = n4[(a2 + 1) % s2], M = Math.hypot(c[0] - o[0], c[1] - o[1]);
+    const o = n5[a2], c = n5[(a2 + 1) % s2], M = Math.hypot(c[0] - o[0], c[1] - o[1]);
     t.push(M), r += M;
   }
   return (a2) => {
     let o = a2 * r, c = 0;
     for (; o > t[c] && c < s2 - 1; )
       o -= t[c], c++;
-    const M = n4[c], h2 = n4[(c + 1) % s2], m2 = t[c] ? Math.min(1, o / t[c]) : 0;
+    const M = n5[c], h2 = n5[(c + 1) % s2], m2 = t[c] ? Math.min(1, o / t[c]) : 0;
     return [M[0] + (h2[0] - M[0]) * m2, M[1] + (h2[1] - M[1]) * m2];
   };
 }
-var yt = (n4) => {
-  const s2 = -Math.PI / 2 + n4 * 2 * Math.PI;
+var yt = (n5) => {
+  const s2 = -Math.PI / 2 + n5 * 2 * Math.PI;
   return [Math.cos(s2) * 0.24, Math.sin(s2) * 0.24];
 };
 var gt = st([
@@ -23217,13 +23217,13 @@ var mt = st([
   [-0.2, -0.2]
 ]);
 var H = [yt, gt, mt];
-function wt(n4) {
-  return Math.max(6, Math.round(34 * n4));
+function wt(n5) {
+  return Math.max(6, Math.round(34 * n5));
 }
 var V = 1.4;
 var ot = 0.9;
 var Q = V + ot;
-var Pt = (n4, s2, t) => {
+var Pt = (n5, s2, t) => {
   const r = H.length, a2 = s2 % (Q * r), o = Math.floor(a2 / Q), c = a2 - o * Q, M = c > V ? xt((c - V) / ot) : 0, h2 = t.spread ?? 1, m2 = H[o], D2 = H[(o + 1) % r], p3 = 160, e = [];
   for (let x = 0; x < p3; x++) {
     const g = x / p3, d = m2(g), v = D2(g);
@@ -23235,7 +23235,7 @@ var Pt = (n4, s2, t) => {
     const g = e[x], d = e[(x + 1) % p3], v = Math.hypot(d[0] - g[0], d[1] - g[1]);
     l.push(v), R += v;
   }
-  const w = wt(t.iconD ?? 1), i = (t.rDot ?? 0.021) * 1.35 * h2, u = 1 + 0.02 * Math.sin(c * 3.1), y = [], b = n4 / 2;
+  const w = wt(t.iconD ?? 1), i = (t.rDot ?? 0.021) * 1.35 * h2, u = 1 + 0.02 * Math.sin(c * 3.1), y = [], b = n5 / 2;
   let f2 = 0, P = 0;
   for (let x = 0; x < w; x++) {
     const g = x / w * R;
@@ -23243,17 +23243,17 @@ var Pt = (n4, s2, t) => {
       P += l[f2], f2++;
     const d = e[f2], v = e[(f2 + 1) % p3], k = l[f2] ? Math.min(1, (g - P) / l[f2]) : 0, N = (d[0] + (v[0] - d[0]) * k) * u, z = (d[1] + (v[1] - d[1]) * k) * u;
     y.push({
-      x: b + N * n4,
-      y: b + z * n4,
+      x: b + N * n5,
+      y: b + z * n5,
       z: 0,
-      r: Math.max(0.35, i * n4),
+      r: Math.max(0.35, i * n5),
       white: 0.1
     });
   }
   return L(y, [], t.rMin);
 };
-var Rt = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n4, t.rsPow ?? 0.6), h2 = [], m2 = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
+var Rt = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.82, c = _(s2 * 0.12, 0.3, r, a2, 1), M = $(n5, t.rsPow ?? 0.6), h2 = [], m2 = t.orbitN ?? 12, D2 = t.ghostN ?? 40, p3 = t.particles ?? 3;
   for (let e = 0; e < m2; e++) {
     const l = E(e, 1.7), R = E(e, 5.2), w = E(e, 8.9), i = o * (0.45 + 0.52 * l), u = l * 2 * Math.PI, y = Math.acos(2 * R - 1), b = Math.sin(y) * Math.cos(u), f2 = Math.cos(y), P = Math.sin(y) * Math.sin(u);
     let x = -f2, g = b;
@@ -23292,8 +23292,8 @@ var Rt = (n4, s2, t) => {
   }
   return L(h2, [], t.rMin);
 };
-var Z = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m2 = $(n4, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
+var Z = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.78, c = t.spin ?? 1, M = 0.3, h2 = _(s2 * 0.1 * c, M, r, a2, 1), m2 = $(n5, t.rsPow ?? 0.6), D2 = [], p3 = t.ghostN ?? 150;
   for (let z = 0; z < p3; z++) {
     const O = J(z, p3), [B, I, S] = h2(O[0] * o, O[1] * o, O[2] * o), A = (S / o + 1) / 2;
     D2.push({ x: B, y: I, z: S, r: 0.8 * m2, white: 0.78, a: 0.1 + 0.22 * A });
@@ -23302,10 +23302,10 @@ var Z = (n4, s2, t) => {
   for (let z = 0; z < N; z++) {
     const O = (z - (N - 1) / 2) * 0.075, B = Math.abs(z - (N - 1) / 2) / Math.max(1, (N - 1) / 2);
     for (let I = 0; I < k; I++) {
-      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at2, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K2 = (X / o + 1) / 2;
+      const S = I / k * 2 * Math.PI, A = (0.16 * Math.sin(S * 3 - s2 * 1.7 + z * 0.22) + 0.07 * Math.sin(S * 5 + s2 * 1.1)) * (t.wobMul ?? 1), T = t.faceOn ? 1 + A : 1, C = t.faceOn ? O : O + A, q2 = R * Math.cos(S) + u * Math.sin(S) + f2 * C, F = w * Math.cos(S) + y * Math.sin(S) + P * C, j = i * Math.cos(S) + b * Math.sin(S) + x * C, W = Math.sqrt(q2 * q2 + F * F + j * j), Y = d * T, [ct, at3, X] = h2(q2 / W * Y, F / W * Y, j / W * Y), K2 = (X / o + 1) / 2;
       D2.push({
         x: ct,
-        y: at2,
+        y: at3,
         z: X,
         r: ((t.rBase ?? 1.1) + (t.rDepth ?? 1.7) * K2) * (1 - 0.25 * B) * m2,
         white: 0.52 - 0.44 * K2 + 0.18 * B,
@@ -23315,8 +23315,8 @@ var Z = (n4, s2, t) => {
   }
   return L(D2, [], t.rMin);
 };
-var Dt = (n4, s2, t) => {
-  const r = n4 / 2, a2 = n4 / 2, o = n4 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n4, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m2 = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
+var Dt = (n5, s2, t) => {
+  const r = n5 / 2, a2 = n5 / 2, o = n5 / 2 * 0.8 * (t.spread ?? 1), c = _(s2 * 0.12, 0.32, r, a2, o), M = $(n5, t.rsPow ?? 0.6), h2 = t.nodeN ?? 30, m2 = t.thr ?? 0.72, D2 = t.nodeR ?? 1.4, p3 = t.nodeRDepth ?? 1.8, e = [];
   for (let i = 0; i < h2; i++) {
     const u = J(i, h2), y = u[0] + 0.3 * (G(i * 0.31 + 9, s2 * 0.24) - 0.5) * 2, b = u[1] + 0.3 * (G(i * 0.53 + 27, s2 * 0.21) - 0.5) * 2, f2 = u[2] + 0.3 * (G(i * 0.77 + 55, s2 * 0.27) - 0.5) * 2, P = Math.sqrt(y * y + b * b + f2 * f2);
     e.push([y / P, b / P, f2 / P]);
@@ -23376,8 +23376,8 @@ var vt = {
   morph: Pt
 };
 var Ct = Object.fromEntries(
-  Object.entries(vt).map(([n4, s2]) => [
-    n4,
+  Object.entries(vt).map(([n5, s2]) => [
+    n5,
     (t, r, a2, o, c) => ht(t, s2(r, a2, c), o)
   ])
 );
@@ -23399,8 +23399,8 @@ var kt = [
   "nodeR",
   "nodeRDepth"
 ];
-function St(n4, s2) {
-  const t = { ...n4 }, r = /* @__PURE__ */ new Set(), a2 = Math.sqrt(s2);
+function St(n5, s2) {
+  const t = { ...n5 }, r = /* @__PURE__ */ new Set(), a2 = Math.sqrt(s2);
   for (const [o, c] of zt) {
     const M = t[o], h2 = t[c];
     M != null && h2 != null && !r.has(o) && !r.has(c) && (t[o] = Math.max(2, Math.round(M * a2)), t[c] = Math.max(2, Math.round(h2 * a2)), r.add(o), r.add(c));
@@ -23415,8 +23415,8 @@ function St(n4, s2) {
   }
   return t;
 }
-function Bt(n4, s2) {
-  const t = { ...n4 };
+function Bt(n5, s2) {
+  const t = { ...n5 };
   for (const r of kt) {
     const a2 = t[r];
     a2 != null && (t[r] = a2 * s2);
@@ -23562,10 +23562,10 @@ var At = {
   }
 };
 var tt = /* @__PURE__ */ new Map();
-function Lt(n4, s2) {
-  const t = `${n4}-${s2}`, r = tt.get(t);
+function Lt(n5, s2) {
+  const t = `${n5}-${s2}`, r = tt.get(t);
   if (r) return r;
-  const a2 = Ot[n4], o = At[a2][s2];
+  const a2 = Ot[n5], o = At[a2][s2];
   let c = { ...Et[a2] };
   o.count !== 1 && (c = St(c, o.count)), o.size !== 1 && (c = Bt(c, o.size)), o.extra && (c = { ...c, ...o.extra });
   const M = { mode: a2, speed: o.speed, opts: c };
@@ -23784,13 +23784,13 @@ function orbSvg(state, seconds, dark) {
     const level = Math.round((dark ? 1 - ink3 : ink3) * 255);
     return state === "error" ? ORB_ERROR_INK[dark ? "dark" : "light"] : `#${level.toString(16).padStart(2, "0").repeat(3)}`;
   };
-  const n4 = (v) => v.toFixed(1);
+  const n5 = (v) => v.toFixed(1);
   const alpha = (v) => (v ?? 1).toFixed(2);
   const marks2 = frame2.lines.map(
-    (l) => `<line x1="${n4(l.x1)}" y1="${n4(l.y1)}" x2="${n4(l.x2)}" y2="${n4(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n4(l.w)}" stroke-opacity="${alpha(l.a)}"/>`
+    (l) => `<line x1="${n5(l.x1)}" y1="${n5(l.y1)}" x2="${n5(l.x2)}" y2="${n5(l.y2)}" stroke="${grey(l.white)}" stroke-width="${n5(l.w)}" stroke-opacity="${alpha(l.a)}"/>`
   );
   for (const d of frame2.dots) {
-    marks2.push(`<circle cx="${n4(d.x)}" cy="${n4(d.y)}" r="${n4(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
+    marks2.push(`<circle cx="${n5(d.x)}" cy="${n5(d.y)}" r="${n5(d.r)}" fill="${grey(d.white)}" fill-opacity="${alpha(d.a)}"/>`);
   }
   if (state === "waiting") marks2.push(`<circle cx="32" cy="32" r="30.5" fill="none" stroke="${ORB_WAIT_RIM[dark ? "dark" : "light"]}" stroke-width="1.5"/>`);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 ${SOURCE} ${SOURCE}">${marks2.join("")}</svg>`;
@@ -24224,13 +24224,13 @@ function orbitCss(lanes2, reduce = false) {
   const fixed = orbitSeats(lanes2, true);
   seats.forEach((s2, i) => {
     const L2 = `${O} .glide-orbit-s${i}`;
-    const at2 = `left: ${f(w / 2 - s2.arm / 2)}px; top: ${f(h2 / 2 - s2.arm / 2)}px; width: ${f(s2.arm)}px; height: ${f(s2.arm)}px; --a: ${f((fixed[i]?.theta ?? 0) * 180 / Math.PI)}deg;`;
+    const at3 = `left: ${f(w / 2 - s2.arm / 2)}px; top: ${f(h2 / 2 - s2.arm / 2)}px; width: ${f(s2.arm)}px; height: ${f(s2.arm)}px; --a: ${f((fixed[i]?.theta ?? 0) * 180 / Math.PI)}deg;`;
     const jiggle = `--oj: ${f(s2.jiggleDelay, 4)}s;`;
     if (s2.moving) {
-      rules.push(`${L2} { ${at2} ${jiggle} --od: ${f(s2.period)}s; --ol: ${f(s2.delay, 4)}s; --ob: ${f(s2.brake)}deg; }`);
+      rules.push(`${L2} { ${at3} ${jiggle} --od: ${f(s2.period)}s; --ol: ${f(s2.delay, 4)}s; --ob: ${f(s2.brake)}deg; }`);
     } else {
       const deg = f(s2.theta * 180 / Math.PI);
-      rules.push(`${L2} { ${at2} ${jiggle} animation-name: none; transform: rotate(-${deg}deg); }`, `${L2} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`);
+      rules.push(`${L2} { ${at3} ${jiggle} animation-name: none; transform: rotate(-${deg}deg); }`, `${L2} .glide-orbit-face { animation-name: none; transform: rotate(${deg}deg); }`);
     }
   });
   rules.push(`@media (prefers-reduced-motion: reduce) {
@@ -24366,10 +24366,10 @@ var ROLE_ORDER = ["fast", "small", "large", "council"];
 var LIVE_DOCK = "dock.live";
 var LANES_ID = `${LIVE_DOCK}.lanes`;
 function laneCounts(lanes2) {
-  const n4 = /* @__PURE__ */ new Map();
-  for (const l of lanes2) n4.set(l.role, (n4.get(l.role) ?? 0) + 1);
-  const order2 = [...ROLE_ORDER, ...[...n4.keys()].filter((r) => !ROLE_ORDER.includes(r))];
-  return order2.flatMap((r) => n4.get(r) ? [`${n4.get(r)} ${r}`] : []).join(" \xB7 ");
+  const n5 = /* @__PURE__ */ new Map();
+  for (const l of lanes2) n5.set(l.role, (n5.get(l.role) ?? 0) + 1);
+  const order2 = [...ROLE_ORDER, ...[...n5.keys()].filter((r) => !ROLE_ORDER.includes(r))];
+  return order2.flatMap((r) => n5.get(r) ? [`${n5.get(r)} ${r}`] : []).join(" \xB7 ");
 }
 function liveDock(voice, lanes2) {
   if (!voice && !lanes2) return null;
@@ -24379,7 +24379,7 @@ function liveDock(voice, lanes2) {
   ] }, LIVE_DOCK.slice("dock.".length));
 }
 var orbitLane = (lane, dark) => ({ role: lane.role, state: lane.state, hue: providerHue(laneModel(lane.model, lane.resolved).provider, dark) });
-var clip = (s2, n4) => s2.length > n4 ? s2.slice(0, n4 - 1) + "\u2026" : s2;
+var clip = (s2, n5) => s2.length > n5 ? s2.slice(0, n5 - 1) + "\u2026" : s2;
 function laneQuote(lane, said) {
   if (lane.state === "dead") return null;
   const quote2 = speech(lane.entry?.text ?? lane.researching);
@@ -24695,16 +24695,16 @@ function countFrames(value) {
     return `${prefix2}${formatted}${fraction2 === void 0 ? "" : "." + fraction2}${suffix}`;
   });
 }
-function liveCard(n4) {
-  switch (n4.typeName) {
+function liveCard(n5) {
+  switch (n5.typeName) {
     case "Card":
-      if (n4.props.status === "done" || n4.props.status === "error") return false;
-      return n4.props.status === "running" || n4.props.status === "pending" || n4.props.children.some(liveCard);
+      if (n5.props.status === "done" || n5.props.status === "error") return false;
+      return n5.props.status === "running" || n5.props.status === "pending" || n5.props.children.some(liveCard);
     case "Row":
     case "Section":
-      return n4.props.children.some(liveCard);
+      return n5.props.children.some(liveCard);
     case "Steps":
-      return n4.props.items.some((s2) => s2.status === "active");
+      return n5.props.items.some((s2) => s2.status === "active");
     default:
       return false;
   }
@@ -24778,22 +24778,22 @@ function cell2(v, meter) {
   return String(v ?? "");
 }
 function kids(nodes, r) {
-  return nodes.map((n4, i) => node2(n4, `p${i}`, r));
+  return nodes.map((n5, i) => node2(n5, `p${i}`, r));
 }
-function node2(n4, key3, r) {
-  switch (n4.typeName) {
+function node2(n5, key3, r) {
+  switch (n5.typeName) {
     case "Card": {
-      const p3 = n4.props;
+      const p3 = n5.props;
       return html.div(
-        { key: key3, attrs: { "data-glide-motion": liveCard(n4) ? "live" : "still", "data-glide-enter": r.entrance === false ? "no" : "yes" } },
-        /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
+        { key: key3, attrs: { "data-glide-motion": liveCard(n5) ? "live" : "still", "data-glide-enter": r.entrance === false ? "no" : "yes" } },
+        /* @__PURE__ */ jsxs("card", { head: [span2(p3.title, "strong"), ...p3.app ? [span2("  " + p3.app, "muted")] : []], role: p3.skin ? `${p3.skin}.card` : "glide.card", ...p3.status ? { status: p3.status } : {}, children: [
           /* @__PURE__ */ jsx("col", { gap: "md", role: "glide.body", children: kids(p3.children, r) }, "body"),
           p3.source ? /* @__PURE__ */ jsx("text", { role: "glide.source", text: p3.source, wrap: "word" }, "src") : null
         ] }, "card")
       );
     }
     case "Section": {
-      const p3 = n4.props;
+      const p3 = n5.props;
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.section", children: [
         /* @__PURE__ */ jsxs("row", { align: "baseline", role: "glide.section.head", children: [
           /* @__PURE__ */ jsx("text", { role: "glide.section.title", text: p3.title, truncate: "end" }, "t"),
@@ -24804,9 +24804,9 @@ function node2(n4, key3, r) {
       ] }, key3);
     }
     case "Row":
-      return /* @__PURE__ */ jsx("row", { align: "center", gap: "lg", role: "glide.row", children: n4.props.children.map((c, i) => /* @__PURE__ */ jsx("col", { basis: 0, grow: c.typeName === "Hero" ? 0 : 1, min: { w: "16ch" }, children: node2(c, "n", r) }, `k${i}`)) }, key3);
+      return /* @__PURE__ */ jsx("row", { align: "center", gap: "lg", role: "glide.row", children: n5.props.children.map((c, i) => /* @__PURE__ */ jsx("col", { basis: 0, grow: c.typeName === "Hero" ? 0 : 1, min: { w: "16ch" }, children: node2(c, "n", r) }, `k${i}`)) }, key3);
     case "Hero": {
-      const p3 = n4.props;
+      const p3 = n5.props;
       return /* @__PURE__ */ jsxs("col", { gap: "none", role: "glide.hero", children: [
         figure(p3.value, "glide.hero.value", p3.tone, r.entrance),
         /* @__PURE__ */ jsx("text", { role: "glide.label", text: p3.label, truncate: "end" }, "l"),
@@ -24814,33 +24814,33 @@ function node2(n4, key3, r) {
       ] }, key3);
     }
     case "Stats":
-      return /* @__PURE__ */ jsx("row", { gap: "lg", role: "glide.stats", wrap: true, children: n4.props.items.map((s2, i) => /* @__PURE__ */ jsxs("col", { gap: "none", min: { w: "10ch" }, role: "glide.stat", children: [
+      return /* @__PURE__ */ jsx("row", { gap: "lg", role: "glide.stats", wrap: true, children: n5.props.items.map((s2, i) => /* @__PURE__ */ jsxs("col", { gap: "none", min: { w: "10ch" }, role: "glide.stat", children: [
         figure(s2.value, "glide.stat.value", s2.tone, r.entrance),
         /* @__PURE__ */ jsx("text", { role: "glide.label", text: s2.label, truncate: "end" }, "l")
       ] }, `s${i}`)) }, key3);
     case "Text": {
-      const t = n4.props.tone;
+      const t = n5.props.tone;
       const role = t === "muted" ? "glide.muted" : t === "strong" ? "glide.strong" : t === "quote" ? "glide.quote" : "glide.text";
       const tone3 = t === "muted" || t === "strong" || t === "quote" ? void 0 : toneStyle(t);
-      return /* @__PURE__ */ jsx("text", { role, text: n4.props.body, wrap: "word", ...tone3 ? { tone: tone3 } : {} }, key3);
+      return /* @__PURE__ */ jsx("text", { role, text: n5.props.body, wrap: "word", ...tone3 ? { tone: tone3 } : {} }, key3);
     }
     case "Spark":
-      return /* @__PURE__ */ jsx("chart", { kind: "spark", role: "glide.spark", series: n4.props.points.map((value) => ({ value })), size: "lg", summary: n4.props.summary }, key3);
+      return /* @__PURE__ */ jsx("chart", { kind: "spark", role: "glide.spark", series: n5.props.points.map((value) => ({ value })), size: "lg", summary: n5.props.summary }, key3);
     case "Bars":
-      return /* @__PURE__ */ jsx("chart", { kind: "bars", role: "glide.bars", series: n4.props.values.map((value, i) => ({ value, label: n4.props.labels[i] ?? "" })), size: "md", summary: n4.props.summary }, key3);
+      return /* @__PURE__ */ jsx("chart", { kind: "bars", role: "glide.bars", series: n5.props.values.map((value, i) => ({ value, label: n5.props.labels[i] ?? "" })), size: "md", summary: n5.props.summary }, key3);
     case "Meter": {
-      const p3 = n4.props;
+      const p3 = n5.props;
       return /* @__PURE__ */ jsx("meter", { label: p3.label, role: "glide.meter", value: clamp(p3.value), ...p3.total ? { total: p3.total } : {}, ...toneStyle(p3.tone) ? { tone: toneStyle(p3.tone) } : {} }, key3);
     }
     case "Table": {
-      const { columns, rows: rows2 } = n4.props;
-      const first = columns[0]?.id ?? "";
+      const { columns: columns2, rows: rows2 } = n5.props;
+      const first = columns2[0]?.id ?? "";
       const table3 = /* @__PURE__ */ jsx(
         "table",
         {
-          cols: columns.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns.some((x) => x.grow) ? { grow: 1 } : {} })),
+          cols: columns2.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns2.some((x) => x.grow) ? { grow: 1 } : {} })),
           role: "glide.table",
-          rows: rows2.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
+          rows: rows2.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
         },
         "t"
       );
@@ -24856,11 +24856,11 @@ function node2(n4, key3, r) {
       ] }, key3);
     }
     case "Kv":
-      return /* @__PURE__ */ jsx("kv", { items: n4.props.items.map((i) => ({ k: i.k, v: i.v })), layout: "grid", role: "glide.kv" }, key3);
+      return /* @__PURE__ */ jsx("kv", { items: n5.props.items.map((i) => ({ k: i.k, v: i.v })), layout: "grid", role: "glide.kv" }, key3);
     case "List": {
-      const numbered = n4.props.numbered !== false;
-      return /* @__PURE__ */ jsx("col", { gap: "xs", role: "glide.list", children: n4.props.items.flatMap((it2, i) => {
-        const group = it2.group !== void 0 && it2.group !== n4.props.items[i - 1]?.group ? [/* @__PURE__ */ jsx("text", { role: "glide.list.group", text: it2.group, truncate: "end" }, `g${i}`)] : [];
+      const numbered = n5.props.numbered !== false;
+      return /* @__PURE__ */ jsx("col", { gap: "xs", role: "glide.list", children: n5.props.items.flatMap((it2, i) => {
+        const group = it2.group !== void 0 && it2.group !== n5.props.items[i - 1]?.group ? [/* @__PURE__ */ jsx("text", { role: "glide.list.group", text: it2.group, truncate: "end" }, `g${i}`)] : [];
         const row2 = /* @__PURE__ */ jsxs("row", { align: "center", gap: "md", role: "glide.list.row", children: [
           numbered ? /* @__PURE__ */ jsx("text", { role: "glide.list.index", text: String(i + 1).padStart(2, "0") }, "i") : null,
           /* @__PURE__ */ jsxs("col", { gap: "none", grow: 1, shrink: 1, children: [
@@ -24875,7 +24875,7 @@ function node2(n4, key3, r) {
       }) }, key3);
     }
     case "Tabs": {
-      const { items, active: active2 } = n4.props;
+      const { items, active: active2 } = n5.props;
       return /* @__PURE__ */ jsx(
         "tabs",
         {
@@ -24891,19 +24891,19 @@ function node2(n4, key3, r) {
       );
     }
     case "Badges":
-      return /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.badges", wrap: true, children: n4.props.items.map((b, i) => /* @__PURE__ */ jsx("badge", { text: b.text, ...toneStyle(b.tone) ? { tone: toneStyle(b.tone) } : {} }, `b${i}`)) }, key3);
+      return /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.badges", wrap: true, children: n5.props.items.map((b, i) => /* @__PURE__ */ jsx("badge", { text: b.text, ...toneStyle(b.tone) ? { tone: toneStyle(b.tone) } : {} }, `b${i}`)) }, key3);
     case "Steps":
       return /* @__PURE__ */ jsx(
         "checklist",
         {
           mode: "full",
-          phases: [{ id: "p", items: n4.props.items.map((s2) => ({ id: s2.id, text: s2.text, status: STEP_STATUS[s2.status], ...s2.note ? { note: s2.note } : {} })) }],
+          phases: [{ id: "p", items: n5.props.items.map((s2) => ({ id: s2.id, text: s2.text, status: STEP_STATUS[s2.status], ...s2.note ? { note: s2.note } : {} })) }],
           role: "glide.steps"
         },
         key3
       );
     case "Flow": {
-      const { stages, note } = n4.props;
+      const { stages, note } = n5.props;
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.flow", children: [
         /* @__PURE__ */ jsx("row", { align: "stretch", gap: "xs", role: "glide.flow.row", children: stages.flatMap((s2, i) => [
           ...i === 0 ? [] : [/* @__PURE__ */ jsx("text", { role: "glide.flow.arrow", text: "\u2192" }, `a${i}`)],
@@ -24916,10 +24916,14 @@ function node2(n4, key3, r) {
       ] }, key3);
     }
     case "Buttons":
-      return /* @__PURE__ */ jsx("row", { align: "center", gap: "sm", role: "glide.actions", wrap: true, children: n4.props.items.map((b, i) => b.disabled ? /* @__PURE__ */ jsx("text", { role: "glide.muted", text: b.label }, `b${i}`) : button({ key: `b${i}`, label: b.label, wrap: "none", ...b.primary ? { kind: "primary" } : {}, onClick: () => r.send(b.intent) })) }, key3);
+      return /* @__PURE__ */ jsx("row", { align: "center", gap: "sm", role: "glide.actions", wrap: true, children: n5.props.items.map((b, i) => b.disabled ? /* @__PURE__ */ jsx("text", { role: "glide.muted", text: b.label }, `b${i}`) : button({ key: `b${i}`, label: b.label, wrap: "none", ...b.primary ? { kind: "primary" } : {}, onClick: () => r.send(b.intent) })) }, key3);
     case "Graphic": {
-      const blob2 = r.svg?.(n4.props.svg);
-      return blob2 === void 0 ? /* @__PURE__ */ jsx("spacer", { size: "none" }, key3) : /* @__PURE__ */ jsx("col", { role: "glide.graphic", children: ui.image({ key: "g", blob: blob2, w: n4.props.w, h: n4.props.h, alt: n4.props.alt }) }, key3);
+      const blob2 = r.svg?.(n5.props.svg);
+      return blob2 === void 0 ? /* @__PURE__ */ jsx("spacer", { size: "none" }, key3) : /* @__PURE__ */ jsx("col", { role: "glide.graphic", children: ui.image({ key: "g", blob: blob2, w: n5.props.w, h: n5.props.h, alt: n5.props.alt }) }, key3);
+    }
+    case "Picture": {
+      const blob2 = r.picture?.(n5.props.png);
+      return blob2 === void 0 ? /* @__PURE__ */ jsx("spacer", { size: "none" }, key3) : /* @__PURE__ */ jsx("col", { role: "glide.picture", children: ui.image({ key: "p", blob: blob2, w: n5.props.w, h: n5.props.h, alt: n5.props.alt }) }, key3);
     }
   }
 }
@@ -24929,13 +24933,13 @@ var RING_START = 0.2;
 function ringCss(left, glow = false) {
   const d = (1 - Math.max(0, Math.min(1, left))) * 2;
   const x0 = RING_START;
-  const pct2 = (n4) => `${(n4 * 100).toFixed(2)}%`;
-  const at2 = (role, css3) => `[data-role][data-role='glide.ring.${role}']{${css3}}`;
+  const pct2 = (n5) => `${(n5 * 100).toFixed(2)}%`;
+  const at3 = (role, css3) => `[data-role][data-role='glide.ring.${role}']{${css3}}`;
   const colour = (spent) => spent ? RING_SPENT : RING_LEFT;
   const tops = (spans) => spans.filter(([a2, b]) => b > a2).map(
-    ([a2, b, spent], i) => at2(`t${i}`, `display:block;left:${a2 === 0 ? "-1px" : pct2(a2)};right:${b === 1 ? "-1px" : pct2(1 - b)};border-radius:${a2 === 0 ? 17 : 0}px ${b === 1 ? 17 : 0}px 0 0;border-color:${colour(spent)}`)
+    ([a2, b, spent], i) => at3(`t${i}`, `display:block;left:${a2 === 0 ? "-1px" : pct2(a2)};right:${b === 1 ? "-1px" : pct2(1 - b)};border-radius:${a2 === 0 ? 17 : 0}px ${b === 1 ? 17 : 0}px 0 0;border-color:${colour(spent)}`)
   ).join("");
-  const whole = (spent) => at2("bl", `right:-1px;border-right-width:2px;border-radius:17px;border-color:${colour(spent)}`) + at2("br", "display:none");
+  const whole = (spent) => at3("bl", `right:-1px;border-right-width:2px;border-radius:17px;border-color:${colour(spent)}`) + at3("br", "display:none");
   let css2, head2;
   if (d <= 1 - x0) {
     const h2 = x0 + d;
@@ -24943,7 +24947,7 @@ function ringCss(left, glow = false) {
     head2 = `top:-4px;left:calc(${pct2(h2)} - 4px)`;
   } else if (d <= 2 - x0) {
     const h2 = 1 - (d - (1 - x0));
-    css2 = tops([[0, x0, false], [x0, 1, true]]) + at2("bl", `right:${pct2(1 - h2)};border-color:${RING_LEFT}`) + at2("br", `left:${pct2(h2)};border-color:${RING_SPENT}`);
+    css2 = tops([[0, x0, false], [x0, 1, true]]) + at3("bl", `right:${pct2(1 - h2)};border-color:${RING_LEFT}`) + at3("br", `left:${pct2(h2)};border-color:${RING_SPENT}`);
     head2 = `bottom:-4px;left:calc(${pct2(h2)} - 4px)`;
   } else {
     const h2 = d - (2 - x0);
@@ -24951,7 +24955,7 @@ function ringCss(left, glow = false) {
     head2 = `top:-4px;left:calc(${pct2(h2)} - 4px)`;
   }
   return `${css2}
-${at2("head", head2)}${glow ? RING_GLOW : ""}`;
+${at3("head", head2)}${glow ? RING_GLOW : ""}`;
 }
 var ACCENT = `var(--sf-accent,${DASH.gold})`;
 var RING_LEFT = ACCENT;
@@ -25013,12 +25017,12 @@ var TERN_DROP = /* @__PURE__ */ new Set([
 var TERN_BAD_VALUE = /color-mix\([^;]*currentColor|repeat\(\s*auto-(fill|fit)|conic-gradient|\bNaN|\bundefined|\bnull\b/i;
 var TERN_ATTR = "data-eui-a-";
 function ternDecl(decl) {
-  const at2 = decl.indexOf(":");
-  if (at2 < 0) {
+  const at3 = decl.indexOf(":");
+  if (at3 < 0) {
     return decl;
   }
-  const prop2 = decl.slice(0, at2).trim().toLowerCase();
-  let value = decl.slice(at2 + 1).trim();
+  const prop2 = decl.slice(0, at3).trim().toLowerCase();
+  let value = decl.slice(at3 + 1).trim();
   if (prop2.startsWith("--")) {
     return decl;
   }
@@ -25027,7 +25031,7 @@ function ternDecl(decl) {
   }
   value = value.replace(/(\d)dvh\b/g, "$1vh").replace(/env\([^()]*\)/g, "0px");
   if (prop2 === "position" && value === "fixed") {
-    return `${decl.slice(0, at2)}:absolute`;
+    return `${decl.slice(0, at3)}:absolute`;
   }
   if (prop2 === "border-block") {
     return `border-top:${value};border-bottom:${value}`;
@@ -25041,7 +25045,7 @@ function ternDecl(decl) {
     }
     return `padding-left:${value};padding-right:${value}`;
   }
-  return `${decl.slice(0, at2)}:${value}`;
+  return `${decl.slice(0, at3)}:${value}`;
 }
 function ternBody(body) {
   const out = [];
@@ -25087,21 +25091,21 @@ function ternTag(tag3, attrs) {
   }
   return isTag(tag3) ? tag3 : INLINE.has(tag3) ? "span" : "div";
 }
-function convert(n4, key3, eui, activate) {
-  if (n4.t === "text") {
-    return n4.text;
+function convert(n5, key3, eui, activate) {
+  if (n5.t === "text") {
+    return n5.text;
   }
-  if (n4.t === "svg") {
-    const blob2 = eui.svg(n4.svg);
+  if (n5.t === "svg") {
+    const blob2 = eui.svg(n5.svg);
     const attrs2 = { "data-eui-svg": "" };
-    if (n4.style) {
-      attrs2["data-eui-s"] = eui.style(n4.style);
+    if (n5.style) {
+      attrs2["data-eui-s"] = eui.style(n5.style);
     }
-    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n4.cls }, ui.image({ blob: blob2, w: Math.round(n4.w), h: Math.round(n4.h) }));
+    return blob2 === void 0 ? null : html.span({ attrs: attrs2, class: n5.cls }, ui.image({ blob: blob2, w: Math.round(n5.w), h: Math.round(n5.h) }));
   }
-  const tag3 = ternTag(n4.tag, n4.attrs);
+  const tag3 = ternTag(n5.tag, n5.attrs);
   const attrs = {};
-  for (const [k, v] of Object.entries(n4.attrs)) {
+  for (const [k, v] of Object.entries(n5.attrs)) {
     if (/^(data-|aria-)/.test(k) || k === "role" || k === "colspan" || k === "rowspan") {
       attrs[k] = v;
     }
@@ -25109,27 +25113,27 @@ function convert(n4, key3, eui, activate) {
       attrs[`${TERN_ATTR}${k}`] = v;
     }
   }
-  if (tag3 !== n4.tag) {
-    attrs["data-eui-tag"] = n4.tag;
+  if (tag3 !== n5.tag) {
+    attrs["data-eui-tag"] = n5.tag;
   }
-  if (n4.style) {
-    attrs["data-eui-s"] = eui.style(n4.style);
+  if (n5.style) {
+    attrs["data-eui-s"] = eui.style(n5.style);
   }
-  const kids2 = n4.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
-  if (n4.tag === "input" && tag3 === "span") {
-    kids2.push(n4.attrs["value"] || n4.attrs["placeholder"] || "");
+  const kids2 = n5.kids.map((k, i) => convert(k, k.t === "el" ? `n${k.id}` : `${key3}.${i}`, eui, activate));
+  if (n5.tag === "input" && tag3 === "span") {
+    kids2.push(n5.attrs["value"] || n5.attrs["placeholder"] || "");
   }
   return ui.el({
     key: key3,
     tag: tag3,
     attrs,
-    class: n4.cls,
-    ...n4.attrs["hidden"] ? { hidden: true } : {},
-    ...n4.attrs["disabled"] ? { disabled: true } : {},
-    ...tag3 === "input" ? { type: n4.attrs["type"] ?? "checkbox", checked: Boolean(n4.attrs["checked"]) } : {},
-    ...n4.attrs["title"] ? { title: n4.attrs["title"] } : {},
-    ...n4.click ? { onClick: () => {
-      activate(n4.id);
+    class: n5.cls,
+    ...n5.attrs["hidden"] ? { hidden: true } : {},
+    ...n5.attrs["disabled"] ? { disabled: true } : {},
+    ...tag3 === "input" ? { type: n5.attrs["type"] ?? "checkbox", checked: Boolean(n5.attrs["checked"]) } : {},
+    ...n5.attrs["title"] ? { title: n5.attrs["title"] } : {},
+    ...n5.click ? { onClick: () => {
+      activate(n5.id);
     } } : {}
   }, kids2);
 }
@@ -25137,7 +25141,7 @@ function euiCardNode(card, view, eui, popup = false) {
   if (view.ui) {
     const send2 = view.send ?? (() => void 0);
     return /* @__PURE__ */ jsxs("col", { role: "glide.host", children: [
-      node2(view.ui, "ui", { send: send2, entrance: view.entrance, svg: (markup) => eui.svg(markup) }),
+      node2(view.ui, "ui", { send: send2, entrance: view.entrance, svg: (markup) => eui.svg(markup), picture: (png) => eui.picture?.(png) }),
       view.error === void 0 ? null : /* @__PURE__ */ jsx("text", { role: "eui.error", text: view.error, wrap: "word" }, "err")
     ] }, view.identity === void 0 ? card : `${card}.${view.identity}`);
   }
@@ -25195,7 +25199,7 @@ var DOT = {
 var sortLanes = (lanes2) => [...lanes2].sort((a2, b) => ROLE_ORDER2.indexOf(a2.role) - ROLE_ORDER2.indexOf(b.role));
 var laneChoices = (lane, bound2) => roleChoices(lane.role, [lane.model, bound2[lane.role] ?? ""]).slice(0, PICK_STRIDE);
 var pickId = (lane, choice2) => PICK_BASE + lane * PICK_STRIDE + choice2;
-var clip2 = (s2, n4) => s2.length > n4 ? s2.slice(0, n4 - 1) + "\u2026" : s2;
+var clip2 = (s2, n5) => s2.length > n5 ? s2.slice(0, n5 - 1) + "\u2026" : s2;
 var LANES_GLASS = "rgba(12,12,10,0.88)";
 var SPACE = { t: "text", text: " " };
 var spaced = (kids2) => kids2.flatMap((k, i) => i > 0 && k.t === "el" && kids2[i - 1]?.t === "el" ? [SPACE, k] : [k]);
@@ -25355,11 +25359,11 @@ function openLanesPopup(host2, feed, bindings = fileBindings(), focus2) {
         label: "Voice lanes",
         identity: "lanes",
         node: lanesCard(src, bound2, void 0, focus2),
-        activate: (n4) => {
-          if (n4 === CLOSE_ID) return host2.close(overlay2);
-          const lane = lanes2[Math.floor((n4 - PICK_BASE) / PICK_STRIDE)];
-          const model = lane && laneChoices(lane, bound2)[(n4 - PICK_BASE) % PICK_STRIDE];
-          if (n4 < PICK_BASE || !lane || !model) return;
+        activate: (n5) => {
+          if (n5 === CLOSE_ID) return host2.close(overlay2);
+          const lane = lanes2[Math.floor((n5 - PICK_BASE) / PICK_STRIDE)];
+          const model = lane && laneChoices(lane, bound2)[(n5 - PICK_BASE) % PICK_STRIDE];
+          if (n5 < PICK_BASE || !lane || !model) return;
           try {
             bindings.set(lane.role, model);
           } catch (e) {
@@ -25388,8 +25392,8 @@ function parseColor(input2) {
   const value = input2.trim();
   let m2 = HEX6_RE.exec(value);
   if (m2) {
-    const n4 = parseInt(m2[1], 16);
-    return [n4 >> 16 & 255, n4 >> 8 & 255, n4 & 255];
+    const n5 = parseInt(m2[1], 16);
+    return [n5 >> 16 & 255, n5 >> 8 & 255, n5 & 255];
   }
   m2 = HEX3_RE.exec(value);
   if (m2) {
@@ -27735,8 +27739,8 @@ var HOURS_APP = "glide.hours";
 var text2 = (value) => ({ t: "text", text: value });
 var one = (d, label) => String(d.rows.find((r) => r.label === label)?.value ?? "");
 var num2 = (v) => {
-  const n4 = Number(v);
-  return Number.isFinite(n4) && v !== "" ? n4 : void 0;
+  const n5 = Number(v);
+  return Number.isFinite(n5) && v !== "" ? n5 : void 0;
 };
 var svg = (w, h2, cls, body) => ({ t: "svg", w, h: h2, cls, style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}">${body}</svg>` });
 function ringSvg(left, total, ink3 = "var(--h-primary)") {
@@ -27751,7 +27755,7 @@ function focus(d, el) {
   const on = block === "on", done = block === "done";
   const left = num2(one(d, "left")), total = num2(one(d, "length"));
   const held = num2(one(d, "held")) ?? 0;
-  const asks = (n4) => `${n4} ${n4 === 1 ? "ask" : "asks"}`;
+  const asks = (n5) => `${n5} ${n5 === 1 ? "ask" : "asks"}`;
   const next2 = one(d, "next") || "not learned yet";
   const fact = (k, v) => el("div", [el("small", [text2(k)], "ah-k"), el("b", [text2(v)], "ah-v")], "ah-fact");
   const status = on ? `Deep work until ${one(d, "until")}` : done ? "Block done" : `Ready for ${total ?? 50} minutes of deep work`;
@@ -27773,17 +27777,17 @@ function focus(d, el) {
 }
 function digest(d, el) {
   const items = d.rows.filter((r) => r.label !== "count");
-  const n4 = num2(one(d, "count")) ?? items.length;
+  const n5 = num2(one(d, "count")) ?? items.length;
   return el("div", [
-    el("div", [el("b", [text2(String(n4))], "ah-big"), el("small", [text2(n4 === 1 ? "held ask" : "held asks")], "ah-cap")], n4 ? "ah-tile" : "ah-tile ah-none"),
+    el("div", [el("b", [text2(String(n5))], "ah-big"), el("small", [text2(n5 === 1 ? "held ask" : "held asks")], "ah-cap")], n5 ? "ah-tile" : "ah-tile ah-none"),
     el("ol", items.length ? items.map((r) => el("li", [
       el("small", [text2(r.label)], `ah-cls ah-c-${r.label.replace(/[^a-z]/g, "")}`),
       el("span", [text2(String(r.value))], "ah-title")
     ], "ah-item")) : [el("li", [el("span", [text2("Nothing waited for you. Pick the next thing.")], "ah-title")], "ah-item")], "ah-list")
   ], "ah-hero ah-digest");
 }
-var hourOf = (clock5) => {
-  const m2 = /(\d{1,2}):(\d\d)/.exec(clock5);
+var hourOf = (clock7) => {
+  const m2 = /(\d{1,2}):(\d\d)/.exec(clock7);
   return m2 ? Number(m2[1]) + Number(m2[2]) / 60 : void 0;
 };
 var BAND_W = 480;
@@ -28056,9 +28060,9 @@ function hueAt(ref, hex2) {
 function playStops(p3) {
   const rest = restTint(p3);
   const inks = playInks(p3);
-  const stop3 = (at2, hue, tint2, blur, saturate, glow, motes) => {
+  const stop3 = (at3, hue, tint2, blur, saturate, glow, motes) => {
     const floor = tintFloor(inks, hue, p3.samples, stepsTo(saturate));
-    return { at: at2, hue, tint: Math.min(100, Math.max(floor, tint2)), blur, saturate, glow, motes };
+    return { at: at3, hue, tint: Math.min(100, Math.max(floor, tint2)), blur, saturate, glow, motes };
   };
   return [
     { at: 0, hue: p3.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
@@ -28407,11 +28411,11 @@ try {
 `;
 
 // ../glide/frontend/studio.ts
-function studioTree(project) {
+function studioTree(project2) {
   const items = [];
   let omitted = 0;
   const add2 = (item3) => items.length < 80 ? items.push(item3) : omitted++;
-  for (const video of project?.videos ?? []) {
+  for (const video of project2?.videos ?? []) {
     const grouped = new Set(video.scenes.flatMap((scene2) => scene2.clipIds));
     const scenes = [...video.scenes, ...video.clips.filter((clip4) => !grouped.has(clip4.id)).map((clip4) => ({ id: clip4.id, name: clip4.name, clipIds: [clip4.id] }))];
     const clips = new Map(video.clips.map((clip4) => [clip4.id, clip4]));
@@ -28453,11 +28457,11 @@ function studioCard(state) {
     } }
   };
 }
-async function studioRuntime(action, project = "") {
-  if (project && !/^[\w-][\w.-]*$/.test(project)) throw new Error("Usage: /glide studio [project-id]");
+async function studioRuntime(action, project2 = "") {
+  if (project2 && !/^[\w-][\w.-]*$/.test(project2)) throw new Error("Usage: /glide studio [project-id]");
   let stdout;
   try {
-    stdout = (await promisify2(execFile2)(process.execPath, ["--input-type=module", "-e", STUDIO_RUNTIME, "--", action, project], {
+    stdout = (await promisify2(execFile2)(process.execPath, ["--input-type=module", "-e", STUDIO_RUNTIME, "--", action, project2], {
       timeout: 45e3,
       maxBuffer: 4 * 1024 * 1024,
       shell: false
@@ -28473,7 +28477,7 @@ async function studioRuntime(action, project = "") {
 }
 
 // ../glide/frontend/studioCommand.ts
-async function studioCommand(host2, project) {
+async function studioCommand(host2, project2) {
   const ref = host2.session.ref;
   const cards = host2.eui?.host;
   if (!ref.live || !cards) return;
@@ -28483,12 +28487,12 @@ async function studioCommand(host2, project) {
   let snapshot4;
   try {
     handle3 = cards.publishNative(studioCard({ phase: "starting" }), ignore3);
-    snapshot4 = studioSnapshot(await studioRuntime("snapshot", project));
+    snapshot4 = studioSnapshot(await studioRuntime("snapshot", project2));
     if (!current()) {
       handle3.revoke();
       return;
     }
-    await studioRuntime(snapshot4.mode, project);
+    await studioRuntime(snapshot4.mode, project2);
     if (!current()) {
       handle3.revoke();
       return;
@@ -28724,7 +28728,7 @@ async function glideCommand(host2, arg) {
         fail2(error);
       }
     };
-    const fmt = (n4) => n4 === null || n4 === void 0 ? "\u2014" : Number(n4.toFixed(2));
+    const fmt = (n5) => n5 === null || n5 === void 0 ? "\u2014" : Number(n5.toFixed(2));
     const savings = () => cards.publish({
       kind: "approve",
       app: APP2,
@@ -29287,13 +29291,13 @@ var NoticeStrip = class {
   #arm() {
     clearTimeout(this.#timer);
     this.#timer = void 0;
-    const at2 = this.#visible ? this.#notices.nextExpiry(Date.now()) : void 0;
-    if (at2 !== void 0) {
+    const at3 = this.#visible ? this.#notices.nextExpiry(Date.now()) : void 0;
+    if (at3 !== void 0) {
       this.#timer = setTimeout(() => {
         this.#notices.current();
         this.#arm();
         this.#host.changed();
-      }, Math.max(0, at2 - Date.now()) + 10);
+      }, Math.max(0, at3 - Date.now()) + 10);
     }
   }
 };
@@ -29728,46 +29732,46 @@ function onKey(key3, cx, top) {
 }
 var graphemes = new Intl.Segmenter(void 0, { granularity: "grapheme" });
 var WORD = /[\p{L}\p{N}_]/u;
-function lineStart(text22, at2) {
-  return at2 <= 0 ? 0 : text22.lastIndexOf("\n", at2 - 1) + 1;
+function lineStart(text22, at3) {
+  return at3 <= 0 ? 0 : text22.lastIndexOf("\n", at3 - 1) + 1;
 }
-function lineEnd(text22, at2) {
-  const i = text22.indexOf("\n", at2);
+function lineEnd(text22, at3) {
+  const i = text22.indexOf("\n", at3);
   return i < 0 ? text22.length : i;
 }
-function boundaryAt(text22, at2) {
-  if (at2 >= text22.length) {
+function boundaryAt(text22, at3) {
+  if (at3 >= text22.length) {
     return text22.length;
   }
   let floor = 0;
   for (const { index: index2 } of graphemes.segment(text22)) {
-    if (index2 > at2) {
+    if (index2 > at3) {
       break;
     }
     floor = index2;
   }
   return floor;
 }
-function prevGrapheme(text22, at2) {
+function prevGrapheme(text22, at3) {
   let prev = 0;
   for (const { index: index2 } of graphemes.segment(text22)) {
-    if (index2 >= at2) {
+    if (index2 >= at3) {
       break;
     }
     prev = index2;
   }
   return prev;
 }
-function nextGrapheme(text22, at2) {
+function nextGrapheme(text22, at3) {
   for (const { index: index2, segment } of graphemes.segment(text22)) {
-    if (index2 >= at2) {
+    if (index2 >= at3) {
       return index2 + segment.length;
     }
   }
   return text22.length;
 }
-function prevWord(text22, at2) {
-  let i = at2;
+function prevWord(text22, at3) {
+  let i = at3;
   while (i > 0 && !WORD.test(text22[i - 1] ?? "")) {
     i--;
   }
@@ -29776,8 +29780,8 @@ function prevWord(text22, at2) {
   }
   return i;
 }
-function nextWord(text22, at2) {
-  let i = at2;
+function nextWord(text22, at3) {
+  let i = at3;
   while (i < text22.length && !WORD.test(text22[i] ?? "")) {
     i++;
   }
@@ -30146,18 +30150,18 @@ function negative(key3) {
 // src/prompts/ask.tsx
 var isCtrlC = (k) => k.ctrl && !k.alt && !k.meta && !k.shift && k.name === "c";
 function optionList(listKey, id3, options, selected, select2, pick2) {
-  const at2 = (item3) => options.findIndex((o) => `${id3}.${o.id}` === item3);
+  const at3 = (item3) => options.findIndex((o) => `${id3}.${o.id}` === item3);
   return /* @__PURE__ */ jsx(
     "list",
     {
       onActivate: (ev) => {
-        const i = at2(ev.item);
+        const i = at3(ev.item);
         if (i >= 0) {
           pick2(i);
         }
       },
       onSelect: (ev) => {
-        const i = at2(ev.item);
+        const i = at3(ev.item);
         if (i >= 0) {
           select2(i);
         }
@@ -30219,12 +30223,12 @@ function sendingLine(state) {
   }
   return state.busy ? /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: "Sending\u2026" }] }, "sending") : null;
 }
-function moved(key3, at2, count6) {
+function moved(key3, at3, count6) {
   if (key3.name === "up" || key3.ctrl && key3.name === "p") {
-    return (at2 - 1 + count6) % count6;
+    return (at3 - 1 + count6) % count6;
   }
   if (key3.name === "down" || key3.ctrl && key3.name === "n") {
-    return (at2 + 1) % count6;
+    return (at3 + 1) % count6;
   }
   return void 0;
 }
@@ -30440,78 +30444,78 @@ function markdownDecor(text22) {
       }
     }
   };
-  let at2 = 0;
+  let at3 = 0;
   let fenced = false;
   for (const line2 of text22.split("\n")) {
-    const end = at2 + line2.length;
+    const end = at3 + line2.length;
     if (FENCE.test(line2)) {
-      mark2(at2, end, "dim");
+      mark2(at3, end, "dim");
       fenced = !fenced;
     } else if (fenced) {
-      mark2(at2, end, "code");
+      mark2(at3, end, "code");
     } else {
-      blockMarks(line2, at2, mark2);
+      blockMarks(line2, at3, mark2);
     }
-    at2 = end + 1;
+    at3 = end + 1;
   }
   return runs(marks2);
 }
-function blockMarks(line2, at2, mark2) {
+function blockMarks(line2, at3, mark2) {
   if (RULE.test(line2)) {
-    return mark2(at2, at2 + line2.length, "dim");
+    return mark2(at3, at3 + line2.length, "dim");
   }
   let body = 0;
   const heading5 = HEADING.exec(line2);
   const quote2 = heading5 ? null : QUOTE.exec(line2);
   if (heading5) {
     const { marker = "" } = heading5.groups ?? {};
-    mark2(at2, at2 + marker.length, "dim");
+    mark2(at3, at3 + marker.length, "dim");
     body = heading5[0].length;
-    mark2(at2 + body, at2 + line2.length, "strong");
+    mark2(at3 + body, at3 + line2.length, "strong");
   } else if (quote2) {
     const { marker = "" } = quote2.groups ?? {};
-    mark2(at2, at2 + marker.length, "dim");
+    mark2(at3, at3 + marker.length, "dim");
     body = marker.length;
-    mark2(at2 + body, at2 + line2.length, "muted");
+    mark2(at3 + body, at3 + line2.length, "muted");
   }
   const list10 = LIST.exec(line2.slice(body));
   if (list10) {
     const { box, bullet = "", indent: indent2 = "" } = list10.groups ?? {};
     const start = body + indent2.length;
-    mark2(at2 + start, at2 + start + bullet.length, "accent");
+    mark2(at3 + start, at3 + start + bullet.length, "accent");
     if (box) {
       const boxAt = body + list10[0].length - box.length;
-      mark2(at2 + boxAt, at2 + boxAt + 3, "accent");
+      mark2(at3 + boxAt, at3 + boxAt + 3, "accent");
     }
     body += list10[0].length;
   }
-  inlineMarks(line2, body, at2, mark2);
+  inlineMarks(line2, body, at3, mark2);
 }
-function inlineMarks(line2, from, at2, mark2) {
+function inlineMarks(line2, from, at3, mark2) {
   let rest = " ".repeat(from) + line2.slice(from);
   const take = (start, len) => {
     rest = rest.slice(0, start) + "\0".repeat(len) + rest.slice(start + len);
   };
   for (const m2 of [...rest.matchAll(CODE_SPAN)]) {
     const tick2 = m2.groups?.["ticks"]?.length ?? 0;
-    mark2(at2 + m2.index, at2 + m2.index + tick2, "dim");
-    mark2(at2 + m2.index + tick2, at2 + m2.index + m2[0].length - tick2, "code");
-    mark2(at2 + m2.index + m2[0].length - tick2, at2 + m2.index + m2[0].length, "dim");
+    mark2(at3 + m2.index, at3 + m2.index + tick2, "dim");
+    mark2(at3 + m2.index + tick2, at3 + m2.index + m2[0].length - tick2, "code");
+    mark2(at3 + m2.index + m2[0].length - tick2, at3 + m2.index + m2[0].length, "dim");
     take(m2.index, m2[0].length);
   }
   for (const m2 of [...rest.matchAll(LINK)]) {
     const label = m2.groups?.["label"]?.length ?? 0;
-    mark2(at2 + m2.index, at2 + m2.index + 1, "dim");
-    mark2(at2 + m2.index + 1, at2 + m2.index + 1 + label, "link");
-    mark2(at2 + m2.index + 1 + label, at2 + m2.index + m2[0].length, "dim");
+    mark2(at3 + m2.index, at3 + m2.index + 1, "dim");
+    mark2(at3 + m2.index + 1, at3 + m2.index + 1 + label, "link");
+    mark2(at3 + m2.index + 1 + label, at3 + m2.index + m2[0].length, "dim");
     take(m2.index + 2 + label, m2[0].length - 2 - label);
   }
   const pair3 = (re2, marker, s2) => {
     for (const m2 of [...rest.matchAll(re2)]) {
       const len = m2[0].length;
-      mark2(at2 + m2.index, at2 + m2.index + marker, "dim");
-      mark2(at2 + m2.index + marker, at2 + m2.index + len - marker, s2);
-      mark2(at2 + m2.index + len - marker, at2 + m2.index + len, "dim");
+      mark2(at3 + m2.index, at3 + m2.index + marker, "dim");
+      mark2(at3 + m2.index + marker, at3 + m2.index + len - marker, s2);
+      mark2(at3 + m2.index + len - marker, at3 + m2.index + len, "dim");
       take(m2.index, marker);
       take(m2.index + len - marker, marker);
     }
@@ -30549,46 +30553,46 @@ function listNewline(text22, cursor) {
     return { cursor: start, from: start, text: "", to: end };
   }
   const [, indent2 = "", bullet = "", gap = " ", box] = m2;
-  const n4 = /^\d+/.exec(bullet)?.[0];
-  const next2 = n4 ? `${Number(n4) + 1}${bullet.slice(n4.length)}` : bullet;
+  const n5 = /^\d+/.exec(bullet)?.[0];
+  const next2 = n5 ? `${Number(n5) + 1}${bullet.slice(n5.length)}` : bullet;
   const insert2 = `
 ${indent2}${next2}${gap}${box ? "[ ] " : ""}`;
   return { cursor: cursor + insert2.length, from: cursor, text: insert2, to: cursor };
 }
 function toggleMark(text22, from, to, marker) {
-  const n4 = marker.length;
+  const n5 = marker.length;
   if (from !== to) {
-    if (text22.slice(from - n4, from) === marker && text22.slice(to, to + n4) === marker && !doubled(text22, from - n4, to + n4, marker)) {
-      return { anchor: from - n4, cursor: to - n4, from: from - n4, text: text22.slice(from, to), to: to + n4 };
+    if (text22.slice(from - n5, from) === marker && text22.slice(to, to + n5) === marker && !doubled(text22, from - n5, to + n5, marker)) {
+      return { anchor: from - n5, cursor: to - n5, from: from - n5, text: text22.slice(from, to), to: to + n5 };
     }
     const inner = text22.slice(from, to);
-    if (inner.length > 2 * n4 && inner.startsWith(marker) && inner.endsWith(marker)) {
-      return { anchor: from, cursor: to - 2 * n4, from, text: inner.slice(n4, -n4), to };
+    if (inner.length > 2 * n5 && inner.startsWith(marker) && inner.endsWith(marker)) {
+      return { anchor: from, cursor: to - 2 * n5, from, text: inner.slice(n5, -n5), to };
     }
-    return { anchor: from + n4, cursor: to + n4, from, text: `${marker}${inner}${marker}`, to };
+    return { anchor: from + n5, cursor: to + n5, from, text: `${marker}${inner}${marker}`, to };
   }
-  const at2 = from;
-  if (text22.slice(at2 - n4, at2) === marker && text22.slice(at2, at2 + n4) === marker) {
-    return { cursor: at2 - n4, from: at2 - n4, text: "", to: at2 + n4 };
+  const at3 = from;
+  if (text22.slice(at3 - n5, at3) === marker && text22.slice(at3, at3 + n5) === marker) {
+    return { cursor: at3 - n5, from: at3 - n5, text: "", to: at3 + n5 };
   }
-  const run8 = markedRun(text22, at2, marker);
-  if (run8 && at2 === run8.close) {
-    return { cursor: at2 + n4, from: at2, text: "", to: at2 };
+  const run8 = markedRun(text22, at3, marker);
+  if (run8 && at3 === run8.close) {
+    return { cursor: at3 + n5, from: at3, text: "", to: at3 };
   }
   if (run8) {
-    const inner = text22.slice(run8.open + n4, run8.close);
-    return { cursor: at2 - n4, from: run8.open, text: inner, to: run8.close + n4 };
+    const inner = text22.slice(run8.open + n5, run8.close);
+    return { cursor: at3 - n5, from: run8.open, text: inner, to: run8.close + n5 };
   }
-  const word = wordAt(text22, at2);
+  const word = wordAt(text22, at3);
   if (word) {
-    return { cursor: at2 + n4, from: word.from, text: `${marker}${text22.slice(word.from, word.to)}${marker}`, to: word.to };
+    return { cursor: at3 + n5, from: word.from, text: `${marker}${text22.slice(word.from, word.to)}${marker}`, to: word.to };
   }
-  return { cursor: at2 + n4, from: at2, text: `${marker}${marker}`, to: at2 };
+  return { cursor: at3 + n5, from: at3, text: `${marker}${marker}`, to: at3 };
 }
 var WORD2 = /[\p{L}\p{N}'’-]/u;
-function wordAt(text22, at2) {
-  let from = at2;
-  let to = at2;
+function wordAt(text22, at3) {
+  let from = at3;
+  let to = at3;
   while (from > 0 && WORD2.test(text22[from - 1] ?? "")) {
     from--;
   }
@@ -30600,15 +30604,15 @@ function wordAt(text22, at2) {
 function doubled(text22, open5, close, marker) {
   return marker.length === 1 && (text22[open5 - 1] === marker || text22[close] === marker);
 }
-function markedRun(text22, at2, marker) {
-  const start = text22.lastIndexOf("\n", at2 - 1) + 1;
-  const nl = text22.indexOf("\n", at2);
+function markedRun(text22, at3, marker) {
+  const start = text22.lastIndexOf("\n", at3 - 1) + 1;
+  const nl = text22.indexOf("\n", at3);
   const line2 = text22.slice(start, nl < 0 ? text22.length : nl);
   const re2 = marker === "**" ? /\*\*(?=\S)([^\n]*?\S)\*\*/g : /(?<![\w_])_(?=[^\s_])([^\n_]*?[^\s_])_(?![\w_])/g;
   for (const m2 of line2.matchAll(re2)) {
     const open5 = start + m2.index;
     const close = open5 + m2[0].length - marker.length;
-    if (at2 > open5 + marker.length - 1 && at2 <= close) {
+    if (at3 > open5 + marker.length - 1 && at3 <= close) {
       return { close, open: open5 };
     }
   }
@@ -30849,9 +30853,9 @@ var VimComposer = class {
     const end = lineEnd2(text22, cursor);
     this.composer.move(end > start ? Math.min(cursor, prevGrapheme2(text22, end)) : start);
   }
-  #line(n4) {
+  #line(n5) {
     const lines = this.composer.text.split("\n");
-    return lines.slice(0, Math.max(0, Math.min(n4, lines.length - 1))).reduce((sum, line2) => sum + line2.length + 1, 0);
+    return lines.slice(0, Math.max(0, Math.min(n5, lines.length - 1))).reduce((sum2, line2) => sum2 + line2.length + 1, 0);
   }
   #vertical(delta) {
     const { text: text22, cursor } = this.composer;
@@ -30862,46 +30866,46 @@ var VimComposer = class {
     const graphemes3 = [...segments.segment(text22.slice(target2, lineEnd2(text22, target2)))];
     return target2 + (graphemes3[this.#column]?.index ?? lineEnd2(text22, target2) - target2);
   }
-  #step(at2, count6, dir2) {
+  #step(at3, count6, dir2) {
     const { text: text22 } = this.composer;
     const boundaries2 = [...segments.segment(text22)].map((part) => part.index);
     boundaries2.push(text22.length);
-    const index2 = Math.max(0, boundaries2.indexOf(at2));
+    const index2 = Math.max(0, boundaries2.indexOf(at3));
     return boundaries2[Math.max(0, Math.min(boundaries2.length - 1, index2 + dir2 * count6))] ?? 0;
   }
-  #word(at2, dir2, end = false) {
+  #word(at3, dir2, end = false) {
     const { text: text22 } = this.composer;
     if (dir2 < 0) {
-      at2 = prevGrapheme2(text22, at2);
-      while (at2 > 0 && wordClass(text22.slice(at2, nextGrapheme2(text22, at2))) === 0) {
-        at2 = prevGrapheme2(text22, at2);
+      at3 = prevGrapheme2(text22, at3);
+      while (at3 > 0 && wordClass(text22.slice(at3, nextGrapheme2(text22, at3))) === 0) {
+        at3 = prevGrapheme2(text22, at3);
       }
-      const cls2 = wordClass(text22.slice(at2, nextGrapheme2(text22, at2)));
-      while (at2 > 0 && wordClass(text22.slice(prevGrapheme2(text22, at2), at2)) === cls2) {
-        at2 = prevGrapheme2(text22, at2);
+      const cls2 = wordClass(text22.slice(at3, nextGrapheme2(text22, at3)));
+      while (at3 > 0 && wordClass(text22.slice(prevGrapheme2(text22, at3), at3)) === cls2) {
+        at3 = prevGrapheme2(text22, at3);
       }
-      return at2;
+      return at3;
     }
     if (end) {
-      at2 = nextGrapheme2(text22, at2);
+      at3 = nextGrapheme2(text22, at3);
     }
-    const cls = wordClass(text22.slice(at2, nextGrapheme2(text22, at2)));
+    const cls = wordClass(text22.slice(at3, nextGrapheme2(text22, at3)));
     if (!end) {
-      while (at2 < text22.length && wordClass(text22.slice(at2, nextGrapheme2(text22, at2))) === cls) {
-        at2 = nextGrapheme2(text22, at2);
+      while (at3 < text22.length && wordClass(text22.slice(at3, nextGrapheme2(text22, at3))) === cls) {
+        at3 = nextGrapheme2(text22, at3);
       }
     }
-    while (at2 < text22.length && wordClass(text22.slice(at2, nextGrapheme2(text22, at2))) === 0) {
-      at2 = nextGrapheme2(text22, at2);
+    while (at3 < text22.length && wordClass(text22.slice(at3, nextGrapheme2(text22, at3))) === 0) {
+      at3 = nextGrapheme2(text22, at3);
     }
     if (end) {
-      const target2 = wordClass(text22.slice(at2, nextGrapheme2(text22, at2)));
-      while (at2 < text22.length && wordClass(text22.slice(at2, nextGrapheme2(text22, at2))) === target2) {
-        at2 = nextGrapheme2(text22, at2);
+      const target2 = wordClass(text22.slice(at3, nextGrapheme2(text22, at3)));
+      while (at3 < text22.length && wordClass(text22.slice(at3, nextGrapheme2(text22, at3))) === target2) {
+        at3 = nextGrapheme2(text22, at3);
       }
-      at2 = prevGrapheme2(text22, at2);
+      at3 = prevGrapheme2(text22, at3);
     }
-    return at2;
+    return at3;
   }
   #motions(count6) {
     const { text: text22, cursor } = this.composer;
@@ -30931,8 +30935,8 @@ var VimComposer = class {
   #changeWord(count6) {
     const { text: text22, cursor } = this.composer;
     let to = cursor;
-    for (let n4 = 0; n4 < count6; n4++) {
-      if (n4 > 0) {
+    for (let n5 = 0; n5 < count6; n5++) {
+      if (n5 > 0) {
         to = this.#word(to, 1);
       }
       const cls = wordClass(text22.slice(to, nextGrapheme2(text22, to)));
@@ -31032,24 +31036,24 @@ var VimComposer = class {
       const range2 = this.#range();
       this.composer.splice(range2.from, range2.to, this.#register.repeat(count6), range2.from);
     } else if (this.#linewise) {
-      const at2 = after3 ? lineEnd2(text22, cursor) : lineStart2(text22, cursor);
+      const at3 = after3 ? lineEnd2(text22, cursor) : lineStart2(text22, cursor);
       const value = this.#register.replace(/\n$/, "").concat("\n").repeat(count6);
-      if (after3 && at2 === text22.length) {
-        this.composer.splice(at2, at2, "\n" + value.slice(0, -1), at2 + 1);
+      if (after3 && at3 === text22.length) {
+        this.composer.splice(at3, at3, "\n" + value.slice(0, -1), at3 + 1);
       } else {
-        const from = after3 ? at2 + 1 : at2;
+        const from = after3 ? at3 + 1 : at3;
         this.composer.splice(from, from, value, from);
       }
     } else {
-      const at2 = after3 ? Math.min(lineEnd2(text22, cursor), nextGrapheme2(text22, cursor)) : cursor;
-      this.composer.splice(at2, at2, this.#register.repeat(count6), at2);
+      const at3 = after3 ? Math.min(lineEnd2(text22, cursor), nextGrapheme2(text22, cursor)) : cursor;
+      this.composer.splice(at3, at3, this.#register.repeat(count6), at3);
     }
     this.#mode("normal");
   }
   #commands(count6) {
     const { text: text22, cursor } = this.composer;
-    const insert2 = (at2) => {
-      this.composer.move(at2);
+    const insert2 = (at3) => {
+      this.composer.move(at3);
       this.#mode("insert");
     };
     const visual = (mode) => {
@@ -31069,13 +31073,13 @@ var VimComposer = class {
       I: () => insert2(lineStart2(text22, cursor)),
       A: () => insert2(lineEnd2(text22, cursor)),
       o: () => {
-        const at2 = lineEnd2(text22, cursor);
-        this.composer.splice(at2, at2, "\n");
+        const at3 = lineEnd2(text22, cursor);
+        this.composer.splice(at3, at3, "\n");
         this.#mode("insert");
       },
       O: () => {
-        const at2 = lineStart2(text22, cursor);
-        this.composer.splice(at2, at2, "\n", at2);
+        const at3 = lineStart2(text22, cursor);
+        this.composer.splice(at3, at3, "\n", at3);
         this.#mode("insert");
       },
       v: () => visual("visual"),
@@ -31105,24 +31109,24 @@ var VimComposer = class {
     };
   }
 };
-function lineStart2(text22, at2) {
-  return at2 <= 0 ? 0 : text22.lastIndexOf("\n", at2 - 1) + 1;
+function lineStart2(text22, at3) {
+  return at3 <= 0 ? 0 : text22.lastIndexOf("\n", at3 - 1) + 1;
 }
-function lineEnd2(text22, at2) {
-  const end = text22.indexOf("\n", at2);
+function lineEnd2(text22, at3) {
+  const end = text22.indexOf("\n", at3);
   return end === -1 ? text22.length : end;
 }
-function prevGrapheme2(text22, at2) {
+function prevGrapheme2(text22, at3) {
   let prev = 0;
   for (const { index: index2 } of segments.segment(text22)) {
-    if (index2 >= at2) break;
+    if (index2 >= at3) break;
     prev = index2;
   }
   return prev;
 }
-function nextGrapheme2(text22, at2) {
+function nextGrapheme2(text22, at3) {
   for (const { index: index2, segment } of segments.segment(text22)) {
-    if (index2 >= at2) return index2 + segment.length;
+    if (index2 >= at3) return index2 + segment.length;
   }
   return text22.length;
 }
@@ -31313,12 +31317,12 @@ var Composer = class {
         return this.#newline();
       }
       if (this.text.slice(0, this.cursor).endsWith("\\")) {
-        const at2 = this.cursor - 1;
-        const list10 = listNewline(this.text.slice(0, at2) + this.text.slice(this.cursor), at2);
+        const at3 = this.cursor - 1;
+        const list10 = listNewline(this.text.slice(0, at3) + this.text.slice(this.cursor), at3);
         if (list10) {
           return this.#apply({ ...list10, to: list10.to + 1 });
         }
-        this.splice(at2, this.cursor, "\n");
+        this.splice(at3, this.cursor, "\n");
         return true;
       }
       return "submit";
@@ -31470,15 +31474,15 @@ var Composer = class {
       this.#draft = { ...this.#snapshot(), anchor: this.anchor };
       this.#browse = items.length;
     }
-    const at2 = Math.max(0, Math.min(items.length, this.#browse + dir2));
-    if (at2 === this.#browse) {
+    const at3 = Math.max(0, Math.min(items.length, this.#browse + dir2));
+    if (at3 === this.#browse) {
       return true;
     }
-    this.#browse = at2;
+    this.#browse = at3;
     this.#revision++;
-    const draft = at2 === items.length ? this.#draft : void 0;
-    const text22 = draft?.text ?? items[at2] ?? "";
-    if (at2 === items.length) {
+    const draft = at3 === items.length ? this.#draft : void 0;
+    const text22 = draft?.text ?? items[at3] ?? "";
+    if (at3 === items.length) {
       this.#browse = -1;
     }
     ++this.#revision;
@@ -31527,8 +31531,8 @@ var Composer = class {
     this.#steps.record(this.#snapshot(), { merge: merge2 });
   }
 };
-function clamp2(n4, max) {
-  return Math.max(0, Math.min(max, n4));
+function clamp2(n5, max) {
+  return Math.max(0, Math.min(max, n5));
 }
 function pastedCommand(text22) {
   return text22.includes("{!") || text22.trimStart().startsWith("!");
@@ -31776,13 +31780,13 @@ function clarifyOverlay(host2, prompt) {
         }
       } else {
         const to = moved(k, d.selected, count6);
-        const n4 = Number.parseInt(k.name, 10);
+        const n5 = Number.parseInt(k.name, 10);
         if (to !== void 0) {
           d.selected = to;
         } else if (k.name === "space" && q2.multi && unmodified(k)) {
           activate(d.selected);
-        } else if (unmodified(k) && n4 >= 1 && n4 <= count6) {
-          activate(n4 - 1);
+        } else if (unmodified(k) && n5 >= 1 && n5 <= count6) {
+          activate(n5 - 1);
         } else if (k.text && !k.ctrl && !k.meta && k.name !== "space") {
           d.selected = q2.choices.length;
           d.typing = true;
@@ -31799,23 +31803,23 @@ function clarifyOverlay(host2, prompt) {
 var graphemes2 = new Intl.Segmenter(void 0, { granularity: "grapheme" });
 var BULLET = "\u2022";
 function boundaries(secret) {
-  const at2 = [];
+  const at3 = [];
   for (const { index: index2 } of graphemes2.segment(secret)) {
-    at2.push(index2);
+    at3.push(index2);
   }
-  at2.push(secret.length);
-  return at2;
+  at3.push(secret.length);
+  return at3;
 }
 function maskOf(secret) {
   return BULLET.repeat(boundaries(secret).length - 1);
 }
-function maskedOffset(secret, at2) {
+function maskedOffset(secret, at3) {
   const bounds = boundaries(secret);
-  let n4 = 0;
-  while (n4 + 1 < bounds.length && (bounds[n4 + 1] ?? 0) <= at2) {
-    n4++;
+  let n5 = 0;
+  while (n5 + 1 < bounds.length && (bounds[n5 + 1] ?? 0) <= at3) {
+    n5++;
   }
-  return n4;
+  return n5;
 }
 function unmaskEdit(secret, ev) {
   const bounds = boundaries(secret);
@@ -31841,7 +31845,7 @@ function maskedOverlay(host2, prompt) {
     { id: "identifier", label: "Username or email", masked: false, value: new Composer() },
     { id: "password", label: "Password", masked: true, value: new Composer() }
   ] : [{ id: "value", label: code7 ? "Type the code" : "Hidden while you type", masked: !code7, value: new Composer() }];
-  let at2 = 0;
+  let at3 = 0;
   const title2 = method === "sudo" ? "Password for sudo" : method === "secret" ? prompt.prompt || `Value for ${prompt.envVar || "a secret"}` : method === "vault.unlock_prompt" ? `Master password for ${prompt.manager || "the password manager"}` : login ? `Save a login for ${site || "this site"}` : `Code for ${site || "this site"}`;
   const note = method === "secret" ? prompt.envVar : code7 ? [prompt.hint, "typed into the page only \xB7 never shown to the model"].filter(Boolean).join(" \xB7 ") : "";
   const sending = { busy: false, error: "" };
@@ -31858,7 +31862,7 @@ function maskedOverlay(host2, prompt) {
     key: key3,
     modal: true,
     cancel: () => finish(true),
-    focus: (id3) => `${id3}.body.${fields[at2]?.id ?? "value"}`,
+    focus: (id3) => `${id3}.body.${fields[at3]?.id ?? "value"}`,
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: title2 }, "question"),
       note ? /* @__PURE__ */ jsx("text", { spans: [{ s: method === "secret" ? "mono dim" : "muted", t: note }], wrap: "word" }, "note") : null,
@@ -31868,7 +31872,7 @@ function maskedOverlay(host2, prompt) {
         {
           cursor: f2.masked ? maskedOffset(f2.value.text, f2.value.cursor) : f2.value.cursor,
           onEdit: (ev) => {
-            at2 = i;
+            at3 = i;
             const edit = f2.masked ? unmaskEdit(f2.value.text, ev) : ev;
             if (edit) {
               f2.value.edit(edit);
@@ -31876,7 +31880,7 @@ function maskedOverlay(host2, prompt) {
             host2.changed();
           },
           onFocus: () => {
-            at2 = i;
+            at3 = i;
             host2.changed();
           },
           placeholder: f2.label,
@@ -31902,17 +31906,17 @@ function maskedOverlay(host2, prompt) {
       if (k.name === "escape" && unmodified(k) || isCtrlC(k)) {
         finish(true);
       } else if (k.name === "tab" && fields.length > 1) {
-        at2 = (at2 + 1) % fields.length;
+        at3 = (at3 + 1) % fields.length;
       } else if (k.name === "enter") {
         if (unmodified(k)) {
-          if (at2 < fields.length - 1) {
-            at2 += 1;
+          if (at3 < fields.length - 1) {
+            at3 += 1;
           } else {
             finish(false);
           }
         }
       } else if (k.name !== "up" && k.name !== "down") {
-        fields[at2]?.value.key(k);
+        fields[at3]?.value.key(k);
       }
       return true;
     }
@@ -32660,6 +32664,7 @@ var CHANGES_FILES = ["patch", "terminal", "write_file", "execute_code"];
 function afterToolComplete(p3, cx) {
   cx.showImage(cx.transcript.call(toolCallId(p3.tool_id)));
   cx.showArtifacts(cx.transcript.call(toolCallId(p3.tool_id)));
+  cx.showGev?.(cx.transcript.call(toolCallId(p3.tool_id)));
   cx.agents.scan();
   if (LINK_TOOLS.has(p3.name)) {
     const call = cx.transcript.calls(p3.name).at(-1);
@@ -32939,10 +32944,10 @@ function heatSvg(days) {
   const cols = Math.ceil(days.length / 7);
   const w = cols * (CELL + GAP) - GAP;
   const h2 = 7 * (CELL + GAP) - GAP;
-  const cells2 = days.map((n4, i) => {
+  const cells2 = days.map((n5, i) => {
     const x = Math.floor(i / 7) * (CELL + GAP);
     const y = i % 7 * (CELL + GAP);
-    const level = n4 === 0 ? 0 : Math.min(4, Math.ceil(n4 / peak * 4));
+    const level = n5 === 0 ? 0 : Math.min(4, Math.ceil(n5 / peak * 4));
     const paint = level === 0 ? 'fill="var(--muted)" fill-opacity="0.18"' : `fill="var(--accent)" fill-opacity="${[0, 0.4, 0.6, 0.8, 1][level]}"`;
     return `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" ${paint}/>`;
   });
@@ -33744,15 +33749,15 @@ function countdownAge(owner2, dueAt, now) {
   const aged = owner2;
   return aged[kAge] ??= Math.min(0, now - dueAt);
 }
-function compact(n4) {
-  if (n4 < 1e3) {
-    return String(n4);
+function compact(n5) {
+  if (n5 < 1e3) {
+    return String(n5);
   }
-  if (n4 < 1e6 && Math.round(n4 / 1e3) < 1e3) {
-    const k = n4 / 1e3;
+  if (n5 < 1e6 && Math.round(n5 / 1e3) < 1e3) {
+    const k = n5 / 1e3;
     return `${k < 10 ? k.toFixed(1).replace(/\.0$/, "") : Math.round(k)}K`;
   }
-  const m2 = n4 / 1e6;
+  const m2 = n5 / 1e6;
   return `${m2 < 10 ? m2.toFixed(1).replace(/\.0$/, "") : Math.round(m2)}M`;
 }
 
@@ -33795,13 +33800,13 @@ function dispatchOf(result) {
     ids: Array.isArray(ids) ? ids : []
   };
 }
-function dispatchRows(list10, d, at2) {
+function dispatchRows(list10, d, at3) {
   d.goals.forEach((goal, i) => {
     const named2 = d.ids[i];
     const id3 = typeof named2 === "string" && named2 ? named2 : `task-${i}`;
     let a2 = list10.find((x) => x.id === id3);
     if (!a2) {
-      a2 = { calls: 0, goal, id: id3, index: i, key: subagentKey(`p${i}`), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
+      a2 = { calls: 0, goal, id: id3, index: i, key: subagentKey(`p${i}`), startedAt: at3, status: "queued", tokens: 0, toolCount: 0 };
       list10.push(a2);
     }
     a2.delegationId = d.delegationId;
@@ -33841,11 +33846,11 @@ function nestedChild(owners, row2) {
     tokens: 0,
     toolCount: 0
   };
-  let at2 = list10.indexOf(parent) + 1;
-  while (at2 < list10.length && (list10[at2]?.depth ?? 0) > (parent.depth ?? 0)) {
-    at2++;
+  let at3 = list10.indexOf(parent) + 1;
+  while (at3 < list10.length && (list10[at3]?.depth ?? 0) > (parent.depth ?? 0)) {
+    at3++;
   }
-  list10.splice(at2, 0, child);
+  list10.splice(at3, 0, child);
   owners.set(child, call);
   return child;
 }
@@ -33913,9 +33918,9 @@ function completionOutcomes(text22) {
   const [, kind, delegationId = "", task2] = head2;
   const outcomes = /* @__PURE__ */ new Map();
   if (kind === "BATCH COMPLETE") {
-    for (const [, n4, status] of text22.matchAll(/^--- \S+ TASK (\d+)\/\d+.*\(status=([^,)\s]+)/gm)) {
+    for (const [, n5, status] of text22.matchAll(/^--- \S+ TASK (\d+)\/\d+.*\(status=([^,)\s]+)/gm)) {
       if (status) {
-        outcomes.set(Number(n4) - 1, status);
+        outcomes.set(Number(n5) - 1, status);
       }
     }
   } else {
@@ -33949,7 +33954,7 @@ function endedStatus(status) {
   }
   return status === "interrupted" || status === "cancelled" ? "cancelled" : "failed";
 }
-function foldEvent(call, { type, event, at: at2 }) {
+function foldEvent(call, { type, event, at: at3 }) {
   const list10 = call.subagents ??= [];
   const id3 = event.subagent_id ?? `task-${event.task_index}`;
   let agent2 = list10.find((a2) => a2.id === id3);
@@ -33962,11 +33967,11 @@ function foldEvent(call, { type, event, at: at2 }) {
     });
     if (agent2 && type === "subagent.spawn_requested") {
       agent2.status = "queued";
-      agent2.startedAt = at2;
+      agent2.startedAt = at3;
     }
   }
   if (!agent2) {
-    agent2 = { calls: 0, goal: event.goal, id: id3, index: event.task_index, key: subagentKey(id3), startedAt: at2, status: "queued", tokens: 0, toolCount: 0 };
+    agent2 = { calls: 0, goal: event.goal, id: id3, index: event.task_index, key: subagentKey(id3), startedAt: at3, status: "queued", tokens: 0, toolCount: 0 };
     list10.push(agent2);
     list10.sort(byTask);
   }
@@ -33978,12 +33983,12 @@ function foldEvent(call, { type, event, at: at2 }) {
   agent2.tokens = (event.input_tokens ?? 0) + (event.output_tokens ?? 0) || agent2.tokens;
   if (type === "subagent.start") {
     agent2.status = "running";
-    agent2.startedAt = at2;
+    agent2.startedAt = at3;
   } else if (type === "subagent.tool") {
     agent2.status = "running";
     agent2.tool = event.tool_name ?? agent2.tool;
     agent2.toolPreview = event.tool_preview ?? event.text ?? void 0;
-    agent2.toolSince = { at: at2 };
+    agent2.toolSince = { at: at3 };
   } else if (type === "subagent.thinking") {
     agent2.status = "running";
     agent2.tool = void 0;
@@ -33992,7 +33997,7 @@ function foldEvent(call, { type, event, at: at2 }) {
     agent2.status = endedStatus(status) ?? "failed";
     agent2.exitReason = PLAIN_OUTCOMES.has(status) ? void 0 : status || void 0;
     agent2.summary = event.summary ?? void 0;
-    agent2.duration = typeof event.duration_seconds === "number" ? Math.round(event.duration_seconds * 1e3) : at2 - agent2.startedAt;
+    agent2.duration = typeof event.duration_seconds === "number" ? Math.round(event.duration_seconds * 1e3) : at3 - agent2.startedAt;
     agent2.tool = void 0;
   } else if (event.status === "running") {
     agent2.status = "running";
@@ -34077,10 +34082,10 @@ function moveSelection(key3, ids, selected) {
   if (!ids.length) {
     return void 0;
   }
-  const at2 = selected === void 0 ? -1 : ids.indexOf(selected);
+  const at3 = selected === void 0 ? -1 : ids.indexOf(selected);
   const step = key3.name === "up" || key3.ctrl && key3.name === "p" ? -1 : key3.name === "down" || key3.ctrl && key3.name === "n" ? 1 : key3.name === "page_up" ? -PAGE : key3.name === "page_down" ? PAGE : 0;
   if (step) {
-    return ids[Math.max(0, Math.min(ids.length - 1, at2 + step))];
+    return ids[Math.max(0, Math.min(ids.length - 1, at3 + step))];
   }
   if (key3.name === "home") {
     return ids[0];
@@ -34101,11 +34106,11 @@ function rank(items, query2, textOf, { scattered = true } = {}) {
     const positions = /* @__PURE__ */ new Set();
     let score = 0;
     for (const word of words3) {
-      const at2 = text22.indexOf(word);
-      if (at2 >= 0) {
-        const boundary = at2 === 0 || /[\s/_.:-]/.test(text22[at2 - 1] ?? "");
-        score += 100 - Math.min(at2, 50) + (boundary ? 25 : 0);
-        for (let i = at2; i < at2 + word.length; i++) {
+      const at3 = text22.indexOf(word);
+      if (at3 >= 0) {
+        const boundary = at3 === 0 || /[\s/_.:-]/.test(text22[at3 - 1] ?? "");
+        score += 100 - Math.min(at3, 50) + (boundary ? 25 : 0);
+        for (let i = at3; i < at3 + word.length; i++) {
           positions.add(i);
         }
         continue;
@@ -34619,21 +34624,21 @@ var ms = (seconds) => seconds === null || seconds === void 0 ? void 0 : Math.rou
 function stepsOf(rows2) {
   const steps = [];
   for (const row2 of rows2) {
-    const at2 = ms(row2.timestamp);
+    const at3 = ms(row2.timestamp);
     const text22 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
-      steps.push({ args: row2.context ?? "", at: at2, kind: "tool", name: row2.name ?? "tool", running: false, ...optional("call", row2.args ?? void 0) });
+      steps.push({ args: row2.context ?? "", at: at3, kind: "tool", name: row2.name ?? "tool", running: false, ...optional("call", row2.args ?? void 0) });
     } else if (row2.row_kind === "message" && row2.role === "assistant") {
       if (row2.reasoning?.trim()) {
-        steps.push({ at: at2, kind: "think", text: row2.reasoning.trim() });
+        steps.push({ at: at3, kind: "think", text: row2.reasoning.trim() });
       }
       if (text22) {
-        steps.push({ at: at2, kind: "assistant", text: text22 });
+        steps.push({ at: at3, kind: "assistant", text: text22 });
       }
     } else if (row2.row_kind === "message" && row2.role === "user" && !steps.some((s2) => s2.kind === "kickoff")) {
-      steps.push({ at: at2, kind: "kickoff", text: text22 });
+      steps.push({ at: at3, kind: "kickoff", text: text22 });
     } else if (text22) {
-      steps.push({ at: at2, kind: "note", text: text22 });
+      steps.push({ at: at3, kind: "note", text: text22 });
     }
   }
   return steps;
@@ -34927,18 +34932,18 @@ function ageShort(ms2) {
   return d < 7 ? `${d}d` : d < 30 ? `${Math.round(d / 7)}w` : d < 365 ? `${Math.round(d / 30)}mo` : `${Math.round(d / 365)}y`;
 }
 function relative(iso, now) {
-  const at2 = iso ? Date.parse(iso) : NaN;
-  if (Number.isNaN(at2)) {
+  const at3 = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(at3)) {
     return "";
   }
-  const d = at2 - now;
+  const d = at3 - now;
   return Math.abs(d) < 45e3 ? "now" : d > 0 ? `in ${ageShort(d)}` : `${ageShort(-d)} ago`;
 }
-function clockShort(at2) {
-  return new Date(at2).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
+function clockShort(at3) {
+  return new Date(at3).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase();
 }
-function clockSeconds(at2) {
-  return new Date(at2).toLocaleTimeString([], { hour: "2-digit", hour12: false, minute: "2-digit", second: "2-digit" });
+function clockSeconds(at3) {
+  return new Date(at3).toLocaleTimeString([], { hour: "2-digit", hour12: false, minute: "2-digit", second: "2-digit" });
 }
 function homeTilde(path2, home) {
   return home && path2.startsWith(home) ? `~${path2.slice(home.length)}` : path2;
@@ -34964,14 +34969,14 @@ function agentTreeFocus(nodes, selected, prefix2) {
   return null;
 }
 function agentTreeNodes(nodes, state, now, toggle, style2) {
-  const height = (node4) => HEADER + (state.expanded.includes(node4.agent.id) ? CONTEXT + node4.children.reduce((sum, child) => sum + height(child), 0) : 0);
+  const height = (node4) => HEADER + (state.expanded.includes(node4.agent.id) ? CONTEXT + node4.children.reduce((sum2, child) => sum2 + height(child), 0) : 0);
   const draw = (node4, depth, visible2) => {
     const a2 = node4.agent;
     const open5 = state.expanded.includes(a2.id);
     const selected = state.selected === a2.id;
     const context = agentContext(a2);
     const look2 = SUBAGENT_LOOK[a2.status];
-    const bodyHeight = open5 ? CONTEXT + node4.children.reduce((sum, child) => sum + height(child), 0) : 0;
+    const bodyHeight = open5 ? CONTEXT + node4.children.reduce((sum2, child) => sum2 + height(child), 0) : 0;
     const detail = (label, text22) => /* @__PURE__ */ jsxs(html.div, { class: "agent-context-line", children: [
       /* @__PURE__ */ jsx(html.span, { class: "agent-context-label", children: label }, "label"),
       /* @__PURE__ */ jsx(html.span, { class: "agent-context-text", title: text22, children: text22 }, "value")
@@ -35142,8 +35147,8 @@ function agentTile(a2, now) {
 }
 
 // src/core/text.ts
-function plural(n4, one7, many = `${one7}s`) {
-  return `${n4} ${n4 === 1 ? one7 : many}`;
+function plural(n5, one7, many = `${one7}s`) {
+  return `${n5} ${n5 === 1 ? one7 : many}`;
 }
 function clip3(text22, o) {
   if (text22.length <= o.max) {
@@ -35396,7 +35401,7 @@ function skillsDetail({ result }) {
   const skills = list(result?.["skills"]) ?? [];
   return {
     message: text4(result?.["message"]),
-    names: skills.map((s2) => text4(record(s2)?.["name"]) ?? text4(s2)).filter((n4) => n4 !== void 0),
+    names: skills.map((s2) => text4(record(s2)?.["name"]) ?? text4(s2)).filter((n5) => n5 !== void 0),
     tool: "skills_list"
   };
 }
@@ -35544,8 +35549,8 @@ function readCounts(value) {
   for (const path2 in value) {
     if (!Object.hasOwn(value, path2)) continue;
     if (seen++ >= COUNT_LIMIT) return { rows: rows2, clipped: true, invalid: invalid2 };
-    const n4 = Reflect.get(value, path2);
-    if (path2 && typeof n4 === "number" && Number.isSafeInteger(n4) && n4 >= 0) rows2.push({ path: path2, count: n4 });
+    const n5 = Reflect.get(value, path2);
+    if (path2 && typeof n5 === "number" && Number.isSafeInteger(n5) && n5 >= 0) rows2.push({ path: path2, count: n5 });
     else invalid2 = true;
   }
   return { rows: rows2, clipped: false, invalid: invalid2 };
@@ -35779,7 +35784,7 @@ function taskCard(call, d, now) {
     const ok3 = agents2.filter((a2) => a2.status === "done").length;
     const stopped = agents2.filter((a2) => a2.status === "cancelled").length;
     const failed = agents2.length - ok3 - stopped;
-    const requests = agents2.reduce((n4, a2) => n4 + a2.calls, 0);
+    const requests = agents2.reduce((n5, a2) => n5 + a2.calls, 0);
     meta3 = [
       `${ok3} succeeded`,
       failed ? `${failed} failed` : "",
@@ -36742,9 +36747,9 @@ function describe3(command2, budget, depth) {
   }
   return clip3(title2.charAt(0).toUpperCase() + title2.slice(1), { max: MAX2 });
 }
-function commandLine(command2, n4 = 96) {
+function commandLine(command2, n5 = 96) {
   const flat2 = command2.replace(/<<-?\s*['"]?(\w+)['"]?[\s\S]*?\n\s*\1\s*(?=\n|$)/g, "<<'$1' \u2026").replace(/\s+/g, " ").trim();
-  return clip3(flat2, { max: n4 });
+  return clip3(flat2, { max: n5 });
 }
 function oneLine(text22) {
   return text22.replace(/\s+/g, " ").trim();
@@ -37231,9 +37236,9 @@ var toolSearchView = {
 var toolDescribeView = {
   ...plain2(own, "lookup"),
   step: (_call, d) => {
-    const named2 = d.names.map((n4) => {
-      const app2 = appOf(n4);
-      return app2 ? `${app2.app} \xB7 ${app2.action}` : n4.replace(/_/g, " ");
+    const named2 = d.names.map((n5) => {
+      const app2 = appOf(n5);
+      return app2 ? `${app2.app} \xB7 ${app2.action}` : n5.replace(/_/g, " ");
     });
     return named2.length ? `Read how to call ${named2.join(", ")}` : "Read tool details";
   }
@@ -37555,7 +37560,7 @@ function connectCard(call, card, now) {
     continuing ? button2("go", "Continuing\u2026", "") : button2("go", "Continue", "hermes.connect.continue", `connect-continue=${ref}`)
   ] }, "foot") : note ? /* @__PURE__ */ jsx("text", { role: "hermes.connect.note", spans: [{ s: "muted", t: note }], wrap: "word" }, "note") : null;
   return {
-    body: [...targets2.flatMap((t, i) => [rowNode(card, ref, t, i), launchNode(card, t, i)].filter((n4) => n4 !== null)), ...foot ? [foot] : []],
+    body: [...targets2.flatMap((t, i) => [rowNode(card, ref, t, i), launchNode(card, t, i)].filter((n5) => n5 !== null)), ...foot ? [foot] : []],
     name: "plug",
     // One app names itself on its row; several get a count.
     target: own14.length > 1 ? `${own14.filter((t) => t.state === "connected").length} of ${own14.length} connected` : void 0,
@@ -37989,8 +37994,8 @@ function lintText(text22, limit = 2e3, singleLine = false) {
   if (end < text22.length && end > 0 && /[\uD800-\uDBFF]/.test(text22[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(text22[end] ?? "")) end--;
   const prefix2 = text22.slice(0, end);
   const value = Array.from(prefix2, (char) => {
-    const n4 = char.codePointAt(0) ?? 0;
-    return n4 < 32 && (singleLine || n4 !== 9 && n4 !== 10) || n4 >= 127 && n4 <= 159 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 >= 8232 && n4 <= 8238 || n4 >= 8294 && n4 <= 8303 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : char;
+    const n5 = char.codePointAt(0) ?? 0;
+    return n5 < 32 && (singleLine || n5 !== 9 && n5 !== 10) || n5 >= 127 && n5 <= 159 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 >= 8232 && n5 <= 8238 || n5 >= 8294 && n5 <= 8303 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : char;
   }).join("");
   return { value, clipped: end < text22.length, escaped: value !== prefix2 };
 }
@@ -38373,8 +38378,8 @@ function skillCard(call, d) {
     if (end < file2.length && end > 0 && /[\uD800-\uDBFF]/.test(file2[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(file2[end] ?? "")) end--;
     const prefix2 = file2.slice(0, end);
     const safe3 = Array.from(prefix2, (c) => {
-      const n4 = c.codePointAt(0) ?? 0;
-      return n4 < 32 || n4 >= 127 && n4 <= 159 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 >= 8232 && n4 <= 8238 || n4 >= 8294 && n4 <= 8303 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : c;
+      const n5 = c.codePointAt(0) ?? 0;
+      return n5 < 32 || n5 >= 127 && n5 <= 159 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 >= 8232 && n5 <= 8238 || n5 >= 8294 && n5 <= 8303 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : c;
     }).join("");
     const notice = "Hermes reports this skill view is unchanged; content was not returned.";
     return {
@@ -38451,8 +38456,8 @@ function safeError(error) {
   if (end < error.length && end > 0 && /[\uD800-\uDBFF]/.test(error[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(error[end] ?? "")) end--;
   const prefix2 = error.slice(0, end);
   const text22 = Array.from(prefix2, (c) => {
-    const n4 = c.codePointAt(0) ?? 0;
-    return n4 < 32 && n4 !== 9 && n4 !== 10 || n4 >= 127 && n4 <= 159 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 >= 8232 && n4 <= 8238 || n4 >= 8294 && n4 <= 8303 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : c;
+    const n5 = c.codePointAt(0) ?? 0;
+    return n5 < 32 && n5 !== 9 && n5 !== 10 || n5 >= 127 && n5 <= 159 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 >= 8232 && n5 <= 8238 || n5 >= 8294 && n5 <= 8303 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : c;
   }).join("");
   return { text: text22, clipped: end < error.length, escaped: text22 !== prefix2 };
 }
@@ -38512,8 +38517,8 @@ function densePrefix(text22) {
 }
 function safeDense(text22) {
   return Array.from(text22, (c) => {
-    const n4 = c.codePointAt(0) ?? 0;
-    return n4 < 32 && n4 !== 9 && n4 !== 10 || n4 >= 127 && n4 <= 159 || n4 >= 8234 && n4 <= 8238 || n4 >= 8294 && n4 <= 8297 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : c;
+    const n5 = c.codePointAt(0) ?? 0;
+    return n5 < 32 && n5 !== 9 && n5 !== 10 || n5 >= 127 && n5 <= 159 || n5 >= 8234 && n5 <= 8238 || n5 >= 8294 && n5 <= 8297 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : c;
   }).join("");
 }
 function countPathPrefix(path2) {
@@ -38523,8 +38528,8 @@ function countPathPrefix(path2) {
 }
 function countPath(path2) {
   return Array.from(countPathPrefix(path2), (c) => {
-    const n4 = c.codePointAt(0) ?? 0;
-    return n4 < 32 || n4 >= 127 && n4 <= 159 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 === 8232 || n4 === 8233 || n4 >= 8234 && n4 <= 8238 || n4 >= 8294 && n4 <= 8303 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : c;
+    const n5 = c.codePointAt(0) ?? 0;
+    return n5 < 32 || n5 >= 127 && n5 <= 159 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 === 8232 || n5 === 8233 || n5 >= 8234 && n5 <= 8238 || n5 >= 8294 && n5 <= 8303 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : c;
   }).join("");
 }
 function countCard(call, d, pattern) {
@@ -38556,8 +38561,8 @@ function countCard(call, d, pattern) {
     title: "Grep"
   };
 }
-function count(n4, lower, one7, many) {
-  return `${lower ? "At least " : ""}${plural(n4, one7, many)}`;
+function count(n5, lower, one7, many) {
+  return `${lower ? "At least " : ""}${plural(n5, one7, many)}`;
 }
 function disclosures(labels) {
   return labels.map((label, i) => /* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: label }] }, `search-notice-${i}`));
@@ -38690,7 +38695,7 @@ function searchCard(call, d) {
     frame: "inline",
     meta: [
       ...matches3 ? [`${d.omitted && d.total !== void 0 ? "Hermes total: " : ""}${d.total === void 0 ? plural(total, "retained match", "retained matches") : count(total, d.totalLowerBound || d.truncated, "match", "matches")} \xB7 ${plural(byFile.size, "file")} shown${inPath}`] : dense && d.total !== void 0 ? [`${d.omitted ? "Hermes total: " : ""}${count(d.total, d.totalLowerBound || d.truncated, "match", "matches")}${inPath}`] : [],
-      ...notices.filter((n4) => n4 !== lowerTotal)
+      ...notices.filter((n5) => n5 !== lowerTotal)
     ],
     name: "grep",
     target: pattern,
@@ -38938,7 +38943,7 @@ function promptSources(sources) {
       return out;
     };
     const tail = take(source3.tail.slice().reverse(), source3.head.length ? Math.floor(share * 2 / 3) : share).reverse();
-    const head2 = take(source3.head, share - tail.reduce((n4, l) => n4 + byteLength(l), 0));
+    const head2 = take(source3.head, share - tail.reduce((n5, l) => n5 + byteLength(l), 0));
     return {
       head: head2,
       id: source3.id,
@@ -39502,8 +39507,8 @@ function dryRun(spec, matcher, samples, numeric, errors) {
         continue;
       }
       matches3++;
-      groups[hit.pattern]?.forEach((field, at2) => {
-        const captured = hit.captures[at2];
+      groups[hit.pattern]?.forEach((field, at3) => {
+        const captured = hit.captures[at3];
         if (field === rule.key || field === rule.text || captured === void 0) {
           return;
         }
@@ -39755,9 +39760,9 @@ function parseBlock(value, where, errors) {
     }
     case "stat": {
       const items = list2(value["items"], `${where}.items`, errors, 1, MAX_STAT_ITEMS)?.map((item3, i) => {
-        const at2 = `${where}.items[${i}]`;
-        const ref = parseValueRef(item3, at2, errors);
-        const itemLabel = isRecord(item3) ? str4(item3["label"], `${at2}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) : void 0;
+        const at3 = `${where}.items[${i}]`;
+        const ref = parseValueRef(item3, at3, errors);
+        const itemLabel = isRecord(item3) ? str4(item3["label"], `${at3}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) : void 0;
         return ref && itemLabel !== void 0 ? { ...ref, label: itemLabel } : void 0;
       }) ?? [];
       block = { items: items.filter((i) => i !== void 0), kind: "stat" };
@@ -39768,9 +39773,9 @@ function parseBlock(value, where, errors) {
       if (!isRecord(value["tones"])) {
         errors.push(`${where}.tones: expected an object of status substring \u2192 tone`);
       } else {
-        let n4 = 0;
+        let n5 = 0;
         for (const [status, tone3] of Object.entries(value["tones"])) {
-          if (++n4 > MAX_GRID_TONES) {
+          if (++n5 > MAX_GRID_TONES) {
             errors.push(`${where}.tones: at most ${MAX_GRID_TONES} entries`);
             break;
           }
@@ -39885,7 +39890,7 @@ function aggregate(s2, agg, now, startTime) {
   }
   if (agg === "rate") {
     const horizon = now - RATE_WINDOW_MS;
-    const inWindow = s2.recent.reduce((n4, b) => b.t >= horizon ? n4 + b.n : n4, 0);
+    const inWindow = s2.recent.reduce((n5, b) => b.t >= horizon ? n5 + b.n : n5, 0);
     return inWindow / (rateWindowMs(now, startTime) / 1e3);
   }
   if (!s2.values) {
@@ -39922,8 +39927,8 @@ function downsample(ring, points) {
     const from = Math.floor(b * ring.length / points);
     const to = Math.floor((b + 1) * ring.length / points);
     const bucket = ring.slice(from, to);
-    const sum = bucket.reduce((n4, p3) => n4 + p3.v, 0);
-    out.push({ t: bucket.at(-1)?.t ?? 0, v: sum / (to - from) });
+    const sum2 = bucket.reduce((n5, p3) => n5 + p3.v, 0);
+    out.push({ t: bucket.at(-1)?.t ?? 0, v: sum2 / (to - from) });
   }
   return out;
 }
@@ -39970,7 +39975,7 @@ var ChartRuntime = class {
     return this.#lastMatchAt;
   }
   get totalLines() {
-    return [...this.#stats.values()].reduce((n4, s2) => n4 + s2.lines, 0);
+    return [...this.#stats.values()].reduce((n5, s2) => n5 + s2.lines, 0);
   }
   /** Reads every source's new text; `flush` ends lines in progress. True when anything arrived. */
   ingest(sources, flush) {
@@ -40067,7 +40072,7 @@ var ChartRuntime = class {
       return;
     }
     const hits = entry.matcher.matchLines(lines);
-    const capture = (captures, at2) => at2 < 0 ? void 0 : captures[at2];
+    const capture = (captures, at3) => at3 < 0 ? void 0 : captures[at3];
     for (const hit of hits) {
       const line2 = lines[hit.line] ?? "";
       for (const rule of entry.rules[hit.pattern] ?? []) {
@@ -42175,8 +42180,8 @@ function safeError2(error) {
   if (end < error.length && end > 0 && /[\uD800-\uDBFF]/.test(error[end - 1] ?? "") && /[\uDC00-\uDFFF]/.test(error[end] ?? "")) end--;
   const prefix2 = error.slice(0, end);
   const value = Array.from(prefix2, (c) => {
-    const n4 = c.codePointAt(0) ?? 0;
-    return n4 < 32 && n4 !== 9 && n4 !== 10 || n4 >= 127 && n4 <= 159 || n4 === 1564 || n4 === 8206 || n4 === 8207 || n4 >= 8232 && n4 <= 8238 || n4 >= 8294 && n4 <= 8303 || n4 >= 55296 && n4 <= 57343 ? `\\u${n4.toString(16).padStart(4, "0")}` : c;
+    const n5 = c.codePointAt(0) ?? 0;
+    return n5 < 32 && n5 !== 9 && n5 !== 10 || n5 >= 127 && n5 <= 159 || n5 === 1564 || n5 === 8206 || n5 === 8207 || n5 >= 8232 && n5 <= 8238 || n5 >= 8294 && n5 <= 8303 || n5 >= 55296 && n5 <= 57343 ? `\\u${n5.toString(16).padStart(4, "0")}` : c;
   }).join("");
   return { value, clipped: end < error.length, escaped: value !== prefix2 };
 }
@@ -42236,7 +42241,7 @@ function fetchCard(call, d) {
   if (hasRetainedWeb(call)) {
     body.push(/* @__PURE__ */ jsx("text", { role: "hermes.tool.retained-hint", text: "/tool-results inspects retained long web pages.", wrap: "word" }, "more"));
   }
-  const chars = pages.reduce((n4, p3) => n4 + (p3.content?.length ?? 0), 0);
+  const chars = pages.reduce((n5, p3) => n5 + (p3.content?.length ?? 0), 0);
   return {
     body,
     folded: !hasFailures,
@@ -42399,8 +42404,8 @@ async function reportError(transcript, work2) {
 }
 function countSummary(items, tallies) {
   return tallies.map(([counts, label]) => {
-    const n4 = items.filter(counts).length;
-    return n4 ? `${n4} ${typeof label === "string" ? label : label[n4 === 1 ? 0 : 1]}` : "";
+    const n5 = items.filter(counts).length;
+    return n5 ? `${n5} ${typeof label === "string" ? label : label[n5 === 1 ? 0 : 1]}` : "";
   }).filter(Boolean).join(" \xB7 ") || "none yet";
 }
 
@@ -42552,8 +42557,8 @@ function openAgents(host2, focus2) {
     const ids = stepIds(a2);
     const step = state.view.kind === "timeline" ? state.view.step : void 0;
     const sel = step && ids.includes(step) ? step : ids.at(-1);
-    const at2 = sel ? ids.indexOf(sel) : -1;
-    const shown3 = entries2[at2];
+    const at3 = sel ? ids.indexOf(sel) : -1;
+    const shown3 = entries2[at3];
     return /* @__PURE__ */ jsx(
       "picker",
       {
@@ -42574,7 +42579,7 @@ function openAgents(host2, focus2) {
         title: agentName(a2),
         total: entries2.length,
         ...steerProps(a2),
-        children: shown3 ? stepPreview(shown3, a2, now, entries2[at2 - 1]?.at, briefFor(host2, a2)) : [agentNode(a2, now)]
+        children: shown3 ? stepPreview(shown3, a2, now, entries2[at3 - 1]?.at, briefFor(host2, a2)) : [agentNode(a2, now)]
       },
       nativeOverlayKey(id3)
     );
@@ -42667,8 +42672,8 @@ function stepPreview(e, a2, now, prevAt, brief) {
     ...callNodes(e)
   ];
 }
-function clock3(at2) {
-  return at2 === void 0 ? "" : new Date(at2).toTimeString().slice(0, 8);
+function clock3(at3) {
+  return at3 === void 0 ? "" : new Date(at3).toTimeString().slice(0, 8);
 }
 function callNodes(e) {
   const args = Object.entries(e.call ?? {}).filter(([, v]) => v !== null && v !== void 0 && v !== "");
@@ -42824,10 +42829,10 @@ var Cron = class {
 
 // src/processes/sheet.ts
 var SHEET_TABS = ["running", "all", "cron"];
-function initialSheet(processes, at2) {
-  const focus2 = typeof at2 === "string" ? at2 : void 0;
+function initialSheet(processes, at3) {
+  const focus2 = typeof at3 === "string" ? at3 : void 0;
   const focused = focus2 ? processes.find((p3) => p3.id === focus2) : void 0;
-  const tab3 = typeof at2 === "object" ? at2.tab : focused ? isRunning2(focused) ? "running" : "all" : processes.some(isRunning2) ? "running" : "all";
+  const tab3 = typeof at3 === "object" ? at3.tab : focused ? isRunning2(focused) ? "running" : "all" : processes.some(isRunning2) ? "running" : "all";
   return {
     confirm: void 0,
     expanded: false,
@@ -42974,9 +42979,9 @@ var SHEET_CLICKS = {
 // src/overlays/background.tsx
 var KEY2 = "background";
 var TICK_MS3 = 1e3;
-function openBackground(host2, at2) {
+function openBackground(host2, at3) {
   const procs = () => host2.processes.all();
-  let state = initialSheet(procs(), at2);
+  let state = initialSheet(procs(), at3);
   const copied = new Flash(() => host2.changed());
   const release = host2.processes.watch();
   const releaseCron = host2.cron.watch();
@@ -42999,8 +43004,8 @@ function openBackground(host2, at2) {
   };
   const stopAll = async () => {
     await reportError(host2.transcript, async () => {
-      const n4 = await host2.processes.stopAll();
-      host2.transcript.notice(`Stopped ${plural(n4, "background process", "background processes")}.`);
+      const n5 = await host2.processes.stopAll();
+      host2.transcript.notice(`Stopped ${plural(n5, "background process", "background processes")}.`);
     });
     host2.changed();
   };
@@ -43074,7 +43079,7 @@ function openBackground(host2, at2) {
     act({ ids: jobs.map((x) => x.job_id), type: "jobsListed" });
     const j = jobs.find((x) => x.job_id === state.job);
     const busy = j ? host2.cron.busy(j.job_id) : false;
-    const columns = [
+    const columns2 = [
       { format: "dim", head: "Schedule", id: "schedule", min: 10, priority: 1 },
       { format: "dim", head: "Next", id: "next", priority: 3 },
       { format: "dim", head: "Last", id: "last", priority: 5 }
@@ -43093,7 +43098,7 @@ function openBackground(host2, at2) {
           { danger: true, ...optional("disabled", j ? busy ? "Working" : void 0 : "No job"), id: "remove", keys: ["d"], label: "Remove" },
           { end: true, id: "close", keys: ["esc"], label: "Close" }
         ],
-        columns,
+        columns: columns2,
         ...optional("confirm", state.confirm === "job" && j ? { act: "confirm", label: "Remove", text: `Remove ${j.name || j.job_id}? It will not run again.` } : void 0),
         empty: host2.cron.error ? `Could not list cron jobs: ${host2.cron.error}` : host2.cron.loaded ? "No cron jobs. Ask Hermes to schedule one or to watch something." : "Loading cron jobs\u2026",
         icon: "clock",
@@ -43123,7 +43128,7 @@ function openBackground(host2, at2) {
     const { confirm, expanded } = state;
     const p3 = list10.find((x) => x.id === state.selected);
     const call = p3 && callOf(host2, p3.id);
-    const columns = [
+    const columns2 = [
       { format: "dim", head: "Last output", id: "last", min: 16, priority: 1 },
       { format: "dim", head: "Status", id: "status", priority: 3 },
       { format: "elapsed", head: "Time", id: "time", priority: 5 }
@@ -43144,7 +43149,7 @@ function openBackground(host2, at2) {
           { danger: true, ...optional("disabled", running2 ? void 0 : "None running"), id: "all", keys: ["shift+k"], label: "Stop all" },
           { end: true, id: "close", keys: ["esc"], label: expanded ? "Back" : "Close" }
         ],
-        columns,
+        columns: columns2,
         ...optional(
           "confirm",
           confirm === "all" ? { act: "confirm", label: "Stop all", text: `Stop ${plural(running2, "background process", "background processes")}?` } : confirm === "one" && p3 ? { act: "confirm", label: "Stop", text: `Stop ${describeCommand(p3.command)}?` } : void 0
@@ -43197,7 +43202,7 @@ function jobItem(j, now, own14, busy) {
   };
 }
 function jobPreview(j, now, own14) {
-  const at2 = (iso) => iso ? `${clockSeconds(Date.parse(iso))} \xB7 ${relative(iso, now)}` : "\u2014";
+  const at3 = (iso) => iso ? `${clockSeconds(Date.parse(iso))} \xB7 ${relative(iso, now)}` : "\u2014";
   const error = jobError(j);
   return [
     /* @__PURE__ */ jsx("text", { role: "omp.hub.title", text: j.name || j.job_id }, "title"),
@@ -43207,8 +43212,8 @@ function jobPreview(j, now, own14) {
         items: facts([
           ["State", [{ s: jobTone(j), t: isPaused(j) ? `Paused${j.paused_reason ? ` \xB7 ${j.paused_reason}` : ""}` : "Active" }]],
           ["Schedule", j.schedule],
-          ["Next run", !isPaused(j) && at2(j.next_run_at)],
-          ["Last run", j.last_run_at ? `${at2(j.last_run_at)}${j.last_status ? ` \xB7 ${j.last_status}` : ""}` : "never"],
+          ["Next run", !isPaused(j) && at3(j.next_run_at)],
+          ["Last run", j.last_run_at ? `${at3(j.last_run_at)}${j.last_status ? ` \xB7 ${j.last_status}` : ""}` : "never"],
           ["Repeat", j.repeat === null || j.repeat === void 0 ? void 0 : String(j.repeat)],
           ["Delivers to", j.deliver],
           ["Watches", j.monitor_url ?? j.monitor_script],
@@ -43907,8 +43912,8 @@ function openChanges(host2, focus2) {
     const f2 = current();
     load3(f2);
     const diff2 = f2 ? diffs.get(f2.path) : void 0;
-    const added = list10.reduce((n4, x) => n4 + x.additions, 0);
-    const removed = list10.reduce((n4, x) => n4 + x.deletions, 0);
+    const added = list10.reduce((n5, x) => n5 + x.additions, 0);
+    const removed = list10.reduce((n5, x) => n5 + x.deletions, 0);
     return /* @__PURE__ */ jsx(
       "picker",
       {
@@ -44028,8 +44033,8 @@ function nextEffort(current, caps2) {
   const offered = new Set(levelsFor(caps2).map((l) => l.id));
   const cycle = CYCLE.filter((id3) => offered.has(id3));
   const rank2 = (id3) => LEVELS.findIndex((l) => l.id === id3);
-  const at2 = rank2(current || DEFAULT_EFFORT);
-  return cycle.find((id3) => rank2(id3) > at2) ?? cycle[0];
+  const at3 = rank2(current || DEFAULT_EFFORT);
+  return cycle.find((id3) => rank2(id3) > at3) ?? cycle[0];
 }
 function effortText(effort2, wire) {
   const shown3 = effort2 === "none" ? "off" : effort2 || DEFAULT_EFFORT;
@@ -44453,7 +44458,7 @@ function openModelPicker(host2) {
     node: (id3) => {
       const { hits, order: order2 } = view();
       const priced = rows2.some((r) => r.provider.pricing?.[r.model]);
-      const columns = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
+      const columns2 = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
       const scopes = [
         { count: rows2.length, icon: "list", id: ALL2, label: "All models" },
         ...providers.map(({ provider, name }) => ({
@@ -44475,7 +44480,7 @@ function openModelPicker(host2) {
             { end: true, id: "close", keys: ["esc"], label: "Close" },
             { id: "use", keys: ["enter"], label: "Switch", primary: true }
           ],
-          columns,
+          columns: columns2,
           ...optional("confirm", confirm ? { act: "confirm", label: "Switch anyway", text: confirm.text } : void 0),
           current: current ? [current] : [],
           ...optional("empty", query2 ? void 0 : "No models in this scope"),
@@ -44561,8 +44566,8 @@ function openModelPicker(host2) {
       if (k.ctrl && k.name === "e") {
         const row2 = rows2.find((r) => r.id === selected);
         const levels = levelsFor(row2 && caps(row2));
-        const at2 = levels.findIndex((l) => l.id === effort2);
-        effort2 = levels[(at2 + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort2;
+        const at3 = levels.findIndex((l) => l.id === effort2);
+        effort2 = levels[(at3 + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort2;
         return true;
       }
       if (k.ctrl && k.name === "f") {
@@ -45454,23 +45459,23 @@ function checkStatus(status, conclusion) {
       return "neutral";
   }
 }
-function parseCheck(n4) {
-  if (n4.__typename === "StatusContext") {
+function parseCheck(n5) {
+  if (n5.__typename === "StatusContext") {
     return {
-      description: n4.description || void 0,
-      name: n4.context,
-      startedAt: n4.createdAt || void 0,
-      status: checkStatus("COMPLETED", n4.state),
-      url: n4.targetUrl || void 0
+      description: n5.description || void 0,
+      name: n5.context,
+      startedAt: n5.createdAt || void 0,
+      status: checkStatus("COMPLETED", n5.state),
+      url: n5.targetUrl || void 0
     };
   }
   return {
-    completedAt: n4.completedAt || void 0,
-    name: n4.name,
-    startedAt: n4.startedAt || void 0,
-    status: checkStatus(n4.status, n4.conclusion),
-    url: n4.detailsUrl || void 0,
-    workflow: n4.checkSuite.workflowRun.workflow.name || void 0
+    completedAt: n5.completedAt || void 0,
+    name: n5.name,
+    startedAt: n5.startedAt || void 0,
+    status: checkStatus(n5.status, n5.conclusion),
+    url: n5.detailsUrl || void 0,
+    workflow: n5.checkSuite.workflowRun.workflow.name || void 0
   };
 }
 function dedupeChecks(checks2) {
@@ -45515,7 +45520,7 @@ function checksSummary(checks2) {
     [count6(["success"]), "passing"],
     [count6(["skipped", "neutral"]), "skipped"]
   ];
-  return parts3.filter(([n4]) => n4).map(([n4, label]) => `${n4} ${label}`).join(", ");
+  return parts3.filter(([n5]) => n5).map(([n5, label]) => `${n5} ${label}`).join(", ");
 }
 var STATE2 = { CLOSED: "closed", MERGED: "merged", OPEN: "open" };
 var MERGEABLE = { CONFLICTING: "conflicting", MERGEABLE: "mergeable" };
@@ -45527,16 +45532,16 @@ function parsePullRequest(ref, repo) {
   const r = read.data;
   const p3 = r.pullRequest;
   const reviews = /* @__PURE__ */ new Map();
-  for (const n4 of p3.reviewRequests) {
-    const login = n4.requestedReviewer.login || n4.requestedReviewer.name;
+  for (const n5 of p3.reviewRequests) {
+    const login = n5.requestedReviewer.login || n5.requestedReviewer.name;
     if (login) {
       reviews.set(login, "PENDING");
     }
   }
-  for (const n4 of p3.latestReviews) {
-    const login = n4.author.login;
+  for (const n5 of p3.latestReviews) {
+    const login = n5.author.login;
     if (login && !reviews.has(login)) {
-      reviews.set(login, n4.state);
+      reviews.set(login, n5.state);
     }
   }
   const rollup = p3.commits[0]?.commit.statusCheckRollup.contexts ?? [];
@@ -45563,7 +45568,7 @@ function parsePullRequest(ref, repo) {
     head: p3.headRefName,
     headOid: p3.headRefOid,
     id: p3.id,
-    labels: p3.labels.map((n4) => n4.name),
+    labels: p3.labels.map((n5) => n5.name),
     mergeMethods: methods,
     mergeState: p3.mergeStateStatus,
     mergeable: MERGEABLE[p3.mergeable] ?? "unknown",
@@ -45613,10 +45618,10 @@ function parseActivity(data) {
     return [];
   }
   const p3 = read.data.repository.pullRequest;
-  const who = (n4) => n4.author.login || "ghost";
+  const who = (n5) => n5.author.login || "ghost";
   const items = [
-    ...p3.comments.map((n4) => ({ at: n4.createdAt, author: who(n4), body: n4.body, kind: "comment", url: n4.url })),
-    ...p3.reviews.filter((n4) => n4.body.trim() || n4.state !== "COMMENTED").map((n4) => ({ at: n4.submittedAt, author: who(n4), body: n4.body, kind: "review", state: n4.state, url: n4.url })),
+    ...p3.comments.map((n5) => ({ at: n5.createdAt, author: who(n5), body: n5.body, kind: "comment", url: n5.url })),
+    ...p3.reviews.filter((n5) => n5.body.trim() || n5.state !== "COMMENTED").map((n5) => ({ at: n5.submittedAt, author: who(n5), body: n5.body, kind: "review", state: n5.state, url: n5.url })),
     ...p3.reviewThreads.flatMap((t) => {
       const [first, ...rest] = t.comments;
       return first ? [
@@ -45628,7 +45633,7 @@ function parseActivity(data) {
           line: t.line,
           outdated: t.isOutdated,
           path: t.path,
-          replies: rest.map((n4) => ({ at: n4.createdAt, author: who(n4), body: n4.body })),
+          replies: rest.map((n5) => ({ at: n5.createdAt, author: who(n5), body: n5.body })),
           resolved: t.isResolved,
           url: first.url
         }
@@ -46978,15 +46983,15 @@ function collectText(node4, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join21;
+  let join22;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join21 = void 0;
+      join22 = void 0;
     } else if (lines[index2]) {
-      if (typeof join21 === "number") result.push(join21);
+      if (typeof join22 === "number") result.push(join22);
       result.push(lines[index2]);
-      join21 = 0;
+      join22 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -47896,7 +47901,7 @@ function table(state, node4) {
     const cells2 = state.toSpecificContent(row2.children, createCell);
     row2.children = cells2;
   }
-  let columns = 1;
+  let columns2 = 1;
   rowIndex = -1;
   while (++rowIndex < rows2.length) {
     const cells2 = rows2[rowIndex].children;
@@ -47933,18 +47938,18 @@ function table(state, node4) {
         if (Object.keys(cell4.data).length === 0) delete cell4.data;
       }
     }
-    if (cells2.length > columns) columns = cells2.length;
+    if (cells2.length > columns2) columns2 = cells2.length;
   }
   rowIndex = -1;
   while (++rowIndex < rows2.length) {
     const cells2 = rows2[rowIndex].children;
     let cellIndex = cells2.length - 1;
-    while (++cellIndex < columns) {
+    while (++cellIndex < columns2) {
       cells2.push({ type: "tableCell", children: [] });
     }
   }
   let alignIndex = align.length - 1;
-  while (++alignIndex < columns) {
+  while (++alignIndex < columns2) {
     align.push(null);
   }
   state.inTable = false;
@@ -65231,13 +65236,13 @@ var SpliceBuffer = class {
    * @return {undefined}
    *   Nothing.
    */
-  setCursor(n4) {
-    if (n4 === this.left.length || n4 > this.left.length && this.right.length === 0 || n4 < 0 && this.left.length === 0) return;
-    if (n4 < this.left.length) {
-      const removed = this.left.splice(n4, Number.POSITIVE_INFINITY);
+  setCursor(n5) {
+    if (n5 === this.left.length || n5 > this.left.length && this.right.length === 0 || n5 < 0 && this.left.length === 0) return;
+    if (n5 < this.left.length) {
+      const removed = this.left.splice(n5, Number.POSITIVE_INFINITY);
       chunkedPush(this.right, removed.reverse());
     } else {
-      const removed = this.right.splice(this.left.length + this.right.length - n4, Number.POSITIVE_INFINITY);
+      const removed = this.right.splice(this.left.length + this.right.length - n5, Number.POSITIVE_INFINITY);
       chunkedPush(this.left, removed.reverse());
     }
   }
@@ -67126,11 +67131,11 @@ var EditMap = class {
     this.index.clear();
   }
 };
-function addImplementation(editMap, at2, remove2, add2, before2) {
+function addImplementation(editMap, at3, remove2, add2, before2) {
   if (remove2 === 0 && add2.length === 0) {
     return;
   }
-  const existing = editMap.index.get(at2);
+  const existing = editMap.index.get(at3);
   if (existing) {
     existing[1] += remove2;
     if (before2) {
@@ -67141,9 +67146,9 @@ function addImplementation(editMap, at2, remove2, add2, before2) {
     }
     return;
   }
-  const change = [at2, remove2, add2];
+  const change = [at3, remove2, add2];
   editMap.map.push(change);
-  editMap.index.set(at2, change);
+  editMap.index.set(at3, change);
 }
 
 // node_modules/micromark-core-commonmark/lib/setext-underline.js
@@ -67680,19 +67685,19 @@ var EditMap2 = class {
     this.index.clear();
   }
 };
-function addImplementation2(editMap, at2, remove2, add2) {
+function addImplementation2(editMap, at3, remove2, add2) {
   if (remove2 === 0 && add2.length === 0) {
     return;
   }
-  const existing = editMap.index.get(at2);
+  const existing = editMap.index.get(at3);
   if (existing) {
     existing[1] += remove2;
     existing[2].push(...add2);
     return;
   }
-  const change = [at2, remove2, add2];
+  const change = [at3, remove2, add2];
   editMap.map.push(change);
-  editMap.index.set(at2, change);
+  editMap.index.set(at3, change);
 }
 
 // node_modules/micromark-extension-gfm-table/lib/infer.js
@@ -72173,15 +72178,15 @@ var pipeline = unified().use(remarkParse).use(remarkGfm).use(remarkRehype, { all
 function bodyHast(src) {
   return pipeline.runSync(pipeline.parse(src));
 }
-var isDetails = (n4) => n4.type === "element" && n4.tagName === "details";
-function holdsDetails(n4) {
-  return n4.type === "element" && n4.children.some((c) => isDetails(c) || holdsDetails(c));
+var isDetails = (n5) => n5.type === "element" && n5.tagName === "details";
+function holdsDetails(n5) {
+  return n5.type === "element" && n5.children.some((c) => isDetails(c) || holdsDetails(c));
 }
 function autolink2(mdast, links) {
   const host2 = links.repo?.match(/^https?:\/\/[^/]+/)?.[0] ?? "https://github.com";
   const link3 = (text22, url) => ({ children: [{ type: "text", value: text22 }], type: "link", url });
   const list10 = [
-    ...links.repo ? [[/(?<![\w&/#])#(\d+)\b/g, (_2, n4) => link3(`#\u2060${n4}`, `${links.repo}/issues/${n4}`)]] : [],
+    ...links.repo ? [[/(?<![\w&/#])#(\d+)\b/g, (_2, n5) => link3(`#\u2060${n5}`, `${links.repo}/issues/${n5}`)]] : [],
     [/(?<![\w/@.])@([a-z\d](?:[a-z\d-]{0,38}))\b(?!\.\w)/gi, (all8, login) => link3(all8, `${host2}/${login}`)]
   ];
   findAndReplace(mdast, list10, { ignore: ["link", "linkReference", "inlineCode", "code"] });
@@ -72216,21 +72221,21 @@ function parts(nodes, links) {
     }
     run8 = [];
   };
-  for (const n4 of nodes) {
-    if (n4.type === "element" && n4.tagName === "details") {
+  for (const n5 of nodes) {
+    if (n5.type === "element" && n5.tagName === "details") {
       flush();
-      const summary4 = n4.children.find((c) => c.type === "element" && c.tagName === "summary");
+      const summary4 = n5.children.find((c) => c.type === "element" && c.tagName === "summary");
       out.push({
         kind: "details",
-        open: n4.properties.open !== void 0 && n4.properties.open !== false,
-        parts: parts(n4.children.filter((c) => c !== summary4), links),
+        open: n5.properties.open !== void 0 && n5.properties.open !== false,
+        parts: parts(n5.children.filter((c) => c !== summary4), links),
         summary: (summary4 ? toText(summary4) : "").replace(/\s+/g, " ").trim() || "Details"
       });
-    } else if (n4.type === "element" && holdsDetails(n4)) {
+    } else if (n5.type === "element" && holdsDetails(n5)) {
       flush();
-      out.push(...parts(n4.children, links));
+      out.push(...parts(n5.children, links));
     } else {
-      run8.push(n4);
+      run8.push(n5);
     }
   }
   flush();
@@ -72303,8 +72308,8 @@ function conversation(e, pr, now) {
   flush();
   return out;
 }
-function comment5(key3, who, at2, now, body, url, links, empty3) {
-  return /* @__PURE__ */ jsxs("card", { head: [...who, { s: "dim", t: ` \xB7 ${relative(at2, now)}` }], role: "hermes.pr.comment", children: [
+function comment5(key3, who, at3, now, body, url, links, empty3) {
+  return /* @__PURE__ */ jsxs("card", { head: [...who, { s: "dim", t: ` \xB7 ${relative(at3, now)}` }], role: "hermes.pr.comment", children: [
     bodyNodes(body, "b", empty3, links),
     url ? /* @__PURE__ */ jsx("text", { role: "hermes.pr.permalink", spans: [{ href: url, s: "dim", t: "View on GitHub" }], wrap: "none" }, "link") : null
   ] }, key3);
@@ -72491,8 +72496,8 @@ var PrView = class {
   /** Step through the PRs (`[` and `]`). */
   step(by) {
     const keys3 = this.keys();
-    const at2 = this.#selected ? keys3.indexOf(this.#selected) : -1;
-    const next2 = keys3[(at2 + by + keys3.length) % keys3.length];
+    const at3 = this.#selected ? keys3.indexOf(this.#selected) : -1;
+    const next2 = keys3[(at3 + by + keys3.length) % keys3.length];
     if (next2) {
       this.select(next2);
     }
@@ -72864,8 +72869,8 @@ function openUrl(url) {
   }
 }
 function prsCommand(host2, arg) {
-  const n4 = Number(arg.trim().replace(/^#/, ""));
-  const hit = Number.isInteger(n4) && n4 > 0 ? host2.prs.entries().find((e) => e.ref.number === n4) : void 0;
+  const n5 = Number(arg.trim().replace(/^#/, ""));
+  const hit = Number.isInteger(n5) && n5 > 0 ? host2.prs.entries().find((e) => e.ref.number === n5) : void 0;
   if (arg.trim() && !hit) {
     host2.transcript.notice(`No linked pull request #${arg.trim().replace(/^#/, "")}.`, "warning");
     return host2.changed();
@@ -72951,15 +72956,15 @@ function openPrMenu(host2) {
     },
     onKey: (k) => {
       const keys3 = entries2().map((e) => prKey(e.ref));
-      const at2 = selected ? keys3.indexOf(selected) : -1;
+      const at3 = selected ? keys3.indexOf(selected) : -1;
       if (k.name === "escape") {
         close();
       } else if (k.name === "enter") {
         pick2(selected);
       } else if (k.name === "up" || k.name === "k") {
-        selected = keys3[Math.max(0, at2 - 1)];
+        selected = keys3[Math.max(0, at3 - 1)];
       } else if (k.name === "down" || k.name === "j") {
-        selected = keys3[Math.min(keys3.length - 1, at2 + 1)];
+        selected = keys3[Math.min(keys3.length - 1, at3 + 1)];
       } else {
         return false;
       }
@@ -73014,9 +73019,9 @@ function isUserTurn(row2) {
 var rowsOf2 = (snapshot4) => snapshot4.stored_messages ?? snapshot4.messages ?? [];
 var userTurns = (snapshot4) => rowsOf2(snapshot4).filter(isUserTurn);
 var userTurn = (snapshot4, rowId) => userTurns(snapshot4).find((t) => t.row_id === rowId);
-var undoRewind = (n4) => (snapshot4) => {
+var undoRewind = (n5) => (snapshot4) => {
   const turns = userTurns(snapshot4);
-  const target2 = turns.at(-Math.min(Math.max(1, n4), turns.length));
+  const target2 = turns.at(-Math.min(Math.max(1, n5), turns.length));
   return target2 ? { target_message_id: target2.row_id } : null;
 };
 var lastTurnRewind = undoRewind(1);
@@ -73301,8 +73306,8 @@ function promptPreview(p3, before2) {
 
 // src/session/context.ts
 var CONTEXT_THRESHOLDS = { bad: 0.85, warn: 0.6 };
-function contextCount(n4) {
-  return typeof n4 === "number" && Number.isFinite(n4) && n4 >= 0 ? n4 : void 0;
+function contextCount(n5) {
+  return typeof n5 === "number" && Number.isFinite(n5) && n5 >= 0 ? n5 : void 0;
 }
 function contextWindow(usage) {
   const used = contextCount(usage?.context_used);
@@ -73317,7 +73322,7 @@ function contextShare(context) {
 }
 
 // src/overlays/context.tsx
-var count3 = (n4) => contextCount(n4)?.toLocaleString() ?? "Unknown";
+var count3 = (n5) => contextCount(n5)?.toLocaleString() ?? "Unknown";
 function contextSource(source3) {
   switch (source3) {
     case "provider_usage":
@@ -73399,7 +73404,7 @@ function openContext(host2) {
 
 // src/overlays/sessionInfo.tsx
 var known2 = (s2) => s2?.trim() || "Unknown";
-var count4 = (n4) => contextCount(n4)?.toLocaleString() ?? "Unknown";
+var count4 = (n5) => contextCount(n5)?.toLocaleString() ?? "Unknown";
 function sessionInfoFacts(info, sid) {
   return [
     { k: "Title", v: known2(info?.title) },
@@ -73595,7 +73600,7 @@ var Compactions = class {
    * later lines of the same compaction only fill in the count. Returns the compaction (the one
    * already running, when it fills one in): the handle uncompact() takes back.
    */
-  compacting({ before: before2, at: at2 = Date.now(), manual = false }) {
+  compacting({ before: before2, at: at3 = Date.now(), manual = false }) {
     const running2 = this.#seen.findLast(isRunning3);
     if (running2) {
       running2.before ??= before2 || void 0;
@@ -73603,11 +73608,11 @@ var Compactions = class {
       this.#touch(running2);
       return running2;
     }
-    const compaction = { startedAt: at2, state: { status: "running" }, ...before2 ? { before: before2 } : {}, ...manual ? { manual } : {} };
+    const compaction = { startedAt: at3, state: { status: "running" }, ...before2 ? { before: before2 } : {}, ...manual ? { manual } : {} };
     this.#seen.push(compaction);
     const live = this.#host.live();
     if (live?.blocks.length) {
-      live.blocks.push({ at: at2, compaction, id: this.#host.id("z"), kind: "compaction" });
+      live.blocks.push({ at: at3, compaction, id: this.#host.id("z"), kind: "compaction" });
       live.rev++;
       return compaction;
     }
@@ -73624,13 +73629,13 @@ var Compactions = class {
    * The running compaction ended. `tokens` are the owner's own counts (/compress reports them
    * after its `ready` edge, so they also reach the compaction that just ended).
    */
-  compacted(at2 = Date.now(), tokens2 = {}) {
+  compacted(at3 = Date.now(), tokens2 = {}) {
     const running2 = this.#seen.findLast(isRunning3);
     const c = running2 ?? (tokens2.before || tokens2.after ? this.#seen.at(-1) : void 0);
     if (!c) {
       return;
     }
-    const done = c.state.status === "running" ? { endedAt: at2, status: "done" } : c.state;
+    const done = c.state.status === "running" ? { endedAt: at3, status: "done" } : c.state;
     c.before = tokens2.before || c.before;
     c.state = { ...done, ...tokens2.after ? { after: tokens2.after } : {} };
     this.#touch(c);
@@ -73649,9 +73654,9 @@ var Compactions = class {
     }
     this.#seen.splice(seen, 1);
     const entries2 = this.#host.entries();
-    const at2 = entries2.findIndex((e) => e.kind === "compaction" && e.compaction === c);
-    if (at2 >= 0) {
-      entries2.splice(at2, 1);
+    const at3 = entries2.findIndex((e) => e.kind === "compaction" && e.compaction === c);
+    if (at3 >= 0) {
+      entries2.splice(at3, 1);
       return;
     }
     const turn2 = entries2.findLast(
@@ -73741,18 +73746,18 @@ function compactionEndedAt(c) {
   return c.state.status === "done" ? c.state.endedAt : void 0;
 }
 var isRunning3 = (c) => c.state.status === "running";
-function within(c, at2) {
-  return at2 >= c.startedAt - 5e3 && at2 <= (compactionEndedAt(c) ?? Date.now()) + 15e3;
+function within(c, at3) {
+  return at3 >= c.startedAt - 5e3 && at3 <= (compactionEndedAt(c) ?? Date.now()) + 15e3;
 }
 
 // src/transcript/turns.ts
 function turnEndedAt(turn2) {
   return turn2.end.status === "live" ? void 0 : turn2.end.endedAt;
 }
-function endThinking(turn2, at2) {
+function endThinking(turn2, at3) {
   for (const b of turn2.blocks) {
     if (b.kind === "thinking" && b.endedAt === void 0) {
-      b.endedAt = at2;
+      b.endedAt = at3;
     }
   }
 }
@@ -73889,10 +73894,10 @@ function parts2(turn2) {
   };
   for (const b of turn2.blocks) {
     if (b.kind === "steer" || b.kind === "compaction" || ordered2 && !fold.hidden.has(b.id)) {
-      const at2 = b.kind === "tool" ? Math.max(from, b.call.startedAt) : b.kind === "steer" || b.kind === "compaction" ? b.at : turnEndedAt(turn2) ?? from;
-      flush(at2);
+      const at3 = b.kind === "tool" ? Math.max(from, b.call.startedAt) : b.kind === "steer" || b.kind === "compaction" ? b.at : turnEndedAt(turn2) ?? from;
+      flush(at3);
       show(b);
-      from = b.kind === "compaction" ? compactionEndedAt(b.compaction) ?? b.at : b.kind === "tool" && b.call.outcome.kind !== "running" ? at2 + b.call.outcome.duration : at2;
+      from = b.kind === "compaction" ? compactionEndedAt(b.compaction) ?? b.at : b.kind === "tool" && b.call.outcome.kind !== "running" ? at3 + b.call.outcome.duration : at3;
     } else {
       stretch.push(b);
     }
@@ -73905,7 +73910,7 @@ function actionOf(call) {
   return withView(call, (view) => view.action());
 }
 var and = (words3) => words3.length < 3 ? words3.join(" and ") : `${words3.slice(0, -1).join(", ")}, and ${words3.at(-1)}`;
-function actionLabel(action, n4, calls = []) {
+function actionLabel(action, n5, calls = []) {
   switch (action) {
     case "app": {
       const apps2 = [...new Set(calls.flatMap(appsOf))];
@@ -73913,25 +73918,25 @@ function actionLabel(action, n4, calls = []) {
       return apps2.length === 1 ? `Used ${apps2[0]}${uses > 1 ? ` ${uses} times` : ""}` : `Used ${and(apps2)}`;
     }
     case "command":
-      return `Ran ${plural(n4, "command")}`;
+      return `Ran ${plural(n5, "command")}`;
     case "read":
-      return `Read ${plural(n4, "file")}`;
+      return `Read ${plural(n5, "file")}`;
     case "edit":
-      return `Changed ${plural(n4, "file")}`;
+      return `Changed ${plural(n5, "file")}`;
     case "code-search":
-      return `Searched code ${plural(n4, "time")}`;
+      return `Searched code ${plural(n5, "time")}`;
     case "search":
-      return `Searched the web ${plural(n4, "time")}`;
+      return `Searched the web ${plural(n5, "time")}`;
     case "fetch":
-      return `Read ${plural(n4, "page")}`;
+      return `Read ${plural(n5, "page")}`;
     case "browser":
-      return `Used browser ${plural(n4, "time")}`;
+      return `Used browser ${plural(n5, "time")}`;
     case "lookup":
-      return `Looked up tools${n4 > 1 ? ` ${n4} times` : ""}`;
+      return `Looked up tools${n5 > 1 ? ` ${n5} times` : ""}`;
     case "plan":
-      return `Updated the plan${n4 > 1 ? ` ${n4} times` : ""}`;
+      return `Updated the plan${n5 > 1 ? ` ${n5} times` : ""}`;
     case "other":
-      return `Used ${plural(n4, "tool")}`;
+      return `Used ${plural(n5, "tool")}`;
   }
 }
 var priority = (a2) => a2 === "command" || a2 === "edit" || a2 === "app" ? 0 : a2 === "other" || a2 === "lookup" ? 2 : 1;
@@ -73953,7 +73958,7 @@ function summarize(items) {
   }));
   const picked = [...all8].sort((a2, b) => a2.priority - b.priority || a2.index - b.index).slice(0, 2).sort((a2, b) => a2.index - b.index);
   const labels = picked.map((p3) => p3.label);
-  const rest = calls.length - picked.reduce((n4, p3) => n4 + p3.count, 0);
+  const rest = calls.length - picked.reduce((n5, p3) => n5 + p3.count, 0);
   if (rest > 0) {
     labels.push(`Performed ${plural(rest, "other action")}`);
   }
@@ -74065,12 +74070,12 @@ function itemOf3(s2, now, elsewhere) {
     ...optional("title", s2.cwd || void 0)
   };
 }
-function dayOf(at2, now) {
+function dayOf(at3, now) {
   const midnight2 = new Date(now).setHours(0, 0, 0, 0);
-  return at2 >= midnight2 ? "Today" : at2 >= midnight2 - DAY2 ? "Yesterday" : at2 >= midnight2 - 6 * DAY2 ? "This week" : at2 >= midnight2 - 30 * DAY2 ? "This month" : "Earlier";
+  return at3 >= midnight2 ? "Today" : at3 >= midnight2 - DAY2 ? "Yesterday" : at3 >= midnight2 - 6 * DAY2 ? "This week" : at3 >= midnight2 - 30 * DAY2 ? "This month" : "Earlier";
 }
-function dateOf(at2) {
-  return new Date(at2).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+function dateOf(at3) {
+  return new Date(at3).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 }
 
 // src/overlays/sessions/detail.tsx
@@ -74403,20 +74408,20 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
     host2.changed();
   };
   const scrollPreview = (to) => {
-    const at2 = block ?? blocks2[0];
-    if (at2 && nodeId) {
-      host2.scroll(`${nodeId}.${at2}`, to);
+    const at3 = block ?? blocks2[0];
+    if (at3 && nodeId) {
+      host2.scroll(`${nodeId}.${at3}`, to);
     }
   };
   const previewKey = (k) => {
     const bare = !k.ctrl && !k.alt && !k.meta;
-    const at2 = block ? blocks2.indexOf(block) : -1;
+    const at3 = block ? blocks2.indexOf(block) : -1;
     if (k.name === "escape" || bare && k.name === "left") {
       focus2 = "list";
     } else if (bare && (k.name === "down" || k.name === "j")) {
-      focusBlock2(blocks2[Math.min(blocks2.length - 1, at2 + 1)]);
+      focusBlock2(blocks2[Math.min(blocks2.length - 1, at3 + 1)]);
     } else if (bare && (k.name === "up" || k.name === "k")) {
-      focusBlock2(blocks2[Math.max(0, at2 - 1)]);
+      focusBlock2(blocks2[Math.max(0, at3 - 1)]);
     } else if (k.name === "page_down" || bare && k.name === "space") {
       scrollPreview("page-down");
     } else if (k.name === "page_up") {
@@ -74478,7 +74483,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const { hits, order: order2 } = view(now);
       const s2 = sessions.find((x) => x.id === selected);
       const hereCount = sessions.filter(here).length;
-      const project = workspace ? basename4(workspace) : "This folder";
+      const project2 = workspace ? basename4(workspace) : "This folder";
       const pane = s2 ? sessionDetail({
         copied: copied.value === s2.id,
         focus: (key3) => focusBlock2(key3),
@@ -74506,7 +74511,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           ],
           ...optional("confirm", deleting ? { act: "confirm", label: "Delete", text: `Delete \u201C${sessionLabel(sessions.find((x) => x.id === deleting) ?? { preview: "", title: "" })}\u201D?` } : void 0),
           current: sessions.filter(isCurrent).map((x) => x.id),
-          empty: tab3 === "here" ? `No sessions in ${project} yet. Tab shows every folder.` : "No saved sessions yet",
+          empty: tab3 === "here" ? `No sessions in ${project2} yet. Tab shows every folder.` : "No saved sessions yet",
           focus: focus2,
           hits,
           icon: "history",
@@ -74562,7 +74567,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           subtitle: [{ s: "muted", t: workspace ? homeTilde(workspace, launchEnv().home) : "" }],
           tab: tab3,
           tabs: [
-            { count: hereCount, id: "here", label: project },
+            { count: hereCount, id: "here", label: project2 },
             { count: sessions.length, id: "all", label: "All folders" }
           ],
           title: "Sessions",
@@ -75959,14 +75964,14 @@ async function branchFamily(id3, gw2) {
     startedAt: s2.startedAt,
     title: s2.title
   }));
-  return { at: nodes.some((n4) => n4.id === current?.id) ? current?.id ?? null : null, nodes };
+  return { at: nodes.some((n5) => n5.id === current?.id) ? current?.id ?? null : null, nodes };
 }
 function treeRows(nodes) {
-  const ids = new Set(nodes.map((n4) => n4.id));
+  const ids = new Set(nodes.map((n5) => n5.id));
   const under = /* @__PURE__ */ new Map();
-  for (const n4 of nodes) {
-    const parent = n4.parent && ids.has(n4.parent) ? n4.parent : null;
-    under.set(parent, [...under.get(parent) ?? [], n4]);
+  for (const n5 of nodes) {
+    const parent = n5.parent && ids.has(n5.parent) ? n5.parent : null;
+    under.set(parent, [...under.get(parent) ?? [], n5]);
   }
   for (const list10 of under.values()) {
     list10.sort((a2, b) => a2.startedAt - b.startedAt || (a2.id < b.id ? -1 : 1));
@@ -75974,14 +75979,14 @@ function treeRows(nodes) {
   const out = [];
   const seen = /* @__PURE__ */ new Set();
   const stack = [...under.get(null) ?? []].reverse().map((node4) => ({ depth: 0, node: node4 }));
-  for (let at2 = stack.pop(); at2; at2 = stack.pop()) {
-    if (seen.has(at2.node.id)) {
+  for (let at3 = stack.pop(); at3; at3 = stack.pop()) {
+    if (seen.has(at3.node.id)) {
       continue;
     }
-    seen.add(at2.node.id);
-    const children3 = under.get(at2.node.id) ?? [];
-    out.push({ children: children3.length, depth: at2.depth, node: at2.node });
-    stack.push(...[...children3].reverse().map((node4) => ({ depth: at2.depth + 1, node: node4 })));
+    seen.add(at3.node.id);
+    const children3 = under.get(at3.node.id) ?? [];
+    out.push({ children: children3.length, depth: at3.depth, node: at3.node });
+    stack.push(...[...children3].reverse().map((node4) => ({ depth: at3.depth + 1, node: node4 })));
   }
   return out;
 }
@@ -76108,7 +76113,7 @@ function itemOf4({ children: children3, depth, node: node4 }, now) {
   };
 }
 function preview3({ children: children3, node: node4 }, nodes, isCurrent, now) {
-  const parent = nodes.find((n4) => n4.id === node4.parent);
+  const parent = nodes.find((n5) => n5.id === node4.parent);
   const status = isCurrent ? [{ s: "success", t: "open here" }] : void 0;
   return [
     /* @__PURE__ */ jsx("text", { role: "omp.picker.title", text: sessionLabel(node4) }, "title"),
@@ -76135,8 +76140,8 @@ function preview3({ children: children3, node: node4 }, nodes, isCurrent, now) {
     ] : []
   ];
 }
-function dateOf2(at2) {
-  return new Date(at2).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+function dateOf2(at3) {
+  return new Date(at3).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 }
 
 // ../glide/frontend/council.ts
@@ -76211,13 +76216,13 @@ function readRun(raw2) {
     const family = str5(s2["family"], `seats.${i}.family`, 24);
     const key3 = family.trim().toLowerCase();
     const pool = FAMILY[key3] ?? ["clear"];
-    const n4 = used.get(key3) ?? 0;
-    used.set(key3, n4 + 1);
+    const n5 = used.get(key3) ?? 0;
+    used.set(key3, n5 + 1);
     return Object.freeze({
       id: id3,
       family,
       name: str5(s2["name"], `seats.${i}.name`, 24),
-      mineral: s2["mineral"] === void 0 ? pool[n4 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
+      mineral: s2["mineral"] === void 0 ? pool[n5 % pool.length] ?? "clear" : mineral(s2["mineral"], `seats.${i}.mineral`),
       crew: Object.freeze(s2["crew"] === void 0 ? [] : list9(s2["crew"], `seats.${i}.crew`, 0, 12).map((c, k) => mineral(c, `seats.${i}.crew.${k}`)))
     });
   });
@@ -76294,21 +76299,21 @@ var FLY_MS = 220;
 var THREAD_MS = 360;
 var ease2 = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 function schedule(run8) {
-  const at2 = [];
+  const at3 = [];
   let t = 0;
   for (const e of run8.events) {
-    at2.push(t);
+    at3.push(t);
     t += e.type === "spawn" ? SPAWN_MS : TURN_MS;
   }
-  return { at: at2, total: t };
+  return { at: at3, total: t };
 }
 function moment(run8, frame2) {
-  const { at: at2, total } = schedule(run8);
+  const { at: at3, total } = schedule(run8);
   const t = frame2.t;
   const done = t !== null && t >= total;
   let idx = -1;
   if (t !== null) {
-    for (let i = 0; i < at2.length; i++) if ((at2[i] ?? Infinity) <= t) idx = i;
+    for (let i = 0; i < at3.length; i++) if ((at3[i] ?? Infinity) <= t) idx = i;
   }
   const running2 = t !== null && !done;
   const lit2 = run8.seats.map(() => 0);
@@ -76322,12 +76327,12 @@ function moment(run8, frame2) {
     const e = run8.events[i];
     if (!e) continue;
     if (e.type === "spawn") {
-      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at2[i] ?? 0);
+      born.set(`${e.seat}.${lit2[e.seat] ?? 0}`, at3[i] ?? 0);
       lit2[e.seat] = (lit2[e.seat] ?? 0) + 1;
     } else round = e.round;
   }
   const cur = idx >= 0 ? run8.events[idx] : void 0;
-  const since = t === null || idx < 0 ? 0 : t - (at2[idx] ?? 0);
+  const since = t === null || idx < 0 ? 0 : t - (at3[idx] ?? 0);
   const closed = /* @__PURE__ */ new Set();
   run8.seats.forEach((_2, s2) => {
     const last = lastTurn[s2] ?? -1;
@@ -76489,9 +76494,9 @@ function instrumentSvg(run8, frame2, size = 480, options = {}) {
   const ringMax = orbit - R * 0.35;
   const ringGap = (ringMax - ringMin - 10) / Math.max(run8.rounds, 1);
   const ringR = (i) => ringMin + 10 + ringGap * (i + 0.5);
-  const n4 = run8.seats.length;
+  const n5 = run8.seats.length;
   const pos = run8.seats.map((_2, i) => {
-    const a2 = -Math.PI / 2 + Math.PI / n4 + i * 2 * Math.PI / n4;
+    const a2 = -Math.PI / 2 + Math.PI / n5 + i * 2 * Math.PI / n5;
     return { x: c + orbit * Math.cos(a2), y: c + orbit * Math.sin(a2), a: a2 };
   });
   const t = frame2.t ?? 0;
@@ -76591,15 +76596,15 @@ function exchangeTiming(run8, reduce = false) {
   return { typing, working, report, total: report + (reduce ? 0 : reportClauses(run8).length * CLAUSE_MS) };
 }
 function exchangeAt(run8, t, reduce = false) {
-  const elapsed2 = Math.max(0, t ?? 0);
+  const elapsed3 = Math.max(0, t ?? 0);
   const timing = exchangeTiming(run8, reduce);
-  const phase = t === null ? "seated" : elapsed2 < timing.typing ? "brief" : elapsed2 < timing.working ? "sending" : elapsed2 < timing.report ? "working" : elapsed2 < timing.total ? "report" : "done";
-  const frame2 = { t: t === null || elapsed2 < timing.working ? null : Math.min(schedule(run8).total, elapsed2 - timing.working) };
+  const phase = t === null ? "seated" : elapsed3 < timing.typing ? "brief" : elapsed3 < timing.working ? "sending" : elapsed3 < timing.report ? "working" : elapsed3 < timing.total ? "report" : "done";
+  const frame2 = { t: t === null || elapsed3 < timing.working ? null : Math.min(schedule(run8).total, elapsed3 - timing.working) };
   const closed = closedSeats(run8, frame2);
-  const { at: at2 } = schedule(run8);
-  const delivery = phase === "sending" ? (elapsed2 - timing.typing) / DELIVERY_MS : phase === "brief" || phase === "seated" ? 0 : 1;
+  const { at: at3 } = schedule(run8);
+  const delivery = phase === "sending" ? (elapsed3 - timing.typing) / DELIVERY_MS : phase === "brief" || phase === "seated" ? 0 : 1;
   const characters = run8.brief.length + (run8.constraints ?? []).join("").length;
-  let typed = phase === "brief" ? Math.floor(characters * elapsed2 / timing.typing) : characters;
+  let typed = phase === "brief" ? Math.floor(characters * elapsed3 / timing.typing) : characters;
   const brief = run8.brief.slice(0, typed);
   typed -= run8.brief.length;
   const constraints = (run8.constraints ?? []).map((text22) => {
@@ -76609,7 +76614,7 @@ function exchangeAt(run8, t, reduce = false) {
   });
   return {
     phase,
-    elapsed: elapsed2,
+    elapsed: elapsed3,
     reduce,
     frame: frame2,
     delivery,
@@ -76617,10 +76622,10 @@ function exchangeAt(run8, t, reduce = false) {
     constraints,
     seats: run8.seats.map((_2, i) => {
       const received = t !== null && delivery >= (i + 1) / run8.seats.length;
-      const drafting = run8.events.some((e, k) => e.type === "turn" && e.seat === i && frame2.t !== null && frame2.t >= (at2[k] ?? 0) && frame2.t < (at2[k] ?? 0) + TURN_MS);
+      const drafting = run8.events.some((e, k) => e.type === "turn" && e.seat === i && frame2.t !== null && frame2.t >= (at3[k] ?? 0) && frame2.t < (at3[k] ?? 0) + TURN_MS);
       return { received, state: closed.has(i) ? "done" : frame2.t !== null ? drafting ? "drafting" : "thinking" : received ? "received" : "waiting" };
     }),
-    clauses: phase === "done" ? reportClauses(run8) : phase === "report" ? reportClauses(run8).slice(0, 1 + Math.floor((elapsed2 - timing.report) / CLAUSE_MS)) : []
+    clauses: phase === "done" ? reportClauses(run8) : phase === "report" ? reportClauses(run8).slice(0, 1 + Math.floor((elapsed3 - timing.report) / CLAUSE_MS)) : []
   };
 }
 function deliverySvg(run8, view, size) {
@@ -76642,7 +76647,7 @@ function councilOrbSvg(seconds, amplitude, reduce, ink3 = "#d7b986") {
   const level = Math.max(0, Math.min(1, amplitude));
   const source3 = orbSvg("speaking", reduce ? 0.6 : seconds, true);
   const scale = reduce ? 1 : 0.9 + level * 0.14;
-  const hue = reduce ? ink3 : `#${[1, 3, 5].map((at2) => Math.round(parseInt(ink3.slice(at2, at2 + 2), 16) * (1 - level * 0.25) + 255 * level * 0.25).toString(16).padStart(2, "0")).join("")}`;
+  const hue = reduce ? ink3 : `#${[1, 3, 5].map((at3) => Math.round(parseInt(ink3.slice(at3, at3 + 2), 16) * (1 - level * 0.25) + 255 * level * 0.25).toString(16).padStart(2, "0")).join("")}`;
   return source3.replace(/width="68" height="68"/, 'width="320" height="320"').replace(/#[0-9a-f]{6}/gi, hue).replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`).replace("</svg>", "</g></svg>");
 }
 
@@ -76658,10 +76663,10 @@ function pcmSpeech(wav) {
   let rate = 0;
   let channels = 0;
   let data = Buffer.alloc(0);
-  for (let at2 = 12; at2 + 8 <= wav.length; ) {
-    const name = wav.toString("ascii", at2, at2 + 4);
-    const length = wav.readUInt32LE(at2 + 4);
-    const start = at2 + 8;
+  for (let at3 = 12; at3 + 8 <= wav.length; ) {
+    const name = wav.toString("ascii", at3, at3 + 4);
+    const length = wav.readUInt32LE(at3 + 4);
+    const start = at3 + 8;
     if (name === "fmt " && length >= 16 && start + 16 <= wav.length) {
       if (wav.readUInt16LE(start) !== 1 || wav.readUInt16LE(start + 14) !== 16) throw new Error("Speech WAV must use signed 16-bit PCM");
       channels = wav.readUInt16LE(start + 2);
@@ -76671,7 +76676,7 @@ function pcmSpeech(wav) {
       data = wav.subarray(start, Math.min(wav.length, start + length));
       break;
     }
-    at2 = start + length + length % 2;
+    at3 = start + length + length % 2;
   }
   if (!rate || !channels || !data.length) throw new Error("Speech WAV has no samples");
   const samplesPerMs = rate * channels / 1e3;
@@ -76680,9 +76685,9 @@ function pcmSpeech(wav) {
   for (let ms2 = 0; ms2 < duration4; ms2 += 50) {
     const begin = Math.floor(ms2 * samplesPerMs);
     const end = Math.min(data.length / 2, Math.floor((ms2 + 50) * samplesPerMs));
-    let sum = 0;
-    for (let n4 = begin; n4 < end; n4++) sum += (data.readInt16LE(n4 * 2) / 32768) ** 2;
-    levels.push(Math.min(1, Math.sqrt(sum / Math.max(1, end - begin)) * 2));
+    let sum2 = 0;
+    for (let n5 = begin; n5 < end; n5++) sum2 += (data.readInt16LE(n5 * 2) / 32768) ** 2;
+    levels.push(Math.min(1, Math.sqrt(sum2 / Math.max(1, end - begin)) * 2));
   }
   return { duration: duration4, level: (ms2) => ms2 < 0 || ms2 >= duration4 ? 0 : levels[Math.floor(ms2 / 50)] ?? 0 };
 }
@@ -76866,7 +76871,7 @@ function councilCard(src, frame2, size = 480, sideHeader = false, reading = {}) 
     ...sideHeader ? [] : [el("span", `font-family:${MONO};font-size:11px;color:${NIGHT.text3};text-align:center`, [text22(src.live ? `live run read from ${src.from} \xB7 this card draws it and computes nothing` : `demo run \xB7 ${src.from} \xB7 set ${COUNCIL_URL_ENV} to read a live council`)])]
   ])]);
 }
-function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
+function openCouncilPopup(host2, src, clock7 = realClock, options = {}) {
   const eui = host2.eui;
   if (!eui) {
     host2.transcript.notice("/council needs a pane with ephemeral-ui cards", "warning");
@@ -76887,14 +76892,14 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
   let speaking;
   let voiceStatus = "";
   let voiceView = false;
-  let viewAt = clock5.now();
-  const elapsed2 = () => start === null ? null : held?.elapsed ?? Math.min(timing.total, clock5.now() - start);
+  let viewAt = clock7.now();
+  const elapsed3 = () => start === null ? null : held?.elapsed ?? Math.min(timing.total, clock7.now() - start);
   const halt = () => {
     stop3?.();
     stop3 = void 0;
   };
   const release = () => {
-    if (held && start !== null) start += clock5.now() - held.since;
+    if (held && start !== null) start += clock7.now() - held.since;
     held = void 0;
   };
   const returnToCard = () => {
@@ -76909,7 +76914,7 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
     returnToCard();
     const current = new AbortController();
     controller = current;
-    held = { elapsed: elapsed2() ?? 0, since: clock5.now() };
+    held = { elapsed: elapsed3() ?? 0, since: clock7.now() };
     voiceStatus = "Preparing local speech\u2026";
     void (async () => {
       try {
@@ -76917,7 +76922,7 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
           if (current.signal.aborted) break;
           await speech2.speak(caption, current.signal, (audio) => {
             if (closed || current.signal.aborted || controller !== current) return;
-            speaking = { caption, audio, at: clock5.now() };
+            speaking = { caption, audio, at: clock7.now() };
             voiceStatus = "";
             host2.changed();
           });
@@ -76939,7 +76944,7 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
     })();
   };
   const tick2 = () => {
-    const t = elapsed2();
+    const t = elapsed3();
     if (readAloud && !muted && !controller && t !== null) {
       if (!briefRead && t >= timing.typing && t < timing.working) {
         briefRead = true;
@@ -76949,18 +76954,18 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
         read(reportClauses(src.run).map((c) => `${c.label}. ${c.text}`).join(" "));
       }
     }
-    if (t !== null && t >= timing.total && !controller && clock5.now() - viewAt >= 180) halt();
+    if (t !== null && t >= timing.total && !controller && clock7.now() - viewAt >= 180) halt();
     host2.changed();
   };
   const animate = () => {
-    if (!stop3) stop3 = clock5.every(tick2, TICK_MS5);
+    if (!stop3) stop3 = clock7.every(tick2, TICK_MS5);
   };
   const convene = () => {
     returnToCard();
     halt();
     briefRead = false;
     reportRead = false;
-    start = clock5.now();
+    start = clock7.now();
     animate();
     if (reduceMotion && readAloud && !muted) {
       briefRead = true;
@@ -76968,14 +76973,14 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
     }
     host2.changed();
   };
-  const activate = (n4) => {
-    if (n4 === RETURN_ID) returnToCard();
-    else if (n4 === CONVENE_ID && !stop3) convene();
-    else if (n4 === CLOSE_ID2) host2.close(overlay2);
-    else if (n4 === MUTE_ID) {
+  const activate = (n5) => {
+    if (n5 === RETURN_ID) returnToCard();
+    else if (n5 === CONVENE_ID && !stop3) convene();
+    else if (n5 === CLOSE_ID2) host2.close(overlay2);
+    else if (n5 === MUTE_ID) {
       muted = !muted;
       if (muted) returnToCard();
-    } else if (n4 === READ_ID) {
+    } else if (n5 === READ_ID) {
       readAloud = !readAloud;
       if (!readAloud) returnToCard();
       else if (start !== null) {
@@ -76994,15 +76999,15 @@ function openCouncilPopup(host2, src, clock5 = realClock, options = {}) {
       const voice = speaking;
       if (voiceView !== Boolean(voice)) {
         voiceView = Boolean(voice);
-        viewAt = clock5.now();
+        viewAt = clock7.now();
       }
-      const opacity = reduceMotion ? 1 : Math.min(1, 0.45 + (clock5.now() - viewAt) / 180 * 0.55);
+      const opacity = reduceMotion ? 1 : Math.min(1, 0.45 + (clock7.now() - viewAt) / 180 * 0.55);
       const view = {
         spec: { kind: "council", app: APP3 },
         app: APP3,
         label: "Socratic council",
         identity: "council",
-        node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock5.now() - voice.at) / 1e3, voice.audio.level(clock5.now() - voice.at), reduceMotion), reduceMotion, opacity) : councilCard(src, { t: elapsed2() }, 320, true, { readAloud, muted, reduceMotion, voiceStatus, opacity }),
+        node: voice ? councilSpeakingCard(voice.caption, councilOrbSvg((clock7.now() - voice.at) / 1e3, voice.audio.level(clock7.now() - voice.at), reduceMotion), reduceMotion, opacity) : councilCard(src, { t: elapsed3() }, 320, true, { readAloud, muted, reduceMotion, voiceStatus, opacity }),
         activate
       };
       return euiPopupNode(nativeOverlayKey(id3), src.live ? "Council \xB7 live" : "Council \xB7 demo", view, eui, voice ? "full" : "lg");
@@ -77033,7 +77038,7 @@ function councilSpeakingCard(caption, orb, reduce, opacity) {
     el(RETURN_ID, "button", `padding:10px 16px;font-size:12px;color:${NIGHT.text2};border:1px solid ${NIGHT.border}`, [text22("Return to card \xB7 any key")], { "data-eui-action": "return-to-card" }, true)
   ], { "data-council-speaking": "", "data-reduced-motion": String(reduce), role: "button", "aria-label": "Return to council card" }, true)]);
 }
-function publishCouncilCard(host2, src, clock5) {
+function publishCouncilCard(host2, src, clock7) {
   const cards = host2.eui?.host;
   if (!cards) {
     host2.transcript.notice("/council card needs an attached session with ephemeral-ui cards", "warning");
@@ -77058,11 +77063,11 @@ function publishCouncilCard(host2, src, clock5) {
       handle3.update(data, open5);
     } catch {
     }
-    openCouncilPopup(host2, src, clock5);
+    openCouncilPopup(host2, src, clock7);
   };
   const handle3 = cards.publish(data, open5);
 }
-async function councilCommand(host2, arg, load3 = loadCouncil, clock5) {
+async function councilCommand(host2, arg, load3 = loadCouncil, clock7) {
   const verb = arg.trim().toLowerCase();
   if (verb !== "" && verb !== "card") {
     host2.transcript.notice("Usage: /council [card]", "warning");
@@ -77071,8 +77076,8 @@ async function councilCommand(host2, arg, load3 = loadCouncil, clock5) {
   const src = await load3();
   if (src.note) host2.transcript.notice(`/council: ${src.note}`, "warning");
   try {
-    if (verb === "card") publishCouncilCard(host2, src, clock5);
-    else openCouncilPopup(host2, src, clock5);
+    if (verb === "card") publishCouncilCard(host2, src, clock7);
+    else openCouncilPopup(host2, src, clock7);
   } catch (e) {
     host2.transcript.notice(`/council: ${e instanceof Error ? e.message : String(e)}`, "error");
   }
@@ -77407,7 +77412,7 @@ function fleetTask(doc, entity) {
 }
 function fleetNode(doc, entity) {
   if (doc.kind !== "fleet-factory") throw new Error("Action does not belong to this fleet card");
-  const node4 = factory.parse(doc.data).nodes.find((n4) => n4.id === entity.node);
+  const node4 = factory.parse(doc.data).nodes.find((n5) => n5.id === entity.node);
   if (!node4) throw new Error("Node unavailable in this snapshot");
   return node4;
 }
@@ -77496,7 +77501,7 @@ var factory2 = object({
   nodes: array(object({ id: text16, col: number2(), label: text16, kind: optional2(text16), state: text16, reason: optional2(text16), action: optional2(text16), url: optional2(text16) })),
   edges: array(tuple([text16, text16, text16, boolean2()]))
 });
-var plural2 = (n4, one7, many = one7 + "s") => `${n4} ${n4 === 1 ? one7 : many}`;
+var plural2 = (n5, one7, many = one7 + "s") => `${n5} ${n5 === 1 ? one7 : many}`;
 var intent3 = (i) => i;
 var refresh = slot("Buttons", { items: [{ label: "Refresh", intent: { action: "refresh", entities: {} } }] });
 var vacant = (view, source3) => ({
@@ -77623,7 +77628,7 @@ function portfolio(doc) {
   const rank2 = (t) => t === queue2[0] ? 0 : Object.hasOwn(order2, t.status) ? order2[t.status] ?? 5 : 5;
   const queue2 = all8.filter((t) => t.status === "next");
   if (!queue2.length) queue2.push(...all8.filter((t) => t.status !== "done").slice(0, 1));
-  const features = pf.products.reduce((n4, p3) => n4 + p3.features.length, 0);
+  const features = pf.products.reduce((n5, p3) => n5 + p3.features.length, 0);
   const HORIZONS = [["now", "Now", "accent"], ["next", "Next", "info"], ["later", "Later", "neutral"]];
   return {
     "pf.stats": slot("Stats", { items: [
@@ -77651,19 +77656,19 @@ var NODE_STATE = {
 var COLS = ["Brain", "Lanes", "Cards", "Repos"];
 var esc3 = (s2) => s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 function factorySpine(nodes, edges, W = 920) {
-  const col = (n4) => Math.max(0, Math.min(3, Math.floor(n4.col)));
-  const used = [0, 1, 2, 3].filter((c) => nodes.some((n4) => col(n4) === c));
+  const col = (n5) => Math.max(0, Math.min(3, Math.floor(n5.col)));
+  const used = [0, 1, 2, 3].filter((c) => nodes.some((n5) => col(n5) === c));
   const slotOf = (c) => Math.max(0, used.indexOf(c));
   const colW = (W - 16) / Math.max(1, used.length), rowH = 38, top = 24, pw = Math.min(190, colW - 28);
-  const rows2 = Math.max(1, ...used.map((c) => nodes.filter((n4) => col(n4) === c).length));
+  const rows2 = Math.max(1, ...used.map((c) => nodes.filter((n5) => col(n5) === c).length));
   const H2 = top + rows2 * rowH + 4;
   const pos = /* @__PURE__ */ new Map();
   for (const c of used) {
-    const here = nodes.filter((n4) => col(n4) === c);
+    const here = nodes.filter((n5) => col(n5) === c);
     const y0 = top + (rows2 - here.length) * rowH / 2 + rowH / 2;
-    here.forEach((n4, i) => pos.set(n4.id, { x: 8 + colW * slotOf(c) + colW / 2, y: y0 + i * rowH }));
+    here.forEach((n5, i) => pos.set(n5.id, { x: 8 + colW * slotOf(c) + colW / 2, y: y0 + i * rowH }));
   }
-  const heads = used.map((c) => `<text x="${8 + colW * slotOf(c) + colW / 2}" y="12" text-anchor="middle" font-size="10" letter-spacing="1" fill="var(--muted)" font-family="monospace">${(COLS[c] ?? "").toUpperCase()} \xB7 ${nodes.filter((n4) => col(n4) === c).length}</text>`);
+  const heads = used.map((c) => `<text x="${8 + colW * slotOf(c) + colW / 2}" y="12" text-anchor="middle" font-size="10" letter-spacing="1" fill="var(--muted)" font-family="monospace">${(COLS[c] ?? "").toUpperCase()} \xB7 ${nodes.filter((n5) => col(n5) === c).length}</text>`);
   const lines = edges.flatMap(([a2, b, , active2]) => {
     const p3 = pos.get(a2), q2 = pos.get(b);
     if (!p3 || !q2) return [];
@@ -77671,13 +77676,13 @@ function factorySpine(nodes, edges, W = 920) {
     const d = Math.abs(p3.x - q2.x) < 2 ? `M${p3.x},${p3.y + 13} L${q2.x},${q2.y - 13}` : `M${x1},${p3.y} C${x1 + k},${p3.y} ${x2 - k},${q2.y} ${x2},${q2.y}`;
     return [`<path d="${d}" fill="none" stroke="${active2 ? "var(--accent)" : "var(--muted)"}" stroke-opacity="${active2 ? 0.9 : 0.35}" stroke-width="${active2 ? 1.6 : 1}"/>`];
   });
-  const pills2 = nodes.flatMap((n4) => {
-    const p3 = pos.get(n4.id);
+  const pills2 = nodes.flatMap((n5) => {
+    const p3 = pos.get(n5.id);
     if (!p3) return [];
-    const [, , ink3] = NODE_STATE[n4.state] ?? IDLE;
+    const [, , ink3] = NODE_STATE[n5.state] ?? IDLE;
     const max = Math.floor((pw - 30) / 6.6);
-    const label = n4.label.length > max ? n4.label.slice(0, max - 1) + "\u2026" : n4.label;
-    const loud = n4.state === "failing" || n4.state === "needs-you" || n4.state === "live";
+    const label = n5.label.length > max ? n5.label.slice(0, max - 1) + "\u2026" : n5.label;
+    const loud = n5.state === "failing" || n5.state === "needs-you" || n5.state === "live";
     return [`<g transform="translate(${p3.x.toFixed(1)},${p3.y.toFixed(1)})"><rect x="${-pw / 2}" y="-14" width="${pw}" height="28" rx="14" fill="${loud ? ink3 : "var(--muted)"}" fill-opacity="${loud ? 0.14 : 0.06}" stroke="${loud ? ink3 : "var(--muted)"}" stroke-opacity="${loud ? 0.7 : 0.3}"/><circle cx="${-pw / 2 + 14}" cy="0" r="4.5" fill="${ink3}"/><text x="${-pw / 2 + 26}" y="4" font-size="12" fill="var(--text)" font-family="system-ui,sans-serif">${esc3(label)}</text></g>`];
   });
   const svg4 = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H2}" viewBox="0 0 ${W} ${H2}">${heads.join("")}${lines.join("")}${pills2.join("")}</svg>`;
@@ -77687,11 +77692,11 @@ function graph(doc) {
   const parsed2 = factory2.safeParse(doc.data);
   if (!parsed2.success) return void 0;
   const { nodes, stats } = parsed2.data;
-  const ids = new Set(nodes.map((n4) => n4.id));
+  const ids = new Set(nodes.map((n5) => n5.id));
   const edges = parsed2.data.edges.filter(([a2, b]) => ids.has(a2) && ids.has(b));
-  const count6 = (s2) => nodes.filter((n4) => n4.state === s2).length;
-  const open5 = nodes.filter((n4) => n4.state === "failing" || n4.state === "needs-you");
-  const fix = open5.find((n4) => n4.action);
+  const count6 = (s2) => nodes.filter((n5) => n5.state === s2).length;
+  const open5 = nodes.filter((n5) => n5.state === "failing" || n5.state === "needs-you");
+  const fix = open5.find((n5) => n5.action);
   const sends = stats && stats.capHour ? stats.sendsHour / stats.capHour : 0;
   const spine = factorySpine(nodes, edges);
   return {
@@ -77707,16 +77712,16 @@ function graph(doc) {
     ] : [{ label: "Nodes", value: String(nodes.length) }] }),
     "ff.graph": slot("Graphic", { ...spine, alt: `Factory graph: ${plural2(nodes.length, "node")}, ${plural2(edges.length, "edge")}; brain delegates to lanes, lanes run cards, cards touch repos.` }),
     "ff.bottlenecks": slot("Section", { title: "Bottlenecks", aside: `${open5.length} open` }),
-    "ff.open": slot("List", { items: open5.length ? open5.map((n4) => {
-      const [badge, tone3] = NODE_STATE[n4.state] ?? [n4.state, "neutral"];
+    "ff.open": slot("List", { items: open5.length ? open5.map((n5) => {
+      const [badge, tone3] = NODE_STATE[n5.state] ?? [n5.state, "neutral"];
       return {
-        id: n4.id,
-        label: n4.label,
-        detail: n4.reason ?? "",
+        id: n5.id,
+        label: n5.label,
+        detail: n5.reason ?? "",
         badge,
         tone: tone3,
-        ...n4.action ? { value: n4.action } : {},
-        ...n4.action ? { intent: intent3({ action: "queue-fix", entities: { node: n4.id } }) } : n4.url ? { intent: intent3({ action: "open-node", entities: { node: n4.id } }) } : {}
+        ...n5.action ? { value: n5.action } : {},
+        ...n5.action ? { intent: intent3({ action: "queue-fix", entities: { node: n5.id } }) } : n5.url ? { intent: intent3({ action: "open-node", entities: { node: n5.id } }) } : {}
       };
     }) : [{ id: "none", label: "Nothing is blocked", tone: "success" }] }),
     actions: slot("Buttons", { items: [
@@ -77893,7 +77898,7 @@ var document3 = object({
     routes: array(object({ skill: id2, hits: count5, corrected: count5 })).check(_maxLength(12)),
     memory: array(object({ level: _enum(["L0", "L1", "L2", "L3", "L4", "L5"]), name: text17, size: text17, fresh: text17, stale: boolean2() })),
     failures: array(object({ sig: id2, source: text17, spark: string2().check(_regex(/^[01]{0,14}$/)), count: count5, status: _enum(["open", "fixed", "law"]) })).check(_maxLength(12)),
-    trace: array(object({ lane: text17, spans: array(span3) })).check(refine((tracks2) => tracks2.reduce((n4, track2) => n4 + track2.spans.length, 0) <= 200)),
+    trace: array(object({ lane: text17, spans: array(span3) })).check(refine((tracks2) => tracks2.reduce((n5, track2) => n5 + track2.spans.length, 0) <= 200)),
     notes: array(text17)
   })
 });
@@ -77917,8 +77922,8 @@ function intelText(raw2) {
   if (!parsed2.success) throw new Error("Invalid /intel detail answer");
   return parsed2.data.text;
 }
-var numberText = (n4) => Number(n4.toPrecision(4)).toString();
-var signed = (n4) => (n4 > 0 ? "+" : "") + numberText(n4);
+var numberText = (n5) => Number(n5.toPrecision(4)).toString();
+var signed = (n5) => (n5 > 0 ? "+" : "") + numberText(n5);
 function intelReadableTitle(raw2, fallback = "Local observation") {
   const leaf = (raw2.trim().replace(/\\/g, "/").split("/").at(-1) ?? "").trim();
   const clean2 = leaf.replace(/\.(?:jsonl?|sqlite3|md|py|ts|mts)\b/gi, "").replace(/\b(?:climb|failure|session)-[a-f0-9]{12,}\b/gi, "").replace(/\b[a-f0-9]{24,}\b/gi, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
@@ -77934,8 +77939,8 @@ function metricName(metric) {
   if (/fitness/i.test(metric)) return "Fitness score";
   return intelReadableTitle(metric, "Score");
 }
-function relativeTime(at2, value) {
-  const time3 = Date.parse(value), now = Date.parse(at2);
+function relativeTime(at3, value) {
+  const time3 = Date.parse(value), now = Date.parse(at3);
   if (!Number.isFinite(time3) || !Number.isFinite(now)) return safeProse(value);
   const minutes = Math.max(0, Math.floor((now - time3) / 6e4));
   if (minutes < 1) return "Updated just now";
@@ -78061,9 +78066,9 @@ function intelEntity(entity) {
 // src/glideui/intel.ts
 var TAB_LABELS = [[0, "Hill climbs"], [1, "Skills"], [2, "Memory"], [3, "Failures"], [4, "Trace"]];
 var NOTE_PREFIX = ["hill climbs:", "skill routing:", "memory:", "failed checks:", "sessions:"];
-var num7 = (n4) => Number(n4.toPrecision(4)).toString();
-var signed2 = (n4) => (n4 > 0 ? "+" : n4 < 0 ? "\u2212" : "\xB1") + num7(Math.abs(n4));
-var plural3 = (n4, one7, many = one7 + "s") => `${n4} ${n4 === 1 ? one7 : many}`;
+var num7 = (n5) => Number(n5.toPrecision(4)).toString();
+var signed2 = (n5) => (n5 > 0 ? "+" : n5 < 0 ? "\u2212" : "\xB1") + num7(Math.abs(n5));
+var plural3 = (n5, one7, many = one7 + "s") => `${n5} ${n5 === 1 ? one7 : many}`;
 var intelProgram = (tab3) => `intel.${INTEL_TABS[tab3]}`;
 function intelGlide(doc, tab3) {
   const { card } = presentIntel(doc);
@@ -78101,8 +78106,8 @@ function intelGlide(doc, tab3) {
     }))
   });
   const routes = card.data.routes;
-  const hits = routes.reduce((n4, r) => n4 + r.hits, 0);
-  const corrected = routes.reduce((n4, r) => n4 + r.corrected, 0);
+  const hits = routes.reduce((n5, r) => n5 + r.hits, 0);
+  const corrected = routes.reduce((n5, r) => n5 + r.corrected, 0);
   slots["skills.stats"] = slot("Stats", { items: [
     { label: "Skills routed", value: String(routes.length) },
     { label: "Hits", value: String(hits) },
@@ -78153,7 +78158,7 @@ function intelGlide(doc, tab3) {
     rows: card.data.trace.map((t, i) => ({ id: `t${i}`, cells: { lane: t.lane, m: kind("m", t.spans), t: kind("t", t.spans), e: kind("e", t.spans) ? { text: String(kind("e", t.spans)), tone: "error" } : "0" } }))
   });
   const other = NOTE_PREFIX.filter((_2, i) => i !== tab3);
-  const picked = card.data.notes.filter((n4) => !other.some((p3) => n4.toLowerCase().startsWith(p3)));
+  const picked = card.data.notes.filter((n5) => !other.some((p3) => n5.toLowerCase().startsWith(p3)));
   const notes = picked.length ? picked.join(" \xB7 ") : "local snapshot";
   return { id: "intel", title: "Local intelligence", app: "glide", source: "Source: /intel \xB7 " + notes, slots };
 }
@@ -78263,6 +78268,2252 @@ async function intelCommand(host2, arg) {
   } catch (error) {
     if (current()) host2.transcript.notice(`/intel: ${error instanceof Error ? error.message : String(error)}`, "warning");
   }
+}
+
+// src/wire/gev.ts
+function gevTool(name) {
+  return /^mcp__?(?:gev|gods[-_]eye[-_]view)__?(.+)$/.exec(name)?.[1];
+}
+function gevCallName(name, args) {
+  if (gevTool(name)) return name;
+  if (name !== "tool_call" || !Array.isArray(args["calls"])) return void 0;
+  for (const c of args["calls"]) {
+    const inner = isObj(c) && typeof c["name"] === "string" ? c["name"] : void 0;
+    if (inner && gevTool(inner)) return inner;
+  }
+  return void 0;
+}
+var isObj = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
+var hasView = (v) => isObj(v) && isObj(v["view"]) && typeof v["view"]["url"] === "string" && v["view"]["url"].includes("#v=");
+function findStructured(v, depth = 0) {
+  if (depth > 8) return void 0;
+  if (hasView(v)) return v;
+  if (typeof v === "string") {
+    const t = v.trim();
+    for (let i = t.indexOf("{"); i >= 0; i = t.indexOf("{", i + 1)) {
+      try {
+        const hit = findStructured(JSON.parse(t.slice(i, matchBrace(t, i) + 1)), depth + 1);
+        if (hit) return hit;
+      } catch {
+      }
+    }
+    return void 0;
+  }
+  const kids2 = Array.isArray(v) ? v : isObj(v) ? Object.values(v) : [];
+  for (const k of kids2) {
+    const hit = findStructured(k, depth + 1);
+    if (hit) return hit;
+  }
+  return void 0;
+}
+function matchBrace(t, open5) {
+  let d = 0, str9 = false;
+  for (let i = open5; i < t.length; i++) {
+    const c = t[i];
+    if (str9) {
+      if (c === "\\") i++;
+      else if (c === '"') str9 = false;
+      continue;
+    }
+    if (c === '"') str9 = true;
+    else if (c === "{") d++;
+    else if (c === "}" && --d === 0) return i;
+  }
+  return t.length - 1;
+}
+function findSummary(v, depth = 0) {
+  if (depth > 8) return void 0;
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (t.startsWith("{") || t.startsWith("[")) {
+      try {
+        return findSummary(JSON.parse(t), depth + 1);
+      } catch {
+      }
+    }
+    const line2 = t.split("\n").map((s2) => s2.trim()).find((s2) => s2 && !s2.startsWith("{") && !s2.startsWith("["));
+    return line2;
+  }
+  if (Array.isArray(v)) {
+    for (const k of v) {
+      const s2 = findSummary(k, depth + 1);
+      if (s2) return s2;
+    }
+    return void 0;
+  }
+  if (isObj(v)) {
+    for (const key3 of ["text", "content", "result", "summary"]) {
+      const s2 = v[key3] === void 0 ? void 0 : findSummary(v[key3], depth + 1);
+      if (s2) return s2;
+    }
+  }
+  return void 0;
+}
+function unwrap2(text22) {
+  const m2 = text22 === void 0 ? null : /^\s*<untrusted_tool_result\b[^>]*>([\s\S]*?)(?:<\/untrusted_tool_result>\s*)?$/.exec(text22);
+  if (!m2?.[1]) return text22;
+  const body = m2[1];
+  const json = body.search(/^\s*[{[]/m);
+  return json >= 0 ? body.slice(json).trim() : body.trim();
+}
+function gevAnswer(name, result, rawText) {
+  const tool = gevTool(name);
+  if (!tool) return void 0;
+  const resultText = unwrap2(rawText);
+  const sc = findStructured(result) ?? findStructured(resultText);
+  if (!sc) return void 0;
+  const view = sc.view;
+  const rows2 = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
+  return {
+    tool,
+    summary: findSummary(resultText) ?? findSummary(result) ?? "",
+    url: view.url,
+    layers: Array.isArray(view["layers"]) ? view["layers"].filter((l) => typeof l === "string") : [],
+    total: typeof sc["total"] === "number" ? sc["total"] : rows2.length || void 0,
+    rows: rows2
+  };
+}
+function embedUrl(url) {
+  const u = new URL(url);
+  u.searchParams.set("embed", "1");
+  return u.toString();
+}
+function browserAnswer(stdout) {
+  try {
+    const v = JSON.parse(stdout);
+    if (!isObj(v)) return void 0;
+    if (isObj(v["ok"])) return { ok: v["ok"] };
+    const e = v["error"];
+    return isObj(e) && typeof e["message"] === "string" ? { error: e["message"] } : void 0;
+  } catch {
+    return void 0;
+  }
+}
+
+// src/gev/globe.ts
+import { execFile as execFile11 } from "node:child_process";
+var ternBrowser = (op, timeoutMs = 15e3) => new Promise((resolve11, reject) => {
+  execFile11("tern", ["browser", JSON.stringify(op)], { timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 }, (err, stdout) => {
+    const answer = browserAnswer(stdout);
+    if (answer && "ok" in answer) resolve11(answer.ok);
+    else reject(new Error(answer?.error ?? (err ? err.message : "tern browser gave no answer")));
+  });
+});
+function paneBlock(env2 = process.env) {
+  const n5 = Number(env2["TERN_PANE"]);
+  return Number.isInteger(n5) && n5 > 0 ? n5 : void 0;
+}
+var READY = `function () {
+  const cover = document.getElementById('loading-screen')
+  const g = window.__godsEyeView
+  const covered = cover && !(cover.classList.contains('hidden') && getComputedStyle(cover).opacity === '0')
+  return Boolean(!covered && g && g.viewer && g.viewer.scene.globe.tilesLoaded)
+}`;
+var sleep = (ms2) => new Promise((r) => setTimeout(r, ms2));
+async function captureGlobe(url, owner2, browser2 = ternBrowser, budgetMs = 3e4) {
+  const opened = await browser2({ op: "open", owner: owner2, show: false, url });
+  const block = opened["block"];
+  if (typeof block !== "number") throw new Error("tern browser opened no block");
+  try {
+    const end = Date.now() + budgetMs;
+    let settled2 = 0;
+    while (settled2 < 2) {
+      if (Date.now() > end) throw new Error("the globe did not settle in time");
+      const r = await browser2({ op: "eval", block, world: "page", function: READY });
+      settled2 = r["value"] === true ? settled2 + 1 : 0;
+      await sleep(settled2 ? 1200 : 700);
+    }
+    const shot2 = await browser2({ op: "capture", block, format: "png" }, 3e4);
+    if (typeof shot2["data"] !== "string") throw new Error("capture returned no image");
+    const w = typeof shot2["width"] === "number" ? shot2["width"] : 1280;
+    const h2 = typeof shot2["height"] === "number" ? shot2["height"] : 800;
+    return { png: shot2["data"], w, h: h2 };
+  } finally {
+    await browser2({ op: "close", block }).catch(() => void 0);
+  }
+}
+async function openGlobe(url, owner2, browser2 = ternBrowser) {
+  await browser2({ op: "open", owner: owner2, url, how: "below" });
+}
+
+// src/gev/research/case.ts
+var PLATFORMS = ["x", "reddit", "youtube", "tiktok", "news", "official", "data", "imagery"];
+var PLATFORM_LABEL = {
+  x: "X",
+  reddit: "Reddit",
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  news: "News",
+  official: "Official",
+  data: "Data",
+  imagery: "Imagery"
+};
+var zero = () => ({ x: 0, reddit: 0, youtube: 0, tiktok: 0, news: 0, official: 0, data: 0, imagery: 0 });
+function totals(c, t) {
+  const by = zero();
+  let last;
+  for (const s2 of c.tallies) if (s2.t <= t) last = s2;
+  for (const p3 of PLATFORMS) by[p3] = last?.by[p3] ?? 0;
+  const seen = zero();
+  for (const p3 of c.pulls) if (p3.t <= t) seen[p3.platform]++;
+  for (const p3 of PLATFORMS) by[p3] = Math.max(by[p3], seen[p3]);
+  return by;
+}
+var sum = (by) => PLATFORMS.reduce((n5, p3) => n5 + by[p3], 0);
+function at2(c, t) {
+  const now = Math.max(0, Math.min(c.span, t));
+  const by = totals(c, now);
+  const steps = 24;
+  const growth = Array.from({ length: steps }, (_2, i) => sum(totals(c, now * (i + 1) / steps)));
+  return {
+    c,
+    t: now,
+    by,
+    growth,
+    total: sum(by),
+    pulls: c.pulls.filter((p3) => p3.t <= now).sort((a2, b) => b.t - a2.t),
+    findings: c.findings.filter((f2) => f2.t <= now),
+    sim: c.sim.map((s2) => ({ ...s2, status: s2.t <= now ? "done" : s2.start <= now ? "active" : "pending" })),
+    done: now >= c.span
+  };
+}
+function elapsed2(min) {
+  const m2 = Math.round(min);
+  if (m2 < 60) return `${m2} min`;
+  if (m2 < 1440) return `${Math.floor(m2 / 60)} h${m2 % 60 ? ` ${m2 % 60} min` : ""}`;
+  const h2 = Math.floor(m2 % 1440 / 60);
+  return `${Math.floor(m2 / 1440)} d${h2 ? ` ${h2} h` : ""}`;
+}
+
+// src/gev/research/card.ts
+var TIER = {
+  seen: { text: "SEEN", tone: "success" },
+  reported: { text: "REPORTED", tone: "info" },
+  derived: { text: "DERIVED", tone: "warning" },
+  inferred: { text: "INFERRED", tone: "neutral" }
+};
+var n4 = (v) => v.toLocaleString("en-US");
+function researchCard(s2, view = {}) {
+  const { c } = s2;
+  const kids2 = [];
+  if (view.png) kids2.push({ type: "element", typeName: "Picture", props: { png: view.png, w: view.size?.w ?? 1280, h: view.size?.h ?? 800, alt: `God's Eye View: ${c.title}` } });
+  else if (view.capturing || view.failed) kids2.push({ type: "element", typeName: "Text", props: { body: view.failed ? `Globe unavailable: ${view.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
+  kids2.push({ type: "element", typeName: "Badges", props: { items: [
+    { text: c.basis === "kb" ? "REAL SOURCES" : "AUTHORED EXAMPLE", tone: c.basis === "kb" ? "success" : "warning" },
+    { text: c.place },
+    { text: c.eventUtc.replace("T", " ").replace(/:\d\dZ$/, "Z") }
+  ] } });
+  const built2 = s2.sim.filter((x) => x.status === "done").length;
+  kids2.push({ type: "element", typeName: "Stats", props: { items: [
+    { label: "Sources", value: n4(s2.total), tone: "accent" },
+    { label: "Platforms", value: String(PLATFORMS.filter((p3) => s2.by[p3] > 0).length) },
+    { label: "Researching", value: elapsed2(s2.t) },
+    { label: "Sim", value: `${built2}/${s2.sim.length}`, ...built2 === s2.sim.length ? { tone: "success" } : {} }
+  ] } });
+  const live = PLATFORMS.filter((p3) => s2.by[p3] > 0);
+  if (live.length) {
+    kids2.push({ type: "element", typeName: "Row", props: { children: [
+      { type: "element", typeName: "Bars", props: { values: live.map((p3) => s2.by[p3]), labels: live.map((p3) => PLATFORM_LABEL[p3]), summary: live.map((p3) => `${PLATFORM_LABEL[p3]} ${n4(s2.by[p3])}`).join(", ") } },
+      { type: "element", typeName: "Spark", props: { points: s2.growth, summary: `${n4(s2.total)} sources in ${elapsed2(s2.t)}` } }
+    ] } });
+  }
+  kids2.push({ type: "element", typeName: "Section", props: { title: "Simulation", aside: s2.sim.every((x) => x.status === "done") ? "built" : "building", children: [
+    { type: "element", typeName: "Steps", props: { items: s2.sim.map((x) => ({ id: x.id, text: x.label, status: x.status })) } }
+  ] } });
+  const known3 = s2.findings.slice(-4).reverse();
+  if (known3.length) {
+    kids2.push({ type: "element", typeName: "Section", props: { title: "What we know", aside: `${s2.findings.length}`, children: [
+      { type: "element", typeName: "List", props: { items: known3.map((f2, i) => ({ id: `f${s2.findings.length - i}`, label: f2.text, badge: TIER[f2.tier].text, tone: TIER[f2.tier].tone })) } }
+    ] } });
+  }
+  const latest2 = s2.pulls.slice(0, 4);
+  if (latest2.length) {
+    kids2.push({ type: "element", typeName: "Section", props: { title: "Just pulled", children: [
+      { type: "element", typeName: "List", props: { items: latest2.map((p3, i) => ({ id: `p${i}`, label: p3.label, badge: PLATFORM_LABEL[p3.platform], ...p3.detail ? { detail: p3.detail } : {}, value: `+${elapsed2(p3.t)}` })) } }
+    ] } });
+  }
+  kids2.push({ type: "element", typeName: "Buttons", props: { items: [
+    { label: "Open the sim in God's Eye View", intent: { action: "open", entities: {} }, primary: true },
+    ...s2.done ? [] : [{ label: view.paused ? "Resume research" : "Pause research", intent: { action: view.paused ? "resume" : "pause", entities: {} } }]
+  ] } });
+  return { type: "element", typeName: "Card", props: { title: `Deep research \xB7 ${c.title}`, app: "GOD'S EYE VIEW", skin: "gev", status: s2.done ? "done" : view.paused ? "pending" : "running", children: kids2 } };
+}
+
+// src/gev/research/cases/authored.ts
+function grow(span4, finals, half) {
+  return Array.from({ length: 40 }, (_2, i) => {
+    const t = span4 * (i + 1) / 40;
+    const f2 = (1 - Math.exp(-t / half)) / (1 - Math.exp(-span4 / half));
+    const by = {};
+    for (const p3 of PLATFORMS) {
+      const n5 = finals[p3];
+      if (n5 !== void 0) by[p3] = Math.round(n5 * f2);
+    }
+    return { t, by };
+  });
+}
+var pull = (t, platform, label, detail, media2) => ({ t, platform, label, ...detail ? { detail } : {}, ...media2 ? { media: media2 } : {} });
+var GROUND_STOP = {
+  id: "ground-stop",
+  title: "Ground stop: the sky empties",
+  basis: "authored",
+  ask: "The FAA just called a national ground stop. Show me the sky emptying and pull everything on why.",
+  place: "Continental US",
+  eventUtc: "2026-11-13T14:05:00Z",
+  inspiredBy: { title: "FAA Nationwide Ground Stop - 3D Replay in God\u2019s Eye View", url: "https://www.youtube.com/watch?v=Nu-tf_seATI" },
+  view: "#v=2&lat=38.5&lon=-96&alt=4200000&heading=0&pitch=-90&roll=0",
+  span: 360,
+  tallies: grow(360, { data: 14, official: 9, x: 640, reddit: 210, news: 96, youtube: 38, tiktok: 55 }, 70),
+  pulls: [
+    pull(1, "data", "Live ADS-B: 4,812 airborne over CONUS", "aircraft feed", "data"),
+    pull(3, "official", "FAA status page: ground stop, all departures", "air traffic status", "text"),
+    pull(6, "x", 'Pilot thread: "holding short at ORD, told 90 min minimum"', "post", "text"),
+    pull(11, "x", "Timelapse of departure boards turning red at ATL", "post", "video"),
+    pull(18, "reddit", "r/aviation megathread: what we know", "thread", "text"),
+    pull(24, "tiktok", "Passenger video: full gate area at DEN", "video", "video"),
+    pull(40, "news", "Airlines confirm a systems outage, not weather", "wire story", "text"),
+    pull(75, "data", "Airborne count 1,203 and falling; arrivals only", "aircraft feed", "data"),
+    pull(130, "official", "FAA: ground stop lifted, staged departures", "air traffic status", "text"),
+    pull(220, "data", "Departures recover to 80% of a normal Thursday", "aircraft feed", "data")
+  ],
+  findings: [
+    { t: 2, text: "Departures stop within 4 minutes across every hub; arrivals keep landing", tier: "seen" },
+    { t: 40, text: "Cause reported as an airline systems outage, not weather or security", tier: "reported" },
+    { t: 75, text: "Airborne traffic falls 75% in 70 minutes as aircraft land and none replace them", tier: "seen" },
+    { t: 140, text: "Recovery is staggered: east-coast hubs restart ~25 min before the west", tier: "derived" },
+    { t: 230, text: "Roughly 1,900 flights delayed past 2 h, from schedule vs observed departures", tier: "derived" }
+  ],
+  sim: [
+    { id: "live", label: "Live traffic layer, CONUS", start: 0, t: 2, layer: "aircraft" },
+    { id: "base", label: "Same hour last Thursday as the baseline", start: 2, t: 20, layer: "aircraft" },
+    { id: "empty", label: "Time-lapse: the sky emptying", start: 20, t: 90, layer: "replay" },
+    { id: "restart", label: "Hub-by-hub restart wave", start: 130, t: 240, layer: "replay" }
+  ]
+};
+var CYCLONE = {
+  id: "cyclone-landfall",
+  title: "Hurricane landfall, live",
+  basis: "authored",
+  ask: "Track the hurricane into landfall. Pull radar, satellite, buoys and what people are filming.",
+  place: "Gulf Coast, US",
+  eventUtc: "2026-09-28T03:00:00Z",
+  inspiredBy: { title: "Tracking Storms in God\u2019s Eye View Is Insanely Cool", url: "https://www.youtube.com/watch?v=GUo5VKPwwh8" },
+  view: "#v=2&lat=28.9&lon=-89.4&alt=1600000&heading=0&pitch=-70&roll=0",
+  span: 2880,
+  tallies: grow(2880, { imagery: 180, data: 420, official: 64, x: 2400, reddit: 380, youtube: 160, tiktok: 520, news: 410 }, 600),
+  pulls: [
+    pull(2, "official", "Hurricane center advisory: Category 4, 140 mph", "advisory", "text"),
+    pull(5, "imagery", "GOES-East 1-minute mesoscale, eye clearing", "satellite", "photo"),
+    pull(12, "data", "Buoy 42040: 38 ft waves, pressure falling", "buoy", "data"),
+    pull(30, "data", "NEXRAD volume: eyewall 40 km offshore", "radar", "data"),
+    pull(95, "tiktok", "Storm surge over a seawall, filmed from a balcony", "video", "video"),
+    pull(180, "x", "Storm chaser live: eyewall winds in a parking garage", "livestream", "video"),
+    pull(420, "reddit", "Power outage map thread: 610k without power", "thread", "text"),
+    pull(900, "imagery", "First clear-sky Sentinel-2 pass over the coast", "satellite", "photo"),
+    pull(1700, "news", "Officials survey surge damage by helicopter", "wire story", "video"),
+    pull(2600, "imagery", "Before/after tiles of the barrier island", "satellite", "photo")
+  ],
+  findings: [
+    { t: 5, text: "Eye clears on 1-minute imagery as the storm crosses warm water", tier: "seen" },
+    { t: 35, text: "Eyewall reaches the coast 50 minutes earlier than the 00Z forecast track", tier: "derived" },
+    { t: 100, text: "Surge videos cluster 30 km east of the eye, matching the right-front quadrant", tier: "derived" },
+    { t: 430, text: "Outages peak at about 610,000 customers", tier: "reported" },
+    { t: 2650, text: "Imagery shows new breaches cutting the barrier island in two places", tier: "seen" }
+  ],
+  sim: [
+    { id: "track", label: "Forecast cone vs observed track", start: 0, t: 10, layer: "storm" },
+    { id: "radar", label: "3D radar volume of the eyewall", start: 10, t: 40, layer: "radar" },
+    { id: "wind", label: "Surface wind field", start: 30, t: 120, layer: "wind" },
+    { id: "videos", label: "Geolocate surge videos onto the coast", start: 90, t: 600, layer: "cameras" },
+    { id: "change", label: "Before/after imagery of the coast", start: 900, t: 2700, layer: "imagery" }
+  ]
+};
+var QUAKE = {
+  id: "quake-shaking",
+  title: "Earthquake: who felt it",
+  basis: "authored",
+  ask: "A big quake just hit. Where was it, who felt it, and what does the shaking look like?",
+  place: "Pacific coast",
+  eventUtc: "2026-10-09T09:41:00Z",
+  inspiredBy: { title: "God\u2019s Eye View Is Becoming a 4D Time Machine", url: "https://www.youtube.com/watch?v=lX7wTtCsfIg" },
+  view: "#v=2&lat=40.3&lon=-124.4&alt=900000&heading=0&pitch=-60&roll=0",
+  span: 720,
+  tallies: grow(720, { data: 85, official: 22, x: 1300, reddit: 240, tiktok: 300, youtube: 60, news: 140 }, 90),
+  pulls: [
+    pull(1, "data", "Seismic feed: M6.9, depth 18 km, offshore", "quake feed", "data"),
+    pull(3, "official", "Tsunami center: no tsunami threat for the coast", "bulletin", "text"),
+    pull(4, "x", '"Did anyone else feel that?" posts spike 600 km inland', "posts", "text"),
+    pull(9, "tiktok", "Doorbell camera: a living room shakes for 20 s", "video", "video"),
+    pull(15, "data", '"Did you feel it?" reports: 21,000 in 15 minutes', "felt reports", "data"),
+    pull(40, "data", "Aftershocks: 14 above M3", "quake feed", "data"),
+    pull(90, "news", "Highway closed for a slide; no major damage", "local news", "text"),
+    pull(300, "reddit", "Thread mapping where people woke up", "thread", "text")
+  ],
+  findings: [
+    { t: 1, text: "M6.9 at 18 km, about 70 km offshore", tier: "seen" },
+    { t: 4, text: "Social posts arrive inland before the shaking reports finish: the wave front is visible in timestamps", tier: "derived" },
+    { t: 16, text: "Felt reports reach 600 km; strongest shaking on the coast nearest the epicentre", tier: "seen" },
+    { t: 45, text: "Aftershocks line up along the fault, about 40 km long", tier: "derived" },
+    { t: 95, text: "One highway slide; no major structural damage reported", tier: "reported" }
+  ],
+  sim: [
+    { id: "quake", label: "Epicentre and depth", start: 0, t: 1, layer: "quakes" },
+    { id: "wave", label: "Shaking wave front over time", start: 1, t: 10, layer: "shaking" },
+    { id: "felt", label: "Felt reports as a heat map", start: 10, t: 30, layer: "felt" },
+    { id: "after", label: "Aftershock sequence", start: 30, t: 720, layer: "quakes" }
+  ]
+};
+var DARK_FLEET = {
+  id: "dark-fleet",
+  title: "Tankers that went dark",
+  basis: "authored",
+  ask: "Which tankers turned their transponders off near the strait this week, and where did they reappear?",
+  place: "Strait of Hormuz",
+  eventUtc: "2026-11-06T00:00:00Z",
+  inspiredBy: { title: "Watch This Tanker Go Dark in the Strait of Hormuz (God\u2019s Eye View)", url: "https://www.youtube.com/watch?v=NOHCTdoDk_E" },
+  view: "#v=2&lat=26.4&lon=56.4&alt=700000&heading=0&pitch=-75&roll=0",
+  span: 10080,
+  tallies: grow(10080, { data: 2600, imagery: 48, official: 6, x: 190, reddit: 40, news: 35 }, 2500),
+  pulls: [
+    pull(5, "data", "AIS: 1,140 vessels in the area this week", "ship positions", "data"),
+    pull(60, "data", "Gaps over 6 h: 23 tankers", "ship positions", "data"),
+    pull(240, "imagery", "Sentinel-1 radar pass: 31 ship returns, 6 without AIS", "satellite", "photo"),
+    pull(800, "x", "Analyst thread on a ship-to-ship transfer at anchor", "post", "photo"),
+    pull(1900, "imagery", "Sentinel-2 optical: two hulls side by side", "satellite", "photo"),
+    pull(4300, "news", "Sanctions list adds four tankers", "wire story", "text"),
+    pull(7600, "data", "Three of the six reappear 400 km south", "ship positions", "data")
+  ],
+  findings: [
+    { t: 60, text: "23 tankers have AIS gaps longer than 6 hours this week", tier: "seen" },
+    { t: 245, text: "Radar imagery shows 6 hulls with no matching AIS signal", tier: "seen" },
+    { t: 1950, text: "Two hulls side by side for ~9 h: consistent with a ship-to-ship transfer", tier: "inferred" },
+    { t: 7650, text: "Three of the dark six reappear 400 km south under the same identities", tier: "seen" }
+  ],
+  sim: [
+    { id: "ais", label: "A week of ship tracks", start: 0, t: 20, layer: "vessels" },
+    { id: "gaps", label: "Mark transponder gaps", start: 20, t: 80, layer: "vessels" },
+    { id: "sar", label: "Match radar returns to tracks", start: 200, t: 400, layer: "imagery" },
+    { id: "sts", label: "Flag side-by-side hulls", start: 1800, t: 2100, layer: "imagery" },
+    { id: "reappear", label: "Link gaps to reappearances", start: 7e3, t: 8e3, layer: "vessels" }
+  ]
+};
+var WILDFIRE = {
+  id: "wildfire-spread",
+  title: "Wildfire spread, hour by hour",
+  basis: "authored",
+  ask: "Show me how the fire spread overnight. Pull satellite hotspots, cameras and evacuation orders.",
+  place: "Southern California",
+  eventUtc: "2026-10-21T05:00:00Z",
+  inspiredBy: { title: "Ukraine War God\u2019s Eye View - 4.5 Years of Satellite Fire Detections", url: "https://www.youtube.com/watch?v=h-s2TjWqEpA" },
+  view: "#v=2&lat=34.2&lon=-118.5&alt=120000&heading=20&pitch=-40&roll=0",
+  span: 1440,
+  tallies: grow(1440, { imagery: 140, data: 260, official: 75, x: 1700, reddit: 310, tiktok: 480, youtube: 90, news: 220 }, 300),
+  pulls: [
+    pull(2, "imagery", "Satellite hotspots: first detection at 21:40 local", "fire detections", "data"),
+    pull(10, "data", "Wind station: gusts to 60 mph from the north-east", "weather station", "data"),
+    pull(20, "data", "Ridge-top camera: flame front visible", "fire camera", "video"),
+    pull(45, "official", "Evacuation order for three zones", "county alert", "text"),
+    pull(70, "tiktok", "Driving out on the highway, embers crossing", "video", "video"),
+    pull(260, "imagery", "Polar orbiter pass: perimeter 4,800 acres", "fire detections", "data"),
+    pull(900, "imagery", "Morning optical pass through smoke", "satellite", "photo")
+  ],
+  findings: [
+    { t: 12, text: "Wind is pushing the head of the fire south-west at about 2 km/h", tier: "derived" },
+    { t: 46, text: "Evacuation orders cover three zones, about 9,000 residents", tier: "reported" },
+    { t: 265, text: "Perimeter about 4,800 acres; spotting reached 1.5 km ahead of the front", tier: "seen" },
+    { t: 910, text: "Burn scar on morning imagery matches the overnight hotspot path", tier: "seen" }
+  ],
+  sim: [
+    { id: "hot", label: "Hotspot detections over time", start: 0, t: 10, layer: "fires" },
+    { id: "wind", label: "Wind field from stations", start: 5, t: 30, layer: "wind" },
+    { id: "spread", label: "Spread replay, hour by hour", start: 30, t: 300, layer: "replay" },
+    { id: "cams", label: "Place fire cameras and videos", start: 20, t: 400, layer: "cameras" },
+    { id: "scar", label: "Burn scar from imagery", start: 880, t: 960, layer: "imagery" }
+  ]
+};
+var VOLCANO_ASH = {
+  id: "volcano-ash",
+  title: "Ash cloud vs the flights",
+  basis: "authored",
+  ask: "The volcano erupted. Where is the ash going, and which flights are rerouting around it?",
+  place: "North Pacific",
+  eventUtc: "2026-08-14T20:10:00Z",
+  inspiredBy: { title: "Watching Air Traffic Dodging Volcanic Ash Plumes from Orbit in God\u2019s Eye View", url: "https://www.youtube.com/watch?v=VA7qGKDDtrs" },
+  view: "#v=2&lat=56.1&lon=160.6&alt=2500000&heading=0&pitch=-70&roll=0",
+  span: 2160,
+  tallies: grow(2160, { imagery: 210, data: 380, official: 40, x: 520, reddit: 70, youtube: 25, news: 85 }, 500),
+  pulls: [
+    pull(3, "official", "Volcanic ash advisory: plume to 45,000 ft", "ash advisory", "text"),
+    pull(8, "imagery", "Himawari 10-minute imagery: umbrella cloud", "satellite", "photo"),
+    pull(30, "data", "Flights on the North Pacific tracks: 64 airborne", "aircraft feed", "data"),
+    pull(70, "x", "Passenger photo of the plume from a window", "post", "photo"),
+    pull(180, "data", "17 flights rerouted south of the plume", "aircraft feed", "data"),
+    pull(600, "official", "Updated ash forecast: plume drifting east", "ash advisory", "text")
+  ],
+  findings: [
+    { t: 9, text: "Umbrella cloud spreading at the tropopause, about 45,000 ft", tier: "seen" },
+    { t: 185, text: "17 transpacific flights moved south of the forecast ash area", tier: "seen" },
+    { t: 190, text: "Average reroute adds about 25 minutes", tier: "derived" },
+    { t: 610, text: "Forecast keeps the ash north of the main tracks for 24 h", tier: "reported" }
+  ],
+  sim: [
+    { id: "plume", label: "Ash plume from satellite", start: 0, t: 15, layer: "imagery" },
+    { id: "forecast", label: "Ash forecast polygons over time", start: 3, t: 620, layer: "ash" },
+    { id: "flights", label: "Flight tracks vs the ash", start: 25, t: 200, layer: "aircraft" }
+  ]
+};
+var AUTHORED = [GROUND_STOP, CYCLONE, QUAKE, DARK_FLEET, WILDFIRE, VOLCANO_ASH];
+
+// src/gev/research/cases/learjet.ts
+var LEARJET = {
+  "id": "learjet-n722bd",
+  "title": "Learjet 60 crash, Palm Beach",
+  "ask": "Reconstruct the Learjet crash in Palm Beach. Pull every source and keep the sim updating.",
+  "place": "Greenacres, FL",
+  "eventUtc": "2026-11-01T17:49:33Z",
+  "basis": "kb",
+  "inspiredBy": {
+    "title": "Palm Beach Learjet Crash - 3D Reconstruction of What We Know So Far in God's Eye View",
+    "url": "https://www.youtube.com/shorts/W-XeARkcGrw"
+  },
+  "view": "#v=2&lat=26.45&lon=-80.30&alt=220000&heading=20&pitch=-50&roll=0",
+  "span": 18337,
+  "tallies": [
+    {
+      "t": 1.1,
+      "by": {
+        "x": 151,
+        "news": 11,
+        "youtube": 13,
+        "data": 5,
+        "imagery": 1,
+        "official": 4,
+        "reddit": 3
+      }
+    },
+    {
+      "t": 17.4,
+      "by": {
+        "x": 196,
+        "news": 111,
+        "youtube": 79,
+        "data": 5,
+        "imagery": 1,
+        "official": 4,
+        "reddit": 25
+      }
+    },
+    {
+      "t": 24.1,
+      "by": {
+        "x": 201,
+        "news": 124,
+        "youtube": 90,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 25
+      }
+    },
+    {
+      "t": 196.2,
+      "by": {
+        "x": 202,
+        "news": 150,
+        "youtube": 110,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 73
+      }
+    },
+    {
+      "t": 256.7,
+      "by": {
+        "x": 203,
+        "news": 180,
+        "youtube": 114,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 77
+      }
+    },
+    {
+      "t": 360.8,
+      "by": {
+        "x": 205,
+        "news": 188,
+        "youtube": 120,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 81
+      }
+    },
+    {
+      "t": 419.8,
+      "by": {
+        "x": 205,
+        "news": 209,
+        "youtube": 131,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 98
+      }
+    },
+    {
+      "t": 489,
+      "by": {
+        "x": 208,
+        "news": 223,
+        "youtube": 135,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 111
+      }
+    },
+    {
+      "t": 626,
+      "by": {
+        "x": 210,
+        "news": 231,
+        "youtube": 138,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 120
+      }
+    },
+    {
+      "t": 698.3,
+      "by": {
+        "x": 213,
+        "news": 265,
+        "youtube": 160,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 158
+      }
+    },
+    {
+      "t": 766.9,
+      "by": {
+        "x": 215,
+        "news": 281,
+        "youtube": 168,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 187
+      }
+    },
+    {
+      "t": 838.7,
+      "by": {
+        "x": 219,
+        "news": 308,
+        "youtube": 178,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 207
+      }
+    },
+    {
+      "t": 905.3,
+      "by": {
+        "x": 222,
+        "news": 308,
+        "youtube": 178,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 207
+      }
+    },
+    {
+      "t": 979.4,
+      "by": {
+        "x": 225,
+        "news": 398,
+        "youtube": 204,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 231
+      }
+    },
+    {
+      "t": 1039.1,
+      "by": {
+        "x": 227,
+        "news": 398,
+        "youtube": 204,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 231
+      }
+    },
+    {
+      "t": 1115,
+      "by": {
+        "x": 230,
+        "news": 437,
+        "youtube": 219,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 256
+      }
+    },
+    {
+      "t": 1293.3,
+      "by": {
+        "x": 236,
+        "news": 460,
+        "youtube": 219,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 267
+      }
+    },
+    {
+      "t": 1355.5,
+      "by": {
+        "x": 236,
+        "news": 475,
+        "youtube": 233,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 297
+      }
+    },
+    {
+      "t": 1428,
+      "by": {
+        "x": 239,
+        "news": 485,
+        "youtube": 241,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 309
+      }
+    },
+    {
+      "t": 1493.1,
+      "by": {
+        "x": 241,
+        "news": 485,
+        "youtube": 241,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 309
+      }
+    },
+    {
+      "t": 1634.5,
+      "by": {
+        "x": 241,
+        "news": 502,
+        "youtube": 252,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 330
+      }
+    },
+    {
+      "t": 1773.2,
+      "by": {
+        "x": 242,
+        "news": 510,
+        "youtube": 254,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 339
+      }
+    },
+    {
+      "t": 1905,
+      "by": {
+        "x": 242,
+        "news": 521,
+        "youtube": 259,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 366
+      }
+    },
+    {
+      "t": 1976,
+      "by": {
+        "x": 246,
+        "news": 529,
+        "youtube": 263,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 377
+      }
+    },
+    {
+      "t": 2101.2,
+      "by": {
+        "x": 247,
+        "news": 536,
+        "youtube": 266,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 387
+      }
+    },
+    {
+      "t": 2209,
+      "by": {
+        "x": 248,
+        "news": 541,
+        "youtube": 268,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 388
+      }
+    },
+    {
+      "t": 2326.1,
+      "by": {
+        "x": 249,
+        "news": 562,
+        "youtube": 274,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 404
+      }
+    },
+    {
+      "t": 2435.8,
+      "by": {
+        "x": 250,
+        "news": 567,
+        "youtube": 278,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 413
+      }
+    },
+    {
+      "t": 2493.1,
+      "by": {
+        "x": 252,
+        "news": 583,
+        "youtube": 280,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 424
+      }
+    },
+    {
+      "t": 2546.8,
+      "by": {
+        "x": 253,
+        "news": 590,
+        "youtube": 286,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 439
+      }
+    },
+    {
+      "t": 2610.3,
+      "by": {
+        "x": 257,
+        "news": 609,
+        "youtube": 292,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 451
+      }
+    },
+    {
+      "t": 2731.3,
+      "by": {
+        "x": 258,
+        "news": 626,
+        "youtube": 296,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 458
+      }
+    },
+    {
+      "t": 2793.4,
+      "by": {
+        "x": 259,
+        "news": 636,
+        "youtube": 299,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 465
+      }
+    },
+    {
+      "t": 8163.6,
+      "by": {
+        "x": 259,
+        "news": 732,
+        "youtube": 325,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 506
+      }
+    },
+    {
+      "t": 8266.7,
+      "by": {
+        "x": 259,
+        "news": 734,
+        "youtube": 335,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 506
+      }
+    },
+    {
+      "t": 8437.9,
+      "by": {
+        "x": 259,
+        "news": 746,
+        "youtube": 345,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 507
+      }
+    },
+    {
+      "t": 8544.5,
+      "by": {
+        "x": 259,
+        "news": 750,
+        "youtube": 346,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 509
+      }
+    },
+    {
+      "t": 8706.9,
+      "by": {
+        "x": 259,
+        "news": 756,
+        "youtube": 350,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 509
+      }
+    },
+    {
+      "t": 8806,
+      "by": {
+        "x": 259,
+        "news": 756,
+        "youtube": 356,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 510
+      }
+    },
+    {
+      "t": 8956.4,
+      "by": {
+        "x": 259,
+        "news": 759,
+        "youtube": 366,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 512
+      }
+    },
+    {
+      "t": 9062.9,
+      "by": {
+        "x": 259,
+        "news": 762,
+        "youtube": 372,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 512
+      }
+    },
+    {
+      "t": 9437,
+      "by": {
+        "x": 259,
+        "news": 770,
+        "youtube": 380,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 513
+      }
+    },
+    {
+      "t": 9595,
+      "by": {
+        "x": 259,
+        "news": 773,
+        "youtube": 385,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 514
+      }
+    },
+    {
+      "t": 9774.2,
+      "by": {
+        "x": 259,
+        "news": 773,
+        "youtube": 389,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 516
+      }
+    },
+    {
+      "t": 9870.7,
+      "by": {
+        "x": 259,
+        "news": 775,
+        "youtube": 394,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 516
+      }
+    },
+    {
+      "t": 10002.8,
+      "by": {
+        "x": 259,
+        "news": 778,
+        "youtube": 403,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 516
+      }
+    },
+    {
+      "t": 10335,
+      "by": {
+        "x": 259,
+        "news": 787,
+        "youtube": 406,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 518
+      }
+    },
+    {
+      "t": 10495.6,
+      "by": {
+        "x": 259,
+        "news": 793,
+        "youtube": 408,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 521
+      }
+    },
+    {
+      "t": 10708.2,
+      "by": {
+        "x": 259,
+        "news": 801,
+        "youtube": 412,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 521
+      }
+    },
+    {
+      "t": 10834.7,
+      "by": {
+        "x": 259,
+        "news": 810,
+        "youtube": 413,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 521
+      }
+    },
+    {
+      "t": 11026.1,
+      "by": {
+        "x": 259,
+        "news": 819,
+        "youtube": 419,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 521
+      }
+    },
+    {
+      "t": 11150.1,
+      "by": {
+        "x": 259,
+        "news": 825,
+        "youtube": 420,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 521
+      }
+    },
+    {
+      "t": 11255.2,
+      "by": {
+        "x": 259,
+        "news": 832,
+        "youtube": 424,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 523
+      }
+    },
+    {
+      "t": 11324.8,
+      "by": {
+        "x": 259,
+        "news": 840,
+        "youtube": 426,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 526
+      }
+    },
+    {
+      "t": 11526.8,
+      "by": {
+        "x": 259,
+        "news": 855,
+        "youtube": 429,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 527
+      }
+    },
+    {
+      "t": 11694,
+      "by": {
+        "x": 259,
+        "news": 860,
+        "youtube": 429,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 528
+      }
+    },
+    {
+      "t": 11859.8,
+      "by": {
+        "x": 259,
+        "news": 866,
+        "youtube": 435,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 530
+      }
+    },
+    {
+      "t": 11967.3,
+      "by": {
+        "x": 259,
+        "news": 875,
+        "youtube": 435,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 532
+      }
+    },
+    {
+      "t": 12145.4,
+      "by": {
+        "x": 259,
+        "news": 889,
+        "youtube": 436,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 534
+      }
+    },
+    {
+      "t": 12251.8,
+      "by": {
+        "x": 259,
+        "news": 898,
+        "youtube": 437,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 534
+      }
+    },
+    {
+      "t": 12452.2,
+      "by": {
+        "x": 259,
+        "news": 912,
+        "youtube": 440,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 12553,
+      "by": {
+        "x": 259,
+        "news": 917,
+        "youtube": 441,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 12751.5,
+      "by": {
+        "x": 259,
+        "news": 927,
+        "youtube": 443,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 12900,
+      "by": {
+        "x": 259,
+        "news": 931,
+        "youtube": 444,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 13049.5,
+      "by": {
+        "x": 259,
+        "news": 936,
+        "youtube": 445,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 13258.3,
+      "by": {
+        "x": 259,
+        "news": 940,
+        "youtube": 448,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 13450.8,
+      "by": {
+        "x": 259,
+        "news": 944,
+        "youtube": 449,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 16314,
+      "by": {
+        "x": 259,
+        "news": 971,
+        "youtube": 458,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 16448,
+      "by": {
+        "x": 259,
+        "news": 972,
+        "youtube": 461,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 16642.2,
+      "by": {
+        "x": 259,
+        "news": 979,
+        "youtube": 469,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 16829.8,
+      "by": {
+        "x": 259,
+        "news": 980,
+        "youtube": 471,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 16981.2,
+      "by": {
+        "x": 259,
+        "news": 984,
+        "youtube": 496,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17089.5,
+      "by": {
+        "x": 259,
+        "news": 985,
+        "youtube": 504,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17233.4,
+      "by": {
+        "x": 259,
+        "news": 988,
+        "youtube": 507,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17381.8,
+      "by": {
+        "x": 259,
+        "news": 988,
+        "youtube": 510,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17582.1,
+      "by": {
+        "x": 259,
+        "news": 988,
+        "youtube": 516,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17733.8,
+      "by": {
+        "x": 259,
+        "news": 991,
+        "youtube": 520,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 17946,
+      "by": {
+        "x": 259,
+        "news": 993,
+        "youtube": 523,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 18140.5,
+      "by": {
+        "x": 259,
+        "news": 995,
+        "youtube": 524,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    },
+    {
+      "t": 18337,
+      "by": {
+        "x": 259,
+        "news": 996,
+        "youtube": 530,
+        "data": 5,
+        "imagery": 2,
+        "official": 4,
+        "reddit": 535
+      }
+    }
+  ],
+  "pulls": [
+    {
+      "t": 0,
+      "platform": "news",
+      "label": "Video shows moment airplane crashes in Palm Beach County",
+      "detail": "cnn.com",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "news",
+      "label": "Drone Footage of the accident location: A devastating aviation",
+      "detail": "facebook.com",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "news",
+      "label": "11/1/26 Palm Beach County, Florida Slow-motion, frame-by-frame",
+      "detail": "facebook.com",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "news",
+      "label": "A Learjet 60 has crashed in Palm Beach County, Florida. (Vid",
+      "detail": "facebook.com",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "BNO News - WATCH: Learjet 60 business jet completely destroyed, leaving large cr...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "BNO News - BREAKING: Business jet crashes near West Palm Beach, Florida",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "BNO News - WATCH: New video shows Learjet 60 business jet crashing near West Pal...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "Breaking911 - \u{1F633} WATCH: Dashcam footage captures the moment a Learjet 60 (N722BD), c...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "Breaking911 - BREAKING: An aircraft crashed in Palm Beach County, Florida, scatteri...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0,
+      "platform": "x",
+      "label": "Breaking911 - Additional footage after an aircraft crashed in Palm Beach County, Fl...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "x",
+      "label": "WPEC CBS12 News - BREAKING UPDATE | A jet plummeted onto a busy Greenacres roadway Sund...",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "9 killed in plane crash in Palm Beach, Florida",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "Jet carrying 9 people crashes in Florida neighborhood",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "Witness Eduin Cruz shares video of fatal Learjet 60 crash in Palm Beach",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "Learjet 60 Crash in Palm Beach County, Florida: Real ATC Audio of the Final Minute.",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "All 9 people died on jet that crashed into Florida neighborhood, transportation secretary",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "9 dead in small plane crash in Palm Beach County, Florida",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "youtube",
+      "label": "WATCH LIVE: Learjet 60 crashes in Palm Beach County, FAA says | 11-01-2026",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 0.1,
+      "platform": "data",
+      "label": "github.com/adsblol/globe_history_2026/releases/tag",
+      "detail": "github.com",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "data",
+      "label": "unidata-nexrad-level2.s3.amazonaws.com/2026/11/01/KAMX/",
+      "detail": "unidata-nexrad-level2.s3.amazonaws.com",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "data",
+      "label": "mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "detail": "mesonet.agron.iastate.edu",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "data",
+      "label": "mesonet.agron.iastate.edu/cgi-bin/request/gis/pireps.py",
+      "detail": "mesonet.agron.iastate.edu",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "data",
+      "label": "mesonet.agron.iastate.edu/cgi-bin/request/raob.py",
+      "detail": "mesonet.agron.iastate.edu",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "imagery",
+      "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPM/2026/305/17/",
+      "detail": "noaa-goes19.s3.amazonaws.com",
+      "media": "data"
+    },
+    {
+      "t": 0.1,
+      "platform": "official",
+      "label": "easa.europa.eu/en/downloads/7238/en",
+      "detail": "easa.europa.eu",
+      "media": "text"
+    },
+    {
+      "t": 0.1,
+      "platform": "official",
+      "label": "tc.canada.ca/en/aviation/commercial-air-services/ope",
+      "detail": "tc.canada.ca",
+      "media": "text"
+    },
+    {
+      "t": 0.1,
+      "platform": "official",
+      "label": "ntsb.gov/investigations/AccidentReports/Reports/",
+      "detail": "ntsb.gov",
+      "media": "text"
+    },
+    {
+      "t": 0.1,
+      "platform": "official",
+      "label": "federalregister.gov/api/v1/documents.json",
+      "detail": "federalregister.gov",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Learjet 60 crashes near West Palm Beach, Florida - Flightradar24",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Florida Learjet Crash Claims Nine - Aviation International News",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Learjet 60 crashes into urban area in Florida after rapid dive - Air Data News",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "West Palm Beach plane crash: Learjet 60 (N722BD) hits Florida mobile home park - Beinsure",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Footage Shows Learjet Falling 35,000 Feet in About a Minute, Killing All 9 Aboard - Yahoo",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Breaking: Learjet 60 With 9 People Onboard Fatally Nose Dives In Missile-Like Crash Near Mar-A-L\u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "\u2018It looked like a missile\u2019: Witness video shows fiery Learjet 60 crash killing 9, prompting evac\u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "A Learjet crashes near Palm Beach, killing all 9 on board - Business Insider",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "news",
+      "label": "Nine killed as Bahamas-bound Learjet crashes in Florida - Aviation24.be",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "N722BD comms before the crash",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "Weather data for N722BD | Met Notes | MyRadar",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac\u2026",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "Guy keeps claiming Learjet crash was ISIS",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac\u2026",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2.2,
+      "platform": "reddit",
+      "label": "Learjet 60 (N722BD) crashes near Palm Springs on November 1, 2026 after a high speed descent",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 18.7,
+      "platform": "imagery",
+      "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPC/2026/305/17/",
+      "detail": "noaa-goes19.s3.amazonaws.com",
+      "media": "data"
+    },
+    {
+      "t": 196,
+      "platform": "youtube",
+      "label": "Florida Plane Crash: Learjet Carrying 9 Crashes Into Residential Neighbourhood",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 196.2,
+      "platform": "news",
+      "label": "Turbulence, ice build-up, -47\xB0C temp: Did weather play a role in Learjet crash? - India Today",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 196.2,
+      "platform": "reddit",
+      "label": "Learjet crash in palm beach",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 419.8,
+      "platform": "news",
+      "label": "Palm Beach plane had \u2018incredibly fast\u2019 descent before fiery crash. What happened? - Miami Herald",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 698.3,
+      "platform": "reddit",
+      "label": "Slow motion video of the plane crash in Palm Beach Florida moments ago. Learjet 60",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 766.6,
+      "platform": "youtube",
+      "label": "Learjet 60 Crash in Florida: A Pilot Breaks Down What We Know",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 766.9,
+      "platform": "news",
+      "label": "\u2018It looked like a missile\u2019: 9 dead in Learjet crash near Greenacres mobile home park - WPBF",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 974.5,
+      "platform": "x",
+      "label": "Points from first NTSB briefing this afternoon on N722BD: - Board Member Chapman says the NTSB s\u2026",
+      "detail": "x-post",
+      "media": "text"
+    },
+    {
+      "t": 979.4,
+      "platform": "news",
+      "label": "NTSB examining possible pre-crash break-up of Learjet 60 - FlightGlobal",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 1043.1,
+      "platform": "news",
+      "label": "NTSB finds evidence of in-flight breakup before Florida Learjet crash - AeroTime",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 1043.1,
+      "platform": "reddit",
+      "label": "New CBS 13 News Upload: NTSB: Learjet crew reported ice, turbulence before deadly Florida crash",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 1427.8,
+      "platform": "youtube",
+      "label": "NTSB: Learjet N722BD Was Breaking Apart Before Impact | 4 Clues (3D)",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 1496.8,
+      "platform": "news",
+      "label": "Plane crew reported issues a minute before Palm Beach crash, NTSB says - The Spokesman-Review",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 1836.2,
+      "platform": "reddit",
+      "label": "Learjet 60 crash site in Palm Beach viewed from above",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 2383.6,
+      "platform": "news",
+      "label": "Palm Beach Plane Crash: Captain's Identity Revealed - TMZ",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 2553.3,
+      "platform": "reddit",
+      "label": "I'm not understanding how the Learjet oversped and nose dove. As an idiot, can someone please ex\u2026",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 8163.4,
+      "platform": "youtube",
+      "label": "Learjet 60 Palm Beach Crash Kills 9\u2026 What Did Pilots Know BEFORE the MAYDAY Call?",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 8163.5,
+      "platform": "news",
+      "label": "Ill-Fated Learjet Had Altitude Struggles Amid Severe Turbulence 6 Months Ago, ATC Audio Shows - \u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 8163.6,
+      "platform": "news",
+      "label": "Nanny Killed In Florida Learjet Crash Was 'Truly Happy' on Fir... - International Business Times\u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 9774,
+      "platform": "youtube",
+      "label": "Learjet N722BD: The Final 78 Seconds on the Radio",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 10559,
+      "platform": "news",
+      "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KEYE",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 11754.4,
+      "platform": "news",
+      "label": "NTSB recovers cockpit voice recorder from Learjet 60 that crashed near Greenacres, Florida - Tip\u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 12344.6,
+      "platform": "reddit",
+      "label": "New Inside Edition Upload: Learjet Black Box Recorder Found At Crash Site In Florida",
+      "detail": "reddit",
+      "media": "text"
+    },
+    {
+      "t": 12751.5,
+      "platform": "news",
+      "label": "What\u2019s next in the investigation of the Learjet crash in Florida that killed 9? - Orlando Sentin\u2026",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 16382.5,
+      "platform": "youtube",
+      "label": "Here's What Really Happened to Learjet 60 N722BD (Real ATC Audio)",
+      "detail": "video",
+      "media": "video"
+    },
+    {
+      "t": 18140.5,
+      "platform": "news",
+      "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KABB",
+      "detail": "news.google.com",
+      "media": "text"
+    },
+    {
+      "t": 18337,
+      "platform": "youtube",
+      "label": "Learjet 60 Crash: Did the Elevator Separate Before the Dive?",
+      "detail": "video",
+      "media": "video"
+    }
+  ],
+  "findings": [
+    {
+      "t": 12.2,
+      "text": "17:47:33Z Crew reports light clear ice, OAT -47 C",
+      "tier": "reported"
+    },
+    {
+      "t": 12.2,
+      "text": "17:48:28Z Mayday, ~10,000 ft/min (ATC)",
+      "tier": "reported"
+    },
+    {
+      "t": 12.2,
+      "text": "17:48:40Z Right turn begins; track 099 -> 290 deg over the remaining 52 s (descending right spiral)",
+      "tier": "seen"
+    },
+    {
+      "t": 12.2,
+      "text": "17:49:33Z Impact beside Military Trail between Cresthaven Blvd and 10th Ave N, Greenacres (Cam A fireball)",
+      "tier": "seen"
+    },
+    {
+      "t": 12.2,
+      "text": "Encoded vertical rate saturates at -32,640 fpm from 17:49:04Z: the true rate was higher",
+      "tier": "seen"
+    },
+    {
+      "t": 12.2,
+      "text": "Peak estimated Mach ~0.94 (TAS ~590 kt at FL220); ~0.90-0.95 sustained below FL280",
+      "tier": "derived"
+    },
+    {
+      "t": 12.2,
+      "text": 'Below about -40 C liquid water cannot remain supercooled, so "clear ice" at -46/-47 C points to ice crystals or misreported accretion type',
+      "tier": "inferred"
+    },
+    {
+      "t": 489,
+      "text": "Learjet crash probe seeks to understand high-altitude upset in convective weather - FlightGlobal",
+      "tier": "reported"
+    },
+    {
+      "t": 489,
+      "text": "Learjet 60 crash: What does the horizontal stabiliser do? - Aerospace Global News",
+      "tier": "reported"
+    },
+    {
+      "t": 489,
+      "text": "Nine killed after Learjet 60 plunges into Florida neighborhood; crew reported severe icing befor\u2026",
+      "tier": "reported"
+    },
+    {
+      "t": 559.5,
+      "text": "Did the Learjet 60 Lose Its Tail Mid-Air? What the Dashcam Video Shows About the Horizontal Stab\u2026",
+      "tier": "reported"
+    },
+    {
+      "t": 2441.3,
+      "text": "NTSB Finds Learjet Elevator Pieces Miles From Impact Site - AVweb",
+      "tier": "reported"
+    },
+    {
+      "t": 11205.9,
+      "text": "NTSB: Cockpit voice recorder found at initial impact site in Greenacres Learjet crash - WPEC",
+      "tier": "reported"
+    }
+  ],
+  "sim": [
+    {
+      "id": "track",
+      "label": "ADS-B track \u2192 4D flight path",
+      "start": 0,
+      "t": 12.2,
+      "layer": "track"
+    },
+    {
+      "id": "cams",
+      "label": "9 perspectives synced to UTC",
+      "start": 0,
+      "t": 12.2,
+      "layer": "cameras"
+    },
+    {
+      "id": "radar",
+      "label": "NEXRAD radar along the track",
+      "start": 0,
+      "t": 12.2,
+      "layer": "radar"
+    },
+    {
+      "id": "gust",
+      "label": "JSBSim Learjet 60 gust study",
+      "start": 0,
+      "t": 12.2,
+      "layer": "physics"
+    },
+    {
+      "id": "goes",
+      "label": "GOES-19 cloud-top temperatures",
+      "start": 12.2,
+      "t": 19.2,
+      "layer": "satellite"
+    },
+    {
+      "id": "cockpit",
+      "label": "FlightGear replay from the track",
+      "start": 12.2,
+      "t": 19.2,
+      "layer": "cockpit"
+    }
+  ]
+};
+
+// src/gev/research/index.ts
+var CASES = [LEARJET, ...AUTHORED];
+var GEV = process.env["GEV_URL"] ?? "http://127.0.0.1:4191/";
+function clock4(span4, x) {
+  if (x >= 1) return span4;
+  return Math.min(span4, Math.expm1(Math.log1p(span4) * Math.max(0, x)));
+}
+function findCase(arg) {
+  const q2 = arg.trim().toLowerCase();
+  if (!q2) return void 0;
+  return CASES.find((c) => c.id === q2) ?? CASES.find((c) => c.id.includes(q2) || c.title.toLowerCase().includes(q2));
+}
+async function researchCommand(host2, arg, o = {}) {
+  const c = findCase(arg);
+  if (!c) {
+    host2.transcript.panel("/research <case>", CASES.map((x2) => `${x2.id.padEnd(18)} ${x2.title}  (${x2.basis === "kb" ? "real sources" : "authored example"}; after "${x2.inspiredBy.title}")`).join("\n"));
+    return;
+  }
+  const eui = host2.eui;
+  if (!eui) {
+    host2.transcript.notice("/research needs inline cards", "warning");
+    return;
+  }
+  const browser2 = o.browser ?? ternBrowser;
+  const owner2 = "owner" in o ? o.owner : paneBlock();
+  const url = new URL(c.view, GEV).toString();
+  const seconds = o.seconds ?? 40;
+  const fps = o.fps ?? 4;
+  let view = {};
+  let x = 0;
+  let handle3;
+  let timer;
+  const card = () => ({ kind: "gev-research", app: "God's Eye View", title: `Deep research \xB7 ${c.title}`, ui: researchCard(at2(c, clock4(c.span, x)), view) });
+  const push3 = () => {
+    try {
+      handle3?.update(card(), intent5);
+    } catch {
+      stop3();
+    }
+  };
+  const stop3 = () => {
+    if (timer) clearInterval(timer);
+    timer = void 0;
+  };
+  const play = () => {
+    stop3();
+    timer = setInterval(() => {
+      x = Math.min(1, x + 1 / (seconds * fps));
+      push3();
+      if (x >= 1) stop3();
+    }, 1e3 / fps);
+  };
+  const intent5 = async (detail) => {
+    const action = record(detail)?.["action"];
+    if (action === "pause") {
+      stop3();
+      view = { ...view, paused: true };
+      push3();
+    }
+    if (action === "resume") {
+      view = { ...view, paused: false };
+      play();
+    }
+    if (action === "open" && owner2 !== void 0) {
+      await openGlobe(url, owner2, browser2).catch((e) => host2.transcript.notice(`God's Eye View: ${e instanceof Error ? e.message : String(e)}`, "warning"));
+    }
+  };
+  if (owner2 !== void 0) view = { ...view, capturing: true };
+  handle3 = eui.host.publishNative(card(), intent5);
+  if (owner2 !== void 0) {
+    void captureGlobe(embedUrl(url), owner2, browser2, 6e4).then(
+      (shot2) => {
+        view = { ...view, capturing: false, png: shot2.png, size: { w: shot2.w, h: shot2.h } };
+      },
+      (e) => {
+        view = { ...view, capturing: false, failed: e instanceof Error ? e.message : String(e) };
+      }
+    ).then(push3);
+  }
+  play();
+}
+
+// src/commands/film.ts
+import { readFile as readFile5 } from "node:fs/promises";
+import { homedir as homedir9 } from "node:os";
+import { join as join13 } from "node:path";
+
+// src/wire/fframestudio.ts
+var bridge = object({ url: string2().check(_regex(/^http:\/\/127\.0\.0\.1:\d+$/)), token: string2().check(_regex(/^[\w.-]+$/)), root: string2() });
+var shot = object({ id: string2(), name: string2(), t0: number2(), t1: number2() });
+var project = object({
+  id: string2().check(_regex(/^[\w.-]+$/)),
+  title: string2(),
+  kind: optional2(string2()),
+  duration_s: optional2(nullable(number2())),
+  shots: array(shot),
+  renders: optional2(array(unknown()))
+});
+var library = object({ projects: array(object({ id: string2(), title: string2(), duration_s: optional2(nullable(number2())), shots: optional2(number2()) })) });
+var decode3 = (schema2, text22) => {
+  const r = schema2.safeParse(parseJson(text22));
+  return r.success ? r.data : void 0;
+};
+var filmBridge = (text22) => decode3(bridge, text22);
+var filmProject = (text22) => decode3(project, text22);
+var filmLibrary = (text22) => decode3(library, text22);
+var editorUrl = (b, id3) => `${b.url}/open?token=${encodeURIComponent(b.token)}&to=${encodeURIComponent(`#/p/${id3}`)}`;
+
+// src/commands/film.ts
+var clock5 = (s2) => `${Math.floor(s2 / 60)}:${(s2 % 60).toFixed(1).padStart(4, "0")}`;
+function filmCard(p3, opened) {
+  const len = p3.duration_s ?? p3.shots.at(-1)?.t1 ?? 0;
+  return { type: "element", typeName: "Card", props: { title: p3.title, app: "FFRAMESTUDIO", status: opened ? "done" : "running", children: [
+    { type: "element", typeName: "Stats", props: { items: [
+      { label: "Length", value: `${len.toFixed(1)} s`, tone: "accent" },
+      { label: "Shots", value: String(p3.shots.length) },
+      { label: "Renders", value: String(p3.renders?.length ?? 0) },
+      { label: "Kind", value: p3.kind ?? "fframes" }
+    ] } },
+    { type: "element", typeName: "Section", props: { title: "Shots", aside: `${p3.shots.length}`, children: [
+      { type: "element", typeName: "List", props: { numbered: true, items: p3.shots.slice(0, 8).map((s2) => ({ id: s2.id, label: s2.name, value: `${clock5(s2.t0)}\u2013${clock5(s2.t1)}` })) } }
+    ] } },
+    { type: "element", typeName: "Buttons", props: { items: [{ label: opened ? "Open again in fframestudio" : "Opening fframestudio\u2026", intent: { action: "open", entities: { project: p3.id } }, primary: true }] } }
+  ] } };
+}
+async function filmCommand(host2, arg, d = {}) {
+  const read = d.read ?? ((path2) => readFile5(path2, "utf8"));
+  const file2 = d.bridgeFile ?? process.env["FFRAMESTUDIO_BRIDGE"] ?? join13(homedir9(), ".config", "fframestudio", "bridge.json");
+  const b = filmBridge(await read(file2).catch(() => ""));
+  if (!b) {
+    host2.transcript.notice("/film needs fframestudio: run `npm run bridge` in its checkout", "warning");
+    return;
+  }
+  const id3 = arg.trim();
+  if (!id3) {
+    const lib = filmLibrary(await read(join13(b.root, "projects", "library.json")).catch(() => ""));
+    host2.transcript.panel("/film <project>", lib ? lib.projects.map((p4) => `${p4.id.padEnd(30)} ${p4.title}`).join("\n") : "The fframestudio library is empty.");
+    return;
+  }
+  const p3 = /^[\w.-]+$/.test(id3) ? filmProject(await read(join13(b.root, "projects", id3, "project.json")).catch(() => "")) : void 0;
+  if (!p3) {
+    host2.transcript.notice(`/film: no fframestudio project "${id3}"`, "warning");
+    return;
+  }
+  const eui = host2.eui;
+  if (!eui) {
+    host2.transcript.notice("/film needs inline cards", "warning");
+    return;
+  }
+  const browser2 = d.browser ?? ternBrowser;
+  const owner2 = "owner" in d ? d.owner : paneBlock();
+  let handle3;
+  const open5 = async () => {
+    if (owner2 === void 0) throw new Error("not inside a Tern pane");
+    await browser2({ op: "open", owner: owner2, url: editorUrl(b, p3.id), how: "below" });
+  };
+  const card = (opened) => ({ kind: "fframes-film", app: "fframestudio", title: p3.title, ui: filmCard(p3, opened) });
+  const intent5 = async (detail) => {
+    if (record(detail)?.["action"] === "open") await open5().catch((e) => host2.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, "warning"));
+  };
+  handle3 = eui.host.publishNative(card(false), intent5);
+  await open5().then(() => handle3?.update(card(true), intent5), (e) => host2.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, "warning"));
 }
 
 // src/commands/refused.ts
@@ -78957,6 +81208,16 @@ var COMMANDS3 = [
     run: (host2, arg) => arg.trim() === "graph" ? fleetCommand(host2, "factory") : factoryCommand(host2, arg)
   },
   {
+    name: "research",
+    help: "Deep research replayed as a live God's Eye View card [case]; no case lists them",
+    run: (host2, arg) => researchCommand(host2, arg)
+  },
+  {
+    name: "film",
+    help: "fframes films from the fframestudio library: a card plus the editor under the pane [project]; no project lists them",
+    run: (host2, arg) => filmCommand(host2, arg)
+  },
+  {
     name: "intel",
     help: "Local intelligence [hill|skills|memory|failures|trace]",
     run: (host2, arg) => intelCommand(host2, arg)
@@ -79017,22 +81278,22 @@ var COMMANDS3 = [
   ...REFUSED_COMMANDS
 ];
 function copyAnswer(host2, arg) {
-  const n4 = arg.trim() ? Number.parseInt(arg, 10) : void 0;
-  if (n4 !== void 0 && !(n4 >= 1)) {
+  const n5 = arg.trim() ? Number.parseInt(arg, 10) : void 0;
+  if (n5 !== void 0 && !(n5 >= 1)) {
     return host2.transcript.notice("Usage: /copy [n] (n counts answers from the first)", "warning");
   }
   const answers2 = host2.transcript.entries.flatMap((e) => e.kind === "turn" && answerText(e) ? [answerText(e)] : []);
-  const at2 = n4 === void 0 ? answers2.length : Math.min(n4, answers2.length);
-  const text22 = answers2[at2 - 1];
+  const at3 = n5 === void 0 ? answers2.length : Math.min(n5, answers2.length);
+  const text22 = answers2[at3 - 1];
   if (!text22) {
     return host2.transcript.notice("No answer to copy yet.", "warning");
   }
   copyToClipboard(text22);
-  host2.transcript.notice(`Copied ${n4 === void 0 ? "the last answer" : `answer ${at2}`} (${text22.length} characters).`);
+  host2.transcript.notice(`Copied ${n5 === void 0 ? "the last answer" : `answer ${at3}`} (${text22.length} characters).`);
 }
 function historyText(entries2, arg) {
   const preview5 = Math.max(80, Number.parseInt(arg, 10) || 400);
-  let n4 = 0;
+  let n5 = 0;
   const lines = entries2.flatMap((e) => {
     if (e.kind !== "user" && e.kind !== "turn") {
       return [];
@@ -79041,7 +81302,7 @@ function historyText(entries2, arg) {
     const said = e.kind === "user" ? e.text.trim() : answerText(e);
     const body = said || (tools2 ? `(${tools2} tool call${tools2 === 1 ? "" : "s"})` : "(empty)");
     const clipped = body.length > preview5 ? `${body.slice(0, preview5).trimEnd()}\u2026` : body;
-    return [`**${e.kind === "user" ? "You" : "Hermes"} #${++n4}**
+    return [`**${e.kind === "user" ? "You" : "Hermes"} #${++n5}**
 ${clipped}`];
   });
   return lines.length ? lines.join("\n\n") : "No conversation yet.";
@@ -79394,22 +81655,22 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join14 } from "node:path";
+import { join as join15 } from "node:path";
 
 // src/config/dataDir.ts
-import { homedir as homedir9 } from "node:os";
-import { join as join13 } from "node:path";
-var dataDir = (env2 = process.env) => join13(env2["HERMES_HOME"] || join13(homedir9(), ".hermes"), "plugin-data", "glide");
+import { homedir as homedir10 } from "node:os";
+import { join as join14 } from "node:path";
+var dataDir = (env2 = process.env) => join14(env2["HERMES_HOME"] || join14(homedir10(), ".hermes"), "plugin-data", "glide");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join14(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join15(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join14(dir2, "panes"), { recursive: true });
+    mkdirSync4(join15(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -79426,10 +81687,10 @@ function forgetPane(launch3, dir2 = dataDir()) {
 
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { homedir as homedir10 } from "node:os";
-import { dirname as dirname6, join as join15 } from "node:path";
+import { homedir as homedir11 } from "node:os";
+import { dirname as dirname6, join as join16 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join15(env2["HERMES_HOME"] || join15(homedir10(), ".hermes"), "glide", "settings.json");
+  return join16(env2["HERMES_HOME"] || join16(homedir11(), ".hermes"), "glide", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
@@ -79738,7 +81999,7 @@ var SurfaceLifecycle = class {
 // src/eui/cards.ts
 import { createHash as createHash5 } from "node:crypto";
 import { readFileSync as readFileSync8 } from "node:fs";
-import { dirname as dirname7, join as join17, resolve as resolve8 } from "node:path";
+import { dirname as dirname7, join as join18, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath8 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -79790,14 +82051,14 @@ function waveSvg(words3) {
 function clauseRuns(ask, rows2) {
   const hits = rows2.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
   const runs3 = [];
-  let at2 = 0;
+  let at3 = 0;
   for (const x of hits) {
-    if (x.at < at2) continue;
-    if (x.at > at2) runs3.push({ text: ask.slice(at2, x.at) });
+    if (x.at < at3) continue;
+    if (x.at > at3) runs3.push({ text: ask.slice(at3, x.at) });
     runs3.push({ text: ask.slice(x.at, x.at + x.phrase.length), clause: x.clause });
-    at2 = x.at + x.phrase.length;
+    at3 = x.at + x.phrase.length;
   }
-  if (at2 < ask.length) runs3.push({ text: ask.slice(at2) });
+  if (at3 < ask.length) runs3.push({ text: ask.slice(at3) });
   return runs3;
 }
 function declare(d, el) {
@@ -79816,8 +82077,8 @@ var evidence = (v) => {
   return [state, receipt];
 };
 function criterion(label) {
-  const at2 = label.indexOf(": ");
-  return at2 > 0 ? { kind: label.slice(0, at2), phrase: label.slice(at2 + 2) } : { kind: "criterion", phrase: label };
+  const at3 = label.indexOf(": ");
+  return at3 > 0 ? { kind: label.slice(0, at3), phrase: label.slice(at3 + 2) } : { kind: "criterion", phrase: label };
 }
 var TYPED = /^(pattern|verifier|budget|sample|lane: .+|host: .+)$/;
 var isCriterion = (label) => !TYPED.test(label);
@@ -79928,16 +82189,16 @@ function work(d, el) {
   return el("div", kids2, "ih-hero ih-work ih-rail");
 }
 function proof(d, el) {
-  const n4 = Number(d.rows.find((r) => /receipt/i.test(r.label))?.value ?? 0) || 0;
+  const n5 = Number(d.rows.find((r) => /receipt/i.test(r.label))?.value ?? 0) || 0;
   const hash = str6(d.rows.find((r) => /hash/i.test(r.label))?.value ?? "");
   const sample = d.rows.some((r) => r.label === "sample");
   return el("div", [
-    el("div", n4 > 0 ? [el("span", [text18(String(n4 - 1))], "ih-n ih-n-out"), el("span", [text18(String(n4))], "ih-n ih-n-in")] : [el("span", [text18("0")], "ih-n")], "ih-counter"),
-    el("small", [text18(n4 === 1 ? "real-turn receipt" : "real-turn receipts")], "ih-cap"),
+    el("div", n5 > 0 ? [el("span", [text18(String(n5 - 1))], "ih-n ih-n-out"), el("span", [text18(String(n5))], "ih-n ih-n-in")] : [el("span", [text18("0")], "ih-n")], "ih-counter"),
+    el("small", [text18(n5 === 1 ? "real-turn receipt" : "real-turn receipts")], "ih-cap"),
     // Proof reports an observation; acceptance is the verifier's, and a sample receipt is no run at all.
-    el("b", [text18(sample ? "Sample \xB7 no real turn has run" : n4 > 0 ? "Receipt observed" : "Nothing observed yet")], n4 > 0 && !sample ? "ih-verdict" : "ih-verdict ih-none"),
-    n4 > 0 && hash ? el("span", [text18(hash.slice(0, 12))], "ih-stamp") : el("span", [text18("no receipt yet")], "ih-stamp ih-none")
-  ], `ih-hero ih-proof ${n4 > 0 ? "ih-landed" : ""}`.trim());
+    el("b", [text18(sample ? "Sample \xB7 no real turn has run" : n5 > 0 ? "Receipt observed" : "Nothing observed yet")], n5 > 0 && !sample ? "ih-verdict" : "ih-verdict ih-none"),
+    n5 > 0 && hash ? el("span", [text18(hash.slice(0, 12))], "ih-stamp") : el("span", [text18("no receipt yet")], "ih-stamp ih-none")
+  ], `ih-hero ih-proof ${n5 > 0 ? "ih-landed" : ""}`.trim());
 }
 function intentHero(d, el) {
   if (!isIntentKind(d.kind)) return void 0;
@@ -80045,6 +82306,37 @@ var INTENT_CSS = `
 }
 `;
 
+// src/gev/skin.ts
+var GEV_SHEET = "gev-skin";
+var GEV2 = { glass: "rgba(12,12,20,.72)", border: "rgba(255,255,255,.08)", accent: "#00d4ff", dimAccent: "rgba(0,212,255,.15)", text: "#e8eaed", secondary: "rgba(232,234,237,.5)", dim: "rgba(232,234,237,.3)" };
+var G2 = ".sf-card[data-role='gev.card']";
+var GEV_CSS = `
+${G2}{background:${GEV2.glass};border:1px solid ${GEV2.border};border-radius:16px;color:${GEV2.text};font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03) inset,0 1px 0 rgba(255,255,255,.06) inset;backdrop-filter:blur(24px) saturate(1.4)}
+${G2} > .sf-card-head{font-family:'JetBrains Mono','SF Mono','Fira Code',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV2.dim};padding:16px 20px 0}
+${G2} > .sf-card-head *{font-weight:500}
+${G2} > .sf-card-body{padding:12px 20px 18px}
+${G2} [data-role='glide.picture']{border-radius:10px;overflow:hidden;border:1px solid ${GEV2.border}}
+${G2} [data-role='glide.picture'] .sf-image,${G2} [data-role='glide.picture'] .sf-img-frame{width:100%;max-width:none;height:auto;display:block}
+${G2} [data-role='glide.hero']{min-width:150px}
+${G2} [data-role='glide.hero.value']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:30px;font-weight:600;letter-spacing:-.02em;color:${GEV2.accent};text-shadow:0 0 18px rgba(0,212,255,.4)}
+${G2} [data-role='glide.label'],${G2} [data-role='glide.hero.detail']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${GEV2.dim};opacity:1}
+${G2} [data-role='glide.text']{font-size:13px;line-height:1.45;color:${GEV2.secondary}}
+${G2} [data-role='glide.muted']{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${GEV2.dim}}
+${G2} [data-role='glide.table']{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;color:${GEV2.text}}
+${G2} [data-role='glide.table'] th{font-size:9px;letter-spacing:2px;color:${GEV2.dim};font-weight:500;border-bottom:1px solid ${GEV2.border}}
+${G2} [data-role='glide.table'] td{border-bottom:1px solid rgba(255,255,255,.04)}
+${G2} [data-role='glide.source']{display:none}
+/* radio.css .data-toggle-btn.active: GEV's lit HUD toggle. Tern's primary button paints a gradient; this replaces it. */
+${G2} .sf-row[data-role='omp.btn'][data-tone='accent'],${G2} .sf-row[data-role='omp.btn'][data-tone='accent']:hover{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:4px;color:${GEV2.accent};border:1px solid ${GEV2.accent};--grad:${GEV2.dimAccent};--grad-ink:${GEV2.accent};background-image:none;background:${GEV2.dimAccent};box-shadow:0 0 10px rgba(0,212,255,.15)}
+${G2} .sf-row[data-role='omp.btn'][data-tone='accent']:hover{background:rgba(0,212,255,.22)}
+${G2} button.sf-el.hermes-press{background:transparent;background-image:none;border:0;box-shadow:none;padding:0}
+${G2} [data-role='glide.actions']{background:transparent;padding:0}
+/* layers.css .mission-data-table: hairline cyan header rule, left-aligned cells. */
+${G2} .sf-tbl-h{font-family:'JetBrains Mono','SF Mono',monospace;font-size:9px;letter-spacing:2px;font-weight:400;color:rgba(190,230,230,.58);border-bottom:1px solid rgba(34,230,230,.22);text-align:left}
+${G2} .sf-tbl-c{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;color:${GEV2.text};text-align:left}
+${G2} .sf-tbl-row{border-bottom:1px solid rgba(255,255,255,.04)}
+`;
+
 // src/eui/fleetFit.ts
 var FLEET_FIT_CSS = `
 .eu-card[class*=k-fleet]{--fl-r-md:8px;--h-density:.5}
@@ -80094,14 +82386,14 @@ var FITS = {
   "intel-suite": { moves: [], folds: [], one: [], caps: [[".is-flist", ".is-frow", 1]] },
   "fleet-factory": { moves: [...HEAD2, [".ff-root", ".fl-updated", ".ff-tally"]], folds: [[".ff-root", ".ff-stats,.ff-graph,.ff-legend,.ff-detail", "Stats and graph"]], one: [], caps: [[".ff-bl", ".ff-bi", FLEET_ROW_CAP]] }
 };
-var is3 = (n4, selector) => n4.t === "el" && selector.split(",").some((one7) => {
+var is3 = (n5, selector) => n5.t === "el" && selector.split(",").some((one7) => {
   const [simple = "", empty3] = one7.trim().split(":");
   const [tag3, ...classes] = simple.split(".");
-  const own14 = n4.cls.split(/\s+/);
-  return (!tag3 || n4.tag === tag3) && classes.every((c) => own14.includes(c)) && (empty3 === void 0 || !text19(n4).trim());
+  const own14 = n5.cls.split(/\s+/);
+  return (!tag3 || n5.tag === tag3) && classes.every((c) => own14.includes(c)) && (empty3 === void 0 || !text19(n5).trim());
 });
-var text19 = (n4) => n4.t === "text" ? n4.text : n4.t === "el" ? n4.kids.map(text19).join("") : "";
-var has = (n4, selector) => n4.t === "el" && n4.kids.some((k) => is3(k, selector) || has(k, selector));
+var text19 = (n5) => n5.t === "text" ? n5.text : n5.t === "el" ? n5.kids.map(text19).join("") : "";
+var has = (n5, selector) => n5.t === "el" && n5.kids.some((k) => is3(k, selector) || has(k, selector));
 var els = (kids2, selector) => kids2.filter((k) => is3(k, selector));
 var BASE = 1e6;
 var OPEN = 0;
@@ -80118,31 +82410,31 @@ function fleetFit(kind) {
   const opened = /* @__PURE__ */ new Set();
   const marks2 = fit.one.map(([, , marker]) => marker).join(",");
   const el = (tag3, cls, id3, attrs, kids2) => ({ t: "el", tag: tag3, id: id3, cls, style: "", attrs, click: tag3 !== "details", kids: kids2 });
-  const rewrite = (n4) => {
-    if (n4.t !== "el") return n4;
-    let kids2 = n4.kids.map(rewrite);
-    const cls = is3(n4, PILLS) ? n4.cls.replace(/^\S+/, "fl-tag") : n4.cls;
-    for (const [parent = "", child = "", into = ""] of fit.moves) if (is3(n4, parent)) {
+  const rewrite = (n5) => {
+    if (n5.t !== "el") return n5;
+    let kids2 = n5.kids.map(rewrite);
+    const cls = is3(n5, PILLS) ? n5.cls.replace(/^\S+/, "fl-tag") : n5.cls;
+    for (const [parent = "", child = "", into = ""] of fit.moves) if (is3(n5, parent)) {
       const moved2 = els(kids2, child);
       let placed = !into;
       const put = (k) => placed || k.t !== "el" ? k : is3(k, into) ? (placed = true, { ...k, kids: [...moved2, ...k.kids] }) : { ...k, kids: k.kids.map(put) };
       kids2 = kids2.filter((k) => !moved2.includes(k)).map(put);
     }
-    for (const [parent = "", moved2 = "", label = ""] of fit.folds) if (is3(n4, parent) && kids2.some((k) => is3(k, moved2))) {
-      const open5 = opened.has(FOLD + ":" + n4.id);
-      const summary4 = el("summary", "fl-tag", control(n4.id, FOLD), {}, [{ t: "text", text: label }]);
+    for (const [parent = "", moved2 = "", label = ""] of fit.folds) if (is3(n5, parent) && kids2.some((k) => is3(k, moved2))) {
+      const open5 = opened.has(FOLD + ":" + n5.id);
+      const summary4 = el("summary", "fl-tag", control(n5.id, FOLD), {}, [{ t: "text", text: label }]);
       kids2 = [...kids2.filter((k) => !is3(k, moved2)), el(
         "details",
         "fl-fold",
-        control(n4.id, BOX),
+        control(n5.id, BOX),
         { open: open5 ? "true" : "" },
         open5 ? [summary4, ...kids2.filter((k) => is3(k, moved2))] : [summary4]
       )];
     }
-    for (const [list10 = "", group = "", urgent = ""] of fit.one) if (is3(n4, list10)) {
+    for (const [list10 = "", group = "", urgent = ""] of fit.one) if (is3(n5, list10)) {
       const groups = els(kids2, group);
-      if (!decided.has(n4.id)) {
-        decided.add(n4.id);
+      if (!decided.has(n5.id)) {
+        decided.add(n5.id);
         const pick2 = groups.find((g) => has(g, urgent)) ?? groups.find((g) => g.attrs["open"]);
         for (const g of groups) (g === pick2 ? picked : closed).add(g.id);
       }
@@ -80153,17 +82445,17 @@ function fleetFit(kind) {
         kids: g.kids.filter((k) => is3(k, "summary")).slice(0, 1).map((s2) => ({ ...s2, id: control(g.id, OPEN), click: true }))
       } : g);
     }
-    for (const [list10, row2, cap2] of fit.caps) if (is3(n4, list10) && !opened.has(MORE2 + ":" + n4.id)) {
+    for (const [list10, row2, cap2] of fit.caps) if (is3(n5, list10) && !opened.has(MORE2 + ":" + n5.id)) {
       const rows2 = els(kids2, row2);
       const kept = rows2.filter((k) => picked.has(k.id) || marks2 !== "" && has(k, marks2));
       let room = cap2 - kept.length;
       const hidden2 = rows2.filter((k) => !kept.includes(k) && room-- <= 0);
       if (!hidden2.length) continue;
       const last = kids2.findLastIndex((k) => is3(k, row2));
-      const more = el("button", "fl-tag fl-more", control(n4.id, MORE2), { type: "button" }, [{ t: "text", text: hidden2.length + " more" }]);
+      const more = el("button", "fl-tag fl-more", control(n5.id, MORE2), { type: "button" }, [{ t: "text", text: hidden2.length + " more" }]);
       kids2 = [...kids2.slice(0, last + 1), more, ...kids2.slice(last + 1)].filter((k) => !hidden2.includes(k));
     }
-    return kids2 === n4.kids && cls === n4.cls ? n4 : { ...n4, cls, kids: kids2 };
+    return kids2 === n5.kids && cls === n5.cls ? n5 : { ...n5, cls, kids: kids2 };
   };
   return Object.assign(rewrite, {
     click(id3) {
@@ -80564,7 +82856,7 @@ var EuiHostCards = class {
 
 // src/eui/sandbox.js
 import { existsSync as existsSync3, readFileSync as readFileSync7 } from "node:fs";
-import { join as join16 } from "node:path";
+import { join as join17 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -90228,7 +92520,7 @@ var HTMLSlotElement = class extends HTMLElement {
     return slottables.length ? slottables : [...this.childNodes];
   }
   assignedElements(options) {
-    const slottables = this.assignedNodes(options).filter((n4) => n4.nodeType === 1);
+    const slottables = this.assignedNodes(options).filter((n5) => n5.nodeType === 1);
     return slottables.length ? slottables : [...this.children];
   }
   /* c8 ignore stop */
@@ -91225,9 +93517,9 @@ function mix3(a2, p3, b) {
 }
 var props = (style2) => Object.fromEntries((style2 ?? "").split(";").map((d) => d.split(":")).filter(([p3, ...v]) => p3 && v.length).map(([p3, ...v]) => [p3.trim(), v.join(":").trim()]));
 function lengthOf(el) {
-  const n4 = (k) => Number.parseFloat(el.getAttribute(k) ?? "0");
-  if (el.localName === "line") return Math.hypot(n4("x2") - n4("x1"), n4("y2") - n4("y1"));
-  if (el.localName === "circle") return 2 * Math.PI * n4("r");
+  const n5 = (k) => Number.parseFloat(el.getAttribute(k) ?? "0");
+  if (el.localName === "line") return Math.hypot(n5("x2") - n5("x1"), n5("y2") - n5("y1"));
+  if (el.localName === "circle") return 2 * Math.PI * n5("r");
   return void 0;
 }
 function svgInline(svg4, rules, theme) {
@@ -91301,12 +93593,12 @@ var SVG = "http://www.w3.org/2000/svg";
 var CLICKY = /* @__PURE__ */ new Set(["click", "pointerdown", "pointerup", "dblclick", "change", "input"]);
 var NATIVE2 = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync3(join16(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync3(join17(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request);
   if (!match) return void 0;
-  const file2 = join16(dir2, "data", match[1] + ".json");
+  const file2 = join17(dir2, "data", match[1] + ".json");
   return existsSync3(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
@@ -91507,13 +93799,13 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync7(join16(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join17(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K2 = ctx.__EUI;
   await K2.loadApps();
-  const themes = JSON.parse(readFileSync7(join16(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join17(dir2, "data", "themes.json"), "utf8")).themes;
   K2.theme.themes = themes;
   K2.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join16(dir2, "kit.css");
+  const kitCss2 = join17(dir2, "kit.css");
   const rules = existsSync3(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   K2.motion.speed = 1;
   const ids = /* @__PURE__ */ new WeakMap();
@@ -91685,7 +93977,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = (dir2 ? readFileSync8(join17(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
+  const kit = (dir2 ? readFileSync8(join18(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -91729,15 +94021,15 @@ ${FLEET_FIT_CSS}
 }
 function compactCss(css2) {
   let out = css2.replace(/\/\*[\s\S]*?\*\//g, "");
-  for (let at2 = out.indexOf("@container"); at2 >= 0; at2 = out.indexOf("@container", at2)) {
-    let end = out.indexOf("{", at2);
+  for (let at3 = out.indexOf("@container"); at3 >= 0; at3 = out.indexOf("@container", at3)) {
+    let end = out.indexOf("{", at3);
     for (let depth = 0; end < out.length; end++) {
       depth += out[end] === "{" ? 1 : out[end] === "}" ? -1 : 0;
       if (depth === 0) {
         break;
       }
     }
-    out = out.slice(0, at2) + out.slice(end + 1);
+    out = out.slice(0, at3) + out.slice(end + 1);
   }
   return minifyCss(out.replaceAll("[data-eui='card']", ".eu").replace(/container-type\s*:[^;}]*;?/g, ""));
 }
@@ -91745,7 +94037,7 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync8(join17(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join18(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -91754,19 +94046,19 @@ function splitEuiFences(text22, block, kinds) {
     return [{ kind: "md", text: text22 }];
   }
   const parts3 = [];
-  let at2 = 0;
-  let n4 = 0;
+  let at3 = 0;
+  let n5 = 0;
   for (const m2 of text22.matchAll(FENCE2)) {
     const start = m2.index + (m2[1]?.length ?? 0);
-    const before2 = text22.slice(at2, start);
+    const before2 = text22.slice(at3, start);
     if (before2.trim()) {
       parts3.push({ kind: "md", text: before2 });
     }
     const decoded = decodeEuiCard(m2[4] ?? "", kinds);
-    parts3.push("error" in decoded ? { kind: "bad", text: m2[0].slice(m2[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n4++}`, spec: decoded });
-    at2 = m2.index + m2[0].length;
+    parts3.push("error" in decoded ? { kind: "bad", text: m2[0].slice(m2[1]?.length ?? 0), error: decoded.error } : { kind: "card", key: `${block}:${n5++}`, spec: decoded });
+    at3 = m2.index + m2[0].length;
   }
-  const rest = text22.slice(at2);
+  const rest = text22.slice(at3);
   if (rest.trim() || parts3.length === 0) {
     parts3.push({ kind: "md", text: rest });
   }
@@ -91854,6 +94146,18 @@ var EuiCards = class {
     }
     return id3;
   }
+  /** A blob id for one host PNG (base64), sent once and reused while it lasts. */
+  picture(png) {
+    const key3 = "png:" + createHash5("sha1").update(png).digest("hex");
+    const hit = this.#blobs.get(key3);
+    if (hit !== void 0 || !this.#sink) return hit;
+    const id3 = this.#sink.blob(Buffer.from(png, "base64"), "image/png");
+    if (id3 !== void 0) {
+      if (this.#blobs.size >= MAX_BLOBS) this.#blobs.delete(this.#blobs.keys().next().value ?? "");
+      this.#blobs.set(key3, id3);
+    }
+    return id3;
+  }
   /** The `data-eui-s` value that carries an element's inline style (Tern nodes take no style). */
   style(css2) {
     const key3 = createHash5("sha1").update(css2).digest("hex").slice(0, 10);
@@ -91880,6 +94184,8 @@ var EuiCards = class {
       this.#sink.stylesheet(KIT_SHEET, euiStyles());
       euiSheets.set(GLIDE_UI_SHEET, UI_CSS);
       this.#sink.stylesheet(GLIDE_UI_SHEET, UI_CSS);
+      euiSheets.set(GEV_SHEET, GEV_CSS);
+      this.#sink.stylesheet(GEV_SHEET, GEV_CSS);
       euiSheets.set(MOTION_SHEET, MOTION_CSS);
       this.#sink.stylesheet(MOTION_SHEET, MOTION_CSS);
     }
@@ -92079,9 +94385,9 @@ var SurfaceHost = class {
       this.focus(id3);
     }
   }
-  reveal(id3, at2) {
+  reveal(id3, at3) {
     if (!this.closed && !this.raw.blocked && !this.#absent(id3)) {
-      this.raw.reveal(id3, at2);
+      this.raw.reveal(id3, at3);
     }
   }
   scroll(id3, to) {
@@ -92129,8 +94435,8 @@ var SurfaceHost = class {
 
 // src/surface/actions.ts
 function cardRow(value) {
-  const at2 = value.lastIndexOf(":");
-  return [value.slice(0, at2), value.slice(at2 + 1)];
+  const at3 = value.lastIndexOf(":");
+  return [value.slice(0, at3), value.slice(at3 + 1)];
 }
 var ACTIONS = {
   // A live connect card's Connect on an MCP row: the gateway installs it.
@@ -92260,7 +94566,7 @@ function analyzeTable(source3) {
   const labels = body.map((row2) => row2[0] ?? "");
   const raw2 = body.map((row2) => row2[1] ?? "");
   const values = raw2.map((s2) => Number(s2.replace(/%$/, "")));
-  if (new Set(labels).size !== labels.length || labels.some((s2) => s2.length > 80) || new Set(raw2.map((s2) => s2.endsWith("%"))).size !== 1 || values.some((n4) => !Number.isFinite(n4) || Math.abs(n4) > 1e12) || values.every((n4) => n4 === 0)) {
+  if (new Set(labels).size !== labels.length || labels.some((s2) => s2.length > 80) || new Set(raw2.map((s2) => s2.endsWith("%"))).size !== 1 || values.some((n5) => !Number.isFinite(n5) || Math.abs(n5) > 1e12) || values.every((n5) => n5 === 0)) {
     return;
   }
   return Object.freeze({ source: source3, labels: Object.freeze(labels), values: Object.freeze(values), title: header[1] ?? "" });
@@ -92313,11 +94619,11 @@ var xml2 = (s2) => s2.replace(/[&<>"'\x60]/g, (c) => XML_ENTITIES[c] ?? c);
 function chartSvg(table3, kind) {
   const min = Math.min(0, ...table3.values);
   const max = Math.max(0, ...table3.values);
-  const scale = (n4) => 260 - (n4 - min) / (max - min) * 210;
+  const scale = (n5) => 260 - (n5 - min) / (max - min) * 210;
   const baseline = scale(0);
   const step = 500 / table3.values.length;
-  const points = table3.values.map((n4, i) => `${60 + (i + 0.5) * step},${scale(n4)}`).join(" ");
-  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n4, i) => `<rect x="${60 + i * step + 4}" y="${Math.min(baseline, scale(n4))}" width="${step - 8}" height="${Math.max(1, Math.abs(baseline - scale(n4)))}" fill="var(--accent)"/>`).join("");
+  const points = table3.values.map((n5, i) => `${60 + (i + 0.5) * step},${scale(n5)}`).join(" ");
+  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n5, i) => `<rect x="${60 + i * step + 4}" y="${Math.min(baseline, scale(n5))}" width="${step - 8}" height="${Math.max(1, Math.abs(baseline - scale(n5)))}" fill="var(--accent)"/>`).join("");
   const labels = table3.labels.map((s2, i) => `<text x="${60 + (i + 0.5) * step}" y="285" text-anchor="middle" fill="var(--text)" font-size="10">${xml2(s2.slice(0, 12))}</text>`).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="620" height="320" viewBox="0 0 620 320"><title>${xml2(table3.title)}</title><text x="60" y="25" fill="var(--text)" font-size="16">${xml2(table3.title)}</text><text x="5" y="55" fill="var(--muted)" font-size="10">${max}</text><text x="5" y="260" fill="var(--muted)" font-size="10">${min}</text><path d="M60 ${baseline}H560" stroke="var(--muted)"/>${marks2}${labels}</svg>`;
 }
@@ -92438,6 +94744,116 @@ ${chartSvg(table3, entry.kind)}
   }
 };
 
+// src/gev/card.ts
+var TITLES2 = {
+  get_earthquakes: "Earthquakes",
+  get_active_fires: "Active fires",
+  get_recent_launches: "Launches",
+  aircraft_in_area: "Aircraft",
+  find_aircraft: "Aircraft",
+  vessels_in_area: "Vessels",
+  find_vessel: "Vessels",
+  next_satellite_pass: "Satellite pass",
+  satellites_overhead: "Satellites overhead",
+  get_weather: "Weather",
+  get_cyclones: "Cyclones",
+  situation_brief: "Situation brief",
+  find_submarine_cables: "Submarine cables",
+  get_regional_brief: "Regional brief"
+};
+var gevTitle = (tool) => TITLES2[tool] ?? tool.replace(/^(get|find)_/, "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+var SKIP3 = /^(id|lat|lon|latitude|longitude|icao24|mmsi|imo|url|stream_url|geometry|path|track)$/i;
+var HEADS = { magnitude: "MAG", depth_km: "DEPTH", altitude_m: "ALT", speed_kts: "SPEED", distance_km: "DIST" };
+function cellText(key3, v) {
+  if (typeof v === "number") {
+    if (key3 === "magnitude") return "M" + v.toFixed(1);
+    if (key3.endsWith("_km")) return `${Math.round(v)} km`;
+    if (key3.endsWith("_m")) return `${Math.round(v).toLocaleString("en-US")} m`;
+    return Number(v.toPrecision(4)).toString();
+  }
+  if (typeof v === "string" && /^\d{4}-\d\d-\d\dT/.test(v)) {
+    const mins = Math.round((Date.now() - Date.parse(v)) / 6e4);
+    return mins < 0 ? new Date(v).toISOString().slice(5, 16).replace("T", " ") + "Z" : mins < 60 ? `${mins}m ago` : mins < 2880 ? `${Math.round(mins / 60)}h ago` : `${Math.round(mins / 1440)}d ago`;
+  }
+  return typeof v === "string" ? v : typeof v === "boolean" ? v ? "yes" : "no" : "";
+}
+function columns(rows2) {
+  const first = rows2[0];
+  if (!first) return [];
+  return Object.keys(first).filter((k) => !SKIP3.test(k) && ["string", "number", "boolean"].includes(typeof first[k])).slice(0, 4);
+}
+function gevCard(a2, s2) {
+  const cols = columns(a2.rows);
+  const kids2 = [];
+  kids2.push(s2.png ? { type: "element", typeName: "Picture", props: { png: s2.png, w: s2.size?.w ?? 1280, h: s2.size?.h ?? 800, alt: `God's Eye View: ${a2.summary}` } } : { type: "element", typeName: "Text", props: { body: s2.failed ? `Globe unavailable: ${s2.failed}` : "Rendering the globe in God's Eye View\u2026", tone: "muted" } });
+  const summary4 = { type: "element", typeName: "Text", props: { body: a2.summary } };
+  kids2.push(a2.total === void 0 ? summary4 : { type: "element", typeName: "Row", props: { children: [
+    { type: "element", typeName: "Hero", props: { value: String(a2.total), label: a2.layers.length ? a2.layers.join(" \xB7 ") : gevTitle(a2.tool) } },
+    summary4
+  ] } });
+  if (cols.length && a2.rows.length) {
+    kids2.push({ type: "element", typeName: "Table", props: {
+      columns: cols.map((c, i) => ({ id: c, head: HEADS[c] ?? c.replace(/_/g, " ").toUpperCase(), ...c === "place" || c === "name" ? { grow: true } : {} })),
+      rows: a2.rows.slice(0, 6).map((r, i) => ({ id: String(r["id"] ?? i), cells: Object.fromEntries(cols.map((c) => [c, cellText(c, r[c])])) }))
+    } });
+  }
+  kids2.push({ type: "element", typeName: "Buttons", props: { items: [{ label: "Open in God's Eye View", intent: { action: "open", entities: {} }, primary: true }] } });
+  return { type: "element", typeName: "Card", props: { title: gevTitle(a2.tool), app: "GOD'S EYE VIEW", source: a2.url, skin: "gev", status: s2.capturing ? "running" : "done", children: kids2 } };
+}
+
+// src/gev/cards.ts
+var GevCards = class {
+  constructor(eui, notice, browser2 = ternBrowser, owner2 = paneBlock) {
+    this.eui = eui;
+    this.notice = notice;
+    this.browser = browser2;
+    this.owner = owner2;
+  }
+  eui;
+  notice;
+  browser;
+  owner;
+  #seen = /* @__PURE__ */ new Set();
+  /** `call`'s card, once per finished call; anything that is not a GEV answer is left alone. */
+  show(call) {
+    if (!call || call.outcome.kind !== "done" || this.#seen.has(call.id)) return;
+    const name = gevCallName(call.name, call.args);
+    const answer = name === void 0 ? void 0 : gevAnswer(name, call.result, call.resultText);
+    const eui = this.eui();
+    if (!answer || !eui) return;
+    this.#seen.add(call.id);
+    const owner2 = this.owner();
+    let state = { capturing: owner2 !== void 0, ...owner2 === void 0 ? { failed: "no Tern pane" } : {} };
+    let handle3;
+    const intent5 = async (detail) => {
+      const action = record(detail)?.["action"];
+      if (action === "open" && owner2 !== void 0) {
+        await openGlobe(answer.url, owner2, this.browser).catch((e) => this.notice(`God's Eye View: ${String(e instanceof Error ? e.message : e)}`));
+      }
+    };
+    const card = () => ({ kind: "gev-" + answer.tool, app: "God's Eye View", title: gevTitle(answer.tool), ui: gevCard(answer, state) });
+    try {
+      handle3 = eui.host.publishNative(card(), intent5);
+    } catch {
+      return;
+    }
+    if (owner2 === void 0) return;
+    void captureGlobe(embedUrl(answer.url), owner2, this.browser).then(
+      (shot2) => {
+        state = { capturing: false, png: shot2.png, size: { w: shot2.w, h: shot2.h } };
+      },
+      (e) => {
+        state = { capturing: false, failed: e instanceof Error ? e.message : String(e) };
+      }
+    ).then(() => {
+      try {
+        handle3?.update(card(), intent5);
+      } catch {
+      }
+    });
+  }
+};
+
 // src/view/retention-policy.ts
 var RETAIN_TURNS = 20;
 function safeToSettle(entry) {
@@ -92490,8 +94906,8 @@ function retentionBoundary(entries2) {
 }
 
 // src/transcript/messages.ts
-function userEntry(id3, { text: text22, at: at2 = Date.now(), steered = false, attachments = [] }) {
-  return { at: at2, id: id3, kind: "user", text: text22, ...steered ? { steered } : {}, ...attachments.length ? { attachments } : {} };
+function userEntry(id3, { text: text22, at: at3 = Date.now(), steered = false, attachments = [] }) {
+  return { at: at3, id: id3, kind: "user", text: text22, ...steered ? { steered } : {}, ...attachments.length ? { attachments } : {} };
 }
 function failure4(error, code7) {
   const http = /^HTTP (\d{3}):\s*/.exec(error);
@@ -92620,15 +95036,15 @@ function parseCount(raw2) {
   const { digits = "", suffix } = m2.groups ?? {};
   return Number(digits.replace(/,/g, "")) * (suffix ? SUFFIX[suffix.toLowerCase()] ?? 1 : 1);
 }
-function compactCount(n4) {
+function compactCount(n5) {
   const unit = (v, s2) => `${v >= 100 ? Math.round(v) : Number(v.toFixed(1))}${s2}`;
-  if (n4 >= 1e9) {
-    return unit(n4 / 1e9, "B");
+  if (n5 >= 1e9) {
+    return unit(n5 / 1e9, "B");
   }
-  if (n4 >= 1e6) {
-    return unit(n4 / 1e6, "M");
+  if (n5 >= 1e6) {
+    return unit(n5 / 1e6, "M");
   }
-  return n4 >= 1e3 ? unit(n4 / 1e3, "K") : String(Math.round(n4));
+  return n5 >= 1e3 ? unit(n5 / 1e3, "K") : String(Math.round(n5));
 }
 function limits(inline) {
   const out = [];
@@ -92766,7 +95182,7 @@ function usageSection(s2, i) {
       return /* @__PURE__ */ jsxs("col", { gap: "xs", children: [
         heading4("cost", s2.title),
         pairTable(s2.rows, "credits"),
-        s2.notes.map((n4, j) => /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: n4 }] }, `note${j}`))
+        s2.notes.map((n5, j) => /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: n5 }] }, `note${j}`))
       ] }, key3);
     case "text":
       return /* @__PURE__ */ jsxs("col", { gap: "xs", children: [
@@ -92873,7 +95289,7 @@ function pairTable(rows2, id3) {
 }
 function breakdownBody(items) {
   const sorted = [...items].sort((a2, b) => b.tokens - a2.tokens);
-  const total = sorted.reduce((n4, c) => n4 + c.tokens, 0);
+  const total = sorted.reduce((n5, c) => n5 + c.tokens, 0);
   return [
     /* @__PURE__ */ jsx(
       "table",
@@ -93319,15 +95735,15 @@ function buildEntry(e, id3, cx) {
   }
 }
 function userNode(e, cx) {
-  const at2 = new Date(e.at || Date.now());
+  const at3 = new Date(e.at || Date.now());
   return /* @__PURE__ */ jsxs("card", { role: "omp.user", tone: "user", children: [
     /* @__PURE__ */ jsxs("row", { gap: "xs", role: "omp.user.tools", children: [
       /* @__PURE__ */ jsx(
         "text",
         {
           role: "omp.user.time",
-          spans: [{ s: "dim mono", t: at2.toLocaleTimeString([], { hour: "2-digit", hour12: cx.hour12 ?? false, minute: "2-digit" }) }],
-          title: at2.toLocaleString([], { hour12: cx.hour12 ?? false })
+          spans: [{ s: "dim mono", t: at3.toLocaleTimeString([], { hour: "2-digit", hour12: cx.hour12 ?? false, minute: "2-digit" }) }],
+          title: at3.toLocaleString([], { hour12: cx.hour12 ?? false })
         },
         "time"
       ),
@@ -95023,9 +97439,9 @@ function canonOf(catalog) {
     }
   }
   for (const c of localCommands().filter((c2) => !HIDDEN_COMMANDS.has(c2.name))) {
-    for (const n4 of [c.name, ...c.aliases ?? []]) {
-      if (!canon.has(`/${n4}`)) {
-        canon.set(`/${n4}`, `/${c.name}`);
+    for (const n5 of [c.name, ...c.aliases ?? []]) {
+      if (!canon.has(`/${n5}`)) {
+        canon.set(`/${n5}`, `/${c.name}`);
       }
     }
   }
@@ -95963,11 +98379,11 @@ function cycleTarget(available, recent, active2, direction) {
   if (rows2.length < 2) {
     return null;
   }
-  const at2 = rows2.findIndex((row2) => modelId(row2) === modelId(active2));
-  if (at2 < 0) {
+  const at3 = rows2.findIndex((row2) => modelId(row2) === modelId(active2));
+  if (at3 < 0) {
     return direction === 1 ? rows2[0] ?? null : rows2[rows2.length - 1] ?? null;
   }
-  return rows2[(at2 + direction + rows2.length) % rows2.length] ?? null;
+  return rows2[(at3 + direction + rows2.length) % rows2.length] ?? null;
 }
 function cycleModel(host2, direction) {
   const owner2 = host2.session.ref;
@@ -96116,12 +98532,12 @@ function hudKey(k, cx) {
   if (!focused || !pills2.includes(focused)) {
     return k.name === "down" && plain4(k) && cx.idle && pills2.length ? { consumed: true, focused: pills2[0] } : { consumed: false };
   }
-  const at2 = pills2.indexOf(focused);
+  const at3 = pills2.indexOf(focused);
   switch (plain4(k) ? k.name : "") {
     case "left":
-      return { consumed: true, focused: pills2[Math.max(0, at2 - 1)] };
+      return { consumed: true, focused: pills2[Math.max(0, at3 - 1)] };
     case "right":
-      return { consumed: true, focused: pills2[Math.min(pills2.length - 1, at2 + 1)] };
+      return { consumed: true, focused: pills2[Math.min(pills2.length - 1, at3 + 1)] };
     case "enter":
     case "space":
       return { consumed: true, open: focused };
@@ -96692,9 +99108,9 @@ var ServerQueue = class {
   }
   /** Forgets an own admission (refused, or back in the composer); its state stays where it was. */
   drop(own14) {
-    const at2 = this.#own.indexOf(own14);
-    if (at2 >= 0) {
-      this.#own.splice(at2, 1);
+    const at3 = this.#own.indexOf(own14);
+    if (at3 >= 0) {
+      this.#own.splice(at3, 1);
     }
   }
   /**
@@ -97548,7 +99964,7 @@ function dockNodes(cx, on, slots = {}) {
     p3.agents ? agentsPill(p3.agents, p3.agentTiles ?? [], cx.now, on.onAgents, p3.focused === "agents") : null,
     p3.shells && (p3.shells.running || p3.shells.exited) ? shellsPill(p3.shells, on.onShells, p3.focused === "shells") : null,
     p3.prs ? prsPillNode(p3.prs, on.onPrs, p3.focused === "prs") : null
-  ].filter((n4) => n4 !== null);
+  ].filter((n5) => n5 !== null);
   if (pills2.length) {
     nodes.push(
       /* @__PURE__ */ jsxs("row", { role: "omp.hud", children: [
@@ -97618,7 +100034,7 @@ function agentsPill(running2, agents2, now, onOpen, focused) {
 }
 function shellsPill(s2, onOpen, focused) {
   const live = s2.running > 0;
-  const n4 = live ? s2.running : s2.exited;
+  const n5 = live ? s2.running : s2.exited;
   const charts = live ? s2.charts ?? [] : [];
   const fresh = latest(charts)?.view;
   const figure2 = fresh && glance(fresh);
@@ -97628,14 +100044,14 @@ function shellsPill(s2, onOpen, focused) {
     children: [
       /* @__PURE__ */ jsx("icon", { name: "terminal" }, "icon"),
       live ? /* @__PURE__ */ jsx("spinner", { style: "dots", tone: "accent" }, "spin") : /* @__PURE__ */ jsx("icon", { name: s2.tone === "success" ? "done" : s2.tone === "error" ? "failed" : "aborted", tone: s2.tone }, "end"),
-      /* @__PURE__ */ jsx("text", { spans: [{ ...optional("s", live ? void 0 : "muted"), t: `${plural(n4, "shell")}${live ? "" : " exited"}` }], wrap: "none" }, "text"),
+      /* @__PURE__ */ jsx("text", { spans: [{ ...optional("s", live ? void 0 : "muted"), t: `${plural(n5, "shell")}${live ? "" : " exited"}` }], wrap: "none" }, "text"),
       figure2 ? /* @__PURE__ */ jsx("text", { role: "omp.hud.glance", spans: glanceSpans(figure2), wrap: "none" }, "glance") : null,
       fresh ? miniSpark(fresh) : null
     ],
     focused,
     hovercard: card,
     key: "shells",
-    name: `${plural(n4, "shell")}${live ? " running" : " exited"}`,
+    name: `${plural(n5, "shell")}${live ? " running" : " exited"}`,
     onClick: onOpen,
     title: title2
   });
@@ -97806,7 +100222,7 @@ function drawFrame(cx, now = Date.now()) {
   const chrome = {
     dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions, slots)],
     layer: [
-      ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar") ?? widgetAside(w?.nodes("sidebar", r) ?? [])].filter((n4) => n4 !== null) : [],
+      ...cx.aside() ? [cx.factory.open ? cx.factory.node("layer.factory") : cx.prAside.open ? cx.prAside.node("layer.prs") : cx.sidebar.node("layer.sidebar") ?? widgetAside(w?.nodes("sidebar", r) ?? [])].filter((n5) => n5 !== null) : [],
       ...cx.overlays.map((o) => o.node(cx.stack.rootOf(o))),
       ...modal2 ? [] : cx.completion.nodes(COMPOSER_ID)
     ]
@@ -97977,8 +100393,8 @@ function cyclicParent(agents2, childId, parentId) {
   }
   return false;
 }
-function foldOwnedEvent(call, type, event, at2) {
-  foldEvent(call, { at: at2, event, type });
+function foldOwnedEvent(call, type, event, at3) {
+  foldEvent(call, { at: at3, event, type });
   const agentId = event.subagent_id ?? "task-" + event.task_index;
   const agent2 = call.subagents?.find((a2) => a2.id === agentId);
   if (!agent2) {
@@ -98067,13 +100483,13 @@ var Agents = class {
    * A call history brought back without its result (a resumed session) gets one `subagent.list`
    * probe: its children still running are attached to it and followed from then on.
    */
-  scan(at2 = Date.now()) {
+  scan(at3 = Date.now()) {
     let bare = false;
     for (const call of this.#host.transcript.delegations()) {
       if (this.#tracked.has(call)) {
         continue;
       }
-      if (this.#track(call, at2)) {
+      if (this.#track(call, at3)) {
         this.#tracked.add(call);
       } else if (call.result === void 0 && call.outcome.kind !== "running" && !call.subagents?.length) {
         bare = true;
@@ -98091,13 +100507,13 @@ var Agents = class {
    * an older background call or a resumed call with an attached child. An explicit foreign id
    * is never redirected to the most recent task; id-less legacy events require unique ownership.
    */
-  apply(type, event, at2 = Date.now()) {
+  apply(type, event, at3 = Date.now()) {
     const transcript = this.#host.transcript;
     const call = eventOwner(transcript.delegations(), event);
     const listed2 = this.#needsList();
     if (call) {
       transcript.mutateCall(call, (c) => {
-        foldOwnedEvent(c, type, event, at2);
+        foldOwnedEvent(c, type, event, at3);
         const agent2 = c.subagents?.find((a2) => a2.id === (event.subagent_id ?? `task-${event.task_index}`));
         if (agent2) {
           this.#streamed.add(agent2);
@@ -98169,12 +100585,12 @@ var Agents = class {
   dispose() {
     this.#poller.dispose();
   }
-  #track(call, at2) {
+  #track(call, at3) {
     const dispatch2 = dispatchOf(call.result);
     if (!dispatch2) {
       return false;
     }
-    this.#host.transcript.mutateCall(call, (c) => dispatchRows(c.subagents ??= [], dispatch2, at2));
+    this.#host.transcript.mutateCall(call, (c) => dispatchRows(c.subagents ??= [], dispatch2, at3));
     return true;
   }
   /**
@@ -98343,8 +100759,8 @@ function openBtwOverlay(model) {
     if (!ids.length) {
       return;
     }
-    const at2 = ids.indexOf(model.selected ?? "");
-    const from = at2 < 0 ? dir2 > 0 ? -1 : 0 : at2;
+    const at3 = ids.indexOf(model.selected ?? "");
+    const from = at3 < 0 ? dir2 > 0 ? -1 : 0 : at3;
     const next2 = ids[(from + dir2 + ids.length) % ids.length];
     if (next2) {
       choose(next2);
@@ -99320,8 +101736,8 @@ var Sidebar = class {
     const git3 = this.#state;
     const prs = host2.prs.entries().toReversed();
     const files = git3?.files ?? [];
-    const added = files.reduce((n4, f2) => n4 + f2.additions, 0);
-    const removed = files.reduce((n4, f2) => n4 + f2.deletions, 0);
+    const added = files.reduce((n5, f2) => n5 + f2.additions, 0);
+    const removed = files.reduce((n5, f2) => n5 + f2.deletions, 0);
     const where = git3?.upstream ? git3.ahead || git3.behind ? [git3.ahead && `${git3.ahead} ahead`, git3.behind && `${git3.behind} behind`].filter(Boolean).join(", ") + ` of ${git3.upstream}` : `Up to date with ${git3.upstream}` : "Not pushed: no upstream";
     const branchRows = git3 ? [
       {
@@ -99399,7 +101815,7 @@ var Sidebar = class {
 };
 
 // src/chrome/theme.ts
-import { execFile as execFile11, spawnSync as spawnSync3 } from "node:child_process";
+import { execFile as execFile12, spawnSync as spawnSync3 } from "node:child_process";
 
 // src/chrome/palette.ts
 var NOUS = {
@@ -99496,7 +101912,7 @@ function styleAccent(p3, style2) {
 
 // src/chrome/theme.ts
 var ternCtl = (args) => new Promise((resolve11, reject) => {
-  execFile11("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
+  execFile12("tern", ["ctl", ...args], { timeout: 5e3 }, (error, stdout) => error ? reject(error) : resolve11(stdout));
 });
 var ternCtlSync = (args) => void spawnSync3("tern", ["ctl", ...args], { timeout: 2e3, stdio: "ignore" });
 var atProcessEnd = (end) => {
@@ -99672,9 +102088,9 @@ var Theme = class {
 };
 
 // src/glideui/widgets.tsx
-import { execFile as execFile12 } from "node:child_process";
+import { execFile as execFile13 } from "node:child_process";
 import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
-import { basename as basename8, dirname as dirname8, join as join18 } from "node:path";
+import { basename as basename8, dirname as dirname8, join as join19 } from "node:path";
 
 // src/glideui/checks.ts
 var MIN_TEXT_PX = 11;
@@ -99699,17 +102115,17 @@ function checkTree(tree, slot2) {
   const problems = [];
   const rule = SLOT_PARTS[slot2];
   const leaves = [];
-  const walk = (n4) => {
-    if (n4.typeName === "Card" || n4.typeName === "Row" || n4.typeName === "Section") n4.props.children.forEach(walk);
-    else leaves.push(n4);
+  const walk = (n5) => {
+    if (n5.typeName === "Card" || n5.typeName === "Row" || n5.typeName === "Section") n5.props.children.forEach(walk);
+    else leaves.push(n5);
   };
   walk(tree);
   if (leaves.length > rule.max) problems.push(`${slot2} holds at most ${rule.max} parts, the program has ${leaves.length}`);
-  for (const n4 of leaves) {
-    if (rule.only && !rule.only.includes(n4.typeName)) problems.push(`${slot2} cannot hold a ${n4.typeName}; use ${rule.only.join(", ")}`);
-    if (n4.typeName === "Graphic") problems.push(...checkMarkup(n4.props.svg, n4.props.alt));
+  for (const n5 of leaves) {
+    if (rule.only && !rule.only.includes(n5.typeName)) problems.push(`${slot2} cannot hold a ${n5.typeName}; use ${rule.only.join(", ")}`);
+    if (n5.typeName === "Graphic") problems.push(...checkMarkup(n5.props.svg, n5.props.alt));
   }
-  if (slot2 === "composer-ring" && !leaves.some((n4) => n4.typeName === "Meter")) {
+  if (slot2 === "composer-ring" && !leaves.some((n5) => n5.typeName === "Meter")) {
     problems.push('composer-ring needs a Meter: it is the fill that runs round the border (add Meter("meter"))');
   }
   return problems;
@@ -99726,9 +102142,9 @@ function checkPalette(p3) {
 }
 
 // src/glideui/widgets.tsx
-var statusFile = (settings2) => join18(dirname8(settings2), "ui-status.json");
+var statusFile = (settings2) => join19(dirname8(settings2), "ui-status.json");
 var gitCommits = (cwd) => new Promise((resolve11) => {
-  execFile12("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
+  execFile13("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
   });
 });
@@ -99909,7 +102325,7 @@ import { posix } from "node:path";
 var TODO_STATE = { pending: "pending", in_progress: "running", completed: "done", cancelled: "cancelled" };
 var MARK2 = { pending: "\u25CB", running: "\u25C9", done: "\u2713", error: "!", cancelled: "\u2212", untracked: "\u25CB", unconfirmed: "?" };
 var tone2 = (state) => state === "running" ? "accent" : state === "error" ? "error" : "neutral";
-var plural4 = (n4, word) => `${n4} ${word}${n4 === 1 ? "" : "s"}`;
+var plural4 = (n5, word) => `${n5} ${word}${n5 === 1 ? "" : "s"}`;
 function filePath(raw2, cwd) {
   const path2 = posix.normalize(raw2.trim());
   const root7 = cwd ? posix.normalize(cwd) : "";
@@ -100300,7 +102716,7 @@ var ConnectWatcher = class {
   retry(ref, name) {
     this.#row(ref, name, (call, target2, op) => {
       if (verbOf(target2) === "retry") {
-        this.#host.transcript.mutateCall(call, (c) => c.connect && (c.connect = { ...c.connect, opened: c.connect.opened.filter((n4) => n4 !== name) }));
+        this.#host.transcript.mutateCall(call, (c) => c.connect && (c.connect = { ...c.connect, opened: c.connect.opened.filter((n5) => n5 !== name) }));
         this.#send(
           call,
           `retry:${name}`,
@@ -100549,13 +102965,13 @@ import { basename as basename9, isAbsolute as isAbsolute9 } from "node:path";
 import { fileURLToPath as fileURLToPath11 } from "node:url";
 
 // src/hermes/clipboardImage.ts
-import { execFile as execFile13 } from "node:child_process";
+import { execFile as execFile14 } from "node:child_process";
 import { existsSync as existsSync5 } from "node:fs";
 import { mkdtemp as mkdtemp4, rm as rm5 } from "node:fs/promises";
-import { homedir as homedir11, tmpdir as tmpdir4 } from "node:os";
-import { join as join19, resolve as resolve10 } from "node:path";
+import { homedir as homedir12, tmpdir as tmpdir4 } from "node:os";
+import { join as join20, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options) => new Promise((done, fail2) => {
-  execFile13(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
+  execFile14(file2, args, { ...options, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
       return fail2(error);
     }
@@ -100621,9 +103037,9 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp4(join19(tmpdir4(), "glide-clipboard-"));
+  const dir2 = await mkdtemp4(join20(tmpdir4(), "glide-clipboard-"));
   try {
-    const path2 = await extract(join19(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join20(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm5(dir2, { force: true, recursive: true });
@@ -100642,7 +103058,7 @@ function imagePathOf(text22, cwd) {
       return void 0;
     }
   }
-  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir11());
+  raw2 = raw2.replace(/\\(.)/g, "$1").replace(/^~(?=$|\/)/, homedir12());
   if (!IMAGE2.test(raw2)) {
     return void 0;
   }
@@ -100701,7 +103117,7 @@ var Attachments = class {
   }
   /** All retained image bytes and all unsettled reservations, including canceled uploads. */
   #charged() {
-    return this.#items.reduce((sum, image3) => sum + (this.#identity.get(image3)?.bytes ?? 0), 0) + [...this.#inflight].reduce((sum, slot2) => sum + slot2.bytes, 0);
+    return this.#items.reduce((sum2, image3) => sum2 + (this.#identity.get(image3)?.bytes ?? 0), 0) + [...this.#inflight].reduce((sum2, slot2) => sum2 + slot2.bytes, 0);
   }
   #start(name) {
     this.#prune();
@@ -101193,7 +103609,7 @@ var VimPreference = class {
 };
 
 // src/github/branch.ts
-import { execFile as execFile14 } from "node:child_process";
+import { execFile as execFile15 } from "node:child_process";
 import { promisify as promisify9 } from "node:util";
 
 // src/github/hosts.ts
@@ -101237,7 +103653,7 @@ function githubHosts(env2 = process.env) {
 var untrustedText = (host2) => `Not read: ${host2} is not github.com or a GitHub Enterprise host you listed, so tern sends it no token. If you trust it, add it to ${HOSTS_SETTING} and open a new pane.`;
 
 // src/github/branch.ts
-var run7 = promisify9(execFile14);
+var run7 = promisify9(execFile15);
 function parseRemote(url, hosts3 = githubHosts()) {
   const scp = /^[\w.-]+@(?<host>[^:/]+):(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
   const full = /^(?<scheme>https?|ssh|git):\/\/(?:[^@/]+@)?(?<host>[^/:]+)(?<port>:\d+)?\/(?<repo>[^/]+\/[^/]+?)(?:\.git)?\/?$/.exec(url)?.groups;
@@ -101629,10 +104045,10 @@ var PullRequests = class {
     if (!e?.pr || !was || was.kind === "loading" || !due(was, e.pr.updatedAt, Date.now())) {
       return;
     }
-    const at2 = e.pr.updatedAt;
+    const at3 = e.pr.updatedAt;
     tab3.set(e, { kind: "loading", was });
     try {
-      tab3.set(e, { at: at2, kind: "ready", value: await tab3.read(e) });
+      tab3.set(e, { at: at3, kind: "ready", value: await tab3.read(e) });
     } catch (error) {
       tab3.set(e, { error: errorText(error), failedAt: Date.now(), kind: "failed", last: lastRead(was) });
       throw error;
@@ -101761,8 +104177,8 @@ var PullRequests = class {
       }
       const asked2 = /* @__PURE__ */ new Set();
       for (const [i, e] of list10.slice(0, BATCH2).entries()) {
-        const n4 = stackNumber(answers2[`p${i}`]);
-        const key3 = n4 === void 0 ? void 0 : stackKey(host2, e.ref.repository, n4);
+        const n5 = stackNumber(answers2[`p${i}`]);
+        const key3 = n5 === void 0 ? void 0 : stackKey(host2, e.ref.repository, n5);
         if (!key3 || asked2.has(key3)) {
           continue;
         }
@@ -102573,14 +104989,14 @@ function labelOf(item3, typed, replaceFrom) {
   const label = (item3.display || item3.text).replace(/^\//, "");
   const base3 = isPath(item3) ? "strong" : void 0;
   const query2 = typed.slice(replaceFrom).replace(/^[/@]/, "").replace(/^(file|folder):/, "").split("/").pop() ?? "";
-  const at2 = query2 ? label.toLowerCase().indexOf(query2.toLowerCase()) : -1;
-  if (at2 < 0) {
+  const at3 = query2 ? label.toLowerCase().indexOf(query2.toLowerCase()) : -1;
+  if (at3 < 0) {
     return [{ ...optional("s", base3), t: label }];
   }
   return [
-    { ...optional("s", base3), t: label.slice(0, at2) },
-    { s: base3 ? `${base3} mark` : "mark", t: label.slice(at2, at2 + query2.length) },
-    { ...optional("s", base3), t: label.slice(at2 + query2.length) }
+    { ...optional("s", base3), t: label.slice(0, at3) },
+    { s: base3 ? `${base3} mark` : "mark", t: label.slice(at3, at3 + query2.length) },
+    { ...optional("s", base3), t: label.slice(at3 + query2.length) }
   ].filter((s2) => s2.t);
 }
 function requestFor(before2, sid) {
@@ -102647,9 +105063,9 @@ var OverlayStack = class {
     return top !== void 0 && this.#roots.get(top) === receipt.root;
   }
   close(overlay2) {
-    const at2 = this.items.indexOf(overlay2);
-    if (at2 >= 0) {
-      this.items.splice(at2, 1);
+    const at3 = this.items.indexOf(overlay2);
+    if (at3 >= 0) {
+      this.items.splice(at3, 1);
       this.#roots.delete(overlay2);
       this.#host.closed(overlay2);
       overlay2.onClose?.();
@@ -102723,16 +105139,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync7, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync6 } from "node:fs";
-import { join as join20 } from "node:path";
+import { join as join21 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe2 = (id3) => /^[\w.-]{1,128}$/.test(id3);
-function chartMemory(dir2 = join20(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join21(dataDir(), "charts"), now = Date.now) {
   return {
     load(id3) {
       if (!safe2(id3)) {
         return void 0;
       }
-      const value = readJsonFile(join20(dir2, `${id3}.json`));
+      const value = readJsonFile(join21(dir2, `${id3}.json`));
       const skip = chartSkip(value);
       if (value === void 0 || skip) {
         return skip;
@@ -102750,9 +105166,9 @@ function chartMemory(dir2 = join20(dataDir(), "charts"), now = Date.now) {
       }
       try {
         mkdirSync7(dir2, { recursive: true });
-        writeFileSync6(join20(dir2, `${id3}.json`), JSON.stringify(value));
+        writeFileSync6(join21(dir2, `${id3}.json`), JSON.stringify(value));
         for (const name of readdirSync(dir2)) {
-          const file2 = join20(dir2, name);
+          const file2 = join21(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -102993,13 +105409,13 @@ function cadence(loop) {
   const s2 = loop.interval_seconds;
   return `every ${s2 % 3600 === 0 ? `${s2 / 3600}h` : s2 % 60 === 0 ? `${s2 / 60}m` : `${s2}s`}`;
 }
-var clock4 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+var clock6 = (epochSeconds) => new Date(epochSeconds * 1e3).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 function goalView(goal) {
   if (!goal || goal.status !== "active" && goal.status !== "paused") {
     return null;
   }
   const barrier = goal.status === "active" ? goal.wait_barrier : null;
-  const wait = barrier ? [barrier.type === "until" ? `until ${clock4(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
+  const wait = barrier ? [barrier.type === "until" ? `until ${clock6(barrier.until_at)}` : `on ${barrier.type} ${barrier.target}`, barrier.reason].filter(Boolean).join(" \xB7 ") : "";
   return {
     criteria: goal.subgoals ?? [],
     detail: barrier ? wait : goal.status === "paused" ? goal.paused_reason ?? "" : "",
@@ -103785,22 +106201,22 @@ function history({ kept, messages, id: id3 }) {
   const calls = /* @__PURE__ */ new Map();
   let todos2;
   for (const m2 of messages) {
-    const at2 = typeof m2.timestamp === "number" ? m2.timestamp * 1e3 : 0;
+    const at3 = typeof m2.timestamp === "number" ? m2.timestamp * 1e3 : 0;
     const text22 = typeof m2.text === "string" ? m2.text : typeof m2.content === "string" ? m2.content : "";
     const steered = m2.role === "user" ? m2.display_kind === "steer" ? text22.trim() : steerText(text22) : void 0;
     if (steered !== void 0 && turn2) {
-      turn2.blocks.push({ at: at2, id: id3("s"), kind: "steer", text: steered });
+      turn2.blocks.push({ at: at3, id: id3("s"), kind: "steer", text: steered });
       continue;
     }
     if (m2.role === "user") {
       turn2 = void 0;
-      promptAt = at2;
+      promptAt = at3;
       const notice = displayNotice(m2.display_kind, m2.display_metadata) ?? internalNotice(text22);
       if (notice) {
         pendingContinued = notice;
       } else {
         pendingContinued = void 0;
-        entries2.push(storedUser(id3("u"), steered ?? text22, at2));
+        entries2.push(storedUser(id3("u"), steered ?? text22, at3));
       }
       continue;
     }
@@ -103813,20 +106229,20 @@ function history({ kept, messages, id: id3 }) {
     }
     if (!turn2) {
       const continued = pendingContinued ?? continuation(entries2.findLast(passable));
-      turn2 = { blocks: [], continued, end: { status: "done" }, id: id3("t"), kind: "turn", rev: 0, startedAt: promptAt || at2 };
+      turn2 = { blocks: [], continued, end: { status: "done" }, id: id3("t"), kind: "turn", rev: 0, startedAt: promptAt || at3 };
       pendingContinued = void 0;
       promptAt = 0;
       entries2.push(turn2);
     }
     const end = turn2.end;
-    if (at2 > 0 && end.status !== "live") {
-      turn2.end = { ...end, endedAt: Math.max(end.endedAt ?? at2, at2) };
+    if (at3 > 0 && end.status !== "live") {
+      turn2.end = { ...end, endedAt: Math.max(end.endedAt ?? at3, at3) };
     }
     if (m2.role === "assistant") {
       const meta3 = record(m2.display_metadata);
       const thought = storedThought(m2);
       if (thought.trim()) {
-        turn2.blocks.push({ endedAt: at2, id: id3("k"), kind: "thinking", startedAt: at2, text: thought });
+        turn2.blocks.push({ endedAt: at3, id: id3("k"), kind: "thinking", startedAt: at3, text: thought });
       }
       if (m2.display_kind === "failed_turn") {
         const surface = record(meta3?.["error_surface"]);
@@ -103836,10 +106252,10 @@ function history({ kept, messages, id: id3 }) {
         continue;
       }
       const reply2 = typeof m2["display_content"] === "string" ? m2["display_content"] : text22;
-      const notes = Array.isArray(m2["display_commentary"]) ? m2["display_commentary"].filter((n4) => typeof n4 === "string" && Boolean(n4.trim())) : [];
+      const notes = Array.isArray(m2["display_commentary"]) ? m2["display_commentary"].filter((n5) => typeof n5 === "string" && Boolean(n5.trim())) : [];
       const flat2 = (s2) => s2.replace(/\s+/g, " ").trim();
       if (!reply2.trim() || flat2(notes.join("\n\n")) !== flat2(reply2)) {
-        turn2.blocks.push(...notes.map((n4) => ({ id: id3("x"), kind: "text", text: n4 })));
+        turn2.blocks.push(...notes.map((n5) => ({ id: id3("x"), kind: "text", text: n5 })));
       }
       if (reply2.trim()) {
         turn2.blocks.push({ id: id3("x"), kind: "text", text: reply2 });
@@ -103871,7 +106287,7 @@ function history({ kept, messages, id: id3 }) {
         name: u.name,
         outcome: { duration: 0, kind: "done" },
         result,
-        startedAt: at2,
+        startedAt: at3,
         via: u.via
       };
       call.outcome = { duration: 0, kind: settleBridge(call) ?? Boolean(record(call.result)?.["error"]) ? "error" : "done" };
@@ -103903,7 +106319,7 @@ function blockAt(b) {
   }
 }
 function placeCompactions(entries2, compactions, id3) {
-  for (const { at: at2, compaction } of compactions) {
+  for (const { at: at3, compaction } of compactions) {
     const same = (c) => c === compaction || c.startedAt === compaction.startedAt;
     const shown3 = entries2.some(
       (e) => e.kind === "compaction" && same(e.compaction) || e.kind === "turn" && e.blocks.some((b) => b.kind === "compaction" && same(b.compaction))
@@ -103911,26 +106327,26 @@ function placeCompactions(entries2, compactions, id3) {
     if (shown3) {
       continue;
     }
-    const found = entries2.findIndex((e) => e.kind === "user" && e.at >= at2 || e.kind === "turn" && e.startedAt >= at2);
+    const found = entries2.findIndex((e) => e.kind === "user" && e.at >= at3 || e.kind === "turn" && e.startedAt >= at3);
     const next2 = found < 0 ? entries2.length : found;
     const before2 = entries2.slice(0, next2).findLast((e) => e.kind === "user" || e.kind === "turn");
     const ended = before2?.kind === "turn" ? turnEndedAt(before2) : void 0;
-    if (before2?.kind === "turn" && (ended === void 0 || ended >= at2)) {
-      const step = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at2);
-      before2.blocks.splice(step + 1, 0, { at: at2, compaction, id: id3("z"), kind: "compaction" });
+    if (before2?.kind === "turn" && (ended === void 0 || ended >= at3)) {
+      const step = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at3);
+      before2.blocks.splice(step + 1, 0, { at: at3, compaction, id: id3("z"), kind: "compaction" });
       before2.rev++;
     } else {
       entries2.splice(next2, 0, { compaction, id: id3("z"), kind: "compaction", rev: 0 });
     }
   }
 }
-function storedUser(id3, raw2, at2) {
+function storedUser(id3, raw2, at3) {
   const parts3 = splitPrompt(raw2);
-  return userEntry(id3, { at: at2, attachments: promptAttachments(parts3), text: parts3.text });
+  return userEntry(id3, { at: at3, attachments: promptAttachments(parts3), text: parts3.text });
 }
 function endTurn(turn2, end) {
-  const at2 = turnEndedAt(turn2);
-  turn2.end = at2 === void 0 ? end : { ...end, endedAt: at2 };
+  const at3 = turnEndedAt(turn2);
+  turn2.end = at3 === void 0 ? end : { ...end, endedAt: at3 };
 }
 var str8 = (v) => typeof v === "string" && v.trim() ? v : void 0;
 function storedThought(m2) {
@@ -104083,22 +106499,22 @@ var Transcript = class {
    * A steer the gateway took for the running turn: it shows inside that turn, where it was sent,
    * since the agent reads it before its next step. With no turn running it is a plain prompt.
    */
-  steer(text22, at2 = Date.now(), owner2 = this.live) {
+  steer(text22, at3 = Date.now(), owner2 = this.live) {
     if (owner2 && !this.#entries.includes(owner2)) return;
     if (!owner2) {
-      return this.user({ at: at2, text: text22 });
+      return this.user({ at: at3, text: text22 });
     }
-    owner2.blocks.push({ at: at2, id: this.id("s"), kind: "steer", text: text22 });
+    owner2.blocks.push({ at: at3, id: this.id("s"), kind: "steer", text: text22 });
     this.#touchTurn(owner2);
   }
   /** Records an acknowledged correction in the current transcript before its draft is taken. */
-  steerAccepted(text22, { at: at2 = Date.now(), generation, owner: owner2, runningAt }) {
+  steerAccepted(text22, { at: at3 = Date.now(), generation, owner: owner2, runningAt }) {
     const retained = generation === this.#generation && owner2 && this.#entries.includes(owner2) ? owner2 : void 0;
     const current = retained ?? (runningAt !== void 0 ? this.messageStart(runningAt) : void 0);
     if (current) {
-      this.steer(text22, at2, current);
+      this.steer(text22, at3, current);
     } else {
-      this.user({ at: at2, text: text22 });
+      this.user({ at: at3, text: text22 });
     }
   }
   /** A prompt bubble at the end. */
@@ -104109,7 +106525,7 @@ var Transcript = class {
    * A queued prompt the shared gateway just started. Its message.start came first, so the bubble
    * goes before the turn it opened while that turn is still empty; else at the end.
    */
-  started(text22, at2 = Date.now(), attachments = []) {
+  started(text22, at3 = Date.now(), attachments = []) {
     const live = this.live;
     const notice = attachments.length ? void 0 : internalNotice(text22);
     if (notice) {
@@ -104122,12 +106538,12 @@ var Transcript = class {
       return;
     }
     if (live && !live.blocks.length && this.#entries.at(-1) === live) {
-      this.#entries.splice(-1, 0, userEntry(this.id("u"), { at: at2, attachments, text: text22 }));
+      this.#entries.splice(-1, 0, userEntry(this.id("u"), { at: at3, attachments, text: text22 }));
       live.continued = void 0;
       this.#touchTurn(live);
       return;
     }
-    this.user({ at: at2, attachments, text: text22 });
+    this.user({ at: at3, attachments, text: text22 });
   }
   notice(text22, tone3 = "info") {
     this.push({ id: this.id("n"), kind: "notice", text: text22, tone: tone3 });
@@ -104136,14 +106552,14 @@ var Transcript = class {
     this.push({ id: this.id("p"), kind: "panel", text: text22, title: title2 });
   }
   /** message.start: opens the live turn, unless one is already streaming. */
-  messageStart(at2 = Date.now()) {
-    return this.#open(at2);
+  messageStart(at3 = Date.now()) {
+    return this.#open(at3);
   }
   /**
    * Opens a live turn unless one is already streaming. Only the reducer calls it, and only once
    * the event proved it has something for the turn.
    */
-  #open(at2) {
+  #open(at3) {
     const live = this.live;
     if (live) {
       return live;
@@ -104157,7 +106573,7 @@ var Transcript = class {
       id: this.id("t"),
       kind: "turn",
       rev: 0,
-      startedAt: at2
+      startedAt: at3
     };
     this.push(turn2);
     this.#live = turn2;
@@ -104165,16 +106581,16 @@ var Transcript = class {
     this.#continued = void 0;
     return turn2;
   }
-  reasoning(text22, at2 = Date.now()) {
+  reasoning(text22, at3 = Date.now()) {
     if (!text22) {
       return;
     }
-    const turn2 = this.#open(at2);
+    const turn2 = this.#open(at3);
     const last = turn2.blocks.at(-1);
     if (last?.kind === "thinking" && last.endedAt === void 0) {
       last.text += text22;
     } else {
-      turn2.blocks.push({ id: this.id("k"), kind: "thinking", startedAt: at2, text: text22 });
+      turn2.blocks.push({ id: this.id("k"), kind: "thinking", startedAt: at3, text: text22 });
     }
     this.#touchTurn(turn2);
   }
@@ -104184,29 +106600,29 @@ var Transcript = class {
    * turn already shows is not a thought either. One that comes after its turn ended goes in that
    * turn.
    */
-  reasoningBlock(text22, at2 = Date.now()) {
+  reasoningBlock(text22, at3 = Date.now()) {
     const shown3 = this.#live ?? this.#ended;
     const incoming = text22.trim();
     if (!incoming || shown3?.blocks.some((b) => b.kind === "thinking" && !b.label || b.kind === "text" && b.text.includes(incoming))) {
       return;
     }
-    const turn2 = shown3 ?? this.#open(at2);
-    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", startedAt: at2, text: text22 });
+    const turn2 = shown3 ?? this.#open(at3);
+    turn2.blocks.push({ endedAt: at3, id: this.id("k"), kind: "thinking", startedAt: at3, text: text22 });
     this.#touchTurn(turn2);
   }
   /** A Mixture-of-Agents reference model's answer: a sealed thought block of its own, under `label`. */
-  reference(label, text22, at2 = Date.now()) {
-    const turn2 = this.#open(at2);
-    endThinking(turn2, at2);
-    turn2.blocks.push({ endedAt: at2, id: this.id("k"), kind: "thinking", label, startedAt: at2, text: text22.trim() });
+  reference(label, text22, at3 = Date.now()) {
+    const turn2 = this.#open(at3);
+    endThinking(turn2, at3);
+    turn2.blocks.push({ endedAt: at3, id: this.id("k"), kind: "thinking", label, startedAt: at3, text: text22.trim() });
     this.#touchTurn(turn2);
   }
-  text(text22, at2 = Date.now()) {
+  text(text22, at3 = Date.now()) {
     if (!text22) {
       return;
     }
-    const turn2 = this.#open(at2);
-    endThinking(turn2, at2);
+    const turn2 = this.#open(at3);
+    endThinking(turn2, at3);
     const last = turn2.blocks.at(-1);
     if (last?.kind === "text") {
       last.text += text22;
@@ -104216,24 +106632,24 @@ var Transcript = class {
     this.#touchTurn(turn2);
   }
   /** Interim commentary: seals the streamed text so the next delta starts a new block. */
-  interim(text22, { alreadyStreamed }, at2 = Date.now()) {
-    const turn2 = this.#open(at2);
-    endThinking(turn2, at2);
+  interim(text22, { alreadyStreamed }, at3 = Date.now()) {
+    const turn2 = this.#open(at3);
+    endThinking(turn2, at3);
     if (!alreadyStreamed && text22.trim()) {
       turn2.blocks.push({ id: this.id("x"), kind: "text", text: text22 });
     }
     turn2.blocks.push({ id: this.id("x"), kind: "text", text: "" });
     this.#touchTurn(turn2);
   }
-  toolStart(p3, at2 = Date.now()) {
-    const turn2 = this.#open(at2);
-    endThinking(turn2, at2);
+  toolStart(p3, at3 = Date.now()) {
+    const turn2 = this.#open(at3);
+    endThinking(turn2, at3);
     if (!this.#tool(p3.tool_id)) {
-      this.#addCall(turn2, p3, at2);
+      this.#addCall(turn2, p3, at3);
     }
   }
   /** Adds the call tool.start `p` names to `turn`, running. */
-  #addCall(turn2, p3, at2) {
+  #addCall(turn2, p3, at3) {
     const u = unwrap(p3.name, p3.args ?? {});
     const call = {
       args: u.args,
@@ -104242,7 +106658,7 @@ var Transcript = class {
       id: toolCallId(p3.tool_id),
       name: u.name,
       outcome: { kind: "running" },
-      startedAt: at2,
+      startedAt: at3,
       via: u.via
     };
     const before2 = this.currentTodos();
@@ -104255,12 +106671,12 @@ var Transcript = class {
     turn2.blocks.push({ call, id: call.id, kind: "tool" });
     this.#touchTurn(turn2);
   }
-  toolComplete(p3, at2 = Date.now()) {
+  toolComplete(p3, at3 = Date.now()) {
     let found = this.#tool(p3.tool_id);
     if (!found) {
-      const turn3 = this.#live ?? this.#ended ?? this.#open(at2);
-      endThinking(turn3, at2);
-      this.#addCall(turn3, { args: p3.args ?? {}, name: p3.name, tool_id: p3.tool_id }, at2);
+      const turn3 = this.#live ?? this.#ended ?? this.#open(at3);
+      endThinking(turn3, at3);
+      this.#addCall(turn3, { args: p3.args ?? {}, name: p3.name, tool_id: p3.tool_id }, at3);
       found = this.#tool(p3.tool_id);
     }
     if (!found) {
@@ -104269,9 +106685,9 @@ var Transcript = class {
     const { call, turn: turn2 } = found;
     const output = record(p3.result)?.["output"];
     const interrupted = p3.name === "terminal" && typeof output === "string" && /\[Command interrupted\]\s*$/.test(output);
-    const duration4 = typeof p3.duration_s === "number" ? Math.round(p3.duration_s * 1e3) : at2 - call.startedAt;
+    const duration4 = typeof p3.duration_s === "number" ? Math.round(p3.duration_s * 1e3) : at3 - call.startedAt;
     const summary4 = p3.summary ?? void 0;
-    call.completedAt = at2;
+    call.completedAt = at3;
     call.resultText = p3.result_text ?? void 0;
     call.result = p3.result;
     call.diff = p3.inline_diff ?? void 0;
@@ -104299,9 +106715,9 @@ var Transcript = class {
     live.todos = snapshot4;
     this.#touchTurn(live);
   }
-  complete(p3, at2 = Date.now()) {
-    const turn2 = this.#open(at2);
-    endThinking(turn2, at2);
+  complete(p3, at3 = Date.now()) {
+    const turn2 = this.#open(at3);
+    endThinking(turn2, at3);
     const final = typeof p3.text === "string" ? p3.text : "";
     const tail = trailingText(turn2);
     if (final.trim() && tail.trim() !== final.trim() && !(p3.status === "error" && !p3.partial)) {
@@ -104315,7 +106731,7 @@ var Transcript = class {
     turn2.blocks = turn2.blocks.filter((b) => b.kind !== "text" || b.text.trim());
     for (const b of turn2.blocks) {
       if (b.kind === "tool" && b.call.outcome.kind === "running") {
-        b.call.outcome = { duration: at2 - b.call.startedAt, kind: p3.status === "error" ? "error" : p3.status === "interrupted" ? "cancelled" : "done" };
+        b.call.outcome = { duration: at3 - b.call.startedAt, kind: p3.status === "error" ? "error" : p3.status === "interrupted" ? "cancelled" : "done" };
       }
     }
     this.#live = void 0;
@@ -104329,17 +106745,17 @@ var Transcript = class {
       const surfaced = p3.error_surface?.["message"];
       const error = typeof surfaced === "string" && surfaced || p3.error || final || "The request failed";
       const hint = final.split(/\n\s*\n/)[0]?.trim();
-      turn2.end = { ...failure4(error, p3.error_surface?.code), endedAt: at2, ...hint ? { hint } : {}, status: "error" };
+      turn2.end = { ...failure4(error, p3.error_surface?.code), endedAt: at3, ...hint ? { hint } : {}, status: "error" };
     } else {
-      turn2.end = { endedAt: at2, status: p3.status === "interrupted" ? "interrupted" : "done" };
+      turn2.end = { endedAt: at3, status: p3.status === "interrupted" ? "interrupted" : "done" };
     }
     this.#touchTurn(turn2);
   }
   /** Seals a live turn the user interrupted before the agent confirmed it. */
-  interrupt(at2 = Date.now()) {
+  interrupt(at3 = Date.now()) {
     const turn2 = this.live;
     if (turn2) {
-      this.complete({ status: "interrupted" }, at2);
+      this.complete({ status: "interrupted" }, at3);
     }
   }
   /** Rebuilds the entries of a resumed session from its stored messages. */
@@ -104357,17 +106773,17 @@ var Transcript = class {
     placeCompactions(this.#entries, this.compactions.restore(stored), (prefix2) => this.id(prefix2));
   }
   /** A resumed session's unfinished turn: its prompt, then a live turn holding what streamed so far. */
-  inflight(turn2, at2 = Date.now()) {
+  inflight(turn2, at3 = Date.now()) {
     const user = turn2.user?.trim();
     const notice = user ? displayNotice(turn2.display_kind, turn2.display_metadata) ?? internalNotice(user) : void 0;
     if (notice) {
       this.#continued = notice;
     } else if (user) {
-      this.push(storedUser(this.id("u"), user, at2));
+      this.push(storedUser(this.id("u"), user, at3));
     }
     if (turn2.assistant || turn2.streaming) {
-      this.#open(at2);
-      this.text(turn2.assistant ?? "", at2);
+      this.#open(at3);
+      this.text(turn2.assistant ?? "", at3);
     }
   }
   /** Marks the turn holding `call` (if any) changed, after something outside the reducer updated it. */
@@ -104652,8 +107068,8 @@ var PromptQueue = class {
       if (r.ok) {
         host2.transcript.steer(text22);
       } else {
-        const at2 = Math.max(0, ...ahead.map((h2) => this.#held.indexOf(h2) + 1));
-        this.#held.splice(at2, 0, item3);
+        const at3 = Math.max(0, ...ahead.map((h2) => this.#held.indexOf(h2) + 1));
+        this.#held.splice(at3, 0, item3);
         host2.transcript.notice(
           r.error ? `Steer failed: ${r.error}. It stays queued.` : "The turn ended before the steer landed. It will send as the next prompt.",
           "warning"
@@ -105515,6 +107931,7 @@ var App = class {
   #act;
   #surface;
   #orbActivity = new OrbActivity();
+  #gev = new GevCards(() => this.eui, (text22) => this.notice(text22, "warning"));
   #orb;
   #clean;
   #lanes;
@@ -105666,6 +108083,7 @@ var App = class {
       setCompacting: (on) => this.#act.setCompacting(on),
       showImage: (call) => this.#act.showImage(call),
       showArtifacts: (call) => this.#act.showArtifacts(call),
+      showGev: (call) => this.#gev.show(call),
       sid: () => this.session.ref.live,
       summarize: (delay) => this.#act.summarize(delay)
     });
@@ -105964,8 +108382,8 @@ var CircularBuffer = class {
       this.len++;
     }
   }
-  tail(n4 = this.len) {
-    const take = Math.min(Math.max(0, n4), this.len);
+  tail(n5 = this.len) {
+    const take = Math.min(Math.max(0, n5), this.len);
     const start = this.len < this.capacity ? 0 : this.head;
     const out = new Array(take);
     for (let i = 0; i < take; i++) {
@@ -106558,7 +108976,7 @@ var GatewayClient = class extends EventEmitter2 {
   }
   /** One slot of the sliding owner re-ensure budget, so a crash-looping owner is not respawned forever. */
   claimOwnerRecovery(now = Date.now()) {
-    this.recoveryAttempts = this.recoveryAttempts.filter((at2) => now - at2 < OWNER_RECOVERY_WINDOW_MS);
+    this.recoveryAttempts = this.recoveryAttempts.filter((at3) => now - at3 < OWNER_RECOVERY_WINDOW_MS);
     if (this.recoveryAttempts.length >= OWNER_RECOVERY_LIMIT) {
       return false;
     }

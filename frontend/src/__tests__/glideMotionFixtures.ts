@@ -19,7 +19,8 @@ export const motionParts = {
   Steps: { type: 'element', typeName: 'Steps', props: { items: [{ id: 'build', text: 'Build', status: 'done' }, { id: 'test', text: 'Verify', status: 'active' }, { id: 'ship', text: 'Review', status: 'pending' }] } },
   Flow: { type: 'element', typeName: 'Flow', props: { stages: [{ id: 'ask', label: 'Ask' }, { id: 'build', label: 'Build', tone: 'accent' }, { id: 'verify', label: 'Verify' }] } },
   Buttons: { type: 'element', typeName: 'Buttons', props: { items: [{ label: 'Complete checks', primary: true, intent: { action: 'done' } }] } },
-  Graphic: { type: 'element', typeName: 'Graphic', props: { svg: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><circle cx="32" cy="32" r="25" fill="none" stroke="#b99b67" stroke-width="2"/><path d="M32 7 A25 25 0 0 1 57 32" fill="none" stroke="#e8c58d" stroke-width="3"/></svg>', w: 64, h: 64, alt: 'Synthetic verification ring' } }
+  Graphic: { type: 'element', typeName: 'Graphic', props: { svg: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><circle cx="32" cy="32" r="25" fill="none" stroke="#b99b67" stroke-width="2"/><path d="M32 7 A25 25 0 0 1 57 32" fill="none" stroke="#e8c58d" stroke-width="3"/></svg>', w: 64, h: 64, alt: 'Synthetic verification ring' } },
+  Picture: { type: 'element', typeName: 'Picture', props: { png: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', w: 1, h: 1, alt: 'Synthetic pixel' } }
 } satisfies { [K in UiName]: Extract<UiNode, { typeName: K }> }
 
 export function motionCard(done = false, page = 0): UiNode {

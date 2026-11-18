@@ -11,7 +11,8 @@ export type UiIntent = Readonly<{ action: string; entities?: Readonly<Record<str
 export type UiCell = string | number | Readonly<{ text: string; tone: UiTone }>
 
 export interface UiParts {
-  Card: { title: string; children: readonly UiNode[]; status?: UiStatus; app?: string; source?: string }
+  /** `skin` scopes a host app's own look (UI_CSS) over the card's parts, e.g. God's Eye View's HUD. */
+  Card: { title: string; children: readonly UiNode[]; status?: UiStatus; app?: string; source?: string; skin?: 'gev' }
   Section: { title: string; children: readonly UiNode[]; aside?: string }
   Row: { children: readonly UiNode[] }
   Hero: { value: string; label: string; detail?: string; tone?: UiTone }
@@ -34,6 +35,8 @@ export interface UiParts {
   Buttons: { items: readonly { label: string; intent: UiIntent; primary?: boolean; disabled?: boolean }[] }
   /** A trusted SVG the host drew (waveform, ring, day band). */
   Graphic: { svg: string; w: number; h: number; alt: string }
+  /** A trusted raster the host captured (a real app's frame), base64 PNG. */
+  Picture: { png: string; w: number; h: number; alt: string }
 }
 export type UiName = keyof UiParts
 export type UiNode = { readonly [N in UiName]: { readonly type: 'element'; readonly typeName: N; readonly props: Readonly<UiParts[N]> } }[UiName]
