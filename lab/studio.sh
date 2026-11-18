@@ -25,6 +25,9 @@ stop() { for u in glide-studio-tern glide-studio-gw glide-studio-sway; do system
 
 home() {
   mkdir -p "$H/plugins" "$S/work"
+  # Each take opens a fresh session (the pane resumes the home's last one); earlier sessions are archived, not deleted.
+  if [ -e "$H/state.db" ]; then local a="$S/archive/$(date +%Y%m%d-%H%M%S)"; mkdir -p "$a"
+    mv "$H"/state.db* "$H/sessions" "$a/" 2>/dev/null || true; fi
   ln -sfn "$root" "$H/plugins/glide"
   python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL:-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
 import json, sys, pathlib
