@@ -29,21 +29,24 @@ home() {
   if [ -e "$H/state.db" ]; then local a="$S/archive/$(date +%Y%m%d-%H%M%S)"; mkdir -p "$a"
     mv "$H"/state.db* "$H/sessions" "$a/" 2>/dev/null || true; fi
   ln -sfn "$root" "$H/plugins/glide"
-  python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL:-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
-import json, sys, pathlib
+  # STUDIO_PLUGINS: extra plugin dirs to link in (e.g. a model-provider plugin such as the Claude subscription).
+  local pl; for pl in ${STUDIO_PLUGINS:-}; do ln -sfn "$pl" "$H/plugins/$(basename "$pl")"; done
+  python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
+import json, os, sys, pathlib
 home, model, base, provider = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
 (home / "config.yaml").write_text(json.dumps({
-    "model": {"provider": provider, "default": model, "base_url": base},
+    "model": {"provider": provider, "default": model, **({"base_url": base} if base else {})},
     "approvals": {"mode": "off"},
     "auxiliary": {"title_generation": {"enabled": False}},
-    "plugins": {"enabled": ["glide"], "disabled": []},
+    "plugins": {"enabled": ["glide", *[pathlib.Path(x).name for x in os.environ.get("STUDIO_PLUGINS", "").split()]], "disabled": []},
     "telemetry": {"shared_metrics": {"enabled": False, "send": False, "offer_version": 2}},
 }, indent=2))
 PY
   local key_env=${STUDIO_KEY_ENV:-NVIDIA_API_KEY} key
+  if [ "$key_env" = none ]; then : > "$H/.env"; else  # none: the provider signs in itself (Claude subscription)
   key=$(grep -m1 "^$key_env=" "${STUDIO_KEY_FILE:-$HOME/.hermes/.env}" | cut -d= -f2-)
   [ -n "$key" ] || { echo "studio: no $key_env in ~/.hermes/.env" >&2; exit 1; }
-  (umask 077; printf '%s=%s\n' "$key_env" "$key" > "$H/.env")
+  (umask 077; printf '%s=%s\n' "$key_env" "$key" > "$H/.env"); fi
 }
 
 up() {
