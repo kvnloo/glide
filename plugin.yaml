@@ -9,7 +9,7 @@ license: MIT
 homepage: https://github.com/kvnloo/glide
 tags: [tern, tui, frontend]
 requires_hermes: ">=0.23.0"
-provides_tools: [link_pull_request, unlink_pull_request, list_pull_requests]
+provides_tools: [link_pull_request, unlink_pull_request, list_pull_requests, glide_skin]
 provides_hooks: [pre_llm_call]
 optional_env:
   - name: GITHUB_TOKEN

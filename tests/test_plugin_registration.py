@@ -54,7 +54,7 @@ def test_registers_only_public_plugin_apis(ctx):
 
 def test_the_tools_and_hooks_are_the_declared_ones_and_there_is_no_middleware(ctx):
     tools = [k["name"] for _, k in ctx.of("register_tool")]
-    assert tools == ["link_pull_request", "unlink_pull_request", "list_pull_requests"]
+    assert tools == ["link_pull_request", "unlink_pull_request", "list_pull_requests", "glide_skin"]
     assert f"provides_tools: [{', '.join(tools)}]" in MANIFEST
     # The one hook is glide's corrections recall, installed with the Tern UI in one plugin.
     assert [a[0] for a, _ in ctx.of("register_hook")] == ["pre_llm_call"]
@@ -74,7 +74,7 @@ def test_native_browser_registration_is_namespaced_and_read_only_without_consent
     ]
     assert all('schema' in kwargs for _, kwargs in entries)
     assert [kwargs['name'] for _, kwargs in ctx.of('register_tool')] == [
-        'link_pull_request', 'unlink_pull_request', 'list_pull_requests'
+        'link_pull_request', 'unlink_pull_request', 'list_pull_requests', 'glide_skin'
     ]
 
 
