@@ -7,7 +7,7 @@
 # HERMES_HOME with Glide from this checkout and a real model, its own gateway and one fullscreen Tern running
 # `hermes tern`. Every unit is `glide-studio-*` in the user's agent.slice; `down` stops them all.
 #
-#   lab/studio.sh up|down|shot OUT.png|ctl ARGS...
+#   lab/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|ctl ARGS...
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
 #        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
 #        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
@@ -25,10 +25,15 @@ stop() { for u in glide-studio-tern glide-studio-gw glide-studio-sway; do system
 
 home() {
   mkdir -p "$H/plugins" "$S/work"
-  # Each take opens a fresh session (the pane resumes the home's last one); earlier sessions are archived, not deleted.
-  if [ -e "$H/state.db" ]; then local a="$S/archive/$(date +%Y%m%d-%H%M%S)"; mkdir -p "$a"
-    mv "$H"/state.db* "$H/sessions" "$a/" 2>/dev/null || true; fi
+  # Each take opens a fresh session (the pane resumes the home's last one) and a bare Glide (settings.json reopens the
+  # last take's pages and widgets); the earlier ones are archived, not deleted.
+  if [ -e "$H/state.db" ] || [ -e "$H/glide/settings.json" ]; then local a="$S/archive/$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$a"; mv "$H"/state.db* "$H/sessions" "$H/glide" "$a/" 2>/dev/null || true; fi
   ln -sfn "$root" "$H/plugins/glide"
+  # STUDIO_THEME: an omp theme JSON the studio's Tern (and so Glide's default `tern` theme) wears as its dark theme.
+  if [ -n "${STUDIO_THEME:-}" ]; then local tn; tn=$(basename "$STUDIO_THEME" .json); mkdir -p "$S/omp/themes" "$S/tern/cfg"
+    cp "$STUDIO_THEME" "$S/omp/themes/"; printf 'theme:\n  dark: %s\n  light: %s\n' "$tn" "$tn" > "$S/omp/config.yml"
+    printf '{"theme":"Dark","theme_dark":"%s"}\n' "$tn" > "$S/tern/cfg/settings.json"; fi
   # STUDIO_PLUGINS: extra plugin dirs to link in (e.g. a model-provider plugin such as the Claude subscription).
   local pl; for pl in ${STUDIO_PLUGINS:-}; do ln -sfn "$pl" "$H/plugins/$(basename "$pl")"; done
   python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
@@ -61,6 +66,7 @@ unlock() {  # Tern's Stencil sign-in needs the login keyring; it re-locks on its
 up() {
   stop; unlock; home
   mkdir -p "$R" && chmod 700 "$R"
+  rm -f "$R"/wayland-* "$R"/sway-ipc.*  # left by a killed sway or a reboot: a stale socket passes the ready check below
   printf '%s\n' 'output HEADLESS-1 mode 1920x1080@60Hz scale 1' 'default_border none' 'gaps outer 0' \
     'for_window [app_id=".*"] fullscreen enable' > "$S/sway.conf"
   systemd-run --user --unit=glide-studio-sway --slice=agent.slice -E XDG_RUNTIME_DIR="$R" -E WLR_BACKENDS=headless \
@@ -73,13 +79,16 @@ up() {
   rm -rf "$S/tern/daemon.sock.state" "$S/tern/daemon.prompt"
   systemd-run --user --unit=glide-studio-tern --slice=agent.slice -p MemoryMax=${STUDIO_TERN_MEM:-2G} -p Nice=5 --working-directory="$S/work" "${env[@]}" \
     -E XDG_RUNTIME_DIR="$R" -E WAYLAND_DISPLAY=wayland-1 -E XDG_SESSION_TYPE=wayland -E TERN_BUILD_URL=http://127.0.0.1:9 \
-    -E TERN_CONFIG_DIR="$S/tern/cfg" -E TERN_DAEMON_SOCKET="$S/tern/daemon.sock" -E XDG_STATE_HOME="$S/tern/state" \
+    -E TERN_CONFIG_DIR="$S/tern/cfg" -E PI_CODING_AGENT_DIR="$S/omp" -E TERN_DAEMON_SOCKET="$S/tern/daemon.sock" -E XDG_STATE_HOME="$S/tern/state" \
     "$TERN" --control "$S/ctl.sock" -e /bin/bash >/dev/null
   # Tern opens its own shell; the pane runs `hermes tern` from it (as a user would).
   for _ in $(seq 60); do ctl state 2>/dev/null | grep -q '"prompt":true' && break; sleep 1; done
   # Tern's shells do not inherit this unit's environment: name the studio home on the command line, or
   # `hermes tern` dials the user's own profile (11-17: a studio turn ran on the owner's profile).
-  ctl type "\"cd $S/work && clear && exec env HERMES_HOME=$H $HERMES_BIN tern\"" >/dev/null; ctl key Enter >/dev/null
+  # The launch goes through a written script so the tab title (OSC 2, STUDIO_TITLE) isn't the typed command line.
+  printf '%s\n' "printf '\\033]2;%s\\007' \"${STUDIO_TITLE:-hermes}\"; cd '$S/work' && clear" \
+    "exec env HERMES_HOME='$H' '$HERMES_BIN' tern" > "$S/pane.sh"
+  ctl type "\". $S/pane.sh\"" >/dev/null; ctl key Enter >/dev/null
   for _ in $(seq 90); do ctl tree 2>/dev/null | grep -q "Ask Hermes" && break; sleep 1; done
   # Refuse to run turns unless the pane shows the studio's own model.
   # Refuse to run turns unless the pane's Hermes runs on the studio home (zsh rc sets the owner's own).
@@ -94,6 +103,8 @@ case "${1:-}" in
   up) up ;;
   down) stop; echo "studio: down" ;;
   shot) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 grim "${2:?out.png}" ;;
+  rec) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout -s INT -k 5 "${3:-20}" nice -n 10 wf-recorder -y -r "${STUDIO_FPS:-30}" \
+    -c libx264 -p preset=veryfast -p crf=18 -f "${2:?out.mp4}" >/dev/null 2>&1; [ -s "$2" ] ;;
   ctl) shift; ctl "$@" ;;
   *) sed -n 6,13p "$0"; exit 2 ;;
 esac
