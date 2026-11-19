@@ -114,10 +114,11 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
     euiSheets.set(name, css)
     cx.surface.raw?.stylesheet(name, css)
   })
-  // glide_ui_style composer: center lifts an empty chat's composer (and its widgets) mid-pane until the first message;
-  // the welcome card steps aside meanwhile, so the composer is all the pane shows.
-  const lift = w?.style?.composer === 'center' && !cx.transcript.entries.some(e => e.kind === 'user' || e.kind === 'turn')
-  const liftCss = lift ? LIFT_CSS : null
+  // glide_ui_style composer: center lifts an empty chat's composer (and its widgets) mid-pane until the first message,
+  // and the welcome card steps aside, so an empty chat shows the composer alone.
+  const centred = w?.style?.composer === 'center'
+  const lift = centred && !cx.transcript.entries.some(e => e.kind === 'user' || e.kind === 'turn')
+  const liftCss = centred ? LIFT_CSS : null
   if (euiSheets.get(LIFT_SHEET) !== (liftCss ?? undefined)) {
     if (liftCss) euiSheets.set(LIFT_SHEET, liftCss)
     else euiSheets.delete(LIFT_SHEET)

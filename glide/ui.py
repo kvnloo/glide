@@ -33,7 +33,8 @@ WAIT_S = 6.0
 _PROGRAM_HELP = (
     "A glide/v1 OpenUI program: `root = GlideCard(\"<card key>\", [parts])`, each part naming one of the "
     "source's slot keys, e.g. `root = GlideCard(\"commits\", [Graphic(\"heat\"), Stats(\"stats\")])`. "
-    "Row([..]) puts parts side by side. Programs carry no data, colors or styles."
+    "Row([..]) puts parts side by side. Programs carry no data, colors or styles. Mount what was asked: a graph "
+    "or heatmap is `Graphic(\"heat\")` alone; add Stats, Spark or Hero only when the user asks for numbers."
 )
 
 MOUNT_SCHEMA = {

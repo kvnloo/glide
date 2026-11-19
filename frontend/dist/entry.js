@@ -100358,8 +100358,9 @@ function drawFrame(cx, now = Date.now()) {
     euiSheets.set(name, css2);
     cx.surface.raw?.stylesheet(name, css2);
   });
-  const lift = w?.style?.composer === "center" && !cx.transcript.entries.some((e) => e.kind === "user" || e.kind === "turn");
-  const liftCss = lift ? LIFT_CSS : null;
+  const centred = w?.style?.composer === "center";
+  const lift = centred && !cx.transcript.entries.some((e) => e.kind === "user" || e.kind === "turn");
+  const liftCss = centred ? LIFT_CSS : null;
   if (euiSheets.get(LIFT_SHEET) !== (liftCss ?? void 0)) {
     if (liftCss) euiSheets.set(LIFT_SHEET, liftCss);
     else euiSheets.delete(LIFT_SHEET);

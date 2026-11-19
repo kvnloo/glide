@@ -213,7 +213,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
 /** The surface sheet names: UI_CSS (shared with transcript cards), and the ring's live position. */
 export const UI_SHEET = 'glide-ui'
 export const RING_SHEET = 'glide-ring'
-/** The centred empty chat (glide_ui_style composer: center): the spacer under the dock and the welcome card set aside. */
+/** The centred composer (glide_ui_style composer: center): the spacer under an empty chat's dock; no welcome card. */
 export const LIFT_SHEET = 'glide-lift'
 export const LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none}
 [data-role='omp.welcome']{display:none}`
