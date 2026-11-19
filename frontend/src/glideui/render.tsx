@@ -213,10 +213,11 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
 /** The surface sheet names: UI_CSS (shared with transcript cards), and the ring's live position. */
 export const UI_SHEET = 'glide-ui'
 export const RING_SHEET = 'glide-ring'
-/** The centred composer (glide_ui_style composer: center): the spacer under an empty chat's dock; no welcome card. */
+/** The centred composer (glide_ui_style composer: center): the spacer under an empty chat's dock, a roomier input line, no welcome card. */
 export const LIFT_SHEET = 'glide-lift'
-export const LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none}
-[data-role='omp.welcome']{display:none}`
+export const LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none;justify-content:flex-start}
+[data-role='omp.welcome']{display:none}
+[data-role='omp.editor'] .sf-editor{min-height:58px}`
 
 /** Where the sweep starts on the top edge: just past the chip, as in the reference. */
 const RING_START = 0.2

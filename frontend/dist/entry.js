@@ -24930,8 +24930,9 @@ function node2(n5, key3, r) {
 var UI_SHEET = "glide-ui";
 var RING_SHEET = "glide-ring";
 var LIFT_SHEET = "glide-lift";
-var LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none}
-[data-role='omp.welcome']{display:none}`;
+var LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none;justify-content:flex-start}
+[data-role='omp.welcome']{display:none}
+[data-role='omp.editor'] .sf-editor{min-height:58px}`;
 var RING_START = 0.2;
 function ringCss(left, glow = false) {
   const d = (1 - Math.max(0, Math.min(1, left))) * 2;
@@ -100114,8 +100115,9 @@ function dockNodes(cx, on, slots = {}) {
   }
   if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "w") }, "glide.above"));
   nodes.push(composerNode(cx, on, slots.ring));
-  if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") }, "glide.below"));
-  if (slots.lift) nodes.push(/* @__PURE__ */ jsx("col", { role: "glide.lift", children: /* @__PURE__ */ jsx("spacer", { size: "none" }, "s") }, "glide.lift"));
+  const below = slots.below?.length ? /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") : null;
+  if (slots.lift) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { role: "glide.lift", children: below ?? /* @__PURE__ */ jsx("spacer", { size: "none" }, "s") }, "lift") }, "glide.below"));
+  else if (below) nodes.push(/* @__PURE__ */ jsx("col", { children: below }, "glide.below"));
   return nodes;
 }
 function activityNode(a2, cx, on) {
