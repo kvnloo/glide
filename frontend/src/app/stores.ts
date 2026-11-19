@@ -15,7 +15,9 @@ import { Reconnect } from '../chrome/reconnect.js'
 import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
+import { GlidePages, pageThemeOf } from '../glideui/pages.js'
 import { GlideWidgets } from '../glideui/widgets.js'
+import { paneBlock, ternBrowser } from '../gev/globe.js'
 import { WorkTreeCard } from '../glideui/workTreeCard.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
@@ -309,8 +311,11 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const laneFeed = laneFeedFromEnv(changed)
   laneFeed?.start()
   /** The widgets an agent mounted around the composer; chat.run() starts following settings.json. */
+  const pages = new GlidePages(ternBrowser, paneBlock)
+  let themeRef: Theme | undefined
   const widgets: GlideWidgets = new GlideWidgets({
     file: settingsFile(),
+    pages,
     changed,
     cwd: () => session.info?.cwd || undefined,
     restyled: () => {
@@ -328,6 +333,8 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     palette: palette => {
       setSvgInk(palette)
       surface().palette(palette)
+      // Pages the agent opened wear what the surface wears (no wallpaper read while the theme is built).
+      void pages.restyle(pageThemeOf(themeRef?.wal, palette))
     },
     // Kept with the card sheets so a recovered surface gets the wallpaper variables again.
     stylesheet: (name, css) => {
@@ -339,6 +346,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     style: () => widgets.style,
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
+  themeRef = theme
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 

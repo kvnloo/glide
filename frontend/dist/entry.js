@@ -14418,11 +14418,11 @@ var require_progressevent = __commonJS({
 var require_encoding = __commonJS({
   "node_modules/undici/lib/web/fileapi/encoding.js"(exports, module) {
     "use strict";
-    function getEncoding(label) {
-      if (!label) {
+    function getEncoding(label2) {
+      if (!label2) {
         return "failure";
       }
-      switch (label.trim().toLowerCase()) {
+      switch (label2.trim().toLowerCase()) {
         case "unicode-1-1-utf-8":
         case "unicode11utf8":
         case "unicode20utf8":
@@ -23851,7 +23851,7 @@ var EFFORTS = {
   unknown: { label: "Unspecified", orbits: 0, accent: "#9ca39a" }
 };
 var BILLING = { free: "Free", subscription: "Subscription", paid: "Paid", unknown: "Unknown" };
-var m = (id3, label, provider, billing, effort2, extra = {}) => ({ id: id3, label, provider, billing, route: provider === "local" ? "local" : "cloud", effort: effort2, ...extra });
+var m = (id3, label2, provider, billing, effort2, extra = {}) => ({ id: id3, label: label2, provider, billing, route: provider === "local" ? "local" : "cloud", effort: effort2, ...extra });
 var ROLE_MODELS = {
   fast: [
     m("qwen3-0.6b-q8", "Qwen3 0.6B Q8", "local", "free", "min"),
@@ -23918,7 +23918,7 @@ function roleChoices(role, current = []) {
   const ids = (ROLE_MODELS[role] ?? []).map((x) => x.id);
   return [.../* @__PURE__ */ new Set([...ids, ...current.filter(Boolean)])];
 }
-var deepen = (hex2) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex2.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
+var deepen = (hex3) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(hex3.slice(i, i + 2), 16) * 0.62).toString(16).padStart(2, "0")).join("");
 var providerHue = (id3, dark) => dark ? PROVIDERS[id3].hue : deepen(PROVIDERS[id3].hue);
 
 // ../glide/frontend/tokens.ts
@@ -24848,8 +24848,8 @@ function node2(n5, key3, r) {
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.table.wrap", children: [
         table3,
         open5.length === 0 ? null : /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.table.open", wrap: true, children: open5.map((row2, i) => {
-          const label = row2.cells[first];
-          return button({ key: `o${i}`, label: typeof label === "object" ? label.text : String(label ?? row2.id), wrap: "none", onClick: () => {
+          const label2 = row2.cells[first];
+          return button({ key: `o${i}`, label: typeof label2 === "object" ? label2.text : String(label2 ?? row2.id), wrap: "none", onClick: () => {
             if (row2.intent) r.send(row2.intent);
           } });
         }) }, "open")
@@ -24929,6 +24929,10 @@ function node2(n5, key3, r) {
 }
 var UI_SHEET = "glide-ui";
 var RING_SHEET = "glide-ring";
+var LIFT_SHEET = "glide-lift";
+var LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none;justify-content:flex-start}
+[data-role='omp.welcome']{display:none}
+[data-role='omp.editor'] .sf-editor{min-height:58px}`;
 var RING_START = 0.2;
 function ringCss(left, glow = false) {
   const d = (1 - Math.max(0, Math.min(1, left))) * 2;
@@ -24965,13 +24969,20 @@ var RING_GLOW = `
 [data-role='glide.ring.head']{box-shadow:0 0 10px 4px color-mix(in srgb,${ACCENT} 55%,transparent),0 0 3px 1px color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}`;
 var UI_CSS = `
 [data-role='glide.body']{padding:4px 2px}
+/* A widget in the dock reads as part of the composer's column: no card box, its head the graph's caption. */
+[data-role='glide.dock'] .sf-card[data-role='glide.card']{background:none;border-color:transparent;box-shadow:none;padding:6px 0 0}
+[data-role='glide.dock'] [data-role='glide.card'] .sf-card-head,[data-role='glide.dock'] [data-role='glide.card'] .sf-card-body{padding-left:0;padding-right:0}
+[data-role='glide.dock'] [data-role='glide.card'] .sf-card-head{font-family:Inter,system-ui,sans-serif;font-size:15px}
+[data-role='glide.dock'] [data-role='glide.card'] [data-role='glide.body']{padding:2px 0 0}
+[data-role='glide.dock'] [data-role='glide.source']{display:none}
+[data-role='glide.dock'] [data-glide-enter]::before{display:none}
 /* The composer ring: a stroke on the composer's own border, spent clockwise from the chip. */
 [data-role='glide.ring.t0'],[data-role='glide.ring.t1'],[data-role='glide.ring.t2']{display:none;position:absolute;top:-1px;height:24px;z-index:3;pointer-events:none;border:0 solid transparent;border-top-width:2px}
 [data-role='glide.ring.bl'],[data-role='glide.ring.br']{position:absolute;top:-1px;bottom:-1px;z-index:3;pointer-events:none;border:0 solid transparent;border-bottom-width:2px}
 [data-role='glide.ring.bl']{left:-1px;border-left-width:2px;border-radius:17px 0 0 17px}
 [data-role='glide.ring.br']{right:-1px;border-right-width:2px;border-radius:0 17px 17px 0}
 [data-role='glide.ring.head']{position:absolute;z-index:3;width:8px;height:8px;border-radius:50%;pointer-events:none;background:color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}
-[data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px}
+[data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px;font-family:Inter,system-ui,sans-serif}
 [data-role='glide.ring.dot']{width:8px;height:8px;border-radius:50%;background:${ACCENT}}
 [data-role='glide.ring.label']{opacity:.72}
 [data-role='glide.ring.value']{font-weight:600;font-variant-numeric:tabular-nums}
@@ -25203,7 +25214,7 @@ var clip2 = (s2, n5) => s2.length > n5 ? s2.slice(0, n5 - 1) + "\u2026" : s2;
 var LANES_GLASS = "rgba(12,12,10,0.88)";
 var SPACE = { t: "text", text: " " };
 var spaced = (kids2) => kids2.flatMap((k, i) => i > 0 && k.t === "el" && kids2[i - 1]?.t === "el" ? [SPACE, k] : [k]);
-var rgba = (hex2, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16)).join(",")},${a2})`;
+var rgba = (hex3, a2) => `rgba(${[1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16)).join(",")},${a2})`;
 var ROLES_SHOWN = ["fast", "small", "large", "council"];
 var PROVIDERS_SHOWN = ["local", "anthropic", "openai", "opencode", "groq", "multi"];
 var EFFORTS_SHOWN = ["min", "standard", "high", "max"];
@@ -25294,13 +25305,13 @@ function lanesCard(src, bound2, roles, focus2) {
           const c = laneModel(m2, null, roles);
           const short2 = c.label.replace(/^(Claude|GPT(-[\d.]+)?) /, "");
           const twin = c.via && laneChoices(lane, bound2).some((o) => o !== m2 && laneModel(o, null, roles).label === c.label);
-          const label = twin ? `${short2} \xB7 plan` : short2;
+          const label2 = twin ? `${short2} \xB7 plan` : short2;
           return el(
             "button",
             `display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid ${on ? "rgba(236,232,223,0.62)" : NIGHT.borderStrong};background-color:${on ? "rgba(236,232,223,0.16)" : "transparent"}`,
             [
               dot(PROVIDERS[c.provider].hue, 6),
-              el("span", `font-size:12px;color:${on ? NIGHT.text : NIGHT.text2}`, [text22(label)]),
+              el("span", `font-size:12px;color:${on ? NIGHT.text : NIGHT.text2}`, [text22(label2)]),
               el("span", `font-family:${MONO};font-size:10px;letter-spacing:.16em;color:${BILL_TONE[c.billing]}`, [text22(BILL_SHORT[c.billing])])
             ],
             { id: pickId(i, j), attrs: { "data-lane-pick": `${lane.role}=${m2}`, title: [c.via ? `${c.via} \u2192 ${c.target ?? "unresolved"}` : m2, PROVIDERS[c.provider].label, BILLING[c.billing], `${EFFORTS[c.effort].label} effort`, c.note].filter(Boolean).join(" \xB7 "), ...on ? { "data-lane-bound": "true" } : {} } }
@@ -25313,7 +25324,7 @@ function lanesCard(src, bound2, roles, focus2) {
     el("span", `${micro};width:62px;flex:none`, [text22(title2)]),
     ...items
   ]);
-  const item3 = (mark2, label) => el("span", `display:flex;align-items:center;gap:6px;font-size:12px;color:${NIGHT.text2}`, [mark2, text22(label)]);
+  const item3 = (mark2, label2) => el("span", `display:flex;align-items:center;gap:6px;font-size:12px;color:${NIGHT.text2}`, [mark2, text22(label2)]);
   const ringMark = (role) => el("span", `width:11px;height:11px;border-radius:50%;flex:none;border:1.5px solid ${tint(role, true)}`, []);
   const legend = el("div", `display:flex;flex-direction:column;gap:5px;padding:8px 12px;border-radius:12px;border:1px solid ${NIGHT.border};background-color:rgba(236,232,223,0.03)`, [
     el("div", "display:flex;align-items:center;justify-content:space-between;gap:12px", [
@@ -25476,8 +25487,8 @@ var ACCENT_FLOOR = { dark: 1.45, light: 1.18 };
 var STATUS_FLOOR = { dark: 2.2, light: 1.6 };
 function skinBackground(colors, polarity) {
   const value = (colors["background"] ?? "").trim();
-  const hex2 = value.startsWith("#") ? value : `#${value}`;
-  return value && relativeLuminance(hex2) !== null ? hex2 : SEEDS[polarity].bg;
+  const hex3 = value.startsWith("#") ? value : `#${value}`;
+  return value && relativeLuminance(hex3) !== null ? hex3 : SEEDS[polarity].bg;
 }
 function skinColors(colors, polarity) {
   const seeds = SEEDS[polarity];
@@ -25511,8 +25522,8 @@ var cleanFocus = {
   }
 };
 var DASH_CLEAN = { accent: DASH.gold, alt: ROLE_RAMP.small.dark, error: DASH.error, bg: DASH.bg };
-function hueSat(hex2) {
-  const ch = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+function hueSat(hex3) {
+  const ch = (i) => parseInt(hex3.slice(i, i + 2), 16) / 255;
   const r = ch(1), g = ch(3), b = ch(5);
   const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
   const h2 = d === 0 ? 0 : max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
@@ -27737,7 +27748,7 @@ var DIGEST_APP = "glide.digest";
 var WIND_APP = "glide.wind";
 var HOURS_APP = "glide.hours";
 var text2 = (value) => ({ t: "text", text: value });
-var one = (d, label) => String(d.rows.find((r) => r.label === label)?.value ?? "");
+var one = (d, label2) => String(d.rows.find((r) => r.label === label2)?.value ?? "");
 var num2 = (v) => {
   const n5 = Number(v);
   return Number.isFinite(n5) && v !== "" ? n5 : void 0;
@@ -27810,7 +27821,7 @@ function daySvg(best, now, stop3, bed) {
 function wind(d, el) {
   const best = one(d, "best").split(",").map((s2) => /(\d+)-(\d+)/.exec(s2)).filter((m2) => m2 !== null).map((m2) => [Number(m2[1]), Number(m2[2])]);
   const asks = d.rows.filter((r) => r.label === "ask").map((r) => String(r.value));
-  const legend = (cls, label) => el("span", [el("i", [], `ah-sw ${cls}`), text2(label)], "ah-leg");
+  const legend = (cls, label2) => el("span", [el("i", [], `ah-sw ${cls}`), text2(label2)], "ah-leg");
   return el("div", [
     daySvg(best, hourOf(one(d, "now")), num2(one(d, "stop")), hourOf(one(d, "bedtime"))),
     el("div", [
@@ -27890,8 +27901,8 @@ import { basename as basename2, dirname as dirname2, join as join3 } from "node:
 
 // ../glide/frontend/glass.ts
 var HEX = /^#[0-9a-f]{6}$/i;
-function hsl(hex2) {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16) / 255);
+function hsl(hex3) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16) / 255);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const d = max - min;
@@ -27901,8 +27912,8 @@ function hsl(hex2) {
   const h2 = max === r ? (g - b) / d % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return { h: (h2 * 60 + 360) % 360, s: s2, l };
 }
-function saturateHex(hex2, s2) {
-  const rgb = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+function saturateHex(hex3, s2) {
+  const rgb = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16));
   const m2 = [
     [0.213 + 0.787 * s2, 0.715 - 0.715 * s2, 0.072 - 0.072 * s2],
     [0.213 - 0.213 * s2, 0.715 + 0.285 * s2, 0.072 - 0.072 * s2],
@@ -27958,8 +27969,8 @@ var HEAD = `${K} .eui-host-head`;
 var INNER = ".sf-card .sf-text, .sf-ov-card .sf-text, [data-eui] .sf-text, .sf-col[data-role] .sf-text";
 var RIMMED = [CARD, EDITOR, POPUP, LANES];
 var after = (sel) => sel.map((s2) => `${s2}::after`).join(", ");
-var rgba2 = (hex2, pct2) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex2.slice(i, i + 2), 16));
+var rgba2 = (hex3, pct2) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex3.slice(i, i + 2), 16));
   return `rgba(${r},${g},${b},${Math.round(Math.min(100, pct2)) / 100})`;
 };
 function glassCss(p3) {
@@ -28045,9 +28056,9 @@ var PLAY_SHEET = "glide-glass-play";
 var PLAY_SECONDS = 10;
 var playInks = (p3) => [p3.fg, p3.accent, p3.glow, p3.muted, p3.dim, p3.error, p3.success, p3.warning, ...NIGHT_INKS];
 var stepsTo = (pct2) => [.../* @__PURE__ */ new Set([...SATURATE_STEPS.filter((s2) => s2 <= pct2 / 100), pct2 / 100])];
-function hueAt(ref, hex2) {
+function hueAt(ref, hex3) {
   const want = relativeLuminance(ref) ?? 0;
-  const hot = saturateHex(hex2, 1.8);
+  const hot = saturateHex(hex3, 1.8);
   let lo = 0;
   let hi = 1;
   for (let i = 0; i < 16; i++) {
@@ -28127,8 +28138,8 @@ function readWal(file2) {
   }
   return { special: { background, foreground }, colors };
 }
-function saturation(hex2) {
-  const channel = (i) => parseInt(hex2.slice(i, i + 2), 16) / 255;
+function saturation(hex3) {
+  const channel = (i) => parseInt(hex3.slice(i, i + 2), 16) / 255;
   const [r, g, b] = [channel(1), channel(3), channel(5)];
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
@@ -30504,11 +30515,11 @@ function inlineMarks(line2, from, at3, mark2) {
     take(m2.index, m2[0].length);
   }
   for (const m2 of [...rest.matchAll(LINK)]) {
-    const label = m2.groups?.["label"]?.length ?? 0;
+    const label2 = m2.groups?.["label"]?.length ?? 0;
     mark2(at3 + m2.index, at3 + m2.index + 1, "dim");
-    mark2(at3 + m2.index + 1, at3 + m2.index + 1 + label, "link");
-    mark2(at3 + m2.index + 1 + label, at3 + m2.index + m2[0].length, "dim");
-    take(m2.index + 2 + label, m2[0].length - 2 - label);
+    mark2(at3 + m2.index + 1, at3 + m2.index + 1 + label2, "link");
+    mark2(at3 + m2.index + 1 + label2, at3 + m2.index + m2[0].length, "dim");
+    take(m2.index + 2 + label2, m2[0].length - 2 - label2);
   }
   const pair3 = (re2, marker, s2) => {
     for (const m2 of [...rest.matchAll(re2)]) {
@@ -32302,8 +32313,8 @@ var WHOLE_PAGE = 500;
 var WHOLE_PAGES = 100;
 var LATEST_PAGE = 100;
 async function latestCompactions(gw2, sid) {
-  const page = await readTranscript(gw2, sid, null, LATEST_PAGE);
-  return page.rows.flatMap((row2) => compactionOf(row2) ?? []);
+  const page2 = await readTranscript(gw2, sid, null, LATEST_PAGE);
+  return page2.rows.flatMap((row2) => compactionOf(row2) ?? []);
 }
 async function allCompactions(gw2, sid, wanted) {
   const pages = [];
@@ -32311,15 +32322,15 @@ async function allCompactions(gw2, sid, wanted) {
   let calls = 0;
   do {
     calls++;
-    const page = await readTranscript(gw2, sid, cursor, WHOLE_PAGE);
+    const page2 = await readTranscript(gw2, sid, cursor, WHOLE_PAGE);
     if (!wanted()) {
       return void 0;
     }
-    if (page.reset && cursor !== null) {
+    if (page2.reset && cursor !== null) {
       pages.length = 0;
     }
-    pages.unshift(page.rows.flatMap((row2) => compactionOf(row2) ?? []));
-    cursor = page.next_cursor;
+    pages.unshift(page2.rows.flatMap((row2) => compactionOf(row2) ?? []));
+    cursor = page2.next_cursor;
   } while (cursor && calls < WHOLE_PAGES);
   return pages.flat();
 }
@@ -32704,8 +32715,8 @@ function moaLabel(ev) {
       return "Aggregating\u2026";
   }
 }
-function moaReferenceLabel(label, index2, count6) {
-  return index2 && count6 ? `Reference ${index2}/${count6} \xB7 ${label}` : `Reference \xB7 ${label}`;
+function moaReferenceLabel(label2, index2, count6) {
+  return index2 && count6 ? `Reference ${index2}/${count6} \xB7 ${label2}` : `Reference \xB7 ${label2}`;
 }
 
 // src/gateway/handlers/turn.ts
@@ -32922,8 +32933,8 @@ var WIDGET_SLOTS = ["above-composer", "below-composer", "composer-ring", "sideba
 var WIDGET_SOURCES = ["git.commits", "clock.focus"];
 var DAY = 864e5;
 var HEAT_WEEKS = 52;
-var CELL = 11;
-var GAP = 3;
+var CELL = 10;
+var GAP = 2.9;
 var midnight = (t) => {
   const d = new Date(t);
   d.setHours(0, 0, 0, 0);
@@ -32939,19 +32950,46 @@ function commitDays(times, now, weeks = HEAT_WEEKS) {
   }
   return days;
 }
-function heatSvg(days) {
-  const peak = Math.max(1, ...days);
+var GUTTER = 30;
+var LEGEND_H = 16;
+var MONTH_H = 18;
+var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var LEVEL_OPACITY = [0, 0.32, 0.55, 0.78, 1];
+function heatLevels(days) {
+  const busy = days.filter((n5) => n5 > 0).sort((a2, b) => a2 - b);
+  const q2 = (p3) => busy[Math.min(busy.length - 1, Math.floor(p3 * busy.length))] ?? 0;
+  const [q1, q22, q3] = [q2(0.25), q2(0.5), q2(0.75)];
+  return days.map((n5) => n5 === 0 ? 0 : n5 <= q1 ? 1 : n5 <= q22 ? 2 : n5 <= q3 ? 3 : 4);
+}
+var label = (x, y, t, anchor = "start") => `<text x="${x}" y="${y}" font-size="11" font-family="Inter, system-ui, sans-serif" fill="var(--muted)" text-anchor="${anchor}">${t}</text>`;
+var cellRect = (x, y, level) => `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${CELL}" height="${CELL}" rx="3" ${level === 0 ? 'fill="var(--muted)" fill-opacity="0.16"' : `fill="var(--accent)" fill-opacity="${LEVEL_OPACITY[level]}"`}/>`;
+function heatSvg(days, first) {
   const cols = Math.ceil(days.length / 7);
-  const w = cols * (CELL + GAP) - GAP;
-  const h2 = 7 * (CELL + GAP) - GAP;
-  const cells2 = days.map((n5, i) => {
-    const x = Math.floor(i / 7) * (CELL + GAP);
-    const y = i % 7 * (CELL + GAP);
-    const level = n5 === 0 ? 0 : Math.min(4, Math.ceil(n5 / peak * 4));
-    const paint = level === 0 ? 'fill="var(--muted)" fill-opacity="0.18"' : `fill="var(--accent)" fill-opacity="${[0, 0.4, 0.6, 0.8, 1][level]}"`;
-    return `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" ${paint}/>`;
-  });
-  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${cells2.join("")}</svg>`, w, h: h2 };
+  const pitch = CELL + GAP;
+  const top = LEGEND_H + MONTH_H;
+  const w = GUTTER + cols * pitch - GAP;
+  const h2 = top + 7 * pitch - GAP;
+  const levels = heatLevels(days);
+  const cells2 = days.map((_2, i) => cellRect(GUTTER + Math.floor(i / 7) * pitch, top + i % 7 * pitch, levels[i] ?? 0));
+  const marks2 = [];
+  if (first !== void 0) {
+    let last = new Date(first).getMonth();
+    let named2 = new Date(first).getDate() <= 7 ? 0 : -3;
+    if (named2 === 0) marks2.push(label(GUTTER, LEGEND_H + 12, MONTHS[last] ?? ""));
+    for (let c = 1; c < cols; c++) {
+      const m2 = new Date(first + c * 7 * DAY).getMonth();
+      if (m2 !== last && c - named2 >= 3) {
+        marks2.push(label(GUTTER + c * pitch, LEGEND_H + 12, MONTHS[m2] ?? ""));
+        named2 = c;
+      }
+      last = m2;
+    }
+  }
+  const days3 = [[1, "Mon"], [3, "Wed"], [5, "Fri"]];
+  const side2 = days3.map(([row2, t]) => label(0, top + row2 * pitch + CELL - 1, t));
+  const lx = w - 30 - 5 * pitch;
+  const legend = [label(lx - 6, 11, "Less", "end"), ...LEVEL_OPACITY.map((_2, l) => cellRect(lx + l * pitch, 1, l)), label(w, 11, "More", "end")];
+  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}">${[...legend, ...marks2, ...side2, ...cells2].join("")}</svg>`, w, h: h2 };
 }
 function commitsDoc(times, now, repo) {
   const days = commitDays(times, now);
@@ -32959,10 +32997,12 @@ function commitsDoc(times, now, repo) {
   const weeks = Array.from({ length: Math.ceil(days.length / 7) }, (_2, i) => days.slice(i * 7, i * 7 + 7).reduce((a2, b) => a2 + b, 0));
   let streak = 0;
   for (let i = days.length - 1; i >= 0 && (days[i] ?? 0) > 0; i--) streak++;
-  const heat = heatSvg(days);
+  const today = midnight(now);
+  const heat = heatSvg(days, today - (days.length - 1) * DAY);
   return {
     id: "commits",
-    title: "Commits",
+    // The card's head reads as the graph's caption, as GitHub's does.
+    title: `${total.toLocaleString("en-US")} ${total === 1 ? "commit" : "commits"} in the last year`,
     source: `git log \xB7 ${repo}`,
     slots: {
       heat: slot("Graphic", { ...heat, alt: `${total} commits in ${HEAT_WEEKS} weeks` }),
@@ -33000,6 +33040,98 @@ function focusDoc(startedAt, minutes, now) {
     }
   };
 }
+
+// src/glideui/pages.ts
+import { pathToFileURL as pathToFileURL2 } from "node:url";
+var PAGE_HOWS = ["over", "beside", "below"];
+var pageUrl = (path2) => pathToFileURL2(path2).href;
+var hex = (v) => v && /^#[0-9a-f]{6}$/i.test(v) ? v : void 0;
+var luma = (h2) => {
+  const n5 = parseInt(h2.slice(1), 16);
+  return (0.2126 * (n5 >> 16) + 0.7152 * (n5 >> 8 & 255) + 0.0722 * (n5 & 255)) / 255;
+};
+function pageThemeOf(wal, palette) {
+  if (wal) return { dark: wal.dark, bg: wal.bg, surface: wal.layers[0] ?? wal.bg, fg: wal.fg, muted: wal.muted, accent: wal.accent, accentInk: wal.accentInk };
+  const t = palette?.dark ?? palette?.light;
+  const fg = hex(t?.["text"]);
+  const accent = hex(t?.["accent"]);
+  if (!t || !fg || !accent) return void 0;
+  const dark = luma(fg) > 0.5;
+  return { dark, bg: dark ? "#0e0c14" : "#f5f1ea", surface: dark ? "#17141f" : "#ece6dc", fg, muted: hex(t["muted"]) ?? fg, accent, accentInk: luma(accent) > 0.55 ? "#111111" : "#ffffff" };
+}
+function themeFunction(t) {
+  const vars = {
+    "--glide-bg": t.bg,
+    "--glide-surface": t.surface,
+    "--glide-fg": t.fg,
+    "--glide-muted": t.muted,
+    "--glide-accent": t.accent,
+    "--glide-accent-ink": t.accentInk
+  };
+  return `function () {
+  const t = ${JSON.stringify(t)}, v = ${JSON.stringify(vars)}, s = document.documentElement.style
+  for (const k in v) s.setProperty(k, v[k])
+  s.colorScheme = t.dark ? 'dark' : 'light'
+  document.documentElement.dataset.glideTheme = t.dark ? 'dark' : 'light'
+  window.__glideTheme = t
+  window.dispatchEvent(new CustomEvent('glide-theme', { detail: t }))
+  return true
+}`;
+}
+var GlidePages = class {
+  #browser;
+  #owner;
+  /** id → the `opened` stamp handled and the block it opened in. */
+  #open = /* @__PURE__ */ new Map();
+  #theme;
+  constructor(browser2, owner2) {
+    this.#browser = browser2;
+    this.#owner = owner2;
+  }
+  /** Opens every page asked for since it was last handled; the verdict per page handled now. */
+  async sync(pages) {
+    const out = {};
+    for (const p3 of pages) {
+      if (this.#open.get(p3.id)?.opened === p3.opened) continue;
+      out[p3.id] = await this.#openOne(p3);
+    }
+    for (const id3 of [...this.#open.keys()]) if (!pages.some((p3) => p3.id === id3)) this.#open.delete(id3);
+    return out;
+  }
+  /** The surface's colors changed: every open page wears them. A page whose block is gone is forgotten. */
+  async restyle(theme) {
+    this.#theme = theme;
+    if (!theme) return;
+    for (const [id3, o] of this.#open) {
+      await this.#apply(o.block).catch(() => this.#open.delete(id3));
+    }
+  }
+  async #openOne(p3) {
+    const owner2 = this.#owner();
+    if (owner2 === void 0) return { ok: false, problems: ["not inside a Tern pane"] };
+    const known3 = this.#open.get(p3.id);
+    try {
+      let block;
+      if (known3) {
+        block = await this.#browser({ op: "goto", block: known3.block, url: pageUrl(p3.path) }).then(() => known3.block, () => void 0);
+      }
+      if (block === void 0) {
+        const opened = await this.#browser({ op: "open", owner: owner2, url: pageUrl(p3.path), how: p3.how });
+        if (typeof opened["block"] !== "number") return { ok: false, problems: ["tern browser opened no block"] };
+        block = opened["block"];
+      }
+      this.#open.set(p3.id, { opened: p3.opened, block });
+      await this.#apply(block).catch(() => void 0);
+      setTimeout(() => void this.#apply(block).catch(() => void 0), 800).unref?.();
+      return { ok: true, block };
+    } catch (error) {
+      return { ok: false, problems: [error instanceof Error ? error.message : String(error)] };
+    }
+  }
+  async #apply(block) {
+    if (this.#theme) await this.#browser({ op: "eval", block, world: "page", function: themeFunction(this.#theme) });
+  }
+};
 
 // src/wire/files.ts
 function readJsonFile(file2) {
@@ -33040,13 +33172,21 @@ var mount = object({
   startedAt: loose(number2()),
   glow: loose(boolean2())
 });
+var page = object({
+  id: string2().check(_regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
+  title: string2().check(_maxLength(60)),
+  path: string2().check(_regex(/^\/.*\.html?$/i)),
+  how: _catch(_enum(PAGE_HOWS), "over"),
+  opened: _catch(number2(), 0)
+});
 var uiState = _catch(
   object({
     rev: _catch(number2(), 0),
     widgets: _catch(pipe(array(_catch(nullable(mount), null)), transform((list10) => list10.filter((w) => w !== null))), []),
-    style: loose(object({ warmth: loose(number2()), accent: loose(string2().check(_regex(/^#[0-9a-f]{6}$/i))) }))
+    pages: _catch(pipe(array(_catch(nullable(page), null)), transform((list10) => list10.filter((p3) => p3 !== null))), []),
+    style: loose(object({ warmth: loose(number2()), accent: loose(string2().check(_regex(/^#[0-9a-f]{6}$/i))), composer: loose(_enum(["center", "bottom"])) }))
   }),
-  { rev: 0, widgets: [] }
+  { rev: 0, widgets: [], pages: [] }
 );
 function readUi(file2) {
   const stored = readJsonFile(file2);
@@ -34581,20 +34721,20 @@ var SubagentTranscript = class {
   async read() {
     let changed = false;
     for (let i = 0; i < MAX_PAGES; i++) {
-      const page = await this.#page();
-      this.running = page.running ?? false;
-      this.available = page.available ?? false;
+      const page2 = await this.#page();
+      this.running = page2.running ?? false;
+      this.available = page2.available ?? false;
       this.#endedUnavailable = !this.running && !this.available ? this.#endedUnavailable + 1 : 0;
-      if (page.reset) {
-        changed ||= this.rows.length > 0 || page.rows.length > 0;
-        this.rows = [...page.rows];
+      if (page2.reset) {
+        changed ||= this.rows.length > 0 || page2.rows.length > 0;
+        this.rows = [...page2.rows];
       } else {
-        changed ||= page.rows.length > 0;
-        this.rows.push(...page.rows);
+        changed ||= page2.rows.length > 0;
+        this.rows.push(...page2.rows);
       }
-      this.#cursor = page.next_cursor ?? this.#cursor;
-      this.#caughtUp = page.rows.length === 0;
-      if (this.#caughtUp || !page.next_cursor) {
+      this.#cursor = page2.next_cursor ?? this.#cursor;
+      this.#caughtUp = page2.rows.length === 0;
+      if (this.#caughtUp || !page2.next_cursor) {
         break;
       }
     }
@@ -34977,10 +35117,10 @@ function agentTreeNodes(nodes, state, now, toggle, style2) {
     const context = agentContext(a2);
     const look2 = SUBAGENT_LOOK[a2.status];
     const bodyHeight = open5 ? CONTEXT + node4.children.reduce((sum2, child) => sum2 + height(child), 0) : 0;
-    const detail = (label, text22) => /* @__PURE__ */ jsxs(html.div, { class: "agent-context-line", children: [
-      /* @__PURE__ */ jsx(html.span, { class: "agent-context-label", children: label }, "label"),
+    const detail = (label2, text22) => /* @__PURE__ */ jsxs(html.div, { class: "agent-context-line", children: [
+      /* @__PURE__ */ jsx(html.span, { class: "agent-context-label", children: label2 }, "label"),
       /* @__PURE__ */ jsx(html.span, { class: "agent-context-text", title: text22, children: text22 }, "value")
-    ] }, label);
+    ] }, label2);
     return /* @__PURE__ */ jsxs(html.div, { attrs: { role: "treeitem", "aria-level": String(depth + 1), "aria-expanded": String(open5), "aria-selected": String(selected), "data-agent-id": a2.id }, children: [
       /* @__PURE__ */ jsxs(
         "el",
@@ -35067,8 +35207,8 @@ function compact2(text22) {
 }
 function intent(text22) {
   const args = record(text22);
-  const label = args?.["i"] ?? args?.["intent"];
-  return compact2(typeof label === "string" && label.trim() ? label : text22);
+  const label2 = args?.["i"] ?? args?.["intent"];
+  return compact2(typeof label2 === "string" && label2.trim() ? label2 : text22);
 }
 function agentProgress(a2) {
   const lines = [];
@@ -35756,8 +35896,8 @@ function shortPath(path2) {
 }
 function namedStep(call) {
   const name = call.name.replace(/_/g, " ");
-  const label = name.charAt(0).toUpperCase() + name.slice(1);
-  return call.context ? `${label}: ${flat(call.context)}` : label;
+  const label2 = name.charAt(0).toUpperCase() + name.slice(1);
+  return call.context ? `${label2}: ${flat(call.context)}` : label2;
 }
 
 // src/view/tools/cards/task.tsx
@@ -36158,9 +36298,9 @@ function figureSpans(g) {
   const m2 = FIGURE_NUMBER.exec(g.text);
   const value = m2?.[1] ?? g.text;
   const unit = (m2?.[2] ?? "").replace(/^\/\s*/, "/ ");
-  const label = g.label && !unit.toLowerCase().includes(g.label.toLowerCase()) ? g.label : "";
+  const label2 = g.label && !unit.toLowerCase().includes(g.label.toLowerCase()) ? g.label : "";
   return [
-    ...label ? [sp(`${label} `, "dim")] : [],
+    ...label2 ? [sp(`${label2} `, "dim")] : [],
     sp(value),
     ...unit ? [sp(` ${unit}`, "dim")] : [],
     ...g.trend ? [sp(` ${g.trend.text}`, toneStyle2(g.trend.tone))] : []
@@ -36306,20 +36446,20 @@ function sparkNode(b, key3) {
   if (!b.values.length) {
     return labelled(b.label, waiting2(), "omp.job.widget.spark", key3);
   }
-  const label = plain(b.label);
+  const label2 = plain(b.label);
   const last = plain(b.last);
   return /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.job.widget.spark", children: [
     node("chart", { ...sparkProps(b), grow: 1, key: "chart", size: "md" }),
     /* @__PURE__ */ jsxs("col", { gap: "none", role: "omp.job.widget.side", children: [
       /* @__PURE__ */ jsx("text", { spans: [sp(last, "num strong")], wrap: "none" }, "last"),
-      label && !last.endsWith(label) ? /* @__PURE__ */ jsx("text", { spans: [sp(label, "muted")], truncate: "end", wrap: "none" }, "label") : null,
+      label2 && !last.endsWith(label2) ? /* @__PURE__ */ jsx("text", { spans: [sp(label2, "muted")], truncate: "end", wrap: "none" }, "label") : null,
       (b.marks ?? []).map((m2, i) => /* @__PURE__ */ jsx("text", { spans: [sp("\u2504 ", toneStyle2(m2.tone ?? "muted")), sp(plain(m2.label), "dim")], truncate: "end", wrap: "none" }, `mark-${i}`))
     ] }, "side")
   ] }, key3);
 }
-function labelled(label, content5, role, key3) {
+function labelled(label2, content5, role, key3) {
   return /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role, children: [
-    /* @__PURE__ */ jsx("text", { max: { w: "12ch" }, min: { w: "12ch" }, spans: [sp(plain(label), "muted")], truncate: "end", wrap: "none" }, "label"),
+    /* @__PURE__ */ jsx("text", { max: { w: "12ch" }, min: { w: "12ch" }, spans: [sp(plain(label2), "muted")], truncate: "end", wrap: "none" }, "label"),
     content5
   ] }, key3);
 }
@@ -36361,8 +36501,8 @@ function hasRetainedWeb(call) {
 function retainedResultText(candidate) {
   if (!candidate.web) return retainedGenericText(candidate.call);
   if (candidate.call.result !== candidate.web.result) return void 0;
-  const page = webPage(candidate.call, candidate.web.index);
-  return page && page.row === candidate.web.row ? page.text : void 0;
+  const page2 = webPage(candidate.call, candidate.web.index);
+  return page2 && page2.row === candidate.web.row ? page2.text : void 0;
 }
 function retainedResults(entries2) {
   const out = [];
@@ -36390,13 +36530,13 @@ function retainedResults(entries2) {
       const rows2 = resultOf(call)?.["results"];
       if (!Array.isArray(rows2)) continue;
       for (let index2 = 0; index2 < rows2.length; index2++) {
-        const page = webPage(call, index2);
-        if (page) add2({
+        const page2 = webPage(call, index2);
+        if (page2) add2({
           call,
-          text: page.text,
+          text: page2.text,
           turn: entry,
           rev: entry.rev,
-          web: { index: index2, ordinal, result: call.result, row: page.row }
+          web: { index: index2, ordinal, result: call.result, row: page2.row }
         });
       }
     }
@@ -37485,8 +37625,8 @@ var NOTE = {
   interrupt: "The turn stopped before every app connected.",
   stopped: "Hermes stopped watching these links."
 };
-function button2(key3, label, role, act, title2, name = label) {
-  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional("role", act ? void 0 : "hermes.connect.busy"), ...optional("title", title2), children: /* @__PURE__ */ jsx("text", { text: label, wrap: "none" }, "t") }, act ? "face" : key3);
+function button2(key3, label2, role, act, title2, name = label2) {
+  const face = /* @__PURE__ */ jsx("row", { align: "center", ...optional("role", act ? void 0 : "hermes.connect.busy"), ...optional("title", title2), children: /* @__PURE__ */ jsx("text", { text: label2, wrap: "none" }, "t") }, act ? "face" : key3);
   return act ? pressable({ action: act, key: key3, name, role }, face) : face;
 }
 var SENDING = { approve: "Connecting\u2026", retry: "Retrying\u2026", skip: "Skipping\u2026" };
@@ -37495,7 +37635,7 @@ function rowButtons(card, ref, t) {
     return [];
   }
   const row2 = `${ref}:${t.name}`;
-  const open5 = (label) => button2("go", label, "hermes.connect.open", `connect-open=${row2}`, t.url, card.opened.includes(t.name) ? `Open ${t.title} again` : `Authorize ${t.title}`);
+  const open5 = (label2) => button2("go", label2, "hermes.connect.open", `connect-open=${row2}`, t.url, card.opened.includes(t.name) ? `Open ${t.title} again` : `Authorize ${t.title}`);
   const verb = verbOf(t);
   const sending = sendingVerb(card, t.name);
   if (sending) {
@@ -37773,7 +37913,7 @@ function v4aValidationFailure(call) {
 
 // src/view/tools/lsp-links.ts
 import { isAbsolute as isAbsolute4, resolve as resolve4 } from "node:path";
-import { pathToFileURL as pathToFileURL2 } from "node:url";
+import { pathToFileURL as pathToFileURL3 } from "node:url";
 var SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 function safePath(path2) {
   return Boolean(path2.trim()) && !SCHEME.test(path2) && !path2.startsWith("//") && !Array.from(path2).some((char) => {
@@ -37793,7 +37933,7 @@ function lspFileHref(path2, context, range2) {
     return void 0;
   }
   try {
-    const url = pathToFileURL2(isAbsolute4(path2) ? path2 : resolve4(context.cwd, path2));
+    const url = pathToFileURL3(isAbsolute4(path2) ? path2 : resolve4(context.cwd, path2));
     if (range2 && Number.isSafeInteger(range2.start.line) && range2.start.line > 0 && Number.isSafeInteger(range2.start.col) && range2.start.col > 0) {
       const end = Number.isSafeInteger(range2.end.line) && range2.end.line > range2.start.line ? "-L" + range2.end.line : "C" + range2.start.col;
       url.hash = "L" + range2.start.line + end;
@@ -38314,11 +38454,11 @@ function nestedPhases(todos2) {
     id: "all",
     items: todos2.map((t, i) => {
       const parent = t.parent ? byId.get(t.parent) ?? -1 : -1;
-      const label = `${t.content} (${t.id})`;
+      const label2 = `${t.content} (${t.id})`;
       return {
         id: `todo:${i}`,
         status: TODO_LOOK[t.status].item,
-        text: t.parent ? `${label} \u2014 ${parent >= 0 ? `under ${todos2[parent]?.content} (${t.parent})` : `parent unavailable (${t.parent})`}` : label
+        text: t.parent ? `${label2} \u2014 ${parent >= 0 ? `under ${todos2[parent]?.content} (${t.parent})` : `parent unavailable (${t.parent})`}` : label2
       };
     })
   }];
@@ -38565,7 +38705,7 @@ function count(n5, lower, one7, many) {
   return `${lower ? "At least " : ""}${plural(n5, one7, many)}`;
 }
 function disclosures(labels) {
-  return labels.map((label, i) => /* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: label }] }, `search-notice-${i}`));
+  return labels.map((label2, i) => /* @__PURE__ */ jsx("text", { role: "omp.tool.notice", spans: [{ s: "muted", t: label2 }] }, `search-notice-${i}`));
 }
 function errorNotice(call) {
   const error = call.outcome.kind === "error" ? errorOf(call) : void 0;
@@ -39619,9 +39759,9 @@ function parseSpec(value, errors) {
   let headline;
   if (value["headline"] !== void 0) {
     const ref = parseValueRef(value["headline"], "headline", errors);
-    const label = isRecord(value["headline"]) ? str4(value["headline"]["label"], "headline.label", errors, { cut: MAX_LABEL_CHARS }) : void 0;
+    const label2 = isRecord(value["headline"]) ? str4(value["headline"]["label"], "headline.label", errors, { cut: MAX_LABEL_CHARS }) : void 0;
     if (ref) {
-      headline = label ? { ...ref, label } : ref;
+      headline = label2 ? { ...ref, label: label2 } : ref;
     }
   }
   const stage = value["stage"] === void 0 ? void 0 : fieldName(value["stage"], "stage", errors);
@@ -39699,7 +39839,7 @@ function parseBlock(value, where, errors) {
     return void 0;
   }
   const before2 = errors.length;
-  const label = () => str4(value["label"], `${where}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) ?? "";
+  const label2 = () => str4(value["label"], `${where}.label`, errors, { cut: MAX_LABEL_CHARS, required: true }) ?? "";
   const unit = () => str4(value["unit"], `${where}.unit`, errors, { cut: MAX_UNIT_CHARS });
   const field = () => fieldName(value["field"], `${where}.field`, errors) ?? "";
   const optional3 = (entry, name) => entry === void 0 ? {} : { [name]: entry };
@@ -39709,7 +39849,7 @@ function parseBlock(value, where, errors) {
       block = {
         field: field(),
         kind: "spark",
-        label: label(),
+        label: label2(),
         ...optional3(str4(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
         ...optional3(unit(), "unit"),
         ...optional3(betterValue(value["better"], `${where}.better`, errors), "better"),
@@ -39724,7 +39864,7 @@ function parseBlock(value, where, errors) {
         agg: choice(value["agg"], AGGS, `${where}.agg`, errors) ?? "last",
         field: field(),
         kind: "bars",
-        label: label(),
+        label: label2(),
         ...optional3(unit(), "unit"),
         ...optional3(num6(value["max"], `${where}.max`, errors), "max"),
         ...optional3(betterValue(value["better"], `${where}.better`, errors), "better")
@@ -39734,7 +39874,7 @@ function parseBlock(value, where, errors) {
       const whole = typeof value["total"] === "string" ? Number(value["total"]) : value["total"];
       if (!isRecord(whole) && (typeof whole !== "number" || Number.isNaN(whole))) {
         const ref = parseValueRef(value, where, errors);
-        block = ref && { items: [{ ...ref, label: label() }], kind: "stat" };
+        block = ref && { items: [{ ...ref, label: label2() }], kind: "stat" };
         break;
       }
       let total;
@@ -39751,7 +39891,7 @@ function parseBlock(value, where, errors) {
         agg: choice(value["agg"], AGGS, `${where}.agg`, errors) ?? "last",
         field: field(),
         kind: "meter",
-        label: label(),
+        label: label2(),
         total: total ?? 1,
         ...optional3(str4(value["key"], `${where}.key`, errors, { max: 120 }), "key"),
         ...optional3(unit(), "unit")
@@ -39786,7 +39926,7 @@ function parseBlock(value, where, errors) {
           }
         }
       }
-      block = { field: field(), kind: "grid", label: label(), tones };
+      block = { field: field(), kind: "grid", label: label2(), tones };
       break;
     }
     case "text":
@@ -40357,8 +40497,8 @@ function sampleLines(samples) {
 var TAP_CAPACITY = 256 * 1024;
 var HEAD_CHARS = 64;
 var OutputTap = class {
-  constructor(label) {
-    this.label = label;
+  constructor(label2) {
+    this.label = label2;
   }
   label;
   id = "out";
@@ -42403,9 +42543,9 @@ async function reportError(transcript, work2) {
   }
 }
 function countSummary(items, tallies) {
-  return tallies.map(([counts, label]) => {
+  return tallies.map(([counts, label2]) => {
     const n5 = items.filter(counts).length;
-    return n5 ? `${n5} ${typeof label === "string" ? label : label[n5 === 1 ? 0 : 1]}` : "";
+    return n5 ? `${n5} ${typeof label2 === "string" ? label2 : label2[n5 === 1 ? 0 : 1]}` : "";
   }).filter(Boolean).join(" \xB7 ") || "none yet";
 }
 
@@ -45520,7 +45660,7 @@ function checksSummary(checks2) {
     [count6(["success"]), "passing"],
     [count6(["skipped", "neutral"]), "skipped"]
   ];
-  return parts3.filter(([n5]) => n5).map(([n5, label]) => `${n5} ${label}`).join(", ");
+  return parts3.filter(([n5]) => n5).map(([n5, label2]) => `${n5} ${label2}`).join(", ");
 }
 var STATE2 = { CLOSED: "closed", MERGED: "merged", OPEN: "open" };
 var MERGEABLE = { CONFLICTING: "conflicting", MERGEABLE: "mergeable" };
@@ -47324,9 +47464,9 @@ function findSelectedOptions(node4, explicitProperties) {
     const option = list10[index2];
     const properties3 = option.properties || {};
     const content5 = toText(option);
-    const label = content5 || String(properties3.label || "");
+    const label2 = content5 || String(properties3.label || "");
     const value = String(properties3.value || "") || content5;
-    values.push([value, label === value ? void 0 : label]);
+    values.push([value, label2 === value ? void 0 : label2]);
   }
   return values;
 }
@@ -48627,19 +48767,19 @@ function findUrl(_2, protocol, domain2, path2, match) {
   }
   return result;
 }
-function findEmail(_2, atext, label, match) {
+function findEmail(_2, atext, label2, match) {
   if (
     // Not an expected previous character.
     !previous(match, true) || // Label ends in not allowed character.
-    /[-\d_]$/.test(label)
+    /[-\d_]$/.test(label2)
   ) {
     return false;
   }
   return {
     type: "link",
     title: null,
-    url: "mailto:" + atext + "@" + label,
-    children: [{ type: "text", value: atext + "@" + label }]
+    url: "mailto:" + atext + "@" + label2,
+    children: [{ type: "text", value: atext + "@" + label2 }]
   };
 }
 function isCorrectDomain(domain2) {
@@ -48696,25 +48836,25 @@ function enterFootnoteDefinition(token) {
   );
 }
 function exitFootnoteCallString(token) {
-  const label = this.resume();
+  const label2 = this.resume();
   const node4 = this.stack[this.stack.length - 1];
   ok2(node4.type === "footnoteReference");
   node4.identifier = normalizeIdentifier(
     this.sliceSerialize(token)
   ).toLowerCase();
-  node4.label = label;
+  node4.label = label2;
 }
 function exitFootnoteCall(token) {
   this.exit(token);
 }
 function exitFootnoteDefinitionLabelString(token) {
-  const label = this.resume();
+  const label2 = this.resume();
   const node4 = this.stack[this.stack.length - 1];
   ok2(node4.type === "footnoteDefinition");
   node4.identifier = normalizeIdentifier(
     this.sliceSerialize(token)
   ).toLowerCase();
-  node4.label = label;
+  node4.label = label2;
 }
 function exitFootnoteDefinition(token) {
   this.exit(token);
@@ -52306,8 +52446,8 @@ function decode2($0, $1, $22) {
   const head2 = $22.charCodeAt(0);
   if (head2 === 35) {
     const head3 = $22.charCodeAt(1);
-    const hex2 = head3 === 120 || head3 === 88;
-    return decodeNumericCharacterReference($22.slice(hex2 ? 2 : 1), hex2 ? 16 : 10);
+    const hex3 = head3 === 120 || head3 === 88;
+    return decodeNumericCharacterReference($22.slice(hex3 ? 2 : 1), hex3 ? 16 : 10);
   }
   return decodeNamedCharacterReference($22) || $0;
 }
@@ -66647,7 +66787,7 @@ function resolveToLabelEnd(events, context) {
       ...events[events.length - 1][1].end
     }
   };
-  const label = {
+  const label2 = {
     type: "label",
     start: {
       ...events[open5][1].start
@@ -66665,11 +66805,11 @@ function resolveToLabelEnd(events, context) {
       ...events[close - 2][1].start
     }
   };
-  media2 = [["enter", group, context], ["enter", label, context]];
+  media2 = [["enter", group, context], ["enter", label2, context]];
   media2 = push(media2, events.slice(open5 + 1, open5 + offset + 3));
   media2 = push(media2, [["enter", text22, context]]);
   media2 = push(media2, resolveAll2(context.parser.constructs.insideSpan.null, events.slice(open5 + offset + 4, close - 3), context));
-  media2 = push(media2, [["exit", text22, context], events[close - 2], events[close - 1], ["exit", label, context]]);
+  media2 = push(media2, [["exit", text22, context], events[close - 2], events[close - 1], ["exit", label2, context]]);
   media2 = push(media2, events.slice(close + 1));
   media2 = push(media2, [["exit", group, context]]);
   splice(events, open5, events.length, media2);
@@ -69571,9 +69711,9 @@ function compiler(options) {
     node4.value = data2.replace(/(\r?\n|\r)$/g, "");
   }
   function onexitdefinitionlabelstring(token) {
-    const label = this.resume();
+    const label2 = this.resume();
     const node4 = this.stack[this.stack.length - 1];
-    node4.label = label;
+    node4.label = label2;
     node4.identifier = normalizeIdentifier(this.sliceSerialize(token)).toLowerCase();
   }
   function onexitdefinitiontitlestring() {
@@ -69717,9 +69857,9 @@ function compiler(options) {
     this.data.referenceType = "collapsed";
   }
   function onexitreferencestring(token) {
-    const label = this.resume();
+    const label2 = this.resume();
     const node4 = this.stack[this.stack.length - 1];
-    node4.label = label;
+    node4.label = label2;
     node4.identifier = normalizeIdentifier(this.sliceSerialize(token)).toLowerCase();
     this.data.referenceType = "full";
   }
@@ -74025,9 +74165,9 @@ var PRESENT = {
   Used: "Using",
   Wrote: "Writing"
 };
-function presentTense(label) {
-  const [verb = "", ...rest] = label.split(" ");
-  return PRESENT[verb] ? [PRESENT[verb], ...rest].join(" ") : label;
+function presentTense(label2) {
+  const [verb = "", ...rest] = label2.split(" ");
+  return PRESENT[verb] ? [PRESENT[verb], ...rest].join(" ") : label2;
 }
 function thoughtLine(markdown2) {
   return flat(
@@ -74051,8 +74191,8 @@ function rowDetail(s2) {
   if (s2.title) {
     return snippet(s2.preview);
   }
-  const label = sessionLabel(s2);
-  return s2.preview.startsWith(label) ? snippet(s2.preview.slice(label.length)) : "";
+  const label2 = sessionLabel(s2);
+  return s2.preview.startsWith(label2) ? snippet(s2.preview.slice(label2.length)) : "";
 }
 function itemOf3(s2, now, elsewhere) {
   const detail = rowDetail(s2);
@@ -74260,10 +74400,10 @@ var PreviewLoader = class {
     this.#cache.set(id3, entry);
     this.#changed();
     try {
-      const page = await this.#reader.page(id3, null, this.#pageSize);
+      const page2 = await this.#reader.page(id3, null, this.#pageSize);
       entry.status = "ready";
-      entry.next = page.next;
-      this.#keep(entry, page.rows);
+      entry.next = page2.next;
+      this.#keep(entry, page2.rows);
     } catch (error) {
       entry.status = "error";
       entry.error = errorText(error);
@@ -74276,13 +74416,13 @@ var PreviewLoader = class {
     this.#changed();
     try {
       for (let i = 0; i < EMPTY_PAGES && entry.next !== null; i++) {
-        const page = await this.#reader.page(id3, entry.next, this.#pageSize);
-        entry.next = page.next;
-        if (page.reset) {
+        const page2 = await this.#reader.page(id3, entry.next, this.#pageSize);
+        entry.next = page2.next;
+        if (page2.reset) {
           entry.rows = [];
           entry.seen.clear();
         }
-        if (this.#keep(entry, page.rows)) {
+        if (this.#keep(entry, page2.rows)) {
           break;
         }
       }
@@ -74449,12 +74589,12 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       order2.push({ count: ranked.length, group: "matches", label: "Matches" }, ...ranked.map((r) => r.item.id));
     } else {
       const groups = /* @__PURE__ */ new Map();
-      const add2 = (label, id3) => groups.set(label, [...groups.get(label) ?? [], id3]);
+      const add2 = (label2, id3) => groups.set(label2, [...groups.get(label2) ?? [], id3]);
       for (const s2 of list10) {
         add2(s2.pinned ? "Pinned" : tab3 === "all" && here(s2) && workspace ? `In ${basename4(workspace)}` : dayOf(s2.lastActive, now), s2.id);
       }
-      for (const [label, ids] of groups) {
-        order2.push({ count: ids.length, group: label, label }, ...ids);
+      for (const [label2, ids] of groups) {
+        order2.push({ count: ids.length, group: label2, label: label2 }, ...ids);
       }
     }
     for (const { item: item3, positions } of ranked) {
@@ -75242,11 +75382,11 @@ function openToolResults(host2) {
         return;
       }
       const candidate = current();
-      const page = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
-      if (!candidate || !page || page.end >= candidate.text.length) {
+      const page2 = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
+      if (!candidate || !page2 || page2.end >= candidate.text.length) {
         return;
       }
-      starts = [...starts, page.end];
+      starts = [...starts, page2.end];
     }
     revision++;
     host2.changed();
@@ -75267,7 +75407,7 @@ function openToolResults(host2) {
       const members = membership();
       const selectedResult = current();
       const candidate = owns() && selectedResult && present(selectedResult, members) ? selectedResult : void 0;
-      const page = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
+      const page2 = candidate && resultPage(candidate.text, starts.at(-1) ?? 0);
       const items = (owns() ? results : []).flatMap((result, index2) => present(result, members) ? [{
         id: String(index2),
         label: result.web ? `web_extract #${result.web.ordinal} \xB7 entry ${result.web.index + 1}` : safeResultText(result.call.name.slice(0, 100).replace(/[\ud800-\udbff]$/u, "\uFFFD")),
@@ -75277,8 +75417,8 @@ function openToolResults(host2) {
         "picker",
         {
           actions: [
-            { ...!page || starts.length === 1 ? { disabled: "First page" } : {}, id: "previous", keys: ["p"], label: "Previous" },
-            { ...!page || !candidate || page.end >= candidate.text.length ? { disabled: "Last page" } : starts.length >= RESULT_PAGE_LIMIT ? { disabled: "Page limit reached" } : {}, id: "next", keys: ["n"], label: "Next" },
+            { ...!page2 || starts.length === 1 ? { disabled: "First page" } : {}, id: "previous", keys: ["p"], label: "Previous" },
+            { ...!page2 || !candidate || page2.end >= candidate.text.length ? { disabled: "Last page" } : starts.length >= RESULT_PAGE_LIMIT ? { disabled: "Page limit reached" } : {}, id: "next", keys: ["n"], label: "Next" },
             { end: true, id: "close", keys: ["esc"], label: "Close" }
           ],
           empty: !source3.live ? "A live session is required." : results.length ? "This result is no longer available." : "No long retained text results in this session.",
@@ -75294,8 +75434,8 @@ function openToolResults(host2) {
           title: "80 most recent long retained results",
           total: items.length,
           children: candidate ? /* @__PURE__ */ jsxs("col", { children: [
-            /* @__PURE__ */ jsx("text", { text: `Page ${starts.length}${starts.length >= RESULT_PAGE_LIMIT && page && page.end < candidate.text.length ? " \xB7 inspection limit reached" : ""}. Retained text may already be truncated upstream; control characters are replaced.`, wrap: "word" }, "notice"),
-            page ? /* @__PURE__ */ jsx("code", { lang: "text", text: page.text, wrap: true }, "content") : /* @__PURE__ */ jsx("text", { text: "This page contains an oversized character sequence and cannot be shown safely.", wrap: "word" }, "unavailable")
+            /* @__PURE__ */ jsx("text", { text: `Page ${starts.length}${starts.length >= RESULT_PAGE_LIMIT && page2 && page2.end < candidate.text.length ? " \xB7 inspection limit reached" : ""}. Retained text may already be truncated upstream; control characters are replaced.`, wrap: "word" }, "notice"),
+            page2 ? /* @__PURE__ */ jsx("code", { lang: "text", text: page2.text, wrap: true }, "content") : /* @__PURE__ */ jsx("text", { text: "This page contains an oversized character sequence and cannot be shown safely.", wrap: "word" }, "unavailable")
           ] }, "page") : null
         },
         `view-${stamp}`
@@ -75496,11 +75636,11 @@ function recentVisualCandidates(entries2, scope2) {
 import { constants } from "node:fs";
 import { open as open2, realpath } from "node:fs/promises";
 import { isAbsolute as isAbsolute7 } from "node:path";
-import { pathToFileURL as pathToFileURL5 } from "node:url";
+import { pathToFileURL as pathToFileURL6 } from "node:url";
 
 // src/wire/card.ts
 import { basename as basename5, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
-import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL3 } from "node:url";
+import { fileURLToPath as fileURLToPath5, pathToFileURL as pathToFileURL4 } from "node:url";
 function isCardContract(value) {
   const module = record(value);
   return Boolean(
@@ -75511,7 +75651,7 @@ function packagedCardUrl() {
   const here = dirname4(fileURLToPath5(import.meta.url));
   const source3 = basename5(here) === "wire" && basename5(dirname4(here)) === "src";
   const frontend = source3 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL3(join10(frontend, "openui/card.mjs")).href;
+  return pathToFileURL4(join10(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -75531,7 +75671,7 @@ async function openCardContract() {
 
 // src/wire/openui.ts
 import { basename as basename6, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
-import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
+import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL5 } from "node:url";
 import { readFile as readFile4 } from "node:fs/promises";
 function isOpenUiContract(value) {
   const module = record(value);
@@ -75543,7 +75683,7 @@ function packagedOpenUiUrl(path2) {
   const here = dirname5(fileURLToPath6(import.meta.url));
   const source3 = basename6(here) === "wire" && basename6(dirname5(here)) === "src";
   const frontend = source3 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL4(join11(frontend, "openui", path2)).href;
+  return pathToFileURL5(join11(frontend, "openui", path2)).href;
 }
 var packagedValidatorUrl = () => packagedOpenUiUrl("openui-preview/src/bundle.mjs");
 async function openUiContract() {
@@ -75681,11 +75821,11 @@ function summarizeCard(card, id3) {
     message: "Message",
     note: "Note"
   };
-  const texts2 = Object.entries(labels).flatMap(([key3, label]) => {
+  const texts2 = Object.entries(labels).flatMap(([key3, label2]) => {
     const value = card[key3];
-    return typeof value === "string" ? [Object.freeze({ label, value })] : [];
+    return typeof value === "string" ? [Object.freeze({ label: label2, value })] : [];
   });
-  const extra = Object.entries(card.fields ?? {}).map(([label, value]) => Object.freeze({ label, value }));
+  const extra = Object.entries(card.fields ?? {}).map(([label2, value]) => Object.freeze({ label: label2, value }));
   const buttons = (card.buttons ?? []).map((button3) => typeof button3 === "string" ? button3 : button3.label);
   return Object.freeze({
     id: id3,
@@ -75752,7 +75892,7 @@ async function readPreparedVisual(path2, scope2, signal) {
     return Object.freeze({
       ...summarizeCard(prepared.card, prepared.id),
       path: loaded.path,
-      href: pathToFileURL5(loaded.path).href
+      href: pathToFileURL6(loaded.path).href
     });
   }
   const tools2 = await openUiContract();
@@ -75761,7 +75901,7 @@ async function readPreparedVisual(path2, scope2, signal) {
   const current = await tools2.fingerprints();
   signal?.throwIfAborted();
   tools2.assertCurrent(bundle, scope2, current);
-  return Object.freeze({ ...summarizeVisual(bundle), path: loaded.path, href: pathToFileURL5(loaded.path).href });
+  return Object.freeze({ ...summarizeVisual(bundle), path: loaded.path, href: pathToFileURL6(loaded.path).href });
 }
 
 // src/overlays/visual.tsx
@@ -75824,7 +75964,7 @@ async function openVisual(host2, path2, load3 = readPreparedVisual, expectedId) 
             ),
             candidate.card.buttons.length ? /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
               /* @__PURE__ */ jsx("text", { text: "Buttons (labels only, disabled)" }, "buttons-label"),
-              candidate.card.buttons.map((label, index2) => /* @__PURE__ */ jsx("text", { text: label }, "button-label-" + index2))
+              candidate.card.buttons.map((label2, index2) => /* @__PURE__ */ jsx("text", { text: label2 }, "button-label-" + index2))
             ] }, "card-buttons") : null,
             /* @__PURE__ */ jsx("text", { text: "Host-owned read-only summary. No button, action, script or approval runs." }, "inert")
           ] }, "card-summary") : candidate.edges ? /* @__PURE__ */ jsxs("col", { gap: "sm", children: [
@@ -76364,10 +76504,10 @@ function tag2(name, attrs, kids2 = "") {
   return kids2 ? `<${name}${a2}>${kids2}</${name}>` : `<${name}${a2}/>`;
 }
 var stop = (offset, color2, opacity) => tag2("stop", { offset, "stop-color": color2, "stop-opacity": opacity });
-var hex = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
+var hex2 = (h2) => [1, 3, 5].map((i) => parseInt(h2.slice(i, i + 2), 16));
 var toHex2 = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
 var mix2 = (a2, b, t) => {
-  const x = hex(a2), y = hex(b);
+  const x = hex2(a2), y = hex2(b);
   return toHex2(x.map((v, i) => v + ((y[i] ?? 0) - v) * Math.max(0, Math.min(1, t))));
 };
 var D = Math.PI / 180;
@@ -76579,8 +76719,8 @@ function reportClauses(run8) {
   const clauses = [{ label: "Verdict", text: run8.outcome ?? (run8.verdicts.length ? "Recorded seat replies" : "No verdict recorded") }];
   for (const stance of ["agree", "dissent", "abstain"]) {
     const replies = run8.verdicts.filter((v) => v.stance === stance);
-    const label = stance === "agree" ? "Agreements" : stance === "dissent" ? "Dissent" : "Abstentions";
-    clauses.push({ label, text: replies.length ? replies.map((v) => `${run8.seats[v.seat]?.name ?? "Seat"}: ${v.text}`).join(" ") : "None recorded." });
+    const label2 = stance === "agree" ? "Agreements" : stance === "dissent" ? "Dissent" : "Abstentions";
+    clauses.push({ label: label2, text: replies.length ? replies.map((v) => `${run8.seats[v.seat]?.name ?? "Seat"}: ${v.text}`).join(" ") : "None recorded." });
   }
   const receipts = run8.seats.flatMap((seat, i) => {
     const turn2 = run8.events.findLast((e) => e.type === "turn" && e.seat === i && e.cites.length > 0);
@@ -76842,10 +76982,10 @@ function councilCard(src, frame2, size = 480, sideHeader = false, reading = {}) 
       ])
     ]);
   }));
-  const button3 = (id3, label, gold) => el(
+  const button3 = (id3, label2, gold) => el(
     "button",
     gold ? `flex:1;padding:11px 16px;border-radius:12px;border:1px solid ${GOLD.rim};border-bottom-color:${GOLD.shade};background-color:${GOLD.fill}` : `padding:11px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
-    [el("span", gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text22(label)])],
+    [el("span", gold ? `color:${GOLD.ink};font-family:${SERIF};font-size:20px` : `color:${NIGHT.text2};font-size:13px`, [text22(label2)])],
     { id: id3, attrs: { "data-eui-action": id3 === CONVENE_ID ? "convene" : id3 === READ_ID ? "read-aloud" : id3 === MUTE_ID ? "mute" : "close", ...id3 === READ_ID || id3 === MUTE_ID ? { "aria-pressed": String(id3 === READ_ID ? Boolean(reading.readAloud) : Boolean(reading.muted)) } : {}, ...id3 === CONVENE_ID && playing ? { disabled: "true" } : {} } }
   );
   const convene = playing ? "Convening\u2026" : frame2.t === null ? "Convene council  \u2192" : "Replay the council  \u2192";
@@ -77637,9 +77777,9 @@ function portfolio(doc) {
       { label: "Tasks", value: String(all8.length) },
       { label: "Blocked", value: String(blocked2), tone: blocked2 ? "warning" : "success" }
     ] }),
-    "pf.roadmap": slot("Flow", { stages: HORIZONS.map(([id3, label, tone3]) => {
+    "pf.roadmap": slot("Flow", { stages: HORIZONS.map(([id3, label2, tone3]) => {
       const here = pf.products.filter((p3) => (p3.horizon ?? "later") === id3);
-      return { id: id3, label: `${label} \xB7 ${here.length}`, detail: here.map((p3) => p3.label).join(", ") || "\u2014", tone: tone3 };
+      return { id: id3, label: `${label2} \xB7 ${here.length}`, detail: here.map((p3) => p3.label).join(", ") || "\u2014", tone: tone3 };
     }) }),
     "pf.tasks": slot("Section", { title: "Tasks", aside: queue2[0] ? `${pf.label} \xB7 next: ${queue2[0].id.replace(/^.*?(#\d+)$/, "$1")}` : pf.label }),
     "pf.list": slot("List", { numbered: false, items: [...all8].sort((a2, b) => rank2(a2) - rank2(b)).map(row2) })
@@ -77681,9 +77821,9 @@ function factorySpine(nodes, edges, W = 920) {
     if (!p3) return [];
     const [, , ink3] = NODE_STATE[n5.state] ?? IDLE;
     const max = Math.floor((pw - 30) / 6.6);
-    const label = n5.label.length > max ? n5.label.slice(0, max - 1) + "\u2026" : n5.label;
+    const label2 = n5.label.length > max ? n5.label.slice(0, max - 1) + "\u2026" : n5.label;
     const loud = n5.state === "failing" || n5.state === "needs-you" || n5.state === "live";
-    return [`<g transform="translate(${p3.x.toFixed(1)},${p3.y.toFixed(1)})"><rect x="${-pw / 2}" y="-14" width="${pw}" height="28" rx="14" fill="${loud ? ink3 : "var(--muted)"}" fill-opacity="${loud ? 0.14 : 0.06}" stroke="${loud ? ink3 : "var(--muted)"}" stroke-opacity="${loud ? 0.7 : 0.3}"/><circle cx="${-pw / 2 + 14}" cy="0" r="4.5" fill="${ink3}"/><text x="${-pw / 2 + 26}" y="4" font-size="12" fill="var(--text)" font-family="system-ui,sans-serif">${esc3(label)}</text></g>`];
+    return [`<g transform="translate(${p3.x.toFixed(1)},${p3.y.toFixed(1)})"><rect x="${-pw / 2}" y="-14" width="${pw}" height="28" rx="14" fill="${loud ? ink3 : "var(--muted)"}" fill-opacity="${loud ? 0.14 : 0.06}" stroke="${loud ? ink3 : "var(--muted)"}" stroke-opacity="${loud ? 0.7 : 0.3}"/><circle cx="${-pw / 2 + 14}" cy="0" r="4.5" fill="${ink3}"/><text x="${-pw / 2 + 26}" y="4" font-size="12" fill="var(--text)" font-family="system-ui,sans-serif">${esc3(label2)}</text></g>`];
   });
   const svg4 = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H2}" viewBox="0 0 ${W} ${H2}">${heads.join("")}${lines.join("")}${pills2.join("")}</svg>`;
   return { svg: svg4, w: W, h: H2 };
@@ -77701,8 +77841,8 @@ function graph(doc) {
   const spine = factorySpine(nodes, edges);
   return {
     "ff.tally": slot("Badges", { items: ["live", "needs-you", "failing", "done"].filter((s2) => count6(s2)).map((s2) => {
-      const [label, tone3] = NODE_STATE[s2] ?? [s2, "neutral"];
-      return { text: `${count6(s2)} ${label}`, tone: tone3 };
+      const [label2, tone3] = NODE_STATE[s2] ?? [s2, "neutral"];
+      return { text: `${count6(s2)} ${label2}`, tone: tone3 };
     }) }),
     "ff.stats": slot("Stats", { items: stats ? [
       { label: "Queue", value: `${stats.queue}/${stats.depth}` },
@@ -77833,9 +77973,9 @@ async function fleetIntent(host2, doc, detail, context) {
 }
 async function fleetCommand(host2, view, portfolio2) {
   const sessionId = host2.session.ref.live;
-  const label = view === "factory" ? "/factory graph" : `/${view}`;
+  const label2 = view === "factory" ? "/factory graph" : `/${view}`;
   if (!sessionId || !host2.eui) {
-    host2.notice(`${label} needs an attached session and inline cards`, "warning");
+    host2.notice(`${label2} needs an attached session and inline cards`, "warning");
     return;
   }
   const eui = host2.eui;
@@ -77860,7 +78000,7 @@ async function fleetCommand(host2, view, portfolio2) {
           const next2 = await read();
           if (current() && context.isCurrent() && !context.signal.aborted) publish(next2, tab3);
         } catch (error) {
-          if (current()) host2.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, "warning");
+          if (current()) host2.notice(`${label2}: ${error instanceof Error ? error.message : String(error)}`, "warning");
         }
         return;
       }
@@ -77877,7 +78017,7 @@ async function fleetCommand(host2, view, portfolio2) {
     g = lib;
     if (current()) publish(doc, "agents");
   } catch (error) {
-    if (current()) host2.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, "warning");
+    if (current()) host2.notice(`${label2}: ${error instanceof Error ? error.message : String(error)}`, "warning");
   }
 }
 
@@ -77927,8 +78067,8 @@ var signed = (n5) => (n5 > 0 ? "+" : "") + numberText(n5);
 function intelReadableTitle(raw2, fallback = "Local observation") {
   const leaf = (raw2.trim().replace(/\\/g, "/").split("/").at(-1) ?? "").trim();
   const clean2 = leaf.replace(/\.(?:jsonl?|sqlite3|md|py|ts|mts)\b/gi, "").replace(/\b(?:climb|failure|session)-[a-f0-9]{12,}\b/gi, "").replace(/\b[a-f0-9]{24,}\b/gi, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
-  const label = clean2 || fallback;
-  return (label.charAt(0).toUpperCase() + label.slice(1)).slice(0, 80);
+  const label2 = clean2 || fallback;
+  return (label2.charAt(0).toUpperCase() + label2.slice(1)).slice(0, 80);
 }
 function safeProse(raw2) {
   return raw2.replace(/(?:[A-Za-z]:\\|\/)[^\s,;)}\]]+/g, "local source").replace(/\[[^\]]*=[^\]]+\]/g, "").replace(/\s+/g, " ").trim();
@@ -77949,10 +78089,10 @@ function relativeTime(at3, value) {
   if (hours3 < 48) return "Updated " + hours3 + " h ago";
   return "Updated " + Math.floor(hours3 / 24) + " d ago";
 }
-function uniqueLabel(label, used) {
-  const count6 = (used.get(label) ?? 0) + 1;
-  used.set(label, count6);
-  return count6 === 1 ? label : label + " \xB7 item " + count6;
+function uniqueLabel(label2, used) {
+  const count6 = (used.get(label2) ?? 0) + 1;
+  used.set(label2, count6);
+  return count6 === 1 ? label2 : label2 + " \xB7 item " + count6;
 }
 function presentIntel(doc) {
   const source3 = doc.data;
@@ -77973,9 +78113,9 @@ function presentIntel(doc) {
     };
   });
   const routes = source3.routes.map((row2) => {
-    const label = uniqueLabel(intelReadableTitle(row2.skill, "Skill"), skillLabels);
-    skills.set(label, row2.skill);
-    return { ...row2, skill: label };
+    const label2 = uniqueLabel(intelReadableTitle(row2.skill, "Skill"), skillLabels);
+    skills.set(label2, row2.skill);
+    return { ...row2, skill: label2 };
   });
   const memory = source3.memory.map((row2) => ({
     ...row2,
@@ -77986,11 +78126,11 @@ function presentIntel(doc) {
   const orderedFailures = [...source3.failures].sort((a2, b) => (a2.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || b.count - a2.count);
   const failureRows = orderedFailures.map((row2) => {
     const name = intelReadableTitle(row2.source, "Recorded check");
-    const label = uniqueLabel((row2.status === "open" ? "Open \xB7 " : row2.status === "fixed" ? "Passed \xB7 " : "Covered \xB7 ") + name, failureLabels);
-    failures.set(label, row2.sig);
+    const label2 = uniqueLabel((row2.status === "open" ? "Open \xB7 " : row2.status === "fixed" ? "Passed \xB7 " : "Covered \xB7 ") + name, failureLabels);
+    failures.set(label2, row2.sig);
     return {
       ...row2,
-      sig: label,
+      sig: label2,
       source: row2.status === "open" ? "Next: review the failed check" : row2.status === "fixed" ? "Last check passed \xB7 verify the fix" : "Rule linked \xB7 review the coverage"
     };
   });
@@ -78079,7 +78219,7 @@ function intelGlide(doc, tab3) {
   const counts = [d.climbs.length, d.routes.length, d.memory.length, openFailures, d.trace.length];
   slots["tabs"] = slot("Tabs", {
     active: String(tab3),
-    items: TAB_LABELS.map(([i, label]) => ({ id: String(i), label, count: counts[i] ?? 0, intent: tabIntent(i) }))
+    items: TAB_LABELS.map(([i, label2]) => ({ id: String(i), label: label2, count: counts[i] ?? 0, intent: tabIntent(i) }))
   });
   slots["actions"] = slot("Buttons", { items: [{ label: "Refresh", intent: { action: "refresh", entities: {} } }] });
   const climbs = [...d.climbs].sort((a2, b) => b.points.length - a2.points.length);
@@ -78552,7 +78692,7 @@ function grow(span4, finals, half) {
     return { t, by };
   });
 }
-var pull = (t, platform, label, detail, media2) => ({ t, platform, label, ...detail ? { detail } : {}, ...media2 ? { media: media2 } : {} });
+var pull = (t, platform, label2, detail, media2) => ({ t, platform, label: label2, ...detail ? { detail } : {}, ...media2 ? { media: media2 } : {} });
 var GROUND_STOP = {
   id: "ground-stop",
   title: "Ground stop: the sky empties",
@@ -80663,8 +80803,8 @@ function snapshot2(host2, arg) {
       "warning"
     );
   }
-  const label = rest.join(" ");
-  return cliPanel(host2, "/snapshot create", ["backup", "--quick", ...label ? ["--label", label] : []]);
+  const label2 = rest.join(" ");
+  return cliPanel(host2, "/snapshot create", ["backup", "--quick", ...label2 ? ["--label", label2] : []]);
 }
 async function update(host2) {
   if (await openHermesSplit(["update"], host2.session.info?.cwd || process.env["HOME"] || "/")) {
@@ -81584,7 +81724,7 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
   for (const section of [...HOTKEYS, ...shortcutGroups(actions)]) {
     const rows2 = sections2.get(section.group) ?? [];
     for (const [keys3, title2] of section.rows) {
-      if (!rows2.some(([prior, label]) => label === title2 && prior.join(" ") === keys3.join(" "))) {
+      if (!rows2.some(([prior, label2]) => label2 === title2 && prior.join(" ") === keys3.join(" "))) {
         rows2.push([[...keys3], title2]);
       }
     }
@@ -82076,14 +82216,14 @@ var evidence = (v) => {
   const [state = "", receipt = ""] = str6(v).split("\xB7").map((s2) => s2.trim());
   return [state, receipt];
 };
-function criterion(label) {
-  const at3 = label.indexOf(": ");
-  return at3 > 0 ? { kind: label.slice(0, at3), phrase: label.slice(at3 + 2) } : { kind: "criterion", phrase: label };
+function criterion(label2) {
+  const at3 = label2.indexOf(": ");
+  return at3 > 0 ? { kind: label2.slice(0, at3), phrase: label2.slice(at3 + 2) } : { kind: "criterion", phrase: label2 };
 }
 var TYPED = /^(pattern|verifier|budget|sample|lane: .+|host: .+)$/;
-var isCriterion = (label) => !TYPED.test(label);
+var isCriterion = (label2) => !TYPED.test(label2);
 var rowsOf3 = (d, prefix2) => d.rows.filter((r) => r.label.startsWith(prefix2)).map((r) => ({ name: r.label.slice(prefix2.length), parts: str6(r.value).split("\xB7").map((s2) => s2.trim()) }));
-var one6 = (d, label) => str6(d.rows.find((r) => r.label === label)?.value ?? "");
+var one6 = (d, label2) => str6(d.rows.find((r) => r.label === label2)?.value ?? "");
 var tone = (state) => /^(online|ready|running|working|thinking|answered|verified|\d+\/\d+ ready)/i.test(state) ? "ok" : /^(idle|queued|standby|corrected)/i.test(state) ? "idle" : /^(blocked|dead|offline|down)/i.test(state) ? "bad" : "idle";
 function contract(d, el) {
   const crit = d.rows.filter((r) => isCriterion(r.label));
@@ -82420,9 +82560,9 @@ function fleetFit(kind) {
       const put = (k) => placed || k.t !== "el" ? k : is3(k, into) ? (placed = true, { ...k, kids: [...moved2, ...k.kids] }) : { ...k, kids: k.kids.map(put) };
       kids2 = kids2.filter((k) => !moved2.includes(k)).map(put);
     }
-    for (const [parent = "", moved2 = "", label = ""] of fit.folds) if (is3(n5, parent) && kids2.some((k) => is3(k, moved2))) {
+    for (const [parent = "", moved2 = "", label2 = ""] of fit.folds) if (is3(n5, parent) && kids2.some((k) => is3(k, moved2))) {
       const open5 = opened.has(FOLD + ":" + n5.id);
-      const summary4 = el("summary", "fl-tag", control(n5.id, FOLD), {}, [{ t: "text", text: label }]);
+      const summary4 = el("summary", "fl-tag", control(n5.id, FOLD), {}, [{ t: "text", text: label2 }]);
       kids2 = [...kids2.filter((k) => !is3(k, moved2)), el(
         "details",
         "fl-fold",
@@ -93929,8 +94069,8 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
             details.toggleAttribute("open");
             details.dispatchEvent(new window2.Event("toggle"));
           }
-          const label = el.closest("label");
-          const box = label && (label.htmlFor ? root7.querySelector(`[id="${String(label.htmlFor).replace(/"/g, "")}"]`) : label.querySelector("input, button, select, textarea"));
+          const label2 = el.closest("label");
+          const box = label2 && (label2.htmlFor ? root7.querySelector(`[id="${String(label2.htmlFor).replace(/"/g, "")}"]`) : label2.querySelector("input, button, select, textarea"));
           if (!clicked.defaultPrevented && box && !box.contains(el) && !box.disabled) {
             if (box.type === "checkbox" || box.type === "radio") {
               box.checked = box.type === "radio" ? true : !box.checked;
@@ -95584,8 +95724,8 @@ function workingNode(turn2, now) {
   ] }, "working");
 }
 var LIVE_MAX = 120;
-function liveText(label) {
-  const text22 = label.length > LIVE_MAX ? `${label.slice(0, LIVE_MAX - 1)}\u2026` : label;
+function liveText(label2) {
+  const text22 = label2.length > LIVE_MAX ? `${label2.slice(0, LIVE_MAX - 1)}\u2026` : label2;
   return shimmerText({ key: "label", role: "hermes.work.live", text: text22 });
 }
 function latestFailed(items) {
@@ -99820,11 +99960,11 @@ function contextMeter(context, onOpen) {
     return null;
   }
   const percent = `${contextPercent(context)}%`;
-  const label = `${percent} context`;
+  const label2 = `${percent} context`;
   return /* @__PURE__ */ jsx(
     "el",
     {
-      aria: `Show context window: ${label}`,
+      aria: `Show context window: ${label2}`,
       attrs: { "aria-haspopup": "dialog" },
       onClick: onOpen,
       role: "omp.composer.context.action",
@@ -99975,7 +100115,9 @@ function dockNodes(cx, on, slots = {}) {
   }
   if (slots.above?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.above }, "w") }, "glide.above"));
   nodes.push(composerNode(cx, on, slots.ring));
-  if (slots.below?.length) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") }, "glide.below"));
+  const below = slots.below?.length ? /* @__PURE__ */ jsx("col", { gap: "sm", role: "glide.dock", children: slots.below }, "w") : null;
+  if (slots.lift) nodes.push(/* @__PURE__ */ jsx("col", { children: /* @__PURE__ */ jsx("col", { role: "glide.lift", children: below ?? /* @__PURE__ */ jsx("spacer", { size: "none" }, "s") }, "lift") }, "glide.below"));
+  else if (below) nodes.push(/* @__PURE__ */ jsx("col", { children: below }, "glide.below"));
   return nodes;
 }
 function activityNode(a2, cx, on) {
@@ -100218,7 +100360,15 @@ function drawFrame(cx, now = Date.now()) {
     euiSheets.set(name, css2);
     cx.surface.raw?.stylesheet(name, css2);
   });
-  const slots = { above: w?.nodes("above-composer", r) ?? [], ring: w?.nodes("composer-ring", r) ?? [], below: [...work2 ? [work2] : [], ...w?.nodes("below-composer", r) ?? []] };
+  const centred = w?.style?.composer === "center";
+  const lift = centred && !cx.transcript.entries.some((e) => e.kind === "user" || e.kind === "turn");
+  const liftCss = centred ? LIFT_CSS : null;
+  if (euiSheets.get(LIFT_SHEET) !== (liftCss ?? void 0)) {
+    if (liftCss) euiSheets.set(LIFT_SHEET, liftCss);
+    else euiSheets.delete(LIFT_SHEET);
+    cx.surface.raw?.stylesheet(LIFT_SHEET, liftCss);
+  }
+  const slots = { above: w?.nodes("above-composer", r) ?? [], ring: w?.nodes("composer-ring", r) ?? [], below: [...work2 ? [work2] : [], ...w?.nodes("below-composer", r) ?? []], lift };
   const chrome = {
     dock: [...live ? [live] : [], ...dockNodes({ ...dockModel(cx, now), ...cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {} }, cx.actions, slots)],
     layer: [
@@ -102101,7 +102251,7 @@ function checkMarkup(text22, where) {
   for (const m2 of text22.matchAll(/font-size\s*[:=]\s*"?(\d+(?:\.\d+)?)(px)?/gi)) {
     if (Number(m2[1]) < MIN_TEXT_PX) problems.push(`${where}: text at ${m2[1]} px is under ${MIN_TEXT_PX} px`);
   }
-  const glow = GLOW.exec(text22);
+  const glow = GLOW.exec(text22.replace(/(box|text)-shadow\s*:\s*none\s*(?=[;}])/gi, ""));
   if (glow) problems.push(`${where}: ${glow[0]} is a glow or motion effect`);
   return problems;
 }
@@ -102144,7 +102294,7 @@ function checkPalette(p3) {
 // src/glideui/widgets.tsx
 var statusFile = (settings2) => join19(dirname8(settings2), "ui-status.json");
 var gitCommits = (cwd) => new Promise((resolve11) => {
-  execFile13("git", ["-C", cwd, "log", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
+  execFile13("git", ["-C", cwd, "log", "--all", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
   });
 });
@@ -102162,6 +102312,7 @@ var GlideWidgets = class {
   #unwatch;
   #tick;
   #closed = false;
+  #pages = /* @__PURE__ */ new Map();
   constructor(host2) {
     this.#host = host2;
   }
@@ -102205,6 +102356,9 @@ var GlideWidgets = class {
     }
     for (const id3 of [...this.#compiled.keys()]) if (!state.widgets.some((w) => w.id === id3)) this.#compiled.delete(id3);
     this.#problems = new Map(state.widgets.map((w) => [w.id, this.#check(w)]));
+    const pages = this.#host.pages;
+    if (pages) for (const [id3, v] of Object.entries(await pages.sync(state.pages ?? []))) this.#pages.set(id3, v);
+    if (this.#state !== state) return;
     this.#report(state, palette);
     this.#schedule();
     this.#host.changed();
@@ -102311,7 +102465,11 @@ var GlideWidgets = class {
       return [w.id, problems.length ? { ok: false, problems } : { ok: true }];
     }));
     const style2 = palette ? checkPalette(palette) : [];
-    const status = { rev: state.rev, at: Date.now(), widgets, style: style2.length ? { ok: false, problems: style2 } : { ok: true } };
+    const pages = Object.fromEntries((state.pages ?? []).flatMap((p3) => {
+      const v = this.#pages.get(p3.id);
+      return v ? [[p3.id, v]] : [];
+    }));
+    const status = { rev: state.rev, at: Date.now(), widgets, pages, style: style2.length ? { ok: false, problems: style2 } : { ok: true } };
     try {
       writeFileSync5(statusFile(this.#host.file), `${JSON.stringify(status, null, 2)}
 `);
@@ -104023,8 +104181,8 @@ var PullRequests = class {
       get: (e) => e.files,
       read: async (e) => {
         const files = [];
-        for (let page = 1; page <= 3; page++) {
-          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page}`);
+        for (let page2 = 1; page2 <= 3; page2++) {
+          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
           files.push(...parseFiles(rows2));
           if (pageLength(rows2) < 100) {
             break;
@@ -104632,8 +104790,8 @@ var OperationalSheets = class {
     const sid = this.host.session.ref.live;
     const arg = argument.trim().toLowerCase();
     const view = operationalView(service, arg);
-    const label = service.toUpperCase();
-    const title2 = view ? "/" + service + (arg ? " " + arg : "") : label + " management unavailable";
+    const label2 = service.toUpperCase();
+    const title2 = view ? "/" + service + (arg ? " " + arg : "") : label2 + " management unavailable";
     const ticket = this.begin(title2, sid);
     if (!ticket) {
       return;
@@ -104645,12 +104803,12 @@ var OperationalSheets = class {
     if (!view) {
       this.finish(
         ticket,
-        label + " management is unsupported in this native sheet. No command or mutation was sent.\n\n" + (service === "ssh" ? "Use /ssh list to inspect the configured target for this profile." : "Use /mcp list, /mcp status, /mcp tools or /mcp catalog for read-only inventory."),
+        label2 + " management is unsupported in this native sheet. No command or mutation was sent.\n\n" + (service === "ssh" ? "Use /ssh list to inspect the configured target for this profile." : "Use /mcp list, /mcp status, /mcp tools or /mcp catalog for read-only inventory."),
         "unsupported"
       );
       return;
     }
-    ticket.report.text = "Reading Hermes " + label + " inventory\u2026";
+    ticket.report.text = "Reading Hermes " + label2 + " inventory\u2026";
     this.host.changed();
     void (async () => {
       try {
@@ -104986,17 +105144,17 @@ function iconOf(item3) {
   return COMMAND_ICONS[item3.text.replace(/^\//, "").split(/\s/)[0] ?? ""] ?? "slash";
 }
 function labelOf(item3, typed, replaceFrom) {
-  const label = (item3.display || item3.text).replace(/^\//, "");
+  const label2 = (item3.display || item3.text).replace(/^\//, "");
   const base3 = isPath(item3) ? "strong" : void 0;
   const query2 = typed.slice(replaceFrom).replace(/^[/@]/, "").replace(/^(file|folder):/, "").split("/").pop() ?? "";
-  const at3 = query2 ? label.toLowerCase().indexOf(query2.toLowerCase()) : -1;
+  const at3 = query2 ? label2.toLowerCase().indexOf(query2.toLowerCase()) : -1;
   if (at3 < 0) {
-    return [{ ...optional("s", base3), t: label }];
+    return [{ ...optional("s", base3), t: label2 }];
   }
   return [
-    { ...optional("s", base3), t: label.slice(0, at3) },
-    { s: base3 ? `${base3} mark` : "mark", t: label.slice(at3, at3 + query2.length) },
-    { ...optional("s", base3), t: label.slice(at3 + query2.length) }
+    { ...optional("s", base3), t: label2.slice(0, at3) },
+    { s: base3 ? `${base3} mark` : "mark", t: label2.slice(at3, at3 + query2.length) },
+    { ...optional("s", base3), t: label2.slice(at3 + query2.length) }
   ].filter((s2) => s2.t);
 }
 function requestFor(before2, sid) {
@@ -106611,10 +106769,10 @@ var Transcript = class {
     this.#touchTurn(turn2);
   }
   /** A Mixture-of-Agents reference model's answer: a sealed thought block of its own, under `label`. */
-  reference(label, text22, at3 = Date.now()) {
+  reference(label2, text22, at3 = Date.now()) {
     const turn2 = this.#open(at3);
     endThinking(turn2, at3);
-    turn2.blocks.push({ endedAt: at3, id: this.id("k"), kind: "thinking", label, startedAt: at3, text: text22.trim() });
+    turn2.blocks.push({ endedAt: at3, id: this.id("k"), kind: "thinking", label: label2, startedAt: at3, text: text22.trim() });
     this.#touchTurn(turn2);
   }
   text(text22, at3 = Date.now()) {
@@ -106854,8 +107012,8 @@ var Activity = class {
     this.#owner.next();
   }
   /** A new working row labelled `label`, with an age of its own; the ticket ends it (endBusy). */
-  startBusy(label, now = Date.now()) {
-    this.#busy = { label, since: {}, startedAt: now };
+  startBusy(label2, now = Date.now()) {
+    this.#busy = { label: label2, since: {}, startedAt: now };
     return this.#owner.next();
   }
   /**
@@ -106872,9 +107030,9 @@ var Activity = class {
    * The stream's labels wait while the context is compacted; `status`: a label of the user's or
    * a status line's own (the interrupt's 'Stopping…', a retry), which shows then too.
    */
-  relabel(label, { status = false } = {}) {
-    if (this.#busy && label && (status || this.#compaction.kind === "none")) {
-      this.#busy = { ...this.#busy, label };
+  relabel(label2, { status = false } = {}) {
+    if (this.#busy && label2 && (status || this.#compaction.kind === "none")) {
+      this.#busy = { ...this.#busy, label: label2 };
     }
   }
   /**
@@ -107843,8 +108001,11 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const laneFeed = laneFeedFromEnv(changed);
   laneFeed?.start();
+  const pages = new GlidePages(ternBrowser, paneBlock);
+  let themeRef;
   const widgets = new GlideWidgets({
     file: settingsFile2(),
+    pages,
     changed,
     cwd: () => session2.info?.cwd || void 0,
     restyled: () => {
@@ -107861,6 +108022,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     palette: (palette) => {
       setSvgInk(palette);
       surface().palette(palette);
+      void pages.restyle(pageThemeOf(themeRef?.wal, palette));
     },
     // Kept with the card sheets so a recovered surface gets the wallpaper variables again.
     stylesheet: (name, css2) => {
@@ -107872,6 +108034,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
     style: () => widgets.style,
     settings: settings2
   }, process.env["GLIDE_AUTO_THEME"] === "1" ? "auto" : saved.theme ?? "tern");
+  themeRef = theme;
   const completion2 = new Completion(chat, gw2, () => session2.ref.live, () => session2.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
   return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree };
@@ -108456,8 +108619,8 @@ function randomUuid() {
   }
   bytes[6] = bytes[6] & 15 | 64;
   bytes[8] = bytes[8] & 63 | 128;
-  const hex2 = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `${hex2.slice(0, 8)}-${hex2.slice(8, 12)}-${hex2.slice(12, 16)}-${hex2.slice(16, 20)}-${hex2.slice(20)}`;
+  const hex3 = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex3.slice(0, 8)}-${hex3.slice(8, 12)}-${hex3.slice(12, 16)}-${hex3.slice(16, 20)}-${hex3.slice(20)}`;
 }
 
 // node_modules/@hermes/shared/src/gateway-canonical.ts

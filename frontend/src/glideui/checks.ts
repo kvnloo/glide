@@ -19,7 +19,8 @@ export function checkMarkup(text: string, where: string): string[] {
   for (const m of text.matchAll(/font-size\s*[:=]\s*"?(\d+(?:\.\d+)?)(px)?/gi)) {
     if (Number(m[1]) < MIN_TEXT_PX) problems.push(`${where}: text at ${m[1]} px is under ${MIN_TEXT_PX} px`)
   }
-  const glow = GLOW.exec(text)
+  // `box-shadow: none` takes a frame away; only a shadow that draws is a glow.
+  const glow = GLOW.exec(text.replace(/(box|text)-shadow\s*:\s*none\s*(?=[;}])/gi, ''))
   if (glow) problems.push(`${where}: ${glow[0]} is a glow or motion effect`)
   return problems
 }

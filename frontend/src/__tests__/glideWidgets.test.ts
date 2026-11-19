@@ -13,7 +13,7 @@ import { styleAccent, styleWal } from '../../../glide/frontend/style.js'
 import { walPalette } from '../../../glide/frontend/wal.js'
 import { checkMarkup, checkPalette, checkTree } from '../glideui/checks.js'
 import type { UiNode } from '../glideui/library.js'
-import { commitDays, commitsDoc, focusDoc } from '../glideui/mounts.js'
+import { commitDays, commitsDoc, focusDoc, heatLevels } from '../glideui/mounts.js'
 import { node, ringCss, UI_CSS } from '../glideui/render.js'
 import { GlideWidgets, statusFile } from '../glideui/widgets.js'
 import { dockNodes, widgetAside } from '../view/dock.js'
@@ -76,6 +76,24 @@ describe('widget sources', () => {
     expect(checkMarkup(svg, 'heat')).toEqual([])
   })
 
+  it('captions the graph as GitHub does: the year total, month names, Mon/Wed/Fri and a Less-More legend', () => {
+    const t = Math.floor(NOW / 1000)
+    const doc = commitsDoc(Array.from({ length: 1234 }, (_, i) => t - (i % 300) * 86_400), NOW, 'glide')
+    expect(doc.title).toBe('1,234 commits in the last year')
+    const p = doc.slots['heat']?.p
+    const svg = p && 'svg' in p && typeof p.svg === 'string' ? p.svg : ''
+    for (const label of ['Less', 'More', 'Mon', 'Wed', 'Fri']) expect(svg).toContain(`>${label}</text>`)
+    // Twelve or thirteen month names over 53 columns, none closer than three columns to the last.
+    const months = [...svg.matchAll(/<text x="([\d.]+)" y="28"[^>]*>(\w{3})<\/text>/g)]
+    expect(months.length).toBeGreaterThanOrEqual(11)
+    months.slice(1).forEach((m, i) => expect(Number(m[1]) - Number(months[i]?.[1])).toBeGreaterThanOrEqual(3 * 12.9 - 0.01))
+    expect(commitsDoc([t], NOW, 'r').title).toBe('1 commit in the last year')
+  })
+
+  it('levels busy days by quartile, so one huge day does not wash the rest out', () => {
+    expect(heatLevels([0, 1, 1, 2, 3, 4, 100])).toEqual([0, 1, 1, 2, 2, 3, 4])
+  })
+
   it('counts a focus block down from when it started, across a relaunch', () => {
     const doc = focusDoc(NOW - 5 * 60_000, 25, NOW)
     expect(doc.slots['left']?.p).toMatchObject({ value: '20:00' })
@@ -91,6 +109,8 @@ describe('design checks', () => {
     expect(checkMarkup(UI_CSS, 'sheet')).toEqual([])
     expect(checkMarkup('[a]{font-size:10px}', 's')[0]).toMatch(/10 px is under 11 px/)
     expect(checkMarkup('[a]{box-shadow:0 0 8px gold}', 's')[0]).toMatch(/glow or motion/)
+    // Taking a frame's shadow away is not a glow.
+    expect(checkMarkup('[a]{box-shadow:none}[b]{text-shadow: none;color:red}', 's')).toEqual([])
     expect(checkMarkup('<svg><animate/></svg>', 's')[0]).toMatch(/glow or motion/)
   })
 
@@ -126,7 +146,7 @@ describe('GlideWidgets', () => {
   it('reads only well-formed mounts from settings.json', () => {
     const h = home({ rev: 2, widgets: [{ id: 'commits', slot: 'below-composer', source: 'git.commits', program: COMMITS }, { id: 'Bad Id', slot: 'x' }] })
     expect(readUi(h.file).widgets.map(w => w.id)).toEqual(['commits'])
-    expect(readUi(join(h.file, 'missing'))).toEqual({ rev: 0, widgets: [] })
+    expect(readUi(join(h.file, 'missing'))).toEqual({ rev: 0, widgets: [], pages: [] })
   })
 
   it('mounts a valid program under the composer, reports it, and re-binds when the source refreshes', async () => {
