@@ -22,7 +22,7 @@ import type { EuiCards } from '../eui/cards.js'
 import type { GlideWidgets } from '../glideui/widgets.js'
 import type { WorkTreeCard } from '../glideui/workTreeCard.js'
 import { euiSheets } from '../eui/cards.js'
-import type { UiRender } from '../glideui/render.js'
+import { LIFT_CSS, LIFT_SHEET, type UiRender } from '../glideui/render.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
 import { type DockActions, dockNodes, widgetAside } from '../view/dock.js'
 import { type DockSources, dockModel, isModal, shownPills } from '../view/dockModel.js'
@@ -47,7 +47,7 @@ export interface FrameCx extends DockSources {
   readonly eui?: EuiCards
   /** Agent-mounted widgets around the composer (glide_ui_mount). */
   readonly workTree?: Pick<WorkTreeCard, 'node'>
-  readonly widgets?: Pick<GlideWidgets, 'nodes'>
+  readonly widgets?: Pick<GlideWidgets, 'nodes' | 'style'>
   readonly overlays: readonly Overlay[]
   readonly stack: Pick<OverlayStack, 'rootOf'>
   readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries' | 'lifetime' | 'live'>
@@ -114,7 +114,16 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
     euiSheets.set(name, css)
     cx.surface.raw?.stylesheet(name, css)
   })
-  const slots = { above: w?.nodes('above-composer', r) ?? [], ring: w?.nodes('composer-ring', r) ?? [], below: [...(work ? [work] : []), ...(w?.nodes('below-composer', r) ?? [])] }
+  // glide_ui_style composer: center lifts an empty chat's composer (and its widgets) mid-pane until the first message;
+  // the welcome card steps aside meanwhile, so the composer is all the pane shows.
+  const lift = w?.style?.composer === 'center' && !cx.transcript.entries.some(e => e.kind === 'user' || e.kind === 'turn')
+  const liftCss = lift ? LIFT_CSS : null
+  if (euiSheets.get(LIFT_SHEET) !== (liftCss ?? undefined)) {
+    if (liftCss) euiSheets.set(LIFT_SHEET, liftCss)
+    else euiSheets.delete(LIFT_SHEET)
+    cx.surface.raw?.stylesheet(LIFT_SHEET, liftCss)
+  }
+  const slots = { above: w?.nodes('above-composer', r) ?? [], ring: w?.nodes('composer-ring', r) ?? [], below: [...(work ? [work] : []), ...(w?.nodes('below-composer', r) ?? [])], lift }
   const chrome = {
     dock: [...(live ? [live] : []), ...dockNodes({ ...dockModel(cx, now), ...(cx.orb && !cx.lanes?.orbiting ? { orb: cx.orb.props() } : {}) }, cx.actions, slots)],
     layer: [

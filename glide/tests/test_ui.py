@@ -74,11 +74,11 @@ def test_mount_validates_before_writing(tmp_path):
     assert "minutes" in ui.mount(home, {**base, "minutes": 0})["error"]
     assert not ui.settings_file(home).exists()
     out = ui.mount(home, {**base, "minutes": 50}, wait=0, now=1000.0)
-    assert out["ok"] and ui.state(home)["widgets"][0] | {} == {**base, "minutes": 50, "startedAt": 1_000_000}
-    # Glow is opt-in, and only the ring takes it.
-    ui.mount(home, {**base, "glow": True}, wait=0)
+    # The focus ring glows by default (the reference's look); only the ring takes a glow.
+    assert out["ok"] and ui.state(home)["widgets"][0] | {} == {**base, "minutes": 50, "startedAt": 1_000_000, "glow": True}
+    ui.mount(home, {**base, "glow": False}, wait=0)
     ui.mount(home, {"id": "commits", "slot": "below-composer", "source": "git.commits", "program": "root = x", "glow": True}, wait=0)
-    assert [w.get("glow") for w in ui.state(home)["widgets"]] == [True, None]
+    assert [w.get("glow") for w in ui.state(home)["widgets"]] == [None, None]
 
 
 def test_style_unmount_list_and_reset(tmp_path, monkeypatch):
@@ -88,6 +88,8 @@ def test_style_unmount_list_and_reset(tmp_path, monkeypatch):
     ui.mount(home, {"id": "commits", "slot": "below-composer", "source": "git.commits", "program": COMMITS}, wait=0)
     assert ui.style(home, {"warmth": 0.6}, wait=0)["style"] == {"warmth": 0.6}
     assert ui.style(home, {"accent": "#FFAA00"}, wait=0)["style"] == {"warmth": 0.6, "accent": "#ffaa00"}
+    assert ui.style(home, {"composer": "center"}, wait=0)["style"]["composer"] == "center"
+    assert "error" in ui.style(home, {"composer": "middle"}, wait=0)
     assert "error" in ui.style(home, {"warmth": 3}, wait=0)
     listed = ui.command("list")
     assert "commits: git.commits in below-composer" in listed and '"warmth": 0.6' in listed

@@ -11,6 +11,8 @@ export interface UiStyle {
   readonly warmth?: number | undefined
   /** One accent for the whole surface (#rrggbb), lifted to the text floor. */
   readonly accent?: string | undefined
+  /** center: an empty chat's composer sits mid-pane, with its widgets, until the first message; bottom (none) is Tern's dock. */
+  readonly composer?: 'center' | 'bottom' | undefined
 }
 
 const WARM = { bg: '#2a170a', fg: '#ffe6c7', hue: '#ff9a3c' } as const

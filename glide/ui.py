@@ -58,7 +58,7 @@ MOUNT_SCHEMA = {
             "source": {"type": "string", "enum": list(SOURCES)},
             "program": {"type": "string", "description": _PROGRAM_HELP},
             "minutes": {"type": "integer", "minimum": 1, "maximum": 240, "description": "clock.focus only: the block length."},
-            "glow": {"type": "boolean", "description": "composer-ring only: a soft glow on the ring. Leave it off unless the user asks for a glow."},
+            "glow": {"type": "boolean", "description": "composer-ring only: the soft glow a focus ring wears, on by default; false for a bare stroke (the user asks for no glow)."},
         },
         "required": ["id", "slot", "source", "program"],
         "additionalProperties": False,
@@ -107,6 +107,8 @@ STYLE_SCHEMA = {
         "properties": {
             "warmth": {"type": "number", "minimum": -1, "maximum": 1},
             "accent": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+            "composer": {"type": "string", "enum": ["center", "bottom"],
+                         "description": "center: an empty chat's composer (and its widgets) sits mid-pane until the first message; bottom: Tern's dock."},
             "reset": {"type": "boolean"},
         },
         "additionalProperties": False,
@@ -186,7 +188,8 @@ def mount(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: float 
     if not isinstance(program, str) or not program.strip() or len(program.encode()) > 4096:
         return {"ok": False, "error": "program: a glide/v1 program of at most 4 KiB"}
     widget: dict[str, Any] = {"id": wid, "slot": slot, "source": source, "program": program}
-    if args.get("glow") is True and slot == "composer-ring":
+    # A focus ring glows as it runs (the reference look) unless the mount turns it off; no other slot glows.
+    if slot == "composer-ring" and args.get("glow") is not False:
         widget["glow"] = True
     if source == "clock.focus":
         minutes = args.get("minutes", 25)
@@ -269,8 +272,13 @@ def style(home: Path, args: dict[str, Any], *, wait: float = WAIT_S) -> dict[str
         if not isinstance(a, str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", a):
             return {"ok": False, "error": "accent: #rrggbb"}
         patch["accent"] = a.lower()
+    if "composer" in args:
+        c = args["composer"]
+        if c not in ("center", "bottom"):
+            return {"ok": False, "error": "composer: center or bottom"}
+        patch["composer"] = c
     if not patch:
-        return {"ok": False, "error": "Pass warmth, accent or reset."}
+        return {"ok": False, "error": "Pass warmth, accent, composer or reset."}
     rev = _write_ui(home, {**current, "style": patch})
     verdict = _verdict(home, rev, wait)
     if verdict is None:

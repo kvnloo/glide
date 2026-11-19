@@ -47,7 +47,8 @@ export interface WidgetsHost {
 export const statusFile = (settings: string) => join(dirname(settings), 'ui-status.json')
 
 const gitCommits = (cwd: string) => new Promise<number[]>(resolve => {
-  execFile('git', ['-C', cwd, 'log', '--since=53 weeks ago', '--format=%ct'], { timeout: 5000, maxBuffer: 4 << 20 }, (error, stdout) => {
+  // Every branch, local and pushed: a year of work is not only what the checkout holds.
+  execFile('git', ['-C', cwd, 'log', '--all', '--since=53 weeks ago', '--format=%ct'], { timeout: 5000, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve(error ? [] : stdout.split('\n').filter(Boolean).map(Number).filter(Number.isFinite))
   })
 })

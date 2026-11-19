@@ -86,7 +86,7 @@ const uiState: z.ZodMiniType<UiState> = z.catch(
     rev: z.catch(z.number(), 0),
     widgets: z.catch(z.pipe(z.array(z.catch(z.nullable(mount), null)), z.transform(list => list.filter(w => w !== null))), []),
     pages: z.catch(z.pipe(z.array(z.catch(z.nullable(page), null)), z.transform(list => list.filter(p => p !== null))), []),
-    style: loose(z.object({ warmth: loose(z.number()), accent: loose(z.string().check(z.regex(/^#[0-9a-f]{6}$/i))) }))
+    style: loose(z.object({ warmth: loose(z.number()), accent: loose(z.string().check(z.regex(/^#[0-9a-f]{6}$/i))), composer: loose(z.enum(['center', 'bottom'])) }))
   }),
   { rev: 0, widgets: [], pages: [] }
 )
