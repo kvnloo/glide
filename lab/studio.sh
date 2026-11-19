@@ -16,8 +16,8 @@
 #        (cgroup caps, default 1G / 2G). Tern's Stencil sign-in comes from the session keyring: run where Tern is signed in.
 #        STUDIO_WALLPAPER: an image as the studio desktop's wallpaper, seen through a clear Tern window (opacity 0, Zen
 #        layout, no status line); `wall IMG...` swaps it live (a run of images cross-fades). STUDIO_REPO: a git repo cloned (--shared) as the work
-#        folder (on STUDIO_REPO_BRANCH), so the session has a real history (the commits widget reads it). STUDIO_GLIDE: JSON merged into the
-#        home's glide/settings.json at `up`.
+#        folder (on STUDIO_REPO_BRANCH), so the session has a real history (the commits widget reads it). STUDIO_GLIDE / STUDIO_TERN: JSON merged into the
+#        home's glide/settings.json / the studio Tern's settings.json at `up`.
 set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 S=${STUDIO:-$HOME/glide-studio/run}
@@ -47,6 +47,8 @@ home() {
   # status line; no update or turn-finished toasts over the take.
   if [ -n "${STUDIO_WALLPAPER:-}" ]; then mkdir -p "$S/tern/cfg"; merge "$S/tern/cfg/settings.json" \
     '{"opacity":0,"blur":0,"material":"clear","layout":"Float","status_bar":false,"auto_update":false,"notifications":false}'; fi
+  # STUDIO_TERN: JSON merged into the studio Tern's settings.json (e.g. {"ui_font_size":18} to frame the UI larger).
+  if [ -n "${STUDIO_TERN:-}" ]; then mkdir -p "$S/tern/cfg"; merge "$S/tern/cfg/settings.json" "$STUDIO_TERN"; fi
   if [ -n "${STUDIO_REPO:-}" ] && [ ! -d "$S/work/.git" ]; then  # an earlier plain work folder is archived
     mkdir -p "$S/archive"; mv "$S/work" "$S/archive/work-$(date +%Y%m%d-%H%M%S)"; git clone -q --shared "$STUDIO_REPO" "$S/work"
     # and the source's pushed branches too, so the history is the whole repo's, not one checkout's
