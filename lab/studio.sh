@@ -7,13 +7,17 @@
 # HERMES_HOME with Glide from this checkout and a real model, its own gateway and one fullscreen Tern running
 # `hermes tern`. Every unit is `glide-studio-*` in the user's agent.slice; `down` stops them all.
 #
-#   lab/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|ctl ARGS...
+#   lab/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|wall IMG|ctl ARGS...
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
 #        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
 #        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
 #        STUDIO_KEY_ENV (default NVIDIA_API_KEY, read from
 #        STUDIO_KEY_FILE, default ~/.hermes/.env; it is copied only into the studio home's .env, mode 600), STUDIO_GW_MEM / STUDIO_TERN_MEM
 #        (cgroup caps, default 1G / 2G). Tern's Stencil sign-in comes from the session keyring: run where Tern is signed in.
+#        STUDIO_WALLPAPER: an image as the studio desktop's wallpaper, seen through a clear Tern window (opacity 0, Zen
+#        layout, no status line); `wall IMG` swaps it live. STUDIO_REPO: a git repo cloned (--shared) as the work
+#        folder (on STUDIO_REPO_BRANCH), so the session has a real history (the commits widget reads it). STUDIO_GLIDE: JSON merged into the
+#        home's glide/settings.json at `up`.
 set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 S=${STUDIO:-$HOME/glide-studio/run}
@@ -22,6 +26,11 @@ HERMES_BIN=${HERMES_BIN:-$HOME/glide-studio/hermes/.venv/bin/hermes}
 SWAY=${SWAY:-$(command -v sway)} TERN=${TERN:-$(command -v tern)}
 ctl() { "$TERN" ctl --control "$S/ctl.sock" "$@"; }
 stop() { for u in glide-studio-tern glide-studio-gw glide-studio-sway; do systemctl --user stop $u 2>/dev/null || true; systemctl --user reset-failed $u 2>/dev/null || true; done; }
+
+merge() {  # merge FILE JSON: the object's keys laid over FILE's (a missing file is {}).
+  python3 -c 'import json,sys,pathlib; f=pathlib.Path(sys.argv[1]); d=json.loads(f.read_text()) if f.exists() else {}
+d.update(json.loads(sys.argv[2])); f.write_text(json.dumps(d, indent=2) + "\n")' "$1" "$2"
+}
 
 home() {
   mkdir -p "$H/plugins" "$S/work"
@@ -34,6 +43,17 @@ home() {
   if [ -n "${STUDIO_THEME:-}" ]; then local tn; tn=$(basename "$STUDIO_THEME" .json); mkdir -p "$S/omp/themes" "$S/tern/cfg"
     cp "$STUDIO_THEME" "$S/omp/themes/"; printf 'theme:\n  dark: %s\n  light: %s\n' "$tn" "$tn" > "$S/omp/config.yml"
     printf '{"theme":"Dark","theme_dark":"%s"}\n' "$tn" > "$S/tern/cfg/settings.json"; fi
+  # A wallpaper is only seen through a clear window: no opacity, the Zen layout (its tab pill fades while typing), no
+  # status line.
+  if [ -n "${STUDIO_WALLPAPER:-}" ]; then mkdir -p "$S/tern/cfg"; merge "$S/tern/cfg/settings.json" \
+    '{"opacity":0,"blur":0,"material":"clear","layout":"Float","status_bar":false,"auto_update":false}'; fi
+  if [ -n "${STUDIO_REPO:-}" ] && [ ! -d "$S/work/.git" ]; then  # an earlier plain work folder is archived
+    mkdir -p "$S/archive"; mv "$S/work" "$S/archive/work-$(date +%Y%m%d-%H%M%S)"; git clone -q --shared "$STUDIO_REPO" "$S/work"
+    # and the source's pushed branches too, so the history is the whole repo's, not one checkout's
+    git -C "$S/work" fetch -q origin '+refs/remotes/origin/*:refs/remotes/upstream/*' 2>/dev/null || true
+    # STUDIO_REPO_BRANCH: the branch the work folder is on (the composer shows it), from the source's pushed one
+    [ -z "${STUDIO_REPO_BRANCH:-}" ] || git -C "$S/work" checkout -q -B "$STUDIO_REPO_BRANCH" "upstream/$STUDIO_REPO_BRANCH"; fi
+  if [ -n "${STUDIO_GLIDE:-}" ]; then mkdir -p "$H/glide"; merge "$H/glide/settings.json" "$STUDIO_GLIDE"; fi
   # STUDIO_PLUGINS: extra plugin dirs to link in (e.g. a model-provider plugin such as the Claude subscription).
   local pl; for pl in ${STUDIO_PLUGINS:-}; do ln -sfn "$pl" "$H/plugins/$(basename "$pl")"; done
   python3 - "$H" "${STUDIO_MODEL:-moonshotai/kimi-k3.1-pro}" "${STUDIO_BASE_URL-https://integrate.api.nvidia.com/v1}" "${STUDIO_PROVIDER:-nvidia}" <<'PY'
@@ -67,8 +87,11 @@ up() {
   stop; unlock; home
   mkdir -p "$R" && chmod 700 "$R"
   rm -f "$R"/wayland-* "$R"/sway-ipc.*  # left by a killed sway or a reboot: a stale socket passes the ready check below
-  printf '%s\n' 'output HEADLESS-1 mode 1920x1080@60Hz scale 1' 'default_border none' 'gaps outer 0' \
-    'for_window [app_id=".*"] fullscreen enable' > "$S/sway.conf"
+  # Sway draws no wallpaper under a fullscreen window: with one, the lone window is tiled (it fills the output anyway).
+  if [ -n "${STUDIO_WALLPAPER:-}" ]; then printf '%s\n' 'output HEADLESS-1 mode 1920x1080@60Hz scale 1' \
+    "output HEADLESS-1 bg $STUDIO_WALLPAPER fill" 'default_border none' 'gaps outer 0' > "$S/sway.conf"
+  else printf '%s\n' 'output HEADLESS-1 mode 1920x1080@60Hz scale 1' 'default_border none' 'gaps outer 0' \
+    'for_window [app_id=".*"] fullscreen enable' > "$S/sway.conf"; fi
   systemd-run --user --unit=glide-studio-sway --slice=agent.slice -E XDG_RUNTIME_DIR="$R" -E WLR_BACKENDS=headless \
     -E WLR_LIBINPUT_NO_DEVICES=1 -E LD_LIBRARY_PATH="${SWAY_LIB:-}" "$SWAY" -c "$S/sway.conf" >/dev/null
   for _ in $(seq 40); do [ -S "$R/wayland-1" ] && break; sleep 0.5; done
@@ -95,6 +118,7 @@ up() {
   local pid ok=""; for pid in $(systemctl --user show -p ControlGroup --value glide-studio-tern | xargs -I{} cat /sys/fs/cgroup{}/cgroup.procs 2>/dev/null); do
     tr '\0' '\n' </proc/$pid/environ 2>/dev/null | grep -qx "HERMES_HOME=$H" && grep -q tern /proc/$pid/cmdline && ok=1; done
   [ -n "$ok" ] || { stop; echo "studio: no hermes tern on HERMES_HOME=$H in the pane; stopped" >&2; exit 1; }
+  ctl update idle >/dev/null 2>&1 || true  # a staged Tern update's toast is not part of the take
   echo "studio: up ($S, home $H)"; return
   echo "studio: Glide never showed its composer" >&2; exit 1
 }
@@ -106,5 +130,7 @@ case "${1:-}" in
   rec) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout -s INT -k 5 "${3:-20}" nice -n 10 wf-recorder -y -r "${STUDIO_FPS:-30}" \
     -c libx264 -p preset=veryfast -p crf=18 -f "${2:?out.mp4}" >/dev/null 2>&1; [ -s "$2" ] ;;
   ctl) shift; ctl "$@" ;;
+  wall) LD_LIBRARY_PATH="${SWAY_LIB:-}" "$(dirname "$SWAY")/swaymsg" -s "$(ls "$R"/sway-ipc.*.sock | head -1)" \
+    output HEADLESS-1 bg "${2:?image}" fill >/dev/null ;;
   *) sed -n 6,13p "$0"; exit 2 ;;
 esac
