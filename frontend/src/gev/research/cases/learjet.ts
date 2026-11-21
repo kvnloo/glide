@@ -10,185 +10,1582 @@ export const LEARJET: ResearchCase = {
  "place": "Greenacres, FL",
  "eventUtc": "2026-11-01T17:49:33Z",
  "basis": "kb",
- "inspiredBy": {"title": "Palm Beach Learjet Crash - 3D Reconstruction of What We Know So Far in God's Eye View", "url": "https://www.youtube.com/shorts/W-XeARkcGrw"},
+ "inspiredBy": {
+  "title": "Palm Beach Learjet Crash - 3D Reconstruction of What We Know So Far in God's Eye View",
+  "url": "https://www.youtube.com/shorts/W-XeARkcGrw"
+ },
  "view": "#v=2&lat=26.45&lon=-80.30&alt=220000&heading=20&pitch=-50&roll=0",
  "span": 18337.0,
  "tallies": [
-  {"t": 1.1, "by": {"x": 151, "news": 11, "youtube": 13, "data": 5, "imagery": 1, "official": 4, "reddit": 3}},
-  {"t": 17.4, "by": {"x": 196, "news": 111, "youtube": 79, "data": 5, "imagery": 1, "official": 4, "reddit": 25}},
-  {"t": 24.1, "by": {"x": 201, "news": 124, "youtube": 90, "data": 5, "imagery": 2, "official": 4, "reddit": 25}},
-  {"t": 196.2, "by": {"x": 202, "news": 150, "youtube": 110, "data": 5, "imagery": 2, "official": 4, "reddit": 73}},
-  {"t": 256.7, "by": {"x": 203, "news": 180, "youtube": 114, "data": 5, "imagery": 2, "official": 4, "reddit": 77}},
-  {"t": 360.8, "by": {"x": 205, "news": 188, "youtube": 120, "data": 5, "imagery": 2, "official": 4, "reddit": 81}},
-  {"t": 419.8, "by": {"x": 205, "news": 209, "youtube": 131, "data": 5, "imagery": 2, "official": 4, "reddit": 98}},
-  {"t": 489.0, "by": {"x": 208, "news": 223, "youtube": 135, "data": 5, "imagery": 2, "official": 4, "reddit": 111}},
-  {"t": 626.0, "by": {"x": 210, "news": 231, "youtube": 138, "data": 5, "imagery": 2, "official": 4, "reddit": 120}},
-  {"t": 698.3, "by": {"x": 213, "news": 265, "youtube": 160, "data": 5, "imagery": 2, "official": 4, "reddit": 158}},
-  {"t": 766.9, "by": {"x": 215, "news": 281, "youtube": 168, "data": 5, "imagery": 2, "official": 4, "reddit": 187}},
-  {"t": 838.7, "by": {"x": 219, "news": 308, "youtube": 178, "data": 5, "imagery": 2, "official": 4, "reddit": 207}},
-  {"t": 905.3, "by": {"x": 222, "news": 308, "youtube": 178, "data": 5, "imagery": 2, "official": 4, "reddit": 207}},
-  {"t": 979.4, "by": {"x": 225, "news": 398, "youtube": 204, "data": 5, "imagery": 2, "official": 4, "reddit": 231}},
-  {"t": 1039.1, "by": {"x": 227, "news": 398, "youtube": 204, "data": 5, "imagery": 2, "official": 4, "reddit": 231}},
-  {"t": 1115.0, "by": {"x": 230, "news": 437, "youtube": 219, "data": 5, "imagery": 2, "official": 4, "reddit": 256}},
-  {"t": 1293.3, "by": {"x": 236, "news": 460, "youtube": 219, "data": 5, "imagery": 2, "official": 4, "reddit": 267}},
-  {"t": 1355.5, "by": {"x": 236, "news": 475, "youtube": 233, "data": 5, "imagery": 2, "official": 4, "reddit": 297}},
-  {"t": 1428.0, "by": {"x": 239, "news": 485, "youtube": 241, "data": 5, "imagery": 2, "official": 4, "reddit": 309}},
-  {"t": 1493.1, "by": {"x": 241, "news": 485, "youtube": 241, "data": 5, "imagery": 2, "official": 4, "reddit": 309}},
-  {"t": 1634.5, "by": {"x": 241, "news": 502, "youtube": 252, "data": 5, "imagery": 2, "official": 4, "reddit": 330}},
-  {"t": 1773.2, "by": {"x": 242, "news": 510, "youtube": 254, "data": 5, "imagery": 2, "official": 4, "reddit": 339}},
-  {"t": 1905.0, "by": {"x": 242, "news": 521, "youtube": 259, "data": 5, "imagery": 2, "official": 4, "reddit": 366}},
-  {"t": 1976.0, "by": {"x": 246, "news": 529, "youtube": 263, "data": 5, "imagery": 2, "official": 4, "reddit": 377}},
-  {"t": 2101.2, "by": {"x": 247, "news": 536, "youtube": 266, "data": 5, "imagery": 2, "official": 4, "reddit": 387}},
-  {"t": 2209.0, "by": {"x": 248, "news": 541, "youtube": 268, "data": 5, "imagery": 2, "official": 4, "reddit": 388}},
-  {"t": 2326.1, "by": {"x": 249, "news": 562, "youtube": 274, "data": 5, "imagery": 2, "official": 4, "reddit": 404}},
-  {"t": 2435.8, "by": {"x": 250, "news": 567, "youtube": 278, "data": 5, "imagery": 2, "official": 4, "reddit": 413}},
-  {"t": 2493.1, "by": {"x": 252, "news": 583, "youtube": 280, "data": 5, "imagery": 2, "official": 4, "reddit": 424}},
-  {"t": 2546.8, "by": {"x": 253, "news": 590, "youtube": 286, "data": 5, "imagery": 2, "official": 4, "reddit": 439}},
-  {"t": 2610.3, "by": {"x": 257, "news": 609, "youtube": 292, "data": 5, "imagery": 2, "official": 4, "reddit": 451}},
-  {"t": 2731.3, "by": {"x": 258, "news": 626, "youtube": 296, "data": 5, "imagery": 2, "official": 4, "reddit": 458}},
-  {"t": 2793.4, "by": {"x": 259, "news": 636, "youtube": 299, "data": 5, "imagery": 2, "official": 4, "reddit": 465}},
-  {"t": 8163.6, "by": {"x": 259, "news": 732, "youtube": 325, "data": 5, "imagery": 2, "official": 4, "reddit": 506}},
-  {"t": 8266.7, "by": {"x": 259, "news": 734, "youtube": 335, "data": 5, "imagery": 2, "official": 4, "reddit": 506}},
-  {"t": 8437.9, "by": {"x": 259, "news": 746, "youtube": 345, "data": 5, "imagery": 2, "official": 4, "reddit": 507}},
-  {"t": 8544.5, "by": {"x": 259, "news": 750, "youtube": 346, "data": 5, "imagery": 2, "official": 4, "reddit": 509}},
-  {"t": 8706.9, "by": {"x": 259, "news": 756, "youtube": 350, "data": 5, "imagery": 2, "official": 4, "reddit": 509}},
-  {"t": 8806.0, "by": {"x": 259, "news": 756, "youtube": 356, "data": 5, "imagery": 2, "official": 4, "reddit": 510}},
-  {"t": 8956.4, "by": {"x": 259, "news": 759, "youtube": 366, "data": 5, "imagery": 2, "official": 4, "reddit": 512}},
-  {"t": 9062.9, "by": {"x": 259, "news": 762, "youtube": 372, "data": 5, "imagery": 2, "official": 4, "reddit": 512}},
-  {"t": 9437.0, "by": {"x": 259, "news": 770, "youtube": 380, "data": 5, "imagery": 2, "official": 4, "reddit": 513}},
-  {"t": 9595.0, "by": {"x": 259, "news": 773, "youtube": 385, "data": 5, "imagery": 2, "official": 4, "reddit": 514}},
-  {"t": 9774.2, "by": {"x": 259, "news": 773, "youtube": 389, "data": 5, "imagery": 2, "official": 4, "reddit": 516}},
-  {"t": 9870.7, "by": {"x": 259, "news": 775, "youtube": 394, "data": 5, "imagery": 2, "official": 4, "reddit": 516}},
-  {"t": 10002.8, "by": {"x": 259, "news": 778, "youtube": 403, "data": 5, "imagery": 2, "official": 4, "reddit": 516}},
-  {"t": 10335.0, "by": {"x": 259, "news": 787, "youtube": 406, "data": 5, "imagery": 2, "official": 4, "reddit": 518}},
-  {"t": 10495.6, "by": {"x": 259, "news": 793, "youtube": 408, "data": 5, "imagery": 2, "official": 4, "reddit": 521}},
-  {"t": 10708.2, "by": {"x": 259, "news": 801, "youtube": 412, "data": 5, "imagery": 2, "official": 4, "reddit": 521}},
-  {"t": 10834.7, "by": {"x": 259, "news": 810, "youtube": 413, "data": 5, "imagery": 2, "official": 4, "reddit": 521}},
-  {"t": 11026.1, "by": {"x": 259, "news": 819, "youtube": 419, "data": 5, "imagery": 2, "official": 4, "reddit": 521}},
-  {"t": 11150.1, "by": {"x": 259, "news": 825, "youtube": 420, "data": 5, "imagery": 2, "official": 4, "reddit": 521}},
-  {"t": 11255.2, "by": {"x": 259, "news": 832, "youtube": 424, "data": 5, "imagery": 2, "official": 4, "reddit": 523}},
-  {"t": 11324.8, "by": {"x": 259, "news": 840, "youtube": 426, "data": 5, "imagery": 2, "official": 4, "reddit": 526}},
-  {"t": 11526.8, "by": {"x": 259, "news": 855, "youtube": 429, "data": 5, "imagery": 2, "official": 4, "reddit": 527}},
-  {"t": 11694.0, "by": {"x": 259, "news": 860, "youtube": 429, "data": 5, "imagery": 2, "official": 4, "reddit": 528}},
-  {"t": 11859.8, "by": {"x": 259, "news": 866, "youtube": 435, "data": 5, "imagery": 2, "official": 4, "reddit": 530}},
-  {"t": 11967.3, "by": {"x": 259, "news": 875, "youtube": 435, "data": 5, "imagery": 2, "official": 4, "reddit": 532}},
-  {"t": 12145.4, "by": {"x": 259, "news": 889, "youtube": 436, "data": 5, "imagery": 2, "official": 4, "reddit": 534}},
-  {"t": 12251.8, "by": {"x": 259, "news": 898, "youtube": 437, "data": 5, "imagery": 2, "official": 4, "reddit": 534}},
-  {"t": 12452.2, "by": {"x": 259, "news": 912, "youtube": 440, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 12553.0, "by": {"x": 259, "news": 917, "youtube": 441, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 12751.5, "by": {"x": 259, "news": 927, "youtube": 443, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 12900.0, "by": {"x": 259, "news": 931, "youtube": 444, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 13049.5, "by": {"x": 259, "news": 936, "youtube": 445, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 13258.3, "by": {"x": 259, "news": 940, "youtube": 448, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 13450.8, "by": {"x": 259, "news": 944, "youtube": 449, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 16314.0, "by": {"x": 259, "news": 971, "youtube": 458, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 16448.0, "by": {"x": 259, "news": 972, "youtube": 461, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 16642.2, "by": {"x": 259, "news": 979, "youtube": 469, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 16829.8, "by": {"x": 259, "news": 980, "youtube": 471, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 16981.2, "by": {"x": 259, "news": 984, "youtube": 496, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17089.5, "by": {"x": 259, "news": 985, "youtube": 504, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17233.4, "by": {"x": 259, "news": 988, "youtube": 507, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17381.8, "by": {"x": 259, "news": 988, "youtube": 510, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17582.1, "by": {"x": 259, "news": 988, "youtube": 516, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17733.8, "by": {"x": 259, "news": 991, "youtube": 520, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 17946.0, "by": {"x": 259, "news": 993, "youtube": 523, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 18140.5, "by": {"x": 259, "news": 995, "youtube": 524, "data": 5, "imagery": 2, "official": 4, "reddit": 535}},
-  {"t": 18337.0, "by": {"x": 259, "news": 996, "youtube": 530, "data": 5, "imagery": 2, "official": 4, "reddit": 535}}
+  {
+   "t": 1.1,
+   "by": {
+    "x": 151,
+    "news": 11,
+    "youtube": 13,
+    "data": 5,
+    "imagery": 1,
+    "official": 4,
+    "reddit": 3
+   }
+  },
+  {
+   "t": 17.4,
+   "by": {
+    "x": 196,
+    "news": 111,
+    "youtube": 79,
+    "data": 5,
+    "imagery": 1,
+    "official": 4,
+    "reddit": 25
+   }
+  },
+  {
+   "t": 24.1,
+   "by": {
+    "x": 201,
+    "news": 124,
+    "youtube": 90,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 25
+   }
+  },
+  {
+   "t": 196.2,
+   "by": {
+    "x": 202,
+    "news": 150,
+    "youtube": 110,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 73
+   }
+  },
+  {
+   "t": 256.7,
+   "by": {
+    "x": 203,
+    "news": 180,
+    "youtube": 114,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 77
+   }
+  },
+  {
+   "t": 360.8,
+   "by": {
+    "x": 205,
+    "news": 188,
+    "youtube": 120,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 81
+   }
+  },
+  {
+   "t": 419.8,
+   "by": {
+    "x": 205,
+    "news": 209,
+    "youtube": 131,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 98
+   }
+  },
+  {
+   "t": 489.0,
+   "by": {
+    "x": 208,
+    "news": 223,
+    "youtube": 135,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 111
+   }
+  },
+  {
+   "t": 626.0,
+   "by": {
+    "x": 210,
+    "news": 231,
+    "youtube": 138,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 120
+   }
+  },
+  {
+   "t": 698.3,
+   "by": {
+    "x": 213,
+    "news": 265,
+    "youtube": 160,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 158
+   }
+  },
+  {
+   "t": 766.9,
+   "by": {
+    "x": 215,
+    "news": 281,
+    "youtube": 168,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 187
+   }
+  },
+  {
+   "t": 838.7,
+   "by": {
+    "x": 219,
+    "news": 308,
+    "youtube": 178,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 207
+   }
+  },
+  {
+   "t": 905.3,
+   "by": {
+    "x": 222,
+    "news": 308,
+    "youtube": 178,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 207
+   }
+  },
+  {
+   "t": 979.4,
+   "by": {
+    "x": 225,
+    "news": 398,
+    "youtube": 204,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 231
+   }
+  },
+  {
+   "t": 1039.1,
+   "by": {
+    "x": 227,
+    "news": 398,
+    "youtube": 204,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 231
+   }
+  },
+  {
+   "t": 1115.0,
+   "by": {
+    "x": 230,
+    "news": 437,
+    "youtube": 219,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 256
+   }
+  },
+  {
+   "t": 1293.3,
+   "by": {
+    "x": 236,
+    "news": 460,
+    "youtube": 219,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 267
+   }
+  },
+  {
+   "t": 1355.5,
+   "by": {
+    "x": 236,
+    "news": 475,
+    "youtube": 233,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 297
+   }
+  },
+  {
+   "t": 1428.0,
+   "by": {
+    "x": 239,
+    "news": 485,
+    "youtube": 241,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 309
+   }
+  },
+  {
+   "t": 1493.1,
+   "by": {
+    "x": 241,
+    "news": 485,
+    "youtube": 241,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 309
+   }
+  },
+  {
+   "t": 1634.5,
+   "by": {
+    "x": 241,
+    "news": 502,
+    "youtube": 252,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 330
+   }
+  },
+  {
+   "t": 1773.2,
+   "by": {
+    "x": 242,
+    "news": 510,
+    "youtube": 254,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 339
+   }
+  },
+  {
+   "t": 1905.0,
+   "by": {
+    "x": 242,
+    "news": 521,
+    "youtube": 259,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 366
+   }
+  },
+  {
+   "t": 1976.0,
+   "by": {
+    "x": 246,
+    "news": 529,
+    "youtube": 263,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 377
+   }
+  },
+  {
+   "t": 2101.2,
+   "by": {
+    "x": 247,
+    "news": 536,
+    "youtube": 266,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 387
+   }
+  },
+  {
+   "t": 2209.0,
+   "by": {
+    "x": 248,
+    "news": 541,
+    "youtube": 268,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 388
+   }
+  },
+  {
+   "t": 2326.1,
+   "by": {
+    "x": 249,
+    "news": 562,
+    "youtube": 274,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 404
+   }
+  },
+  {
+   "t": 2435.8,
+   "by": {
+    "x": 250,
+    "news": 567,
+    "youtube": 278,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 413
+   }
+  },
+  {
+   "t": 2493.1,
+   "by": {
+    "x": 252,
+    "news": 583,
+    "youtube": 280,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 424
+   }
+  },
+  {
+   "t": 2546.8,
+   "by": {
+    "x": 253,
+    "news": 590,
+    "youtube": 286,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 439
+   }
+  },
+  {
+   "t": 2610.3,
+   "by": {
+    "x": 257,
+    "news": 609,
+    "youtube": 292,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 451
+   }
+  },
+  {
+   "t": 2731.3,
+   "by": {
+    "x": 258,
+    "news": 626,
+    "youtube": 296,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 458
+   }
+  },
+  {
+   "t": 2793.4,
+   "by": {
+    "x": 259,
+    "news": 636,
+    "youtube": 299,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 465
+   }
+  },
+  {
+   "t": 8163.6,
+   "by": {
+    "x": 259,
+    "news": 732,
+    "youtube": 325,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 506
+   }
+  },
+  {
+   "t": 8266.7,
+   "by": {
+    "x": 259,
+    "news": 734,
+    "youtube": 335,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 506
+   }
+  },
+  {
+   "t": 8437.9,
+   "by": {
+    "x": 259,
+    "news": 746,
+    "youtube": 345,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 507
+   }
+  },
+  {
+   "t": 8544.5,
+   "by": {
+    "x": 259,
+    "news": 750,
+    "youtube": 346,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 509
+   }
+  },
+  {
+   "t": 8706.9,
+   "by": {
+    "x": 259,
+    "news": 756,
+    "youtube": 350,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 509
+   }
+  },
+  {
+   "t": 8806.0,
+   "by": {
+    "x": 259,
+    "news": 756,
+    "youtube": 356,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 510
+   }
+  },
+  {
+   "t": 8956.4,
+   "by": {
+    "x": 259,
+    "news": 759,
+    "youtube": 366,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 512
+   }
+  },
+  {
+   "t": 9062.9,
+   "by": {
+    "x": 259,
+    "news": 762,
+    "youtube": 372,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 512
+   }
+  },
+  {
+   "t": 9437.0,
+   "by": {
+    "x": 259,
+    "news": 770,
+    "youtube": 380,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 513
+   }
+  },
+  {
+   "t": 9595.0,
+   "by": {
+    "x": 259,
+    "news": 773,
+    "youtube": 385,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 514
+   }
+  },
+  {
+   "t": 9774.2,
+   "by": {
+    "x": 259,
+    "news": 773,
+    "youtube": 389,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 516
+   }
+  },
+  {
+   "t": 9870.7,
+   "by": {
+    "x": 259,
+    "news": 775,
+    "youtube": 394,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 516
+   }
+  },
+  {
+   "t": 10002.8,
+   "by": {
+    "x": 259,
+    "news": 778,
+    "youtube": 403,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 516
+   }
+  },
+  {
+   "t": 10335.0,
+   "by": {
+    "x": 259,
+    "news": 787,
+    "youtube": 406,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 518
+   }
+  },
+  {
+   "t": 10495.6,
+   "by": {
+    "x": 259,
+    "news": 793,
+    "youtube": 408,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 521
+   }
+  },
+  {
+   "t": 10708.2,
+   "by": {
+    "x": 259,
+    "news": 801,
+    "youtube": 412,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 521
+   }
+  },
+  {
+   "t": 10834.7,
+   "by": {
+    "x": 259,
+    "news": 810,
+    "youtube": 413,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 521
+   }
+  },
+  {
+   "t": 11026.1,
+   "by": {
+    "x": 259,
+    "news": 819,
+    "youtube": 419,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 521
+   }
+  },
+  {
+   "t": 11150.1,
+   "by": {
+    "x": 259,
+    "news": 825,
+    "youtube": 420,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 521
+   }
+  },
+  {
+   "t": 11255.2,
+   "by": {
+    "x": 259,
+    "news": 832,
+    "youtube": 424,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 523
+   }
+  },
+  {
+   "t": 11324.8,
+   "by": {
+    "x": 259,
+    "news": 840,
+    "youtube": 426,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 526
+   }
+  },
+  {
+   "t": 11526.8,
+   "by": {
+    "x": 259,
+    "news": 855,
+    "youtube": 429,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 527
+   }
+  },
+  {
+   "t": 11694.0,
+   "by": {
+    "x": 259,
+    "news": 860,
+    "youtube": 429,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 528
+   }
+  },
+  {
+   "t": 11859.8,
+   "by": {
+    "x": 259,
+    "news": 866,
+    "youtube": 435,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 530
+   }
+  },
+  {
+   "t": 11967.3,
+   "by": {
+    "x": 259,
+    "news": 875,
+    "youtube": 435,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 532
+   }
+  },
+  {
+   "t": 12145.4,
+   "by": {
+    "x": 259,
+    "news": 889,
+    "youtube": 436,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 534
+   }
+  },
+  {
+   "t": 12251.8,
+   "by": {
+    "x": 259,
+    "news": 898,
+    "youtube": 437,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 534
+   }
+  },
+  {
+   "t": 12452.2,
+   "by": {
+    "x": 259,
+    "news": 912,
+    "youtube": 440,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 12553.0,
+   "by": {
+    "x": 259,
+    "news": 917,
+    "youtube": 441,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 12751.5,
+   "by": {
+    "x": 259,
+    "news": 927,
+    "youtube": 443,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 12900.0,
+   "by": {
+    "x": 259,
+    "news": 931,
+    "youtube": 444,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 13049.5,
+   "by": {
+    "x": 259,
+    "news": 936,
+    "youtube": 445,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 13258.3,
+   "by": {
+    "x": 259,
+    "news": 940,
+    "youtube": 448,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 13450.8,
+   "by": {
+    "x": 259,
+    "news": 944,
+    "youtube": 449,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 16314.0,
+   "by": {
+    "x": 259,
+    "news": 971,
+    "youtube": 458,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 16448.0,
+   "by": {
+    "x": 259,
+    "news": 972,
+    "youtube": 461,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 16642.2,
+   "by": {
+    "x": 259,
+    "news": 979,
+    "youtube": 469,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 16829.8,
+   "by": {
+    "x": 259,
+    "news": 980,
+    "youtube": 471,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 16981.2,
+   "by": {
+    "x": 259,
+    "news": 984,
+    "youtube": 496,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17089.5,
+   "by": {
+    "x": 259,
+    "news": 985,
+    "youtube": 504,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17233.4,
+   "by": {
+    "x": 259,
+    "news": 988,
+    "youtube": 507,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17381.8,
+   "by": {
+    "x": 259,
+    "news": 988,
+    "youtube": 510,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17582.1,
+   "by": {
+    "x": 259,
+    "news": 988,
+    "youtube": 516,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17733.8,
+   "by": {
+    "x": 259,
+    "news": 991,
+    "youtube": 520,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 17946.0,
+   "by": {
+    "x": 259,
+    "news": 993,
+    "youtube": 523,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 18140.5,
+   "by": {
+    "x": 259,
+    "news": 995,
+    "youtube": 524,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  },
+  {
+   "t": 18337.0,
+   "by": {
+    "x": 259,
+    "news": 996,
+    "youtube": 530,
+    "data": 5,
+    "imagery": 2,
+    "official": 4,
+    "reddit": 535
+   }
+  }
  ],
  "pulls": [
-  {"t": 0.0, "platform": "news", "label": "Video shows moment airplane crashes in Palm Beach County", "detail": "cnn.com", "media": "video"},
-  {"t": 0.0, "platform": "news", "label": "Drone Footage of the accident location: A devastating aviation", "detail": "facebook.com", "media": "video"},
-  {"t": 0.0, "platform": "news", "label": "11/1/26 Palm Beach County, Florida Slow-motion, frame-by-frame", "detail": "facebook.com", "media": "video"},
-  {"t": 0.0, "platform": "news", "label": "A Learjet 60 has crashed in Palm Beach County, Florida. (Vid", "detail": "facebook.com", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "BNO News - WATCH: Learjet 60 business jet completely destroyed, leaving large cr...", "detail": "video", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "BNO News - BREAKING: Business jet crashes near West Palm Beach, Florida", "detail": "video", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "BNO News - WATCH: New video shows Learjet 60 business jet crashing near West Pal...", "detail": "video", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "Breaking911 - 😳 WATCH: Dashcam footage captures the moment a Learjet 60 (N722BD), c...", "detail": "video", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "Breaking911 - BREAKING: An aircraft crashed in Palm Beach County, Florida, scatteri...", "detail": "video", "media": "video"},
-  {"t": 0.0, "platform": "x", "label": "Breaking911 - Additional footage after an aircraft crashed in Palm Beach County, Fl...", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "x", "label": "WPEC CBS12 News - BREAKING UPDATE | A jet plummeted onto a busy Greenacres roadway Sund...", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "9 killed in plane crash in Palm Beach, Florida", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "Jet carrying 9 people crashes in Florida neighborhood", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "Witness Eduin Cruz shares video of fatal Learjet 60 crash in Palm Beach", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "Learjet 60 Crash in Palm Beach County, Florida: Real ATC Audio of the Final Minute.", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "All 9 people died on jet that crashed into Florida neighborhood, transportation secretary", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "9 dead in small plane crash in Palm Beach County, Florida", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "youtube", "label": "WATCH LIVE: Learjet 60 crashes in Palm Beach County, FAA says | 11-01-2026", "detail": "video", "media": "video"},
-  {"t": 0.1, "platform": "data", "label": "github.com/adsblol/globe_history_2026/releases/tag", "detail": "github.com", "media": "data"},
-  {"t": 0.1, "platform": "data", "label": "unidata-nexrad-level2.s3.amazonaws.com/2026/11/01/KAMX/", "detail": "unidata-nexrad-level2.s3.amazonaws.com", "media": "data"},
-  {"t": 0.1, "platform": "data", "label": "mesonet.agron.iastate.edu/cgi-bin/request/asos.py", "detail": "mesonet.agron.iastate.edu", "media": "data"},
-  {"t": 0.1, "platform": "data", "label": "mesonet.agron.iastate.edu/cgi-bin/request/gis/pireps.py", "detail": "mesonet.agron.iastate.edu", "media": "data"},
-  {"t": 0.1, "platform": "data", "label": "mesonet.agron.iastate.edu/cgi-bin/request/raob.py", "detail": "mesonet.agron.iastate.edu", "media": "data"},
-  {"t": 0.1, "platform": "imagery", "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPM/2026/305/17/", "detail": "noaa-goes19.s3.amazonaws.com", "media": "data"},
-  {"t": 0.1, "platform": "official", "label": "easa.europa.eu/en/downloads/7238/en", "detail": "easa.europa.eu", "media": "text"},
-  {"t": 0.1, "platform": "official", "label": "tc.canada.ca/en/aviation/commercial-air-services/ope", "detail": "tc.canada.ca", "media": "text"},
-  {"t": 0.1, "platform": "official", "label": "ntsb.gov/investigations/AccidentReports/Reports/", "detail": "ntsb.gov", "media": "text"},
-  {"t": 0.1, "platform": "official", "label": "federalregister.gov/api/v1/documents.json", "detail": "federalregister.gov", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Learjet 60 crashes near West Palm Beach, Florida - Flightradar24", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Florida Learjet Crash Claims Nine - Aviation International News", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Learjet 60 crashes into urban area in Florida after rapid dive - Air Data News", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "West Palm Beach plane crash: Learjet 60 (N722BD) hits Florida mobile home park - Beinsure", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Footage Shows Learjet Falling 35,000 Feet in About a Minute, Killing All 9 Aboard - Yahoo", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Breaking: Learjet 60 With 9 People Onboard Fatally Nose Dives In Missile-Like Crash Near Mar-A-L…", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "‘It looked like a missile’: Witness video shows fiery Learjet 60 crash killing 9, prompting evac…", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "A Learjet crashes near Palm Beach, killing all 9 on board - Business Insider", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "news", "label": "Nine killed as Bahamas-bound Learjet crashes in Florida - Aviation24.be", "detail": "news.google.com", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "N722BD comms before the crash", "detail": "reddit", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "Weather data for N722BD | Met Notes | MyRadar", "detail": "reddit", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac…", "detail": "reddit", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "Guy keeps claiming Learjet crash was ISIS", "detail": "reddit", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac…", "detail": "reddit", "media": "text"},
-  {"t": 2.2, "platform": "reddit", "label": "Learjet 60 (N722BD) crashes near Palm Springs on November 1, 2026 after a high speed descent", "detail": "reddit", "media": "text"},
-  {"t": 18.7, "platform": "imagery", "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPC/2026/305/17/", "detail": "noaa-goes19.s3.amazonaws.com", "media": "data"},
-  {"t": 196.0, "platform": "youtube", "label": "Florida Plane Crash: Learjet Carrying 9 Crashes Into Residential Neighbourhood", "detail": "video", "media": "video"},
-  {"t": 196.2, "platform": "news", "label": "Turbulence, ice build-up, -47°C temp: Did weather play a role in Learjet crash? - India Today", "detail": "news.google.com", "media": "text"},
-  {"t": 196.2, "platform": "reddit", "label": "Learjet crash in palm beach", "detail": "reddit", "media": "text"},
-  {"t": 419.8, "platform": "news", "label": "Palm Beach plane had ‘incredibly fast’ descent before fiery crash. What happened? - Miami Herald", "detail": "news.google.com", "media": "text"},
-  {"t": 698.3, "platform": "reddit", "label": "Slow motion video of the plane crash in Palm Beach Florida moments ago. Learjet 60", "detail": "reddit", "media": "text"},
-  {"t": 766.6, "platform": "youtube", "label": "Learjet 60 Crash in Florida: A Pilot Breaks Down What We Know", "detail": "video", "media": "video"},
-  {"t": 766.9, "platform": "news", "label": "‘It looked like a missile’: 9 dead in Learjet crash near Greenacres mobile home park - WPBF", "detail": "news.google.com", "media": "text"},
-  {"t": 974.5, "platform": "x", "label": "Points from first NTSB briefing this afternoon on N722BD: - Board Member Chapman says the NTSB s…", "detail": "x-post", "media": "text"},
-  {"t": 979.4, "platform": "news", "label": "NTSB examining possible pre-crash break-up of Learjet 60 - FlightGlobal", "detail": "news.google.com", "media": "text"},
-  {"t": 1043.1, "platform": "news", "label": "NTSB finds evidence of in-flight breakup before Florida Learjet crash - AeroTime", "detail": "news.google.com", "media": "text"},
-  {"t": 1043.1, "platform": "reddit", "label": "New CBS 13 News Upload: NTSB: Learjet crew reported ice, turbulence before deadly Florida crash", "detail": "reddit", "media": "text"},
-  {"t": 1427.8, "platform": "youtube", "label": "NTSB: Learjet N722BD Was Breaking Apart Before Impact | 4 Clues (3D)", "detail": "video", "media": "video"},
-  {"t": 1496.8, "platform": "news", "label": "Plane crew reported issues a minute before Palm Beach crash, NTSB says - The Spokesman-Review", "detail": "news.google.com", "media": "text"},
-  {"t": 1836.2, "platform": "reddit", "label": "Learjet 60 crash site in Palm Beach viewed from above", "detail": "reddit", "media": "text"},
-  {"t": 2383.6, "platform": "news", "label": "Palm Beach Plane Crash: Captain's Identity Revealed - TMZ", "detail": "news.google.com", "media": "text"},
-  {"t": 2553.3, "platform": "reddit", "label": "I'm not understanding how the Learjet oversped and nose dove. As an idiot, can someone please ex…", "detail": "reddit", "media": "text"},
-  {"t": 8163.4, "platform": "youtube", "label": "Learjet 60 Palm Beach Crash Kills 9… What Did Pilots Know BEFORE the MAYDAY Call?", "detail": "video", "media": "video"},
-  {"t": 8163.5, "platform": "news", "label": "Ill-Fated Learjet Had Altitude Struggles Amid Severe Turbulence 6 Months Ago, ATC Audio Shows - …", "detail": "news.google.com", "media": "text"},
-  {"t": 8163.6, "platform": "news", "label": "Nanny Killed In Florida Learjet Crash Was 'Truly Happy' on Fir... - International Business Times…", "detail": "news.google.com", "media": "text"},
-  {"t": 9774.0, "platform": "youtube", "label": "Learjet N722BD: The Final 78 Seconds on the Radio", "detail": "video", "media": "video"},
-  {"t": 10559.0, "platform": "news", "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KEYE", "detail": "news.google.com", "media": "text"},
-  {"t": 11754.4, "platform": "news", "label": "NTSB recovers cockpit voice recorder from Learjet 60 that crashed near Greenacres, Florida - Tip…", "detail": "news.google.com", "media": "text"},
-  {"t": 12344.6, "platform": "reddit", "label": "New Inside Edition Upload: Learjet Black Box Recorder Found At Crash Site In Florida", "detail": "reddit", "media": "text"},
-  {"t": 12751.5, "platform": "news", "label": "What’s next in the investigation of the Learjet crash in Florida that killed 9? - Orlando Sentin…", "detail": "news.google.com", "media": "text"},
-  {"t": 16382.5, "platform": "youtube", "label": "Here's What Really Happened to Learjet 60 N722BD (Real ATC Audio)", "detail": "video", "media": "video"},
-  {"t": 18140.5, "platform": "news", "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KABB", "detail": "news.google.com", "media": "text"},
-  {"t": 18337.0, "platform": "youtube", "label": "Learjet 60 Crash: Did the Elevator Separate Before the Dive?", "detail": "video", "media": "video"}
+  {
+   "t": 0.0,
+   "platform": "news",
+   "label": "Video shows moment airplane crashes in Palm Beach County",
+   "detail": "cnn.com",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "news",
+   "label": "Drone Footage of the accident location: A devastating aviation",
+   "detail": "facebook.com",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "news",
+   "label": "11/1/26 Palm Beach County, Florida Slow-motion, frame-by-frame",
+   "detail": "facebook.com",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "news",
+   "label": "A Learjet 60 has crashed in Palm Beach County, Florida. (Vid",
+   "detail": "facebook.com",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "BNO News - WATCH: Learjet 60 business jet completely destroyed, leaving large cr...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "BNO News - BREAKING: Business jet crashes near West Palm Beach, Florida",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "BNO News - WATCH: New video shows Learjet 60 business jet crashing near West Pal...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "Breaking911 - 😳 WATCH: Dashcam footage captures the moment a Learjet 60 (N722BD), c...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "Breaking911 - BREAKING: An aircraft crashed in Palm Beach County, Florida, scatteri...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.0,
+   "platform": "x",
+   "label": "Breaking911 - Additional footage after an aircraft crashed in Palm Beach County, Fl...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "x",
+   "label": "WPEC CBS12 News - BREAKING UPDATE | A jet plummeted onto a busy Greenacres roadway Sund...",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "9 killed in plane crash in Palm Beach, Florida",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "Jet carrying 9 people crashes in Florida neighborhood",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "Witness Eduin Cruz shares video of fatal Learjet 60 crash in Palm Beach",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "Learjet 60 Crash in Palm Beach County, Florida: Real ATC Audio of the Final Minute.",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "All 9 people died on jet that crashed into Florida neighborhood, transportation secretary",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "9 dead in small plane crash in Palm Beach County, Florida",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "youtube",
+   "label": "WATCH LIVE: Learjet 60 crashes in Palm Beach County, FAA says | 11-01-2026",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 0.1,
+   "platform": "data",
+   "label": "github.com/adsblol/globe_history_2026/releases/tag",
+   "detail": "github.com",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "data",
+   "label": "unidata-nexrad-level2.s3.amazonaws.com/2026/11/01/KAMX/",
+   "detail": "unidata-nexrad-level2.s3.amazonaws.com",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "data",
+   "label": "mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+   "detail": "mesonet.agron.iastate.edu",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "data",
+   "label": "mesonet.agron.iastate.edu/cgi-bin/request/gis/pireps.py",
+   "detail": "mesonet.agron.iastate.edu",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "data",
+   "label": "mesonet.agron.iastate.edu/cgi-bin/request/raob.py",
+   "detail": "mesonet.agron.iastate.edu",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "imagery",
+   "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPM/2026/305/17/",
+   "detail": "noaa-goes19.s3.amazonaws.com",
+   "media": "data"
+  },
+  {
+   "t": 0.1,
+   "platform": "official",
+   "label": "easa.europa.eu/en/downloads/7238/en",
+   "detail": "easa.europa.eu",
+   "media": "text"
+  },
+  {
+   "t": 0.1,
+   "platform": "official",
+   "label": "tc.canada.ca/en/aviation/commercial-air-services/ope",
+   "detail": "tc.canada.ca",
+   "media": "text"
+  },
+  {
+   "t": 0.1,
+   "platform": "official",
+   "label": "ntsb.gov/investigations/AccidentReports/Reports/",
+   "detail": "ntsb.gov",
+   "media": "text"
+  },
+  {
+   "t": 0.1,
+   "platform": "official",
+   "label": "federalregister.gov/api/v1/documents.json",
+   "detail": "federalregister.gov",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Learjet 60 crashes near West Palm Beach, Florida - Flightradar24",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Florida Learjet Crash Claims Nine - Aviation International News",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Learjet 60 crashes into urban area in Florida after rapid dive - Air Data News",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "West Palm Beach plane crash: Learjet 60 (N722BD) hits Florida mobile home park - Beinsure",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Footage Shows Learjet Falling 35,000 Feet in About a Minute, Killing All 9 Aboard - Yahoo",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Breaking: Learjet 60 With 9 People Onboard Fatally Nose Dives In Missile-Like Crash Near Mar-A-L…",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "‘It looked like a missile’: Witness video shows fiery Learjet 60 crash killing 9, prompting evac…",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "A Learjet crashes near Palm Beach, killing all 9 on board - Business Insider",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "news",
+   "label": "Nine killed as Bahamas-bound Learjet crashes in Florida - Aviation24.be",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "N722BD comms before the crash",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "Weather data for N722BD | Met Notes | MyRadar",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac…",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "Guy keeps claiming Learjet crash was ISIS",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "The air traffic control audio from the final minutes of the Learjet 60 (N722BD) crash in Greenac…",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2.2,
+   "platform": "reddit",
+   "label": "Learjet 60 (N722BD) crashes near Palm Springs on November 1, 2026 after a high speed descent",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 18.7,
+   "platform": "imagery",
+   "label": "noaa-goes19.s3.amazonaws.com/ABI-L2-CMIPC/2026/305/17/",
+   "detail": "noaa-goes19.s3.amazonaws.com",
+   "media": "data"
+  },
+  {
+   "t": 196.0,
+   "platform": "youtube",
+   "label": "Florida Plane Crash: Learjet Carrying 9 Crashes Into Residential Neighbourhood",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 196.2,
+   "platform": "news",
+   "label": "Turbulence, ice build-up, -47°C temp: Did weather play a role in Learjet crash? - India Today",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 196.2,
+   "platform": "reddit",
+   "label": "Learjet crash in palm beach",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 419.8,
+   "platform": "news",
+   "label": "Palm Beach plane had ‘incredibly fast’ descent before fiery crash. What happened? - Miami Herald",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 698.3,
+   "platform": "reddit",
+   "label": "Slow motion video of the plane crash in Palm Beach Florida moments ago. Learjet 60",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 766.6,
+   "platform": "youtube",
+   "label": "Learjet 60 Crash in Florida: A Pilot Breaks Down What We Know",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 766.9,
+   "platform": "news",
+   "label": "‘It looked like a missile’: 9 dead in Learjet crash near Greenacres mobile home park - WPBF",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 974.5,
+   "platform": "x",
+   "label": "Points from first NTSB briefing this afternoon on N722BD: - Board Member Chapman says the NTSB s…",
+   "detail": "x-post",
+   "media": "text"
+  },
+  {
+   "t": 979.4,
+   "platform": "news",
+   "label": "NTSB examining possible pre-crash break-up of Learjet 60 - FlightGlobal",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 1043.1,
+   "platform": "news",
+   "label": "NTSB finds evidence of in-flight breakup before Florida Learjet crash - AeroTime",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 1043.1,
+   "platform": "reddit",
+   "label": "New CBS 13 News Upload: NTSB: Learjet crew reported ice, turbulence before deadly Florida crash",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 1427.8,
+   "platform": "youtube",
+   "label": "NTSB: Learjet N722BD Was Breaking Apart Before Impact | 4 Clues (3D)",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 1496.8,
+   "platform": "news",
+   "label": "Plane crew reported issues a minute before Palm Beach crash, NTSB says - The Spokesman-Review",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 1836.2,
+   "platform": "reddit",
+   "label": "Learjet 60 crash site in Palm Beach viewed from above",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 2383.6,
+   "platform": "news",
+   "label": "Palm Beach Plane Crash: Captain's Identity Revealed - TMZ",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 2553.3,
+   "platform": "reddit",
+   "label": "I'm not understanding how the Learjet oversped and nose dove. As an idiot, can someone please ex…",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 8163.4,
+   "platform": "youtube",
+   "label": "Learjet 60 Palm Beach Crash Kills 9… What Did Pilots Know BEFORE the MAYDAY Call?",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 8163.5,
+   "platform": "news",
+   "label": "Ill-Fated Learjet Had Altitude Struggles Amid Severe Turbulence 6 Months Ago, ATC Audio Shows - …",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 8163.6,
+   "platform": "news",
+   "label": "Nanny Killed In Florida Learjet Crash Was 'Truly Happy' on Fir... - International Business Times…",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 9774.0,
+   "platform": "youtube",
+   "label": "Learjet N722BD: The Final 78 Seconds on the Radio",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 10559.0,
+   "platform": "news",
+   "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KEYE",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 11754.4,
+   "platform": "news",
+   "label": "NTSB recovers cockpit voice recorder from Learjet 60 that crashed near Greenacres, Florida - Tip…",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 12344.6,
+   "platform": "reddit",
+   "label": "New Inside Edition Upload: Learjet Black Box Recorder Found At Crash Site In Florida",
+   "detail": "reddit",
+   "media": "text"
+  },
+  {
+   "t": 12751.5,
+   "platform": "news",
+   "label": "What’s next in the investigation of the Learjet crash in Florida that killed 9? - Orlando Sentin…",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 16382.5,
+   "platform": "youtube",
+   "label": "Here's What Really Happened to Learjet 60 N722BD (Real ATC Audio)",
+   "detail": "video",
+   "media": "video"
+  },
+  {
+   "t": 18140.5,
+   "platform": "news",
+   "label": "PBSO shares recovery update, photos as deputies aid businesses after Learjet crash - KABB",
+   "detail": "news.google.com",
+   "media": "text"
+  },
+  {
+   "t": 18337.0,
+   "platform": "youtube",
+   "label": "Learjet 60 Crash: Did the Elevator Separate Before the Dive?",
+   "detail": "video",
+   "media": "video"
+  }
  ],
  "findings": [
-  {"t": 12.2, "text": "17:47:33Z Crew reports light clear ice, OAT -47 C", "tier": "reported"},
-  {"t": 12.2, "text": "17:48:28Z Mayday, ~10,000 ft/min (ATC)", "tier": "reported"},
-  {"t": 12.2, "text": "17:48:40Z Right turn begins; track 099 -> 290 deg over the remaining 52 s (descending right spiral)", "tier": "seen"},
-  {"t": 12.2, "text": "17:49:33Z Impact beside Military Trail between Cresthaven Blvd and 10th Ave N, Greenacres (Cam A fireball)", "tier": "seen"},
-  {"t": 12.2, "text": "Encoded vertical rate saturates at -32,640 fpm from 17:49:04Z: the true rate was higher", "tier": "seen"},
-  {"t": 12.2, "text": "Peak estimated Mach ~0.94 (TAS ~590 kt at FL220); ~0.90-0.95 sustained below FL280", "tier": "derived"},
-  {"t": 12.2, "text": "Below about -40 C liquid water cannot remain supercooled, so \"clear ice\" at -46/-47 C points to ice crystals or misreported accretion type", "tier": "inferred"},
-  {"t": 489.0, "text": "Learjet crash probe seeks to understand high-altitude upset in convective weather - FlightGlobal", "tier": "reported"},
-  {"t": 489.0, "text": "Learjet 60 crash: What does the horizontal stabiliser do? - Aerospace Global News", "tier": "reported"},
-  {"t": 489.0, "text": "Nine killed after Learjet 60 plunges into Florida neighborhood; crew reported severe icing befor…", "tier": "reported"},
-  {"t": 559.5, "text": "Did the Learjet 60 Lose Its Tail Mid-Air? What the Dashcam Video Shows About the Horizontal Stab…", "tier": "reported"},
-  {"t": 2441.3, "text": "NTSB Finds Learjet Elevator Pieces Miles From Impact Site - AVweb", "tier": "reported"},
-  {"t": 11205.9, "text": "NTSB: Cockpit voice recorder found at initial impact site in Greenacres Learjet crash - WPEC", "tier": "reported"}
+  {
+   "t": 12.2,
+   "text": "17:47:33Z Crew reports light clear ice, OAT -47 C",
+   "tier": "reported"
+  },
+  {
+   "t": 12.2,
+   "text": "17:48:28Z Mayday, ~10,000 ft/min (ATC)",
+   "tier": "reported"
+  },
+  {
+   "t": 12.2,
+   "text": "17:48:40Z Right turn begins; track 099 -> 290 deg over the remaining 52 s (descending right spiral)",
+   "tier": "seen"
+  },
+  {
+   "t": 12.2,
+   "text": "17:49:33Z Impact beside Military Trail between Cresthaven Blvd and 10th Ave N, Greenacres (Cam A fireball)",
+   "tier": "seen"
+  },
+  {
+   "t": 12.2,
+   "text": "Encoded vertical rate saturates at -32,640 fpm from 17:49:04Z: the true rate was higher",
+   "tier": "seen"
+  },
+  {
+   "t": 12.2,
+   "text": "Peak estimated Mach ~0.94 (TAS ~590 kt at FL220); ~0.90-0.95 sustained below FL280",
+   "tier": "derived"
+  },
+  {
+   "t": 12.2,
+   "text": "Below about -40 C liquid water cannot remain supercooled, so \"clear ice\" at -46/-47 C points to ice crystals or misreported accretion type",
+   "tier": "inferred"
+  },
+  {
+   "t": 489.0,
+   "text": "Learjet crash probe seeks to understand high-altitude upset in convective weather - FlightGlobal",
+   "tier": "reported"
+  },
+  {
+   "t": 489.0,
+   "text": "Learjet 60 crash: What does the horizontal stabiliser do? - Aerospace Global News",
+   "tier": "reported"
+  },
+  {
+   "t": 489.0,
+   "text": "Nine killed after Learjet 60 plunges into Florida neighborhood; crew reported severe icing befor…",
+   "tier": "reported"
+  },
+  {
+   "t": 559.5,
+   "text": "Did the Learjet 60 Lose Its Tail Mid-Air? What the Dashcam Video Shows About the Horizontal Stab…",
+   "tier": "reported"
+  },
+  {
+   "t": 2441.3,
+   "text": "NTSB Finds Learjet Elevator Pieces Miles From Impact Site - AVweb",
+   "tier": "reported"
+  },
+  {
+   "t": 11205.9,
+   "text": "NTSB: Cockpit voice recorder found at initial impact site in Greenacres Learjet crash - WPEC",
+   "tier": "reported"
+  }
  ],
  "sim": [
-  {"id": "track", "label": "ADS-B track → 4D flight path", "start": 0, "t": 12.2, "layer": "track"},
-  {"id": "cams", "label": "9 perspectives synced to UTC", "start": 0, "t": 12.2, "layer": "cameras"},
-  {"id": "radar", "label": "NEXRAD radar along the track", "start": 0, "t": 12.2, "layer": "radar"},
-  {"id": "gust", "label": "JSBSim Learjet 60 gust study", "start": 0, "t": 12.2, "layer": "physics"},
-  {"id": "goes", "label": "GOES-19 cloud-top temperatures", "start": 12.2, "t": 19.2, "layer": "satellite"},
-  {"id": "cockpit", "label": "FlightGear replay from the track", "start": 12.2, "t": 19.2, "layer": "cockpit"}
+  {
+   "id": "track",
+   "label": "ADS-B track → 4D flight path",
+   "start": 0,
+   "t": 12.2,
+   "layer": "track"
+  },
+  {
+   "id": "cams",
+   "label": "9 perspectives synced to UTC",
+   "start": 0,
+   "t": 12.2,
+   "layer": "cameras"
+  },
+  {
+   "id": "radar",
+   "label": "NEXRAD radar along the track",
+   "start": 0,
+   "t": 12.2,
+   "layer": "radar"
+  },
+  {
+   "id": "gust",
+   "label": "JSBSim Learjet 60 gust study",
+   "start": 0,
+   "t": 12.2,
+   "layer": "physics"
+  },
+  {
+   "id": "goes",
+   "label": "GOES-19 cloud-top temperatures",
+   "start": 12.2,
+   "t": 19.2,
+   "layer": "satellite"
+  },
+  {
+   "id": "cockpit",
+   "label": "FlightGear replay from the track",
+   "start": 12.2,
+   "t": 19.2,
+   "layer": "cockpit"
+  }
  ]
 }

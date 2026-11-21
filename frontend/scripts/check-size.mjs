@@ -9,7 +9,8 @@ import { relative, resolve } from 'node:path'
 
 import { ratchet, root } from './ratchet.mjs'
 
-const EXEMPT = ['src/vendor/', 'src/view/styles.ts']
+// The Learjet case is generated fixture data, not a hand-maintained module.
+const EXEMPT = ['src/vendor/', 'src/view/styles.ts', 'src/gev/research/cases/learjet.ts']
 
 /** Every .ts and .tsx file under `dir`, relative to the frontend. */
 function sources(dir) {
