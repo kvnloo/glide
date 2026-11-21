@@ -111,6 +111,7 @@ def main() -> None:
         check("hook-after-on", "Run release tests" in hook("release tests"), "matching correction quoted")
         check("hook-no-match", not hook("weather forecast"), "no injection")
         run("recall release tests", "Run release tests")
+        run("recall frontend", "pnpm")
         run("recall weather forecast", "No matching correction.")
         run("off", "quoted into turns: off")
         check("hook-after-off", not hook("release tests"), "no injection")
