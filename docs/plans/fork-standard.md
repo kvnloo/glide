@@ -30,7 +30,7 @@ git ls-remote --symref origin HEAD
 gh pr list --repo kvnloo/glide --state open --json number,baseRefName,headRefName
 ```
 
-All seven currently target main and none of their heads are contained in it. Verify each new Files Changed view and checks (changing bases can invalidate reviews); keep #342, #330, #304 and #298 draft until disposition in the [ledger](../REQUIREMENTS-LEDGER.md). Do not rewrite their head refs in the cutover. Recheck PR bases and add any opened during the freeze.
+All seven currently target main and none of their heads are contained in it. Verify each new Files Changed view and checks (changing bases can invalidate reviews); keep #342, #330, #304 and #298 draft until disposition in `docs/REQUIREMENTS-LEDGER.md`. Do not rewrite their head refs in the cutover. Recheck PR bases and add any opened during the freeze.
 
 Before the one non-fast-forward push, configure a short-lived owner bypass for main only and verify exact archive, staging release, catalog pin and upstream ref. Retain existing tag ancestry and do not prune or move other refs.
 
