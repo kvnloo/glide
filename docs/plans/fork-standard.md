@@ -54,17 +54,20 @@ Remove the temporary bypass. Require staging PRs/checks, and lock main to the mi
 
 Create a **new standalone repository**, not a second network fork, after backup scope/storage approval. Keep its trusted control/default branch distinct from mirrored data. A GitHub App installation token scoped to the detached backup and Glide needs Contents write and permission to update workflow files; install only on those repositories, store the app private key as an Actions secret, and restrict the ruleset exemption to the sync app. A plain job token is insufficient for this cross-repo/workflow-file update. Disable execution of mirrored workflows: mirror heads/tags under a non-executing namespace (GitHub accepts custom refs only where supported; if not, use backup tag refs with type prefixes and do not allow tag-triggered workflows). Never use a blanket mirror push against the controller repo: it can delete the cron/default branch or start foreign workflows. Verify on a disposable destination before enrolling Glide.
 
-Implement a scheduled and manually dispatchable action on the controller branch with per-repo concurrency. Fetch upstream heads and tags into a **fresh bare Git repo** with dedicated `refs/cache/heads/*` and `refs/cache/tags/*`. For every head/tag, append a protected archival tag such as `refs/tags/mirror/heads/<name>/<object-id>` and `refs/tags/mirror/tags/<name>/<object-id>` (store the tag object ID, not just its peeled commit). Publish verified archival refs before updating Glide. Never delete last-good refs: if upstream disappears, freezes or force-pushes, retain the archive, fail and alert. Reconstruct refs by parsing the type/name suffixes and selecting the desired snapshot; store timestamped manifests of the upstream ref listing with each run, including which refs were deleted upstream, so restore is unambiguous.
+Implement a scheduled and manually dispatchable action on the controller branch with per-repo concurrency. Fetch upstream heads and tags into a **fresh bare Git repo** with dedicated `refs/cache/heads/*` and `refs/cache/tags/*`. For every head/tag, append a protected archival tag such as `refs/tags/mirror/<full-ref-name-hash>/<object-id>` (store the tag object ID, not just its peeled commit). Publish verified archival refs before updating Glide. Never delete last-good refs: if upstream disappears, freezes or force-pushes, retain the archive, fail and alert. Reconstruct refs from the selected manifest and verify each archived object; store timestamped manifests of the upstream ref listing with each run, including which refs were deleted upstream, so restore is unambiguous.
 
-With authenticated remotes named `backup` and `fork` and upstream cache already fetched, the core publication sequence in that bare checkout is:
+With authenticated remotes named `backup` and `fork`, the core publication sequence in that fresh bare checkout is:
 
 ```bash
 set -euo pipefail
+git fetch --no-tags https://github.com/alt-glitch/hermes-tern.git \
+  '+refs/heads/*:refs/cache/heads/*' '+refs/tags/*:refs/cache/tags/*'
 git for-each-ref --format='%(objectname) %(refname)' refs/cache/heads refs/cache/tags > upstream-refs.txt
 test -s upstream-refs.txt
 snapshot=$(git rev-parse 'refs/cache/heads/main^{commit}')
 while read -r object ref; do
-  git push backup "$object:refs/tags/mirror/${ref#refs/cache/}/$object"
+  ref_id=$(printf '%s' "$ref" | git hash-object --stdin)
+  git push backup "$object:refs/tags/mirror/$ref_id/$object"
 done < upstream-refs.txt
 git fetch --no-tags fork refs/heads/main:refs/cache/fork-main
 git merge-base --is-ancestor refs/cache/fork-main "$snapshot"
