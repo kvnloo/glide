@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-// @ts-expect-error plain ESM build script without types
+// @ts-expect-error -- plain ESM build script without types
 import { adaptFleetJs } from '../../scripts/vendor-ephemeral-ui.mjs'
 
 describe('vendored kit copy', () => {

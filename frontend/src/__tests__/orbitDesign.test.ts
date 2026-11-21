@@ -35,7 +35,7 @@ describe('FOCUS orbit design', () => {
       }
     }
     expect(new Set(Object.values(ROLE_RAMP).map(c => c.dark)).size).toBe(4)
-    expect(ROLE_TINT.fast).toBe(ROLE_RAMP.fast.dark) // stable export shape
+    expect(ROLE_TINT['fast']).toBe(ROLE_RAMP.fast.dark) // stable export shape
   })
 
   it('uses host danger ink on every dead mark, with tokenized SVG fallbacks', () => {
