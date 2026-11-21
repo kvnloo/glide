@@ -8,15 +8,18 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import shlex
 import shutil
 import signal
 import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-STUDIO = Path('/home/kvn/.hermes/profiles/clean/cache/scratch/studio')
+STUDIO = Path(os.environ['GLIDE_STUDIO_DIR']).resolve()
 OUT = ROOT / 'glide/proofs/card-motion'
-TERN = '/home/kvn/.local/bin/tern'
+TERN = os.environ.get('TERN_BIN', 'tern')
+BUN = os.environ.get('BUN_BIN', 'bun')
+SWAYMSG = os.environ.get('SWAYMSG_BIN', 'swaymsg')
 
 
 def ctl(*args):
@@ -45,7 +48,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     OUT.mkdir(parents=True, exist_ok=True)
     ctl('tab', 'new')
     ctl('ready')
-    ctl('run', json.dumps(f'cd {ROOT / "frontend"} && /home/kvn/.bun/bin/bun e2e/card-motion.ts'))
+    ctl('run', json.dumps(f'cd {shlex.quote(str(ROOT / "frontend"))} && {shlex.quote(BUN)} e2e/card-motion.ts'))
     for _ in range(20):
         if 'GLIDE / NATIVE CARD MOTION' in json.dumps(ctl('tree')):
             break
@@ -67,7 +70,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         (OUT / 'live-a11y.json').write_text(json.dumps(ctl('a11y'), indent=2))
         socket = next((STUDIO / 'rt').glob('sway-ipc.*.sock'))
         env = dict(os.environ, XDG_RUNTIME_DIR=str(STUDIO / 'rt'), WAYLAND_DISPLAY='wayland-1', SWAYSOCK=str(socket))
-        sway = json.loads(subprocess.check_output(['/home/kvn/.local/opt/sway-nested/bin/swaymsg', '-t', 'get_tree', '-r'], env=env, text=True))
+        sway = json.loads(subprocess.check_output([SWAYMSG, '-t', 'get_tree', '-r'], env=env, text=True))
 
         def nodes(n):
             yield n
