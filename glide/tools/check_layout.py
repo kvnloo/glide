@@ -21,6 +21,7 @@ BASELINE = Path(__file__).with_name("layout-baseline.txt")
 # Fixed external entry points (GitHub paths, the fresh-install script, the hackathon submission); downstream code still lives in glide/.
 FIXED = {".github/README.md", ".github/workflows/glide.yml", "scripts/e2e-fresh-install.sh", "docs/SUBMISSION.md"}
 FIXED_DIRS = (".github/ISSUE_TEMPLATE/", ".github/PULL_REQUEST_TEMPLATE/")
+FIXED.add("docs/plans/fork-standard.md")
 
 
 def git(*args: str) -> str:
