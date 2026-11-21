@@ -14,7 +14,7 @@ on:
 permissions:
   contents: read
 
-# One build at a time, oldest first: each rebuilds from main's newest commit.
+# Each run builds its checked-out revision; superseded runs must not publish.
 concurrency:
   group: bundle
   cancel-in-progress: false
@@ -27,6 +27,10 @@ jobs:
     defaults:
       run:
         working-directory: frontend
+    env:
+      HERMES_SRC: ${{ github.workspace }}/.hermes-agent
+      OPENUI_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -44,25 +48,30 @@ jobs:
           ref: ${{ steps.lock.outputs.sha }}
           path: .hermes-agent
           persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
       - run: node scripts/hermes-src.mjs && bun install --frozen-lockfile
-        env:
-          HERMES_SRC: ${{ github.workspace }}/.hermes-agent
       - name: build, commit and push when it changed
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          # Main can move while this runs: build again from its newest commit, up to three times.
-          for attempt in 1 2 3; do
-            git fetch -q origin main && git reset -q --hard origin/main
-            node scripts/build.mjs
-            if git diff --quiet -- dist/entry.js; then
-              echo "dist/entry.js is current"
-              exit 0
-            fi
-            git add dist/entry.js
-            git commit -q -m "chore(frontend): build dist/entry.js for $(git rev-parse --short HEAD)"
-            git push -q origin HEAD:main && exit 0
-            echo "main moved; building again"
-          done
-          exit 1
+          source=$(git rev-parse HEAD)
+          python3 ../scripts/bundle_provenance.py verify --plugin .. --hermes "$HERMES_SRC" --expected "$source"
+          node scripts/build.mjs
+          if git diff --quiet -- dist/entry.js; then
+            echo "dist/entry.js is current"
+            exit 0
+          fi
+          git fetch -q origin main
+          if [[ $(git rev-parse FETCH_HEAD) != "$source" ]]; then
+            echo "::error::main moved; dispatch a fresh bundle build if the newer run did not publish"
+            exit 1
+          fi
+          git add dist/entry.js
+          git commit -q -m "chore(frontend): build dist/entry.js for ${source:0:7}"
+          # An ordinary push fails closed if main moves after the comparison.
+          git push origin HEAD:main
