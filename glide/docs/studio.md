@@ -55,3 +55,16 @@ For the web fallback it waits for the credential-free URL before recording or ca
 The native recording includes typing the command; the web recording starts after authentication.
 It closes the owned session and bridge after the check. It does not query a model.
 Full suites run through the fleet-runner CI mirror.
+
+## Finish and export a film from Glide
+
+Start the fframestudio local bridge and run `/film <project-id>` in Glide. Use the
+matching fframestudio build with finished export support. For 1080p60, start from an
+imported 1920×1080, 60 fps project; the exporter preserves the project's canvas and rate.
+
+In the editor, select a clip and edit its **Words → title**. **Export finish** sets
+the per-clip look and optional fade from/to black. In **Takes → Export score**, choose
+a local WAV, MP3, FLAC, M4A or Ogg file (up to 30 MB). **Export video** saves edits
+first, then renders a local MP4 and its take receipt. It does not overwrite source
+media. The editor's preview remains a source preview; play the actual export under
+**Takes**. Rerun `/film <project-id>` to play the latest take directly from the Glide card.
