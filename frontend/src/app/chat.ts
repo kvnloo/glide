@@ -48,14 +48,13 @@ import { hermesTableChartPlanner } from '../transcript/tableChartPlanner.js'
 import { TableCharts } from '../transcript/tableCharts.js'
 import { EuiCards } from '../eui/cards.js'
 import { GevCards } from '../gev/cards.js'
-import { ToolProgressCards } from '../../../glide/frontend/toolProgress.js'
 import type { Busy } from '../turn/activity.js'
 import { IMAGE_ONLY_PROMPT } from '../turn/prompt.js'
 import { type LaunchSplash, startSplash } from '../splash/launch.js'
 import { Retention } from '../view/retention.js'
 import { STYLES } from '../view/styles.js'
 import { noticeSink, onCardFault } from '../view/tools/faults.js'
-import { busyLabel, liveLabel, preparingLabel } from '../view/workLogModel.js'
+import { busyLabel, preparingLabel } from '../view/workLogModel.js'
 import type { LiveVoice } from '../voice/live.js'
 
 import { AppActions } from './actions.js'
@@ -98,13 +97,6 @@ export class App implements ChatPorts {
   #surface!: SurfaceHost
   readonly #orbActivity = new OrbActivity()
   readonly #gev = new GevCards(() => this.eui, text => this.notice(text, 'warning'))
-  /** GL-108: the turn's tool calls as a live eui card, settled at turn end. */
-  readonly #toolProgress = new ToolProgressCards({
-    eui: () => this.eui,
-    transcript: () => this.transcript,
-    cwd: () => this.session.info?.cwd ?? '',
-    label: (call, running) => liveLabel({ call, id: call.id, kind: 'tool' }, running)
-  })
   #orb: ThinkingOrb | undefined
   #clean: CleanView | undefined
   #lanes: LaneStrip | undefined
@@ -275,7 +267,6 @@ export class App implements ChatPorts {
       showImage: call => this.#act.showImage(call),
       showArtifacts: call => this.#act.showArtifacts(call),
       showGev: call => this.#gev.show(call),
-      toolProgress: this.#toolProgress,
       sid: () => this.session.ref.live,
       summarize: delay => this.#act.summarize(delay)
     })
