@@ -137,9 +137,8 @@ describe('Night Drive page', { timeout: 60_000 }, () => {
     run.eval(`window.__click(document.getElementById('emotions'))`)
     expect(run.eval(`document.getElementById('emotion-menu').hidden`)).toBe(false)
     expect(run.eval(`document.getElementById('emotions').getAttribute('aria-expanded')`)).toBe('true')
-    const items = () => run.eval(`[...document.querySelectorAll('#emotion-menu button')].map(b =>
-      [b.querySelector('span').textContent, b.querySelector('small').textContent, b.getAttribute('aria-checked'), b.style.getPropertyValue('--feel')].join('/')).join(' ')`)
-    expect(items()).toBe('Playlist order//true/ By emotion · calm → bright//false/ Every emotion/6/true/ ' +
+    expect(run.eval(`[...document.querySelectorAll('#emotion-menu button')].map(b =>
+      [b.querySelector('span').textContent, b.querySelector('small').textContent, b.getAttribute('aria-checked'), b.style.getPropertyValue('--feel')].join('/')).join(' ')`)).toBe('Playlist order//true/ By emotion · calm → bright//false/ Every emotion/6/true/ ' +
       'Calm/1/false/#3fc1b0 Wistful/2/false/#8c7cf0 Driving/1/false/#ff6b57 Tense/1/false/#f29a2e Bright/1/false/#f2d43d')
 
     // Sort: calm to bright, ties keep playlist order. The menu stays open to pick a filter next.
