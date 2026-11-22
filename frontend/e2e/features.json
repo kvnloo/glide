@@ -1956,8 +1956,9 @@
       "surface": "slash",
       "entry": "/hosts",
       "journey": "fleet",
-      "expect": "Real fleet payload reaches the kit; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
+      "expect": "Fleet snapshot reaches the native renderer; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
       ],
@@ -1971,6 +1972,7 @@
       "journey": "fleet",
       "expect": "Optional portfolio key reaches glide.fleet; Task URLs open safely; Set next drafts without sending",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
@@ -1983,8 +1985,9 @@
       "surface": "slash",
       "entry": "/factory graph",
       "journey": "fleet",
-      "expect": "Graph uses the existing inline kit renderer; SVG nodes have native click controls; Queue fix drafts without sending; Other factory commands retain their existing path",
+      "expect": "Native card renders the factory spine graphic and bottleneck actions; Queue fix drafts without sending; Other factory commands retain their existing path",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts",
