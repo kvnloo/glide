@@ -241,7 +241,7 @@ describe('the command palette and /template', () => {
 describe('GlidePages.close', () => {
   it('closes an open page\'s block and forgets it; an unknown id is a no-op', async () => {
     const ops: unknown[] = []
-    const browser: Browser = async op => { ops.push(op); return op.op === 'open' ? { block: 7 } : {} }
+    const browser: Browser = async op => { ops.push(op); return op['op'] === 'open' ? { block: 7 } : {} }
     const pages = new GlidePages(browser, () => 1)
     await pages.sync([{ id: 'template-analytics', title: 'Analytics', path: '/x/analytics.html', how: 'beside', opened: 1 }])
     await pages.close('template-analytics')
