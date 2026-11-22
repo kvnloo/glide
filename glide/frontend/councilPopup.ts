@@ -15,10 +15,9 @@ import type { Requester } from '../../frontend/src/wire/rpc.js'
 import {
   closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, narration, parseCouncilRun, swatchSvg
 } from './council.js'
-import { deliverySvg, exchangeAt, exchangeTiming } from './councilExchange.js'
+import { type CouncilPassage, councilPassages, deliverySvg, exchangeAt, exchangeTiming } from './councilExchange.js'
 import {
-  type CouncilPassage, type CouncilPosition, type CouncilSession, CouncilSync, type CouncilWire, councilPassages,
-  listCouncilSessions, loadCouncilSession, remaining, startCouncilSession
+  type CouncilPosition, type CouncilSession, CouncilSync, type CouncilWire, listCouncilSessions, loadCouncilSession, remaining, startCouncilSession
 } from './councilSession.js'
 import { type CouncilSpeech, type SpeechAudio, platformSpeech } from './councilSpeech.js'
 import { DASH, GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'

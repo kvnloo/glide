@@ -127,6 +127,18 @@ function readRun(raw: unknown): CouncilRun {
   })
 }
 
+/** A parsed run back in its wire form (seats by id), so it round-trips through parseCouncilRun. */
+export function councilRunWire(run: CouncilRun): Record<string, unknown> {
+  const id = (i: number) => run.seats[i]?.id ?? ''
+  return {
+    schema: COUNCIL_SCHEMA, brief: run.brief, ...(run.constraints ? { constraints: [...run.constraints] } : {}), rounds: run.rounds,
+    seats: run.seats.map(s => ({ id: s.id, name: s.name, family: s.family, mineral: s.mineral, crew: [...s.crew] })),
+    events: run.events.map(e => e.type === 'spawn' ? { type: e.type, seat: id(e.seat) } : { type: e.type, seat: id(e.seat), round: e.round, cites: e.cites.map(id) }),
+    verdicts: run.verdicts.map(v => ({ seat: id(v.seat), stance: v.stance, text: v.text })),
+    ...(run.outcome === undefined ? {} : { outcome: run.outcome })
+  }
+}
+
 /** A synthetic run for the demo tag: invented seats and brief, no real council output. */
 export function demoRun(): CouncilRun {
   const CREW = ['clear', 'clear', 'clear', 'clear', 'clear', 'moonstone', 'moonstone', 'smoky', 'smoky']

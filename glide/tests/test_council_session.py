@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import types
@@ -25,9 +26,7 @@ class Failure(Exception):
 @pytest.fixture(autouse=True)
 def _gateway_failure(monkeypatch):
     """The core's secret-safe failure type, stubbed where no hermes-agent checkout is importable."""
-    try:
-        from hermes_cli.plugin_gateway_methods import GatewayMethodFailure  # noqa: F401
-    except ImportError:
+    if importlib.util.find_spec("hermes_cli") is None:
         module = types.ModuleType("hermes_cli.plugin_gateway_methods")
         module.GatewayMethodFailure = Failure
         monkeypatch.setitem(sys.modules, "hermes_cli", types.ModuleType("hermes_cli"))

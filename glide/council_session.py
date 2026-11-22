@@ -29,6 +29,13 @@ RUN_SCHEMA = "glide.council-run/v1"
 NAMESPACE = "glide.council"
 MAX_RUN_BYTES = 64 * 1024
 MAX_COUNCILS = 64
+MAX_PASSAGES = 16
+MAX_LABEL = 40
+MAX_PASSAGE_TEXT = 4000
+MAX_SENTENCE = 999
+MAX_ELAPSED_MS = 24 * 60 * 60 * 1000
+MAX_SESSION_ID = 200
+LIST_LIMIT = 20
 CONFLICT = 4090
 NOT_FOUND = 4004
 INVALID = 4000
@@ -47,50 +54,61 @@ class Conflict(Exception):
 
 
 class Passage(BaseModel):
+    """One passage a reader speaks; built from each entry of a start call's ``passages``."""
     model_config = ConfigDict(extra="forbid", strict=True)
     key: str = Field(pattern=_PASSAGE)
-    label: str = Field(min_length=1, max_length=40)
-    text: str = Field(min_length=1, max_length=4000)
+    label: str = Field(min_length=1, max_length=MAX_LABEL)
+    text: str = Field(min_length=1, max_length=MAX_PASSAGE_TEXT)
     seat: str | None = Field(default=None, pattern=_SEAT)
 
 
 class Position(BaseModel):
+    """Where a council is; built from a start or position call's ``position``."""
     model_config = ConfigDict(extra="forbid", strict=True)
-    elapsed_ms: StrictInt = Field(default=0, ge=0, le=24 * 3600 * 1000)
+    elapsed_ms: StrictInt = Field(default=0, ge=0, le=MAX_ELAPSED_MS)
     passage: str | None = Field(default=None, pattern=_PASSAGE)
-    sentence: StrictInt = Field(default=0, ge=0, le=999)
+    sentence: StrictInt = Field(default=0, ge=0, le=MAX_SENTENCE)
     read_aloud: StrictBool = False
     muted: StrictBool = False
 
 
-class SessionParams(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
-    session_id: str = Field(min_length=1)
+_STRICT = ConfigDict(extra="forbid", strict=True)
+_SESSION = Field(min_length=1)
+_STORED = Field(default=None, min_length=1, max_length=MAX_SESSION_ID)
 
 
-class StartParams(SessionParams):
-    stored_session_id: str | None = Field(default=None, min_length=1, max_length=200)
+class StartParams(BaseModel):
+    model_config = _STRICT
+    session_id: str = _SESSION
+    stored_session_id: str | None = _STORED
     client: str = Field(pattern=_CLIENT)
     live: StrictBool
-    from_: str = Field(alias="from", min_length=1, max_length=200)
+    from_: str = Field(alias="from", min_length=1, max_length=MAX_SESSION_ID)
     run: dict
-    passages: list[Passage] = Field(min_length=1, max_length=16)
-    position: Position = Field(default_factory=Position)
+    passages: list[dict] = Field(min_length=1, max_length=MAX_PASSAGES)
+    position: dict = Field(default_factory=dict)
 
 
-class LoadParams(SessionParams):
+class LoadParams(BaseModel):
+    model_config = _STRICT
+    session_id: str = _SESSION
     council_id: str = Field(pattern=_ID)
 
 
-class ListParams(SessionParams):
-    stored_session_id: str | None = Field(default=None, min_length=1, max_length=200)
-    limit: StrictInt = Field(default=20, ge=1, le=MAX_COUNCILS)
+class ListParams(BaseModel):
+    model_config = _STRICT
+    session_id: str = _SESSION
+    stored_session_id: str | None = _STORED
+    limit: StrictInt = Field(default=LIST_LIMIT, ge=1, le=MAX_COUNCILS)
 
 
-class PositionParams(LoadParams):
+class PositionParams(BaseModel):
+    model_config = _STRICT
+    session_id: str = _SESSION
+    council_id: str = Field(pattern=_ID)
     client: str = Field(pattern=_CLIENT)
     base_revision: StrictInt = Field(ge=1)
-    position: Position
+    position: dict
 
 
 def _now() -> str:
@@ -116,15 +134,15 @@ def _locked(home: Path):
 
 def _write(home: Path, state: dict) -> None:
     folder = _dir(home)
-    fd, tmp = tempfile.mkstemp(dir=folder, prefix=".council-", suffix=".json")
+    fd, staging = tempfile.mkstemp(dir=folder, prefix=".council-", suffix=".json")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as out:
             json.dump(state, out, ensure_ascii=False, separators=(",", ":"))
-        os.replace(tmp, folder / f"{state['council_id']}.json")
-    except BaseException:
-        with contextlib.suppress(OSError):
-            os.unlink(tmp)
-        raise
+        os.replace(staging, folder / f"{state['council_id']}.json")
+    finally:
+        # Gone after a successful replace; a failed write leaves no partial record behind.
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(staging)
 
 
 def _read(home: Path, council_id: str) -> dict:
@@ -170,7 +188,9 @@ def _prune(home: Path, keep: str) -> None:
 
 
 def start(home: Path, params: StartParams) -> dict:
-    _check_run(params.run, params.passages)
+    passages = [Passage(**p) for p in params.passages]
+    position = Position(**params.position)
+    _check_run(params.run, passages)
     now = _now()
     state = {
         "schema": SCHEMA,
@@ -184,10 +204,10 @@ def start(home: Path, params: StartParams) -> dict:
         "live": params.live,
         "from": params.from_,
         "run": params.run,
-        "passages": [p.model_dump() for p in params.passages],
-        "position": params.position.model_dump(),
+        "passages": [p.model_dump() for p in passages],
+        "position": position.model_dump(),
     }
-    _check_position(params.position, state)
+    _check_position(position, state)
     with _locked(home):
         _write(home, state)
         _prune(home, state["council_id"])
@@ -218,25 +238,26 @@ def move(home: Path, params: PositionParams) -> dict:
         state = _read(home, params.council_id)
         if state["revision"] != params.base_revision:
             raise Conflict(state["revision"])
-        _check_position(params.position, state)
-        state.update(position=params.position.model_dump(), revision=state["revision"] + 1,
+        position = Position(**params.position)
+        _check_position(position, state)
+        state.update(position=position.model_dump(), revision=state["revision"] + 1,
                      updated_at=_now(), updated_by=params.client)
         _write(home, state)
     return state
 
 
 VERBS = {
-    "start": (StartParams, start),
-    "load": (LoadParams, load),
-    "list": (ListParams, summaries),
-    "position": (PositionParams, move),
+    "start": (StartParams, lambda home, p: start(home, StartParams(**p))),
+    "load": (LoadParams, lambda home, p: load(home, LoadParams(**p))),
+    "list": (ListParams, lambda home, p: summaries(home, ListParams(**p))),
+    "position": (PositionParams, lambda home, p: move(home, PositionParams(**p))),
 }
 
 
 def call(home: Path, verb: str, params: dict) -> dict:
     """One council verb with its schema checked; shared by the gateway method and `/glide json`."""
-    schema, run = VERBS[verb]
-    return run(home, schema.model_validate(params))
+    _schema, run = VERBS[verb]
+    return run(home, params)
 
 
 def failure(error: Exception) -> tuple[int, str]:
@@ -266,7 +287,7 @@ def register(ctx) -> None:
             except (Conflict, LookupError, ValueError) as error:
                 from hermes_cli.plugin_gateway_methods import GatewayMethodFailure
 
-                raise GatewayMethodFailure(*failure(error)) from None
+                raise GatewayMethodFailure(*failure(error)) from error
         return handler
 
     for verb, (schema, _run) in VERBS.items():

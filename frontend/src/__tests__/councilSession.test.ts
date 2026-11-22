@@ -1,16 +1,16 @@
 // GL-103: a council started in Glide is serialized by the plugin and resumed in a fresh client.
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
-import { demoRun, parseCouncilRun } from '../../../glide/frontend/council.js'
-import { exchangeTiming } from '../../../glide/frontend/councilExchange.js'
+import { councilRunWire, demoRun, parseCouncilRun } from '../../../glide/frontend/council.js'
+import { councilPassages, exchangeTiming } from '../../../glide/frontend/councilExchange.js'
 import { type CouncilHost, councilCommand, openCouncilPopup } from '../../../glide/frontend/councilPopup.js'
 import {
-  CouncilMovedOn, CouncilSync, councilPassages, councilRunWire, loadCouncilSession, parseCouncilSession, remaining,
+  CouncilMovedOn, CouncilSync, loadCouncilSession, parseCouncilSession, remaining,
   START, startCouncilSession
 } from '../../../glide/frontend/councilSession.js'
 import type { CouncilSpeech, SpeechAudio } from '../../../glide/frontend/councilSpeech.js'
@@ -21,7 +21,7 @@ import type { Requester } from '../wire/rpc.js'
 import { stub } from './fakes.js'
 
 const GLIDE = resolve(__dirname, '../../../glide')
-const must = <T>(v: T | undefined | null): T => { if (v === undefined || v === null) throw new Error('missing'); return v }
+const must = <T>(v: T | undefined | null): T => { if (v === undefined || v === null) throw new Error(`expected a value in this step, got ${String(v)}`); return v }
 const FIXTURE = must(record(readFileSync(join(GLIDE, 'tests/fixtures/council-session-v1.json'), 'utf8')))
 const flush = async () => { for (let i = 0; i < 10; i++) await new Promise(r => setImmediate(r)) }
 
@@ -32,9 +32,8 @@ const gatewayError = (message: string, code: number) => Object.assign(new Error(
 
 /** The plugin's own council_session.py, run per request against a disposable profile. */
 function pythonServer(): Server | undefined {
-  const python = ['python3', 'python'].find(bin => {
-    try { execFileSync(bin, ['-I', '-c', 'import pydantic, fcntl'], { stdio: 'ignore' }); return true } catch { return false }
-  })
+  // The CI frontend job puts the Hermes venv (with pydantic) on PATH; without one the store tests skip.
+  const python = ['python3', 'python'].find(bin => spawnSync(bin, ['-I', '-c', 'import pydantic, fcntl'], { stdio: 'ignore' }).status === 0)
   if (!python) return undefined
   const home = mkdtempSync(join(tmpdir(), 'glide-council-home-'))
   homes.push(home)
