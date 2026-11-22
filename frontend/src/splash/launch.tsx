@@ -34,6 +34,8 @@ export interface LaunchSplashOptions {
   now?: () => number
   setInterval?: (fn: () => void, ms: number) => Timer
   clearInterval?: (handle: Timer) => void
+  setTimeout?: (fn: () => void, ms: number) => Timer
+  clearTimeout?: (handle: Timer) => void
 }
 
 const STYLES = [
@@ -48,6 +50,7 @@ export class LaunchSplash {
   readonly #frames = new Map<string, string>()
   #surface: ReturnType<SplashTern['open']> | undefined
   #timer: Timer | undefined
+  #deadline: Timer | undefined
   #startedAt = 0
   #exitAt: number | null = null
   #ready = false
@@ -73,6 +76,9 @@ export class LaunchSplash {
     this.#surface = this.#o.tern.open({ id: 'splash', mode: 'screen', role: SPLASH_ROLE, title: 'glide' })
     this.#surface.stylesheet('splash', STYLES)
     this.#startedAt = this.#now()
+    // The hand-off deadline is independent of the visibility/motion-driven paint clock.
+    const after = this.#o.setTimeout ?? ((fn, ms) => setTimeout(fn, ms).unref())
+    this.#deadline = after(() => this.#finish(), SPLASH_MAX_MS)
     this.tick()
     this.#schedule()
   }
@@ -80,13 +86,13 @@ export class LaunchSplash {
   /** Startup work is finished: play out the intro, then leave. */
   ready() {
     this.#ready = true
-    if (this.active && !this.#timer) this.tick()
+    if (this.active && this.#timer === undefined) this.tick()
   }
 
   /** Any key: leave now (the key is spent). */
   skip() {
     if (this.active && this.#exitAt === null) this.#exitAt = this.#elapsed()
-    if (this.active && !this.#timer) this.tick()
+    if (this.active && this.#timer === undefined) this.tick()
   }
 
   /** Consume the key used to skip; it must not reach the composer. */
@@ -134,7 +140,7 @@ export class LaunchSplash {
     const surface = this.#surface
     if (!surface || this.#done) return
     const ms = this.#elapsed()
-    if (this.#exitAt === null && ((this.#ready && (ms >= SPLASH_INTRO_MS || this.#reduce)) || ms >= SPLASH_MAX_MS)) {
+    if (this.#exitAt === null && this.#ready && (ms >= SPLASH_INTRO_MS || this.#reduce || !this.#visible)) {
       this.#exitAt = ms
     }
     if (this.#exitAt !== null && (ms - this.#exitAt >= SPLASH_EXIT_MS || this.#reduce || !this.#visible)) {
@@ -156,7 +162,7 @@ export class LaunchSplash {
     const run = this.active && this.#visible && !this.#reduce
     if (!run) {
       this.#stop()
-    } else if (!this.#timer) {
+    } else if (this.#timer === undefined) {
       const every = this.#o.setInterval ?? ((fn, ms) => setInterval(fn, ms).unref())
       this.#timer = every(() => this.tick(), FRAME_MS)
     }
@@ -171,6 +177,8 @@ export class LaunchSplash {
     if (this.#done) return
     this.#done = true
     this.#stop()
+    if (this.#deadline !== undefined) (this.#o.clearTimeout ?? clearTimeout)(this.#deadline)
+    this.#deadline = undefined
     void this.#surface?.close()
     this.#o.onDone()
   }
