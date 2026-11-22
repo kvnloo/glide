@@ -4,6 +4,7 @@
 // it against the trusted publication exactly as before; ids stay in intents, never on the card.
 import * as z from 'zod/mini'
 
+import { agentLineage, type AgentNode } from '../../../glide/frontend/agentGraph.js'
 import { STATUS } from '../../../glide/frontend/tokens.js'
 import { kitNotes, type EuiKitDoc } from '../wire/euiKit.js'
 import { fleetVisibleDoc, type FleetIntent, type FleetView } from '../wire/fleet.js'
@@ -57,12 +58,17 @@ const vacant = (view: FleetView, source: string): GlideDoc => ({
 })
 
 /** The glide/v1 document and the program that draws it; a snapshot that does not parse is the vacant card. */
-export function fleetGlide(raw: EuiKitDoc, view: FleetView, tab: HostsTab = 'agents'): { program: string; doc: GlideDoc } {
+export function fleetGlide(raw: EuiKitDoc, view: FleetView, tab: HostsTab = 'agents', agents?: AgentNode[]): { program: string; doc: GlideDoc } {
   const doc = fleetVisibleDoc(raw)
   const source = kitNotes(doc)[0] ?? 'Source: read-only fleet collectors'
   const built = doc.kind !== 'fleet-' + view ? undefined : view === 'hosts' ? hosts(doc, tab) : view === 'portfolio' ? portfolio(doc) : graph(doc)
-  if (!built) return { program: 'fleet.vacant', doc: vacant(view, source) }
-  return { program: fleetProgram(view, tab), doc: { id: 'fleet', title: FLEET_TITLES[view], app: doc.app, source, slots: { actions: refresh, ...built } } }
+  const live = agents ? runningAgents(agents) : {}
+  if (!built) {
+    const empty = vacant(view, source)
+    return agents ? { program: 'fleet.factory-vacant', doc: { ...empty, slots: { ...empty.slots, ...live } } }
+      : { program: 'fleet.vacant', doc: empty }
+  }
+  return { program: agents ? 'fleet.factory-live' : fleetProgram(view, tab), doc: { id: 'fleet', title: FLEET_TITLES[view], app: doc.app, source, slots: { actions: refresh, ...built, ...live } } }
 }
 
 const AGENT_STATE: Record<string, [string, UiTone]> = {
@@ -256,5 +262,38 @@ function graph(doc: EuiKitDoc): Record<string, GlideSlot> | undefined {
       ...(fix?.action ? [{ label: `${fix.action} · ${fix.label}`, primary: true, intent: intent({ action: 'queue-fix', entities: { node: fix.id } }) }] : []),
       { label: 'Refresh', intent: { action: 'refresh', entities: {} } }
     ] })
+  }
+}
+
+/** Orchestra-style lineage: distinct session/child glyphs, gold delegation elbows, explicit status. */
+function runningAgents(agents: AgentNode[]): Record<string, GlideSlot> {
+  const rows = agentLineage(agents)
+  const w = 640, h = rows.length * 40 + 12
+  const x = (depth: number) => 20 + Math.min(12, depth) * 24
+  const y = (index: number) => 26 + index * 40
+  const wires = rows.map(({ depth, from, node }, i) => {
+    const parent = from === undefined ? undefined : rows[from]
+    if (!parent || from === undefined) return ''
+    const end = x(depth)
+    const start = Math.min(end - 12, x(parent.depth) + 12)
+    return `<path d="M${start},${y(from) + 15} V${y(i)} H${end}" stroke="var(--accent)" stroke-opacity="${node.state === 'live' ? 1 : 0.4}" fill="none"/>`
+  }).join('')
+  const tiles = rows.map(({ node, depth }, i) => {
+    const left = x(depth), top = y(i) - 15
+    const tone = node.state === 'failed' ? STATUS.bad : node.state === 'live' ? STATUS.ok : 'var(--muted)'
+    const max = Math.floor((w - left - 150) / 7)
+    const label = node.label.length > max ? node.label.slice(0, max - 1) + '…' : node.label
+    return `<rect x="${left}" y="${top}" width="${w - left - 12}" height="30" rx="8" fill="var(--muted)" fill-opacity=".08" stroke="var(--muted)" stroke-opacity=".4"/>` +
+      `<circle cx="${left + 13}" cy="${y(i)}" r="4" fill="${node.parent ? STATUS.ok : 'var(--accent)'}"/>` +
+      `<text x="${left + 25}" y="${y(i) + 4}" font-size="13" fill="var(--text)">${esc(label)}</text>` +
+      `<text x="${w - 23}" y="${y(i) + 4}" text-anchor="end" font-size="12" fill="${tone}">${node.state}</text>`
+  }).join('')
+  return {
+    'live.header': slot('Section', { title: 'Running agents', aside: 'Observed gateway sessions · up to 60 nodes' }),
+    'live.graph': slot('Graphic', {
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="system-ui,sans-serif">${wires}${tiles}</svg>`,
+      w, h, alt: rows.map(({ node }) => `${node.parent ? 'Subagent' : 'Session'}: ${node.label} · ${node.state}`).join('; ')
+    }),
+    'snapshot.header': slot('Section', { title: 'Content factory snapshot' })
   }
 }

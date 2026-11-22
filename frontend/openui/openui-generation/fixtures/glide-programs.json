@@ -9,5 +9,7 @@
   "fleet.hosts.k3s": "root = GlideCard(\"fleet\", [Tabs(\"tabs\"), List(\"hosts.pods\"), Text(\"hosts.outside\"), Buttons(\"actions\")])",
   "fleet.portfolio": "root = GlideCard(\"fleet\", [Stats(\"pf.stats\"), Flow(\"pf.roadmap\"), List(\"pf.list\"), Buttons(\"actions\")])",
   "fleet.factory": "root = GlideCard(\"fleet\", [top, Graphic(\"ff.graph\"), List(\"ff.open\"), Buttons(\"actions\")])\ntop = Row([Badges(\"ff.tally\"), Stats(\"ff.stats\")])",
-  "fleet.vacant": "root = GlideCard(\"fleet\", [Text(\"empty\"), Buttons(\"actions\")])"
+  "fleet.vacant": "root = GlideCard(\"fleet\", [Text(\"empty\"), Buttons(\"actions\")])",
+  "fleet.factory-live": "root = GlideCard(\"fleet\", [Section(\"live.header\", [Graphic(\"live.graph\")]), Section(\"snapshot.header\", [top, Graphic(\"ff.graph\"), List(\"ff.open\"), Buttons(\"actions\")])])\ntop = Row([Badges(\"ff.tally\"), Stats(\"ff.stats\")])",
+  "fleet.factory-vacant": "root = GlideCard(\"fleet\", [Section(\"live.header\", [Graphic(\"live.graph\")]), Section(\"snapshot.header\", [Text(\"empty\"), Buttons(\"actions\")])])"
 }

@@ -245,7 +245,7 @@ Find commands and inspect integrations. Use the palette and help, inspect config
 
 ## fleet
 
-See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` and `/factory graph`; each card shows its source and per-host notes, or an explicit "Fleet data unavailable" reason, never sample data. Tap every card action: Open chat resumes a trusted session, Open pod describes read-only, Set next drafts without sending, and Refresh re-calls `glide.fleet` in the same panel.
+See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` and `/factory graph`; each card shows its source and per-host notes, or an explicit "Fleet data unavailable" reason, never sample data. In the factory card, a gateway fixture starts a child, shows the new lineage node within two seconds, then changes its state to done without refreshing the content snapshot. Tap every card action: Open chat resumes a trusted session, Open pod describes read-only, Set next drafts without sending, and Refresh re-calls `glide.fleet` in the same panel.
 
 1. `fleet-hosts`
 2. `fleet-sessions`

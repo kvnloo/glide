@@ -1,12 +1,14 @@
 import type { JSX, PrefsRow } from '@stencil-hq/tern'
 
+import { agentLineage } from '../../../glide/frontend/agentGraph.js'
+
 import type { ChatPorts } from '../app/ports.js'
 import type { Ticket } from '../core/epoch.js'
 import type { LiveSessionId } from '../core/ids.js'
 import { Poller } from '../core/poller.js'
 import { decodeFactory, factoryAnswers, factoryOutput, type FactorySnapshot, type FactorySuggestion } from '../wire/factory.js'
 
-export type FactoryPaneHost = Pick<ChatPorts, 'changed'> & {
+export type FactoryPaneHost = Pick<ChatPorts, 'agentGraph' | 'changed'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
   readonly session: Pick<ChatPorts['session'], 'ref' | 'ownerTicket'>
 }
@@ -76,7 +78,7 @@ export class FactoryPane {
     this.#open = !this.#open
     this.#poller.adopt(++this.#generation)
     clearTimeout(this.#timer)
-    if (this.#open) this.#poke()
+    if (this.#open) { this.#poke(); this.#seedAgents() }
     this.#host.changed()
   }
 
@@ -89,7 +91,7 @@ export class FactoryPane {
     this.#busy = false
     this.#operation = undefined
     clearTimeout(this.#timer)
-    if (this.#open) this.#poke()
+    if (this.#open) { this.#poke(); this.#seedAgents() }
   }
 
   dispose() {
@@ -97,6 +99,17 @@ export class FactoryPane {
     this.#open = false
     clearTimeout(this.#timer)
     this.#poller.dispose()
+  }
+
+  #seedAgents() {
+    const sid = this.#host.session.ref.live
+    if (!sid || !this.#host.agentGraph) return
+    const generation = this.#generation
+    const owner = this.#host.session.ownerTicket?.()
+    const current = () => this.#open && generation === this.#generation && owner?.isCurrent() !== false
+    void this.#host.agentGraph.seed(this.#host.gw, sid, current).then(() => {
+      if (current()) this.#host.changed()
+    })
   }
 
   #poke() {
@@ -197,7 +210,12 @@ export class FactoryPane {
     })
 
     // A transport or snapshot error is one quiet line, never an exception stack or a machine code.
+    const sid = this.#host.session.ref.live
+    const live = sid && this.#host.agentGraph ? agentLineage(this.#host.agentGraph.nodes(sid)) : []
     const sections = [
+      ...(live.length ? [{ id: 'live-agents', title: 'Running agents · gateway', rows: live.map(({ node, depth }) => ({
+        id: node.id, label: (depth ? '　'.repeat(Math.min(5, depth - 1)) + '↳ ' : '◉ ') + node.label, hint: node.state
+      })) }] : []),
       { id: 'status-line', title: 'Factory now', rows: [hero] },
       { id: 'suggestions', title: 'Suggested actions',
         rows: suggestions.length ? suggestions
