@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+from shutil import copytree
 from types import SimpleNamespace
 import sys
 
@@ -16,8 +17,6 @@ from fastapi.testclient import TestClient
 
 @pytest.mark.parametrize("nested", [False, True])
 def test_desktop_companion_installed_routes_and_shared_state(tmp_path, monkeypatch, nested):
-    from shutil import copytree
-
     home = tmp_path / "hermes"
     monkeypatch.setitem(sys.modules, "hermes_constants", SimpleNamespace(get_hermes_home=lambda: home))
     agent = tmp_path / "plugin"

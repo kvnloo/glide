@@ -8,7 +8,7 @@ function Card({ title, children }) {
 }
 
 function Features({ pluginContext }) {
-  const [data, setData] = useState(null)
+  const [snapshot, setSnapshot] = useState(null)
   const [hits, setHits] = useState(null)
   const [digest, setDigest] = useState(null)
   const [scanned, setScanned] = useState(null)
@@ -23,21 +23,23 @@ function Features({ pluginContext }) {
     setError('')
     const opts = command ? { method: 'POST', body: command } : undefined
     return pluginContext.rest(path, opts).then(result => {
-      setData(result)
+      setSnapshot(result)
       if (result.hits) setHits(result.hits)
       if (result.digest) setDigest(result.digest)
       if (typeof result.scanned === 'number') setScanned(result.scanned)
-    }).catch(() => setError(command
-      ? 'Glide could not complete that action. Build the index before recall; refresh to check current state.'
-      : 'Glide backend unavailable. Install and enable the agent plugin for this profile, then refresh.'
-    )).finally(() => setPending(false))
+    }).catch(requestError => {
+      console.warn('Glide Desktop request failed', requestError)
+      setError(command
+        ? 'Glide could not complete that action. Build the index before recall; refresh to check current state.'
+        : 'Glide backend unavailable. Install and enable the agent plugin for this profile, then refresh.')
+    }).finally(() => setPending(false))
   }
 
   useEffect(() => { void request() }, [])
   const button = (label, command, disabled = pending) =>
     h('button', { type: 'button', style: control, disabled, onClick: () => void request(command) }, label)
-  const memory = data?.memory
-  const focus = data?.focus
+  const memory = snapshot?.memory
+  const focus = snapshot?.focus
 
   return h('div', { style: { maxWidth: 680, padding: 12 }, 'aria-busy': pending },
     h('h2', null, 'Glide'),
