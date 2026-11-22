@@ -14,7 +14,7 @@ import { contrastRatio, mix } from '../hermes/theme.js'
 import { COUNCIL_HUE, DASH, GOLD, NIGHT, NIGHT_INKS, RADIUS, STATUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../../../glide/frontend')
-const COMPONENTS = ['attentionCards', 'intentCards', 'councilPopup', 'lanesPopup', 'glass']
+const COMPONENTS = ['attentionCards', 'intentCards', 'councilPopup', 'lanesPopup', 'glass', 'templates']
 const src = (name: string) => readFileSync(join(root, `${name}.ts`), 'utf8')
 const literal = /^-?[\d.]+(px|em)$|^\d+%$/
 

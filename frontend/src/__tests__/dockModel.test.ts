@@ -21,6 +21,7 @@ import { dockModel, shownPills } from '../view/dockModel.js'
 
 import { dockActions, dockContext, dockSources } from './dockFakes.js'
 import { face, FakeGateway, stub } from './fakes.js'
+import { TRANSCRIPT_SHEET } from '../../../glide/frontend/templates.js'
 
 const NOW = 1_000_000
 const busy = { label: 'Working…', since: {}, startedAt: NOW - 5000 }
@@ -317,6 +318,19 @@ describe('drawFrame', () => {
     drawFrame({ ...cx, surface: { ...cx.surface, render: view => void views.push(view) } }, NOW)
     expect(views).toEqual([{ dock: [], layer: [clean], main: [] }])
     expect(log.at(-1)).toBe('follow null')
+  })
+
+  it("keeps the template's transcript sheet on the surface, and takes it off for the standard transcript", () => {
+    const sheets: [string, string | null][] = []
+    let css: string | null = '.sf-card{color:red}'
+    const { cx } = frame({ templates: { css: () => css } })
+    const surface = { ...cx.surface, raw: stub<NonNullable<FrameCx['surface']['raw']>>({ stylesheet: (name: string, text: string | null) => void sheets.push([name, text]) }) }
+
+    drawFrame({ ...cx, surface }, NOW)
+    drawFrame({ ...cx, surface }, NOW)
+    css = null
+    drawFrame({ ...cx, surface }, NOW)
+    expect(sheets.filter(([name]) => name === TRANSCRIPT_SHEET)).toEqual([[TRANSCRIPT_SHEET, '.sf-card{color:red}'], [TRANSCRIPT_SHEET, null]])
   })
 
   it('draws nothing once the surface closed', () => {

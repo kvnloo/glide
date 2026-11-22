@@ -341,6 +341,7 @@ frontend/src/__tests__/talkGateway.test.ts
 frontend/src/__tests__/talkNative.test.ts
 frontend/src/__tests__/tasteCard.test.ts
 frontend/src/__tests__/tasteCommand.test.ts
+frontend/src/__tests__/templates.test.ts
 frontend/src/__tests__/terminalAsyncNotify.test.ts
 frontend/src/__tests__/terminalDescription.test.ts
 frontend/src/__tests__/terminalMasked.test.ts
