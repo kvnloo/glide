@@ -85,7 +85,7 @@ It installs the committed checkout into a throwaway `HERMES_HOME`, validates the
 
 ## Code map
 
-- Memory: [backend](glide/memory.py), [source reader](glide/source.py), [atomic storage](glide/storage.py), [hook and command](glide/core.py). The [session-bound gateway methods](glide/gateway.py) need `ctx.register_gateway_method`, which released Hermes lacks, so the cards run through the `/glide` command for now.
+- Memory: [backend](glide/memory.py), [source reader](glide/source.py), [atomic storage](glide/storage.py), [hook and command](glide/core.py). The [session-bound gateway methods](glide/gateway.py) need `ctx.register_gateway_method`. Released Hermes does not have it, so those methods stay inactive and the cards run through the `/glide` command.
 - Cards: [`/glide` flow](frontend/src/commands/glide.ts), [intent](glide/frontend/intentCards.ts), [council](glide/frontend/councilPopup.ts), [lanes](glide/frontend/lanesPopup.ts), [fleet](frontend/src/commands/fleet.ts) and its [adapter](glide/fleet.py), [theme](glide/frontend/wal.ts) and [glass](glide/frontend/glass.ts).
 - Widgets and pages: [agent tools](glide/ui.py), [mounts](frontend/src/glideui/mounts.ts), [widget host](frontend/src/glideui/widgets.tsx).
 - [Attention](glide/attention.py), [skill router](glide/skill_router.py), [benchmark](glide/hill_climb.py), [offload](glide/offload.py). Frontend build: [frontend/README.md](frontend/README.md).
