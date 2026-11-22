@@ -1561,6 +1561,7 @@
       "tests": [
         "frontend/src/__tests__/theme.test.ts",
         "frontend/src/__tests__/glideWidgets.test.ts",
+        "frontend/src/__tests__/glideTheme.test.ts",
         "glide/tests/test_whole_theme.py"
       ],
       "army": []
