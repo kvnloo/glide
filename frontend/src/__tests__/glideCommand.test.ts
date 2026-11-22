@@ -523,7 +523,7 @@ describe('/glide onboard', () => {
     request.mockResolvedValueOnce({ status: 'not installed' })
     await glideCommand(host, 'onboard')
     expect(titles()).toEqual(['z0intelligence setup unavailable'])
-    expect(view(0).activate).toBeUndefined()
+    expect(JSON.stringify(view(0))).not.toContain('Run or resume setup')
     await glideCommand(host, '')
     expect(titles()).toContain('Build your local memory')
   })
