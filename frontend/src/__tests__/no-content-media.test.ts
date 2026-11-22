@@ -72,6 +72,19 @@ describe('read media without returned content', () => {
     }
   })
 
+  it('fails closed for a malformed content_returned flag without any fetch', () => {
+    for (const opts of [{ attached: false, native: true }, { attached: true, native: true }, { backend: 'docker', native: true }]) {
+      const { delivery, gw, blob } = setup(opts)
+      for (const flag of ['false', 'true', 0, 1, null, {}, []]) {
+        const read = call('read_file', { path: 'image.png' }, { result: { content_returned: flag, is_image: true } })
+        expect(projectToolMedia(read, delivery.context())).toBeUndefined()
+        expect(nodes(tree(toolNode(read, 0, undefined, undefined, delivery))).some(n => n.k === 'media' || n.k === 'image')).toBe(false)
+      }
+      expect(gw.sent('glide.media.image')).toEqual([])
+      expect(blob).not.toHaveBeenCalled()
+    }
+  })
+
   it('preserves completed binary, older absent-flag, explicit true, failed and truncated behavior', () => {
     const local = setup({ attached: false, native: true }).delivery.context()
     const remote = setup({ attached: true, native: true }).delivery.context()

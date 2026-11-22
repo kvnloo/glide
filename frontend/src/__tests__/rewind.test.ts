@@ -127,6 +127,41 @@ describe('the rewind sheet', () => {
     expect(opened).toEqual([])
   })
 
+  it.each(['y', 'enter'])('consumes modified %s without rewinding, then honors one bare confirmation', async name => {
+    const { gw, opened, session } = await sheet({ 'session.mutate': () => ({ rewound_count: 4, target_message: { content: 'fix the bug' } }) })
+    const sheetNode = must(opened[0])
+
+    sheetNode.onKey(key('enter'))
+    for (const mods of [{ ctrl: true }, { alt: true }, { meta: true }, { shift: true }, { ctrl: true, alt: true }]) {
+      expect(sheetNode.onKey(key(name, mods))).toBe(true)
+      await settle()
+      expect(must(picker(sheetNode).p)['confirm']).toMatchObject({ label: 'Rewind' })
+    }
+    // A modified cancel key keeps the question too.
+    sheetNode.onKey(key('n', { ctrl: true }))
+    sheetNode.onKey(key('escape', { alt: true }))
+    expect(must(picker(sheetNode).p)['confirm']).toMatchObject({ label: 'Rewind' })
+    expect(gw.sent('session.resume')).toHaveLength(1)
+    expect(gw.sent('session.mutate')).toEqual([])
+    expect(session.draft).not.toHaveBeenCalled()
+
+    sheetNode.onKey(key(name))
+    await settle()
+    expect(gw.sent('session.mutate')).toHaveLength(1)
+    expect(session.draft).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels a pending rewind with bare n and writes nothing', async () => {
+    const { gw, opened } = await sheet()
+    const sheetNode = must(opened[0])
+
+    sheetNode.onKey(key('enter'))
+    sheetNode.onKey(key('n'))
+    await settle()
+    expect(must(picker(sheetNode).p)['confirm']).toBeUndefined()
+    expect(gw.sent('session.mutate')).toEqual([])
+  })
+
   it('writes nothing when the picked prompt left the session since the sheet read it', async () => {
     let reads = 0
     const { gw, opened, session } = await sheet({ 'session.resume': () => snapshot(reads++ ? MESSAGES.slice(0, 2) : MESSAGES) })

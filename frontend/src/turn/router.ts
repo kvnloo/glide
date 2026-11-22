@@ -18,6 +18,7 @@ import { EXPANDING_LABEL, expand, type Expanded, type ExpandOptions, hasCommands
 import { IMAGE_ONLY_PROMPT, type Prompt, shownText, userImages } from './prompt.js'
 import type { PromptQueue } from './queue.js'
 import type { BusyMode } from './serverQueue.js'
+import { submitFailureNotice } from './submitOutcome.js'
 
 /** What the gates read: the shown session's state when a prompt arrives. */
 export interface GateState {
@@ -295,6 +296,7 @@ export class PromptRouter {
     // Its bubble is up: the gateway's queued → started for it owes none.
     host.queue.server.shown(submission)
     const row = host.activity.startBusy('Working…')
+    const ticket = host.ticket()
     host.changed()
     // The shared gateway admits a prompt by its submission id (a retry with the same id is one turn).
     rpc(host.gw, 'prompt.submit', {
@@ -303,12 +305,12 @@ export class PromptRouter {
       text,
       ...(queued ? { queued } : {}),
       ...(attachments.length ? { attachments } : {})
-    }).catch((error: Error) => {
-      // Back to the composer, not re-sent: a timeout may come after the gateway admitted it. Once
-      // its turn started (message.start took the row), the row is the turn's and stays.
-      host.transcript.notice(`Not sent: ${error.message}. Your message is back in the composer.`, 'error')
+    }).catch((error: unknown) => {
+      // Never re-sent: only the gateway's refusal proves it was not admitted, and a timeout may come
+      // after it was. The text returns to its own session only (submitOutcome.ts). Once its turn
+      // started (message.start took the row), the row is the turn's and stays.
       host.activity.endBusy(row)
-      host.restore(prompt)
+      host.queue.returnFailed(ticket, prompt, submitFailureNotice(error, 'sent'))
       host.queue.drain()
       host.changed()
     })
