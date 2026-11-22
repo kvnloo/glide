@@ -2,6 +2,18 @@
   "about": "Owner-visible inventory for the shipped Glide checkout. Test references describe existing source coverage, not execution receipts or native acceptance. Empty tests are uncovered. Army receipts are external and must match HEAD for strict promotion. Text-plugin /glide verbs are not all handled by the native card interceptor.",
   "features": [
     {
+      "id": "film-export-take",
+      "title": "Open a finished fframestudio cut and replay its export take",
+      "surface": "slash",
+      "entry": "/film <project>",
+      "journey": "film",
+      "expect": "A saved cut opens below the pane; when a completed studio export exists, the card replays the latest local take",
+      "tests": [
+        "frontend/src/commands/__tests__/film.test.ts"
+      ],
+      "army": []
+    },
+    {
       "id": "install-plugin",
       "title": "Install the combined Tern and Glide plugin",
       "surface": "cli",

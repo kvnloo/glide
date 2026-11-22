@@ -250,3 +250,11 @@ Run `/intel` through stock `command.dispatch`. Switch all five tabs, refresh wit
 5. `intel-failure-detail`
 6. `intel-boundaries-ownership`
 7. `intel-pinned-kit-status`
+
+## film
+
+In the bridge-backed editor, use a 1080p60 project, set a title, add a score and
+choose a look. Export the film, reopen the editor and check the take is listed.
+Rerun `/film <project>` and play the latest export take below the Glide pane.
+
+1. `film-export-take`

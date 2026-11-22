@@ -10,18 +10,25 @@ import type { EuiKitIntent, EuiNativeCard, EuiNativeHandle } from '../eui/host.j
 import { type Browser, paneBlock, ternBrowser } from '../gev/globe.js'
 import type { UiNode } from '../glideui/library.js'
 import type { Transcript } from '../transcript/store.js'
-import { editorUrl, type FilmBridge, filmBridge, filmLibrary, type FilmProject, filmProject } from '../wire/fframestudio.js'
+import { editorUrl, type FilmBridge, filmBridge, filmLibrary, type FilmProject, filmProject, filmId, filmTakes, type FilmTake, takeUrl } from '../wire/fframestudio.js'
 import { record } from '../wire/json.js'
 
 export interface FilmHost {
   readonly eui?: { readonly host: { publishNative(card: EuiNativeCard, intent: EuiKitIntent): Pick<EuiNativeHandle, 'update'> } } | undefined
   readonly transcript: Pick<Transcript, 'notice' | 'panel'>
 }
-export interface FilmDeps { readonly read?: (path: string) => Promise<string>; readonly browser?: Browser; readonly owner?: number | undefined; readonly bridgeFile?: string }
+export interface FilmDeps { readonly read?: (path: string) => Promise<string>; readonly browser?: Browser; readonly owner?: number | undefined; readonly bridgeFile?: string; readonly loadTakes?: (bridge: FilmBridge, id: string) => Promise<FilmTake[] | undefined> }
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`
 
-export function filmCard(p: FilmProject, opened: boolean): UiNode {
+async function loadTakes(b: FilmBridge, id: string) {
+  const r = await fetch(`${b.url}/render?project=${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${b.token}` }, redirect: 'error', signal: AbortSignal.timeout(1000)
+  })
+  return r.ok ? filmTakes(await r.text()) : undefined
+}
+
+export function filmCard(p: FilmProject, opened: boolean, takes: readonly FilmTake[] = []): UiNode {
   const len = p.duration_s ?? p.shots.at(-1)?.t1 ?? 0
   return { type: 'element', typeName: 'Card', props: { title: p.title, app: 'FFRAMESTUDIO', status: opened ? 'done' : 'running', children: [
     { type: 'element', typeName: 'Stats', props: { items: [
@@ -33,7 +40,7 @@ export function filmCard(p: FilmProject, opened: boolean): UiNode {
     { type: 'element', typeName: 'Section', props: { title: 'Shots', aside: `${p.shots.length}`, children: [
       { type: 'element', typeName: 'List', props: { numbered: true, items: p.shots.slice(0, 8).map(s => ({ id: s.id, label: s.name, value: `${clock(s.t0)}–${clock(s.t1)}` })) } }
     ] } },
-    { type: 'element', typeName: 'Buttons', props: { items: [{ label: opened ? 'Open again in fframestudio' : 'Opening fframestudio…', intent: { action: 'open', entities: { project: p.id } }, primary: true }] } }
+    { type: 'element', typeName: 'Buttons', props: { items: [{ label: opened ? 'Open again in fframestudio' : 'Opening fframestudio…', intent: { action: 'open', entities: { project: p.id } }, primary: true }, ...(takes[0] ? [{ label: `Play latest export take · ${takes[0].seconds.toFixed(1)} s`, intent: { action: 'play-take' } }] : [])] } }
   ] } }
 }
 
@@ -51,8 +58,8 @@ export async function filmCommand(host: FilmHost, arg: string, d: FilmDeps = {})
     host.transcript.panel('/film <project>', lib ? lib.projects.map(p => `${p.id.padEnd(30)} ${p.title}`).join('\n') : 'The fframestudio library is empty.')
     return
   }
-  const p = /^[\w.-]+$/.test(id) ? filmProject(await read(join(b.root, 'projects', id, 'project.json')).catch(() => '')) : undefined
-  if (!p) {
+  const p = filmId(id) ? filmProject(await read(join(b.root, 'projects', id, 'project.json')).catch(() => '')) : undefined
+  if (!p || p.id !== id) {
     host.transcript.notice(`/film: no fframestudio project "${id}"`, 'warning')
     return
   }
@@ -63,15 +70,19 @@ export async function filmCommand(host: FilmHost, arg: string, d: FilmDeps = {})
   }
   const browser = d.browser ?? ternBrowser
   const owner = 'owner' in d ? d.owner : paneBlock()
+  const takes = await (d.loadTakes ?? loadTakes)(b, id).catch(() => undefined) ?? []
   let handle: Pick<EuiNativeHandle, 'update'> | undefined
-  const open = async () => {
+  const open = async (url: string) => {
     if (owner === undefined) throw new Error('not inside a Tern pane')
-    await browser({ op: 'open', owner, url: editorUrl(b, p.id), how: 'below' })
+    await browser({ op: 'open', owner, url, how: 'below' })
   }
-  const card = (opened: boolean) => ({ kind: 'fframes-film', app: 'fframestudio', title: p.title, ui: filmCard(p, opened) })
+  const card = (opened: boolean) => ({ kind: 'fframes-film', app: 'fframestudio', title: p.title, ui: filmCard(p, opened, takes) })
   const intent = async (detail: unknown) => {
-    if (record(detail)?.['action'] === 'open') await open().catch(e => host.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, 'warning'))
+    const action = record(detail)?.['action']
+    const take = takes[0]
+    const url = action === 'open' ? editorUrl(b, id) : action === 'play-take' && take && filmId(take.id) ? takeUrl(b, id, take.id) : undefined
+    if (url) await open(url).catch(e => host.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, 'warning'))
   }
   handle = eui.host.publishNative(card(false), intent)
-  await open().then(() => handle?.update(card(true), intent), (e: unknown) => host.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, 'warning'))
+  await open(editorUrl(b, id)).then(() => handle?.update(card(true), intent), (e: unknown) => host.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, 'warning'))
 }
