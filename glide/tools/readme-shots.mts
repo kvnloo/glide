@@ -4,8 +4,8 @@
 // draws with render.tsx); /hosts goes through fleetGlide and the shipped fleet program. The Tern node tree is
 // then written as HTML with the real UI_CSS and ring sheets over a Tern-like pane, and one headless Chromium
 // screenshots it at 1060x596. Tern's own renderer is approximated here, so these are fixture renders, not
-// native Tern captures. All data is synthetic. Usage, from the repo root:
-//   bun glide/tools/readme-shots.mts OUT_DIR
+// native Tern captures. All data is synthetic. Usage, from frontend/:
+//   bun ../glide/tools/readme-shots.mts OUT_DIR
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'

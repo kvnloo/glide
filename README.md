@@ -8,9 +8,9 @@ A standalone [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin
 
 One install brings Glide's own Tern frontend, the cards, the memory and the attention guard. [Submission](docs/SUBMISSION.md) · [Changes from the original Tern plugin](FORK.md) · [License](LICENSE)
 
-[![Watch the Glide film (1:44)](glide/docs/media/glide-film-poster.jpg)](https://github.com/kvnloo/glide/releases/tag/film-v41)
+![Glide launch film poster](glide/docs/media/glide-film-poster.jpg)
 
-**[Watch the film](https://github.com/kvnloo/glide/releases/tag/film-v41)** · 1080p60, 1:44 · [download mp4](https://github.com/kvnloo/glide/releases/download/film-v41/glide-film.mp4). Every Tern shot in it is a live take over sample data.
+Launch film preview · 1080p60, 1:44. The film is not yet available from a public release.
 
 ## Install
 
