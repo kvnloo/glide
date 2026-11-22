@@ -95,7 +95,10 @@ def test_demo_only_shows_commands_glide_has():
         assert documented in readme, f"{command}: not a documented Glide command"
     themes = re.findall(r"\{ id: '(\w+)', label:", re.search(r"export const THEMES = \[(.*?)\n\]", model, re.S).group(1))
     theme_modes = re.search(r"export type ThemeMode = (.*)", (REPO / "frontend" / "src" / "settings.ts").read_text()).group(1)
-    assert set(themes) == set(re.findall(r"'(\w+)'", theme_modes)), "the demo's /theme modes match the real ones"
+    # The landing page demonstrates the original core picker; it does not simulate
+    # whole-app template side effects or the additional paired themes.
+    assert set(themes) == {"auto", "dash", "nous", "skin", "tern"}
+    assert set(themes) <= set(re.findall(r"'(\w+)'", theme_modes)), "every demo theme must exist in Glide"
     seed = (GLIDE / "demo" / "seed.py").read_text()
     for text in re.findall(r"text: '([^']+)'", model.split("export const SESSIONS_READ")[0]):
         assert text in seed, f"demo correction is not in demo/seed.py: {text}"

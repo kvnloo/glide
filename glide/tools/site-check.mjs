@@ -75,7 +75,8 @@ const keydown = k => `document.querySelector('[data-picker]').dispatchEvent(new 
 await cdp('Runtime.enable'); await cdp('Log.enable'); await cdp('Page.enable')
 await width(1280)
 const nav = await cdp('Page.navigate', { url })
-await until(`document.documentElement.dataset.ready === 'true'`)
+if (nav.errorText) throw new Error(nav.errorText)
+await until(`document.documentElement?.dataset.ready === 'true'`)
 await shot('01-landing-1280')
 
 await check('detect, build memory and turn on', async () => {
