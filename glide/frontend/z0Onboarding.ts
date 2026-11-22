@@ -19,6 +19,7 @@ export async function z0Onboarding(
   if (preview.status !== 'plan') {
     cards.publish({
       kind: 'intel-health', app: 'glide', title: 'z0intelligence setup unavailable',
+      rows: [{ label: 'Status', value: preview.status }],
       summary: preview.status === 'not installed'
         ? 'z0intelligence is optional. Use /glide for corrections memory without it.'
         : 'Check your installed CLI with z0int models plan --json, then retry /glide onboard.'
