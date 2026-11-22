@@ -1060,6 +1060,20 @@
       "army": []
     },
     {
+      "id": "deep-zoom-pane",
+      "title": "Open a gigapixel image in a deep-zoom pane",
+      "surface": "pane",
+      "entry": "/glide zoom <path to .dzi or image> [over|beside|below], or ask the agent (glide_deep_zoom_open)",
+      "journey": "cards",
+      "expect": "The pane opens the image's tile pyramid in the deep-zoom viewer; scroll, pinch or drag zooms and pans smoothly, loading only the tiles in view and never decoding the whole image",
+      "tests": [
+        "frontend/src/__tests__/deepZoom.test.ts",
+        "frontend/src/__tests__/deepZoomJourney.test.ts",
+        "glide/tests/test_deep_zoom.py"
+      ],
+      "army": []
+    },
+    {
       "id": "new-session",
       "title": "Start a named or fresh conversation",
       "surface": "slash",
