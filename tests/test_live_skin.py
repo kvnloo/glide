@@ -27,20 +27,31 @@ def _active() -> str:
     return yaml.safe_load((_home() / "config.yaml").read_text())["display"]["skin"]
 
 
-def test_a_chat_skin_is_written_activated_and_reaches_the_gateway_watcher():
-    from tui_gateway import change_watcher
+@pytest.fixture
+def routed_home():
+    from hermes_constants import reset_hermes_home_override, set_hermes_home_override
+
+    token = set_hermes_home_override(_home())
+    try:
+        yield
+    finally:
+        reset_hermes_home_override(token)
+
+
+def test_a_chat_skin_is_written_activated_and_reaches_the_gateway_watcher(routed_home):
+    from tui_gateway import server
 
     made = _call(name="pixel-quest", colors={"background": "#120a24", "ui_accent": "#ff5fd2"},
                  customCSS="body { animation: drift 8s infinite; }")
-    first = change_watcher._skin_sig()
+    first = server._skin_sig()
     os.utime(_home() / "skins" / "pixel-quest.yaml", (first[1] - 10, first[1] - 10))
-    first = change_watcher._skin_sig()
+    first = server._skin_sig()
     tweaked = _call(name="pixel-quest", customCSS="body { animation: drift 4s infinite; }")
 
     from hermes_cli.skin_engine import load_skin
 
     assert made["success"] and tweaked["success"] and _active() == "pixel-quest"
-    assert first[0] == "pixel-quest" and change_watcher._skin_sig() != first  # the watcher re-broadcasts skin.changed
+    assert first[0] == "pixel-quest" and server._skin_sig() != first  # the watcher re-broadcasts skin.changed
     skin = load_skin("pixel-quest")
     assert skin.custom_css == "body { animation: drift 4s infinite; }"
 
