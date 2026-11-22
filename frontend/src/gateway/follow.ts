@@ -17,6 +17,8 @@ import type { Activity } from '../turn/activity.js'
 import { dispatcher, type EventCx } from './dispatch.js'
 import { eventLog } from './eventLog.js'
 
+export type { AnyGatewayEvent }
+
 /** What following the gateway reaches: the handlers' context, and what an exit ends. */
 export type FollowCx = EventCx & {
   readonly btw?: Pick<BtwThreads, 'onEvent'>
@@ -27,6 +29,8 @@ export type FollowCx = EventCx & {
   readonly transcript: Pick<Transcript, 'interrupt'>
   /** The development tap's file (HERMES_TERN_EVENT_LOG); empty for none. */
   readonly eventLog: string
+  /** Read-only telemetry, before transcript session routing. */
+  observe?(ev: AnyGatewayEvent): void
   /** Shown-session events after dispatch, excluding cancelled queued admissions. */
   onShown?(ev: AnyGatewayEvent): void
   /** The backend died; the activity icon must not show phantom ongoing work. */
@@ -54,6 +58,7 @@ export function followGateway(gw: Pick<GatewayClient, 'attached' | 'drain' | 'on
   cx.life.follow(deliver)
   gw.on('event', (ev: AnyGatewayEvent) => {
     log.event(ev)
+    cx.observe?.(ev)
     deliver(ev)
   })
   gw.on('request', (req: ServerRequest) => {

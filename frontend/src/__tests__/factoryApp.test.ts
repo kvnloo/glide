@@ -321,3 +321,49 @@ describe('App Factory composition', () => {
     expect(h.app.overlays).toEqual([])
   })
 })
+
+describe('GL-106 live running agents', () => {
+  it('streams a fixture delegation into the factory card in under two seconds and settles it in place', async () => {
+    const h = await started({ replies: {
+      'glide.fleet': () => ({ kind: 'fleet-factory', app: 'aodl', data: { nodes: [], edges: [] } })
+    } })
+    await h.type('/factory graph')
+    await h.press(key('enter'))
+    const ui = () => {
+      const panel = must(h.app.transcript.entries.find(e => e.kind === 'panel'), 'factory card')
+      return JSON.stringify(h.app.eui.hostView(panel)?.ui)
+    }
+    await vi.waitFor(() => expect(ui()).toContain('Running agents'))
+
+    const goal = 'Check the fixture inventory'
+    const payload = { goal, subagent_id: 'fixture-worker', task_count: 1, task_index: 0 }
+    const first = performance.now()
+    h.emit('event', { type: 'message.start', session_id: 's1', payload: {} })
+    h.emit('event', { type: 'subagent.spawn_requested', session_id: 's1', payload })
+    await vi.waitFor(() => expect(ui()).toContain(goal + ' · queued'), { timeout: 1900 })
+    h.emit('event', { type: 'subagent.start', session_id: 's1', payload })
+    await vi.waitFor(() => expect(ui()).toContain(goal + ' · live'), { timeout: 1900 })
+    expect(performance.now() - first).toBeLessThan(2000)
+    expect(ui()).toContain('<path d=')
+    expect(ui()).toContain('Content factory snapshot')
+
+    h.emit('event', { type: 'subagent.complete', session_id: 's1', payload: { ...payload, status: 'completed' } })
+    expect(ui()).toContain(goal + ' · done')
+    h.emit('event', { type: 'subagent.start', session_id: 's1', payload })
+    expect(ui()).toContain(goal + ' · done')
+    expect(h.sent('glide.fleet')).toHaveLength(1)
+    expect(h.app.transcript.entries.filter(e => e.kind === 'panel')).toHaveLength(1)
+  })
+
+  it('renders nested lineage from observed gateway sessions without routing foreign events into chat', async () => {
+    const h = await started()
+    await factory(h)
+    const child = { goal: 'Parent <fixture>', subagent_id: 'parent', task_count: 1, task_index: 0 }
+    h.emit('event', { type: 'subagent.start', session_id: 's2', payload: child })
+    h.emit('event', { type: 'subagent.start', session_id: 's2', payload: { ...child, goal: 'Nested check', subagent_id: 'nested', parent_id: 'parent' } })
+    await settle()
+    expect(JSON.stringify(factoryNode(h).props)).toContain('　↳ Nested check')
+    expect(h.app.agents.all()).toEqual([])
+    expect(h.app.session.ref.live).toBe('s1')
+  })
+})

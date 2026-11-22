@@ -3,7 +3,7 @@
 import type { ScrollTo, Session, TspEvent } from '@stencil-hq/tern'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
-
+import { AgentGraph } from '../../../glide/frontend/agentGraph.js'
 import logo from '../../assets/logo.png'
 import { ternSharesFrontendHost } from '../artifacts/links.js'
 import type { BtwThreads } from '../btw.js'
@@ -68,6 +68,7 @@ const QUIT_DETACH_MS = 1500
 
 /** Runs the Tern frontend until the user quits; resolves the exit code. */
 export class App implements ChatPorts {
+  readonly agentGraph = new AgentGraph()
   readonly session: SessionState
   readonly transcript: Transcript
   /** Session-scoped derived charts; never changes transcript or answer copy. */
@@ -243,11 +244,9 @@ export class App implements ChatPorts {
     this.transcript.push({ id: entryId('welcome'), kind: 'welcome' })
 
     const query = this.#launch.query
-
     if (query || s.attachments.awaitingStartup) {
       s.queue.hold({ images: [], kind: 'app', text: query || IMAGE_ONLY_PROMPT })
     }
-
     this.#gw.on('exit', () => {
       this.tableCharts.transportLost()
       this.eui.host.invalidate()
@@ -258,7 +257,8 @@ export class App implements ChatPorts {
       eventLog: this.#launch.eventLog,
       gw: this.#gw,
       onShown: ev => this.#onShown(ev, s),
-      onLost: () => this.#orbActivity.reset(),
+      observe: ev => { if (this.agentGraph.observe(ev) && s.factory.open) this.changed() },
+      onLost: () => { this.#orbActivity.reset(); this.agentGraph.reset() },
       hostLifecycle: this.#hostLifecycle,
       labels: { busy: busyLabel, preparing: preparingLabel },
       reportCwd: () => this.#act.reportCwd(),
