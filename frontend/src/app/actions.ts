@@ -164,7 +164,7 @@ export class AppActions {
       onDictationCancel: () => void dictation.cancel(),
       onDictationDone: () => dictation.finish(),
       onNotices: () => chat.openNotices(),
-      onContext: () => openContext({ changed, close: o => chat.close(o), gw, open: o => chat.open(o), session: cx.state }),
+      onContext: view => openContext({ changed, close: o => chat.close(o), gw, open: o => chat.open(o), session: cx.state }, view),
       onEdit: ev => {
         if (composer.vim.enabled) return
         composer.edit(ev)

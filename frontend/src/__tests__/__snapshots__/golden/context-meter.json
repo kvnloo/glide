@@ -216,7 +216,10 @@
          "title": "250 of 1,000 tokens · Show context window",
          "key": "context",
          "actions": {
-          "click": "click"
+          "click": "click",
+          "menu": [
+           "quick-context-grid"
+          ]
          }
         },
         "c": [
@@ -442,7 +445,10 @@
          "title": "250 of 1,000 tokens · Show context window",
          "key": "context",
          "actions": {
-          "click": "click"
+          "click": "click",
+          "menu": [
+           "quick-context-grid"
+          ]
          }
         },
         "c": [
@@ -593,7 +599,7 @@
        "modal": true,
        "role": "omp.overlay.context",
        "size": "md",
-       "key": "context"
+       "key": "overlay-1"
       },
       "c": [
        {
@@ -603,6 +609,22 @@
          "key": "body"
         },
         "c": [
+         {
+          "k": "meter",
+          "p": {
+           "label": "25%",
+           "role": "omp.context.grid",
+           "size": "md",
+           "style": "blocks",
+           "thresholds": {
+            "bad": 0.85,
+            "warn": 0.6
+           },
+           "total": "1K",
+           "value": 0.25,
+           "key": "grid"
+          }
+         },
          {
           "k": "text",
           "p": {
@@ -826,7 +848,10 @@
          "title": "250 of 1,000 tokens · Show context window",
          "key": "context",
          "actions": {
-          "click": "click"
+          "click": "click",
+          "menu": [
+           "quick-context-grid"
+          ]
          }
         },
         "c": [
@@ -1052,7 +1077,10 @@
          "title": "850 of 1,000 tokens · Show context window",
          "key": "context",
          "actions": {
-          "click": "click"
+          "click": "click",
+          "menu": [
+           "quick-context-grid"
+          ]
          }
         },
         "c": [
