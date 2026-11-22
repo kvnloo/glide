@@ -71,7 +71,6 @@ const QUIT_DETACH_MS = 1500
 
 /** Runs the Tern frontend until the user quits; resolves the exit code. */
 export class App implements ChatPorts {
-  // The stores the ports lend (ChatPorts; app/stores.ts says what each one holds).
   readonly session: SessionState
   readonly transcript: Transcript
   /** Session-scoped derived charts; never changes transcript or answer copy. */
@@ -127,7 +126,6 @@ export class App implements ChatPorts {
       policy: async () => settings.load().tableCharts ?? 'off',
       plan: hermesTableChartPlanner()
     }, () => this.changed())
-    // A card redraws on its own (a click, a mount): its row is drawn again even once it has settled.
     this.eui = new EuiCards(key => {
       const entry = key === undefined ? undefined : this.transcript.entries.find(e => key.startsWith(`main.${e.id}.`))
       if (entry) {
@@ -186,7 +184,6 @@ export class App implements ChatPorts {
     this.#surface = new SurfaceHost(this.#tern, 'hermes', STYLES, {
       changed: () => this.changed(),
       recovered: surface => {
-        // The new document uses the same stores, transcript, held requests and draft.
         if (this.#orb) {
           this.#orb.close()
           this.#orb = new ThinkingOrb(this.#tern, surface)
@@ -218,7 +215,6 @@ export class App implements ChatPorts {
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
       this.#clean = new CleanView(this.#tern, this.#surface.motion, () => cleanPalette(s.theme.wal), () => this.changed())
-      // A clicked planet opens the lanes popup on its lane's row.
       if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion, i => void openLanesPopup(this, this.laneFeed, undefined, i))
     }
     this.#view = {
@@ -241,7 +237,6 @@ export class App implements ChatPorts {
     }
     s.theme.apply()
     void s.widgets.start()
-    // A card that throws draws as the generic one, and the pane says so once per tool name.
     onCardFault(noticeSink(text => this.notice(text, 'warning')))
 
     this.eui.attach({ blob: (bytes, mime) => (this.#tern.caps.features.includes('blobs') ? this.#tern.blob(bytes, mime) : undefined), stylesheet: (name, css) => { this.#surface.raw.stylesheet(name, css) } }, Boolean(this.#tern.caps.dark))
@@ -252,14 +247,12 @@ export class App implements ChatPorts {
 
     this.transcript.push({ id: entryId('welcome'), kind: 'welcome' })
 
-    // `hermes -q …`: the launcher's query is the first prompt, sent literally once the first session is adopted.
     const query = this.#launch.query
 
     if (query || s.attachments.awaitingStartup) {
       s.queue.hold({ images: [], kind: 'app', text: query || IMAGE_ONLY_PROMPT })
     }
 
-    // Exit retires the owning transport even before a reconnect adopts a new runtime id.
     this.#gw.on('exit', () => {
       this.tableCharts.transportLost()
       this.eui.host.invalidate()
@@ -285,7 +278,6 @@ export class App implements ChatPorts {
     this.processes.poke()
     this.#frame()
     this.#surface.focus(INPUT_ID)
-    // Keys and Tern events until the pane closes, each followed by a render; then the app quits.
     void runInput(this.#tern, {
       after: () => this.changed(),
       onError: error => this.#surface.failure(new Error(`Tern input failed: ${errorText(error)}`)),
@@ -302,7 +294,6 @@ export class App implements ChatPorts {
         if (this.#surface.state !== 'visible') {
           return
         }
-        // Any key restores the normal view from the clean one, and does nothing else.
         if (cleanFocus.on) {
           cleanFocus.exit()
         } else if (this.#retention && key.ctrl && key.name === 'home' && !this.overlays.at(-1)?.modal) {
@@ -352,7 +343,6 @@ export class App implements ChatPorts {
 
     const live = this.liveVoice.blocked && this.liveVoice.phase !== 'consent'
     if (live && !this.#wasLive && sid && this.#lanes) {
-      // A block another pane started still counts: ask the plugin once as live voice starts.
       void refreshFocusBlock(this.#gw, sid).then(() => this.#renders.request(), () => undefined)
     }
     this.#wasLive = live
@@ -368,7 +358,6 @@ export class App implements ChatPorts {
       : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:')))
     const modal = this.overlays.at(-1)?.modal === true
     this.#lanes?.update(live, modal, orbState, focusBlock.active())
-    // While the lanes orbit, the orbit's centre is the voice orb: the composer's copy stays hidden and still.
     this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true || cleanFocus.on)
     this.#clean?.update(orbState)
     if (!this.#view || this.#surface.closed) {
@@ -449,7 +438,6 @@ export class App implements ChatPorts {
   /** Tern owns visibility, theme and motion; stop animation and expiry work while hidden. */
   #onSurfaceEvent(ev: TspEvent) {
     if (this.#surface.state === 'failed' || this.#surface.state === 'disposed') return
-    // Check the owner before lifecycle can replace it on a valid show event.
     if ('sf' in ev && ev.sf && ev.sf !== this.#surface.raw.id) {
       return
     }

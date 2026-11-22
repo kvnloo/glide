@@ -21,6 +21,10 @@ export interface UiRender {
 
 const span = (t: string, s?: string): Span => (s ? { t, s } : { t })
 const toneStyle = (tone: UiTone | undefined) => tone === undefined || tone === 'neutral' ? undefined : tone
+const toneProps = (value: UiTone | undefined) => {
+  const tone = toneStyle(value)
+  return tone ? { tone } : {}
+}
 const clamp = (v: number) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0))
 const STEP_STATUS = { pending: 'pending', active: 'running', done: 'done', blocked: 'error' } as const
 
@@ -97,7 +101,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       return <chart key={key} kind="bars" role="glide.bars" series={n.props.values.map((value, i) => ({ value, label: n.props.labels[i] ?? '' }))} size="md" summary={n.props.summary} />
     case 'Meter': {
       const p = n.props
-      return <meter key={key} label={p.label} role="glide.meter" value={clamp(p.value)} {...(p.total ? { total: p.total } : {})} {...(toneStyle(p.tone) ? { tone: toneStyle(p.tone) } : {})} />
+      return <meter key={key} label={p.label} role="glide.meter" value={clamp(p.value)} {...(p.total ? { total: p.total } : {})} {...toneProps(p.tone)} />
     }
     case 'Table': {
       const { columns, rows } = n.props
@@ -138,10 +142,10 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
               <row align="center" gap="md" key="r" role="glide.list.row">
                 {numbered ? <text key="i" role="glide.list.index" text={String(i + 1).padStart(2, '0')} /> : null}
                 <col gap="none" grow={1} key="t" shrink={1}>
-                  <text key="l" role="glide.strong" text={it.label} truncate="end" {...(toneStyle(it.tone) ? { tone: toneStyle(it.tone) } : {})} />
+                  <text key="l" role="glide.strong" text={it.label} truncate="end" {...toneProps(it.tone)} />
                   {it.detail ? <text key="d" role="glide.muted" text={it.detail} wrap="word" /> : null}
                 </col>
-                {it.badge ? <badge key="b" text={it.badge} {...(toneStyle(it.tone) ? { tone: toneStyle(it.tone) } : {})} /> : null}
+                {it.badge ? <badge key="b" text={it.badge} {...toneProps(it.tone)} /> : null}
                 {it.value ? <text key="v" role="glide.list.value" text={it.value} /> : null}
               </row>
             )
@@ -164,7 +168,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       )
     }
     case 'Badges':
-      return <row gap="sm" key={key} role="glide.badges" wrap>{n.props.items.map((b, i) => <badge key={`b${i}`} text={b.text} {...(toneStyle(b.tone) ? { tone: toneStyle(b.tone) } : {})} />)}</row>
+      return <row gap="sm" key={key} role="glide.badges" wrap>{n.props.items.map((b, i) => <badge key={`b${i}`} text={b.text} {...toneProps(b.tone)} />)}</row>
     case 'Steps':
       return (
         <checklist

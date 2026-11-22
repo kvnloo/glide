@@ -4,23 +4,30 @@
 Run from the worktree root. Owns the heavy-job lock and recorder lifetime.
 Creates and closes its own studio tab running `bun e2e/card-motion.ts` from frontend/.
 """
+import argparse
 import fcntl
 import json
 import os
 from pathlib import Path
+import shlex
 import shutil
 import signal
 import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-STUDIO = Path('/home/kvn/.hermes/profiles/clean/cache/scratch/studio')
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--studio', required=True, type=Path, help='isolated Tern studio directory')
+parser.add_argument('--tern', default='tern', help='Tern executable')
+parser.add_argument('--bun', default='bun', help='Bun executable')
+parser.add_argument('--swaymsg', default='swaymsg', help='swaymsg executable')
+args = parser.parse_args()
+STUDIO = args.studio.resolve()
 OUT = ROOT / 'glide/proofs/card-motion'
-TERN = '/home/kvn/.local/bin/tern'
 
 
 def ctl(*args):
-    result = subprocess.run([TERN, 'ctl', '--control', str(STUDIO / 'tern/ctl.sock'), *args],
+    result = subprocess.run([args.tern, 'ctl', '--control', str(STUDIO / 'tern/ctl.sock'), *args],
                             capture_output=True, text=True, check=True)
     data = json.loads(result.stdout)
     if not data.get('ok'):
@@ -45,7 +52,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
     OUT.mkdir(parents=True, exist_ok=True)
     ctl('tab', 'new')
     ctl('ready')
-    ctl('run', json.dumps(f'cd {ROOT / "frontend"} && /home/kvn/.bun/bin/bun e2e/card-motion.ts'))
+    ctl('run', json.dumps(f'cd {shlex.quote(str(ROOT / "frontend"))} && {shlex.quote(args.bun)} e2e/card-motion.ts'))
     for _ in range(20):
         if 'GLIDE / NATIVE CARD MOTION' in json.dumps(ctl('tree')):
             break
@@ -67,7 +74,7 @@ with open('/tmp/glide-studio-heavy.lock', 'w') as lock:
         (OUT / 'live-a11y.json').write_text(json.dumps(ctl('a11y'), indent=2))
         socket = next((STUDIO / 'rt').glob('sway-ipc.*.sock'))
         env = dict(os.environ, XDG_RUNTIME_DIR=str(STUDIO / 'rt'), WAYLAND_DISPLAY='wayland-1', SWAYSOCK=str(socket))
-        sway = json.loads(subprocess.check_output(['/home/kvn/.local/opt/sway-nested/bin/swaymsg', '-t', 'get_tree', '-r'], env=env, text=True))
+        sway = json.loads(subprocess.check_output([args.swaymsg, '-t', 'get_tree', '-r'], env=env, text=True))
 
         def nodes(n):
             yield n
