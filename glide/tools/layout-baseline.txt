@@ -332,6 +332,7 @@ frontend/src/__tests__/sessionTitleCanonical.test.ts
 frontend/src/__tests__/sessionTree.test.ts  # upstream: alt-glitch/hermes-tern PR 69
 frontend/src/__tests__/sessionViews.test.ts
 frontend/src/__tests__/settingsKeyboard.test.ts
+frontend/src/__tests__/sharedTheme.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/shortcutOwnership.test.ts
 frontend/src/__tests__/sideGateway.test.ts
 frontend/src/__tests__/sideSetup.ts

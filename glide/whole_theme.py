@@ -19,6 +19,15 @@ from . import ui
 
 TABLE = Path(__file__).resolve().parent / "frontend" / "themes.json"
 DASH = Path(__file__).resolve().parent / "themes" / "dash.json"
+# The shared theme file (kvnloo/ephemeral-ui theme/glide.json, pinned: glide/tools/check_shared_theme.py).
+SHARED = Path(__file__).resolve().parent / "themes" / "shared" / "glide.json"
+# dash.json's vars that the shared theme's night (``color.dark``) owns; brightBlue/brightMagenta stay Tern's own.
+DASH_VARS = {
+    "background": "bg", "foreground": "fg", "card": "card", "muted": "muted", "mutedForeground": "mutedFg",
+    "popover": "popover", "primary": "primary", "secondary": "secondary", "accent": "accent", "border": "border",
+    "destructive": "danger", "userBubble": "message", "faint": "faint", "red": "dangerFg", "green": "success",
+    "yellow": "warning", "blue": "info", "magenta": "magenta", "cyan": "cyan",
+}
 TOOLSET = "glide"
 # The modes the frontend had before the table (settings.ts ThemeMode); the tool can go back to any of them.
 BUILTIN = ("tern", "nous", "skin", "auto", "dash")
@@ -120,6 +129,26 @@ def omp_theme(name: str) -> dict[str, Any]:
     }
     assert set(vars_) == set(template["vars"]), "Dash's token map changed: map the new vars here too"
     return {**template, "name": f"glide-{name}", "vars": vars_}
+
+
+def shared_theme() -> dict[str, Any]:
+    """The pinned shared theme; a shape version other than 0 is refused rather than half-read."""
+    theme = json.loads(SHARED.read_text())
+    if theme.get("v") != 0:
+        raise ValueError(f"{SHARED.name}: v {theme.get('v')!r}, Glide reads v 0")
+    return theme
+
+
+def dash_theme(theme: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Tern's ``dash`` window theme: dash.json's token map over the shared theme's night colors."""
+    night = (shared_theme() if theme is None else theme)["color"]["dark"]
+    template = json.loads(DASH.read_text())
+    return {**template, "vars": {k: night[DASH_VARS[k]] if k in DASH_VARS else v for k, v in template["vars"].items()}}
+
+
+def dash_theme_bytes() -> bytes:
+    """dash.json's body as launcher.install_themes writes it (and as glide/themes/dash.json is committed)."""
+    return (json.dumps(dash_theme(), indent="\t") + "\n").encode()
 
 
 def omp_themes() -> dict[str, bytes]:

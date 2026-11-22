@@ -1,20 +1,26 @@
 // Glide's design tokens: one palette, one type ramp, one radius scale, one tracking set. The cards,
 // popups and glass write their sizes as plain CSS; designTokens.test.ts fails any radius, font size,
 // letter-spacing or hex in them that is not here, so a new component cannot drift. The design-system
-// page (glide/tools/design-system.mts) draws every token and component in each theme.
+// page (glide/tools/design-system.mts) draws every token and component in each theme. Dash's night, the gold,
+// the radii, the type ramp and the tracking are read from the shared theme file (sharedTheme.ts), so Glide,
+// Dash and the phones wear the same values; the rest are Glide's own.
+
+import { SHARED } from './sharedTheme.js'
+
+const NIGHT_SET = SHARED.color.dark
 
 /**
  * Dash's original black and gold: the `dash` theme mode (dash.ts) and glide/themes/dash.json. Muted and dim
  * read 4.5:1 on the lightest layer text sits on (wal.ts `l3`), so walPalette never lifts them (contrast.test.ts).
  */
 export const DASH = {
-  bg: '#0c0c0a',
-  fg: '#ECE8DF',
-  gold: '#d7b986',
-  muted: '#BBB5A9',
-  dim: '#ACA79D',
-  error: '#E5484D',
-  success: '#8FB98A'
+  bg: NIGHT_SET.bg,
+  fg: NIGHT_SET.fg,
+  gold: SHARED.brand.accent,
+  muted: NIGHT_SET.mutedFg,
+  dim: NIGHT_SET.faint,
+  error: NIGHT_SET.danger,
+  success: NIGHT_SET.success
 } as const
 
 /**
@@ -53,7 +59,7 @@ export const NIGHT = {
 export const NIGHT_INKS = [NIGHT.text, NIGHT.text2, NIGHT.text3, NIGHT.action, NIGHT.strong, NIGHT.muted, NIGHT.danger, NIGHT.agree] as const
 
 /** The one gold call to action (the council's Convene): a rim brightest on top over Dash's gold, dark ink. */
-export const GOLD = { rim: '#f0d7a0', fill: '#cfae74', shade: '#9c7a43', ink: '#1d160b' } as const
+export const GOLD = { ...SHARED.brand.cta } as const
 
 /** Status fallbacks under the host's --h-success / --h-warning / --h-danger, for hosts that do not set them. */
 export const STATUS = { ok: '#7fd1a0', warn: '#e8b04a', bad: '#e8513a' } as const
@@ -65,13 +71,14 @@ export const SERIF = "'Cormorant Garamond', 'Instrument Serif', 'EB Garamond', G
 export const MONO = "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
 
 /** Corner radii, px: chips and swatches, rows and tiles, heroes and sections, cards/popups/panes, pills. Circles use 50%. */
-export const RADIUS = { chip: 4, tile: 8, block: 12, card: 16, pill: 999 } as const
+const { chip, tile, block, card, pill } = SHARED.radius
+export const RADIUS = { chip, tile, block, card, pill } as const
 
 /**
  * The type ramp, px. Mono labels (uppercase) and meta lines, sans small and body text, serif names and
  * titles, display numbers. Nothing under 10 px: the popups' 8.5 px labels failed at phone scale.
  */
-export const TYPE = { label: 10, meta: 11, small: 12, body: 13, lead: 15, name: 17, title: 20, display: 28, hero: 44, giant: 88 } as const
+export const TYPE = { ...SHARED.type.size } as const
 
 /** Letter-spacing: caps for mono labels, wide for the instrument eyebrows, tight and display for big type. */
-export const TRACK = { caps: '.08em', wide: '.16em', tight: '-.01em', display: '-.04em', giant: '-.06em' } as const
+export const TRACK = { ...SHARED.type.tracking } as const

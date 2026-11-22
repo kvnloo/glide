@@ -315,12 +315,13 @@ def install_themes(environ: Optional[dict[str, str]] = None) -> list[Path]:
     """Copies the themes the plugin ships (Dash's black and gold, and a `glide-<name>` window theme per entry of
     Glide's theme table) into omp's theme folder, where Tern lists them too (`theme_dark: "dash"`); a file
     already the same is left alone. The paths written."""
-    from .glide.whole_theme import omp_themes
+    from .glide.whole_theme import dash_theme_bytes, omp_themes
 
     environ = os.environ if environ is None else environ
     home = Path(environ.get("PI_CODING_AGENT_DIR") or Path(environ.get("HOME") or Path.home()) / ".omp" / "agent")
     written = []
-    themes = {theme.name: theme.read_bytes() for theme in sorted(THEMES.glob("*.json"))} | omp_themes()
+    # Dash's colors come from the shared theme file, read now, not from the copy dash.json was last written with.
+    themes = {theme.name: theme.read_bytes() for theme in sorted(THEMES.glob("*.json"))} | {"dash.json": dash_theme_bytes()} | omp_themes()
     for name, body in themes.items():
         target = home / "themes" / name
         try:

@@ -1632,6 +1632,20 @@
       "army": []
     },
     {
+      "id": "shared-theme",
+      "title": "One shared theme file: Glide wears the Glide theme Dash and the phones read",
+      "surface": "slash",
+      "entry": "/glide theme dash",
+      "journey": "settings",
+      "expect": "Dash's night, the gold, radii, type ramp, tracking and glass come from the pinned shared theme file; a token changed there shows, and a stale pin or an unknown catalog kind fails its check",
+      "tests": [
+        "frontend/src/__tests__/sharedTheme.test.ts",
+        "glide/tests/test_shared_theme.py",
+        "tests/test_launcher.py"
+      ],
+      "army": []
+    },
+    {
       "id": "wallpaper-default",
       "title": "Return from wallpaper colors to Tern",
       "surface": "slash",
