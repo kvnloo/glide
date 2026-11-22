@@ -22,9 +22,17 @@ const snapshot = el(0, 'div', [el(1, 'div', [
 ], 'is-root')])
 
 // The drawn tree, read through Tern's own Node fields.
-const drawn = () => euiCardNode('c', { spec: { kind: 'intel-suite', app: 'glide' }, app: 'glide', label: 't', node: snapshot }, render)
-const all = (n: unknown): Node[] => n instanceof Node ? [n, ...n.children.flatMap(all)] : []
-const button = (id: number): Node | undefined => all(drawn()).find(n => n.props['key'] === `n${id}`)
+function button(id: number): Node | undefined {
+  const tree = euiCardNode('c', { spec: { kind: 'intel-suite', app: 'glide' }, app: 'glide', label: 't', node: snapshot }, render)
+  const pending: unknown[] = [tree]
+  while (pending.length) {
+    const node = pending.pop()
+    if (!(node instanceof Node)) continue
+    if (node.props['key'] === `n${id}`) return node
+    pending.push(...node.children)
+  }
+  return undefined
+}
 const labelled = (n: Node | undefined) => n?.children.some(c => c.props['class'] === 'eu-label') ?? false
 
 describe('kit button labels (#289)', () => {

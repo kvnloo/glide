@@ -21,7 +21,6 @@ import { monoPalette, studioPalette, templateTernPalette } from '../../../glide/
 
 /** The wallpaper-derived palettes; Dash also sets a Tern window theme. */
 type OwnMode = 'dash' | 'mono' | 'studio'
-const ownMode = (mode: ThemeMode): mode is OwnMode => mode === 'dash' || mode === 'mono' || mode === 'studio'
 
 /** What the theme reaches of the app. */
 export interface ThemeHost {
@@ -147,7 +146,7 @@ export class Theme {
 
   /** The palette for auto, Dash, Mono, Studio or a whole theme; undefined for other modes or unreadable wallpaper. */
   get wal(): WalPalette | undefined {
-    if (ownMode(this.#mode)) return this.#own(this.#mode)
+    if (this.#mode === 'dash' || this.#mode === 'mono' || this.#mode === 'studio') return this.#own(this.#mode)
     if (isGlideTheme(this.#mode)) return themePalette(this.#mode, this.#host.style?.())
     return this.#mode === 'auto' ? this.#wal : undefined
   }

@@ -29,7 +29,7 @@ const ACTS = ['close', 'page', 'copy-branch', 'open-pr', 'diff', 'all-files', 'o
 /** The sidebar lists this many changed files; the Changes sheet has them all. */
 const MAX_FILES = 40
 
-export interface SidebarPages {
+interface SidebarPages {
   list(): readonly PageMount[]
   open(id: string): void
 }

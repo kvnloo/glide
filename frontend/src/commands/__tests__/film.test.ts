@@ -18,7 +18,7 @@ describe('/film', () => {
   it('decodes only a loopback bridge and deep-links the editor to the project', () => {
     expect(filmBridge(JSON.stringify({ url: 'http://evil.example', token: 't', root: '/' }))).toBeUndefined()
     const b = filmBridge(BRIDGE)
-    if (!b) throw new Error('bridge')
+    if (!b) throw new Error('The film bridge fixture is invalid')
     expect(editorUrl(b, 'meta')).toBe('http://127.0.0.1:17888/open?token=tok-1&to=%23%2Fp%2Fmeta')
   })
 
@@ -53,7 +53,7 @@ describe('/film', () => {
     expect(card).toContain('Play latest export take · 2.0 s')
     expect(card).not.toContain('tok-1')
     const bridge = filmBridge(BRIDGE)
-    if (!bridge) throw new Error('bridge')
+    if (!bridge) throw new Error('The film bridge fixture is invalid')
     await intent({ action: 'play-take', url: 'not-a-take-url' })
     expect(browser).toHaveBeenLastCalledWith({ op: 'open', owner: 7,
       url: editorUrl(bridge, 'meta').replace('%23%2Fp%2Fmeta', 'lib%2Fmeta%2Frenders%2Ftake-one.mp4'), how: 'below' })

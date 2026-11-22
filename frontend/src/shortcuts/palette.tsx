@@ -27,7 +27,7 @@ export interface PaletteRow {
 }
 
 /** The whole-app templates ("Use Mono template"), then their panels: each runs a /template command. */
-export function templateRows(): PaletteRow[] {
+function templateRows(): PaletteRow[] {
   const rows: PaletteRow[] = (['mono', 'studio', 'default'] as const).map(id => ({
     command: `/template ${id}`, description: TEMPLATES[id].detail, group: 'Templates', id: `template:${id}`, name: `Use ${TEMPLATES[id].label} template`
   }))

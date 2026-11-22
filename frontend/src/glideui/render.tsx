@@ -274,7 +274,7 @@ const RING_SPENT = `color-mix(in srgb,${ACCENT} 14%,var(--l2))`
 
 /** The opt-in glow (glow: true on the mount): a halo round the composer and the head. Kept out of UI_CSS, which the design checks hold glow-free. */
 const RING_GLOW = `
-[data-role='glide.ring.glow']{position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:${RING_R}px;box-shadow:0 0 26px 2px color-mix(in srgb,${ACCENT} 38%,transparent),0 0 6px color-mix(in srgb,${ACCENT} 55%,transparent)}
+[data-role='glide.ring.glow']{position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:${RING_R}px;box-shadow:0 0 12px 2px color-mix(in srgb,${ACCENT} 38%,transparent),0 0 6px color-mix(in srgb,${ACCENT} 55%,transparent)}
 [data-role='glide.ring.head']{box-shadow:0 0 10px 4px color-mix(in srgb,${ACCENT} 55%,transparent),0 0 3px 1px color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}`
 
 

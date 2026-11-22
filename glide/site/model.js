@@ -10,10 +10,10 @@ export const CORRECTIONS = [
   { id: 'c4', session: 'desktop', text: 'no, always deploy to staging first and run the smoke tests there.' },
   { id: 'c5', session: 'tui', text: 'actually, sign every commit with my SSH key (git commit -S).' }
 ]
-export const SESSIONS_READ = 6
+const SESSIONS_READ = 6
 
 /** What the sample machine reports on Detect. Detection installs nothing. */
-export const MACHINE = [['CPU', '8 cores'], ['RAM', '16 GB'], ['GPU', 'none'], ['Ollama', '1 model']]
+const MACHINE = [['CPU', '8 cores'], ['RAM', '16 GB'], ['GPU', 'none'], ['Ollama', '1 model']]
 
 /** Asks an agent raises during a deep-work block: non-critical ones are held, critical ones pass. */
 export const ASKS = [
@@ -24,7 +24,7 @@ export const ASKS = [
 ]
 
 /** Messages per two-hour window in seed.py's --rhythm history (ten days, local time). */
-export const HOURS = [['08–10', 30], ['10–12', 30], ['12–14', 0], ['14–16', 30], ['16–18', 0], ['18–20', 0], ['20–22', 0], ['22–24', 10]]
+const HOURS = [['08–10', 30], ['10–12', 30], ['12–14', 0], ['14–16', 30], ['16–18', 0], ['18–20', 0], ['20–22', 0], ['22–24', 10]]
 
 /** /theme's modes, in the native picker's order. The browser preview approximates each one. */
 export const THEMES = [
@@ -68,8 +68,8 @@ export function rank(query, docs = CORRECTIONS) {
     const t = toks[i]
     let score = 0
     for (const term of terms) {
-      const df = toks.filter(x => x.includes(term)).length
-      const tf = t.filter(x => x === term).length
+      const df = toks.filter(tokens => tokens.includes(term)).length
+      const tf = t.filter(token => token === term).length
       if (!tf) continue
       const idf = Math.log(1 + (docs.length - df + 0.5) / (df + 0.5))
       score += idf * (tf * 2.2) / (tf + 1.2 * (0.25 + 0.75 * t.length / avg))

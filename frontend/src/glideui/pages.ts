@@ -114,8 +114,8 @@ export class GlidePages {
   }
 
   #serial<T>(run: () => Promise<T>): Promise<T> {
-    const next = this.#queue.then(run)
-    this.#queue = next.catch(() => undefined)
+    const next = this.#queue.then(run, run)
+    this.#queue = next
     return next
   }
 
@@ -128,7 +128,7 @@ export class GlidePages {
         const old = this.#open.get(id)
         this.#open.delete(id)
         old?.origin?.close()
-        if (old) await this.#browser({ op: 'close', block: old.block }).catch(() => undefined)
+        if (old) await this.#closeBlock(old.block)
       }
       for (const p of pages) {
         if (this.#handled.get(p.id) === p.opened) continue
@@ -174,8 +174,18 @@ export class GlidePages {
       this.#handled.delete(id)
       this.#open.delete(id)
       known?.origin?.close()
-      if (known) await this.#browser({ op: 'close', block: known.block }).catch(() => undefined)
+      if (known) await this.#closeBlock(known.block)
     })
+  }
+
+  async #closeBlock(block: number) {
+    try {
+      await this.#browser({ op: 'close', block })
+    } catch (error) {
+      // The native block may already be closed. Never print its URL or browser reply.
+      const reason = error instanceof Error ? 'browser rejected close' : 'unknown close failure'
+      process.stderr.write(`Glide page ${block}: ${reason}\n`)
+    }
   }
 
   async #openOne(p: PageMount): Promise<PageVerdict> {
@@ -207,10 +217,19 @@ export class GlidePages {
   }
 
   async #themeWhenReady(id: string, page: OpenPage) {
+    let failure: unknown
     for (const ms of [0, 100, 300, 800, 1600]) {
       if (ms) await delay(ms, undefined, { ref: false })
       if (!this.#theme || this.#open.get(id) !== page) return
-      if (await this.#apply(page).catch(() => false)) return
+      try {
+        if (await this.#apply(page)) return
+      } catch (error) {
+        failure = error
+      }
+    }
+    if (failure !== undefined && this.#open.get(id) === page) {
+      const reason = failure instanceof Error ? 'browser rejected theme evaluation' : 'unknown theme failure'
+      process.stderr.write(`Glide page ${page.block}: ${reason}\n`)
     }
   }
 

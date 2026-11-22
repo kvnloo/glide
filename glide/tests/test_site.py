@@ -5,11 +5,8 @@ from __future__ import annotations
 
 import importlib.util
 import re
-import shutil
 import subprocess
 from pathlib import Path
-
-import pytest
 
 GLIDE = Path(__file__).resolve().parents[1]
 SITE = GLIDE / "site"
@@ -100,11 +97,10 @@ def test_demo_only_shows_commands_glide_has():
     assert set(themes) == {"auto", "dash", "nous", "skin", "tern"}
     assert set(themes) <= set(re.findall(r"'(\w+)'", theme_modes)), "every demo theme must exist in Glide"
     seed = (GLIDE / "demo" / "seed.py").read_text()
-    for text in re.findall(r"text: '([^']+)'", model.split("export const SESSIONS_READ")[0]):
+    for text in re.findall(r"text: '([^']+)'", model.split("const SESSIONS_READ")[0]):
         assert text in seed, f"demo correction is not in demo/seed.py: {text}"
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
 def test_demo_model():
     run = subprocess.run(["node", "--test", str(SITE / "model.test.mjs")], capture_output=True, text=True, timeout=60)
     assert run.returncode == 0, run.stdout + run.stderr

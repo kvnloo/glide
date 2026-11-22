@@ -29,7 +29,7 @@ export type TemplateId = (typeof TEMPLATE_IDS)[number]
 export const TRANSCRIPT_STYLES = ['standard', 'terminal', 'bubble'] as const
 export type TranscriptStyle = (typeof TRANSCRIPT_STYLES)[number]
 export const TEMPLATE_PANELS = ['analytics', 'whiteboard'] as const
-export type TemplatePanel = (typeof TEMPLATE_PANELS)[number]
+type TemplatePanel = (typeof TEMPLATE_PANELS)[number]
 
 export interface Template {
   readonly id: TemplateId
@@ -52,10 +52,10 @@ export const isTemplateId = (v: string): v is TemplateId => (TEMPLATE_IDS as rea
 export const isTemplatePanel = (v: string): v is TemplatePanel => (TEMPLATE_PANELS as readonly string[]).includes(v)
 
 /** The page id a panel is listed under in `ui.pages`; only ids with this prefix are a template's to close. */
-export const panelPageId = (panel: TemplatePanel) => `template-${panel}`
+const panelPageId = (panel: TemplatePanel) => `template-${panel}`
 const TEMPLATE_PAGE = /^template-/
 
-// ── Palettes ──────────────────────────────────────────────────────────────────────────────────
+// Palettes
 
 type Inks = typeof MONO_INK | typeof STUDIO
 
@@ -78,7 +78,7 @@ export function templateTernPalette(p: WalPalette): TernPalette {
   return { ...walTernPalette(p), name: { dark: `glide-${p.source}`, light: `glide-${p.source}` } }
 }
 
-// ── Transcript styles ─────────────────────────────────────────────────────────────────────────
+// Transcript styles
 
 /** The surface stylesheet a transcript style installs (and removes when another is picked). */
 export const TRANSCRIPT_SHEET = 'glide-transcript-style'
@@ -112,9 +112,9 @@ export function transcriptCss(style: TranscriptStyle): string | null {
   return null
 }
 
-// ── Analytics data ────────────────────────────────────────────────────────────────────────────
+// Analytics data
 
-export interface AnalyticsData {
+interface AnalyticsData {
   readonly generatedAt: number
   readonly cwd: string
   readonly prompts: number
@@ -173,40 +173,22 @@ export function analyticsData(entries: readonly Entry[], now: number, cwd = '', 
   }
 }
 
-// ── Pages on disk ─────────────────────────────────────────────────────────────────────────────
+// Pages on disk
 
 const DATA = /(<script type="application\/json" id="glide-data">)[\s\S]*?(<\/script>)/
-
-/** The shipped page with `data` in its glide-data script; `<` escaped so no value can close the script. */
-export function pageWithData(html: string, data: unknown): string {
-  const json = JSON.stringify(data ?? {}).replace(/</g, '\\u003c')
-  return html.replace(DATA, (_m, open: string, close: string) => `${open}${json}${close}`)
-}
 
 /** Writes `file` whole or not at all. */
 function writeAtomic(file: string, text: string) {
   mkdirSync(dirname(file), { recursive: true })
-  const tmp = `${file}.${process.pid}.tmp`
-  writeFileSync(tmp, text)
-  renameSync(tmp, file)
+  const temporary = `${file}.${process.pid}.tmp`
+  writeFileSync(temporary, text)
+  renameSync(temporary, file)
 }
 
 interface StoredPage { id: string; title: string; path: string; how: PageHow; opened: number }
 
-/**
- * settings.json's `ui.pages` with every template page dropped and `add` appended, rev bumped, every other
- * key kept (the agent's widgets, style and pages; ui.py's writes keep `pages` the same way).
- */
-export function writeTemplatePages(file: string, add: readonly StoredPage[]) {
-  const stored = readStoredSettings(file) as Record<string, unknown>
-  const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
-  const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
-  const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
-  writeAtomic(file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
-}
-
 /** The template panels settings.json lists now, each where it is docked. */
-export function templatePanels(file: string): { page: TemplatePanel; how: PageHow }[] {
+function templatePanels(file: string): { page: TemplatePanel; how: PageHow }[] {
   const ui = (readStoredSettings(file) as { ui?: { pages?: unknown } }).ui
   return (Array.isArray(ui?.pages) ? ui.pages : []).flatMap(p => {
     const { id, how } = (typeof p === 'object' && p !== null ? p : {}) as { id?: unknown; how?: unknown }
@@ -215,9 +197,9 @@ export function templatePanels(file: string): { page: TemplatePanel; how: PageHo
   })
 }
 
-// ── The applier ───────────────────────────────────────────────────────────────────────────────
+// The applier
 
-export interface TemplateHost {
+interface TemplateHost {
   /** settings.json: the template, the transcript style, and `ui.pages`. */
   readonly file: string
   readonly settings: SettingsSource
@@ -303,16 +285,26 @@ export class Templates {
   async #pages(panels: readonly { page: TemplatePanel; how: PageHow }[]): Promise<void> {
     const now = this.#host.now?.() ?? Date.now()
     const wanted = new Set(panels.map(p => p.page))
-    for (const p of templatePanels(this.#host.file)) if (!wanted.has(p.page)) await this.#host.closePage?.(panelPageId(p.page)).catch(() => undefined)
+    for (const p of templatePanels(this.#host.file)) {
+      if (!wanted.has(p.page)) await this.#host.closePage?.(panelPageId(p.page))
+    }
     const dir = join(dirname(this.#host.file), 'pages')
     const add: StoredPage[] = []
     for (const p of panels) {
       const html = readFileSync((this.#host.shipped ?? shippedPage)(p.page), 'utf8')
       const path = join(dir, `${p.page}.html`)
-      writeAtomic(path, pageWithData(html, p.page === 'analytics' ? await this.#analytics(now) : {}))
+      const payload = p.page === 'analytics' ? await this.#analytics(now) : {}
+      // Escape markup even when a session value contains a closing script tag.
+      const json = JSON.stringify(payload).replace(/</g, '\\u003c')
+      writeAtomic(path, html.replace(DATA, (_match, start: string, end: string) => `${start}${json}${end}`))
       add.push({ id: panelPageId(p.page), title: PANEL_TITLES[p.page], path, how: p.how, opened: now })
     }
-    writeTemplatePages(this.#host.file, add)
+    const file = this.#host.file
+    const stored = readStoredSettings(file) as Record<string, unknown>
+    const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
+    const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
+    const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
+    writeAtomic(file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
     await this.#host.reload()
   }
 

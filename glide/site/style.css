@@ -64,7 +64,7 @@ code, kbd { font-family: var(--font-mono); }
 
 /* Hero */
 .hero { max-width: 1120px; margin: 0 auto; padding: clamp(48px, 10vw, 120px) clamp(16px, 4vw, 48px) 40px; }
-.eyebrow { font-family: var(--font-mono); font-size: var(--t-meta); text-transform: uppercase; letter-spacing: var(--track-wide); color: var(--dim); margin: 0 0 18px; }
+.eyebrow { font-size: var(--t-meta); text-transform: uppercase; letter-spacing: var(--track-wide); color: var(--dim); margin: 0 0 18px; }
 h1 {
   font-family: var(--font-serif); font-weight: 500;
   font-size: clamp(var(--t-hero), 7vw, var(--t-giant));
@@ -140,11 +140,11 @@ h2 { font-family: var(--font-serif); font-weight: 500; font-size: var(--t-hero);
 .quotes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .quotes li { display: grid; gap: 2px; border-left: 2px solid var(--l3); padding-left: 12px; }
 .quotes q { font-size: var(--t-body); }
-.meta { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--dim); }
+.meta { font-size: var(--t-meta); color: var(--dim); }
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 96px; margin-top: 12px; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
 .bar-fill { width: 100%; max-width: 36px; height: calc(var(--v) * 70px); min-height: 2px; background: var(--muted); border-radius: var(--r-chip); }
-.bar-label { font-family: var(--font-mono); font-size: var(--t-label); color: var(--dim); }
+.bar-label { font-size: var(--t-label); color: var(--dim); }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .act { min-width: 160px; padding: 7px 16px; font-size: var(--t-body); color: var(--fg); background: transparent; border: 1px solid var(--night-border-strong); border-radius: var(--r-tile); }
 .act.primary { color: var(--accent); border-color: var(--accent); }

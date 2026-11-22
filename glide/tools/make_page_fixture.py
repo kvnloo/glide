@@ -67,11 +67,13 @@ def main():
     page.write_text(HTML, encoding="utf-8")
     (folder / "media/pyramid.obj").write_text(OBJ, encoding="utf-8")
     with wave.open(str(folder / "media/tone.wav"), "wb") as tone:
-        rate = 8000
-        tone.setparams((1, 2, rate, 0, "NONE", "not compressed"))
+        sample_rate_hz = 8000
+        concert_a_hz = 440
+        amplitude = 2500
+        tone.setparams((1, 2, sample_rate_hz, 0, "NONE", "not compressed"))
         tone.writeframes(b"".join(
-            struct.pack("<h", round(2500 * math.sin(2 * math.pi * 440 * i / rate) * (1 - i / rate)))
-            for i in range(rate)
+            struct.pack("<h", round(amplitude * math.sin(2 * math.pi * concert_a_hz * i / sample_rate_hz) * (1 - i / sample_rate_hz)))
+            for i in range(sample_rate_hz)
         ))
     print(json.dumps({"id": "gold-scene", "title": "Gold scene", "path": str(page),
                       "how": "over", "assets": ["media/pyramid.obj", "media/tone.wav"]}))

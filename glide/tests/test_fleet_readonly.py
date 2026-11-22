@@ -30,7 +30,6 @@ def _read_card(home, view, **params):
     return result["data"]
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="live gauges read Linux procfs")
 def test_hosts_reads_live_gauges_and_read_only_session_db(source_home):
     db = sqlite3.connect(source_home / "state.db")
     try:
@@ -43,7 +42,11 @@ def test_hosts_reads_live_gauges_and_read_only_session_db(source_home):
     data = _read_card(source_home, "hosts")
     host, = data["hosts"]
     assert host["online"]
-    assert all(isinstance(host["gauges"][name], (float, int)) for name in ("cpu", "mem", "disk"))
+    assert isinstance(host["gauges"]["disk"], (float, int))
+    if sys.platform == "linux":
+        assert all(isinstance(host["gauges"][name], (float, int)) for name in ("cpu", "mem"))
+    else:
+        assert all(host["gauges"][name] is None for name in ("cpu", "mem"))
     assert [a["id"] for group in host["harnesses"] if group["kind"] == "Hermes"
             for a in group["agents"]] == ["fixture-session"]
     assert any(note.startswith("k3s:") for note in host["notes"])

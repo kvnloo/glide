@@ -66,7 +66,7 @@ describe('GlidePages', () => {
     const focused: number[] = []
     let closed = false
     const pages = new GlidePages(browser, () => 7, async block => {
-      if (closed) throw new Error('closed')
+      if (closed) throw new Error('Cannot navigate a closed browser block')
       focused.push(block)
     })
     const saved = page('music', 1)

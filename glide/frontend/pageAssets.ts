@@ -91,9 +91,12 @@ export async function pageOrigin(path: string, assets: readonly string[]): Promi
       res.writeHead(404).end()
       return
     }
-    void serve(req, res, file).catch(() => {
-      if (res.headersSent) res.destroy()
-      else res.writeHead(404).end()
+    void serve(req, res, file).catch((error: unknown) => {
+      if (res.headersSent) res.destroy(error instanceof Error ? error : undefined)
+      else {
+        const code = (error as NodeJS.ErrnoException | undefined)?.code
+        res.writeHead(code === 'EACCES' ? 403 : 404).end()
+      }
     })
   })
   await new Promise<void>((resolve, reject) => {

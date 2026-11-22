@@ -15,7 +15,7 @@ GLIDE = Path(__file__).resolve().parents[1]
 TOKENS = GLIDE / "frontend" / "tokens.ts"
 OUT = GLIDE / "site" / "tokens.css"
 GROUPS = {"DASH": "dash", "NIGHT": "night", "GOLD": "gold", "STATUS": "status", "RADIUS": "r", "TYPE": "t", "TRACK": "track"}
-PX = {"RADIUS", "TYPE"}
+PX = ("RADIUS", "TYPE")
 
 
 def kebab(name: str) -> str:

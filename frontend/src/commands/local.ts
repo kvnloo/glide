@@ -260,7 +260,20 @@ const COMMANDS: readonly LocalCommand[] = [
   {
     help: 'Restyle the whole app: Mono or Studio (theme, transcript, panels), or back to default [mono|studio|default|panel analytics|panel whiteboard]',
     name: 'template',
-    run: (host, arg) => templateCommand(host, arg)
+    run: async (host, arg) => {
+      const [verb = '', name = ''] = arg.trim().toLowerCase().split(/\s+/)
+      if (!verb) {
+        const t = TEMPLATES[host.templates.current]
+        return host.transcript.notice(`Template: ${t.label}. ${TEMPLATE_USAGE.replace('Usage: ', '')}`)
+      }
+      try {
+        if (verb === 'panel' && isTemplatePanel(name)) return host.transcript.notice(await host.templates.panel(name), 'success')
+        if (isTemplateId(verb)) return host.transcript.notice(await host.templates.use(verb), 'success')
+      } catch (error) {
+        return host.transcript.notice(`Template not applied: ${error instanceof Error ? error.message : String(error)}`, 'error')
+      }
+      host.transcript.notice(TEMPLATE_USAGE, 'warning')
+    }
   },
   {
     name: 'plan',
@@ -479,20 +492,6 @@ export { HIDDEN_COMMANDS } from './refused.js'
 const TEMPLATE_USAGE = 'Usage: /template [mono|studio|default] or /template panel [analytics|whiteboard]'
 
 /** `/template [id]` applies a whole-app template live; `/template panel <name>` opens one panel beside the chat. */
-async function templateCommand(host: CommandHost, arg: string) {
-  const [verb = '', name = ''] = arg.trim().toLowerCase().split(/\s+/)
-  if (!verb) {
-    const t = TEMPLATES[host.templates.current]
-    return host.transcript.notice(`Template: ${t.label}. ${TEMPLATE_USAGE.replace('Usage: ', '')}`)
-  }
-  try {
-    if (verb === 'panel' && isTemplatePanel(name)) return host.transcript.notice(await host.templates.panel(name), 'success')
-    if (isTemplateId(verb)) return host.transcript.notice(await host.templates.use(verb), 'success')
-  } catch (error) {
-    return host.transcript.notice(`Template not applied: ${error instanceof Error ? error.message : String(error)}`, 'error')
-  }
-  host.transcript.notice(TEMPLATE_USAGE, 'warning')
-}
 
 /** `/copy [n]`: the last (or `n`th) answer to the clipboard. */
 function copyAnswer(host: CommandHost, arg: string) {
