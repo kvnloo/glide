@@ -3,7 +3,6 @@
 import type { ScrollTo, Session, TspEvent } from '@stencil-hq/tern'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
 import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
-
 import { AgentGraph } from '../../../glide/frontend/agentGraph.js'
 import logo from '../../assets/logo.png'
 import { ternSharesFrontendHost } from '../artifacts/links.js'
@@ -245,11 +244,9 @@ export class App implements ChatPorts {
     this.transcript.push({ id: entryId('welcome'), kind: 'welcome' })
 
     const query = this.#launch.query
-
     if (query || s.attachments.awaitingStartup) {
       s.queue.hold({ images: [], kind: 'app', text: query || IMAGE_ONLY_PROMPT })
     }
-
     this.#gw.on('exit', () => {
       this.tableCharts.transportLost()
       this.eui.host.invalidate()
