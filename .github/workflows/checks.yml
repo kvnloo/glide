@@ -90,6 +90,10 @@ jobs:
     env:
       EXPECTED_PLUGIN_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CI_RECEIPT: ${{ github.workspace }}/ci-frontend-pin.json
+      # The army journey suite's plugin host (glide/tools/army_host.py) registers the plugin's gateway
+      # methods, which import hermes_cli.plugin_gateway_methods: the python job's test-only core has that
+      # seam, the runtime pin does not. Same SHA as the python job. NOT the frontend runtime pin.
+      HERMES_TEST_CORE_SHA: 0ac4e9df39eecf3ce69a3ea3c80a6dc70dd7dcd5
     defaults:
       run:
         working-directory: frontend
@@ -111,6 +115,7 @@ jobs:
             --hermes "${{ steps.lock.outputs.sha }}" --kind runtime-pin \
             --command 'node scripts/hermes-src.mjs && bun install --frozen-lockfile' \
             --command 'uv sync --project .hermes-agent --frozen --python 3.14' \
+            --command 'uv sync --project .hermes-test-core --frozen --python 3.14' \
             --command 'bun run typecheck' \
             --command 'bun run test --reporter=junit --outputFile=$RUNNER_TEMP/ci-frontend.xml' \
             --command 'bun run bundle'
@@ -125,6 +130,15 @@ jobs:
         run: |
           python tests/test_ci_pin_contract.py checkout --receipt "$CI_RECEIPT" \
             --repo .hermes-agent --pin-file frontend/hermes-src.lock
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: kvnloo/hermes-agent
+          ref: ${{ env.HERMES_TEST_CORE_SHA }}
+          path: .hermes-test-core
+          persist-credentials: false
+      - name: Verify exact army-host test-core checkout
+        working-directory: ${{ github.workspace }}
+        run: python tests/test_ci_pin_contract.py require --repo .hermes-test-core --sha "$HERMES_TEST_CORE_SHA"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
@@ -142,6 +156,7 @@ jobs:
       - run: |
           uv sync --project .hermes-agent --frozen --python 3.14
           echo "$GITHUB_WORKSPACE/.hermes-agent/.venv/bin" >> "$GITHUB_PATH"
+          uv sync --project .hermes-test-core --frozen --python 3.14
         working-directory: ${{ github.workspace }}
       - name: Verify linked source and all installed lock inputs
         working-directory: ${{ github.workspace }}
@@ -150,12 +165,15 @@ jobs:
             --repo frontend/.hermes-src \
             --marker .hermes-agent/uv.lock \
             --marker .hermes-agent/.venv/pyvenv.cfg \
+            --marker .hermes-test-core/.venv/pyvenv.cfg \
             --marker frontend/bun.lock \
             --marker frontend/node_modules
       - name: typecheck
         run: bun run typecheck
       - name: tests (unit, app, packaged OpenUI and golden replays)
         run: bun run test --reporter=junit --outputFile="$RUNNER_TEMP/ci-frontend.xml"
+        env:
+          GLIDE_ARMY_PYTHON: ${{ github.workspace }}/.hermes-test-core/.venv/bin/python
       - name: Validate actual frontend results
         working-directory: ${{ github.workspace }}
         run: |
