@@ -182,16 +182,29 @@ const DRIVES: Record<string, Step[]> = {
 /** The real plugin, registered once in its own disposable profile; requests answered in order. */
 class PluginHost {
   readonly #child: ChildProcessWithoutNullStreams
-  readonly #waiting: ((reply: Record<string, unknown>) => void)[] = []
+  readonly #waiting: { done: (reply: Record<string, unknown>) => void; fail: (error: Error) => void }[] = []
+  #stderr = ''
+  #ended: Error | null = null
 
   constructor() {
     this.#child = spawn(python, [join(repo, 'glide/tools/army_host.py'), '--fixture-home', join(scratch, 'plugin'), 'serve'], {
       cwd: scratch,
       env: { PATH: process.env['PATH'], LANG: process.env['LANG'] ?? 'C.UTF-8', HOME: scratch }
     })
-    createInterface({ input: this.#child.stdout }).on('line', line => {
-      this.#waiting.shift()?.(record(parseJson(line)) ?? { ok: false, error: `unreadable reply: ${line}` })
+    this.#child.stderr.on('data', (chunk: Buffer) => {
+      this.#stderr = (this.#stderr + chunk.toString('utf8')).slice(-4000)
     })
+    createInterface({ input: this.#child.stdout }).on('line', line => {
+      this.#waiting.shift()?.done(record(parseJson(line)) ?? { ok: false, error: `unreadable reply: ${line}` })
+    })
+    // A host that cannot start (no Hermes core with the plugin gateway seam on GLIDE_ARMY_PYTHON, say)
+    // fails every request now, with its stderr, instead of leaving the suite to time out.
+    const end = (why: string) => {
+      this.#ended ??= new Error(`army fixture host (${python}) ${why}${this.#stderr ? ':\n' + this.#stderr : ''}`)
+      for (const waiter of this.#waiting.splice(0)) waiter.fail(this.#ended)
+    }
+    this.#child.on('error', error => end(`could not start: ${error.message}`))
+    this.#child.on('close', (code, signal) => end(`exited (${signal ?? code})`))
   }
 
   /** Requests the plugin has not answered yet. */
@@ -200,8 +213,9 @@ class PluginHost {
   }
 
   ask(request: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return new Promise(done => {
-      this.#waiting.push(done)
+    return new Promise((done, fail) => {
+      if (this.#ended) return fail(this.#ended)
+      this.#waiting.push({ done, fail })
       this.#child.stdin.write(JSON.stringify(request) + '\n')
     })
   }
