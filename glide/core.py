@@ -260,7 +260,8 @@ USAGE = """/glide            show this machine and your memory
 /glide offload      route tasks to local model, view savings card
 /glide focus        your attention: phase, deep-work block, wind-down, best hours
 /glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style
-/glide ui open [page]   open a page that ships with Glide (a music player, a piano); no page lists them"""
+/glide ui open [page]   open a page that ships with Glide (a music player, a piano); no page lists them
+/glide zoom <path> [over|beside|below]   open a gigapixel image (.dzi pyramid, or an image libvips tiles) in deep zoom"""
 
 
 def _rows(m: dict) -> str:
@@ -348,6 +349,10 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
         from . import ui
 
         return ui.command(rest)
+    if verb == "zoom":
+        from . import deep_zoom
+
+        return deep_zoom.command(rest)
     if verb == "focus":
         from . import attention
 
@@ -408,11 +413,12 @@ def register(ctx) -> None:
     council_session.register(ctx)  # Council handoff (GL-103); `/glide json council.<verb>` on stock Hermes.
     gateway.register(ctx)  # Optional fast path; /fleet works on stock Hermes.
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
-                         args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]]")
+                         args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]|zoom <path>]")
     if callable(getattr(ctx, "register_tool", None)):  # The agent's widgets around the composer (#326).
-        from . import ui, whole_theme
+        from . import deep_zoom, ui, whole_theme
 
         ui.register(ctx)
+        deep_zoom.register(ctx)  # Gigapixel images in deep zoom (GL-104).
         whole_theme.register(ctx)  # The whole-theme switch and its day/night flip (GL-062).
     from . import intel
 

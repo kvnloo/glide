@@ -279,6 +279,12 @@ def open_page(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: fl
         return {"ok": False, "error": f"assets: {exc}"}
     if assets:
         page["assets"] = assets
+    return save_page(home, page, wait)
+
+
+def save_page(home: Path, page: dict[str, Any], wait: float = WAIT_S) -> dict[str, Any]:
+    """Puts a checked page in the Pages list (replacing its id) and waits for the pane's verdict on it."""
+    pid, how = page["id"], page["how"]
     current = state(home)
     pages = [p for p in current.get("pages", []) if p.get("id") != pid] + [page]
     rev = _write_ui(home, {**current, "pages": pages})
