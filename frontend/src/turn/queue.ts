@@ -14,6 +14,7 @@ import { admissionOf, type Requester, rpc } from '../wire/rpc.js'
 import { steerTurn } from './control.js'
 import { IMAGE_ONLY_PROMPT, type Prompt, shownText, userText } from './prompt.js'
 import { type OwnAdmission, ServerQueue, type ServerQueued } from './serverQueue.js'
+import { type Parked, submitFailureNotice } from './submitOutcome.js'
 
 /** A prompt this pane admitted into the shared gateway's queue: as entered (for Edit), and the text sent. */
 export interface Admitted {
@@ -71,6 +72,8 @@ export interface QueueHost {
 export class PromptQueue {
   /** Prompts held here until they can be sent: no session yet, or a switch in flight. */
   #held: Held[] = []
+  /** Prompts whose submission failed after the view left their session: back once it is shown again. */
+  #parked: Parked[] = []
   /** The shared gateway's queue for this session: its FIFO, this pane's admissions, the bubbles they owe. */
   readonly server = new ServerQueue<Admitted>()
   readonly #host: QueueHost
@@ -106,6 +109,21 @@ export class PromptQueue {
     head?.images.push(image)
 
     return Boolean(head)
+  }
+
+  /**
+   * Puts a failed submission back in the composer and says why, if session `sid` is still shown;
+   * otherwise keeps it for that session, never for the one shown now.
+   */
+  returnFailed(ticket: SessionTicket, prompt: Prompt, notice: Parked['notice']) {
+    const host = this.#host
+
+    if (ticket.isCurrent()) {
+      host.transcript.notice(notice.text, notice.tone)
+      host.restore(prompt)
+    } else if (ticket.sid) {
+      this.#parked.push({ notice, prompt, sid: ticket.sid })
+    }
   }
 
   /** Prompts waiting behind the turn: this pane's own queue, then the shared gateway's. */
@@ -183,10 +201,7 @@ export class PromptQueue {
       if (own.admission.kind === 'submitting') {
         this.server.drop(own)
 
-        if (ticket.isCurrent()) {
-          host.transcript.notice(`Not queued: ${errorText(error)}. Your message is back in the composer.`, 'error')
-          host.restore(prompt)
-        }
+        this.returnFailed(ticket, prompt, submitFailureNotice(error, 'queued'))
       }
     }
 
@@ -292,6 +307,8 @@ export class PromptQueue {
 
   /** Sends the oldest held prompt once the session is adopted and idle (no turn, switch or startup image pending). */
   drain() {
+    this.#unpark()
+
     if (!this.#host.canDrain()) {
       return
     }
@@ -301,6 +318,25 @@ export class PromptQueue {
     if (next) {
       this.#host.send(next.prompt)
     }
+  }
+
+  /** Once the view shows a parked prompt's session again, it goes back into the composer. */
+  #unpark() {
+    const { sid } = this.#host.ticket()
+    const back = this.#parked.filter(p => p.sid === sid)
+
+    if (!back.length) {
+      return
+    }
+
+    this.#parked = this.#parked.filter(p => p.sid !== sid)
+
+    for (const p of back) {
+      this.#host.transcript.notice(p.notice.text, p.notice.tone)
+      this.#host.restore(p.prompt)
+    }
+
+    this.#host.changed()
   }
 
   /** The shared gateway's queued row at dock index `index`, if this pane can act on it. */

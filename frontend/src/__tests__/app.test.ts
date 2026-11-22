@@ -1,3 +1,4 @@
+import { JsonRpcGatewayError } from '@hermes/shared/json-rpc-channel'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { busy, settle, setup } from './appSetup.js'
@@ -18,7 +19,7 @@ describe('App: a refused prompt', () => {
   it('goes back to the composer with its images, and is not re-sent', async () => {
     const { app, attach, press, sent, type } = setup({
       'prompt.submit': () => {
-        throw new Error('session_busy')
+        throw new JsonRpcGatewayError('session_busy', { code: 4009 })
       }
     })
     await attach()

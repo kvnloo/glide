@@ -1,3 +1,4 @@
+import { JsonRpcGatewayError } from '@hermes/shared/json-rpc-channel'
 import { Node, type NodeJson } from '@stencil-hq/tern'
 import { describe, expect, it } from 'vitest'
 
@@ -104,7 +105,7 @@ describe('PromptQueue', () => {
     expect(t.gw.sent('prompt.submit')).toEqual([{ queued: true, session_id: 's1', submission_id: expect.any(String), text: 'first' }])
 
     t.gw.handlers.set('prompt.submit', () => {
-      throw new Error('queue_full')
+      throw new JsonRpcGatewayError('queue_full', { code: 4009 })
     })
     await t.queue.admit(S1, typed('second'))
 

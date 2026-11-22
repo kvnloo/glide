@@ -152,8 +152,10 @@ describe('the working row is ended only by the work that owns it', () => {
     await emit('message.start')
     const row = app.stores.activity.busy
 
+    // A turn starting (any viewer's) proves nothing, and a local timeout does not prove non-admission.
     submit.reject(new Error('timed out'))
-    await vi.waitFor(() => expect(notices().at(-1)).toBe('Not sent: timed out. Your message is back in the composer.'))
+    await vi.waitFor(() => expect(notices().at(-1)).toMatch(/^Unknown whether Hermes received your message \(timed out\)\. It was not resent/))
+    expect(notices().join('\n')).not.toContain('Not sent')
 
     expect(app.stores.activity.busy).toBe(row)
     expect(app.stores.composer.text).toBe('hello')
