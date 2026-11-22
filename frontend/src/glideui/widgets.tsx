@@ -85,6 +85,8 @@ export class GlideWidgets {
     return this.#state.widgets
   }
 
+  get savedPages() { return this.#state.pages ?? [] }
+
   /** Reads `ui` now and follows the file. */
   start() {
     try { mkdirSync(dirname(this.#host.file), { recursive: true }) } catch { /* the watch then watches nothing */ }
@@ -170,6 +172,7 @@ export class GlideWidgets {
 
   dispose() {
     this.#closed = true
+    this.#host.pages?.dispose()
     this.#unwatch?.()
     clearInterval(this.#tick)
   }

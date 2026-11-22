@@ -72,11 +72,13 @@ UNMOUNT_SCHEMA = {
 }
 PAGE_HOWS = ("over", "beside", "below")
 PAGE_MAX_BYTES = 4 << 20
+PAGE_ASSET_MAX_BYTES = 128 << 20
+PAGE_ASSET_EXTS = frozenset(".glb .gltf .bin .obj .mtl .wav .mp3 .ogg .m4a .png .jpg .jpeg .webp .js .mjs .css".split())
 PAGE_SCHEMA = {
     "name": "glide_page_open",
     "description": (
         "Open a full app the agent wrote (a game, a music player, a whiteboard, a dashboard, an editor) as a Glide "
-        "page: one self-contained HTML file in the session folder, opened in the Glide pane's own browser block "
+        "page: an HTML entry point in the session folder, with optional relative companion assets, opened in the Glide pane's own browser block "
         "(how: over = in place of the chat until closed, the default; beside or below = docked). The pane themes it: "
         "use the CSS variables --glide-bg, --glide-surface, --glide-fg, --glide-muted, --glide-accent and "
         "--glide-accent-ink (they follow glide_ui_style and the wallpaper live), and listen for the window event "
@@ -90,6 +92,8 @@ PAGE_SCHEMA = {
             "title": {"type": "string", "description": "The page's name in the Pages list, e.g. Blockworld."},
             "path": {"type": "string", "description": "Absolute path of the page's .html file."},
             "how": {"type": "string", "enum": list(PAGE_HOWS)},
+            "assets": {"type": "array", "maxItems": 64, "items": {"type": "string"},
+                       "description": "Relative companion files under the HTML directory (models, audio, textures, JS, CSS). Use the same paths in HTML."},
         },
         "required": ["id", "title", "path"],
         "additionalProperties": False,
@@ -224,6 +228,24 @@ def unmount(home: Path, args: dict[str, Any]) -> dict[str, Any]:
     return {"ok": True, "mounted": [w.get("id") for w in keep]}
 
 
+def _page_assets(file: Path, assets: Any) -> list[str]:
+    if not isinstance(assets, list) or len(assets) > 64:
+        raise ValueError("list up to 64 relative paths")
+    total = 0
+    for name in assets:
+        if (not isinstance(name, str) or len(name) > 256
+                or not all(re.fullmatch(r"[a-zA-Z0-9_][a-zA-Z0-9_. -]*", part) for part in name.split("/"))
+                or Path(name).suffix.lower() not in PAGE_ASSET_EXTS):
+            raise ValueError("use relative paths to supported companion files")
+        candidate = file.parent / name
+        if candidate.resolve() != candidate or not candidate.is_file():
+            raise ValueError("companion files must exist and cannot use symlinks")
+        total += candidate.stat().st_size
+        if total > PAGE_ASSET_MAX_BYTES:
+            raise ValueError("companion files may total at most 128 MiB")
+    return assets
+
+
 def open_page(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: float | None = None) -> dict[str, Any]:
     pid, title, path, how = args.get("id"), args.get("title"), args.get("path"), args.get("how", "over")
     if not isinstance(pid, str) or not _ID.match(pid):
@@ -236,13 +258,22 @@ def open_page(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: fl
     if file is None or not file.is_absolute() or file.suffix.lower() not in (".html", ".htm"):
         return {"ok": False, "error": "path: an absolute path to an .html file"}
     try:
+        file = file.resolve(strict=True)
+        if not file.is_file() or file.suffix.lower() not in (".html", ".htm"):
+            raise OSError("not an HTML file")
         size = file.stat().st_size
-    except OSError:
+    except (OSError, RuntimeError):
         return {"ok": False, "error": f"path: no file at {file}; write the page first"}
     if size > PAGE_MAX_BYTES:
         return {"ok": False, "error": "path: a page of at most 4 MiB"}
     page = {"id": pid, "title": title.strip(), "path": str(file.resolve()), "how": how,
             "opened": int((now if now is not None else time.time()) * 1000)}
+    try:
+        assets = _page_assets(file, args.get("assets", []))
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {"ok": False, "error": f"assets: {exc}"}
+    if assets:
+        page["assets"] = assets
     current = state(home)
     pages = [p for p in current.get("pages", []) if p.get("id") != pid] + [page]
     rev = _write_ui(home, {**current, "pages": pages})
@@ -322,8 +353,8 @@ PROMPT = """<glide_ui>
 The Glide pane's look is yours to change. A widget around the composer (above or below it, on its edge,
 in the sidebar) is glide_ui_mount; removing one is glide_ui_unmount; a restyle ("make it warmer", cooler,
 an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole app
-("build me a game", a music player, a whiteboard, a piano) is a page: write one self-contained HTML file in the
-session folder that colors itself from the --glide-* CSS variables, then glide_page_open. If these tools are not
+("build me a game", a music player, a whiteboard, a piano) is a page: write an HTML entry point in the
+session folder (with optional companion assets) that colors itself from the --glide-* CSS variables, then glide_page_open. If these tools are not
 loaded, find them with tool_search ("glide ui").
 </glide_ui>"""
 
