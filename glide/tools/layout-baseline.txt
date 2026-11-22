@@ -197,6 +197,8 @@ frontend/src/__tests__/completedWorkAttention.test.ts
 frontend/src/__tests__/composerOwnerFence.test.ts
 frontend/src/__tests__/contextMeter.test.ts
 frontend/src/__tests__/contrast.test.ts
+frontend/src/__tests__/deepZoom.test.ts  # vitest only collects frontend/src; deep zoom (GL-104)
+frontend/src/__tests__/deepZoomJourney.test.ts  # vitest only collects frontend/src; deep zoom journey (GL-104)
 frontend/src/__tests__/delegateFold.test.ts
 frontend/src/__tests__/delegateIterationLimit.test.ts
 frontend/src/__tests__/delegationOwnership.test.ts
