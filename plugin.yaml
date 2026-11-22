@@ -3,11 +3,11 @@ label: Glide
 version: 0.2.0
 manifest_version: 2
 kind: standalone
-description: "Glide for Hermes: the Tern chat UI drawn natively by the Tern terminal over its Surface Protocol, plus the Glide memory and attention tools. Adds `hermes tern` and `hermes glide`."
-author: "alt-glitch (original), Kevin Rajan (fork)"
+description: "Glide: an agent workspace for Hermes in Tern. Native cards for focus blocks and digests, opt-in corrections memory, a Socratic council, voice lanes, your fleet and live composer widgets, in Glide's own Tern frontend. Adds `hermes tern` and `hermes glide`."
+author: "Kevin Rajan; Tern frontend base by alt-glitch"
 license: MIT
 homepage: https://github.com/kvnloo/glide
-tags: [tern, tui, frontend]
+tags: [glide, tern, tui, frontend, memory, attention]
 requires_hermes: ">=0.23.0"
 provides_tools: [link_pull_request, unlink_pull_request, list_pull_requests, ask_control, glide_skin, glide_ui_mount, glide_ui_unmount, glide_ui_style, glide_page_open, glide_theme]
 provides_hooks: [pre_llm_call]
