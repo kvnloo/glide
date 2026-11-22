@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glide · Hermes for Tern</title>
+  <meta name="description" content="Glide is a Hermes Agent plugin with a native Tern chat frontend. It guards your attention and the agent's context window. Try the interactive demo.">
+  <meta property="og:title" content="Glide · Hermes for Tern">
+  <meta property="og:description" content="An agent workspace that guards your attention and the agent's context window.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0c0a'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23d7b986'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#demo">Skip to the demo</a>
+  <header class="nav">
+    <a class="wordmark" href="#top" aria-label="Glide home">glide</a>
+    <nav aria-label="Sections">
+      <a href="#demo">Demo</a>
+      <a href="#attention">Attention</a>
+      <a href="#context">Context</a>
+      <a href="#commands">Commands</a>
+      <a href="#install">Install</a>
+    </nav>
+    <a class="ghost" href="https://github.com/kvnloo/glide">GitHub</a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">Hermes Agent plugin · native Tern frontend</p>
+      <h1>Guard your attention<br>and the agent's context.</h1>
+      <p class="lead">Glide holds an agent's non-critical asks while you work and hands them back as one digest. It also quotes your own past corrections into the next turn, so you stop repeating yourself. It all renders as native cards in <a href="https://stencil.so/tern">Tern</a>.</p>
+      <div class="cta">
+        <a class="gold" href="#demo" data-tour-start>Play the demo</a>
+        <div class="install-line" data-copy-wrap>
+          <code>hermes plugins install kvnloo/glide</code>
+          <button type="button" class="copy" data-copy="hermes plugins install kvnloo/glide" aria-label="Copy the install command">copy</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="demo" aria-label="Interactive demo">
+      <div class="demo-head">
+        <p class="eyebrow">Try it here</p>
+        <p class="note">This is a scripted browser demo that runs on the synthetic sessions from <code>glide/demo/seed.py</code>. It makes no model calls and nothing leaves this page. In Tern, the same steps draw as native cards, and <code>/theme</code> uses Tern's real colours; the ones here are approximations.</p>
+      </div>
+      <div class="window" data-theme="dash" data-window>
+        <div class="bar">
+          <span class="tab is-on">hermes</span>
+          <span class="tab">glide</span>
+          <span class="bar-pill" data-mode>Dash</span>
+        </div>
+        <div class="stage">
+          <div class="transcript" role="log" aria-live="polite" aria-label="Demo transcript" data-transcript>
+            <div class="empty" data-empty>
+              <p class="empty-title">Start with <kbd>/glide</kbd></p>
+              <p>Type a command below or tap a chip. Each write waits for your approval button, the same as in Tern.</p>
+            </div>
+          </div>
+          <div class="picker" role="listbox" aria-label="Theme" tabindex="-1" hidden data-picker></div>
+        </div>
+        <form class="composer" data-composer autocomplete="off">
+          <label class="visually-hidden" for="prompt">Command</label>
+          <input id="prompt" name="prompt" placeholder="Ask Hermes, or type /glide" spellcheck="false" data-input>
+          <button type="submit" class="send">Send</button>
+        </form>
+        <div class="chips" data-chips aria-label="Suggested commands"></div>
+      </div>
+      <div class="demo-controls">
+        <button type="button" class="ghost" data-tour>Play the tour</button>
+        <button type="button" class="ghost" data-reset>Reset</button>
+        <span class="clock" data-clock hidden></span>
+      </div>
+    </section>
+
+    <section id="attention" class="section">
+      <p class="num">01</p>
+      <div>
+        <h2>Your attention</h2>
+        <p class="lead"><code>/glide focus</code> shows your phase, your next deep-work window and your bedtime. A block holds the agent's non-critical asks until it ends.</p>
+        <ol class="steps">
+          <li><strong>Focus card.</strong> Your phase, next window, bedtime and how many asks are held. Flow likelihood shows only with a live Flowkit estimate.</li>
+          <li><strong>Start block.</strong> Approve a 50-minute block. Replies stay short and asks routed through <code>glide.route</code> wait. Critical ones still pass.</li>
+          <li><strong>End block.</strong> One digest card lists everything that waited.</li>
+          <li><strong>Wind-down.</strong> <code>/glide focus wind-down</code> saves your open asks. The next morning's first turn quotes them once.</li>
+          <li><strong>Your hours.</strong> <code>/glide focus hours</code> learns your best two-hour windows from your own local session timestamps.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="context" class="section">
+      <p class="num">02</p>
+      <div>
+        <h2>The agent's context</h2>
+        <p class="lead">Opt-in corrections memory quotes up to three matching past corrections into a turn. Offload sends small tasks to a local model.</p>
+        <ol class="steps">
+          <li><strong>Detect.</strong> Glide inspects CPU, RAM, GPU and local runtimes. Detection installs nothing.</li>
+          <li><strong>Build memory.</strong> Approve a read of up to 100 recent local sessions. Glide keeps the lines that begin with <code>Correction:</code>, <code>Actually,</code> or <code>No,</code>.</li>
+          <li><strong>Turn on.</strong> Approve the recall hook. Current instructions take precedence over quoted history.</li>
+        </ol>
+        <p class="fine">Extraction and BM25 ranking make no model calls, and the source database is opened read-only. Once recall is on, quoted excerpts enter the model's context and can reach your configured provider. <a href="https://github.com/kvnloo/glide/blob/main/glide/docs/memory.md">Storage and privacy contract</a></p>
+      </div>
+    </section>
+
+    <section id="commands" class="section">
+      <p class="num">03</p>
+      <div>
+        <h2>More in the chat</h2>
+        <p class="lead">Each command shows local state as a native card. Every card uses one design language: omp's card grammar and Dash's palette.</p>
+        <dl class="commands">
+          <div><dt><code>/theme</code></dt><dd>Tern, Nous, the Hermes skin, your wallpaper (live) or Dash's black and gold.</dd></div>
+          <div><dt><code>/glide glass</code></dt><dd>A liquid-glass demo card, the only surface allowed to glow.</dd></div>
+          <div><dt><code>/glide taste</code></dt><dd>The newest Taste Atlas board beside the chat.</dd></div>
+          <div><dt><code>/glide lanes</code></dt><dd>Live-voice helper lanes, their model and billing.</dd></div>
+          <div><dt><code>/intel</code></dt><dd>Local intelligence: hill climbs, skills, memory, failures, traces.</dd></div>
+          <div><dt><code>/hosts</code></dt><dd>Fleet hosts, agents, gauges and k3s pods.</dd></div>
+          <div><dt><code>/factory</code></dt><dd>The content factory graph, runs and renders.</dd></div>
+          <div><dt><code>/council</code></dt><dd>A Socratic council popup with one verdict per seat.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="captures" class="section">
+      <p class="num">04</p>
+      <div>
+        <h2>Real Tern captures</h2>
+        <p class="lead">These were captured from a fresh profile after <code>hermes plugins install kvnloo/glide</code>, with only the synthetic sessions from <code>seed.py</code>.</p>
+        <div class="shots">
+          <figure><img loading="lazy" src="https://raw.githubusercontent.com/kvnloo/glide/main/glide/docs/media/glide-fresh-1-detect.png" alt="Detect card in Tern: hardware, local runtimes and the Build memory approval"><figcaption>Detect</figcaption></figure>
+          <figure><img loading="lazy" src="https://raw.githubusercontent.com/kvnloo/glide/main/glide/docs/media/glide-fresh-2-memory-built.png" alt="Memory built from five synthetic sessions, with the Turn on approval"><figcaption>Memory built</figcaption></figure>
+          <figure><img loading="lazy" src="https://raw.githubusercontent.com/kvnloo/glide/main/glide/docs/media/glide-fresh-7-recall-hit.png" alt="/glide recall returns the matching correction"><figcaption>Recall</figcaption></figure>
+          <figure><img loading="lazy" src="https://raw.githubusercontent.com/kvnloo/glide/main/glide/docs/media/glide-s6-savings.png" alt="Local offload estimate card"><figcaption>Offload estimate</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="section">
+      <p class="num">05</p>
+      <div>
+        <h2>Install</h2>
+        <p class="lead">You need <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a> 0.23.0 or later, <a href="https://stencil.so/tern">Tern</a> and Node.js.</p>
+        <div class="tabs" role="tablist" aria-label="Install steps" data-tabs>
+          <button type="button" role="tab" aria-selected="true" aria-controls="tab-install" id="t-install">Install</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="tab-run" id="t-run" tabindex="-1">Run</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="tab-check" id="t-check" tabindex="-1">Check it yourself</button>
+        </div>
+        <div class="panel" role="tabpanel" id="tab-install" aria-labelledby="t-install">
+          <div class="code"><code>hermes plugins install kvnloo/glide</code><button type="button" class="copy" data-copy="hermes plugins install kvnloo/glide" aria-label="Copy">copy</button></div>
+          <p class="fine">Review Hermes' scanner findings before you approve. It may report CAUTION, as it does for the base Tern plugin. Then accept the plugin-enable prompt.</p>
+        </div>
+        <div class="panel" role="tabpanel" id="tab-run" aria-labelledby="t-run" hidden>
+          <div class="code"><code>hermes tern</code><button type="button" class="copy" data-copy="hermes tern" aria-label="Copy">copy</button></div>
+          <p class="fine">Run it in a Tern pane, outside tmux, screen or zellij. Then start with <code>/glide</code>. An ordinary terminal cannot render the Surface Protocol.</p>
+        </div>
+        <div class="panel" role="tabpanel" id="tab-check" aria-labelledby="t-check" hidden>
+          <div class="code"><code>bash scripts/e2e-fresh-install.sh</code><button type="button" class="copy" data-copy="bash scripts/e2e-fresh-install.sh" aria-label="Copy">copy</button></div>
+          <p class="fine">From a checkout, this installs into a throwaway <code>HERMES_HOME</code>, validates the plugin and exercises memory, focus and Taste with synthetic data. It never touches your profile or calls a model.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Glide is MIT licensed and derived from <a href="https://github.com/alt-glitch/hermes-tern">alt-glitch/hermes-tern</a>. It is a community plugin, not an official Stencil or Nous Research product.</p>
+    <p><a href="https://github.com/kvnloo/glide">Source</a> · <a href="https://github.com/kvnloo/glide/blob/main/docs/SUBMISSION.md">Submission</a> · <a href="https://github.com/kvnloo/glide/blob/main/docs/DESIGN-LANGUAGE.md">Design language</a></p>
+  </footer>
+</body>
+</html>

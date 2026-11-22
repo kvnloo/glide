@@ -6,7 +6,7 @@ A standalone [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin
 - **The agent's context.** Opt-in corrections memory quotes up to three matching past corrections into a turn, so you stop repeating yourself; offload sends small tasks to a local model. [Memory implementation](glide/docs/memory.md)
 - **The workspace.** `/glide intent` turns an ask into a contract and a work rail, `/council` convenes a Socratic review with one verdict per seat, `/glide lanes` shows live-voice helper lanes, and `/hosts`, `/portfolio` and `/intel` show your fleet, work and local intelligence. Hermes can mount live widgets round the composer, such as a commit heatmap or a focus ring, and open whole apps as pages. Every card shares one design language, and `/glide theme auto` follows your wallpaper.
 
-One install brings Glide's own Tern frontend, the cards, the memory and the attention guard. [Submission](docs/SUBMISSION.md) · [Changes from the original Tern plugin](FORK.md) · [License](LICENSE)
+One install brings Glide's own Tern frontend, the cards, the memory and the attention guard. [Landing page and demo](glide/site/README.md) · [Submission](docs/SUBMISSION.md) · [Changes from the original Tern plugin](FORK.md) · [License](LICENSE)
 
 ![Glide launch film poster](glide/docs/media/glide-film-poster.jpg)
 
