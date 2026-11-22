@@ -24,6 +24,7 @@ import { cleanFocus } from '../voice/cleanFocus.js'
 import type { Lane, LaneFeed } from '../voice/lanes.js'
 import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+import { glideText } from '../../../glide/frontend/glideText.js'
 
 /** `/glide lanes`: the voice lanes popup, the same call as the subagents card's open-lanes action. */
 export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFeed, 'call' | 'error'> | null | undefined }): void {
@@ -44,7 +45,7 @@ export interface GlideHost {
 }
 
 /** `/glide glass demo`: the glass playground, one cycle of blur, tint, saturation, rim and motes. */
-export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, sub: string | undefined): void {
+export function glideGlass(host: Pick<GlideHost, 'glassDemo'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub !== 'demo') {
     host.transcript.notice('Usage: /glide glass demo', 'warning')
     return
@@ -55,7 +56,7 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
 }
 
 /** `/glide theme auto|dash|<whole theme>|default|export`: wear the wallpaper's pywal colors, Dash's black and gold or a whole theme, go back, or write them out. */
-export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
+export function glideTheme(host: Pick<GlideHost, 'setTheme'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
     host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
@@ -163,15 +164,6 @@ export function glideCall(gw: Pick<GatewayClient, 'request'>, sid: string) {
 /** Reads the block from the plugin, whichever pane started it: the focus block lives in the Hermes home. */
 export async function refreshFocusBlock(gw: Pick<GatewayClient, 'request'>, sid: string): Promise<void> {
   focusBlock.note(glideFocus.parse(await glideCall(gw, sid)('focus', { action: 'show' })))
-}
-
-/** `/glide VERB ...` through the plugin's text command; its reply is shown as the command's output. */
-async function glideText(host: GlideHost, sid: string, arg: string, verb: string): Promise<void> {
-  const ref = host.session.ref
-  const reply = await host.gw.request<{ output?: unknown }>('command.dispatch', { name: 'glide', arg, session_id: sid })
-  if (host.session.ref !== ref) return
-  const output = typeof reply?.output === 'string' ? reply.output.trim() : ''
-  host.transcript.panel(`/glide ${verb}`, output || '(no output)')
 }
 
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
@@ -318,12 +310,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       step()
       return
     }
-    if (verb) {
-      // A verb without a native card (build, on, setup, skill-router, hill-climb, offload, json, help,
-      // ...) runs the plugin's own text command, exactly as a text frontend would: never the detect flow.
-      await glideText(host, sid, arg.trim(), verb)
-      return
-    }
+    // A verb without a native card runs the plugin's own text command, as a text frontend would.
+    if (verb) return await glideText(host, sid, arg.trim(), verb)
 
     const found = glideDetect.parse(await call('detect'))
     cards.publish({
