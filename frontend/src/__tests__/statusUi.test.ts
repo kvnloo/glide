@@ -163,6 +163,28 @@ describe('App: fast mode', () => {
     expect(await raw()).toContain('"bolt"')
   })
 
+  it('shows Turbo and changes composer motion only while ultrafast is active', async () => {
+    const { app, dock, raw } = setup({ 'config.set': p => ({ key: 'fast', value: p['value'] }) })
+
+    try {
+      given.info(app, { model: 'gpt-5', fast: true, service_tier: 'priority' })
+      given.busy(app.stores, { label: 'Working…', since: {}, startedAt: Date.now() })
+      app.changed()
+      expect(await dock()).not.toContain('Turbo')
+      expect(await raw()).toContain('"role":"hermes.streak"')
+
+      await must(localCommand('fast')).run(app, 'ultrafast')
+      expect(await dock()).toContain('Turbo')
+      expect(await raw()).toContain('"role":"hermes.streak.turbo"')
+
+      await must(localCommand('fast')).run(app, 'off')
+      expect(await dock()).not.toContain('Turbo')
+      expect(await raw()).toContain('"role":"hermes.streak"')
+    } finally {
+      app.quit()
+    }
+  })
+
   it('/fast toggles through config.set and patches the info from the reply', async () => {
     const { app, sent } = setup({ 'config.set': p => ({ key: 'fast', value: p['value'] === 'toggle' ? 'fast' : 'normal' }) })
     given.info(app, { model: 'gpt-5' })
