@@ -1,0 +1,7 @@
+{
+  "name": "glide",
+  "label": "Glide",
+  "description": "Profile-local Glide data for the Desktop runtime plugin",
+  "api": "plugin_api.py",
+  "tab": {"hidden": true}
+}
