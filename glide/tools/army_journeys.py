@@ -6,7 +6,8 @@
 Each run tests one clean commit. It builds a disposable fixture host (private HOME, HERMES_HOME,
 TMPDIR and XDG dirs, no inherited HERMES_* or Tern variables) and runs, in it:
 
-1. The suites every feature names: root pytest, glide/tests and Vitest, with JUnit output.
+1. The suites every feature names: root pytest, glide/tests, Vitest and the OpenUI preview's node
+   tests, with JUnit output.
 2. The frontend journey drive (``frontend/src/__tests__/armyJourneys.test.ts``, inside Vitest): each
    typed entry submitted to the real App on a fake Tern session, its plugin calls answered by the
    real plugin through ``army_host.py serve``.
@@ -175,7 +176,7 @@ def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int 
             return 124
 
 
-def junit_cases(path: Path, prefix: str, key: str) -> dict[str, dict[str, int]]:
+def junit_cases(path: Path, prefix: str, key: str, strip: str = "") -> dict[str, dict[str, int]]:
     """{repo-relative test file: {passed, failed, skipped}} from one JUnit report."""
     files: dict[str, dict[str, int]] = {}
     if not path.is_file():
@@ -184,7 +185,7 @@ def junit_cases(path: Path, prefix: str, key: str) -> dict[str, dict[str, int]]:
         name = case.get(key) or ""
         if not name:
             continue
-        rel = prefix + name.replace("\\", "/")
+        rel = prefix + name.replace("\\", "/").removeprefix(strip)
         tally = files.setdefault(rel, {"passed": 0, "failed": 0, "skipped": 0})
         tags = {child.tag for child in case}
         if tags & {"failure", "error"}:
@@ -326,6 +327,10 @@ def main(argv: list[str] | None = None) -> int:
                            f"--outputFile.junit={out / 'vitest.xml'}"], ROOT / "frontend",
                           fixture_env(base / "vitest", {"GLIDE_ARMY_OUT": str(out), "GLIDE_ARMY_PYTHON": args.host_python}),
                           out / "logs/vitest.log"),
+            "openui-preview": run(["node", "--test", "--test-reporter=spec", "--test-reporter-destination=stdout",
+                                   "--test-reporter=junit", f"--test-reporter-destination={out / 'openui-preview.xml'}",
+                                   *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "frontend/openui/openui-preview/test").glob("*.test.mjs"))],
+                                  ROOT, fixture_env(base / "openui"), out / "logs/openui-preview.log"),
         }
         drives = plugin_drive(args.host_python, fixture_env(base / "plugin"), order, out / "logs/plugin-host.log")
     (out / "plugin-drives.json").write_text(json.dumps(drives, indent=1))
@@ -334,6 +339,7 @@ def main(argv: list[str] | None = None) -> int:
     executed.update(junit_cases(out / "root-pytest.xml", "", "file"))
     executed.update(junit_cases(out / "glide-pytest.xml", "glide/", "file"))
     executed.update(junit_cases(out / "vitest.xml", "frontend/", "classname"))
+    executed.update(junit_cases(out / "openui-preview.xml", "", "file", strip=str(ROOT) + "/"))
     frontend = {}
     if (out / "frontend-drives.json").is_file():
         frontend = {r["feature"]: r for r in json.loads((out / "frontend-drives.json").read_text())["record"]}

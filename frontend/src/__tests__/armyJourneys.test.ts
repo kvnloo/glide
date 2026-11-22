@@ -50,7 +50,7 @@ const inventory = (name: string) => Inventory.parse(parseJson(readFileSync(join(
 const features = [...inventory('features.json'), ...inventory('features.intel.json')]
 
 /** Steps per feature: a slash line, a typed prompt, a composer completion, or a key chord. */
-type Step = { line: string; pane?: true } | { prompt: string } | { complete: string } | { chord: string; mods: Record<string, boolean> }
+type Step = { line: string; pane?: true; forbid?: RegExp } | { prompt: string } | { complete: string } | { chord: string; mods: Record<string, boolean> }
 
 // Concrete forms of each typed entry. Placeholders take fixture values; a feature not listed here has
 // no typed entry (an event-driven card or pane) and is exercised by its fixture suites instead.
@@ -98,6 +98,8 @@ const DRIVES: Record<string, Step[]> = {
   'factory-suggest': [{ line: '/factory suggest' }],
   'factory-render': [{ line: '/factory render' }],
   'visual-picker': [{ line: '/visual' }],
+  // The separate Luau route is opt-in: the chat picker, in a real pane, never links or installs a Tern plugin.
+  'native-visual-route': [{ line: '/visual', pane: true, forbid: /^plugin\b/u }],
   'image-attachments': [{ line: `/image ${png}` }, { line: '/paste' }],
   'written-media': [{ line: `/view3d ${model}`, pane: true }],
   'tool-results-sheet': [{ line: '/tool-results' }],
@@ -413,7 +415,8 @@ async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
       overlays: opened.length ? opened : app.overlays.length !== overlays.length ? ['(overlay closed)'] : [],
       methods: gw.calls.slice(calls).map(c => c.method),
       reached: reached.slice(reachedAt),
-      missing: [...missing.slice(missingAt).filter(m => !EXTERNAL[m.slice(1).split(':')[0] ?? '']), ...crashes, ...unexpected],
+      missing: [...missing.slice(missingAt).filter(m => !EXTERNAL[m.slice(1).split(':')[0] ?? '']), ...crashes, ...unexpected,
+        ...('forbid' in step && step.forbid ? ternCalls().slice(nativeAt).filter(c => step.forbid?.test(c)).map(c => `forbidden native call: tern ${c}`) : [])],
       refused,
       native: ternCalls().slice(nativeAt),
       // The docked aside (sidebar, PRs, factory) draws by frame op into the layer region.

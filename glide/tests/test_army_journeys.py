@@ -26,6 +26,9 @@ def test_junit_tallies_pass_fail_and_skip_per_file(tmp_path):
         "glide/tests/test_b.py": {"passed": 0, "failed": 1, "skipped": 1},
     }
     assert army.junit_cases(tmp_path / "missing.xml", "", "file") == {}
+    node = _junit(tmp_path, f'<testcase classname="test" file="{army.ROOT}/frontend/x.test.mjs" name="n"/>')
+    assert army.junit_cases(node, "", "file", strip=f"{army.ROOT}/") == {
+        "frontend/x.test.mjs": {"passed": 1, "failed": 0, "skipped": 0}}
 
 
 def test_a_feature_passes_only_on_executed_green_tests_and_green_drives():

@@ -865,7 +865,11 @@
       "entry": "Explicitly link the shipped hermes-openui Tern plugin and open a legacy candidate file",
       "journey": "cards",
       "expect": "The optional Luau route requires native acceptance; the chat picker does not install or certify it",
-      "tests": [],
+      "tests": [
+        "frontend/openui/openui-preview/test/lifecycle.test.mjs",
+        "frontend/openui/openui-preview/test/control.test.mjs",
+        "frontend/src/__tests__/armyJourneys.test.ts"
+      ],
       "army": []
     },
     {
