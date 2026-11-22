@@ -65,7 +65,7 @@ def test_partial_run_and_resume_use_the_same_safe_cli(tmp_path, monkeypatch):
     results.update({step: {"ok": True} for step in z0_onboarding.STEPS})
     results["layout"].update(skipped=True, reason="already_done")
     results["models.sync"].update(skipped=True)
-    resumed = gateway.call(tmp_path, "z0_onboard_apply", params)
+    resumed = json.loads(core.command("json z0_onboard_apply {}", session_id="live"))
     assert resumed["status"] == "done"
     assert resumed["steps"]["layout"] == "already done"
     assert resumed["steps"]["models.sync"] == "skipped"
