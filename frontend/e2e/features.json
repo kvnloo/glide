@@ -286,7 +286,9 @@
       "entry": "In a text Hermes frontend, /glide hill-climb run [--samples N]",
       "journey": "memory",
       "expect": "Intended to print the round and verdict; native card coverage does not certify this text formatter",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
       "army": []
     },
     {
@@ -308,7 +310,9 @@
       "entry": "In a text Hermes frontend, /glide hill-climb stop or /glide hill-climb resume",
       "journey": "memory",
       "expect": "The explicit STOP file is created or removed; no hidden loop starts",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
       "army": []
     },
     {
@@ -367,7 +371,9 @@
       "entry": "In a text Hermes frontend, /glide offload reset",
       "journey": "memory",
       "expect": "The profile's offload counters reset explicitly",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_offload.py"
+      ],
       "army": []
     },
     {
