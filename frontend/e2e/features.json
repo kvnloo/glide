@@ -1617,6 +1617,19 @@
       "army": []
     },
     {
+      "id": "whole-app-templates",
+      "title": "Switch the whole app to the Mono or Studio template",
+      "surface": "shortcut",
+      "entry": "Command palette: Use Mono template, Use Studio template, Use Default template, Open Analytics page, Open Whiteboard page; or /template [mono|studio|default|panel analytics|panel whiteboard]",
+      "journey": "settings",
+      "expect": "One pick repaints theme, transcript style (terminal or bubble) and docked panels live; Default restores Tern's theme, the standard transcript and closes template panels; agent pages are kept",
+      "tests": [
+        "frontend/src/__tests__/templates.test.ts",
+        "frontend/src/__tests__/dockModel.test.ts"
+      ],
+      "army": []
+    },
+    {
       "id": "profile-keybindings",
       "title": "Use profile-owned shortcut preferences",
       "surface": "shortcut",

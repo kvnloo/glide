@@ -33,6 +33,7 @@ import { answerText } from '../transcript/turns.js'
 import { HOLD_UNAVAILABLE } from '../voice/hold.js'
 import { rpc } from '../wire/rpc.js'
 import { councilCommand } from '../../../glide/frontend/councilPopup.js'
+import { isTemplateId, isTemplatePanel, TEMPLATES } from '../../../glide/frontend/templates.js'
 
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
@@ -73,6 +74,7 @@ export type CommandHost = Pick<
   | 'session'
   | 'setEffort'
   | 'setTheme'
+  | 'templates'
   | 'theme'
   | 'toggleFactory'
   | 'toggleSidebar'
@@ -239,7 +241,7 @@ const COMMANDS: readonly LocalCommand[] = [
     }
   },
   {
-    help: `Pick the colors: Tern, Nous, the Hermes skin, the wallpaper, Dash or a whole theme [tern|nous|skin|auto|dash|${GLIDE_THEMES.join('|')}]`,
+    help: `Pick the colors: Tern, Nous, the Hermes skin, the wallpaper, Dash, Mono, Studio or a whole theme [tern|nous|skin|auto|dash|mono|studio|${GLIDE_THEMES.join('|')}]`,
     name: 'theme',
     run: (host, arg) => {
       if (!arg) {
@@ -247,13 +249,18 @@ const COMMANDS: readonly LocalCommand[] = [
       }
 
       if (!isThemeMode(arg)) {
-        host.transcript.notice(`Usage: /theme [tern|nous|skin|auto|dash|${GLIDE_THEMES.join('|')}]`, 'warning')
+        host.transcript.notice(`Usage: /theme [tern|nous|skin|auto|dash|mono|studio|${GLIDE_THEMES.join('|')}]`, 'warning')
 
         return
       }
 
       host.setTheme(arg)
     }
+  },
+  {
+    help: 'Restyle the whole app: Mono or Studio (theme, transcript, panels), or back to default [mono|studio|default|panel analytics|panel whiteboard]',
+    name: 'template',
+    run: (host, arg) => templateCommand(host, arg)
   },
   {
     name: 'plan',
@@ -468,6 +475,24 @@ const COMMANDS: readonly LocalCommand[] = [
  * this frontend neither offers nor resolves them, and answers one typed whole with why.
  */
 export { HIDDEN_COMMANDS } from './refused.js'
+
+const TEMPLATE_USAGE = 'Usage: /template [mono|studio|default] or /template panel [analytics|whiteboard]'
+
+/** `/template [id]` applies a whole-app template live; `/template panel <name>` opens one panel beside the chat. */
+async function templateCommand(host: CommandHost, arg: string) {
+  const [verb = '', name = ''] = arg.trim().toLowerCase().split(/\s+/)
+  if (!verb) {
+    const t = TEMPLATES[host.templates.current]
+    return host.transcript.notice(`Template: ${t.label}. ${TEMPLATE_USAGE.replace('Usage: ', '')}`)
+  }
+  try {
+    if (verb === 'panel' && isTemplatePanel(name)) return host.transcript.notice(await host.templates.panel(name), 'success')
+    if (isTemplateId(verb)) return host.transcript.notice(await host.templates.use(verb), 'success')
+  } catch (error) {
+    return host.transcript.notice(`Template not applied: ${error instanceof Error ? error.message : String(error)}`, 'error')
+  }
+  host.transcript.notice(TEMPLATE_USAGE, 'warning')
+}
 
 /** `/copy [n]`: the last (or `n`th) answer to the clipboard. */
 function copyAnswer(host: CommandHost, arg: string) {

@@ -199,6 +199,7 @@ Change the owning profile and composer. Inspect native settings, choose a sessio
 10. `wallpaper-default`
 11. `wallpaper-export`
 12. `whole-theme`
+13. `whole-app-templates`
 13. `profile-keybindings`
 14. `vim-composer`
 15. `external-editor`

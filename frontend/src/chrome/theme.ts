@@ -17,6 +17,12 @@ import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchW
 import { styleAccent, styleWal, type UiStyle } from '../../../glide/frontend/style.js'
 import { isGlideTheme, themePalette, themeTernPalette } from '../../../glide/frontend/themes.js'
 
+import { monoPalette, studioPalette, templateTernPalette } from '../../../glide/frontend/templates.js'
+
+/** The modes that wear a palette of Glide's own through the wallpaper sheet (walCss); only dash has a Tern window theme. */
+type OwnMode = 'dash' | 'mono' | 'studio'
+const ownMode = (mode: ThemeMode): mode is OwnMode => mode === 'dash' || mode === 'mono' || mode === 'studio'
+
 /** What the theme reaches of the app. */
 export interface ThemeHost {
   /** Sends the palette to the surface (the `t` verb). */
@@ -141,7 +147,7 @@ export class Theme {
 
   /** The wallpaper palette in the auto mode, Dash's or a whole theme's; undefined in the others or without a readable colors.json. */
   get wal(): WalPalette | undefined {
-    if (this.#mode === 'dash') return this.#dash()
+    if (ownMode(this.#mode)) return this.#own(this.#mode)
     if (isGlideTheme(this.#mode)) return themePalette(this.#mode, this.#host.style?.())
     return this.#mode === 'auto' ? this.#wal : undefined
   }
@@ -158,6 +164,13 @@ export class Theme {
       return
     }
     this.#leaveWal()
+    if (mode === 'mono' || mode === 'studio') {
+      const flat = this.#own(mode)
+      this.#host.palette(templateTernPalette(flat))
+      this.#host.stylesheet?.(WAL_SHEET, walCss(flat))
+      this.#sheet = true
+      return
+    }
     if (mode === 'dash' || isGlideTheme(mode)) {
       // Dash and the whole themes: one fixed palette, its card stylesheet and its Tern window theme.
       const flat = mode === 'dash' ? this.#dash() : themePalette(mode, this.#host.style?.())
@@ -253,9 +266,11 @@ export class Theme {
     this.#host.stylesheet?.(WAL_SHEET, walCss(this.#wal))
   }
 
-  /** Dash's palette, its glass floor taken over the wallpaper when its colors.json reads. */
-  #dash() {
-    return styleAccent(dashPalette(readWal(this.#host.walFile ?? walFile())), this.#host.style?.())
+  /** Dash's (or a template's) palette, its glass floor taken over the wallpaper when its colors.json reads. */
+  #own(mode: OwnMode) {
+    const wall = readWal(this.#host.walFile ?? walFile())
+    const p = mode === 'dash' ? dashPalette(wall) : mode === 'mono' ? monoPalette(wall) : studioPalette(wall)
+    return styleAccent(p, this.#host.style?.())
   }
 
   #leaveWal() {

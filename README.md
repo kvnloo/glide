@@ -62,6 +62,12 @@ In Tern, start with **`/glide` → Detect → Build memory → Turn on**. Build 
 | **See the fleet.** `/hosts` lists your hosts' agents, machine gauges and k3s pods from local read-only collectors. Missing sources never become fictional hosts. | ![Hosts and k3s card](glide/docs/media/features/fleet.png) |
 | **Wear the wallpaper.** `/glide theme auto` themes Tern from your pywal colours (or `GLIDE_WAL_COLORS`); `dash` picks Dash's black and gold, `default` reverts and `export` writes the palette. | ![Wallpaper-themed contract cards](glide/docs/media/features/theme-cards.png) |
 
+| Command | What it shows |
+|---|---|
+| `/template` | Restyle the whole app from the command palette (**Use Mono template**, **Use Studio template**, **Use Default template**). Mono: greyscale, a terminal transcript and an Analytics page of this session beside the chat. Studio: charcoal and gold, a bubble transcript and a Whiteboard page. Default restores Tern's theme and closes the template pages. `/template panel analytics\|whiteboard` opens one page. |
+
+Use `/theme` to pick colors alone: Tern, Nous, Hermes skin, wallpaper, Dash, Mono, Studio or a [whole theme](glide/frontend/themes.json).
+
 Also in the chat: `/portfolio` and `/factory graph` render validated fleet cards, `/intel` shows hill climbs, skills, memory, failures and traces, `/film` opens a fframestudio project, `/glide taste` opens a separately running [Taste Atlas](glide/docs/taste.md) board, `/glide studio` previews an fframestudio project ([requirements](glide/docs/studio.md)), and `/glide glass` is the only surface allowed to glow. Live voice (`/live`, Alt+Shift+V) needs a Hermes gateway with `voice.live` methods and a local lane broker. [Voice and lanes](frontend/docs/voice.md)
 
 Attention features need no wearable. They learn from your local session timestamps and use z0intelligence's circadian schedule and a Flowkit flow estimate when those are installed. [Attention contract](glide/docs/attention.md)
