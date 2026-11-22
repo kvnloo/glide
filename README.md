@@ -1,11 +1,12 @@
 # Glide
 
-An agent workspace that guards two scarce resources: your attention and the agent's context window. Glide is a [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin with a native [Tern](https://stencil.so/tern) chat frontend.
+A standalone [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin that turns Hermes into an agent workspace inside [Tern](https://stencil.so/tern). Glide guards two scarce resources, your attention and the agent's context window, and draws its work as native cards you can inspect and approve.
 
 - **Your attention.** `/glide focus` shows your phase, next deep-work window, and bedtime. A deep-work block holds non-critical agent asks and hands them back as one digest. At wind-down it saves where you left off, and the next morning's first turn starts there. It learns your best hours from your own local sessions and uses z0intelligence's circadian schedule and a Flowkit flow likelihood when they are installed. [Attention](glide/docs/attention.md)
 - **The agent's context.** Opt-in corrections memory quotes up to three matching past corrections into a turn, so you stop repeating yourself; offload sends small tasks to a local model. [Memory implementation](glide/docs/memory.md)
+- **The workspace.** `/glide intent` turns an ask into a contract and a work rail, `/council` convenes a Socratic review with one verdict per seat, `/glide lanes` shows live-voice helper lanes, and `/hosts`, `/portfolio` and `/intel` show your fleet, work and local intelligence. Hermes can mount live widgets round the composer, such as a commit heatmap or a focus ring, and open whole apps as pages. Every card shares one design language, and `/glide theme auto` follows your wallpaper.
 
-Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backend, attention guard, onboarding cards, a skill-ranking catalog, a benchmark referee, local-model offload, local fleet and intelligence cards, and the Dash-derived design language. [Submission](docs/SUBMISSION.md) · [Fork details](FORK.md) · [License](LICENSE)
+One install brings Glide's own Tern frontend, the cards, the memory and the attention guard. [Submission](docs/SUBMISSION.md) · [Changes from the original Tern plugin](FORK.md) · [License](LICENSE)
 
 ## Install
 
@@ -132,6 +133,6 @@ See [the upstream project](https://github.com/alt-glitch/hermes-tern) for the ba
 
 ## Credits and license
 
-Derived from alt-glitch/hermes-tern (MIT), by [alt-glitch](https://github.com/alt-glitch/hermes-tern). Glide additions are by Kevin Rajan. The frontend began as [can1357's ui-tsp](https://github.com/can1357/hermes-agent/tree/tern-frontend), and some UI patterns come from [T3 Code](https://github.com/pingdotgg/t3code).
+Glide is by Kevin Rajan. Its Tern frontend started from [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern) (MIT) by alt-glitch, which began as [can1357's ui-tsp](https://github.com/can1357/hermes-agent/tree/tern-frontend). Some UI patterns come from [T3 Code](https://github.com/pingdotgg/t3code).
 
 MIT. See [LICENSE](LICENSE) and the [Glide license](glide/LICENSE).
