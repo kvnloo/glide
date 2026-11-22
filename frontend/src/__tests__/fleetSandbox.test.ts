@@ -1,53 +1,54 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { EuiCards } from '../eui/cards.js'
-import type { EuiEl, EuiNode } from '../eui/sandbox.js'
 import { openUrl } from '../overlays/pullRequests.js'
-import { decodeEuiKit } from '../wire/euiKit.js'
-import { record, parseJson } from '../wire/json.js'
+import { record } from '../wire/json.js'
 
 import { setup, settle } from './appSetup.js'
 import { key, must, ofKind } from './fakes.js'
 
 vi.mock('@hermes/shared/prompt-history', () => ({ append: () => undefined, load: () => [] }))
 vi.mock('../overlays/pullRequests.js', async original => ({ ...await original<typeof import('../overlays/pullRequests.js')>(), openUrl: vi.fn() }))
-vi.mock('../eui/cards.js', async original => {
-  const actual = await original<typeof import('../eui/cards.js')>()
-  return { ...actual, EuiCards: class extends actual.EuiCards {
-    constructor(...args: ConstructorParameters<typeof actual.EuiCards>) { super(args[0], args[1], args[2], process.env['FLEET_KIT_DIR'] ?? args[3]) }
-  } }
-})
 const apps: ReturnType<typeof setup>['app'][] = []
 beforeEach(() => { delete process.env['HERMES_TERN_QUERY']; delete process.env['HERMES_TERN_IMAGE'] })
 afterEach(() => { apps.splice(0).forEach(app => app.dispose()); vi.clearAllMocks() })
-function elements(node: EuiNode | null): EuiEl[] {
-  return node?.t === 'el' ? [node, ...node.kids.flatMap(elements)] : []
-}
-const text = (node: EuiNode): string => node.t === 'text' ? node.text : node.t === 'el' ? node.kids.map(text).join(' ') : ''
-function nativeId(value: unknown, id: number, revision: string): string | undefined {
-  if (Array.isArray(value)) return value.map(v => nativeId(v, id, revision)).find(Boolean)
-  if (!value || typeof value !== 'object') return undefined
-  if ('id' in value && typeof value.id === 'string' && value.id.includes(`.${revision}.`) && value.id.endsWith(`.n${id}`)) return value.id
-  return Object.values(value).map(v => nativeId(v, id, revision)).find(Boolean)
+
+const at = '2026-11-11T00:00:00Z'
+const DOCS = {
+  hosts: { kind: 'fleet-hosts', app: 'k3s', data: { at, notes: ['Synthetic source unavailable'], hosts: [
+    { id: 'h1', label: 'alpha', role: 'Local host', online: true, gauges: { cpu: 40, mem: 60, disk: null, gpu: 70 },
+      k3s: { node: 'Ready', version: 'v1', pods: [['z0', 'litellm', 'Running', 0, '']] },
+      harnesses: [{ kind: 'Hermes', agents: [{ id: 'ayo', name: 'ayo', state: 'working' }, { id: 'bee', name: 'bee', state: 'blocked', line: 'waiting on you' }] }] }] } },
+  portfolio: { kind: 'fleet-portfolio', app: 'dash', data: { at, notes: [], portfolios: { glide: { label: 'Glide', products: [
+    { id: 'glide:cards', label: 'Cards', horizon: 'now', features: [{ id: 'fleet', label: 'demo/r', tasks: [
+      { id: 'demo/r#7', label: 'Sample task', status: 'next', url: 'https://example.test/task/7' },
+      { id: 'demo/r#8', label: 'Later task', status: 'todo', url: 'https://example.test/task/8' }] }] }], shared: [] } } } },
+  factory: { kind: 'fleet-factory', app: 'aodl', data: { at, notes: [],
+    nodes: [{ id: 'brain', col: 0, label: 'Brain', state: 'live', url: 'https://example.test/node/brain' },
+      { id: 'lane:b', col: 1, label: 'build', state: 'failing', reason: 'red', action: 'Prepare fix' }],
+    edges: [['brain', 'lane:b', 'delegated', true]] } }
 }
 
-// Required by fleet-verify.sh with FLEET_KIT_SRC until the orchestrator vendors the new fleet kinds.
-describe.skipIf(!process.env['FLEET_KIT_DIR'])('source fleet kit through App and native Tern taps', () => {
-  async function fixture(command: string, index: number) {
-    const dir = must(process.env['FLEET_KIT_DIR'])
-    const docs: unknown = parseJson(readFileSync(join(dir, 'fixtures.json'), 'utf8'))
-    if (!Array.isArray(docs)) throw new Error('Missing synthetic fleet docs')
-    const doc = decodeEuiKit(docs[index])
-    const raw: { kind: string; app: string; data: Record<string, unknown> } = { ...doc, data: { ...doc.data, notes: ['Synthetic source unavailable'] } }
-    const hosts: unknown = raw.data['hosts']
-    if (index === 0 && Array.isArray(hosts)) {
-      raw.data['hosts'] = hosts.map((host: unknown) => ({ ...record(host), notes: ['Synthetic host gauge unavailable'] }))
-    }
+/** The newest drawn control whose accessible name or label is `name`: its native id. */
+function control(ops: unknown, name: string): string | undefined {
+  let found: string | undefined
+  const visit = (value: unknown) => {
+    if (Array.isArray(value)) { value.forEach(visit); return }
+    if (!value || typeof value !== 'object') return
+    const props = 'p' in value ? record(value.p) : undefined
+    if ('id' in value && typeof value.id === 'string' && (props?.['aria'] === name || props?.['label'] === name)) found = value.id
+    Object.values(value).forEach(visit)
+  }
+  visit(ops)
+  return found
+}
+
+// The shipped /hosts, /portfolio and /factory graph cards are native glide/v1 programs: tapped here as
+// Tern taps them, through the real App, its card host and the fleet intent route.
+describe('native fleet cards through App and native Tern taps', () => {
+  async function fixture(command: string, view: keyof typeof DOCS) {
     const f = setup({
-      'glide.fleet': () => raw,
+      'glide.fleet': () => DOCS[view],
       'glide.fleet_pod': () => ({ text: 'Synthetic kubectl describe output' }),
       'session.resume': () => ({ session_id: 'resumed-fixture', messages: [] })
     }, { features: ['blobs'] })
@@ -55,71 +56,59 @@ describe.skipIf(!process.env['FLEET_KIT_DIR'])('source fleet kit through App and
     await f.type(command)
     await f.press(key('enter'))
     const entry = () => ofKind(f.app.transcript.entries.find(e => e.kind === 'panel'), 'panel')
-    const view = () => must(f.app.eui.hostView(entry()))
-    await vi.waitFor(() => expect(JSON.stringify(view().node)).toContain('fl-root'), { timeout: 10_000 })
+    await vi.waitFor(() => expect(f.app.eui.hostView(entry())?.ui).toBeTruthy())
     await settle()
-    expect(JSON.stringify(f.frame())).toContain('Synthetic source unavailable')
-    expect(JSON.stringify(view().node)).not.toContain('Fleet data unavailable')
-    const tap = async (find: (node: EuiEl) => boolean) => {
-      const current = view()
-      const target = must(elements(current.node).find(find))
-      const id = must(nativeId(f.ops(), target.id, must(current.identity)))
+    const tap = async (name: string) => {
+      const id = must(control(f.ops(), name))
       const action = f.tern.dispatch({ ev: 'action', sf: 'hermes', id, act: 'click', raw: {} })
       expect(action).toBeTypeOf('function')
       await action?.()
       await settle()
     }
-    return { ...f, view, tap }
+    return { ...f, tap, view: () => must(f.app.eui.hostView(entry())) }
   }
 
-  it('renders live payload and notes, expands an agent, drafts without sending, refreshes and resumes', async () => {
-    const f = await fixture('/hosts', 0)
-    expect(JSON.stringify(f.frame())).toContain('Synthetic host gauge unavailable')
-    await f.tap(n => n.tag === 'summary' && n.cls.includes('fh-agent') && text(n).includes('ayo'))
-    await f.tap(n => n.tag === 'button' && text(n) === 'Nudge')
-    expect(f.app.stores.composer.text).toContain('Follow up with ayo')
+  it('drafts a nudge without sending and refreshes in place', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    expect(JSON.stringify(f.frame())).toContain('Synthetic source unavailable')
+    await f.tap('bee')
+    expect(f.app.stores.composer.text).toContain('Follow up with bee on h1')
     expect(f.sent('prompt.submit')).toHaveLength(0)
-    const old = f.view()
-    await f.tap(n => n.id === -1)
+    await f.tap('Refresh')
     await vi.waitFor(() => expect(f.sent('glide.fleet')).toHaveLength(2))
     expect(f.app.eui.host.size).toBe(1)
-    expect(f.view().identity).not.toBe(old.identity)
-    must(old.activate)(-1)
-    expect(f.sent('glide.fleet')).toHaveLength(2)
-    await vi.waitFor(() => expect(JSON.stringify(f.view().node)).toContain('fh-agent'))
-    await settle()
-    await f.tap(n => n.tag === 'summary' && n.cls.includes('fh-agent') && text(n).includes('ayo'))
-    await f.tap(n => n.tag === 'button' && text(n) === 'Open chat')
+  }, 30_000)
+
+  it('resumes a Hermes agent from its row', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    await f.tap('ayo')
     await vi.waitFor(() => expect(f.sent('session.resume')).toHaveLength(1))
     expect(record(f.sent('session.resume')[0])?.['session_id']).toBe('ayo')
   }, 30_000)
 
-  it('switches the actual hosts selector to pods and shows read-only pod text', async () => {
-    const f = await fixture('/hosts', 0)
-    await f.tap(n => n.tag === 'select' && n.attrs['aria-label'] === 'Hosts view')
-    await f.tap(n => n.tag === 'select' && n.attrs['aria-label'] === 'Hosts view')
-    await f.tap(n => n.tag === 'button' && text(n) === 'Open z0/litellm')
+  it('switches to k3s pods and shows read-only pod text', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    must(f.view().send)({ action: 'tab', entities: { tab: 'k3s' } })
+    await settle()
+    await f.tap('z0/litellm')
     await vi.waitFor(() => expect(JSON.stringify(f.frame())).toContain('Synthetic kubectl describe output'))
     expect(f.sent('glide.fleet_pod')).toHaveLength(1)
     expect(f.sent('prompt.submit')).toHaveLength(0)
   }, 30_000)
 
-  it('opens portfolio tasks safely and drafts set-next without a prompt', async () => {
-    const f = await fixture('/portfolio glide', 1)
-    await f.tap(n => n.tag === 'button' && text(n) === 'Open task')
-    expect(openUrl).toHaveBeenCalledWith(expect.stringMatching(/^https:\/\/example\.test\/task\//))
-    await f.tap(n => n.tag === 'button' && text(n) === 'Set next' && !n.attrs['disabled'])
-    expect(f.app.stores.composer.text).toContain('Set next:')
-    expect(f.app.stores.composer.text).toMatch(/\(glide:[^/]+\//)
+  it('opens a portfolio task safely and drafts set-next for the next step without a prompt', async () => {
+    const f = await fixture('/portfolio glide', 'portfolio')
+    await f.tap('Later task')
+    expect(openUrl).toHaveBeenCalledWith('https://example.test/task/8')
+    await f.tap('Sample task')
+    expect(f.app.stores.composer.text).toContain('Set next: Sample task (glide:cards/fleet/demo/r#7)')
     expect(f.sent('prompt.submit')).toHaveLength(0)
   }, 30_000)
 
-  it('opens factory graph nodes and drafts fixes through the real kit intent route', async () => {
-    const f = await fixture('/factory graph', 2)
-    await f.tap(n => n.attrs['data-fleet-svg-control'] === 'brain')
-    expect(openUrl).toHaveBeenCalledWith('https://example.test/node/brain')
-    await f.tap(n => n.tag === 'button' && n.cls.includes('ff-act') && !n.attrs['disabled'])
-    expect(f.app.stores.composer.text).toContain('Investigate and prepare a fix')
+  it('drafts the factory fix through the fleet intent route, with no command sent', async () => {
+    const f = await fixture('/factory graph', 'factory')
+    await f.tap('Prepare fix · build')
+    expect(f.app.stores.composer.text).toContain('Investigate and prepare a fix for build (lane:b)')
     expect(f.sent('prompt.submit')).toHaveLength(0)
     expect(f.sent('command.dispatch')).toHaveLength(0)
   }, 30_000)
