@@ -364,6 +364,7 @@ export function disposeStores(s: ChatStores) {
   s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()
+  s.media.invalidate()
   s.timers.dispose()
   s.connect.dispose()
   s.notices.dispose()
