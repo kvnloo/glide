@@ -16,6 +16,7 @@ import type { MediaDelivery } from '../media-delivery.js'
 import type { Completion } from '../overlays/completion.js'
 import type { Overlay, OverlayStack } from '../overlays/overlay.js'
 import type { PrAside } from '../prs/aside.js'
+import type { SessionState } from '../session/state.js'
 import { COMPOSER_ID, INPUT_ID, type SurfaceHost } from '../surface/host.js'
 import type { Transcript } from '../transcript/store.js'
 import type { EuiCards } from '../eui/cards.js'
@@ -35,8 +36,9 @@ import type { LiveVoice } from '../voice/live.js'
 
 /** What a frame reads and the three things it changes: the pills' focus, the completion and the surface. */
 export interface FrameCx extends DockSources {
+  readonly session: DockSources['session'] & Partial<Pick<SessionState, 'ownerTicket'>>
   readonly liveVoice: Pick<LiveVoice, 'node' | 'blocked'>
-  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'> & Partial<Pick<SurfaceHost, 'raw'>>
+  readonly surface: Pick<SurfaceHost, 'closed' | 'follow' | 'render'> & Partial<Pick<SurfaceHost, 'composerFrame' | 'raw'>>
   readonly retention?: Retention | undefined
   /** The active gateway transport: attached gateways never attest file-locality. */
   readonly gateway?: Pick<GatewayClient, 'attached'>
@@ -77,8 +79,14 @@ export interface FrameCx extends DockSources {
   readonly clean?: () => JSX.Element | null
 }
 
-/** Draws one frame at `now`; nothing once the surface closed. */
+/** Draws one frame at `now`; nothing once the surface closed. The shown session owns the composer. */
 export function drawFrame(cx: FrameCx, now = Date.now()) {
+  const session = cx.session
+  if (cx.surface.composerFrame && session.ownerTicket) cx.surface.composerFrame(() => session.ownerTicket?.().signal, () => drawView(cx, now))
+  else drawView(cx, now)
+}
+
+function drawView(cx: FrameCx, now: number) {
   if (cx.surface.closed) {
     return
   }

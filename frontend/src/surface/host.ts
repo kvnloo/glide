@@ -22,6 +22,10 @@ export class SurfaceHost {
   readonly #missing = new Set<string>()
   #focus: string | null | undefined = INPUT_ID
   #palette: Palette | undefined
+  /** The highest frame Tern acked on the current document. */
+  #acked = 0
+  /** Native composer events name no session: the owner last painted, and the frame that painted it. */
+  #composer: { owner: () => unknown; painted: unknown; fence: number; surface: Surface | undefined } | undefined
 
   constructor(tern: Session, title: string, styles: string, events: SurfaceHostEvents) {
     const host: SurfaceLifecycleHost = {
@@ -70,15 +74,40 @@ export class SurfaceHost {
       ? surface.dispatch.bind(surface)
       : (event: TspEvent) => this.#writer.dispatch(event)
     surface.dispatch = event => {
-      if (!this.#accept(surface, event)) {
+      if (!this.#accept(surface, event) || this.#composerStale(event)) {
         return undefined
       }
+      // A composer handler selected now must not run for an owner the view moved to since.
+      const owner = composerEvent(event) ? this.#composer?.owner() : undefined
       const work = route(event)
       return work && (() => {
-        if (this.#accept(surface, event)) {
+        if (this.#accept(surface, event) && (!composerEvent(event) || this.#composer?.owner() === owner)) {
           return work()
         }
       })
+    }
+  }
+
+  /**
+   * Draws a frame for the composer's owner (the shown session). The first frame Tern can take after
+   * the owner changed is a fence: until Tern acks it, an edit, undo or send on the composer was made
+   * against the previous owner's paint and is dropped, never routed to the new owner.
+   */
+  composerFrame(owner: () => unknown, paint: () => void) {
+    const current = owner()
+    const paintable = !this.closed && !this.raw.blocked
+    const composer = this.#composer ??= { owner, painted: current, fence: 0, surface: undefined }
+    composer.owner = owner
+    const before = this.raw.seq
+    paint()
+    if (paintable && composer.painted !== current && owner() === current) {
+      // A paint identical to the last owner's sends no frame: restate the unchanged focus as one.
+      if (this.raw.seq === before && this.#focus !== undefined && !this.closed && !this.raw.blocked) {
+        this.raw.focus(this.#focus)
+      }
+      composer.painted = current
+      composer.fence = this.raw.seq
+      composer.surface = this.raw
     }
   }
 
@@ -172,6 +201,12 @@ export class SurfaceHost {
       (!('id' in event) || !event.id || !this.#absent(event.id))
   }
 
+  #composerStale(event: TspEvent): boolean {
+    const composer = this.#composer
+    return Boolean(composer && composerEvent(event) &&
+      (composer.owner() !== composer.painted || (composer.surface === this.raw && this.#acked < composer.fence)))
+  }
+
   #absent(id: string): boolean {
     for (const missing of this.#missing) {
       if (id === missing || id.startsWith(missing + '.')) {
@@ -183,6 +218,14 @@ export class SurfaceHost {
 
   /** A successfully sent add may reestablish a previously evicted focus/handler id. */
   #track(surface: Surface) {
+    this.#acked = surface.seq
+    const acknowledge = surface.acknowledge.bind(surface)
+    surface.acknowledge = (s: number) => {
+      if (surface === this.raw) {
+        this.#acked = Math.max(this.#acked, Math.min(s, surface.seq))
+      }
+      acknowledge(s)
+    }
     const send = surface.send.bind(surface)
     surface.send = (ops: readonly Op[]) => {
       if (this.closed || surface !== this.raw || surface.blocked) {
@@ -211,4 +254,9 @@ export class SurfaceHost {
       }
     }
   }
+}
+
+/** The main composer's own native events: they carry text but no session. */
+function composerEvent(event: TspEvent): boolean {
+  return (event.ev === 'edit' || event.ev === 'undo' || event.ev === 'send') && event.id === INPUT_ID
 }

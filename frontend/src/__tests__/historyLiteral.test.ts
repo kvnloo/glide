@@ -11,6 +11,11 @@ import { INPUT_ID } from '../surface/host.js'
 import { FakeGateway, fakeTern, given, key, settle, stub, topNodes } from './fakes.js'
 import { Peer } from './surfacePeer.js'
 
+/** Tern applied (acked) every frame painted so far: native input after it addresses that paint. */
+const applied = (input: EventEmitter, surface: { readonly id: string; readonly seq: number } | undefined) => {
+  if (surface) input.emit('data', '\x1b_tsp;e;' + JSON.stringify({ ev: 'ack', sf: surface.id, s: surface.seq }) + '\x1b\\')
+}
+
 const history = vi.hoisted((): string[] => [])
 vi.mock('@hermes/shared/prompt-history', () => ({
   append: (text: string) => void history.push(text),
@@ -280,6 +285,7 @@ describe('history and paste shell safety', () => {
       app.changed()
       await settle(gw)
       const surface = tern.surfaces[0]
+      applied(input, surface)
       expect(surface).toBeDefined()
       const send = surface?.dispatch({ ev: 'send', id: INPUT_ID, raw: {}, sf: surface.id, text: raw })
       expect(send).toBeTypeOf('function')
@@ -309,6 +315,7 @@ describe('history and paste shell safety', () => {
       given.session(app, 's1')
       await settle(gw)
       const surface = tern.surfaces[0]
+      applied(input, surface)
       expect(surface).toBeDefined()
       const edit = surface?.dispatch({ ev: 'edit', id: INPUT_ID, raw: {}, sf: surface.id, from: 0, to: 0, len: 0, cursor: raw.length, text: raw })
       expect(edit).toBeTypeOf('function')
@@ -351,6 +358,7 @@ describe('history and paste shell safety', () => {
       app.changed()
       await settle(gw)
       const surface = tern.surfaces[0]
+      applied(input, surface)
       const raw = 'Review {!echo native}'
       const send = surface?.dispatch({ ev: 'send', id: INPUT_ID, raw: {}, sf: surface.id, text: raw })
       expect(send).toBeTypeOf('function')
