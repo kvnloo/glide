@@ -200,13 +200,14 @@ Change the owning profile and composer. Inspect native settings, choose a sessio
 10. `wallpaper-default`
 11. `wallpaper-export`
 12. `whole-theme`
-13. `profile-keybindings`
-14. `vim-composer`
-15. `external-editor`
-16. `composer-readline`
-17. `prompt-history-search`
-18. `copy-text`
-19. `whole-app-templates`
+13. `shared-theme`
+14. `profile-keybindings`
+15. `vim-composer`
+16. `external-editor`
+17. `composer-readline`
+18. `prompt-history-search`
+19. `copy-text`
+20. `whole-app-templates`
 
 ## maintenance
 
