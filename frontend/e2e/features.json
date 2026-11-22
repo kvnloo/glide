@@ -298,7 +298,9 @@
       "entry": "In a text Hermes frontend, /glide hill-climb run [--samples N]",
       "journey": "memory",
       "expect": "Intended to print the round and verdict; native card coverage does not certify this text formatter",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
       "army": []
     },
     {
@@ -320,7 +322,9 @@
       "entry": "In a text Hermes frontend, /glide hill-climb stop or /glide hill-climb resume",
       "journey": "memory",
       "expect": "The explicit STOP file is created or removed; no hidden loop starts",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_hill_climb.py"
+      ],
       "army": []
     },
     {
@@ -379,7 +383,9 @@
       "entry": "In a text Hermes frontend, /glide offload reset",
       "journey": "memory",
       "expect": "The profile's offload counters reset explicitly",
-      "tests": [],
+      "tests": [
+        "glide/tests/test_offload.py"
+      ],
       "army": []
     },
     {
@@ -885,7 +891,11 @@
       "entry": "Explicitly link the shipped hermes-openui Tern plugin and open a legacy candidate file",
       "journey": "cards",
       "expect": "The optional Luau route requires native acceptance; the chat picker does not install or certify it",
-      "tests": [],
+      "tests": [
+        "frontend/openui/openui-preview/test/lifecycle.test.mjs",
+        "frontend/openui/openui-preview/test/control.test.mjs",
+        "frontend/src/__tests__/armyJourneys.test.ts"
+      ],
       "army": []
     },
     {

@@ -25,6 +25,7 @@ import { cleanFocus } from '../voice/cleanFocus.js'
 import type { Lane, LaneFeed } from '../voice/lanes.js'
 import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
+import { glideText } from '../../../glide/frontend/glideText.js'
 
 /** `/glide lanes`: the voice lanes popup, the same call as the subagents card's open-lanes action. */
 export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFeed, 'call' | 'error'> & Partial<Pick<LaneFeed, 'launch'>> | null | undefined }): void {
@@ -34,7 +35,7 @@ export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFe
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
   readonly session: Pick<SessionView, 'ref'>
-  readonly transcript: Pick<Transcript, 'notice'>
+  readonly transcript: Pick<Transcript, 'notice' | 'panel'>
   readonly eui?: Pick<EuiCards, 'host'> | undefined
   /** The lane broker feed, when voice lanes are configured: the contract shows their live state. */
   readonly laneFeed?: Pick<LaneFeed, 'call'> | null | undefined
@@ -45,7 +46,7 @@ export interface GlideHost {
 }
 
 /** `/glide glass demo`: the glass playground, one cycle of blur, tint, saturation, rim and motes. */
-export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, sub: string | undefined): void {
+export function glideGlass(host: Pick<GlideHost, 'glassDemo'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub !== 'demo') {
     host.transcript.notice('Usage: /glide glass demo', 'warning')
     return
@@ -56,7 +57,7 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
 }
 
 /** `/glide theme auto|dash|<whole theme>|default|export`: wear the wallpaper's pywal colors, Dash's black and gold or a whole theme, go back, or write them out. */
-export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
+export function glideTheme(host: Pick<GlideHost, 'setTheme'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
     host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
@@ -311,6 +312,8 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       step()
       return
     }
+    // A verb without a native card runs the plugin's own text command, as a text frontend would.
+    if (verb) return await glideText(host, sid, arg.trim(), verb)
 
     const found = glideDetect.parse(await call('detect'))
     cards.publish({

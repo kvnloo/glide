@@ -84,3 +84,12 @@ def test_offload_command_passes_task_type_and_whole_prompt(home, monkeypatch):
     assert offload.command(home, "summarize hello world") == "Offload failed: stub"
     assert calls == [("summarize", "hello world")]
     assert "Usage" in offload.command(home, "summarize")
+
+
+def test_offload_reset_command_clears_recorded_savings(home):
+    offload.record_offload(home, task_type="summarize", prompt="Summarize: a b c.", completion="a b c",
+                           model="llama3.2:1b", duration_ms=10)
+    assert offload.savings_card(home)["empty"] is False
+    assert offload.command(home, "reset") == "Offload tracking reset."
+    assert offload.savings_card(home)["empty"] is True
+    assert offload.command(home, "reset") == "Offload tracking reset."  # idempotent with nothing recorded

@@ -215,6 +215,20 @@ describe('/glide', () => {
     expect(titles()[0]).toBe('This machine')
   })
 
+  it.each([
+    ['skill-router list', 'Skill Router Categories:'],
+    ['hill-climb status', "Not scaffolded. Run '/glide hill-climb scaffold' first."],
+    ['offload reset', 'Offload tracking reset.'],
+    ['build', 'Memory up to date (0 new messages read).']
+  ])('runs /glide %s through the plugin text command, not the detect cards', async (arg, output) => {
+    const { host, request, transcript, titles } = setup({ 'command.dispatch': { type: 'exec', output } })
+    await glideCommand(host, arg)
+    expect(request.mock.calls.map(([method]) => method)).toEqual(['command.dispatch'])
+    expect(request.mock.calls[0]?.[1]).toEqual({ name: 'glide', arg, session_id: 'glide-session' })
+    expect(titles()).toEqual([`/glide ${arg.split(' ')[0]}`])
+    expect(JSON.stringify(transcript.entries.at(-1))).toContain(JSON.stringify(output).slice(1, -1))
+  })
+
   it('shows the plugin command error instead of a card', async () => {
     const { host, transcript, panels } = setup()
     host.gw = stub<GlideHost['gw']>({

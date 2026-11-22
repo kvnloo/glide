@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { EuiCards } from '../eui/cards.js'
-import type { UiIntent, UiNode } from '../glideui/library.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import { record } from '../wire/json.js'
 
@@ -14,106 +13,114 @@ const apps: ReturnType<typeof setup>['app'][] = []
 beforeEach(() => { delete process.env['HERMES_TERN_QUERY']; delete process.env['HERMES_TERN_IMAGE'] })
 afterEach(() => { apps.splice(0).forEach(app => app.dispose()); vi.clearAllMocks() })
 
-const hosts = { hosts: [{ id: 'fixture-host', label: 'Fixture machine', online: true,
-  gauges: { cpu: 23 }, notes: ['Synthetic host gauge unavailable'],
-  k3s: { node: 'Ready', pods: [['sample', 'worker', 'Running', 0, '']] },
-  harnesses: [
-    { kind: 'Hermes', agents: [{ id: 'fixture-session', name: 'Review session', state: 'idle' }] },
-    { kind: 'fx', agents: [{ id: 'process:1', name: 'Build helper', state: 'blocked' }] }
-  ]
-}] }
-const portfolio = { portfolios: { sample: { label: 'Sample portfolio', products: [{
-  id: 'sample:core', label: 'Core', features: [{ id: 'core:work', label: 'Work', tasks: [
-    { id: 'task-1', label: 'Review queue', status: 'next', url: 'https://example.test/task/1' },
-    { id: 'task-2', label: 'Working change', status: 'active', url: 'https://example.test/task/2' }
-  ] }]
-}] } } }
-const factory = {
-  nodes: [
-    { id: 'brain', col: 0, label: 'Brain', state: 'idle' },
-    { id: 'review', col: 2, label: 'Blocked review', state: 'failing', action: 'Prepare fix' }
-  ], edges: [['brain', 'review', 'delegated', false]]
+const at = '2026-11-11T00:00:00Z'
+const DOCS = {
+  hosts: { kind: 'fleet-hosts', app: 'k3s', data: { at, notes: ['Synthetic source unavailable'], hosts: [
+    { id: 'h1', label: 'alpha', role: 'Local host', online: true, gauges: { cpu: 40, mem: 60, disk: null, gpu: 70 }, notes: ['Synthetic host gauge unavailable'],
+      k3s: { node: 'Ready', version: 'v1', pods: [['z0', 'litellm', 'Running', 0, '']] },
+      harnesses: [{ kind: 'Hermes', agents: [{ id: 'ayo', name: 'ayo', state: 'working' }, { id: 'bee', name: 'bee', state: 'blocked', line: 'waiting on you' }] }] }] } },
+  portfolio: { kind: 'fleet-portfolio', app: 'dash', data: { at, notes: [], portfolios: { glide: { label: 'Glide', products: [
+    { id: 'glide:cards', label: 'Cards', horizon: 'now', features: [{ id: 'fleet', label: 'demo/r', tasks: [
+      { id: 'demo/r#7', label: 'Sample task', status: 'next', url: 'https://example.test/task/7' },
+      { id: 'demo/r#8', label: 'Later task', status: 'active', url: 'https://example.test/task/8' }] }] }], shared: [] } } } },
+  factory: { kind: 'fleet-factory', app: 'aodl', data: { at, notes: [],
+    nodes: [{ id: 'brain', col: 0, label: 'Brain', state: 'live', url: 'https://example.test/node/brain' },
+      { id: 'lane:b', col: 1, label: 'build', state: 'failing', reason: 'red', action: 'Prepare fix' }],
+    edges: [['brain', 'lane:b', 'delegated', true]] } }
 }
 
-function intents(n: UiNode): UiIntent[] {
-  if (n.typeName === 'Buttons' || n.typeName === 'List' || n.typeName === 'Tabs') {
-    return n.props.items.flatMap(i => i.intent ? [i.intent] : [])
-  }
-  return 'children' in n.props ? n.props.children.flatMap(intents) : []
-}
-
-describe('fleet through the App and native renderer', () => {
-  async function fixture(command: string, kind: string, app: string, data: object) {
+// The shipped /hosts, /portfolio and /factory graph cards are native glide/v1 programs: tapped here as
+// Tern taps them, through the real App, its card host and the fleet intent route.
+describe('native fleet cards through App and native Tern taps', () => {
+  async function fixture(command: string, view: keyof typeof DOCS) {
     const f = setup({
-      'glide.fleet': () => ({ kind, app, data: { ...data, at: '2026-11-11T00:00:00Z', notes: ['Synthetic source unavailable'] } }),
+      'glide.fleet': () => DOCS[view],
       'glide.fleet_pod': () => ({ text: 'Synthetic kubectl describe output' }),
       'session.resume': () => ({ session_id: 'resumed-fixture', messages: [] })
     }, { features: ['blobs'] })
     apps.push(f.app)
     await f.type(command)
     await f.press(key('enter'))
-    const view = () => must(f.app.eui.hostView(ofKind(f.app.transcript.entries.find(e => e.kind === 'panel'), 'panel')))
-    await vi.waitFor(() => expect(view().ui).toBeDefined())
+    const entry = () => ofKind(f.app.transcript.entries.find(e => e.kind === 'panel'), 'panel')
+    const hostView = () => must(f.app.eui.hostView(entry()))
+    await vi.waitFor(() => expect(hostView().ui).toBeTruthy())
     await settle()
-    expect(view().node).toBeNull()
-    const frame = () => JSON.stringify(f.frame())
-    expect(frame()).toContain('glide.card')
-    expect(frame()).toContain('Synthetic source unavailable')
-    const tap = async (action: string, from = view()) => {
-      must(from.send)(must(intents(must(from.ui)).find(i => i.action === action)))
+    expect(hostView().node).toBeNull()
+    expect(JSON.stringify(f.frame())).toContain('glide.card')
+    const tap = async (name: string) => {
+      // Walk in render order and use the newest control with this accessible name.
+      let found: string | undefined
+      const pending: unknown[] = [f.ops()]
+      while (pending.length) {
+        const node = pending.pop()
+        if (Array.isArray(node)) {
+          pending.push(...[...node].reverse())
+        } else if (node && typeof node === 'object') {
+          const props = 'p' in node ? record(node.p) : undefined
+          if ('id' in node && typeof node.id === 'string' && (props?.['aria'] === name || props?.['label'] === name)) found = node.id
+          pending.push(...Object.values(node).reverse())
+        }
+      }
+      const id = must(found)
+      const action = f.tern.dispatch({ ev: 'action', sf: 'hermes', id, act: 'click', raw: {} })
+      expect(action).toBeTypeOf('function')
+      await action?.()
       await settle()
     }
-    return { ...f, view, frame, tap }
+    return { ...f, tap, view: hostView }
   }
 
-  it('shows host notes, drafts without sending, refreshes one panel, and resumes a Hermes session', async () => {
-    const f = await fixture('/hosts', 'fleet-hosts', 'k3s', hosts)
-    expect(f.frame()).toContain('Synthetic host gauge unavailable')
-    expect(f.frame()).toContain('Build helper')
-    await f.tap('nudge')
-    expect(f.app.stores.composer.text).toContain('Follow up with Build helper')
+  it('drafts a nudge without sending and refreshes in place', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    expect(JSON.stringify(f.frame())).toContain('Synthetic source unavailable')
+    expect(JSON.stringify(f.frame())).toContain('Synthetic host gauge unavailable')
+    await f.tap('bee')
+    expect(f.app.stores.composer.text).toContain('Follow up with bee on h1')
     expect(f.sent('prompt.submit')).toHaveLength(0)
     const old = f.view()
-    await f.tap('refresh')
+    await f.tap('Refresh')
+    await vi.waitFor(() => expect(f.sent('glide.fleet')).toHaveLength(2))
     await vi.waitFor(() => expect(f.view().identity).not.toBe(old.identity))
     expect(f.app.eui.host.size).toBe(1)
-    await f.tap('refresh', old)
+    must(old.send)({ action: 'refresh' })
+    await settle()
     expect(f.sent('glide.fleet')).toHaveLength(2)
-    await f.tap('open-chat')
-    await vi.waitFor(() => expect(f.sent('session.resume')).toHaveLength(1))
-    expect(record(f.sent('session.resume')[0])?.['session_id']).toBe('fixture-session')
-  })
+  }, 30_000)
 
-  it('switches to k3s pods and requests read-only pod detail', async () => {
-    const f = await fixture('/hosts', 'fleet-hosts', 'k3s', hosts)
-    const view = f.view()
-    const podTab = intents(must(view.ui)).find(i => i.action === 'tab' && i.entities?.['tab'] === 'k3s')
-    must(view.send)(must(podTab))
-    await vi.waitFor(() => expect(f.frame()).toContain('sample/worker'))
-    await f.tap('open-pod')
-    await vi.waitFor(() => expect(f.frame()).toContain('Synthetic kubectl describe output'))
+  it('resumes a Hermes agent from its row', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    await f.tap('ayo')
+    await vi.waitFor(() => expect(f.sent('session.resume')).toHaveLength(1))
+    expect(record(f.sent('session.resume')[0])?.['session_id']).toBe('ayo')
+  }, 30_000)
+
+  it('switches to k3s pods and shows read-only pod text', async () => {
+    const f = await fixture('/hosts', 'hosts')
+    must(f.view().send)({ action: 'tab', entities: { tab: 'k3s' } })
+    await settle()
+    await f.tap('z0/litellm')
+    await vi.waitFor(() => expect(JSON.stringify(f.frame())).toContain('Synthetic kubectl describe output'))
     expect(f.sent('glide.fleet_pod')).toHaveLength(1)
     expect(f.sent('prompt.submit')).toHaveLength(0)
-  })
+  }, 30_000)
 
-  it('opens portfolio tasks safely and drafts set-next without sending', async () => {
-    const f = await fixture('/portfolio sample', 'fleet-portfolio', 'dash', portfolio)
-    expect(f.frame()).toContain('Review queue')
-    await f.tap('open-task')
-    expect(openUrl).toHaveBeenCalledWith('https://example.test/task/2')
-    await f.tap('set-next')
-    expect(f.app.stores.composer.text).toContain('Set next: Review queue')
+  it('opens a portfolio task safely and drafts set-next for the next step without a prompt', async () => {
+    const f = await fixture('/portfolio glide', 'portfolio')
+    await f.tap('Later task')
+    expect(openUrl).toHaveBeenCalledWith('https://example.test/task/8')
+    await f.tap('Sample task')
+    expect(f.app.stores.composer.text).toContain('Set next: Sample task (glide:cards/fleet/demo/r#7)')
     expect(f.sent('prompt.submit')).toHaveLength(0)
-  })
+  }, 30_000)
 
-  it('renders the native factory spine and drafts a fix without dispatching', async () => {
-    const f = await fixture('/factory graph', 'fleet-factory', 'aodl', factory)
-    expect(f.frame()).toContain('Factory graph: 2 nodes, 1 edge')
-    await f.tap('queue-fix')
-    expect(f.app.stores.composer.text).toContain('Investigate and prepare a fix for Blocked review')
+  it('drafts the factory fix through the fleet intent route, with no command sent', async () => {
+    const f = await fixture('/factory graph', 'factory')
+    expect(JSON.stringify(f.frame())).toContain('Factory graph: 2 nodes, 1 edge')
+    await f.tap('Prepare fix · build')
+    expect(f.app.stores.composer.text).toContain('Investigate and prepare a fix for build (lane:b)')
     expect(f.sent('prompt.submit')).toHaveLength(0)
     expect(f.sent('command.dispatch')).toHaveLength(0)
-  })
+  }, 30_000)
 
   it('keeps model-authored fleet fences non-authoritative and strips claimed payload', async () => {
     const eui = new EuiCards(vi.fn())

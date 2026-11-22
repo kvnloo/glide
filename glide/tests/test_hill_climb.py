@@ -51,6 +51,29 @@ def test_hill_climb_status_after_scaffold(home):
     assert after["rounds_completed"] == 0
 
 
+def test_hill_climb_run_command_reports_the_round(home):
+    """`/glide hill-climb run` after scaffold prints the round, not a crash on the metric line."""
+    hill_climb.scaffold(home, force=True)
+    out = hill_climb.command(home, "run --samples 2")
+    assert out.startswith("Hill Climb Round 1"), out
+    assert "(metric: " in out and "Verdict:" in out and "Ledger:" in out
+    assert hill_climb.status(home)["rounds_completed"] == 1
+
+
+def test_hill_climb_run_command_before_scaffold_says_so(home):
+    assert hill_climb.command(home, "run").startswith("Round failed: Not scaffolded")
+
+
+def test_hill_climb_stop_then_resume_command(home):
+    hill_climb.scaffold(home, force=True)
+    stopped = hill_climb.command(home, "stop")
+    assert hill_climb.status(home)["stopped"] is True, stopped
+    assert hill_climb.command(home, "run").startswith("Round failed:")
+    resumed = hill_climb.command(home, "resume")
+    assert hill_climb.status(home)["stopped"] is False, resumed
+    assert hill_climb.command(home, "run --samples 2").startswith("Hill Climb Round")
+
+
 def test_hill_climb_referee_keept_revert_logic():
     """Test the referee function's decision logic directly."""
     # REVERT: no improvement
