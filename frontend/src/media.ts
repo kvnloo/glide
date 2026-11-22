@@ -191,7 +191,20 @@ export class Media {
       return undefined
     }
 
-    return readBounded(r.body)
+    const chunks: Uint8Array[] = []
+    let bytes = 0
+
+    // Leaving the loop early cancels the stream (its iterator's return): the rest is never read.
+    for await (const chunk of r.body) {
+      if (!(chunk instanceof Uint8Array) || chunk.byteLength > MAX_BYTES - bytes) {
+        return undefined
+      }
+
+      bytes += chunk.byteLength
+      chunks.push(chunk)
+    }
+
+    return Buffer.concat(chunks, bytes)
   }
 
   #blob(bytes: Buffer | undefined): ImageSource | null {
@@ -203,20 +216,3 @@ export class Media {
   }
 }
 
-/** A response body's bytes, or undefined once it passes MAX_BYTES or yields a non-byte chunk (the rest is never read). */
-async function readBounded(body: AsyncIterable<unknown>): Promise<Buffer | undefined> {
-  const chunks: Uint8Array[] = []
-  let bytes = 0
-
-  // Leaving the loop early cancels the stream (its iterator's return).
-  for await (const chunk of body) {
-    if (!(chunk instanceof Uint8Array) || chunk.byteLength > MAX_BYTES - bytes) {
-      return undefined
-    }
-
-    bytes += chunk.byteLength
-    chunks.push(chunk)
-  }
-
-  return Buffer.concat(chunks, bytes)
-}

@@ -10,19 +10,17 @@ const PNG = Buffer.concat([
   Buffer.from([0, 0, 5, 0, 0, 0, 2, 208, 8, 6, 0, 0, 0])
 ])
 
-const tool = (src: string): ToolCall => ({
-  args: {}, argsText: '', context: '', id: toolCallId('image-1'),
-  name: 'image_generate', outcome: { kind: 'done', duration: 0 },
-  result: { image: src, success: true }, startedAt: 0, via: { kind: 'direct' }
-})
-
 describe('Media: session-owned previews', () => {
   it('does not blob/upload or redraw an old image after transcript adoption', async () => {
     let complete!: (response: Response) => void
     const pending = new Promise<Response>(resolve => { complete = resolve })
     const blob = vi.fn(() => 'uploaded')
     const media = new Media({ blob }, () => pending)
-    const old = tool('https://x/old.png')
+    const old: ToolCall = {
+      args: {}, argsText: '', context: '', id: toolCallId('image-1'),
+      name: 'image_generate', outcome: { kind: 'done', duration: 0 },
+      result: { image: 'https://x/old.png', success: true }, startedAt: 0, via: { kind: 'direct' }
+    }
     const notify = vi.fn()
 
     media.show(old, notify)

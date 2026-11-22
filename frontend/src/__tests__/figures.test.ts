@@ -176,16 +176,15 @@ describe('replyParts', () => {
 // The fork shows a media line as Tern's viewer only where Tern opens the gateway's files: the pane on
 // the gateway's host, and Tern taking `media` nodes. Elsewhere the line stays text, as before.
 describe('media lines in a reply', () => {
-  const turn = (text: string): TurnEntry => ({
-    blocks: [{ id: entryId('x'), kind: 'text', text }],
-    end: { endedAt: 11, status: 'done' },
-    id: entryId('t'),
-    kind: 'turn',
-    rev: 0,
-    startedAt: 10
-  })
   const drawn = (text: string, links: TranscriptContext['links']) =>
-    JSON.stringify(tree(entryNode(turn(text), 'main.t', { copy: () => undefined, ...(links ? { links } : {}), now: 12, welcome: { version: '' } })))
+    JSON.stringify(tree(entryNode({
+      blocks: [{ id: entryId('x'), kind: 'text', text }],
+      end: { endedAt: 11, status: 'done' },
+      id: entryId('t'),
+      kind: 'turn',
+      rev: 0,
+      startedAt: 10
+    } satisfies TurnEntry, 'main.t', { copy: () => undefined, ...(links ? { links } : {}), now: 12, welcome: { version: '' } })))
   const here = { cwd: '/work', hostLocal: true, media: true }
 
   it('draws a local viewable file as a media node, relative paths against the session folder', () => {
