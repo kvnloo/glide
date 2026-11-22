@@ -101,7 +101,7 @@ export class SurfaceHost {
     const before = this.raw.seq
     paint()
     if (paintable && composer.painted !== current && owner() === current) {
-      // A paint identical to the last owner's sends no frame: restate the unchanged focus as one.
+      // An unchanged paint sends no frame: restate the current focus so the fence has one.
       if (this.raw.seq === before && this.#focus !== undefined && !this.closed && !this.raw.blocked) {
         this.raw.focus(this.#focus)
       }

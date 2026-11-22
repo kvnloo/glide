@@ -17,9 +17,8 @@ import { Peer } from './surfacePeer.js'
 
 vi.mock('../../assets/logo.png', () => ({ default: new Uint8Array([137, 80, 78, 71]) }))
 
-const turn = () => new Promise<void>(resolve => setImmediate(resolve))
 async function painted() {
-  for (let i = 0; i < 8; i++) await turn()
+  for (let i = 0; i < 8; i++) await new Promise<void>(resolve => setImmediate(resolve))
 }
 
 interface Harness {

@@ -12,24 +12,15 @@ import type { NoticeEntry } from '../model.js'
 
 import type { Prompt } from './prompt.js'
 
-/** `refused`: the gateway answered no; `unknown`: the prompt may or may not have been admitted. */
-export type SubmitFailure = 'refused' | 'unknown'
-
-/** Which failures prove non-admission: an error frame from the gateway, or no transport to write to. */
-export function submitFailure(error: unknown): SubmitFailure {
-  if (error instanceof JsonRpcGatewayError || (error instanceof Error && error.name === 'JsonRpcGatewayError')) {
-    return 'refused'
-  }
-
-  // The channel raises this before the request frame is written: the gateway never saw it.
-  return error instanceof Error && /^gateway not connected\b/.test(error.message) ? 'refused' : 'unknown'
-}
-
 /** How the failure is told: `sent` for a prompt sent now, `queued` for an admission into the gateway's queue. */
 export function submitFailureNotice(error: unknown, how: 'sent' | 'queued'): { text: string; tone: NoticeEntry['tone'] } {
   const why = errorText(error)
+  // Only an error frame from the gateway, or a request refused before it was written ("gateway
+  // not connected"), proves the gateway never admitted it.
+  const refused = error instanceof JsonRpcGatewayError || (error instanceof Error && error.name === 'JsonRpcGatewayError') ||
+    (error instanceof Error && /^gateway not connected\b/.test(error.message))
 
-  if (submitFailure(error) === 'refused') {
+  if (refused) {
     return { text: `${how === 'sent' ? 'Not sent' : 'Not queued'}: ${why}. Your message is back in the composer.`, tone: 'error' }
   }
 

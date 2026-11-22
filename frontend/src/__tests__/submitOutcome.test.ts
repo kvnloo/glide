@@ -13,7 +13,7 @@ import { type LiveSessionId, liveSessionId, storedSessionId } from '../core/ids.
 import { sessionTicket } from '../session/state.js'
 import type { Prompt } from '../turn/prompt.js'
 import { PromptQueue, type QueueHost } from '../turn/queue.js'
-import { submitFailure, submitFailureNotice } from '../turn/submitOutcome.js'
+import { submitFailureNotice } from '../turn/submitOutcome.js'
 
 import { FakeGateway, fakeTern, given, key, type Reply, settle } from './fakes.js'
 
@@ -72,11 +72,12 @@ function setup(replies: Record<string, Reply> = {}) {
 
 describe('what a failed prompt.submit proves', () => {
   it('classifies only a gateway error frame or an unwritten request as a refusal', () => {
-    expect(submitFailure(refusal())).toBe('refused')
-    expect(submitFailure(new Error('gateway not connected: prompt.submit'))).toBe('refused')
-    expect(submitFailure(timeout())).toBe('unknown')
-    expect(submitFailure(new Error('websocket closed'))).toBe('unknown')
-    expect(submitFailure('boom')).toBe('unknown')
+    const tone = (error: unknown) => submitFailureNotice(error, 'sent').tone
+    expect(tone(refusal())).toBe('error')
+    expect(tone(new Error('gateway not connected: prompt.submit'))).toBe('error')
+    expect(tone(timeout())).toBe('warning')
+    expect(tone(new Error('websocket closed'))).toBe('warning')
+    expect(tone('boom')).toBe('warning')
     expect(submitFailureNotice(refusal(), 'sent')).toEqual({ text: 'Not sent: session_busy. Your message is back in the composer.', tone: 'error' })
     expect(submitFailureNotice(timeout(), 'queued').tone).toBe('warning')
     expect(submitFailureNotice(timeout(), 'queued').text).not.toMatch(/Not (sent|queued)/)
