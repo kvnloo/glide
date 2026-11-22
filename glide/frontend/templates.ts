@@ -83,6 +83,7 @@ export function templateTernPalette(p: WalPalette): TernPalette {
 /** The surface stylesheet a transcript style installs (and removes when another is picked). */
 export const TRANSCRIPT_SHEET = 'glide-transcript-style'
 
+// Tern draws a card's children inside .sf-card-body and an md node's paragraphs inside .sf-md (view/styles.ts).
 const USER = ".sf-card[data-role='omp.user']"
 const REPLY = ".sf-col[data-role='omp.assistant']"
 const PROSE = ':is(.sf-md, .sf-text, .sf-md *)'
@@ -94,7 +95,7 @@ export function transcriptCss(style: TranscriptStyle): string | null {
       ${USER}, ${REPLY} { font-family: ${MONO}; }
       ${USER} ${PROSE}, ${REPLY} ${PROSE} { font-family: ${MONO}; font-size: ${TYPE.body}px; }
       ${USER} { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 2px 0 2px 12px !important; border-left: 2px solid var(--accent) !important; }
-      ${USER} > .sf-md::before { content: '❯ '; color: var(--accent); }
+      ${USER} .sf-md > :first-child::before { content: '❯ '; color: var(--accent); }
       ${REPLY} .sf-card { border-radius: ${RADIUS.chip}px !important; box-shadow: none !important; }
       [data-role='omp.turn.usage'] ${PROSE} { font-family: ${MONO}; }
     `)
@@ -103,7 +104,7 @@ export function transcriptCss(style: TranscriptStyle): string | null {
     return minifyCss(`
       ${USER} { margin-left: auto !important; width: fit-content !important; max-width: 72% !important; background: var(--accent) !important; border: none !important; box-shadow: none !important; border-radius: ${RADIUS.card}px ${RADIUS.card}px ${RADIUS.chip}px ${RADIUS.card}px !important; padding: 8px 14px !important; }
       ${USER} ${PROSE} { color: var(--accent-ink, #000) !important; }
-      ${USER} [data-role='omp.user.tools'] { opacity: .7; }
+      ${USER} [data-role='omp.user.tools'], ${USER} [data-role='omp.user.tools'] * { color: var(--accent-ink, #000) !important; opacity: .75; }
       ${REPLY} { width: fit-content; max-width: 82%; margin-right: auto; background: var(--l1); border-radius: ${RADIUS.card}px ${RADIUS.card}px ${RADIUS.card}px ${RADIUS.chip}px; padding: 10px 14px; }
       ${REPLY} .sf-card { border-radius: ${RADIUS.block}px !important; }
     `)

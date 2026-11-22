@@ -88,7 +88,7 @@
   // A bar with a 4 px rounded data end, anchored square on the baseline.
   const vbar = (x, y, w, hgt) => { const r = Math.min(4, w / 2, hgt); return `M${x},${y + hgt}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + hgt}Z` }
   const hbar = (x, y, w, hgt) => { const r = Math.min(4, hgt / 2, w); return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + hgt - r}Q${x + w},${y + hgt} ${x + w - r},${y + hgt}H${x}Z` }
-  const ticks = max => { const step = Math.pow(10, Math.floor(Math.log10(max || 1))); const m = max / step; const s = (m > 5 ? 2 : m > 2 ? 1 : 0.5) * step; const out = []; for (let v = 0; v <= max + 1e-9; v += s) out.push(v); return out }
+  const ticks = max => { const step = Math.pow(10, Math.floor(Math.log10(max || 1))); const m = max / step; const s = (m > 5 ? 2 : m > 2 ? 1 : 0.5) * step; const out = [0]; while (out[out.length - 1] < max - 1e-9) out.push(+(out[out.length - 1] + s).toFixed(6)); return out }
 
   /** Vertical single-series bars: rows of {label, value, tip}. */
   function columns(host, rows, unit, labelEvery) {
