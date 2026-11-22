@@ -9,6 +9,8 @@ on:
     paths:
       - 'frontend/**'
       - '!frontend/dist/**'
+      - '.github/workflows/bundle.yml'
+      - 'scripts/bundle_provenance.py'
   workflow_dispatch:
 
 permissions:
