@@ -310,7 +310,11 @@ export class Templates {
 
   async #analytics(now: number): Promise<AnalyticsData> {
     const cwd = this.#host.cwd() ?? ''
-    const commits = cwd ? await (this.#host.commits ?? gitCommits)(cwd).catch(() => []) : []
+    const commits = cwd ? await (this.#host.commits ?? gitCommits)(cwd).catch((error: unknown) => {
+      const reason = error instanceof Error && 'killed' in error && error.killed === true ? 'timed out' : 'failed'
+      process.stderr.write(`Glide analytics: git history lookup ${reason}\n`)
+      return []
+    }) : []
     return analyticsData(this.#host.entries(), now, cwd, commits)
   }
 }

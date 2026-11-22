@@ -46,7 +46,7 @@ function cardNode(card) {
     card.rows ? el('dl', { class: 'rows' }, card.rows.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v)))) : null,
     card.bars ? el('div', { class: 'bars', role: 'img', 'aria-label': card.bars.map(b => `${b.label}: ${b.value}`).join(', ') },
       card.bars.map(b => el('div', { class: 'bar-col' },
-        el('span', { class: 'bar-fill', style: `--v:${b.value / Math.max(...card.bars.map(bar => bar.value))}` }),
+        el('span', { class: 'bar-fill', style: `--v:${b.value / Math.max(...card.bars.map(sample => sample.value))}` }),
         el('span', { class: 'bar-label' }, b.label)))) : null,
     card.quotes ? el('ul', { class: 'quotes' }, card.quotes.map(q => el('li', {}, el('q', {}, q.text), el('span', { class: 'meta' }, q.meta)))) : null,
     card.actions.length ? el('div', { class: 'actions' }, card.actions.map(a =>

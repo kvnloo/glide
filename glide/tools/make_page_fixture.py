@@ -58,6 +58,11 @@ f 4 1 5
 """
 
 
+SAMPLE_RATE_HZ = 8000
+CONCERT_A_HZ = 440
+AMPLITUDE = 2500
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("destination", type=Path)
@@ -67,13 +72,10 @@ def main():
     page.write_text(HTML, encoding="utf-8")
     (folder / "media/pyramid.obj").write_text(OBJ, encoding="utf-8")
     with wave.open(str(folder / "media/tone.wav"), "wb") as tone:
-        sample_rate_hz = 8000
-        concert_a_hz = 440
-        amplitude = 2500
-        tone.setparams((1, 2, sample_rate_hz, 0, "NONE", "not compressed"))
+        tone.setparams((1, 2, SAMPLE_RATE_HZ, 0, "NONE", "not compressed"))
         tone.writeframes(b"".join(
-            struct.pack("<h", round(amplitude * math.sin(2 * math.pi * concert_a_hz * i / sample_rate_hz) * (1 - i / sample_rate_hz)))
-            for i in range(sample_rate_hz)
+            struct.pack("<h", round(AMPLITUDE * math.sin(2 * math.pi * CONCERT_A_HZ * i / SAMPLE_RATE_HZ) * (1 - i / SAMPLE_RATE_HZ)))
+            for i in range(SAMPLE_RATE_HZ)
         ))
     print(json.dumps({"id": "gold-scene", "title": "Gold scene", "path": str(page),
                       "how": "over", "assets": ["media/pyramid.obj", "media/tone.wav"]}))

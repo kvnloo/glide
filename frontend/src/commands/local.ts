@@ -110,6 +110,8 @@ export interface LocalCommand {
   run(host: CommandHost, arg: string, literal?: boolean): boolean | void | Promise<boolean | void>
 }
 
+const TEMPLATE_USAGE = 'Usage: /template [mono|studio|default] or /template panel [analytics|whiteboard]'
+
 const COMMANDS: readonly LocalCommand[] = [
   {
     // Dictation into the composer, distinct from /live conversation mode.
@@ -488,10 +490,6 @@ const COMMANDS: readonly LocalCommand[] = [
  * this frontend neither offers nor resolves them, and answers one typed whole with why.
  */
 export { HIDDEN_COMMANDS } from './refused.js'
-
-const TEMPLATE_USAGE = 'Usage: /template [mono|studio|default] or /template panel [analytics|whiteboard]'
-
-/** `/template [id]` applies a whole-app template live; `/template panel <name>` opens one panel beside the chat. */
 
 /** `/copy [n]`: the last (or `n`th) answer to the clipboard. */
 function copyAnswer(host: CommandHost, arg: string) {
