@@ -12,7 +12,7 @@ import { ternBody } from '../../frontend/src/eui/ternCss.js'
 import type { Overlay } from '../../frontend/src/overlays/overlay.js'
 import { parseLaneStatus } from '../../frontend/src/voice/lanes.js'
 import type { CouncilHost } from '../frontend/councilPopup.js'
-import { fileBindings, openLanesPopup } from '../frontend/lanesPopup.js'
+import { openLanesPopup } from '../frontend/lanesPopup.js'
 
 const outPng = resolve(process.argv[2] ?? 'lanes-popup.png')
 const work = mkdtempSync(join(tmpdir(), 'lanes-shots-'))
@@ -28,8 +28,6 @@ const call = parseLaneStatus({
     { role: 'council', model: 'sample-council', resolved: null, state: 'dead', researching: null, error: 'provider timed out after 30s', entry: null }
   ]
 })
-const bindings = fileBindings(join(work, 'bindings.json'))
-bindings.set('large', 'sample-large-plus')
 
 interface Node { k?: string; p?: Record<string, unknown>; c?: Node[]; type?: string; props?: Record<string, unknown> & { children?: Node | Node[] } }
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -46,8 +44,7 @@ const host: CouncilHost = {
     style: css => { const key = `s${rules.size + 1}`; rules.set(key, `[data-eui-s='${key}']{${ternBody(css.replace(/[{}<]/g, ''))}}`); return key }
   }
 }
-process.env['GLIDE_LANE_MODELS'] = 'sample-large-plus'
-openLanesPopup(host, { call, error: '' }, bindings)
+openLanesPopup(host, { call, error: '' })
 if (!overlay) throw new Error('the popup did not open')
 const tree = JSON.parse(JSON.stringify(overlay.node('layer.overlay-1'))) as Node
 const draw = (n: Node): string => {

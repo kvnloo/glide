@@ -32,7 +32,7 @@ import { demoRun, schedule } from '../frontend/council.js'
 import { type CouncilHost, openCouncilPopup } from '../frontend/councilPopup.js'
 import { restTint } from '../frontend/glass.js'
 import { INTENT_KINDS } from '../frontend/intentCards.js'
-import { fileBindings, openLanesPopup } from '../frontend/lanesPopup.js'
+import { openLanesPopup } from '../frontend/lanesPopup.js'
 import { COUNCIL_HUE, DASH, GOLD, MONO, NIGHT, RADIUS, SERIF, STATUS, TRACK, TYPE } from '../frontend/tokens.js'
 import type { WalPalette } from '../frontend/wal.js'
 
@@ -128,9 +128,7 @@ function lanesPopup(): string {
       { role: 'council', model: 'socratic-council', resolved: null, state: 'dead', researching: null, error: 'provider timed out after 30s', entry: null }
     ]
   })
-  const bindings = fileBindings(join(work, 'bindings.json'))
-  bindings.set('large', 'slow')
-  return popup(host => openLanesPopup(host, { call, error: '' }, bindings))
+  return popup(host => openLanesPopup(host, { call, error: '' }))
 }
 
 // ---- the token sections
