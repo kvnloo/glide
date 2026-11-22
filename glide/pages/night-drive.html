@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Drive</title>
+<!--
+  Night Drive: a music player page that ships with Glide (GL-063). Open it with `/glide ui open night-drive`.
+
+  Audio: every track is an original composition synthesized by this file's own JavaScript, sample by sample
+  (oscillators, seeded noise, filters, delay), into an AudioBuffer that WebAudio plays through an AnalyserNode.
+  No recordings, samples or downloads. Dedicated to the public domain (CC0 1.0).
+
+  Theme: the Glide pane sets the --glide-* CSS variables and sends the `glide-theme` window event on every
+  restyle (kvnloo/glide#326); the canvas repaints in those colors.
+-->
+<style>
+  :root {
+    --bg: var(--glide-bg, #0e0c14); --surface: var(--glide-surface, #17141f); --fg: var(--glide-fg, #ece8f4);
+    --muted: var(--glide-muted, #9a93ab); --accent: var(--glide-accent, #ff5fa2); --ink: var(--glide-accent-ink, #111111);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 14px/1.4 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { display: grid; grid-template-rows: minmax(180px, 1fr) auto; height: 100%; }
+  .stage { position: relative; overflow: hidden; }
+  #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .now { position: absolute; left: 24px; top: 20px; pointer-events: none; }
+  .kicker { font: 600 11px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 8px 0 2px; font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -.01em; }
+  #mood { color: var(--muted); font-size: 13px; }
+  .deck { margin: 0 14px 14px; padding: 14px 18px 12px; border-radius: 18px; background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+  .seek { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 10px;
+    font: 12px/1 ui-monospace, "SF Mono", Menlo, monospace; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .seek span:last-child { text-align: right; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 10px; position: relative; }
+  button { font: inherit; color: var(--fg); background: none; border: 0; cursor: pointer; border-radius: 999px;
+    display: inline-grid; place-items: center; width: 40px; height: 40px; }
+  button:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button svg { width: 20px; height: 20px; fill: currentColor; }
+  #play { width: 54px; height: 54px; background: var(--accent); color: var(--ink); position: relative; }
+  #play:hover { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
+  #play[data-busy]::after { content: attr(data-busy); position: absolute; top: 100%; margin-top: 4px; font-size: 11px;
+    color: var(--muted); white-space: nowrap; }
+  .vol { position: absolute; right: 0; display: flex; align-items: center; gap: 8px; width: 132px; color: var(--muted); font-size: 12px; }
+  ol { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 4px; }
+  li button { width: 100%; height: auto; padding: 8px 10px; border-radius: 10px; display: grid; grid-template-columns: 1fr auto;
+    text-align: left; gap: 2px 8px; }
+  li button small { grid-column: 1; color: var(--muted); font-size: 11px; }
+  li button .len { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--muted); font: 12px ui-monospace, Menlo, monospace; }
+  li button[aria-current=true] { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  li button[aria-current=true] b { color: var(--accent); }
+  .note { margin: 8px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
+  @media (max-width: 520px) { .vol { display: none; } h1 { font-size: 24px; } .deck { margin: 0 8px 8px; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="stage">
+    <canvas id="scene" role="img" aria-label="Live spectrum of the playing track"></canvas>
+    <div class="now">
+      <div class="kicker">Glide · Night Drive</div>
+      <h1 id="title">Night Drive</h1>
+      <div id="mood"></div>
+    </div>
+  </section>
+  <section class="deck">
+    <div class="seek">
+      <span id="elapsed">0:00</span>
+      <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek">
+      <span id="duration">0:00</span>
+    </div>
+    <div class="controls">
+      <button id="prev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button id="play" aria-label="Play"><svg viewBox="0 0 24 24"><path id="play-icon" d="M8 5v14l11-7z"/></svg></button>
+      <button id="next" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <label class="vol"><span>Vol</span><input id="volume" type="range" min="0" max="100" value="80" aria-label="Volume"></label>
+    </div>
+    <ol id="tracks"></ol>
+    <p class="note">Synthesized live in this page. Space plays or pauses, ← → seek, N next.</p>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict'
+
+  // ---- Music: original tracks, synthesized into PCM ------------------------------------------------------
+  const SR = 44100
+  const M = Math   // one global lookup; these run millions of times per track
+  const MINOR = [0, 2, 3, 5, 7, 8, 10]
+  // Chords are [semitones above the key, 'm' | 'M']; a section is [bars, parts].
+  const FORM = [[4, 'pad hat arp'], [8, 'pad kick snare hat bass arp'], [8, 'pad kick snare hat hat16 bass arp lead'], [4, 'pad arp tail']]
+  const TRACKS = [
+    { title: 'Night Drive', mood: 'A minor · 96 BPM', bpm: 96, key: 57, chords: [[0, 'm'], [8, 'M'], [3, 'M'], [10, 'M']], seed: 7 },
+    { title: 'Neon Overpass', mood: 'F♯ minor · 108 BPM', bpm: 108, key: 54, chords: [[0, 'm'], [5, 'm'], [8, 'M'], [7, 'M']], seed: 23 },
+    { title: 'Last Exit', mood: 'D minor · 84 BPM', bpm: 84, key: 50, chords: [[0, 'm'], [8, 'M'], [5, 'm'], [7, 'M']], seed: 41 }
+  ]
+  const BARS = FORM.reduce((n, [b]) => n + b, 0)
+  const mtof = m => 440 * M.pow(2, (m - 69) / 12)
+  const durationOf = t => BARS * 4 * 60 / t.bpm
+  function rng(seed) {
+    let a = seed >>> 0
+    return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = M.imul(t ^ (t >>> 15), t | 1); t ^= t + M.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+  }
+  const lpCoef = fc => 1 - M.exp(-2 * M.PI * fc / SR)
+
+  /** Every note of a track: {part, t (s), d (s), m (midi), v (velocity)}. */
+  function score(track) {
+    const rnd = rng(track.seed)
+    const beat = 60 / track.bpm, bar = beat * 4
+    const notes = []
+    const partsAt = []
+    for (const [n, parts] of FORM) for (let i = 0; i < n; i++) partsAt.push(new Set(parts.split(' ')))
+    // A two-bar lead phrase, varied on its repeat: 8th-note rhythm, a walk on the scale snapped to chord tones.
+    const rhythms = [[1, 0, 1, 1, 0, 1, 0, 0], [1, 0, 0, 1, 0, 1, 1, 0], [1, 1, 0, 1, 0, 0, 1, 0], [1, 0, 1, 0, 1, 1, 0, 1]]
+    const phrase = []
+    let degree = 4
+    for (let b = 0; b < 2; b++) {
+      const r = rhythms[M.floor(rnd() * rhythms.length)]
+      for (let s = 0; s < 8; s++) if (r[s]) { degree = M.max(0, M.min(9, degree + M.round((rnd() - 0.5) * 4))); phrase.push({ b, s, degree }) }
+    }
+    for (let i = 0; i < BARS; i++) {
+      const parts = partsAt[i], t0 = i * bar
+      const [off, q] = track.chords[i % track.chords.length]
+      const root = track.key + off
+      const third = q === 'm' ? 3 : 4
+      const tones = [0, third, 7]
+      const last = i === BARS - 1
+      if (parts.has('pad')) for (const iv of [0, third, 7, 12]) notes.push({ part: 'pad', t: t0, d: bar * (last ? 1.6 : 1), m: root + iv - (iv === 12 ? 0 : 0), v: iv === 12 ? 0.6 : 1 })
+      const bassRoot = 33 + ((root - 33) % 12 + 12) % 12
+      if (parts.has('bass')) for (let s = 0; s < 8; s++) notes.push({ part: 'bass', t: t0 + s * beat / 2, d: beat / 2 * 0.86, m: bassRoot + (s % 2 ? 12 : 0), v: s % 2 ? 0.8 : 1 })
+      if (parts.has('tail')) notes.push({ part: 'bass', t: t0, d: bar * 0.95, m: bassRoot, v: 0.7 })
+      if (parts.has('kick')) for (let s = 0; s < 4; s++) notes.push({ part: 'kick', t: t0 + s * beat, d: 0.5, m: 0, v: 1 })
+      if (parts.has('snare')) for (const s of [1, 3]) notes.push({ part: 'snare', t: t0 + s * beat, d: 0.4, m: 0, v: 1 })
+      if (parts.has('hat')) for (let s = 0; s < 8; s++) if (s % 2 || parts.has('hat16')) notes.push({ part: 'hat', t: t0 + s * beat / 2, d: s === 7 ? 0.2 : 0.06, m: 0, v: s % 2 ? 0.9 : 0.45 })
+      if (parts.has('hat16')) for (let s = 0; s < 16; s += 2) notes.push({ part: 'hat', t: t0 + (s + 1) * beat / 4, d: 0.04, m: 0, v: 0.3 })
+      if (parts.has('arp')) {
+        const up = [0, 1, 2, 3, 2, 1]
+        const quiet = parts.has('kick') ? 1 : 0.6
+        for (let s = 0; s < 16; s++) {
+          const k = up[s % up.length]
+          notes.push({ part: 'arp', t: t0 + s * beat / 4, d: beat / 4 * 0.9, m: root + 12 + (k === 3 ? 12 : tones[k]), v: quiet * (s % 4 ? 0.7 : 1) })
+        }
+      }
+      if (parts.has('lead')) {
+        const half = i % 2
+        for (const p of phrase) if (p.b === half) {
+          let m = track.key + 12 + MINOR[p.degree % 7] + 12 * M.floor(p.degree / 7)
+          // On the bar's downbeat the melody lands on a chord tone.
+          if (p.s === 0) { const pcs = tones.map(t => (root + t) % 12); while (!pcs.includes(((m % 12) + 12) % 12)) m-- }
+          const nextS = phrase.find(q => q.b === p.b && q.s > p.s)?.s ?? 8
+          const varied = (i % 4 === 3 && p.s >= 5) ? 2 : 0
+          notes.push({ part: 'lead', t: t0 + p.s * beat / 2, d: (nextS - p.s) * beat / 2 * 0.92, m: m + varied, v: 1 })
+        }
+      }
+    }
+    return { notes, beat, bar, partsAt }
+  }
+
+  /** Renders a track to stereo PCM. Yields to the page between notes so the UI stays live; `progress` gets 0-1. */
+  async function render(track, progress = () => {}) {
+    const { notes, beat, bar, partsAt } = score(track)
+    const total = M.ceil((durationOf(track) + 2.5) * SR)
+    const L = new Float32Array(total), R = new Float32Array(total)
+    const fxL = new Float32Array(total), fxR = new Float32Array(total)
+    const noise = rng(track.seed * 31 + 5)
+    // Sidechain: the pad ducks under each kick (the pump), from a one-beat table.
+    const beatN = beat * SR, barN = bar * SR
+    const pump = new Float32Array(M.ceil(beatN) + 1).map((_, i) => 1 - 0.5 * M.exp(-i / SR / 0.12))
+    const kickBar = Uint8Array.from(partsAt, p => (p.has('kick') ? 1 : 0))
+    const duckAt = n => (kickBar[(n / barN) | 0] ? pump[(n % beatN) | 0] : 1)
+    let slice = performance.now()
+    for (let k = 0; k < notes.length; k++) {
+      const nt = notes[k]
+      const n0 = M.floor(nt.t * SR)
+      const f = mtof(nt.m)
+      if (nt.part === 'pad') {
+        const att = 0.7 * SR, rel = 1.1 * SR, hold = nt.d * SR, len = M.min(total - n0, M.floor(hold + rel))
+        const d1 = f * M.pow(2, -0.08 / 12) / SR, d2 = f * M.pow(2, 0.08 / 12) / SR, d3 = f / 2 / SR
+        let p1 = noise(), p2 = noise(), p3 = noise(), a1 = 0, a2 = 0, b1 = 0, b2 = 0, fc = 0
+        const amp = 0.055 * nt.v
+        for (let i = 0; i < len; i++) {
+          const env = i < att ? i / att : i < hold ? 1 : 1 - (i - hold) / rel
+          if ((i & 31) === 0) fc = lpCoef(900 + 600 * M.sin((n0 + i) / SR * 0.7))
+          p1 += d1; p2 += d2; p3 += d3; p1 -= p1 | 0; p2 -= p2 | 0; p3 -= p3 | 0
+          const s3 = (p3 < 0.5 ? 4 * p3 - 1 : 3 - 4 * p3) * 0.5
+          a1 += fc * ((2 * p1 - 1 + s3) - a1); a2 += fc * (a1 - a2)
+          b1 += fc * ((2 * p2 - 1 + s3) - b1); b2 += fc * (b1 - b2)
+          const g = env * amp * duckAt(n0 + i)
+          L[n0 + i] += a2 * g; R[n0 + i] += b2 * g
+        }
+      } else if (nt.part === 'bass') {
+        const len = M.min(total - n0, M.floor((nt.d + 0.05) * SR)), hold = nt.d * SR
+        let p = 0, a = 0, b = 0, fc = 0
+        const d = f / SR, amp = 0.32 * nt.v
+        for (let i = 0; i < len; i++) {
+          const t = i / SR
+          const env = (i < 60 ? i / 60 : 1) * (i < hold ? 1 : M.max(0, 1 - (i - hold) / (0.05 * SR))) * (0.75 + 0.25 * M.exp(-t / 0.2))
+          if ((i & 15) === 0) fc = lpCoef(260 + 1500 * M.exp(-t / 0.07))
+          p += d; p -= p | 0
+          const s = (2 * p - 1) * 0.7 + (p < 0.5 ? 0.45 : -0.45)
+          a += fc * (s - a); b += fc * (a - b)
+          const y = b * env * amp
+          L[n0 + i] += y; R[n0 + i] += y
+        }
+      } else if (nt.part === 'arp') {
+        const len = M.min(total - n0, M.floor(0.32 * SR))
+        let p = 0, a = 0
+        const d = f / SR, amp = 0.05 * nt.v, pan = (k % 2) ? 0.7 : 0.3, fc = lpCoef(partsAt[M.floor(nt.t / bar)]?.has('kick') ? 3200 : 1400)
+        for (let i = 0; i < len; i++) {
+          const env = (i < 40 ? i / 40 : 1) * M.exp(-i / SR / 0.09)
+          p += d; p -= p | 0
+          a += fc * ((p < 0.25 ? 1 : -0.33) - a)
+          const y = a * env * amp
+          L[n0 + i] += y * (1 - pan) * 1.2; R[n0 + i] += y * pan * 1.2
+          fxL[n0 + i] += y * 0.7; fxR[n0 + i] += y * 0.7
+        }
+      } else if (nt.part === 'lead') {
+        const hold = nt.d * SR, len = M.min(total - n0, M.floor(hold + 0.25 * SR))
+        let p = 0, a = 0, b = 0
+        const amp = 0.11 * nt.v, fc = lpCoef(2400)
+        for (let i = 0; i < len; i++) {
+          const t = i / SR
+          const env = (i < 0.015 * SR ? i / (0.015 * SR) : 1) * (i < hold ? 1 - 0.25 * M.min(1, t / 0.6) : 0.75 * M.exp(-(i - hold) / SR / 0.08))
+          const vib = 1 + 0.004 * M.sin(2 * M.PI * 5.5 * t) * M.min(1, t / 0.25)
+          p += f * vib / SR; p -= p | 0
+          const s = (2 * p - 1) * 0.6 + M.sin(2 * M.PI * p) * 0.6
+          a += fc * (s - a); b += fc * (a - b)
+          const y = b * env * amp
+          L[n0 + i] += y; R[n0 + i] += y
+          fxL[n0 + i] += y * 0.55; fxR[n0 + i] += y * 0.55
+        }
+      } else if (nt.part === 'kick') {
+        const len = M.min(total - n0, M.floor(0.45 * SR))
+        let ph = 0
+        for (let i = 0; i < len; i++) {
+          const t = i / SR
+          ph += (46 + 110 * M.exp(-t / 0.035)) / SR
+          const y = M.sin(2 * M.PI * ph) * M.exp(-t / 0.28) * 0.62 + (i < 90 ? (noise() - 0.5) * 0.25 * (1 - i / 90) : 0)
+          L[n0 + i] += y; R[n0 + i] += y
+        }
+      } else if (nt.part === 'snare') {
+        const len = M.min(total - n0, M.floor(0.35 * SR))
+        let prev = 0, hp = 0
+        for (let i = 0; i < len; i++) {
+          const t = i / SR, w = noise() * 2 - 1
+          hp = 0.85 * (hp + w - prev); prev = w
+          const y = hp * M.exp(-t / 0.11) * 0.2 + M.sin(2 * M.PI * 185 * t) * M.exp(-t / 0.06) * 0.22
+          L[n0 + i] += y; R[n0 + i] += y
+          fxL[n0 + i] += y * 0.35; fxR[n0 + i] += y * 0.35
+        }
+      } else if (nt.part === 'hat') {
+        const len = M.min(total - n0, M.floor((nt.d * 3 + 0.02) * SR))
+        let prev = 0, hp = 0
+        const pan = 0.5 + ((k * 7) % 5 - 2) * 0.08
+        for (let i = 0; i < len; i++) {
+          const w = noise() * 2 - 1
+          hp = 0.55 * (hp + w - prev); prev = w
+          const y = hp * M.exp(-i / SR / nt.d) * 0.075 * nt.v
+          L[n0 + i] += y * (1 - pan) * 2; R[n0 + i] += y * pan * 2
+        }
+      }
+      if (performance.now() - slice > 24) { progress(k / notes.length * 0.9); await new Promise(r => setTimeout(r, 0)); slice = performance.now() }
+    }
+    // Ping-pong delay (a dotted eighth) on the sends, then a soft clip, a fade-out and a normalize.
+    const dl = M.floor(beat * 0.75 * SR), fb = 0.38, wet = 0.5
+    for (let i = dl; i < total; i++) {
+      fxL[i] += fxR[i - dl] * fb
+      fxR[i] += fxL[i - dl] * fb
+    }
+    let peak = 0
+    const fadeFrom = (durationOf(track) - bar) * SR
+    for (let i = 0; i < total; i++) {
+      const dly = i >= dl ? wet : 0
+      let l = L[i] + (i >= dl ? fxR[i - dl] : 0) * dly, r = R[i] + (i >= dl ? fxL[i - dl] : 0) * dly
+      l = M.tanh(l * 1.3); r = M.tanh(r * 1.3)
+      if (i > fadeFrom) { const g = M.max(0, 1 - (i - fadeFrom) / (total - fadeFrom)); l *= g; r *= g }
+      L[i] = l; R[i] = r
+      const a = M.abs(l) > M.abs(r) ? M.abs(l) : M.abs(r)
+      if (a > peak) peak = a
+    }
+    const norm = peak > 0 ? 0.89 / peak : 1
+    for (let i = 0; i < total; i++) { L[i] *= norm; R[i] *= norm }
+    progress(1)
+    return { L, R, length: total, duration: total / SR }
+  }
+
+  // ---- Theme: the Glide pane's colors -------------------------------------------------------------------
+  const DEFAULT = { dark: true, bg: '#0e0c14', surface: '#17141f', fg: '#ece8f4', muted: '#9a93ab', accent: '#ff5fa2', accentInk: '#111111' }
+  const cssVar = name => {
+    try { return (window.getComputedStyle?.(document.documentElement).getPropertyValue(name) || '').trim() } catch { return '' }
+  }
+  const readTheme = () => window.__glideTheme || {
+    dark: document.documentElement.dataset.glideTheme !== 'light',
+    bg: cssVar('--glide-bg') || DEFAULT.bg, surface: cssVar('--glide-surface') || DEFAULT.surface,
+    fg: cssVar('--glide-fg') || DEFAULT.fg, muted: cssVar('--glide-muted') || DEFAULT.muted,
+    accent: cssVar('--glide-accent') || DEFAULT.accent, accentInk: cssVar('--glide-accent-ink') || DEFAULT.accentInk
+  }
+  let theme = readTheme()
+  window.addEventListener('glide-theme', e => { theme = { ...DEFAULT, ...(e.detail || {}) }; draw() })
+  const rgba = (hex, a) => {
+    const n = parseInt(String(hex).replace('#', '').slice(0, 6), 16)
+    return Number.isFinite(n) ? `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})` : `rgba(255,95,162,${a})`
+  }
+
+  // ---- Player -------------------------------------------------------------------------------------------
+  const $ = id => document.getElementById(id)
+  const ui = { title: $('title'), mood: $('mood'), elapsed: $('elapsed'), duration: $('duration'), seek: $('seek'), play: $('play'),
+    icon: $('play-icon'), prev: $('prev'), next: $('next'), volume: $('volume'), tracks: $('tracks'), canvas: $('scene') }
+  const clock = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
+  const pcm = new Map()     // track index → Promise of rendered PCM
+  const BANDS = 48
+  const levels = new Float32Array(BANDS), peaks = new Float32Array(BANDS)
+  const reduced = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  let ctx, gain, analyser, source, bins
+  let state = 'idle'        // idle | rendering | playing | paused | error
+  let index = 0, offset = 0, startedAt = 0, scrubbing = false, wanted = 0
+
+  const pcmOf = i => {
+    if (!pcm.has(i)) pcm.set(i, render(TRACKS[i], p => { if (i === index && state === 'rendering') ui.play.dataset.busy = `rendering ${Math.round(p * 100)}%` }))
+    return pcm.get(i)
+  }
+  const position = () => state === 'playing' && ctx ? offset + (ctx.currentTime - startedAt) : offset
+
+  function audio() {
+    if (ctx) return ctx
+    const AC = window.AudioContext || window.webkitAudioContext
+    if (!AC) throw new Error('This page needs WebAudio.')
+    ctx = new AC()
+    gain = ctx.createGain()
+    gain.gain.value = Number(ui.volume.value) / 100
+    analyser = ctx.createAnalyser()
+    analyser.fftSize = 2048
+    analyser.smoothingTimeConstant = 0.72
+    analyser.minDecibels = -96
+    analyser.maxDecibels = -14
+    bins = new Uint8Array(analyser.frequencyBinCount)
+    gain.connect(analyser)
+    analyser.connect(ctx.destination)
+    return ctx
+  }
+
+  function stopSource() {
+    if (!source) return
+    source.onended = null
+    try { source.stop() } catch { /* never started */ }
+    source.disconnect()
+    source = undefined
+  }
+
+  async function play(at) {
+    const ask = ++wanted
+    try {
+      audio()
+      // The target counts from now, so a second seek before this one sounds moves on from it.
+      offset = Math.max(0, Math.min(at ?? position(), durationOf(TRACKS[index]) - 0.05))
+      startedAt = ctx.currentTime
+      if (ctx.state === 'suspended') await ctx.resume()
+      if (state !== 'playing') state = 'rendering'
+      paint()
+      const data = await pcmOf(index)
+      if (ask !== wanted) return
+      if (!data.buffer) {
+        data.buffer = ctx.createBuffer(2, data.length, SR)
+        data.buffer.copyToChannel ? (data.buffer.copyToChannel(data.L, 0), data.buffer.copyToChannel(data.R, 1))
+          : (data.buffer.getChannelData(0).set(data.L), data.buffer.getChannelData(1).set(data.R))
+      }
+      if (state === 'playing') offset = Math.min(position(), durationOf(TRACKS[index]) - 0.05)
+      stopSource()
+      source = ctx.createBufferSource()
+      source.buffer = data.buffer
+      source.connect(gain)
+      startedAt = ctx.currentTime
+      source.start(0, offset)
+      state = 'playing'
+      delete ui.play.dataset.busy
+      // The next track renders while this one plays, so skipping is instant.
+      setTimeout(() => void pcmOf((index + 1) % TRACKS.length), 1500)
+    } catch (error) {
+      state = 'error'
+      ui.mood.textContent = error instanceof Error ? error.message : String(error)
+    }
+    paint()
+  }
+
+  function pause() {
+    if (state !== 'playing' && state !== 'rendering') return
+    wanted++
+    offset = position()
+    stopSource()
+    state = 'paused'
+    delete ui.play.dataset.busy
+    paint()
+  }
+
+  function select(i, autoplay = state === 'playing' || state === 'rendering') {
+    pause()
+    index = (i + TRACKS.length) % TRACKS.length
+    offset = 0
+    state = autoplay ? state : 'idle'
+    paint()
+    if (autoplay) void play(0)
+  }
+  const seek = s => { if (state === 'playing') void play(s); else { offset = Math.max(0, Math.min(s, durationOf(TRACKS[index]))); paint() } }
+  const toggle = () => (state === 'playing' || state === 'rendering' ? pause() : void play())
+
+  // ---- Interface ----------------------------------------------------------------------------------------
+  TRACKS.forEach((t, i) => {
+    const li = document.createElement('li')
+    const b = document.createElement('button')
+    b.innerHTML = `<b></b><small></small><span class="len"></span>`
+    b.querySelector('b').textContent = t.title
+    b.querySelector('small').textContent = t.mood
+    b.querySelector('.len').textContent = clock(durationOf(t))
+    b.addEventListener('click', () => select(i, true))
+    li.appendChild(b)
+    ui.tracks.appendChild(li)
+  })
+  ui.play.addEventListener('click', toggle)
+  ui.prev.addEventListener('click', () => (position() > 3 ? seek(0) : select(index - 1)))
+  ui.next.addEventListener('click', () => select(index + 1))
+  ui.volume.addEventListener('input', () => { if (gain) gain.gain.value = Number(ui.volume.value) / 100 })
+  ui.seek.addEventListener('pointerdown', () => { scrubbing = true })
+  ui.seek.addEventListener('input', () => { scrubbing = true; ui.elapsed.textContent = clock(Number(ui.seek.value) / 1000 * durationOf(TRACKS[index])) })
+  ui.seek.addEventListener('change', () => { scrubbing = false; seek(Number(ui.seek.value) / 1000 * durationOf(TRACKS[index])) })
+  window.addEventListener('keydown', e => {
+    if (e.target && e.target.tagName === 'INPUT' && e.key !== ' ') return
+    if (e.key === ' ') { e.preventDefault?.(); toggle() }
+    else if (e.key === 'ArrowRight') seek(position() + 5)
+    else if (e.key === 'ArrowLeft') seek(position() - 5)
+    else if (e.key === 'n' || e.key === 'N') select(index + 1)
+  })
+
+  function paint() {
+    const t = TRACKS[index]
+    ui.title.textContent = t.title
+    if (state !== 'error') ui.mood.textContent = t.mood
+    ui.duration.textContent = clock(durationOf(t))
+    const playing = state === 'playing' || state === 'rendering'
+    ui.play.setAttribute('aria-label', playing ? 'Pause' : 'Play')
+    ui.icon.setAttribute('d', playing ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z')
+    ;[...ui.tracks.querySelectorAll('button')].forEach((b, i) => b.setAttribute('aria-current', String(i === index)))
+    document.title = playing ? `▶ ${t.title} · Night Drive` : 'Night Drive'
+  }
+
+  // ---- Scene: sun, road grid and the live spectrum ------------------------------------------------------
+  const g = ui.canvas.getContext ? ui.canvas.getContext('2d') : null
+  let cw = 0, ch = 0, dpr = 1
+  function fit() {
+    const r = ui.canvas.getBoundingClientRect()
+    dpr = Math.min(2, window.devicePixelRatio || 1)
+    cw = Math.max(1, Math.round(r.width || window.innerWidth || 800))
+    ch = Math.max(1, Math.round(r.height || (window.innerHeight || 600) * 0.6))
+    if (ui.canvas.width !== cw * dpr) ui.canvas.width = cw * dpr
+    if (ui.canvas.height !== ch * dpr) ui.canvas.height = ch * dpr
+  }
+
+  /** The spectrum as BANDS log-spaced levels in 0-1, read from the analyser; zero when nothing plays. */
+  function spectrum() {
+    if (!analyser || state !== 'playing') { levels.fill(0); return levels }
+    analyser.getByteFrequencyData(bins)
+    const hz = ctx.sampleRate / analyser.fftSize
+    for (let b = 0; b < BANDS; b++) {
+      const lo = 40 * Math.pow(14000 / 40, b / BANDS), hi = 40 * Math.pow(14000 / 40, (b + 1) / BANDS)
+      let m = 0
+      for (let k = Math.floor(lo / hz); k <= Math.min(bins.length - 1, Math.ceil(hi / hz)); k++) if (bins[k] > m) m = bins[k]
+      levels[b] = m / 255
+    }
+    return levels
+  }
+
+  let lastFrame = 0
+  function draw(now = lastFrame) {
+    lastFrame = now
+    if (!g) return
+    fit()
+    const w = cw, h = ch, horizon = h * 0.62
+    g.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const sky = g.createLinearGradient(0, 0, 0, horizon)
+    sky.addColorStop(0, theme.bg)
+    sky.addColorStop(1, rgba(theme.accent, theme.dark ? 0.22 : 0.16))
+    g.fillStyle = sky
+    g.fillRect(0, 0, w, horizon)
+    g.fillStyle = theme.bg
+    g.fillRect(0, horizon, w, h - horizon)
+    const lv = spectrum()
+    let bass = 0
+    for (let b = 0; b < 6; b++) bass += lv[b] / 6
+    // The sun, sliced, swelling with the low end.
+    const r = Math.min(w, h) * (0.24 + bass * 0.03), cx = w * 0.5, cy = horizon - r * 0.28
+    const sun = g.createLinearGradient(0, cy - r, 0, cy + r)
+    sun.addColorStop(0, theme.fg)
+    sun.addColorStop(0.55, theme.accent)
+    sun.addColorStop(1, rgba(theme.accent, 0.4))
+    g.save()
+    g.beginPath()
+    g.rect(0, 0, w, horizon)
+    g.clip()
+    g.fillStyle = sun
+    g.beginPath()
+    g.arc(cx, cy, r, 0, Math.PI * 2)
+    g.fill()
+    g.clip()
+    g.fillStyle = theme.bg
+    for (let s = 0; s < 7; s++) {
+      const y = cy - r * 0.34 + s * r * 0.095, th = 1 + s * 1.5
+      g.fillRect(cx - r, y, r * 2, th)
+    }
+    g.restore()
+    // The road: lines to the vanishing point and rows rushing in on the beat.
+    const t = TRACKS[index], pos = position()
+    const travel = reduced ? 0 : (pos * t.bpm / 60) % 1
+    g.strokeStyle = rgba(theme.accent, 0.55)
+    g.lineWidth = 1
+    g.beginPath()
+    for (let k = -12; k <= 12; k++) { g.moveTo(cx + k * 18, horizon); g.lineTo(cx + k * w * 0.16, h) }
+    for (let row = 0; row < 12; row++) {
+      const z = (row + 1 - travel) / 12
+      const y = horizon + (h - horizon) * z * z
+      g.moveTo(0, y); g.lineTo(w, y)
+    }
+    g.stroke()
+    // The spectrum, standing on the horizon with a faint reflection on the road.
+    // Tallest bars stop short of the title; a power curve keeps quiet bands low so the shape reads.
+    const gap = 4, bw = Math.max(2, (w - 32 - gap * (BANDS - 1)) / BANDS), tall = Math.max(40, horizon - 120)
+    for (let b = 0; b < BANDS; b++) {
+      const v = Math.pow(lv[b], 1.8)
+      peaks[b] = Math.max(v, peaks[b] - 0.01)
+      const bh = v * tall, x = 16 + b * (bw + gap)
+      if (bh > 0.5) {
+        g.fillStyle = rgba(theme.accent, 0.18 + v * 0.5)
+        g.fillRect(x, horizon - bh, bw, bh)
+        g.fillStyle = rgba(theme.accent, 0.1)
+        g.fillRect(x, horizon, bw, bh * 0.3)
+      }
+      if (peaks[b] > 0.02) {
+        g.fillStyle = rgba(theme.fg, 0.85)
+        g.fillRect(x, horizon - peaks[b] * tall - 3, bw, 2)
+      }
+    }
+  }
+
+  function frame(now) {
+    if (state === 'playing') {
+      const d = durationOf(TRACKS[index])
+      const p = position()
+      if (p >= d) select(index + 1, true)
+      else if (!scrubbing) { ui.elapsed.textContent = clock(p); ui.seek.value = String(Math.round(p / d * 1000)) }
+    }
+    draw(now)
+    window.requestAnimationFrame(frame)
+  }
+
+  window.addEventListener('resize', () => draw())
+  paint()
+  ui.play.dataset.busy = 'getting ready'
+  void pcmOf(0).then(() => { if (state === 'idle') delete ui.play.dataset.busy })
+  window.requestAnimationFrame(frame)
+
+  // What a test (or an agent driving the page) reads and drives.
+  window.nightDrive = {
+    tracks: TRACKS.map(t => ({ title: t.title, mood: t.mood, duration: durationOf(t) })),
+    get state() { return state }, get index() { return index }, get time() { return position() },
+    get analyser() { return analyser }, get theme() { return theme },
+    ready: i => pcmOf(i ?? index), render, spectrum: () => Array.from(levels),
+    play: at => play(at), pause, toggle, seek, select
+  }
+})()
+</script>
+</body>
+</html>

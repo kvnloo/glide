@@ -258,7 +258,8 @@ USAGE = """/glide            show this machine and your memory
 /glide hill-climb      optimize a target with KEEP/REVERT referee
 /glide offload      route tasks to local model, view savings card
 /glide focus        your attention: phase, deep-work block, wind-down, best hours
-/glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style"""
+/glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style
+/glide ui open [page]   open a page that ships with Glide (a music player, a piano); no page lists them"""
 
 
 def _rows(m: dict) -> str:

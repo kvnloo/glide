@@ -4,6 +4,7 @@ the open pane's verdict read from ui-status.json, and a mount the pane rejects t
 from __future__ import annotations
 
 import json
+import re
 import threading
 import time
 import types
@@ -158,3 +159,40 @@ def test_page_the_pane_rejects_reports_problems(tmp_path):
     finally:
         stop.set()
     assert out == {"ok": False, "page": "p", "opened": False, "problems": ["not inside a Tern pane"]}
+
+
+def test_open_lists_and_opens_a_bundled_page(tmp_path, monkeypatch):
+    home = _home(tmp_path)
+    pages = tmp_path / "pages"
+    pages.mkdir()
+    (pages / "night-drive.html").write_text("<!doctype html><title>Night Drive &amp; co</title><p>hi</p>")
+    (pages / "Bad Name.html").write_text("<title>x</title>")
+    (pages / "notes.txt").write_text("not a page")
+    monkeypatch.setattr(ui, "PAGES_DIR", pages)
+    monkeypatch.setattr(ui, "_home", lambda: home)
+    assert list(ui.bundled_pages()) == ["night-drive"]
+    assert "- night-drive: Night Drive & co" in ui.command("open")
+    assert ui.command("open nope").startswith("No bundled page 'nope'")
+    assert ui.command("open night-drive sideways").endswith("how: one of over, beside, below")
+    monkeypatch.setattr(ui, "WAIT_S", 0)
+    assert ui.open_bundled(home, "night-drive beside", wait=0).endswith("it opens when a Glide pane answers.")
+    page = ui.state(home)["pages"][0]
+    assert page | {"opened": 0} == {"id": "night-drive", "title": "Night Drive & co", "path": str((pages / "night-drive.html").resolve()),
+                                    "how": "beside", "opened": 0}
+    stop = _pane(home, lambda ids: {"widgets": {}, "pages": {"night-drive": {"ok": True, "block": 4}}})
+    try:
+        assert ui.open_bundled(home, "NIGHT-DRIVE", wait=2) == "Opened Night Drive & co."
+    finally:
+        stop.set()
+
+
+def test_the_bundled_pages_are_self_contained_and_themed():
+    """Every page Glide ships opens offline from a file:// URL and wears the pane's palette."""
+    pages = ui.bundled_pages()
+    for pid, file in pages.items():
+        text = file.read_text()
+        assert file.stat().st_size <= ui.PAGE_MAX_BYTES, pid
+        assert ui.page_title(file) != pid, f"{pid}: give the page a <title>"
+        assert not re.search(r"""(?:src|href)\s*=\s*["']?(?:https?:)?//""", text), f"{pid}: loads something over the network"
+        assert not re.search(r"\b(?:fetch|XMLHttpRequest|importScripts)\s*\(", text), f"{pid}: reaches the network"
+        assert "--glide-accent" in text and "glide-theme" in text, f"{pid}: not themed by the pane"

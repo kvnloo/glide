@@ -595,7 +595,9 @@ frontend/src/wire/gev.ts
 frontend/scripts/splash-demo.ts
 frontend/scripts/splash-preview.ts
 frontend/src/__tests__/glidePages.test.ts
+frontend/src/__tests__/glidePageHarness.ts
 frontend/src/__tests__/splash.test.ts
+frontend/src/__tests__/glidePageNightDrive.test.ts
 frontend/src/glideui/pages.ts
 frontend/src/splash/art.ts
 frontend/src/splash/launch.tsx
