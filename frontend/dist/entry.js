@@ -3428,8 +3428,8 @@ var require_webidl = __commonJS({
       return new TypeError(`${message.header}: ${message.message}`);
     };
     webidl.errors.conversionFailed = function(context) {
-      const plural5 = context.types.length === 1 ? "" : " one of";
-      const message = `${context.argument} could not be converted to${plural5}: ${context.types.join(", ")}.`;
+      const plural6 = context.types.length === 1 ? "" : " one of";
+      const message = `${context.argument} could not be converted to${plural6}: ${context.types.join(", ")}.`;
       return webidl.errors.exception({
         header: context.prefix,
         message
@@ -10991,9 +10991,9 @@ var require_pluralizer = __commonJS({
       this: "these"
     };
     module.exports = class Pluralizer {
-      constructor(singular, plural5) {
+      constructor(singular, plural6) {
         this.singular = singular;
-        this.plural = plural5;
+        this.plural = plural6;
       }
       pluralize(count6) {
         const one7 = count6 === 1;
@@ -24109,10 +24109,10 @@ var ORB_WAIT_RIM = { dark: DASH.gold, light: "#8a6a2f" };
 var ORB_ERROR_INK = { dark: "#ee888b", light: "#b3383c" };
 var SOURCE = 64;
 var STILL = 0.6;
-function orbSvg(state, seconds, dark) {
+function orbSvg(state, seconds2, dark) {
   const preset = Lt(LIBRARY_STATE[state], SOURCE);
   const animated = state !== "idle" && state !== "waiting" && state !== "error";
-  const frame2 = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE, animated ? seconds2 * preset.speed : STILL, preset.opts);
   const grey = (white) => {
     const ink3 = Math.min(1, Math.max(0, white));
     const level = Math.round((dark ? 1 - ink3 : ink3) * 255);
@@ -24298,7 +24298,7 @@ function orbitScene(lanes2) {
   const { w, h: h2 } = orbitUnits(lanes2);
   return { w: Math.round(w * ORBIT_SCALE), h: Math.round(h2 * ORBIT_SCALE) };
 }
-function orbitLayout(lanes2, seconds, reduce = false) {
+function orbitLayout(lanes2, seconds2, reduce = false) {
   const { w, h: h2 } = orbitUnits(lanes2);
   const moving = /* @__PURE__ */ new Map();
   for (const l of lanes2) if (l.state !== "dead") moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1);
@@ -24317,7 +24317,7 @@ function orbitLayout(lanes2, seconds, reduce = false) {
     } else {
       const j = seat.get(r) ?? 0;
       seat.set(r, j + 1);
-      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds / lanePeriod(lane.role);
+      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds2 / lanePeriod(lane.role);
       k++;
     }
     const z = parked ? 0 : Math.sin(theta);
@@ -24337,16 +24337,16 @@ function orbitLayout(lanes2, seconds, reduce = false) {
   });
 }
 var n = (v) => v.toFixed(1);
-function orbMarks(state, seconds, animated, ink3) {
+function orbMarks(state, seconds2, animated, ink3) {
   const preset = Lt(state, SOURCE2);
-  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds2 * preset.speed : 0.6, preset.opts);
   const a2 = (v) => (v ?? 1).toFixed(2);
   const out = frame2.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${ink3(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
   for (const d of frame2.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${ink3(d.white)}" fill-opacity="${a2(d.a)}"/>`);
   return out.join("");
 }
-function marks(state, seconds, animated, dark) {
-  return orbMarks(state, seconds, animated, (white) => {
+function marks(state, seconds2, animated, dark) {
+  return orbMarks(state, seconds2, animated, (white) => {
     const ink3 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink3 : ink3) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   });
@@ -24380,12 +24380,12 @@ function tracks(lanes2, dark) {
     return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h2 / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ""}/>`;
   }).join("");
 }
-function core(main, lanes2, seconds, dark, reduce) {
+function core(main, lanes2, seconds2, dark, reduce) {
   const { w, h: h2 } = orbitUnits(lanes2);
-  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
+  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds2, !reduce && !still(main), dark)}</g>`;
 }
-function orbitBackdrop(main, lanes2, seconds, dark, reduce = false) {
-  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds, dark, reduce));
+function orbitBackdrop(main, lanes2, seconds2, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds2, dark, reduce));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
@@ -24782,7 +24782,7 @@ var LaneStrip = class {
             },
             moves: false,
             key: () => this.lanes().map((l) => `${l.role}=${l.state === "dead"}`).join(","),
-            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
+            svg: (state, seconds2, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds2, dark, reduce)
           }
         });
         this.#orbit.environment(this.#env);
@@ -25844,7 +25844,7 @@ function readableOn(bg, inks = DEFAULT_INKS) {
   }
   return best;
 }
-function ensureContrast(color2, bg, min, step2 = 0.2) {
+function ensureContrast(color2, bg, min, step3 = 0.2) {
   const bgLuminance = relativeLuminance(bg);
   if (bgLuminance === null || parseColor(color2) === null) {
     return color2;
@@ -25855,7 +25855,7 @@ function ensureContrast(color2, bg, min, step2 = 0.2) {
   }
   const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
   let best = color2;
-  const rung = Number.isFinite(step2) && step2 >= 1e-3 ? Math.min(step2, 1) : 0.2;
+  const rung = Number.isFinite(step3) && step3 >= 1e-3 ? Math.min(step3, 1) : 0.2;
   for (let amount = rung; amount <= 1.0001; amount += rung) {
     best = mix(color2, pole, Math.min(amount, 1));
     const stepRatio = contrastRatio(best, bg);
@@ -25946,23 +25946,23 @@ var CLEAN_CYCLE = 9.6;
 var DRIFT = 0.4;
 var PULSE = 0.045;
 var PULSE_S = 4.8;
-function cleanInk(p3, state, seconds, reduce = false) {
+function cleanInk(p3, state, seconds2, reduce = false) {
   if (state === "error") return p3.error;
   const base3 = STATE_HUE[state];
-  const drift = reduce ? 0 : DRIFT * Math.sin(2 * Math.PI * seconds / CLEAN_CYCLE);
+  const drift = reduce ? 0 : DRIFT * Math.sin(2 * Math.PI * seconds2 / CLEAN_CYCLE);
   const t = Math.min(1, Math.max(0, base3 + (base3 <= 0 ? Math.abs(drift) : base3 >= 1 ? -Math.abs(drift) : drift)));
   return mix(p3.accent, p3.alt, t);
 }
-var cleanPulse = (seconds, reduce = false) => reduce ? 1 : 1 + PULSE * Math.sin(2 * Math.PI * seconds / PULSE_S);
+var cleanPulse = (seconds2, reduce = false) => reduce ? 1 : 1 + PULSE * Math.sin(2 * Math.PI * seconds2 / PULSE_S);
 var n3 = (v) => v.toFixed(1);
 var SOURCE3 = 64;
 var CLEAN_ORB = 200;
 var CLEAN_RING = 300;
-function cleanOrbSvg(p3, state, seconds, reduce = false) {
-  const hue = cleanInk(p3, state, seconds, reduce);
+function cleanOrbSvg(p3, state, seconds2, reduce = false) {
+  const hue = cleanInk(p3, state, seconds2, reduce);
   const animated = !reduce && state !== "idle" && state !== "waiting" && state !== "error";
-  const body = orbMarks(LIBRARY_STATE[state], seconds, animated, (white) => mix(hue, p3.bg, Math.min(1, Math.max(0, white)) * 0.55));
-  const k = cleanPulse(seconds, reduce);
+  const body = orbMarks(LIBRARY_STATE[state], seconds2, animated, (white) => mix(hue, p3.bg, Math.min(1, Math.max(0, white)) * 0.55));
+  const k = cleanPulse(seconds2, reduce);
   const c = SOURCE3 / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${CLEAN_ORB}" height="${CLEAN_ORB}" viewBox="0 0 ${SOURCE3} ${SOURCE3}"><g transform="translate(${n3(c)} ${n3(c)}) scale(${k.toFixed(4)}) translate(${n3(-c)} ${n3(-c)})">${body}</g></svg>`;
 }
@@ -25974,7 +25974,7 @@ function cleanScene(palette) {
       const p3 = palette();
       return `${p3.accent}:${p3.alt}:${p3.error}:${p3.bg}`;
     },
-    svg: (state, seconds, _dark, reduce) => cleanOrbSvg(palette(), state, seconds, reduce)
+    svg: (state, seconds2, _dark, reduce) => cleanOrbSvg(palette(), state, seconds2, reduce)
   };
 }
 function cleanRingSvg(p3, left, total, track2) {
@@ -28489,13 +28489,13 @@ function playStops(p3) {
     { at: 100, hue: p3.bg, tint: rest, blur: card2.blur, saturate: card2.saturate, glow: 1, motes: 1 }
   ];
 }
-function glassPlayCss(p3, seconds = PLAY_SECONDS) {
+function glassPlayCss(p3, seconds2 = PLAY_SECONDS) {
   const shade = mix(p3.bg, "#000000", 0.7);
   const stops = playStops(p3);
   const frame2 = (sel) => stops.slice(1, -1).map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
   const glass = (s2) => `background-color: ${rgba2(s2.hue, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
   const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba2(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba2(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba2(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba2(p3.fg, 8 * s2.glow)}`;
-  const run8 = (name) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`;
+  const run8 = (name) => `animation: ${name} ${seconds2}s cubic-bezier(.45, 0, .55, 1) 1`;
   const lit2 = [CARD, EDITOR, POPUP, LANES].join(", ");
   const all8 = [lit2, STATUS2, NATIVE, TEXT, after(RIMMED), MOTES].join(", ");
   return minifyCss(`
@@ -29147,9 +29147,9 @@ function glideGlass(host2, sub) {
     host2.transcript.notice("Usage: /glide glass demo", "warning");
     return;
   }
-  const seconds = host2.glassDemo?.() ?? null;
-  if (seconds === null) host2.transcript.notice("The glass playground plays on the wallpaper theme: /glide theme auto first", "warning");
-  else host2.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`);
+  const seconds2 = host2.glassDemo?.() ?? null;
+  if (seconds2 === null) host2.transcript.notice("The glass playground plays on the wallpaper theme: /glide theme auto first", "warning");
+  else host2.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds2} s, then settle. Text keeps 4.5:1 throughout.`);
 }
 function glideTheme(host2, sub) {
   if (sub === "auto" || sub === "default") {
@@ -29432,9 +29432,9 @@ async function glideCommand(host2, arg) {
       climb();
     }));
     const steps = { router, climb, savings };
-    const step2 = verb ? steps[verb] : void 0;
-    if (step2) {
-      step2();
+    const step3 = verb ? steps[verb] : void 0;
+    if (step3) {
+      step3();
       return;
     }
     if (verb) return await glideText(host2, sid, arg.trim(), verb);
@@ -30540,7 +30540,6 @@ var IGNORED = [
   "terminal.close",
   "tip.show",
   "tool.output_risk",
-  "tool.progress",
   "voice.interrupted",
   "voice.partial",
   "voice.status",
@@ -31261,13 +31260,13 @@ var UndoHistory = class {
   }
   /** Takes the newest step of `from`, and keeps `current` on `to`; a step ends the typing burst. */
   #step(from, to, current) {
-    const step2 = from.pop();
-    if (!step2) {
+    const step3 = from.pop();
+    if (!step3) {
       return void 0;
     }
     to.push(current);
     this.#lastEdit = 0;
-    return step2;
+    return step3;
   }
 };
 
@@ -31893,14 +31892,14 @@ var Composer = class {
     return { cursor: this.cursor, pasted: [...this.#pasted], text: this.text, ...this.literal ? { literal: true } : {} };
   }
   /** Puts back the draft an undo or redo step held, if there was one, with the pastes it held. */
-  #restore(step2) {
-    if (step2) {
+  #restore(step3) {
+    if (step3) {
       this.rev++;
       this.#revision++;
-      this.#text = step2.text;
-      this.#cursor = step2.cursor;
-      this.#pasted = [...step2.pasted];
-      this.#literal = step2.literal === true;
+      this.#text = step3.text;
+      this.#cursor = step3.cursor;
+      this.#pasted = [...step3.pasted];
+      this.#literal = step3.literal === true;
       this.#anchor = void 0;
       this.#browse = -1;
     }
@@ -32158,7 +32157,7 @@ function clarifyOverlay(host2, prompt) {
   const sending = { busy: false, error: "" };
   const respond = (result) => answerWith(host2, overlay2, req, sending, { ...result });
   const cancel3 = () => sending.error ? host2.close(overlay2) : respond({});
-  let step2 = Math.max(
+  let step3 = Math.max(
     0,
     questions.findIndex((q2) => !(q2.qid in answers2))
   );
@@ -32177,14 +32176,14 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
+    const q2 = questions[step3];
     if (q2) {
       answers2[q2.qid] = answer2;
     }
-    const next2 = questions.findIndex((other, i) => i > step2 && !(other.qid in answers2));
+    const next2 = questions.findIndex((other, i) => i > step3 && !(other.qid in answers2));
     const first = questions.findIndex((other) => !(other.qid in answers2));
     if (next2 >= 0 || first >= 0) {
-      step2 = next2 >= 0 ? next2 : first;
+      step3 = next2 >= 0 ? next2 : first;
       host2.changed();
       return;
     }
@@ -32194,8 +32193,8 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
-    const d = drafts[step2];
+    const q2 = questions[step3];
+    const d = drafts[step3];
     if (!q2 || !d) {
       return;
     }
@@ -32217,8 +32216,8 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
-    const d = drafts[step2];
+    const q2 = questions[step3];
+    const d = drafts[step3];
     if (!q2 || !d) {
       return;
     }
@@ -32238,7 +32237,7 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    step2 = (to + questions.length) % questions.length;
+    step3 = (to + questions.length) % questions.length;
     host2.changed();
   };
   const overlay2 = {
@@ -32247,18 +32246,18 @@ function clarifyOverlay(host2, prompt) {
     // Every question at once: an empty answer is the contract's cancel ('' skips on the shared wire).
     cancel: cancel3,
     focus: (id3) => {
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       return q2 && d && (d.typing || !q2.choices.length) ? `${id3}.body.answer` : null;
     },
     node: (id3) => {
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       if (!q2 || !d) {
         return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md" }, nativeOverlayKey(id3));
       }
       const freeText = !q2.choices.length;
-      const last = questions.every((other, i) => i === step2 || other.qid in answers2);
+      const last = questions.every((other, i) => i === step3 || other.qid in answers2);
       const previewLabel = q2.previews?.some(Boolean) && d.selected < q2.choices.length ? q2.choices[d.selected]?.replace(RECOMMENDED, "") : void 0;
       const previewDetail = q2.previews?.[d.selected];
       return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
@@ -32266,7 +32265,7 @@ function clarifyOverlay(host2, prompt) {
           /* @__PURE__ */ jsx(
             "tabs",
             {
-              active: String(step2),
+              active: String(step3),
               items: questions.map((other, i) => ({
                 id: String(i),
                 label: `${other.qid in answers2 ? "\u2713 " : ""}${tabLabel(other.question)}`
@@ -32282,12 +32281,12 @@ function clarifyOverlay(host2, prompt) {
             "tabs"
           ),
           /* @__PURE__ */ jsx("spacer", { grow: 1 }, "fill"),
-          /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: `${step2 + 1} of ${questions.length}` }], wrap: "none" }, "count")
+          /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: `${step3 + 1} of ${questions.length}` }], wrap: "none" }, "count")
         ] }, "head") : null,
         /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: q2.question }, "question"),
         freeText ? null : optionList(
-          `q${step2}`,
-          `${id3}.body.q${step2}`,
+          `q${step3}`,
+          `${id3}.body.q${step3}`,
           optionsOf(q2, d),
           d.selected,
           (i) => {
@@ -32346,8 +32345,8 @@ function clarifyOverlay(host2, prompt) {
       if (sending.busy) {
         return true;
       }
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       if (!q2 || !d) {
         return true;
       }
@@ -32356,7 +32355,7 @@ function clarifyOverlay(host2, prompt) {
       if (isCtrlC(k) || k.name === "escape" && unmodified(k) && sending.error) {
         cancel3();
       } else if (k.name === "tab" && questions.length > 1) {
-        go(step2 + (k.shift ? -1 : 1));
+        go(step3 + (k.shift ? -1 : 1));
       } else if (k.name === "escape" && unmodified(k) && typing && q2.choices.length) {
         d.typing = false;
       } else if (k.name === "escape" && unmodified(k)) {
@@ -33342,12 +33341,12 @@ function parseFastControl(raw2) {
       return list10 ? { candidates: list10, id: id3, kind: "candidates", prompt } : null;
     }
     case "slider": {
-      const { max, min, step: step2, unit } = value2;
+      const { max, min, step: step3, unit } = value2;
       const initial = value2["value"];
       if (typeof min !== "number" || typeof max !== "number" || !Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
         return null;
       }
-      if (step2 !== void 0 && (typeof step2 !== "number" || !(step2 > 0) || step2 > max - min)) {
+      if (step3 !== void 0 && (typeof step3 !== "number" || !(step3 > 0) || step3 > max - min)) {
         return null;
       }
       if (initial !== void 0 && (typeof initial !== "number" || initial < min || initial > max)) {
@@ -33363,7 +33362,7 @@ function parseFastControl(raw2) {
         max,
         min,
         prompt,
-        ...step2 !== void 0 ? { step: step2 } : {},
+        ...step3 !== void 0 ? { step: step3 } : {},
         ...initial !== void 0 ? { value: initial } : {},
         ...u ? { unit: u } : {}
       };
@@ -33440,9 +33439,9 @@ function stepOf(control2) {
   return control2.step ?? (control2.max - control2.min) / 100;
 }
 function snap(control2, value2) {
-  const step2 = stepOf(control2);
-  const snapped = control2.min + Math.round((value2 - control2.min) / step2) * step2;
-  const decimals = (String(step2).split(".")[1] ?? "").length;
+  const step3 = stepOf(control2);
+  const snapped = control2.min + Math.round((value2 - control2.min) / step3) * step3;
+  const decimals = (String(step3).split(".")[1] ?? "").length;
   return Math.min(control2.max, Math.max(control2.min, Number(snapped.toFixed(decimals))));
 }
 function initialState(control2) {
@@ -33766,6 +33765,13 @@ var turnHandlers = {
       const call = cx.transcript.call(toolCallId(ev.payload.tool_id));
       cx.activity.relabel(call ? cx.labels.busy(call) : `Running ${ev.payload.name}\u2026`);
       cx.showImage(call);
+      cx.toolProgress?.track();
+    }
+    return "render";
+  },
+  "tool.progress": (ev, cx) => {
+    if (ev.payload) {
+      cx.toolProgress?.progress(ev.payload);
     }
     return "render";
   },
@@ -33773,6 +33779,7 @@ var turnHandlers = {
     if (ev.payload) {
       cx.transcript.toolComplete(ev.payload);
       afterToolComplete(ev.payload, cx);
+      cx.toolProgress?.track();
     }
     return "render";
   },
@@ -33788,6 +33795,7 @@ var turnHandlers = {
     }
     const followup = cx.queue.count() > 0;
     afterMessageComplete(ev.payload ?? {}, cx);
+    cx.toolProgress?.settle();
     if (!followup) {
       cx.hostLifecycle.finish(ev.payload?.status);
     }
@@ -35457,9 +35465,9 @@ function moveSelection(key3, ids, selected) {
     return void 0;
   }
   const at3 = selected === void 0 ? -1 : ids.indexOf(selected);
-  const step2 = key3.name === "up" || key3.ctrl && key3.name === "p" ? -1 : key3.name === "down" || key3.ctrl && key3.name === "n" ? 1 : key3.name === "page_up" ? -PAGE : key3.name === "page_down" ? PAGE : 0;
-  if (step2) {
-    return ids[Math.max(0, Math.min(ids.length - 1, at3 + step2))];
+  const step3 = key3.name === "up" || key3.ctrl && key3.name === "p" ? -1 : key3.name === "down" || key3.ctrl && key3.name === "n" ? 1 : key3.name === "page_up" ? -PAGE : key3.name === "page_down" ? PAGE : 0;
+  if (step3) {
+    return ids[Math.max(0, Math.min(ids.length - 1, at3 + step3))];
   }
   if (key3.name === "home") {
     return ids[0];
@@ -35659,8 +35667,8 @@ var JsonRpcRequestChannel = class {
         pending2.timer = setTimeout(() => {
           if (this.pending.delete(id3)) {
             detachAbort();
-            const seconds = Math.round(timeoutMs / 1e3);
-            reject(new Error(`request timed out after ${seconds}s: ${method}`));
+            const seconds2 = Math.round(timeoutMs / 1e3);
+            reject(new Error(`request timed out after ${seconds2}s: ${method}`));
           }
         }, timeoutMs);
         if (this.options.unrefTimers) {
@@ -35994,7 +36002,7 @@ var SubagentTranscript = class {
     }
   }
 };
-var ms = (seconds) => seconds === null || seconds === void 0 ? void 0 : Math.round(seconds * 1e3);
+var ms = (seconds2) => seconds2 === null || seconds2 === void 0 ? void 0 : Math.round(seconds2 * 1e3);
 function stepsOf(rows2) {
   const steps = [];
   for (const row2 of rows2) {
@@ -36054,7 +36062,7 @@ var line = (text24) => text24.replace(/\s+/g, " ").trim();
 var short = (text24, max) => text24.length > max ? `${text24.slice(0, max - 1)}\u2026` : text24;
 function agentContext(agent2) {
   const steps = agentSteps(agent2);
-  const tools2 = steps.filter((step2) => step2.kind === "tool");
+  const tools2 = steps.filter((step3) => step3.kind === "tool");
   const files = /* @__PURE__ */ new Set();
   for (const tool of tools2) {
     if (!["read_file", "write_file", "edit_file", "patch", "apply_patch"].includes(tool.name)) continue;
@@ -36069,7 +36077,7 @@ function agentContext(agent2) {
     }
   }
   const latest2 = steps.at(-1);
-  const thought = steps.findLast((step2) => step2.kind === "think");
+  const thought = steps.findLast((step3) => step3.kind === "think");
   return {
     current: agent2.tool ? line(`${agent2.tool} ${agent2.toolPreview ?? ""}`) : latest2 ? line(latest2.kind === "tool" ? `${latest2.name} ${latest2.args}` : latest2.text) : agent2.status === "queued" ? "Waiting for a slot" : agent2.summary ?? "No step reported yet",
     tools: tools2.slice(-3).map((tool) => line(`${tool.name} ${tool.args}`)),
@@ -36144,8 +36152,8 @@ function reduceHub(state, action, agents2) {
       if (state.view.kind !== "timeline" || !a2) {
         return { state };
       }
-      const step2 = action.id === stepIds(a2).at(-1) ? void 0 : action.id;
-      return { state: { ...state, view: { ...state.view, step: step2 } } };
+      const step3 = action.id === stepIds(a2).at(-1) ? void 0 : action.id;
+      return { state: { ...state, view: { ...state.view, step: step3 } } };
     }
     case "listed":
       return action.ids.some((id3) => id3 === state.selected) ? { state } : {
@@ -40603,7 +40611,7 @@ var ALIASES2 = { byte: "B", bytes: "B", msec: "ms", sec: "s", secs: "s", second:
 function unitStep(value2, unit) {
   const base3 = unit ? ALIASES2[unit.toLowerCase()] ?? unit : "";
   const steps = SCALES[base3];
-  const hit = steps?.find(([step2]) => Math.abs(value2) >= step2);
+  const hit = steps?.find(([step3]) => Math.abs(value2) >= step3);
   return hit ? { step: hit[0], unit: hit[1] } : void 0;
 }
 function formatNumber(value2, unit, digits) {
@@ -40618,11 +40626,11 @@ function formatNumber(value2, unit, digits) {
   const magnitude = Math.abs(value2);
   let text24;
   if (magnitude >= COMPACT_FROM) {
-    for (const [step2, suffix] of COMPACT_STEPS) {
-      if (magnitude < step2) {
+    for (const [step3, suffix] of COMPACT_STEPS) {
+      if (magnitude < step3) {
         continue;
       }
-      const scaled2 = value2 / step2;
+      const scaled2 = value2 / step3;
       text24 = `${scaled2.toFixed(digits ?? (Math.abs(scaled2) >= 100 ? 0 : 1))}${suffix}`;
       break;
     }
@@ -43897,10 +43905,10 @@ function openAgents(host2, focus2) {
     if (!action) {
       return;
     }
-    const step2 = reduceHub(state, action, agents2());
-    state = step2.state;
-    if (step2.effect) {
-      run8(step2.effect);
+    const step3 = reduceHub(state, action, agents2());
+    state = step3.state;
+    if (step3.effect) {
+      run8(step3.effect);
     }
   };
   const click = (action) => {
@@ -43991,8 +43999,8 @@ function openAgents(host2, focus2) {
   function timelineNode(a2, now, id3) {
     const entries2 = agentSteps(a2);
     const ids = stepIds(a2);
-    const step2 = state.view.kind === "timeline" ? state.view.step : void 0;
-    const sel = step2 && ids.includes(step2) ? step2 : ids.at(-1);
+    const step3 = state.view.kind === "timeline" ? state.view.step : void 0;
+    const sel = step3 && ids.includes(step3) ? step3 : ids.at(-1);
     const at3 = sel ? ids.indexOf(sel) : -1;
     const shown3 = entries2[at3];
     return /* @__PURE__ */ jsx(
@@ -44471,10 +44479,10 @@ function openBackground(host2, at3) {
     if (!action) {
       return;
     }
-    const step2 = reduceSheet(state, action, sheetFacts());
-    state = step2.state;
-    if (step2.effect) {
-      run8(step2.effect);
+    const step3 = reduceSheet(state, action, sheetFacts());
+    state = step3.state;
+    if (step3.effect) {
+      run8(step3.effect);
     }
   };
   const click = (action) => {
@@ -48002,7 +48010,7 @@ function visitParents(tree, test, visitor, reverse) {
     check2 = test;
   }
   const is6 = convert2(check2);
-  const step2 = reverse ? -1 : 1;
+  const step3 = reverse ? -1 : 1;
   factory3(tree, void 0, [])();
   function factory3(node4, index2, parents) {
     const value2 = (
@@ -48039,7 +48047,7 @@ function visitParents(tree, test, visitor, reverse) {
           node4
         );
         if (nodeAsParent.children && result[0] !== SKIP2) {
-          offset = (reverse ? nodeAsParent.children.length : -1) + step2;
+          offset = (reverse ? nodeAsParent.children.length : -1) + step3;
           grandparents = parents.concat(nodeAsParent);
           while (offset > -1 && offset < nodeAsParent.children.length) {
             const child = nodeAsParent.children[offset];
@@ -48047,7 +48055,7 @@ function visitParents(tree, test, visitor, reverse) {
             if (subresult[0] === EXIT) {
               return subresult;
             }
-            offset = typeof subresult[1] === "number" ? subresult[1] : offset + step2;
+            offset = typeof subresult[1] === "number" ? subresult[1] : offset + step3;
           }
         }
       }
@@ -78085,9 +78093,9 @@ function instrumentSvg(run8, frame2, size = 480, options2 = {}) {
     if (!p3) return;
     const talk = m2.speaking === i;
     const crew = seat.crew;
-    const step2 = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
+    const step3 = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
     crew.forEach((stone, k) => {
-      const ang = p3.a + (k - (crew.length - 1) / 2) * step2;
+      const ang = p3.a + (k - (crew.length - 1) / 2) * step3;
       const on = frame2.t === null || k < (m2.lit[i] ?? 0);
       const born = m2.running && !options2.reduce ? m2.born.get(`${i}.${k}`) : void 0;
       const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
@@ -78489,9 +78497,9 @@ var CouncilSync = class {
 
 // ../glide/frontend/councilPopup.ts
 var COUNCIL_URL_ENV = "GLIDE_COUNCIL_URL";
-function councilOrbSvg(seconds, amplitude, reduce, ink3 = DASH.gold) {
+function councilOrbSvg(seconds2, amplitude, reduce, ink3 = DASH.gold) {
   const level = Math.max(0, Math.min(1, amplitude));
-  const source3 = orbSvg("speaking", reduce ? 0.6 : seconds, true);
+  const source3 = orbSvg("speaking", reduce ? 0.6 : seconds2, true);
   const scale = reduce ? 1 : 0.9 + level * 0.14;
   const hue = reduce ? ink3 : `#${[1, 3, 5].map((at3) => Math.round(parseInt(ink3.slice(at3, at3 + 2), 16) * (1 - level * 0.25) + 255 * level * 0.25).toString(16).padStart(2, "0")).join("")}`;
   return source3.replace(/width="68" height="68"/, 'width="320" height="320"').replace(/#[0-9a-f]{6}/gi, hue).replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`).replace("</svg>", "</g></svg>");
@@ -79017,9 +79025,9 @@ function analyticsData(entries2, now, cwd = "", commitTimes = []) {
       byTool.set(b.call.name, (byTool.get(b.call.name) ?? 0) + 1);
     }
     const ended = e.end.status === "live" ? void 0 : e.end.endedAt;
-    const seconds = ended && ended > e.startedAt ? Math.round((ended - e.startedAt) / 1e3) : 0;
+    const seconds2 = ended && ended > e.startedAt ? Math.round((ended - e.startedAt) / 1e3) : 0;
     const tokens2 = e.usage?.total ?? e.tickTokens ?? 0;
-    perTurn.push({ n: perTurn.length + 1, tokens: tokens2, seconds, tools: tools3 });
+    perTurn.push({ n: perTurn.length + 1, tokens: tokens2, seconds: seconds2, tools: tools3 });
   }
   const ranked = [...byTool].map(([name, count6]) => ({ name, count: count6 })).sort((a2, b) => b.count - a2.count || a2.name.localeCompare(b.name));
   const tools2 = ranked.length > 8 ? [...ranked.slice(0, 7), { name: "Other", count: ranked.slice(7).reduce((s2, t) => s2 + t.count, 0) }] : ranked;
@@ -82446,7 +82454,7 @@ async function researchCommand(host2, arg, o = {}) {
   const browser2 = o.browser ?? ternBrowser;
   const owner2 = "owner" in o ? o.owner : paneBlock();
   const url = new URL(c.view, GEV).toString();
-  const seconds = o.seconds ?? 40;
+  const seconds2 = o.seconds ?? 40;
   const fps = o.fps ?? 4;
   let view = {};
   let x = 0;
@@ -82467,7 +82475,7 @@ async function researchCommand(host2, arg, o = {}) {
   const play = () => {
     stop3();
     timer = setInterval(() => {
-      x = Math.min(1, x + 1 / (seconds * fps));
+      x = Math.min(1, x + 1 / (seconds2 * fps));
       push3();
       if (x >= 1) stop3();
     }, 1e3 / fps);
@@ -82540,8 +82548,8 @@ var filmBridge = (text24) => decode3(bridge, text24);
 function filmProject(text24) {
   const saved = decode3(canonical, text24);
   if (!saved) return decode3(project, text24);
-  const seconds = (n5) => n5 * saved.fps.den / saved.fps.num;
-  const shots = saved.videos[0]?.clips.map((c) => ({ id: c.id, name: c.name, t0: seconds(c.start), t1: seconds(c.start + c.duration) })) ?? [];
+  const seconds2 = (n5) => n5 * saved.fps.den / saved.fps.num;
+  const shots = saved.videos[0]?.clips.map((c) => ({ id: c.id, name: c.name, t0: seconds2(c.start), t1: seconds2(c.start + c.duration) })) ?? [];
   return { id: saved.id, title: saved.title, shots, kind: saved.metadata?.kind, renders: saved.metadata?.renders };
 }
 var filmTakes = (text24) => decode3(takes, text24)?.takes.filter((take) => filmId(take.id));
@@ -84182,10 +84190,10 @@ function waveform(words5, bars = 64) {
 }
 function waveSvg(words5) {
   const w = 480, h2 = 72, amps = waveform(words5);
-  const step2 = w / amps.length;
+  const step3 = w / amps.length;
   const rects = amps.map((a2, i) => {
     const bh = Math.max(2, a2 * h2);
-    return `<rect x="${(i * step2 + 1).toFixed(1)}" y="${((h2 - bh) / 2).toFixed(1)}" width="${(step2 - 2).toFixed(1)}" height="${bh.toFixed(1)}" rx="1.5"/>`;
+    return `<rect x="${(i * step3 + 1).toFixed(1)}" y="${((h2 - bh) / 2).toFixed(1)}" width="${(step3 - 2).toFixed(1)}" height="${bh.toFixed(1)}" rx="1.5"/>`;
   }).join("");
   return { t: "svg", w, h: h2, cls: "ih-wave", style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}"><g fill="var(--h-primary)" opacity="0.55">${rects}</g></svg>` };
 }
@@ -97045,10 +97053,10 @@ function chartSvg(table3, kind) {
   const max = Math.max(0, ...table3.values);
   const scale = (n5) => 260 - (n5 - min) / (max - min) * 210;
   const baseline = scale(0);
-  const step2 = 500 / table3.values.length;
-  const points = table3.values.map((n5, i) => `${60 + (i + 0.5) * step2},${scale(n5)}`).join(" ");
-  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n5, i) => `<rect x="${60 + i * step2 + 4}" y="${Math.min(baseline, scale(n5))}" width="${step2 - 8}" height="${Math.max(1, Math.abs(baseline - scale(n5)))}" fill="var(--accent)"/>`).join("");
-  const labels = table3.labels.map((s2, i) => `<text x="${60 + (i + 0.5) * step2}" y="285" text-anchor="middle" fill="var(--text)" font-size="10">${xml2(s2.slice(0, 12))}</text>`).join("");
+  const step3 = 500 / table3.values.length;
+  const points = table3.values.map((n5, i) => `${60 + (i + 0.5) * step3},${scale(n5)}`).join(" ");
+  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n5, i) => `<rect x="${60 + i * step3 + 4}" y="${Math.min(baseline, scale(n5))}" width="${step3 - 8}" height="${Math.max(1, Math.abs(baseline - scale(n5)))}" fill="var(--accent)"/>`).join("");
+  const labels = table3.labels.map((s2, i) => `<text x="${60 + (i + 0.5) * step3}" y="285" text-anchor="middle" fill="var(--text)" font-size="10">${xml2(s2.slice(0, 12))}</text>`).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="620" height="320" viewBox="0 0 620 320"><title>${xml2(table3.title)}</title><text x="60" y="25" fill="var(--text)" font-size="16">${xml2(table3.title)}</text><text x="5" y="55" fill="var(--muted)" font-size="10">${max}</text><text x="5" y="260" fill="var(--muted)" font-size="10">${min}</text><path d="M60 ${baseline}H560" stroke="var(--muted)"/>${marks2}${labels}</svg>`;
 }
 var TableCharts = class {
@@ -97370,10 +97378,10 @@ var lerp = (a2, b, t) => a2 + (b - a2) * t;
 var artInk = (dark) => dark ? { ink: "#ece8e1", gold: "#d7b986", dark } : { ink: "#1d1b18", gold: "#8a6a2f", dark };
 var OPENING = ["working", "solving", "weaving"];
 var LOOP = ["composing", "searching", "connecting", "listening"];
-function orbMarks2(state, seconds, cx, cy, size, alpha, ink3) {
+function orbMarks2(state, seconds2, cx, cy, size, alpha, ink3) {
   if (alpha <= 0.01) return "";
   const preset = Lt(state, 64);
-  const frame2 = vt[preset.mode](64, seconds * preset.speed, preset.opts);
+  const frame2 = vt[preset.mode](64, seconds2 * preset.speed, preset.opts);
   const k = size / 64;
   const grey = (white) => {
     const v = Math.round((ink3.dark ? 1 - clamp3(white) : clamp3(white)) * 255);
@@ -105621,6 +105629,149 @@ ${dim ? `${dim}{color:var(--t3)}` : ""}
 `;
 }
 
+// ../glide/frontend/toolProgress.ts
+var TOOL_PROGRESS_KIND = "tool-progress";
+var MAX_STEPS2 = 12;
+var plural5 = (n5, word) => `${n5} ${word}${n5 === 1 ? "" : "s"}`;
+var seconds = (ms3) => ms3 < 1e3 ? `${Math.max(0, Math.round(ms3))} ms` : `${(ms3 / 1e3).toFixed(1)} s`;
+function progressFraction(p3) {
+  if (typeof p3.percent === "number" && Number.isFinite(p3.percent)) return Math.max(0, Math.min(1, p3.percent / 100));
+  if (typeof p3.total === "number" && p3.total > 0 && Number.isFinite(p3.progress)) return Math.max(0, Math.min(1, p3.progress / p3.total));
+  return void 0;
+}
+function step2(call, label2, progress) {
+  const o = call.outcome;
+  if (o.kind === "running") {
+    const p3 = progress.get(call.id);
+    const fraction2 = p3 ? progressFraction(p3) : void 0;
+    const note2 = [p3?.message?.trim(), fraction2 === void 0 ? void 0 : `${Math.round(fraction2 * 100)}%`].filter(Boolean).join(" \xB7 ");
+    return { id: call.id, text: label2(call, true), status: "active", ...note2 ? { note: note2 } : {} };
+  }
+  const note = [o.summary?.trim(), o.kind === "cancelled" ? "stopped" : void 0, seconds(o.duration)].filter(Boolean).join(" \xB7 ");
+  return { id: call.id, text: label2(call, false), status: o.kind === "done" ? "done" : "blocked", note };
+}
+function toolProgressCard(entries2, turn2, cwd, label2, progress) {
+  const calls = turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call] : []);
+  const live = turn2.end.status === "live";
+  const running2 = calls.filter((c) => c.outcome.kind === "running");
+  const failed2 = calls.filter((c) => c.outcome.kind === "error").length;
+  const files = projectWorkTree(entries2, turn2, cwd).files;
+  const changed = files.filter((f2) => f2.action !== "read").length;
+  const children3 = [];
+  const shown3 = calls.slice(-MAX_STEPS2);
+  const hidden2 = calls.length - shown3.length;
+  children3.push({ type: "element", typeName: "Steps", props: { items: shown3.map((c) => step2(c, label2, progress)) } });
+  if (hidden2 > 0) children3.push({ type: "element", typeName: "Text", props: { body: `${plural5(hidden2, "earlier step")} not shown`, tone: "muted" } });
+  const metered = live ? running2.findLast((c) => {
+    const p3 = progress.get(c.id);
+    return p3 !== void 0 && progressFraction(p3) !== void 0;
+  }) : void 0;
+  const report = metered ? progress.get(metered.id) : void 0;
+  const fraction2 = report ? progressFraction(report) : void 0;
+  if (metered && report && fraction2 !== void 0) {
+    const total = typeof report.total === "number" && report.total > 0 ? `${report.progress}/${report.total}` : `${Math.round(fraction2 * 100)}%`;
+    children3.push({ type: "element", typeName: "Meter", props: { label: report.message?.trim() || label2(metered, true), value: fraction2, total, tone: "accent" } });
+  }
+  if (files.length) {
+    children3.push({ type: "element", typeName: "Section", props: { title: "Files", aside: changed ? `${changed} changed` : plural5(files.length, "read"), children: [
+      { type: "element", typeName: "List", props: { items: fileRows(files) } }
+    ] } });
+  }
+  const done = calls.length - running2.length;
+  const state = live ? "Working" : { done: "Done", error: "Turn failed", interrupted: "Interrupted", live: "Working" }[turn2.end.status];
+  const ended = turn2.end.status !== "live" ? turn2.end.endedAt : void 0;
+  const receipt = [
+    state,
+    live ? `${done} of ${plural5(calls.length, "tool")} done` : plural5(calls.length, "tool"),
+    ...files.length ? [plural5(files.length, "file")] : [],
+    ...failed2 ? [`${failed2} failed`] : [],
+    ...ended !== void 0 ? [seconds(ended - turn2.startedAt)] : []
+  ].join(" \xB7 ");
+  children3.push({ type: "element", typeName: "Text", props: { body: receipt, tone: "muted" } });
+  const status = live ? "running" : turn2.end.status === "error" || failed2 ? "error" : "done";
+  return {
+    kind: TOOL_PROGRESS_KIND,
+    app: live ? "LIVE" : "SETTLED",
+    title: "Tool progress",
+    ui: { type: "element", typeName: "Card", props: { title: "Tool progress", app: live ? "LIVE" : "SETTLED", status, children: children3 } }
+  };
+}
+var NO_INTENT = () => void 0;
+var EDITS = /* @__PURE__ */ new Set(["patch", "write_file"]);
+function worthACard(turn2, progress) {
+  const calls = turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call] : []);
+  return calls.length >= 2 || calls.some((c) => progress.has(c.id) || EDITS.has(c.name));
+}
+var ToolProgressCards = class {
+  #deps;
+  #turn;
+  #handle;
+  #progress = /* @__PURE__ */ new Map();
+  #refused;
+  constructor(deps) {
+    this.#deps = deps;
+  }
+  /** The turn the card follows now, if one is up. */
+  get turn() {
+    return this.#turn;
+  }
+  /** Why the host last refused a publish or an update (no active session, a hidden surface, a stale card). */
+  get refused() {
+    return this.#refused;
+  }
+  /** After the transcript took a tool.start or tool.complete: publishes the live turn's card, or updates it. */
+  track() {
+    const turn2 = this.#deps.transcript().live;
+    if (!turn2 || turn2 !== this.#turn && !worthACard(turn2, this.#progress)) return;
+    if (turn2 !== this.#turn) {
+      if (this.#turn) this.#update(this.#turn);
+      const ids = new Set(turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call.id] : []));
+      for (const id3 of this.#progress.keys()) if (!ids.has(id3)) this.#progress.delete(id3);
+      this.#turn = void 0;
+      this.#handle = void 0;
+      const eui = this.#deps.eui();
+      if (!eui) return;
+      try {
+        this.#handle = eui.host.publishNative(this.#card(turn2), NO_INTENT);
+      } catch (error) {
+        this.#refused = error instanceof Error ? error.message : String(error);
+        return;
+      }
+      this.#turn = turn2;
+      this.#refused = void 0;
+      return;
+    }
+    this.#update(turn2);
+  }
+  /** A running call's tool.progress: its meter and note move. Reports for a call the turn lacks wait for its tool.start. */
+  progress(p3) {
+    this.#progress.set(p3.tool_id, { progress: p3.progress, total: p3.total ?? null, percent: p3.percent ?? null, message: p3.message ?? null });
+    const turn2 = this.#turn;
+    if (turn2 && turn2 === this.#deps.transcript().live) this.#update(turn2);
+    else this.track();
+  }
+  /** The turn ended (message.complete, an interrupt): the card's last update is its receipt. */
+  settle() {
+    const turn2 = this.#turn;
+    if (turn2) this.#update(turn2);
+    this.#turn = void 0;
+    this.#handle = void 0;
+    this.#progress.clear();
+  }
+  #card(turn2) {
+    return toolProgressCard(this.#deps.transcript().entries, turn2, this.#deps.cwd(), this.#deps.label, this.#progress);
+  }
+  #update(turn2) {
+    if (!this.#handle) return;
+    try {
+      this.#handle.update(this.#card(turn2), NO_INTENT);
+    } catch (error) {
+      this.#refused = error instanceof Error ? error.message : String(error);
+      this.#handle = void 0;
+    }
+  }
+};
+
 // src/todo-hud.ts
 var MAX_CACHED_SESSIONS = 24;
 var TodoHud = class {
@@ -108706,8 +108857,8 @@ function adoptSteps(host2) {
   ];
 }
 function adoptAll(steps, a2) {
-  for (const step2 of steps) {
-    step2.adopt(a2);
+  for (const step3 of steps) {
+    step3.adopt(a2);
   }
 }
 
@@ -109642,8 +109793,8 @@ function placeCompactions(entries2, compactions, id3) {
     const before2 = entries2.slice(0, next2).findLast((e) => e.kind === "user" || e.kind === "turn");
     const ended = before2?.kind === "turn" ? turnEndedAt(before2) : void 0;
     if (before2?.kind === "turn" && (ended === void 0 || ended >= at3)) {
-      const step2 = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at3);
-      before2.blocks.splice(step2 + 1, 0, { at: at3, compaction, id: id3("z"), kind: "compaction" });
+      const step3 = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at3);
+      before2.blocks.splice(step3 + 1, 0, { at: at3, compaction, id: id3("z"), kind: "compaction" });
       before2.rev++;
     } else {
       entries2.splice(next2, 0, { compaction, id: id3("z"), kind: "compaction", rev: 0 });
@@ -111015,6 +111166,12 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   const viewer = new Viewer(gw2);
   const transcript = new Transcript();
   const workTree = new WorkTreeCard(changed);
+  const toolProgress = new ToolProgressCards({
+    eui: () => chat.eui,
+    transcript: () => transcript,
+    cwd: () => session3.info?.cwd ?? "",
+    label: (call, running2) => liveLabel({ call, id: call.id, kind: "tool" }, running2)
+  });
   const activity = new Activity();
   const live = {
     changed,
@@ -111266,7 +111423,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const completion2 = new Completion(chat, gw2, () => session3.ref.live, () => session3.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
-  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, viewer, warned, welcome, widgets, workTree };
+  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, toolProgress, viewer, warned, welcome, widgets, workTree };
 }
 function disposeStores(s2) {
   s2.mediaDelivery.clear(true);
