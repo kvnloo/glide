@@ -13,7 +13,7 @@ import contextlib
 from pathlib import Path
 
 from . import (
-    browser_backend, channels, charts, ephemeral_cards, launcher, plan_gateway,
+    browser_backend, channels, charts, controls, ephemeral_cards, launcher, plan_gateway,
     plugin_data, pull_requests, tern_env, viewers,
 )
 
@@ -41,6 +41,7 @@ def register(ctx) -> None:
         description="Selects bar, line or no visualization for a settled Markdown table in `hermes tern`.")
     charts.register(ctx)
     pull_requests.register(ctx)
+    controls.register(ctx)
     ephemeral_cards.register(ctx)
     viewers.register(ctx)
     tern_env.register(ctx)

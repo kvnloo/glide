@@ -132,6 +132,7 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 16. `table-charts`
 17. `tool-results-sheet`
 18. `gateway-prompts`
+19. `ask-control`
 
 ## sessions
 

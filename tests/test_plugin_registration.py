@@ -55,7 +55,7 @@ def test_registers_only_public_plugin_apis(ctx):
 def test_the_tools_and_hooks_are_the_declared_ones_and_there_is_no_middleware(ctx):
     tools = [k["name"] for _, k in ctx.of("register_tool")]
     assert tools == [
-        "link_pull_request", "unlink_pull_request", "list_pull_requests", "glide_skin",
+        "link_pull_request", "unlink_pull_request", "list_pull_requests", "ask_control", "glide_skin",
         "glide_ui_mount", "glide_ui_unmount", "glide_ui_style", "glide_page_open",
     ]
     assert f"provides_tools: [{', '.join(tools)}]" in MANIFEST

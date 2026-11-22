@@ -19,6 +19,7 @@ import { CommandCatalog } from '../commands/resolve.js'
 import { runSlash, type SlashCx } from '../commands/slash.js'
 import type { LaunchEnv } from '../config/env.js'
 import type { ConnectWatcher } from '../connections/watcher.js'
+import type { Controls } from '../controls/store.js'
 import type { Disposables } from '../core/disposables.js'
 import { Flash } from '../core/flash.js'
 import type { PrKey } from '../core/ids.js'
@@ -116,6 +117,7 @@ export interface ActionsCx {
   readonly todoHud: TodoHud
   readonly media: Media
   readonly connect: ConnectWatcher
+  readonly controls: Controls
   readonly sidebar: Sidebar
   readonly factory: FactoryPane
   readonly prAside: PrAside
@@ -239,6 +241,7 @@ export class AppActions {
     this.events = {
       attachNativeImage: image => attachNativeImage(cx, image),
       connect: cx.connect,
+      controls: cx.controls,
       focusComposer: () => {
         cx.hud.release()
         cx.surface().focus(INPUT_ID)
