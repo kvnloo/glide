@@ -14,6 +14,7 @@
 
 import { contrastRatio, mix, relativeLuminance } from '../../frontend/src/hermes/theme.js'
 import { NIGHT_INKS } from './tokens.js'
+import { frost as backdrop, SHARED } from './sharedTheme.js'
 import { minifyCss } from './css.js'
 
 import type { WalColors, WalPalette } from './wal.js'
@@ -134,14 +135,14 @@ const rgba = (hex: string, pct: number) => {
 /** The glass stylesheet for a wallpaper palette; appended to the auto theme's sheet. */
 export function glassCss(p: WalPalette): string {
   const shade = mix(p.bg, '#000000', 0.7)
-  const vars = '--g-ease: cubic-bezier(.2, .7, .2, 1)'
+  const vars = `--g-ease: ${SHARED.motion.easing.glass}`
   const a = (pct: number) => rgba(p.accent, pct)
   const b = (pct: number) => rgba(p.glow, pct)
   const glass = (pct: number) => rgba(p.bg, pct)
   const shadow = (pct: number) => rgba(shade, pct)
   const hi = (pct: number) => rgba(p.fg, pct)
   const tint = glass(restTint(p))
-  const frost = '-webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%)'
+  const frost = backdrop(SHARED.glass.card)
   // One light source, from above: a neutral shadow that sets the pane on the wallpaper and a hairline
   // rim brightest on top. No colored outer halo: a gold and a cyan bloom read as neon, not glass.
   const halo = `0 1px 2px ${shadow(40)}, 0 18px 40px -18px ${shadow(85)}, inset 0 1px 0 ${hi(8)}`
@@ -251,12 +252,14 @@ export function playStops(p: WalPalette): PlayStop[] {
     const floor = tintFloor(inks, hue, p.samples, stepsTo(saturate))
     return { at, hue, tint: Math.min(100, Math.max(floor, tint)), blur, saturate, glow, motes }
   }
+  // Rest is the shared theme's card glass; the sweep peaks at its max level (blur and saturation).
+  const { card, max } = SHARED.glass
   return [
-    { at: 0, hue: p.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 },
+    { at: 0, hue: p.bg, tint: rest, blur: card.blur, saturate: card.saturate, glow: 1, motes: 1 },
     stop(18, p.bg, p.floor, 2, 100, 0.25, 0.6),
-    stop(42, hueAt(p.bg, p.glow), rest, 34, 220, 2.2, 2),
-    stop(66, hueAt(p.bg, p.accent), rest, 44, 200, 3, 2.6),
-    { at: 100, hue: p.bg, tint: rest, blur: 22, saturate: 140, glow: 1, motes: 1 }
+    stop(42, hueAt(p.bg, p.glow), rest, 34, max.saturate, 2.2, 2),
+    stop(66, hueAt(p.bg, p.accent), rest, max.blur, 200, 3, 2.6),
+    { at: 100, hue: p.bg, tint: rest, blur: card.blur, saturate: card.saturate, glow: 1, motes: 1 }
   ]
 }
 

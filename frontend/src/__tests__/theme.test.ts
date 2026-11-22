@@ -128,7 +128,7 @@ describe('dash theme mode', () => {
 
     theme.apply()
     expect(h.sent.at(-1)?.name).toEqual({ dark: 'dash', light: 'dash' })
-    expect(h.sent.at(-1)?.dark).toMatchObject({ accent: '#d7b986', text: '#ECE8DF', statusLineModel: '#d7b986' })
+    expect(h.sent.at(-1)?.dark).toMatchObject({ accent: '#d7b986', text: '#ece8df', statusLineModel: '#d7b986' })
     expect(h.sheets.at(-1)?.[1]).toMatch(/background: ?#0c0c0a/)
     expect(theme.wal?.accent).toBe('#d7b986')
 

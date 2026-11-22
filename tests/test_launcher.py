@@ -295,6 +295,22 @@ def test_dash_theme_is_black_and_gold_with_readable_text():
         assert _contrast(vars_[colors[key]], vars_["background"]) >= 4.5, key
 
 
+def test_install_themes_wears_the_shared_theme_files_night(tmp_path, monkeypatch):
+    """GL-102: the dash window theme is written from the shared theme file at install, so a token changed there shows."""
+    from hermes_tern_plugin.glide import whole_theme
+
+    shared = json.loads(whole_theme.SHARED.read_text())
+    shared["color"]["dark"]["bg"] = "#101820"
+    path = tmp_path / "glide.json"
+    path.write_text(json.dumps(shared))
+    monkeypatch.setattr(whole_theme, "SHARED", path)
+    env = {"PI_CODING_AGENT_DIR": str(tmp_path / "agent")}
+    launcher.install_themes(env)
+    installed = json.loads((tmp_path / "agent" / "themes" / "dash.json").read_text())
+    assert installed["vars"]["background"] == "#101820"
+    assert installed["colors"] == json.loads((launcher.THEMES / "dash.json").read_text())["colors"]
+
+
 def test_install_themes_copies_once_into_omps_theme_folder(tmp_path):
     env = {"PI_CODING_AGENT_DIR": str(tmp_path / "agent")}
     target = tmp_path / "agent" / "themes" / "dash.json"
