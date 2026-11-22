@@ -1,12 +1,14 @@
 // Adapted from kvnloo/hermes-tern PR #50: one App across browser, media refusal and 3D fanout.
-// The separate native Tern pane is outside fakeTern's observable surface.
+// The opt-in browser observer renders the file handed to the native split boundary.
 import { execFile } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { promisify } from 'node:util'
 
 import { Node } from '@stencil-hq/tern'
+import { build } from 'esbuild'
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 
 import { modelSources } from '../artifacts.js'
@@ -49,19 +51,33 @@ function completeTool(gw: FakeGateway, toolId: string, name: string, args: Recor
   gw.event({ type: 'tool.complete', session_id: 's1', payload: { tool_id: toolId, name, args, result, duration_s: 0.01 } })
 }
 
-/** A valid minimal GLB: v2 header and padded JSON chunk. */
-function glbBytes(): Buffer {
-  const json = Buffer.from('{"asset":{"version":"2.0"}}')
-  const padded = Math.ceil(json.length / 4) * 4
-  const bytes = Buffer.alloc(20 + padded, 0x20)
-  bytes.write('glTF', 0, 'ascii')
-  bytes.writeUInt32LE(2, 4)
-  bytes.writeUInt32LE(bytes.length, 8)
-  bytes.writeUInt32LE(padded, 12)
-  bytes.write('JSON', 16, 'ascii')
-  json.copy(bytes, 20)
+const proofDir = new URL('../../../glide/tools/', import.meta.url)
+const browser = process.env['GLIDE_SMOKE_CHROME']
 
-  return bytes
+async function measureRotation(modelPath: string, chrome: string): Promise<void> {
+  const nodePath = must(process.env['GLIDE_SMOKE_NODE_MODULES'], 'Three.js smoke dependency directory')
+  const { outputFiles } = await build({
+    entryPoints: [fileURLToPath(new URL('rotating-glb-smoke.mjs', proofDir))],
+    nodePaths: [nodePath], bundle: true, minify: true, write: false
+  })
+  const script = must(outputFiles[0]).text.replaceAll('</script', '<\\/script')
+  const model = readFileSync(modelPath).toString('base64')
+  const page = join(home, 'rotation.html')
+  writeFileSync(page, `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'"><body><pre id="result">pending</pre>
+    <script id="model" type="application/octet-stream">${model}</script><script>${script}</script>`)
+  const actual = await vi.importActual<typeof import('node:child_process')>('node:child_process')
+  const { stdout } = await promisify(actual.execFile)(chrome, [
+    '--headless', '--enable-unsafe-swiftshader', '--use-angle=swiftshader',
+    `--user-data-dir=${join(home, 'chrome')}`, '--virtual-time-budget=5000', '--dump-dom', pathToFileURL(page).href
+  ], { timeout: 15_000, maxBuffer: 4 * 1024 * 1024 })
+  const result = must(/<pre id="result">([^<]*)<\/pre>/.exec(stdout)?.[1], 'browser pixel result')
+  expect(result).toMatch(/^\d+,\d+,\d+,\d+$/)
+  const [first, turned, repeat, motion] = result.split(',').map(Number)
+  expect(first).toBeGreaterThan(100)
+  expect(turned).toBeGreaterThan(100)
+  expect(repeat).toBe(0)
+  expect(motion).toBeGreaterThan(100)
+  process.stdout.write(`GLB WebGL readback: first=${first}, turned=${turned}, same-pose=${repeat}, rotated=${motion} pixels changed\n`)
 }
 
 afterEach(() => {
@@ -79,11 +95,11 @@ afterAll(() => {
 })
 
 describe('post-merge App smoke', () => {
-  it('routes browser focus, refuses unproven tool images and opens a 3D split in one session, then disposes timers', async () => {
+  it(`routes browser focus, refuses unproven tool images and opens a 3D split${browser ? ' with WebGL rotation' : ''}, then disposes timers`, async ({ onTestFinished }) => {
     const imagePath = join(home, 'preview.png')
     const modelPath = join(home, 'scene.glb')
     writeFileSync(imagePath, png)
-    writeFileSync(modelPath, glbBytes())
+    copyFileSync(new URL('fixtures/BoxVertexColors.glb', proofDir), modelPath)
 
     const gw = new FakeGateway({ replies: {
       'setup.status': () => ({ provider_configured: true }),
@@ -103,6 +119,14 @@ describe('post-merge App smoke', () => {
     Object.assign(tern.session.caps, { reduceMotion: true })
     const app = new App(tern.session, gw.client, '', { launch: readLaunchEnv({ HOME: home }, home) })
     const done = app.run()
+    let quitting = false
+    onTestFinished(async () => {
+      if (!quitting) {
+        vi.useRealTimers()
+        app.quit()
+        await done
+      }
+    })
     gw.event({ type: 'gateway.ready', payload: {} })
     await vi.waitFor(() => expect(app.session.ref.live).toBe('s1'))
     await settle(gw)
@@ -154,6 +178,7 @@ describe('post-merge App smoke', () => {
     expect(modelSources({ url: modelUrl.href })).toEqual([modelUrl.href])
     expect(modelSources({ url: htmlUrl.href })).toEqual([])
     vi.stubEnv('TERN_PANE', 'smoke-test-pane')
+    completeTool(gw, 'not-a-model', 'mcp__meshy__meshy_download_model', {}, { success: true, model_url: htmlUrl.href })
     completeTool(gw, 'model-1', 'mcp__meshy__meshy_download_model', {}, { success: true, model_url: modelUrl.href })
     await vi.waitFor(() => expect(execFile).toHaveBeenCalledWith(
       'tern', ['open', '--split', 'right', modelPath], { timeout: 15_000 }, expect.any(Function)
@@ -163,8 +188,13 @@ describe('post-merge App smoke', () => {
     // model opens specifically so an unrelated subprocess is not a false failure.
     const calls = vi.mocked(execFile).mock.calls
     expect(calls.some(([command]) => command === 'git')).toBe(true)
-    expect(calls.filter(([command, args]) => command === 'tern' &&
-      Array.isArray(args) && args[0] === 'open' && args[3] === modelPath)).toHaveLength(1)
+    const opens = calls.filter(([command, args]) => command === 'tern' &&
+      Array.isArray(args) && args[0] === 'open')
+    expect(opens).toHaveLength(1)
+    if (browser) {
+      const [, args] = must(opens[0])
+      await measureRotation(String(must(Array.isArray(args) ? args[3] : undefined)), browser)
+    }
     expect(mainWireNodes(tern).some(n => n.k === 'section' && n.p?.['key'] === 'model-1')).toBe(true)
     expect(gw.sent('session.create')).toHaveLength(1)
     expect(gw.sent('session.resume')).toEqual([])
@@ -177,11 +207,10 @@ describe('post-merge App smoke', () => {
     await settle(gw)
     expect(vi.getTimerCount()).toBeGreaterThan(0)
     const dispose = vi.spyOn(app, 'dispose')
+    quitting = true
     app.quit()
     await done
     expect(dispose).toHaveBeenCalledOnce()
     expect(vi.getTimerCount()).toBe(0)
-  })
-
-  it.todo('3D pane pixels: fakeTern cannot observe the separate native pane opened by the tern CLI')
+  }, browser ? 25_000 : undefined)
 })
