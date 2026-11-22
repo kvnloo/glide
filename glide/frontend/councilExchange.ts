@@ -33,6 +33,17 @@ export function reportClauses(run: CouncilRun): ReportClause[] {
   return clauses
 }
 
+/** One thing Read aloud speaks; `seat` names the seat whose report it is, if any. */
+export interface CouncilPassage { readonly key: string; readonly label: string; readonly text: string; readonly seat: string | null }
+
+/** What a reader speaks, in order: the brief with its constraints, then each clause of the report. */
+export function councilPassages(run: CouncilRun): CouncilPassage[] {
+  return [
+    { key: 'brief', label: 'The brief', text: [run.brief, ...(run.constraints ?? [])].join(' '), seat: null },
+    ...reportClauses(run).map(c => ({ key: `report:${c.label.toLowerCase()}`, label: c.label, text: `${c.label}. ${c.text}`, seat: null }))
+  ]
+}
+
 export function exchangeTiming(run: CouncilRun, reduce = false) {
   const typing = reduce ? 0 : Math.min(3200, Math.max(900, (run.brief.length + (run.constraints ?? []).join('').length) * 24))
   const working = typing + (reduce ? 0 : DELIVERY_MS)

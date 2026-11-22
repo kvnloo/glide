@@ -273,10 +273,17 @@ def _json_call(home: Path, rest: str, session_id: str) -> str:
 
     Card frontends reach it through the core's command.dispatch; the session is the caller's own.
     """
-    from . import gateway
+    from . import council_session, gateway
     verb, _, raw = rest.strip().partition(" ")
     try:
         params = {**json.loads(raw or "{}"), "session_id": session_id}
+        council = verb.removeprefix("council.")
+        if verb.startswith("council.") and council in council_session.VERBS:
+            try:
+                return json.dumps(council_session.call(home, council, params))
+            except (council_session.Conflict, LookupError) as error:
+                code, message = council_session.failure(error)
+                return json.dumps({"error": message, "code": code})
         if verb not in gateway.VERBS:
             raise ValueError(f"unknown glide verb: {verb or '(none)'}")
         return json.dumps(gateway.call(home, verb, params))
@@ -396,6 +403,9 @@ def register(ctx) -> None:
                            description="Use when the user installs or sets up Glide, or asks what it remembers.")
     ctx.register_command("fleet", gateway.command, description="Read local fleet snapshots or pod details as JSON",
                          args_hint="hosts|portfolio|factory|pod [JSON params]")
+    from . import council_session
+
+    council_session.register(ctx)  # Council handoff (GL-103); `/glide json council.<verb>` on stock Hermes.
     gateway.register(ctx)  # Optional fast path; /fleet works on stock Hermes.
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
                          args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]]")
