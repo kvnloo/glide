@@ -37,7 +37,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - name: Install, validate and exercise public main in a disposable Hermes home
+      - name: Install, validate and exercise the workflow checkout in a disposable Hermes home
         run: nice -n 10 bash scripts/e2e-fresh-install.sh
 
   layout-and-tests:
