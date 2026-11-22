@@ -190,6 +190,7 @@ frontend/src/__tests__/clockPreference.test.ts
 frontend/src/__tests__/codeReview.test.ts
 frontend/src/__tests__/commandBudget.test.ts
 frontend/src/__tests__/compactCommand.test.ts
+frontend/src/__tests__/completedWorkAttention.test.ts
 frontend/src/__tests__/contextMeter.test.ts
 frontend/src/__tests__/contrast.test.ts
 frontend/src/__tests__/delegateFold.test.ts
