@@ -123,7 +123,7 @@ describe('voice lanes popup', () => {
       if (url.endsWith('/launch')) {
         expect(init.method).toBe('POST')
         expect(init.redirect).toBe('error')
-        expect(init.headers.Authorization).toBe('Bearer fixture')
+        expect(init.headers['Authorization']).toBe('Bearer fixture')
         // Finish by removing the added small lane, keeping both fast lanes and the new large model.
         expect(init.body).toBe(JSON.stringify({
           session_id: 'call-1', choice: step === 2 ? '0 council, 2 fast, 1 small, set large lanes to sonnet' : changes[step]?.[0]
