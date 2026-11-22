@@ -19671,12 +19671,12 @@ var require_CSSValueExpression = __commonJS({
         return false;
       }
     };
-    CSSOM.CSSValueExpression.prototype._parseJSString = function(token, idx, sep) {
-      var endIdx = this._findMatchedIdx(token, idx, sep), text24;
+    CSSOM.CSSValueExpression.prototype._parseJSString = function(token, idx, sep2) {
+      var endIdx = this._findMatchedIdx(token, idx, sep2), text24;
       if (endIdx === -1) {
         return false;
       } else {
-        text24 = token.substring(idx, endIdx + sep.length);
+        text24 = token.substring(idx, endIdx + sep2.length);
         return {
           idx: endIdx,
           text: text24
@@ -19716,15 +19716,15 @@ var require_CSSValueExpression = __commonJS({
       if (!isLegal) {
         return false;
       } else {
-        var sep = "/";
-        return this._parseJSString(token, idx, sep);
+        var sep2 = "/";
+        return this._parseJSString(token, idx, sep2);
       }
     };
-    CSSOM.CSSValueExpression.prototype._findMatchedIdx = function(token, idx, sep) {
+    CSSOM.CSSValueExpression.prototype._findMatchedIdx = function(token, idx, sep2) {
       var startIdx = idx, endIdx;
       var NOT_FOUND = -1;
       while (true) {
-        endIdx = token.indexOf(sep, startIdx + 1);
+        endIdx = token.indexOf(sep2, startIdx + 1);
         if (endIdx === -1) {
           endIdx = NOT_FOUND;
           break;
@@ -34124,11 +34124,11 @@ async function serve(req, res, file2) {
   if (await realpath(file2.path) !== file2.path) throw new Error("page file moved");
   const handle3 = await open(file2.path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
-    const stat2 = await handle3.stat();
-    if (!stat2.isFile() || stat2.size > file2.limit) throw new Error("invalid page file");
-    const range2 = req.headers.range ? byteRange(req.headers.range, stat2.size) : void 0;
+    const stat3 = await handle3.stat();
+    if (!stat3.isFile() || stat3.size > file2.limit) throw new Error("invalid page file");
+    const range2 = req.headers.range ? byteRange(req.headers.range, stat3.size) : void 0;
     if (req.headers.range && !range2) {
-      res.writeHead(416, { "Content-Range": `bytes */${stat2.size}` }).end();
+      res.writeHead(416, { "Content-Range": `bytes */${stat3.size}` }).end();
       return;
     }
     res.writeHead(range2 ? 206 : 200, {
@@ -34137,8 +34137,8 @@ async function serve(req, res, file2) {
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "Cross-Origin-Resource-Policy": "same-origin",
-      "Content-Length": range2 ? range2.end - range2.start + 1 : stat2.size,
-      ...range2 ? { "Content-Range": `bytes ${range2.start}-${range2.end}/${stat2.size}` } : {}
+      "Content-Length": range2 ? range2.end - range2.start + 1 : stat3.size,
+      ...range2 ? { "Content-Range": `bytes ${range2.start}-${range2.end}/${stat3.size}` } : {}
     });
     if (req.method === "HEAD") {
       res.end();
@@ -34166,10 +34166,10 @@ async function pageOrigin(path2, assets) {
     }
     const handle3 = await open(candidate, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     try {
-      const stat2 = await handle3.stat();
-      remaining2 -= stat2.size;
-      if (!stat2.isFile() || remaining2 < 0) throw new Error("Page assets exceed 128 MiB or are not regular files");
-      files.set(prefix2 + urlPath(name), { path: candidate, mime: type, limit: stat2.size });
+      const stat3 = await handle3.stat();
+      remaining2 -= stat3.size;
+      if (!stat3.isFile() || remaining2 < 0) throw new Error("Page assets exceed 128 MiB or are not regular files");
+      files.set(prefix2 + urlPath(name), { path: candidate, mime: type, limit: stat3.size });
     } finally {
       await handle3.close();
     }
@@ -34207,6 +34207,109 @@ async function pageOrigin(path2, assets) {
     server.close();
     server.closeAllConnections();
   } };
+}
+
+// ../glide/frontend/deepZoom.ts
+import { randomUUID as randomUUID3 } from "node:crypto";
+import { readFile as readFile2, realpath as realpath2, stat } from "node:fs/promises";
+import { createServer as createServer2 } from "node:http";
+import { basename as basename4, dirname as dirname3, join as join6, sep } from "node:path";
+var LOOPBACK2 = "127.0.0.1";
+var TILE_MIME = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+var DZI_LIMIT = 64 * 2 ** 10;
+var TILE_LIMIT = 16 * 2 ** 20;
+var VIEWER_LIMIT = 4 * 2 ** 20;
+var MAX_SIDE = 2 ** 22;
+var attr = (xml3, tag3, name) => {
+  const el = new RegExp(`<(?:\\w+:)?${tag3}\\b([^>]*)>`, "i").exec(xml3)?.[1] ?? "";
+  return new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`).exec(el)?.[1];
+};
+var int2 = (raw2) => raw2 !== void 0 && /^\d+$/.test(raw2.trim()) ? Number(raw2) : NaN;
+function parseDzi(xml3) {
+  if (!/<(?:\w+:)?Image\b/i.test(xml3)) throw new Error("not a Deep Zoom Image descriptor");
+  const width = int2(attr(xml3, "Size", "Width"));
+  const height = int2(attr(xml3, "Size", "Height"));
+  const tileSize = int2(attr(xml3, "Image", "TileSize"));
+  const overlap2 = int2(attr(xml3, "Image", "Overlap") ?? "0");
+  const format = (attr(xml3, "Image", "Format") ?? "").toLowerCase();
+  if (!TILE_MIME[format]) throw new Error("unsupported tile format");
+  if (!(width >= 1 && height >= 1 && width <= MAX_SIDE && height <= MAX_SIDE)) throw new Error("image size out of range");
+  if (!(tileSize >= 1 && tileSize <= 4096 && overlap2 >= 0 && overlap2 <= 64)) throw new Error("tile size out of range");
+  return { width, height, tileSize, overlap: overlap2, format, maxLevel: Math.ceil(Math.log2(Math.max(width, height))) };
+}
+function tileOf(d, path2) {
+  const m2 = /^image_files\/(\d{1,2})\/(\d{1,7})_(\d{1,7})\.([a-z]+)$/.exec(path2);
+  if (!m2 || m2[4] !== d.format) return void 0;
+  const [level, col, row2] = [Number(m2[1]), Number(m2[2]), Number(m2[3])];
+  if (level > d.maxLevel) return void 0;
+  const scale = 2 ** (d.maxLevel - level);
+  const cols = Math.ceil(Math.ceil(d.width / scale) / d.tileSize);
+  const rows2 = Math.ceil(Math.ceil(d.height / scale) / d.tileSize);
+  return col < cols && row2 < rows2 ? { level, col, row: row2 } : void 0;
+}
+async function deepZoomOrigin(dziPath, viewer) {
+  const descriptor = await realpath2(dziPath);
+  const entry = await realpath2(viewer);
+  if (!/\.dzi$/i.test(descriptor) || !/\.html?$/i.test(entry)) throw new Error("Invalid deep-zoom page");
+  if ((await stat(descriptor)).size > DZI_LIMIT) throw new Error("Deep Zoom descriptor over 64 KiB");
+  const dzi = parseDzi(await readFile2(descriptor, "utf8"));
+  const tiles = await realpath2(join6(dirname3(descriptor), basename4(descriptor).replace(/\.dzi$/i, "_files")));
+  if (!(await stat(tiles)).isDirectory()) throw new Error("No tile folder beside the descriptor");
+  const prefix2 = "/" + randomUUID3() + "/";
+  const served = { viewer: 0, descriptor: 0, tiles: 0, refused: 0 };
+  let host2 = "";
+  const server = createServer2((req, res) => {
+    const path2 = (req.url ?? "").split("?")[0] ?? "";
+    const name = path2.startsWith(prefix2) ? decodeURIComponent(path2.slice(prefix2.length)) : void 0;
+    const refuse = (code7 = 404) => {
+      served.refused++;
+      res.writeHead(code7).end();
+    };
+    if (name === void 0 || req.headers.host !== host2 || req.method !== "GET" && req.method !== "HEAD") return refuse();
+    const send2 = (file2, mime, limit) => serve(req, res, { path: file2, mime, limit });
+    let job;
+    if (name === "viewer.html") {
+      served.viewer++;
+      job = send2(entry, "text/html; charset=utf-8", VIEWER_LIMIT);
+    } else if (name === "image.dzi") {
+      served.descriptor++;
+      job = send2(descriptor, "application/xml", DZI_LIMIT);
+    } else {
+      const tile3 = tileOf(dzi, name);
+      if (!tile3) return refuse();
+      served.tiles++;
+      const file2 = join6(tiles, String(tile3.level), `${tile3.col}_${tile3.row}.${dzi.format}`);
+      job = file2.startsWith(tiles + sep) ? send2(file2, TILE_MIME[dzi.format] ?? "application/octet-stream", TILE_LIMIT) : void 0;
+    }
+    if (!job) return refuse();
+    job.catch((error) => {
+      if (res.headersSent) res.destroy(error instanceof Error ? error : void 0);
+      else refuse();
+    });
+  });
+  await new Promise((resolve11, reject) => {
+    server.once("error", reject);
+    server.listen(0, LOOPBACK2, () => {
+      server.removeListener("error", reject);
+      resolve11();
+    });
+  });
+  const addr = server.address();
+  if (!addr || typeof addr === "string") {
+    server.close();
+    throw new Error("No deep-zoom address");
+  }
+  host2 = `${LOOPBACK2}:${addr.port}`;
+  server.unref();
+  return {
+    url: `http://${host2}${prefix2}viewer.html`,
+    dzi,
+    served,
+    close: () => {
+      server.close();
+      server.closeAllConnections();
+    }
+  };
 }
 
 // src/glideui/pages.ts
@@ -34328,7 +34431,7 @@ var GlidePages = class {
     const known3 = this.#open.get(p3.id);
     let origin;
     try {
-      origin = p3.assets?.length ? await pageOrigin(p3.path, p3.assets) : void 0;
+      origin = p3.tiles ? await deepZoomOrigin(p3.tiles, p3.path) : p3.assets?.length ? await pageOrigin(p3.path, p3.assets) : void 0;
       const url = origin?.url ?? pageUrl(p3.path);
       let block2 = known3 ? await this.#browser({ op: "goto", block: known3.block, url }).then(() => known3.block, () => void 0) : void 0;
       if (block2 === void 0) {
@@ -34418,6 +34521,7 @@ var page = object({
   title: string2().check(_maxLength(60)),
   path: string2().check(_regex(/^\/.*\.html?$/i)),
   assets: loose(array(string2())),
+  tiles: loose(string2().check(_regex(/^\/.*\.dzi$/i))),
   how: _catch(_enum(PAGE_HOWS), "over"),
   opened: _catch(number2(), 0)
 });
@@ -34645,16 +34749,16 @@ var import_undici = __toESM(require_undici(), 1);
 import { execFile as execFile4 } from "node:child_process";
 import { createHash as createHash3 } from "node:crypto";
 import { lookup as dnsLookup } from "node:dns/promises";
-import { mkdir, open as open2, readFile as readFile2, rename, rm as rm2, stat, writeFile as writeFile2 } from "node:fs/promises";
+import { mkdir, open as open2, readFile as readFile3, rename, rm as rm2, stat as stat2, writeFile as writeFile2 } from "node:fs/promises";
 import { isIP as isIP2 } from "node:net";
 import { homedir as homedir4 } from "node:os";
-import { dirname as dirname3, extname as extname3, join as join6, resolve as resolve2 } from "node:path";
+import { dirname as dirname4, extname as extname3, join as join7, resolve as resolve2 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 import { promisify as promisify3 } from "node:util";
 var run2 = promisify3(execFile4);
 var MODEL = /\.(?:glb|gltf|obj|fbx|usdz)$/i;
 var MAX_BYTES = 128 * 1024 * 1024;
-var CACHE = join6(process.env["XDG_CACHE_HOME"] || join6(homedir4(), ".cache"), "glide", "artifacts");
+var CACHE = join7(process.env["XDG_CACHE_HOME"] || join7(homedir4(), ".cache"), "glide", "artifacts");
 function extension(source3) {
   try {
     return extname3(new URL(source3).pathname).toLowerCase();
@@ -34785,7 +34889,7 @@ async function companions(source3, path2) {
   if (ext !== ".gltf" && ext !== ".obj") {
     return;
   }
-  const text24 = await readFile2(path2, "utf8");
+  const text24 = await readFile3(path2, "utf8");
   let refs3;
   if (ext === ".gltf") {
     const doc = record(parseJson(text24));
@@ -34807,8 +34911,8 @@ async function companions(source3, path2) {
     if (/^[\w.+-]+:|^[/\\]|[?#]/.test(ref) || ref.split(/[/\\]/).includes("..")) {
       throw new Error("Model has an external companion. Use an embedded GLB instead.");
     }
-    const target2 = resolve2(dirname3(path2), ref);
-    await mkdir(dirname3(target2), { recursive: true, mode: 448 });
+    const target2 = resolve2(dirname4(path2), ref);
+    await mkdir(dirname4(target2), { recursive: true, mode: 448 });
     await download(new URL(ref, source3).href, target2);
   }
 }
@@ -34822,10 +34926,10 @@ async function openArtifact(source3, cwd = process.cwd()) {
     if (!MODEL.test(ext)) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz URL");
     }
-    const dir2 = join6(CACHE, createHash3("sha256").update(source3).digest("hex"));
-    path2 = join6(dir2, `model${ext}`);
+    const dir2 = join7(CACHE, createHash3("sha256").update(source3).digest("hex"));
+    path2 = join7(dir2, `model${ext}`);
     try {
-      await stat(join6(dir2, ".complete"));
+      await stat2(join7(dir2, ".complete"));
     } catch {
       await mkdir(dir2, { recursive: true, mode: 448 });
       const temp = `${path2}.${process.pid}.part`;
@@ -34833,7 +34937,7 @@ async function openArtifact(source3, cwd = process.cwd()) {
         await download(source3, temp);
         await companions(source3, temp);
         await rename(temp, path2);
-        await writeFile2(join6(dir2, ".complete"), "", { mode: 384 });
+        await writeFile2(join7(dir2, ".complete"), "", { mode: 384 });
       } finally {
         await rm2(temp, { force: true });
       }
@@ -34843,7 +34947,7 @@ async function openArtifact(source3, cwd = process.cwd()) {
     if (!MODEL.test(extension(path2))) {
       throw new Error("Use a .glb, .gltf, .obj, .fbx or .usdz file");
     }
-    if (!(await stat(path2)).isFile()) {
+    if (!(await stat2(path2)).isFile()) {
       throw new Error("Model path is not a file");
     }
   }
@@ -34882,7 +34986,7 @@ function copyToClipboard(text24, env2 = process.env) {
 }
 
 // src/hermes/mutate.ts
-import { randomUUID as randomUUID3 } from "node:crypto";
+import { randomUUID as randomUUID4 } from "node:crypto";
 var isSafeInteger = (value2) => Number.isSafeInteger(value2);
 async function currentGeneration(gw2, sid) {
   const snapshot4 = await rpc(gw2, "session.resume", { session_id: sid });
@@ -34903,7 +35007,7 @@ async function mutateSession(gw2, sid, operation2, payload) {
   }
   const result = await rpc(gw2, "session.mutate", {
     session_id: sid,
-    request_id: randomUUID3(),
+    request_id: randomUUID4(),
     expected_revision: snapshot4.revision,
     ...operation2 === "rename" ? {} : { expected_generation: snapshot4.execution_generation },
     operation: operation2,
@@ -40273,7 +40377,7 @@ var Poller = class {
 };
 
 // src/processes/widgets/author.ts
-import { randomUUID as randomUUID4 } from "node:crypto";
+import { randomUUID as randomUUID5 } from "node:crypto";
 
 // src/wire/charts.ts
 var reply = object({
@@ -40444,7 +40548,7 @@ function gatewayAuthor(gw2, sid) {
     if (!session3) {
       throw new Error("no session to send the chart request from");
     }
-    const job = randomUUID4();
+    const job = randomUUID5();
     const reply2 = new Promise((resolve11, reject) => {
       const done = () => {
         waiting5.delete(job);
@@ -40486,7 +40590,7 @@ function gatewayAuthor(gw2, sid) {
 // src/processes/widgets/files.ts
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
 import { homedir as homedir7 } from "node:os";
-import { isAbsolute as isAbsolute5, join as join7, normalize } from "node:path";
+import { isAbsolute as isAbsolute5, join as join8, normalize } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 var TARGET = /(?:^|[\s;&|(])(?:1|&)?>>?\s*([^\s;&|)<>]+)|\btee\s+(?:-a\s+)?([^\s;&|)<>-][^\s;&|)<>]*)/g;
 var CD = /^\s*cd\s+([^\s;&|]+)\s*(?:&&|;)/;
@@ -40506,7 +40610,7 @@ function outputFiles(command2, env2 = process.env) {
       continue;
     }
     const path2 = expand(raw2, env2);
-    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join7(base3, path2) : void 0);
+    const full = path2 && (isAbsolute5(path2) ? path2 : base3 && isAbsolute5(base3) ? join8(base3, path2) : void 0);
     if (full && !files.includes(normalize(full))) {
       files.push(normalize(full));
     }
@@ -46337,9 +46441,9 @@ function latestPlan(entries2) {
 
 // src/plan-editor.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { mkdtemp as mkdtemp2, readFile as readFile3, rm as rm3, writeFile as writeFile3 } from "node:fs/promises";
+import { mkdtemp as mkdtemp2, readFile as readFile4, rm as rm3, writeFile as writeFile3 } from "node:fs/promises";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join8 } from "node:path";
+import { join as join9 } from "node:path";
 var openPlanFile = (path2) => {
   const inTern = Boolean(process.env["TERN_WINDOW_KEY"]);
   const command2 = (process.env["VISUAL"] || process.env["EDITOR"] || "vi").trim().split(/\s+/);
@@ -46363,12 +46467,12 @@ var openPlanFile = (path2) => {
   }
 };
 async function editPlanExternal(initial, opener = openPlanFile) {
-  const dir2 = await mkdtemp2(join8(tmpdir2(), "hermes-plan-"));
+  const dir2 = await mkdtemp2(join9(tmpdir2(), "hermes-plan-"));
   try {
-    const path2 = join8(dir2, "plan.md");
+    const path2 = join9(dir2, "plan.md");
     await writeFile3(path2, initial, { mode: 384 });
     await opener(path2);
-    return await readFile3(path2, "utf8");
+    return await readFile4(path2, "utf8");
   } finally {
     await rm3(dir2, { force: true, recursive: true });
   }
@@ -48427,15 +48531,15 @@ function collectText(node4, info) {
     start = end + 1;
   }
   let index2 = -1;
-  let join25;
+  let join26;
   while (++index2 < lines.length) {
     if (lines[index2].charCodeAt(lines[index2].length - 1) === 8203 || index2 < lines.length - 1 && lines[index2 + 1].charCodeAt(0) === 8203) {
       result.push(lines[index2]);
-      join25 = void 0;
+      join26 = void 0;
     } else if (lines[index2]) {
-      if (typeof join25 === "number") result.push(join25);
+      if (typeof join26 === "number") result.push(join26);
       result.push(lines[index2]);
-      join25 = 0;
+      join26 = 0;
     } else if (index2 === 0 || index2 === lines.length - 1) {
       result.push(0);
     }
@@ -51417,7 +51521,7 @@ function htmlKind(value2) {
 }
 
 // node_modules/mdast-util-to-markdown/lib/join.js
-var join9 = [joinDefaults];
+var join10 = [joinDefaults];
 function joinDefaults(left, right, parent, state) {
   if (right.type === "code" && formatCodeAsIndented(right, state) && (left.type === "list" || left.type === right.type && formatCodeAsIndented(left, state))) {
     return false;
@@ -54394,7 +54498,7 @@ function toMarkdown(tree, options2) {
     handle: void 0,
     indentLines,
     indexStack: [],
-    join: [...join9],
+    join: [...join10],
     options: {},
     safe: safeBound,
     stack: [],
@@ -61033,7 +61137,7 @@ var defaultTreeAdapter = {
     }
   },
   adoptAttributes(recipient, attrs) {
-    const recipientAttrsMap = new Set(recipient.attrs.map((attr) => attr.name));
+    const recipientAttrsMap = new Set(recipient.attrs.map((attr2) => attr2.name));
     for (let j = 0; j < attrs.length; j++) {
       if (!recipientAttrsMap.has(attrs[j].name)) {
         recipient.attrs.push(attrs[j]);
@@ -61275,7 +61379,7 @@ var SVG_ATTRS_ADJUSTMENT_MAP = new Map([
   "xChannelSelector",
   "yChannelSelector",
   "zoomAndPan"
-].map((attr) => [attr.toLowerCase(), attr]));
+].map((attr2) => [attr2.toLowerCase(), attr2]));
 var XML_ATTRS_ADJUSTMENT_MAP = /* @__PURE__ */ new Map([
   ["xlink:actuate", { prefix: "xlink", name: "actuate", namespace: NS2.XLINK }],
   ["xlink:arcrole", { prefix: "xlink", name: "arcrole", namespace: NS2.XLINK }],
@@ -72578,10 +72682,10 @@ var VFile = class {
    * @returns {undefined}
    *   Nothing.
    */
-  set basename(basename12) {
-    assertNonEmpty(basename12, "basename");
-    assertPart(basename12, "basename");
-    this.path = default2.join(this.dirname || "", basename12);
+  set basename(basename13) {
+    assertNonEmpty(basename13, "basename");
+    assertPart(basename13, "basename");
+    this.path = default2.join(this.dirname || "", basename13);
   }
   /**
    * Get the parent path (example: `'~'`).
@@ -72602,9 +72706,9 @@ var VFile = class {
    * @returns {undefined}
    *   Nothing.
    */
-  set dirname(dirname10) {
+  set dirname(dirname11) {
     assertPath(this.basename, "dirname");
-    this.path = default2.join(dirname10 || "", this.basename);
+    this.path = default2.join(dirname11 || "", this.basename);
   }
   /**
    * Get the extname (including dot) (example: `'.js'`).
@@ -75010,7 +75114,7 @@ function openSessionInfo(host2) {
 }
 
 // src/overlays/sessions.tsx
-import { basename as basename5 } from "node:path";
+import { basename as basename6 } from "node:path";
 
 // src/hermes/sessionList.ts
 import { execFile as execFile9 } from "node:child_process";
@@ -75560,7 +75664,7 @@ function thoughtTitle(item3) {
 }
 
 // src/overlays/sessions/rows.ts
-import { basename as basename4 } from "node:path";
+import { basename as basename5 } from "node:path";
 var DAY2 = 864e5;
 var SNIPPET = 160;
 function snippet(text24, max = SNIPPET) {
@@ -75581,7 +75685,7 @@ function itemOf3(s2, now, elsewhere) {
       ...s2.running ? [{ text: "running", tone: "accent" }] : [],
       ...s2.pinned ? [{ text: "pinned" }] : [],
       ...s2.branch ? [{ text: s2.branch, title: `Branch ${s2.branch}` }] : [],
-      ...elsewhere && s2.cwd ? [{ text: basename4(s2.cwd), title: s2.cwd }] : []
+      ...elsewhere && s2.cwd ? [{ text: basename5(s2.cwd), title: s2.cwd }] : []
     ],
     ...optional("detail", detail || void 0),
     facts: { size: plural(s2.messages, "msg"), when: ageShort(now - s2.lastActive) },
@@ -75971,7 +76075,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const groups = /* @__PURE__ */ new Map();
       const add2 = (label2, id3) => groups.set(label2, [...groups.get(label2) ?? [], id3]);
       for (const s2 of list10) {
-        add2(s2.pinned ? "Pinned" : tab3 === "all" && here(s2) && workspace ? `In ${basename5(workspace)}` : dayOf(s2.lastActive, now), s2.id);
+        add2(s2.pinned ? "Pinned" : tab3 === "all" && here(s2) && workspace ? `In ${basename6(workspace)}` : dayOf(s2.lastActive, now), s2.id);
       }
       for (const [label2, ids] of groups) {
         order2.push({ count: ids.length, group: label2, label: label2 }, ...ids);
@@ -76003,7 +76107,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
       const { hits, order: order2 } = view(now);
       const s2 = sessions.find((x) => x.id === selected);
       const hereCount = sessions.filter(here).length;
-      const project2 = workspace ? basename5(workspace) : "This folder";
+      const project2 = workspace ? basename6(workspace) : "This folder";
       const pane = s2 ? sessionDetail({
         copied: copied.value === s2.id,
         focus: (key3) => focusBlock2(key3),
@@ -76934,7 +77038,7 @@ function openThemePicker(host2) {
 }
 
 // src/overlays/visualPicker.tsx
-import { basename as basename8 } from "node:path";
+import { basename as basename9 } from "node:path";
 
 // src/visual-discovery.ts
 import { isAbsolute as isAbsolute6 } from "node:path";
@@ -77021,12 +77125,12 @@ function recentVisualCandidates(entries2, scope2) {
 
 // src/visuals.ts
 import { constants as constants2 } from "node:fs";
-import { open as open3, realpath as realpath2 } from "node:fs/promises";
+import { open as open3, realpath as realpath3 } from "node:fs/promises";
 import { isAbsolute as isAbsolute7 } from "node:path";
 import { pathToFileURL as pathToFileURL6 } from "node:url";
 
 // src/wire/card.ts
-import { basename as basename6, dirname as dirname4, join as join10, resolve as resolve6 } from "node:path";
+import { basename as basename7, dirname as dirname5, join as join11, resolve as resolve6 } from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 function isCardContract(value2) {
   const module = record(value2);
@@ -77035,10 +77139,10 @@ function isCardContract(value2) {
   );
 }
 function packagedCardUrl() {
-  const here = dirname4(fileURLToPath6(import.meta.url));
-  const source3 = basename6(here) === "wire" && basename6(dirname4(here)) === "src";
+  const here = dirname5(fileURLToPath6(import.meta.url));
+  const source3 = basename7(here) === "wire" && basename7(dirname5(here)) === "src";
   const frontend = source3 ? resolve6(here, "../..") : resolve6(here, "..");
-  return pathToFileURL4(join10(frontend, "openui/card.mjs")).href;
+  return pathToFileURL4(join11(frontend, "openui/card.mjs")).href;
 }
 async function openCardContract() {
   let loaded;
@@ -77057,9 +77161,9 @@ async function openCardContract() {
 }
 
 // src/wire/openui.ts
-import { basename as basename7, dirname as dirname5, join as join11, resolve as resolve7 } from "node:path";
+import { basename as basename8, dirname as dirname6, join as join12, resolve as resolve7 } from "node:path";
 import { fileURLToPath as fileURLToPath7, pathToFileURL as pathToFileURL5 } from "node:url";
-import { readFile as readFile4 } from "node:fs/promises";
+import { readFile as readFile5 } from "node:fs/promises";
 function isOpenUiContract(value2) {
   const module = record(value2);
   return Boolean(
@@ -77067,10 +77171,10 @@ function isOpenUiContract(value2) {
   );
 }
 function packagedOpenUiUrl(path2) {
-  const here = dirname5(fileURLToPath7(import.meta.url));
-  const source3 = basename7(here) === "wire" && basename7(dirname5(here)) === "src";
+  const here = dirname6(fileURLToPath7(import.meta.url));
+  const source3 = basename8(here) === "wire" && basename8(dirname6(here)) === "src";
   const frontend = source3 ? resolve7(here, "../..") : resolve7(here, "..");
-  return pathToFileURL5(join11(frontend, "openui", path2)).href;
+  return pathToFileURL5(join12(frontend, "openui", path2)).href;
 }
 var packagedValidatorUrl = () => packagedOpenUiUrl("openui-preview/src/bundle.mjs");
 async function openUiContract() {
@@ -77110,7 +77214,7 @@ async function glideModules() {
       /* @vite-ignore */
       packagedOpenUiUrl("openui-generation/src/glide.mjs")
     ),
-    readFile4(new URL(packagedOpenUiUrl("openui-generation/fixtures/glide-programs.json")), "utf8")
+    readFile5(new URL(packagedOpenUiUrl("openui-generation/fixtures/glide-programs.json")), "utf8")
   ]);
   if (!isGenerationModule(generation) || !isGlideModule(glide2)) throw new Error("Unsupported packaged OpenUI generation exports.");
   const adapter2 = await generation.createGenerationAdapter({ library: "glide" });
@@ -77236,15 +77340,15 @@ async function readVisualFile(path2, maxBytes, signal) {
   if (!isAbsolute7(path2) || !path2.endsWith(".hvisual.json") || /[\p{Cc}\u202a-\u202e\u2066-\u2069]/u.test(path2)) {
     throw new Error("Use an absolute path to a prepared .hvisual.json file.");
   }
-  const canonical2 = await realpath2(path2);
+  const canonical2 = await realpath3(path2);
   if (!canonical2.endsWith(".hvisual.json")) {
     throw new Error("The resolved file must end in .hvisual.json.");
   }
   const file2 = await open3(canonical2, constants2.O_RDONLY | constants2.O_NONBLOCK | constants2.O_NOFOLLOW);
   try {
     signal?.throwIfAborted();
-    const stat2 = await file2.stat();
-    if (!stat2.isFile() || stat2.size > maxBytes) {
+    const stat3 = await file2.stat();
+    if (!stat3.isFile() || stat3.size > maxBytes) {
       throw new Error("Preview must be a bounded regular file.");
     }
     const bytes = Buffer.alloc(maxBytes + 1);
@@ -77441,7 +77545,7 @@ async function openVisualPicker(host2, path2, load3 = readPreparedVisual) {
         candidates2.map(
           (candidate, index2) => button({
             key: `candidate-${index2}`,
-            label: `${index2 === selected ? "\u203A " : ""}${basename8(candidate.path)} \xB7 ${candidate.id.slice(0, 12)}`,
+            label: `${index2 === selected ? "\u203A " : ""}${basename9(candidate.path)} \xB7 ${candidate.id.slice(0, 12)}`,
             hint: candidate.path,
             onClick: () => void choose(candidate)
           })
@@ -77711,7 +77815,7 @@ function obj2(v, where, keys3) {
 function str5(v, where, max) {
   return typeof v === "string" && v.trim() && v.length <= max ? v : fail(where, `expected text of 1-${max} characters`);
 }
-function int2(v, where, min, max) {
+function int3(v, where, min, max) {
   return typeof v === "number" && Number.isInteger(v) && v >= min && v <= max ? v : fail(where, `expected a whole number ${min}-${max}`);
 }
 function list9(v, where, min, max) {
@@ -77731,7 +77835,7 @@ function parseCouncilRun(raw2) {
 function readRun(raw2) {
   const d = obj2(raw2, "run", KEYS3.run);
   if (d["schema"] !== COUNCIL_SCHEMA) fail("schema", `expected "${COUNCIL_SCHEMA}"`);
-  const rounds = int2(d["rounds"], "rounds", 1, 8);
+  const rounds = int3(d["rounds"], "rounds", 1, 8);
   const used = /* @__PURE__ */ new Map();
   const index2 = /* @__PURE__ */ new Map();
   const seats = list9(d["seats"], "seats", 2, 6).map((v, i) => {
@@ -77760,7 +77864,7 @@ function readRun(raw2) {
     if (type !== "turn") return fail(`events.${i}.type`, 'expected "turn" or "spawn"');
     const e = obj2(v, `events.${i}`, KEYS3.turn);
     const cites = e["cites"] === void 0 ? [] : list9(e["cites"], `events.${i}.cites`, 0, 6).map((c, k) => seat(c, `events.${i}.cites.${k}`));
-    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int2(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
+    return Object.freeze({ type, seat: seat(e["seat"], `events.${i}.seat`), round: int3(e["round"], `events.${i}.round`, 1, rounds), cites: Object.freeze(cites) });
   });
   const heard2 = /* @__PURE__ */ new Set();
   const verdicts = list9(d["verdicts"], "verdicts", 0, 6).map((v, i) => {
@@ -78253,7 +78357,7 @@ function decodeFactory(schema2, output) {
 import { execFile as execFile10 } from "node:child_process";
 import { mkdtemp as mkdtemp3, rm as rm4, writeFile as writeFile4 } from "node:fs/promises";
 import { tmpdir as tmpdir3 } from "node:os";
-import { join as join12 } from "node:path";
+import { join as join13 } from "node:path";
 import { promisify as promisify8 } from "node:util";
 var exec = promisify8(execFile10);
 function pcmSpeech(wav) {
@@ -78291,7 +78395,7 @@ function pcmSpeech(wav) {
 }
 var platformSpeech = {
   async speak(text24, signal, playing) {
-    const dir2 = await mkdtemp3(join12(tmpdir3(), "glide-council-speech-"));
+    const dir2 = await mkdtemp3(join13(tmpdir3(), "glide-council-speech-"));
     try {
       let wav;
       for (const engine of ["espeak-ng", "espeak"]) {
@@ -78306,7 +78410,7 @@ var platformSpeech = {
       }
       if (!wav) throw new Error("Read aloud needs espeak-ng or espeak and paplay on this platform. The council remains available as text.");
       const audio = pcmSpeech(wav);
-      const file2 = join12(dir2, "sentence.wav");
+      const file2 = join13(dir2, "sentence.wav");
       await writeFile4(file2, wav, { signal });
       if (signal.aborted) return;
       await new Promise((resolve11, reject) => {
@@ -78952,7 +79056,7 @@ async function councilCommand(host2, arg, load3 = loadCouncil, clock7, options2 
 // ../glide/frontend/templates.ts
 import { execFile as execFile11 } from "node:child_process";
 import { mkdirSync as mkdirSync3, readFileSync as readFileSync6, renameSync, writeFileSync as writeFileSync2 } from "node:fs";
-import { dirname as dirname6, join as join13 } from "node:path";
+import { dirname as dirname7, join as join14 } from "node:path";
 var TEMPLATE_IDS = ["default", "mono", "studio"];
 var TEMPLATE_PANELS = ["analytics", "whiteboard"];
 var TEMPLATES = {
@@ -79055,7 +79159,7 @@ function analyticsData(entries2, now, cwd = "", commitTimes = []) {
 }
 var DATA = /(<script type="application\/json" id="glide-data">)[\s\S]*?(<\/script>)/;
 function writeAtomic(file2, text24) {
-  mkdirSync3(dirname6(file2), { recursive: true });
+  mkdirSync3(dirname7(file2), { recursive: true });
   const temporary = `${file2}.${process.pid}.tmp`;
   writeFileSync2(temporary, text24);
   renameSync(temporary, file2);
@@ -79125,11 +79229,11 @@ var Templates = class {
     for (const p3 of templatePanels(this.#host.file)) {
       if (!wanted.has(p3.page)) await this.#host.closePage?.(panelPageId(p3.page));
     }
-    const dir2 = join13(dirname6(this.#host.file), "pages");
+    const dir2 = join14(dirname7(this.#host.file), "pages");
     const add2 = [];
     for (const p3 of panels) {
       const html6 = readFileSync6((this.#host.shipped ?? shippedPage)(p3.page), "utf8");
-      const path2 = join13(dir2, `${p3.page}.html`);
+      const path2 = join14(dir2, `${p3.page}.html`);
       const panelData = p3.page === "analytics" ? await this.#analytics(now) : {};
       const json = JSON.stringify(panelData).replace(/</g, "\\u003c");
       writeAtomic(path2, html6.replace(DATA, (_m, open6, close) => `${open6}${json}${close}`));
@@ -82511,14 +82615,14 @@ async function researchCommand(host2, arg, o = {}) {
 }
 
 // src/commands/film.ts
-import { readFile as readFile5 } from "node:fs/promises";
+import { readFile as readFile6 } from "node:fs/promises";
 import { homedir as homedir8 } from "node:os";
-import { join as join15 } from "node:path";
+import { join as join16 } from "node:path";
 
 // src/wire/fframestudio.ts
-import { join as join14 } from "node:path";
+import { join as join15 } from "node:path";
 var filmId = (id3) => /^[\w.-]+$/.test(id3) && id3 !== "." && id3 !== "..";
-var filmProjectPath = (root7, id3) => filmId(id3) ? join14(root7, "projects", id3, "project.json") : void 0;
+var filmProjectPath = (root7, id3) => filmId(id3) ? join15(root7, "projects", id3, "project.json") : void 0;
 var bridge = object({ url: string2().check(_regex(/^http:\/\/127\.0\.0\.1:\d+$/)), token: string2().check(_regex(/^[\w.-]+$/)), root: string2() });
 var shot = object({ id: string2(), name: string2(), t0: number2(), t1: number2() });
 var project = object({
@@ -82572,8 +82676,8 @@ async function loadTakes(b, id3) {
   return r.ok ? filmTakes(await r.text()) : void 0;
 }
 async function filmCommand(host2, arg, d = {}) {
-  const read = d.read ?? ((path3) => readFile5(path3, "utf8"));
-  const file2 = d.bridgeFile ?? process.env["FFRAMESTUDIO_BRIDGE"] ?? join15(homedir8(), ".config", "fframestudio", "bridge.json");
+  const read = d.read ?? ((path3) => readFile6(path3, "utf8"));
+  const file2 = d.bridgeFile ?? process.env["FFRAMESTUDIO_BRIDGE"] ?? join16(homedir8(), ".config", "fframestudio", "bridge.json");
   const b = filmBridge(await read(file2).catch((error) => {
     if (record(error)?.["code"] !== "ENOENT") host2.transcript.notice("/film could not read the fframestudio bridge configuration", "warning");
     return "";
@@ -82584,7 +82688,7 @@ async function filmCommand(host2, arg, d = {}) {
   }
   const id3 = arg.trim();
   if (!id3) {
-    const lib = filmLibrary(await read(join15(b.root, "projects", "library.json")).catch((error) => {
+    const lib = filmLibrary(await read(join16(b.root, "projects", "library.json")).catch((error) => {
       if (record(error)?.["code"] !== "ENOENT") host2.transcript.notice("/film could not read the project library", "warning");
       return "";
     }));
@@ -83804,22 +83908,22 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
 
 // src/session/pane.ts
 import { mkdirSync as mkdirSync4, rmSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join17 } from "node:path";
+import { join as join18 } from "node:path";
 
 // src/config/dataDir.ts
 import { homedir as homedir9 } from "node:os";
-import { join as join16 } from "node:path";
-var dataDir = (env2 = process.env) => join16(env2["HERMES_HOME"] || join16(homedir9(), ".hermes"), "plugin-data", "glide");
+import { join as join17 } from "node:path";
+var dataDir = (env2 = process.env) => join17(env2["HERMES_HOME"] || join17(homedir9(), ".hermes"), "plugin-data", "glide");
 
 // src/session/pane.ts
-var paneFile = (pane, dir2 = dataDir()) => join17(dir2, "panes", `${pane}.json`);
+var paneFile = (pane, dir2 = dataDir()) => join18(dir2, "panes", `${pane}.json`);
 function markPane(launch3, sid, dir2 = dataDir()) {
   if (!launch3.pane) {
     return;
   }
   const record3 = { cwd: launch3.paneCwd, pid: process.pid, session_id: sid, updated_at: Date.now() / 1e3 };
   try {
-    mkdirSync4(join17(dir2, "panes"), { recursive: true });
+    mkdirSync4(join18(dir2, "panes"), { recursive: true });
     writeFileSync3(paneFile(launch3.pane, dir2), JSON.stringify(record3));
   } catch {
   }
@@ -83837,16 +83941,16 @@ function forgetPane(launch3, dir2 = dataDir()) {
 // src/settings.ts
 import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync4 } from "node:fs";
 import { homedir as homedir10 } from "node:os";
-import { dirname as dirname7, join as join18 } from "node:path";
+import { dirname as dirname8, join as join19 } from "node:path";
 function settingsFile2(env2 = process.env) {
-  return join18(env2["HERMES_HOME"] || join18(homedir10(), ".hermes"), "glide", "settings.json");
+  return join19(env2["HERMES_HOME"] || join19(homedir10(), ".hermes"), "glide", "settings.json");
 }
 function loadSettings(file2 = settingsFile2()) {
   return readSettings(file2);
 }
 function saveSettings(patch6, file2 = settingsFile2()) {
   const next2 = { ...readStoredSettings(file2), ...patch6 };
-  mkdirSync5(dirname7(file2), { recursive: true });
+  mkdirSync5(dirname8(file2), { recursive: true });
   writeFileSync4(file2, `${JSON.stringify(next2, null, 2)}
 `);
   return settingsOf(next2);
@@ -84148,7 +84252,7 @@ var SurfaceLifecycle = class {
 // src/eui/cards.ts
 import { createHash as createHash6 } from "node:crypto";
 import { readFileSync as readFileSync8 } from "node:fs";
-import { dirname as dirname8, join as join20, resolve as resolve8 } from "node:path";
+import { dirname as dirname9, join as join21, resolve as resolve8 } from "node:path";
 import { fileURLToPath as fileURLToPath9 } from "node:url";
 
 // src/wire/euiCard.ts
@@ -85005,7 +85109,7 @@ var EuiHostCards = class {
 
 // src/eui/sandbox.js
 import { existsSync as existsSync4, readFileSync as readFileSync7 } from "node:fs";
-import { join as join19 } from "node:path";
+import { join as join20 } from "node:path";
 import vm from "node:vm";
 
 // node_modules/linkedom/esm/shared/symbols.js
@@ -88634,8 +88738,8 @@ var CustomElementRegistry = class {
       const { Class, check: check2 } = registry.get(ce);
       if (check2(element6)) {
         const { attributes, isConnected: isConnected2 } = element6;
-        for (const attr of attributes)
-          element6.removeAttributeNode(attr);
+        for (const attr2 of attributes)
+          element6.removeAttributeNode(attr2);
         const values = entries(element6);
         for (const [key3] of values)
           delete element6[key3];
@@ -88643,8 +88747,8 @@ var CustomElementRegistry = class {
         ownerDocument[UPGRADE] = { element: element6, values };
         new Class(ownerDocument, ce);
         customElements.set(element6, { connected: isConnected2 });
-        for (const attr of attributes)
-          element6.setAttributeNode(attr);
+        for (const attr2 of attributes)
+          element6.setAttributeNode(attr2);
         if (isConnected2 && element6.connectedCallback)
           element6.connectedCallback();
       }
@@ -88819,9 +88923,9 @@ var loopSegment = ({ [NEXT]: next2, [END]: end }, json) => {
   else
     json.push(NODE_END);
 };
-var attrAsJSON = (attr, json) => {
-  json.push(ATTRIBUTE_NODE, attr.name);
-  const value2 = attr[VALUE].trim();
+var attrAsJSON = (attr2, json) => {
+  json.push(ATTRIBUTE_NODE, attr2.name);
+  const value2 = attr2[VALUE].trim();
   if (value2)
     json.push(value2);
 };
@@ -92563,12 +92667,12 @@ var DOMTokenList = class extends Set {
 var refs2 = /* @__PURE__ */ new WeakMap();
 var getKeys = (style2) => [...style2.keys()].filter((key3) => key3 !== PRIVATE);
 var updateKeys = (style2) => {
-  const attr = refs2.get(style2).getAttributeNode("style");
-  if (!attr || attr[CHANGED] || style2.get(PRIVATE) !== attr) {
+  const attr2 = refs2.get(style2).getAttributeNode("style");
+  if (!attr2 || attr2[CHANGED] || style2.get(PRIVATE) !== attr2) {
     style2.clear();
-    if (attr) {
-      style2.set(PRIVATE, attr);
-      for (const rule2 of attr[VALUE].split(/\s*;\s*/)) {
+    if (attr2) {
+      style2.set(PRIVATE, attr2);
+      for (const rule2 of attr2[VALUE].split(/\s*;\s*/)) {
         let [key3, ...rest] = rule2.split(":");
         if (rest.length > 0) {
           key3 = key3.trim();
@@ -92579,7 +92683,7 @@ var updateKeys = (style2) => {
       }
     }
   }
-  return attr;
+  return attr2;
 };
 var handler2 = {
   get(style2, name) {
@@ -92596,19 +92700,19 @@ var handler2 = {
     if (name === "cssText")
       style2[name] = value2;
     else {
-      let attr = updateKeys(style2);
+      let attr2 = updateKeys(style2);
       if (value2 == null)
         style2.delete(esm_default3(name));
       else
         style2.set(esm_default3(name), value2);
-      if (!attr) {
+      if (!attr2) {
         const element6 = refs2.get(style2);
-        attr = element6.ownerDocument.createAttribute("style");
-        element6.setAttributeNode(attr);
-        style2.set(PRIVATE, attr);
+        attr2 = element6.ownerDocument.createAttribute("style");
+        element6.setAttributeNode(attr2);
+        style2.set(PRIVATE, attr2);
       }
-      attr[CHANGED] = false;
-      attr[VALUE] = style2.toString();
+      attr2[CHANGED] = false;
+      attr2[VALUE] = style2.toString();
     }
     return true;
   }
@@ -92740,9 +92844,9 @@ var NamedNodeMap = class extends Array {
   getNamedItem(name) {
     return this.ownerElement.getAttributeNode(name);
   }
-  setNamedItem(attr) {
-    this.ownerElement.setAttributeNode(attr);
-    this.unshift(attr);
+  setNamedItem(attr2) {
+    this.ownerElement.setAttributeNode(attr2);
+    this.unshift(attr2);
   }
   removeNamedItem(name) {
     const item3 = this.getNamedItem(name);
@@ -92756,8 +92860,8 @@ var NamedNodeMap = class extends Array {
   getNamedItemNS(_2, name) {
     return this.getNamedItem(name);
   }
-  setNamedItemNS(_2, attr) {
-    return this.setNamedItem(attr);
+  setNamedItemNS(_2, attr2) {
+    return this.setNamedItem(attr2);
   }
   removeNamedItemNS(_2, name) {
     return this.removeNamedItem(name);
@@ -93139,9 +93243,9 @@ var Element2 = class extends ParentNode {
           break;
         }
         case ATTRIBUTE_NODE: {
-          const attr = next2.cloneNode(deep);
-          attr.ownerElement = parentNode;
-          addNext(attr);
+          const attr2 = next2.cloneNode(deep);
+          attr2.ownerElement = parentNode;
+          addNext(attr2);
           break;
         }
         case TEXT_NODE:
@@ -93165,14 +93269,14 @@ var Element2 = class extends ParentNode {
       next2 = next2[NEXT];
       switch (next2.nodeType) {
         case ATTRIBUTE_NODE: {
-          const attr = " " + next2;
-          switch (attr) {
+          const attr2 = " " + next2;
+          switch (attr2) {
             case " id":
             case " class":
             case " style":
               break;
             default:
-              out.push(attr);
+              out.push(attr2);
           }
           break;
         }
@@ -93234,8 +93338,8 @@ var Element2 = class extends ParentNode {
   setAttributeNS(_2, name, value2) {
     this.setAttribute(name, value2);
   }
-  setAttributeNodeNS(attr) {
-    return this.setAttributeNode(attr);
+  setAttributeNodeNS(attr2) {
+    return this.setAttributeNode(attr2);
   }
   /* c8 ignore stop */
 };
@@ -95947,7 +96051,7 @@ function svgInline(svg4, rules, theme) {
     if (style2.length) out[i].setAttribute("style", style2.map(([p3, v]) => `${p3}:${v}`).join(";"));
     else out[i].removeAttribute("style");
   });
-  const markup = copy.outerHTML.replace(/="[^"]*"/g, (attr) => attr.replace(/</g, "&lt;"));
+  const markup = copy.outerHTML.replace(/="[^"]*"/g, (attr2) => attr2.replace(/</g, "&lt;"));
   return markup.includes("xmlns=") ? markup : markup.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
 }
 
@@ -95958,12 +96062,12 @@ var listened = /* @__PURE__ */ new WeakMap();
 var listening = /* @__PURE__ */ new WeakSet();
 var NATIVE2 = /* @__PURE__ */ new Set(["button", "a", "summary", "input", "select", "label"]);
 function vendorDir(candidates2) {
-  return candidates2.find((d) => existsSync4(join19(d, "kit.js"))) ?? "";
+  return candidates2.find((d) => existsSync4(join20(d, "kit.js"))) ?? "";
 }
 function readOfflineData(dir2, request2) {
   const match = /^(?:\.\/)?data\/(apps|themes|trace-fixture|intent-snapshot|ops-fixture)\.json$/.exec(request2);
   if (!match) return void 0;
-  const file2 = join19(dir2, "data", match[1] + ".json");
+  const file2 = join20(dir2, "data", match[1] + ".json");
   return existsSync4(file2) ? readFileSync7(file2, "utf8") : void 0;
 }
 async function createSandbox(dir2, scheme2 = "light", log = () => {
@@ -96134,13 +96238,13 @@ async function createSandbox(dir2, scheme2 = "light", log = () => {
   ctx.self = ctx;
   ctx.globalThis = ctx;
   vm.createContext(ctx);
-  vm.runInContext(readFileSync7(join19(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
+  vm.runInContext(readFileSync7(join20(dir2, "kit.js"), "utf8"), ctx, { filename: "ephemeral-ui/kit.js" });
   const K2 = ctx.__EUI;
   await K2.loadApps();
-  const themes = JSON.parse(readFileSync7(join19(dir2, "data", "themes.json"), "utf8")).themes;
+  const themes = JSON.parse(readFileSync7(join20(dir2, "data", "themes.json"), "utf8")).themes;
   K2.theme.themes = themes;
   K2.theme.base = themes.find((t) => t.id === (scheme2 === "dark" ? "t3-dark" : "t3-light"));
-  const kitCss2 = join19(dir2, "kit.css");
+  const kitCss2 = join20(dir2, "kit.css");
   const rules = existsSync4(kitCss2) ? svgRules(readFileSync7(kitCss2, "utf8"), scheme2) : [];
   motion.cancelReason = K2.Run.CANCEL;
   const ids = /* @__PURE__ */ new WeakMap();
@@ -96319,7 +96423,7 @@ var KIT_SHEET = "ephemeral-ui";
 var GLIDE_UI_SHEET = UI_SHEET;
 var euiSheets = /* @__PURE__ */ new Map();
 function euiDir() {
-  const here = dirname8(fileURLToPath9(import.meta.url));
+  const here = dirname9(fileURLToPath9(import.meta.url));
   return vendorDir([resolve8(here, "../vendor/ephemeral-ui"), resolve8(here, "../src/vendor/ephemeral-ui")]);
 }
 var kitCss;
@@ -96328,7 +96432,7 @@ function euiStyles() {
     return kitCss;
   }
   const dir2 = euiDir();
-  const kit = (dir2 ? readFileSync8(join20(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
+  const kit = (dir2 ? readFileSync8(join21(dir2, "kit.css"), "utf8") : "").replace(/(\[data-eui-a-disabled\]\{[^}]*?)opacity:\.\d+;?/g, "$1").replace(/^\[data-eui='card'\] \.is-(head|title|eyebrow|stage)\b[^,{]*\{[^}]*\}\n/gm, "").replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, "");
   kitCss = `${kit}
 [data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 13px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
@@ -96390,7 +96494,7 @@ function pinnedKinds(dir2) {
   if (!dir2) {
     return [];
   }
-  const pin = parseJson(readFileSync8(join20(dir2, "PIN.json"), "utf8"));
+  const pin = parseJson(readFileSync8(join21(dir2, "PIN.json"), "utf8"));
   const kinds = pin && typeof pin === "object" && "kinds" in pin ? pin.kinds : void 0;
   return Array.isArray(kinds) ? kinds.filter((k) => typeof k === "string") : [];
 }
@@ -105121,7 +105225,7 @@ var Theme = class {
 // src/glideui/widgets.tsx
 import { execFile as execFile14 } from "node:child_process";
 import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync5 } from "node:fs";
-import { basename as basename9, dirname as dirname9, join as join21 } from "node:path";
+import { basename as basename10, dirname as dirname10, join as join22 } from "node:path";
 
 // src/glideui/checks.ts
 var MIN_TEXT_PX = 11;
@@ -105173,7 +105277,7 @@ function checkPalette(p3) {
 }
 
 // src/glideui/widgets.tsx
-var statusFile = (settings2) => join21(dirname9(settings2), "ui-status.json");
+var statusFile = (settings2) => join22(dirname10(settings2), "ui-status.json");
 var gitCommits2 = (cwd) => new Promise((resolve11) => {
   execFile14("git", ["-C", cwd, "log", "--all", "--since=53 weeks ago", "--format=%ct"], { timeout: 5e3, maxBuffer: 4 << 20 }, (error, stdout) => {
     resolve11(error ? [] : stdout.split("\n").filter(Boolean).map(Number).filter(Number.isFinite));
@@ -105212,7 +105316,7 @@ var GlideWidgets = class {
   /** Reads `ui` now and follows the file. */
   start() {
     try {
-      mkdirSync6(dirname9(this.#host.file), { recursive: true });
+      mkdirSync6(dirname10(this.#host.file), { recursive: true });
     } catch {
     }
     this.#unwatch = watchWal(this.#host.file, () => void this.reload());
@@ -105305,7 +105409,7 @@ var GlideWidgets = class {
     const cwd = this.#host.cwd();
     if (cwd && !this.#fetching && (this.#commits?.cwd !== cwd || now - (this.#commits?.at ?? 0) > COMMITS_REFRESH_MS)) void this.#fetch(cwd, now);
     const seen = this.#commits;
-    return commitsDoc(seen && seen.cwd === cwd ? seen.times : [], now, cwd ? basename9(cwd) : "no folder");
+    return commitsDoc(seen && seen.cwd === cwd ? seen.times : [], now, cwd ? basename10(cwd) : "no folder");
   }
   #tree(w) {
     const view = this.#compiled.get(w.id)?.view;
@@ -106098,7 +106202,7 @@ var ConnectWatcher = class {
 
 // src/controls/store.ts
 import { mkdirSync as mkdirSync7, readFileSync as readFileSync9, writeFileSync as writeFileSync6 } from "node:fs";
-import { join as join22 } from "node:path";
+import { join as join23 } from "node:path";
 
 // src/core/result.ts
 function attempt(fn2) {
@@ -106321,7 +106425,7 @@ var Controls = class {
   #answer(call, control2, intent5) {
     const path2 = this.#claimPath(call);
     const claim = path2 ? attempt(() => {
-      mkdirSync7(join22(path2, ".."), { recursive: true });
+      mkdirSync7(join23(path2, ".."), { recursive: true });
       writeFileSync6(path2, JSON.stringify(intent5), { flag: "wx" });
     }) : void 0;
     if (claim?.kind === "failed" && errorCode(claim.error) === "EEXIST") {
@@ -106358,7 +106462,7 @@ var Controls = class {
   #claimPath(call) {
     const sid = this.#host.sid();
     const control2 = controlOf(call);
-    return sid && control2 ? join22(this.#dir ?? dataDir(), "controls", `${safe2(sid)}.${safe2(call.id)}.${safe2(control2.id)}.json`) : void 0;
+    return sid && control2 ? join23(this.#dir ?? dataDir(), "controls", `${safe2(sid)}.${safe2(call.id)}.${safe2(control2.id)}.json`) : void 0;
   }
 };
 
@@ -106420,7 +106524,7 @@ var Disposables = class {
 // src/draft/attachments.ts
 import { constants as constants3, existsSync as existsSync7, statSync } from "node:fs";
 import { open as open4 } from "node:fs/promises";
-import { basename as basename10, isAbsolute as isAbsolute9 } from "node:path";
+import { basename as basename11, isAbsolute as isAbsolute9 } from "node:path";
 import { fileURLToPath as fileURLToPath12 } from "node:url";
 
 // src/hermes/clipboardImage.ts
@@ -106428,7 +106532,7 @@ import { execFile as execFile15 } from "node:child_process";
 import { existsSync as existsSync6 } from "node:fs";
 import { mkdtemp as mkdtemp4, rm as rm5 } from "node:fs/promises";
 import { homedir as homedir12, tmpdir as tmpdir4 } from "node:os";
-import { join as join23, resolve as resolve10 } from "node:path";
+import { join as join24, resolve as resolve10 } from "node:path";
 var runFile2 = (file2, args, options2) => new Promise((done, fail2) => {
   execFile15(file2, args, { ...options2, encoding: "utf8" }, (error, stdout, stderr) => {
     if (error && !Number.isInteger(error.code)) {
@@ -106496,9 +106600,9 @@ async function extractClipboardImage(dest, hermes, platform = process.platform, 
   return mac2 === null ? hermesClipboardImage(dest, hermes, run8) : mac2;
 }
 async function withClipboardImage(use, hermes, extract = extractClipboardImage) {
-  const dir2 = await mkdtemp4(join23(tmpdir4(), "glide-clipboard-"));
+  const dir2 = await mkdtemp4(join24(tmpdir4(), "glide-clipboard-"));
   try {
-    const path2 = await extract(join23(dir2, "clipboard.png"), hermes);
+    const path2 = await extract(join24(dir2, "clipboard.png"), hermes);
     return path2 ? await use(path2) : void 0;
   } finally {
     await rm5(dir2, { force: true, recursive: true });
@@ -106627,11 +106731,11 @@ var Attachments = class {
     const file2 = await open4(path2, constants3.O_RDONLY | (constants3.O_NOFOLLOW ?? 0));
     let bytes;
     try {
-      const stat2 = await file2.stat();
-      if (!stat2.isFile()) throw new Error("Image must be a regular file.");
-      this.#reserve(slot2, stat2.size);
+      const stat3 = await file2.stat();
+      if (!stat3.isFile()) throw new Error("Image must be a regular file.");
+      this.#reserve(slot2, stat3.size);
       if (!this.#eligible(slot2)) throw new Error("Attachment was canceled.");
-      bytes = Buffer.alloc(stat2.size);
+      bytes = Buffer.alloc(stat3.size);
       let offset = 0;
       while (offset < bytes.length) {
         const { bytesRead } = await file2.read(bytes, offset, bytes.length - offset, offset);
@@ -106665,7 +106769,7 @@ var Attachments = class {
     }
     const path2 = imagePathOf(text24, this.#host.cwd());
     if (!path2) return false;
-    void this.#attach(path2, basename10(path2));
+    void this.#attach(path2, basename11(path2));
     return true;
   }
   async fromClipboard(quiet) {
@@ -106710,7 +106814,7 @@ var Attachments = class {
       this.#host.changed();
       return;
     }
-    await this.#attach(path2, basename10(path2));
+    await this.#attach(path2, basename11(path2));
   }
   /** Only a same-host Tern native event may introduce a filesystem path. */
   async fromNativePath(raw2, sameHost) {
@@ -106740,7 +106844,7 @@ var Attachments = class {
       this.#host.changed();
       return;
     }
-    await this.#attach(path2, basename10(path2));
+    await this.#attach(path2, basename11(path2));
   }
   /** First session startup: preserve its exact owner through queue-head admission. */
   async attachStartup(sid) {
@@ -106752,7 +106856,7 @@ var Attachments = class {
       this.#startup = "";
       return;
     }
-    const slot2 = this.#start(basename10(path2));
+    const slot2 = this.#start(basename11(path2));
     if (!slot2) {
       this.#startup = "";
       return;
@@ -106760,7 +106864,7 @@ var Attachments = class {
     try {
       const result = await this.#uploadPath(slot2, imagePathOf(path2, this.#host.launchCwd) ?? path2);
       if (this.#eligible(slot2)) {
-        const image3 = this.#image(result, basename10(path2), owner2);
+        const image3 = this.#image(result, basename11(path2), owner2);
         if (!this.#host.attachToHead(image3)) this.#items.push(image3);
       }
     } catch (error) {
@@ -107716,11 +107820,11 @@ function ternSharesFrontendHost2(env2 = process.env) {
 async function readImageBytes(path2, maxBytes = MEDIA_MAX_BYTES) {
   const file2 = await open5(path2, constants4.O_RDONLY | constants4.O_NONBLOCK | (constants4.O_NOFOLLOW ?? 0));
   try {
-    const stat2 = await file2.stat();
-    if (!stat2.isFile() || !Number.isSafeInteger(stat2.size) || stat2.size <= 0 || stat2.size > maxBytes) {
+    const stat3 = await file2.stat();
+    if (!stat3.isFile() || !Number.isSafeInteger(stat3.size) || stat3.size <= 0 || stat3.size > maxBytes) {
       throw new Error("Image must be a regular file no larger than 16 MiB.");
     }
-    const buffer = Buffer.alloc(Math.min(stat2.size + 1, maxBytes + 1));
+    const buffer = Buffer.alloc(Math.min(stat3.size + 1, maxBytes + 1));
     let length2 = 0;
     while (length2 < buffer.length) {
       const { bytesRead } = await file2.read(buffer, length2, buffer.length - length2, null);
@@ -107729,7 +107833,7 @@ async function readImageBytes(path2, maxBytes = MEDIA_MAX_BYTES) {
       }
       length2 += bytesRead;
     }
-    if (length2 !== stat2.size || length2 > maxBytes) {
+    if (length2 !== stat3.size || length2 > maxBytes) {
       throw new Error("Image changed while reading; retry preview.");
     }
     return buffer.subarray(0, length2);
@@ -108598,16 +108702,16 @@ var Viewer = class {
 
 // src/processes/widgets/memory.ts
 import { mkdirSync as mkdirSync8, readdirSync, rmSync as rmSync2, statSync as statSync2, writeFileSync as writeFileSync7 } from "node:fs";
-import { join as join24 } from "node:path";
+import { join as join25 } from "node:path";
 var KEEP_MS = 7 * 24 * 36e5;
 var safe3 = (id3) => /^[\w.-]{1,128}$/.test(id3);
-function chartMemory(dir2 = join24(dataDir(), "charts"), now = Date.now) {
+function chartMemory(dir2 = join25(dataDir(), "charts"), now = Date.now) {
   return {
     load(id3) {
       if (!safe3(id3)) {
         return void 0;
       }
-      const value2 = readJsonFile(join24(dir2, `${id3}.json`));
+      const value2 = readJsonFile(join25(dir2, `${id3}.json`));
       const skip = chartSkip(value2);
       if (value2 === void 0 || skip) {
         return skip;
@@ -108625,9 +108729,9 @@ function chartMemory(dir2 = join24(dataDir(), "charts"), now = Date.now) {
       }
       try {
         mkdirSync8(dir2, { recursive: true });
-        writeFileSync7(join24(dir2, `${id3}.json`), JSON.stringify(value2));
+        writeFileSync7(join25(dir2, `${id3}.json`), JSON.stringify(value2));
         for (const name of readdirSync(dir2)) {
-          const file2 = join24(dir2, name);
+          const file2 = join25(dir2, name);
           if (now() - statSync2(file2).mtimeMs > KEEP_MS) {
             rmSync2(file2, { force: true });
           }
@@ -109570,7 +109674,7 @@ var SessionTitle = class {
 
 // src/transcript/promptRefs.ts
 import { existsSync as existsSync8 } from "node:fs";
-import { basename as basename11, isAbsolute as isAbsolute10 } from "node:path";
+import { basename as basename12, isAbsolute as isAbsolute10 } from "node:path";
 var VALUE2 = "(`[^`\\n]+`|\"[^\"\\n]+\"|'[^'\\n]+'|\\S+)";
 var IMAGE_SUFFIX = new RegExp("^@image:" + VALUE2 + "$");
 var HINTS = /\n\n((?:\[Image attached(?: at)?: [^\n]+\]\n?)+)((?:\[screenshot\](?:\n|$))*)$/;
@@ -109642,12 +109746,12 @@ function promptAttachments(parts3, exists = existsSync8) {
   return [
     ...parts3.images.map((p3) => ({
       kind: "image",
-      name: basename11(p3),
+      name: basename12(p3),
       refPath: p3,
       ...local(p3) ? { source: { path: p3 } } : {}
     })),
     ...parts3.files.map(({ path: path2, ref }) => {
-      const name = basename11(unquote2(ref.replace(/^@\w+:/, "")));
+      const name = basename12(unquote2(ref.replace(/^@\w+:/, "")));
       return path2 && IMAGE_FILE.test(path2) && local(path2) ? { kind: "image", name, source: { path: path2 } } : { kind: "file", name };
     })
   ];
@@ -110854,7 +110958,7 @@ var PromptRouter = class {
 };
 
 // src/voice/live.tsx
-import { randomUUID as randomUUID5 } from "node:crypto";
+import { randomUUID as randomUUID6 } from "node:crypto";
 var PHASES = ["idle", "starting", "listening", "transcribing", "thinking", "speaking", "interrupted", "muted", "stopping", "error"];
 var asObject = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
 var isPhase = (v) => typeof v === "string" && PHASES.some((p3) => p3 === v);
@@ -110899,7 +111003,7 @@ var LiveVoice = class {
   start() {
     const sid = this.#host.sid();
     if (!sid || sid !== this.#consentSid || this.phase !== "consent" || this.#lease || this.#host.switching()) return;
-    const id3 = randomUUID5();
+    const id3 = randomUUID6();
     const started = this.#host.gw.request("voice.live.start", {
       session_id: sid,
       live_id: id3,
