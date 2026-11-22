@@ -15,7 +15,6 @@ import { euiPopupNode } from '../../frontend/src/view/euiCard.js'
 import { launchChoice, launchModels } from './laneTopology.js'
 import type { CouncilHost } from './councilPopup.js'
 import { MONO, NIGHT, SERIF } from './tokens.js'
-import { frost, SHARED } from './sharedTheme.js'
 
 export const CLOSE_ID = 2
 const APP = 'glide'
@@ -199,7 +198,7 @@ export function lanesCard(src: LaneSource, roles?: Record<string, string>, focus
   const close = el('button', `padding:9px 16px;border-radius:12px;border:1px solid ${NIGHT.borderStrong};background-color:transparent`,
     [el('span', `color:${NIGHT.text2};font-size:13px`, [text('Close')])], { id: CLOSE_ID, attrs: { 'data-eui-action': 'close' } })
 
-  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};${frost(SHARED.glass.card, true)};box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
+  return el('div', '', [el('section', `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
     el('div', 'display:flex;flex-direction:column', rows),
     ...(add.length ? [el('div', 'display:flex;flex-wrap:wrap;gap:6px', add)] : []),

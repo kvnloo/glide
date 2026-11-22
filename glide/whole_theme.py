@@ -146,18 +146,14 @@ def dash_theme(theme: dict[str, Any] | None = None) -> dict[str, Any]:
     return {**template, "vars": {k: night[DASH_VARS[k]] if k in DASH_VARS else v for k, v in template["vars"].items()}}
 
 
-def _body(theme: dict[str, Any]) -> bytes:
-    return (json.dumps(theme, indent="\t") + "\n").encode()
-
-
 def dash_theme_bytes() -> bytes:
     """dash.json's body as launcher.install_themes writes it (and as glide/themes/dash.json is committed)."""
-    return _body(dash_theme())
+    return (json.dumps(dash_theme(), indent="\t") + "\n").encode()
 
 
 def omp_themes() -> dict[str, bytes]:
     """File name -> body for every table theme, as launcher.install_themes writes them."""
-    return {f"glide-{n}.json": _body(omp_theme(n)) for n in table()}
+    return {f"glide-{n}.json": (json.dumps(omp_theme(n), indent="\t") + "\n").encode() for n in table()}
 
 
 def register(ctx) -> None:

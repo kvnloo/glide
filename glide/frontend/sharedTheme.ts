@@ -7,14 +7,14 @@
 import theme from '../themes/shared/glide.json'
 
 /** The theme file's shape version this reader knows; any other is refused rather than half-read. */
-export const SHARED_V = 0
+const SHARED_V = 0
 
 if (theme.v !== SHARED_V) throw new Error(`glide/themes/shared/glide.json: v ${theme.v}, Glide reads v ${SHARED_V}`)
 
 export const SHARED = theme
 
 /** One backdrop level: blur px, saturate %, optional fixed tint %. */
-export interface GlassLevel { readonly blur: number; readonly saturate: number; readonly tint?: number }
+interface GlassLevel { readonly blur: number; readonly saturate: number; readonly tint?: number }
 
 /** `backdrop-filter` (with its -webkit- twin) for a glass level; `inline` writes it as a style attribute does. */
 export const frost = (g: GlassLevel, inline = false) => {

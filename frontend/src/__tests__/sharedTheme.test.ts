@@ -6,11 +6,11 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import shared from '../../../glide/themes/shared/glide.json'
+import pin from '../../../glide/themes/shared/PIN.json' with { type: 'json' }
+import { SHARED as shared } from '../../../glide/frontend/sharedTheme.js'
 import { DASH, GOLD, NIGHT, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
 
 const THEME = '../../../glide/themes/shared/glide.json'
-const pin = JSON.parse(readFileSync(fileURLToPath(new URL('../../../glide/themes/shared/PIN.json', import.meta.url)), 'utf8')) as { theme: { version: string } }
 
 /** The shared file with `edit` applied, mounted in place of the pinned copy for the modules imported after. */
 async function wearing(edit: (t: typeof shared) => void) {
@@ -99,6 +99,6 @@ describe('the shared theme file', () => {
   })
 
   it('refuses a theme file of another shape version', async () => {
-    await expect(wearing(t => { t.v = 1 as 0 })).rejects.toThrow(/Glide reads v 0/)
+    await expect(wearing(t => { t.v = 1 })).rejects.toThrow(/Glide reads v 0/)
   })
 })

@@ -9,6 +9,7 @@ import hashlib
 import importlib.util
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -90,7 +91,6 @@ def test_a_new_catalog_kind_is_named_as_uncovered(tmp_path, capsys):
 def test_vendoring_records_the_commit_and_hashes(tmp_path, monkeypatch):
     check = _tool("check_shared_theme")
     src = _upstream(tmp_path / "src", ["inbox", "chat"])
-    import subprocess
     subprocess.run(["git", "init", "-q", str(src)], check=True)
     subprocess.run(["git", "-C", str(src), "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "--allow-empty", "-m", "x"], check=True)
     shared = tmp_path / "out"

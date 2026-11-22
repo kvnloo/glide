@@ -26,10 +26,11 @@ PIN = SHARED / "PIN.json"
 REPO = "kvnloo/ephemeral-ui"
 FILES = ("theme/glide.json", "theme/tokens.schema.json")
 CATALOG = "catalog/catalog.json"
+FETCH_TIMEOUT_S = 30
 
 
-def sha256(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
+def sha256(blob: bytes) -> str:
+    return hashlib.sha256(blob).hexdigest()
 
 
 def local(path: str) -> Path:
@@ -65,7 +66,7 @@ def reader(upstream: str):
 
     def fetch(path: str) -> bytes:
         url = f"https://raw.githubusercontent.com/{REPO}/{upstream}/{path}"
-        with urllib.request.urlopen(url, timeout=30) as r:  # noqa: S310 - fixed https host
+        with urllib.request.urlopen(url, timeout=FETCH_TIMEOUT_S) as r:
             return r.read()
     return fetch
 
