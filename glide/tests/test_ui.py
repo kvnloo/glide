@@ -100,13 +100,13 @@ def test_style_unmount_list_and_reset(tmp_path, monkeypatch):
     assert plugin.core.command("ui") == "No widgets mounted."
 
 
-def test_register_adds_the_three_tools():
+def test_register_adds_the_skin_and_ui_tools():
     tools, sections = {}, {}
     ctx = types.SimpleNamespace(register_hook=lambda *a: None, register_command=lambda *a, **k: None,
                                 register_tool=lambda **kw: tools.__setitem__(kw["name"], kw),
                                 register_system_prompt_section=lambda id, content: sections.__setitem__(id, content))
     plugin.register(ctx)
-    assert sorted(tools) == ["glide_page_open", "glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
+    assert sorted(tools) == ["glide_page_open", "glide_skin", "glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
     assert "never the model's temperature" in sections["glide.ui"]
     assert all(t["toolset"] == "glide" and t["schema"]["name"] == n for n, t in tools.items())
 

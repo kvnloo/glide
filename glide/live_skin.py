@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+from tempfile import NamedTemporaryFile
 from pathlib import Path
 
 TOOLSET = "glide"
@@ -48,8 +49,26 @@ def _fail(error: str, **extra) -> str:
     return json.dumps({"success": False, "error": error, **extra}, ensure_ascii=False)
 
 
+def _activate(path: Path, name: str) -> None:
+    try:
+        from hermes_cli.config_backend import write_config_key
+    except ModuleNotFoundError as error:
+        if error.name != "hermes_cli.config_backend":
+            raise
+        # The test-core pin and older Hermes expose the atomic YAML writer instead.
+        from hermes_cli.config import atomic_config_write, require_readable_config_before_write
+
+        config = require_readable_config_before_write(path)
+        display = config.setdefault("display", {})
+        if not isinstance(display, dict):
+            raise ValueError("display config must be a mapping")
+        display["skin"] = name
+        atomic_config_write(path, config)
+    else:
+        write_config_key(path, "display.skin", name)
+
+
 def glide_skin(args: dict, **_kw) -> str:
-    from hermes_cli.config_backend import write_config_key
     from hermes_cli.skin_engine import _BUILTIN_SKINS, list_skins
     from hermes_constants import get_hermes_home
 
@@ -79,10 +98,15 @@ def glide_skin(args: dict, **_kw) -> str:
         if css:
             body["customCSS"] = css.strip()
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".yaml.tmp")
-        tmp.write_text(yaml.safe_dump(body, sort_keys=False, allow_unicode=True), encoding="utf-8")
-        tmp.replace(path)  # one mtime move: the watcher never reads a half-written skin
-    write_config_key(home / "config.yaml", "display.skin", name)
+        with NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as stream:
+            tmp = Path(stream.name)
+            try:
+                yaml.safe_dump(body, stream, sort_keys=False, allow_unicode=True)
+                stream.close()
+                tmp.replace(path)  # the watcher never reads a half-written skin
+            finally:
+                tmp.unlink(missing_ok=True)
+    _activate(home / "config.yaml", name)
     return json.dumps({"success": True, "skin": name, **({"file": str(path)} if path.is_file() else {}),
                        "note": "Hermes Desktop repaints now; Glide wears it in theme mode `skin` (/theme skin)."},
                       ensure_ascii=False)
