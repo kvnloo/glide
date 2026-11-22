@@ -1,10 +1,20 @@
 import json
+import os
 import subprocess
 import sys
+from types import SimpleNamespace
 
 import pytest
 
 from glide_plugin import core, gateway, z0_onboarding
+
+
+@pytest.fixture
+def hermes_home(monkeypatch):
+    """``core.command`` resolves the profile through ``hermes_constants``; stub it (as the desktop tests
+    do) so these run in CI's plugin-only job, which has no hermes-agent checkout."""
+    monkeypatch.setitem(sys.modules, "hermes_constants",
+                        SimpleNamespace(get_hermes_home=lambda: os.environ["HERMES_HOME"]))
 
 
 def test_optional_cli_absent(monkeypatch):
@@ -12,7 +22,7 @@ def test_optional_cli_absent(monkeypatch):
     assert z0_onboarding.run() == {"status": "not installed"}
 
 
-def test_preview_is_read_only_and_drops_upstream_paths(tmp_path, monkeypatch):
+def test_preview_is_read_only_and_drops_upstream_paths(tmp_path, monkeypatch, hermes_home):
     monkeypatch.setattr(z0_onboarding.shutil, "which", lambda _: "z0int")
     monkeypatch.setenv("OPENAI_API_KEY", "fixture-key")
     checkpoint = tmp_path / "z0-state"
@@ -39,7 +49,7 @@ def test_preview_is_read_only_and_drops_upstream_paths(tmp_path, monkeypatch):
     assert not checkpoint.exists()
 
 
-def test_partial_run_and_resume_use_the_same_safe_cli(tmp_path, monkeypatch):
+def test_partial_run_and_resume_use_the_same_safe_cli(tmp_path, monkeypatch, hermes_home):
     monkeypatch.setattr(z0_onboarding.shutil, "which", lambda _: "z0int")
     results = {
         "layout": {"ok": True, "root": str(tmp_path)},
