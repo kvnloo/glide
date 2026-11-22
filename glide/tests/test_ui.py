@@ -196,3 +196,32 @@ def test_the_bundled_pages_are_self_contained_and_themed():
         assert not re.search(r"""(?:src|href)\s*=\s*["']?(?:https?:)?//""", text), f"{pid}: loads something over the network"
         assert not re.search(r"\b(?:fetch|XMLHttpRequest|importScripts)\s*\(", text), f"{pid}: reaches the network"
         assert "--glide-accent" in text and "glide-theme" in text, f"{pid}: not themed by the pane"
+
+
+def test_page_accepts_large_companions_without_inlining(tmp_path):
+    home = _home(tmp_path)
+    page = tmp_path / "scene.html"
+    page.write_text("<title>Scene</title>")
+    media = tmp_path / "media"
+    media.mkdir()
+    with (media / "model.glb").open("wb") as model:
+        model.truncate((5 << 20) + 1)
+    (media / "theme.wav").write_bytes(b"wave")
+    assets = ["media/model.glb", "media/theme.wav"]
+    out = ui.open_page(home, {"id": "scene", "title": "Scene", "path": str(page), "assets": assets}, wait=0)
+    assert out["ok"]
+    assert ui.state(home)["pages"][0]["assets"] == assets
+
+
+def test_page_rejects_undeclared_path_shapes_symlinks_and_oversize_assets(tmp_path):
+    home = _home(tmp_path)
+    page = tmp_path / "scene.html"
+    page.write_text("<title>Scene</title>")
+    with (tmp_path / "large.glb").open("wb") as model:
+        model.truncate((128 << 20) + 1)
+    (tmp_path / "alias.wav").symlink_to(page)
+    for asset in ["../outside.glb", "/absolute.glb", "absent.wav", "scene.html", "alias.wav", "large.glb"]:
+        out = ui.open_page(home, {"id": "scene", "title": "Scene", "path": str(page), "assets": [asset]}, wait=0)
+        assert not out["ok"], asset
+        assert out["error"].startswith("assets:")
+    assert ui.state(home).get("pages", []) == []

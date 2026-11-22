@@ -82,6 +82,7 @@ const page = z.object({
   id: z.string().check(z.regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
   title: z.string().check(z.maxLength(60)),
   path: z.string().check(z.regex(/^\/.*\.html?$/i)),
+  assets: loose(z.array(z.string())),
   how: z.catch(z.enum(PAGE_HOWS), 'over'),
   opened: z.catch(z.number(), 0)
 })

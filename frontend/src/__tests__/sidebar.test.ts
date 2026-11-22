@@ -1,3 +1,4 @@
+import { Node } from '@stencil-hq/tern'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Sidebar, type SidebarHost } from '../chrome/sidebar.js'
@@ -9,6 +10,25 @@ import { must, stub } from './fakes.js'
 const checkout = (root: string): GitState => ({ ahead: 0, behind: 0, branch: 'main', files: [], root })
 
 describe('Sidebar', () => {
+  it('shows saved pages with an Open action in the native sidebar', async () => {
+    const open = vi.fn()
+    const sidebar = new Sidebar(stub<SidebarHost>({
+      changed: vi.fn(), session: { info: null }, prs: { entries: () => [] }
+    }), async () => undefined, {
+      list: () => [{ id: 'scene', path: '/tmp/scene.html', title: 'Gold Scene', how: 'over', opened: 1 }],
+      open
+    })
+    sidebar.toggle()
+    const node = sidebar.node('layer.sidebar')
+    if (!(node instanceof Node)) throw new Error('Sidebar not drawn')
+    expect(node.props['sections']).toContainEqual({
+      id: 'pages', title: 'Pages',
+      rows: [{ id: 'page:scene', label: 'Gold Scene', control: { k: 'action', act: 'open-page', label: 'Open' } }]
+    })
+    await node.handlers?.onAction?.['open-page']?.({ ev: 'action', sf: 's0', id: 'sidebar', act: 'open-page', value: 'page:scene', raw: {} })
+    expect(open).toHaveBeenCalledWith('scene')
+    sidebar.dispose()
+  })
   it("drops a git read for the last session, and reads the adopted one's right after it", async () => {
     const reads = new Map<string, PromiseWithResolvers<GitState | undefined>>()
     const read = vi.fn((cwd: string) => {
