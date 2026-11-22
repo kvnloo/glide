@@ -322,6 +322,11 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
       theme.apply()
       return theme.wal
     },
+    retheme: (mode, restyle) => {
+      if (!theme.wear(mode) && restyle) theme.apply()
+      return theme.wal
+    },
+    theme: () => theme.mode,
     sheet: (name, css) => {
       if (euiSheets.get(name) === css) return
       euiSheets.set(name, css)

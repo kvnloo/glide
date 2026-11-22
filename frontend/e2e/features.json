@@ -1552,6 +1552,21 @@
       "army": []
     },
     {
+      "id": "whole-theme",
+      "title": "Restyle the whole app: light, dark code, sepia, warm dark, day and night",
+      "surface": "slash",
+      "entry": "/glide theme sepia, /theme, or ask the agent (glide_theme)",
+      "journey": "settings",
+      "expect": "One named theme repaints the chat, cards, widgets, pages and Tern window; the agent flips day and night and the pane reports what it wears",
+      "tests": [
+        "frontend/src/__tests__/theme.test.ts",
+        "frontend/src/__tests__/glideWidgets.test.ts",
+        "frontend/src/__tests__/glideTheme.test.ts",
+        "glide/tests/test_whole_theme.py"
+      ],
+      "army": []
+    },
+    {
       "id": "wallpaper-default",
       "title": "Return from wallpaper colors to Tern",
       "surface": "slash",

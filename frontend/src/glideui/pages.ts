@@ -51,8 +51,12 @@ export function pageThemeOf(wal: { dark: boolean; bg: string; fg: string; muted:
   return { dark, bg: dark ? '#0e0c14' : '#f5f1ea', surface: dark ? '#17141f' : '#ece6dc', fg, muted: hex(t['muted']) ?? fg, accent, accentInk: luma(accent) > 0.55 ? '#111111' : '#ffffff' }
 }
 
-/** The function a page block evaluates: sets the variables on <html> and tells the page's own code. */
-export function themeFunction(t: PageTheme): string {
+/**
+ * The function a page block evaluates: sets the variables on <html> and tells the page's own code. The event's
+ * detail carries the phase too (day on a light surface, night on a dark one), so a game can draw its sky.
+ */
+export function themeFunction(theme: PageTheme): string {
+  const t = { ...theme, phase: theme.dark ? 'night' : 'day' }
   const vars: Record<string, string> = {
     '--glide-bg': t.bg, '--glide-surface': t.surface, '--glide-fg': t.fg, '--glide-muted': t.muted,
     '--glide-accent': t.accent, '--glide-accent-ink': t.accentInk
@@ -62,6 +66,7 @@ export function themeFunction(t: PageTheme): string {
   for (const k in v) s.setProperty(k, v[k])
   s.colorScheme = t.dark ? 'dark' : 'light'
   document.documentElement.dataset.glideTheme = t.dark ? 'dark' : 'light'
+  document.documentElement.dataset.glidePhase = t.phase
   window.__glideTheme = t
   window.dispatchEvent(new CustomEvent('glide-theme', { detail: t }))
   return true

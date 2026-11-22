@@ -82,7 +82,11 @@ describe('themeFunction', () => {
     expect(set).toMatchObject({ '--glide-bg': DAY.bg, '--glide-accent': DAY.accent, '--glide-fg': DAY.fg })
     expect(documentElement.style.colorScheme).toBe('light')
     expect(documentElement.dataset['glideTheme']).toBe('light')
-    expect(events).toEqual([DAY])
+    expect(documentElement.dataset['glidePhase']).toBe('day')
+    expect(events).toEqual([{ ...DAY, phase: 'day' }])
+    runInNewContext(`(${themeFunction({ ...DAY, dark: true })})()`, ctx)
+    expect(documentElement.dataset['glidePhase']).toBe('night')
+    expect(events[1]).toMatchObject({ dark: true, phase: 'night' })
   })
 
   it('derives a theme from the wallpaper palette first, else from the Tern tokens', () => {

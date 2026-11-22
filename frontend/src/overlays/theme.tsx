@@ -6,6 +6,8 @@ import type { Key, PickerItem } from '@stencil-hq/tern'
 import type { ChatPorts } from '../app/ports.js'
 import type { ThemeMode } from '../settings.js'
 
+import { GLIDE_THEMES, themeTokens } from '../../../glide/frontend/themes.js'
+
 import { nativeOverlayKey } from './identity.js'
 import type { Overlay } from './overlay.js'
 import { moveSelection } from './search.js'
@@ -20,7 +22,12 @@ const MODES: readonly (PickerItem & { id: ThemeMode })[] = [
   { detail: 'Bone ink and quiet grays; gold only for the moments that earn it', icon: 'sparkle', id: 'nous', label: 'Nous' },
   { detail: "The Hermes skin's accent and status colors (/skin picks the skin)", icon: 'appearance', id: 'skin', label: 'Hermes skin' },
   { detail: "The wallpaper's pywal colors, live as the file changes (/glide theme auto)", icon: 'image', id: 'auto', label: 'Wallpaper' },
-  { detail: "Dash's original look: warm black, cream ink, one gold (/glide theme dash)", icon: 'palette', id: 'dash', label: 'Dash' }
+  { detail: "Dash's original look: warm black, cream ink, one gold (/glide theme dash)", icon: 'palette', id: 'dash', label: 'Dash' },
+  // Glide's whole themes (glide/frontend/themes.json), the ones the agent switches with glide_theme.
+  ...GLIDE_THEMES.map(id => {
+    const t = themeTokens(id)
+    return { detail: `${t.detail}; ${t.phase === 'day' ? 'night' : 'day'} is ${themeTokens(t.pair).label} (/glide theme ${id})`, icon: 'palette', id, label: t.label }
+  })
 ]
 
 export function isThemeMode(v: string): v is ThemeMode {

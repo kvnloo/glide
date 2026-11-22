@@ -196,4 +196,14 @@ describe('/glide theme', () => {
     glideTheme(h, 'nope')
     expect(notice.mock.calls.at(-1)?.[1]).toBe('warning')
   })
+
+  it('wears a whole theme by name and lists them in its usage', () => {
+    const setTheme = vi.fn()
+    const notice = vi.fn()
+    glideTheme({ setTheme, transcript: { notice } }, 'warm-dark')
+    expect(setTheme.mock.calls).toEqual([['warm-dark']])
+    expect(notice.mock.calls[0]).toEqual(['Glide theme now wears Warm dark'])
+    glideTheme({ setTheme, transcript: { notice } }, 'neon')
+    expect(notice.mock.calls.at(-1)).toEqual(['Usage: /glide theme auto|dash|light|dark-code|sepia|warm-dark|day|night|default|export', 'warning'])
+  })
 })

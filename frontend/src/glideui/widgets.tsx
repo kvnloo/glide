@@ -12,7 +12,8 @@ import { html, type JSX } from '@stencil-hq/tern'
 
 import type { WalPalette } from '../../../glide/frontend/wal.js'
 import { watchWal } from '../../../glide/frontend/wal.js'
-import { readUi } from '../wire/files.js'
+import type { ThemeMode } from '../settings.js'
+import { readSettings, readUi } from '../wire/files.js'
 import type { GlideView } from '../wire/openui.js'
 
 import { checkMarkup, checkPalette, checkTree } from './checks.js'
@@ -28,6 +29,10 @@ export interface WidgetsHost {
   readonly file: string
   /** Re-applies the theme with the current style; the palette the surface now wears, if a wallpaper one. */
   restyled(): WalPalette | undefined
+  /** Wears `mode`, settings.json's theme that glide_theme (or another pane) changed, re-applying for a changed style too; the palette as restyled() gives it. */
+  retheme?(mode: ThemeMode, restyle: boolean): WalPalette | undefined
+  /** The mode the surface wears, reported to glide_theme. */
+  theme?(): ThemeMode
   /** Something to draw changed. */
   changed(): void
   /** The session's folder, whose git log the commits source reads. */
@@ -65,6 +70,8 @@ export class GlideWidgets {
   #problems = new Map<string, string[]>()
   #glide: Glide | undefined
   #style = ''
+  /** settings.json's theme at the last read; undefined before the first, which the surface already wears. */
+  #theme: ThemeMode | undefined
   #commits: { cwd: string; times: number[]; at: number } | undefined
   #fetching = false
   #unwatch: (() => void) | undefined
@@ -99,7 +106,10 @@ export class GlideWidgets {
     const styleKey = JSON.stringify(state.style ?? {})
     const restyle = styleKey !== this.#style
     this.#style = styleKey
-    const palette = restyle ? this.#host.restyled() : undefined
+    const mode = readSettings(this.#host.file).theme ?? 'tern'
+    const retheme = this.#theme !== undefined && mode !== this.#theme && this.#host.retheme !== undefined
+    this.#theme = mode
+    const palette = retheme ? this.#host.retheme?.(mode, restyle) : restyle ? this.#host.restyled() : undefined
     try {
       this.#glide ??= await (this.#host.glide ?? glide)()
     } catch (error) {
@@ -236,7 +246,9 @@ export class GlideWidgets {
     }))
     const style = palette ? checkPalette(palette) : []
     const pages = Object.fromEntries((state.pages ?? []).flatMap(p => { const v = this.#pages.get(p.id); return v ? [[p.id, v]] : [] }))
-    const status = { rev: state.rev, at: Date.now(), widgets, pages, style: style.length ? { ok: false, problems: style } : { ok: true } }
+    const verdict = style.length ? { ok: false, problems: style } : { ok: true }
+    const mode = this.#host.theme?.()
+    const status = { rev: state.rev, at: Date.now(), widgets, pages, style: verdict, ...(mode ? { theme: { ...verdict, mode } } : {}) }
     try {
       writeFileSync(statusFile(this.#host.file), `${JSON.stringify(status, null, 2)}\n`)
     } catch {

@@ -312,14 +312,17 @@ THEMES = Path(__file__).resolve().parent / "glide" / "themes"
 
 
 def install_themes(environ: Optional[dict[str, str]] = None) -> list[Path]:
-    """Copies the themes the plugin ships (Dash's black and gold) into omp's theme folder, where Tern lists
-    them too (`theme_dark: "dash"`); a file already the same is left alone. The paths written."""
+    """Copies the themes the plugin ships (Dash's black and gold, and a `glide-<name>` window theme per entry of
+    Glide's theme table) into omp's theme folder, where Tern lists them too (`theme_dark: "dash"`); a file
+    already the same is left alone. The paths written."""
+    from .glide.whole_theme import omp_themes
+
     environ = os.environ if environ is None else environ
     home = Path(environ.get("PI_CODING_AGENT_DIR") or Path(environ.get("HOME") or Path.home()) / ".omp" / "agent")
     written = []
-    for theme in sorted(THEMES.glob("*.json")):
-        target = home / "themes" / theme.name
-        body = theme.read_bytes()
+    themes = {theme.name: theme.read_bytes() for theme in sorted(THEMES.glob("*.json"))} | omp_themes()
+    for name, body in themes.items():
+        target = home / "themes" / name
         try:
             if target.read_bytes() == body:
                 continue
@@ -329,7 +332,7 @@ def install_themes(environ: Optional[dict[str, str]] = None) -> list[Path]:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(body)
         except OSError as e:
-            print(f"hermes tern: could not install the {theme.stem} theme ({e})", file=sys.stderr)
+            print(f"hermes tern: could not install the {Path(name).stem} theme ({e})", file=sys.stderr)
             continue
         written.append(target)
     return written

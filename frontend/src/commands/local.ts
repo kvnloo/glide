@@ -44,6 +44,7 @@ import { glideCommand, glideLanes } from './glide.js'
 import { REFUSED_COMMANDS, type RefusedHost } from './refused.js'
 import { SESSION_COMMANDS } from './session.js'
 import { voiceCommand, type VoiceHost } from './voice.js'
+import { GLIDE_THEMES } from '../../../glide/frontend/themes.js'
 
 /** What the commands reach of the app. */
 export type CommandHost = Pick<
@@ -238,7 +239,7 @@ const COMMANDS: readonly LocalCommand[] = [
     }
   },
   {
-    help: 'Pick the colors: Tern, Nous, the Hermes skin, the wallpaper or Dash [tern|nous|skin|auto|dash]',
+    help: `Pick the colors: Tern, Nous, the Hermes skin, the wallpaper, Dash or a whole theme [tern|nous|skin|auto|dash|${GLIDE_THEMES.join('|')}]`,
     name: 'theme',
     run: (host, arg) => {
       if (!arg) {
@@ -246,7 +247,7 @@ const COMMANDS: readonly LocalCommand[] = [
       }
 
       if (!isThemeMode(arg)) {
-        host.transcript.notice('Usage: /theme [tern|nous|skin|auto|dash]', 'warning')
+        host.transcript.notice(`Usage: /theme [tern|nous|skin|auto|dash|${GLIDE_THEMES.join('|')}]`, 'warning')
 
         return
       }

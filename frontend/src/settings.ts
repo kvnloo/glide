@@ -8,9 +8,13 @@ import { dirname, join } from 'node:path'
 
 import type { ChartMode } from './transcript/tableCharts.js'
 import { readSettings, readStoredSettings, settingsOf } from './wire/files.js'
+import type { GlideTheme } from '../../glide/frontend/themes.js'
 
-/** Whose colors the surface wears: Tern's theme, the Nous palette, the Hermes skin, the wallpaper (pywal), or Dash's black and gold. */
-export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto' | 'dash'
+/**
+ * Whose colors the surface wears: Tern's theme, the Nous palette, the Hermes skin, the wallpaper (pywal), Dash's
+ * black and gold, or one of Glide's whole themes (glide/frontend/themes.json, which glide_theme switches).
+ */
+export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto' | 'dash' | GlideTheme
 
 export interface Settings {
   theme?: ThemeMode | undefined
