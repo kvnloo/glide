@@ -7,11 +7,9 @@
 // native Tern captures. All data is synthetic. Usage, from the repo root:
 //   bun glide/tools/readme-shots.mts OUT_DIR
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-
-import type { JSX } from '@stencil-hq/tern'
 
 import { fleetGlide } from '../../frontend/src/glideui/fleet.js'
 import { glide } from '../../frontend/src/glideui/program.js'
@@ -119,7 +117,7 @@ function draw(raw: unknown): string {
     default: return `<div class="sf-${esc(String(n.k))}"${role}>${kids}</div>`
   }
 }
-const html = (el: JSX.Element) => draw(JSON.parse(JSON.stringify(el)))
+const html = (el: unknown) => draw(JSON.parse(JSON.stringify(el)))
 
 // ── The pane ───────────────────────────────────────────────────────────────────────────────────────
 const BASE = `
@@ -194,7 +192,7 @@ async function widget(mount: Record<string, unknown>, slot: 'below-composer' | '
   await w.reload()
   const nodes = w.nodes(slot, render)
   w.dispose()
-  const verdict = JSON.parse(await Bun.file(statusFile(settings)).text()) as { widgets: Record<string, { ok: boolean; problems?: string[] }> }
+  const verdict = JSON.parse(readFileSync(statusFile(settings), 'utf8')) as { widgets: Record<string, { ok: boolean; problems?: string[] }> }
   const v = verdict.widgets[String(mount['id'])]
   if (!v?.ok || !nodes.length) throw new Error(`${String(mount['id'])} did not mount: ${JSON.stringify(v)}`)
   return { body: nodes.map(html).join(''), sheets: [...sheets.values()] }
