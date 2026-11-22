@@ -33,7 +33,7 @@ export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFe
 export interface GlideHost {
   readonly gw: Pick<GatewayClient, 'request'>
   readonly session: Pick<SessionView, 'ref'>
-  readonly transcript: Pick<Transcript, 'notice'>
+  readonly transcript: Pick<Transcript, 'notice' | 'panel'>
   readonly eui?: Pick<EuiCards, 'host'> | undefined
   /** The lane broker feed, when voice lanes are configured: the contract shows their live state. */
   readonly laneFeed?: Pick<LaneFeed, 'call'> | null | undefined
@@ -163,6 +163,15 @@ export function glideCall(gw: Pick<GatewayClient, 'request'>, sid: string) {
 /** Reads the block from the plugin, whichever pane started it: the focus block lives in the Hermes home. */
 export async function refreshFocusBlock(gw: Pick<GatewayClient, 'request'>, sid: string): Promise<void> {
   focusBlock.note(glideFocus.parse(await glideCall(gw, sid)('focus', { action: 'show' })))
+}
+
+/** `/glide VERB ...` through the plugin's text command; its reply is shown as the command's output. */
+async function glideText(host: GlideHost, sid: string, arg: string, verb: string): Promise<void> {
+  const ref = host.session.ref
+  const reply = await host.gw.request<{ output?: unknown }>('command.dispatch', { name: 'glide', arg, session_id: sid })
+  if (host.session.ref !== ref) return
+  const output = typeof reply?.output === 'string' ? reply.output.trim() : ''
+  host.transcript.panel(`/glide ${verb}`, output || '(no output)')
 }
 
 export async function glideCommand(host: GlideHost, arg: string): Promise<void> {
@@ -307,6 +316,12 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
     const step = verb ? steps[verb] : undefined
     if (step) {
       step()
+      return
+    }
+    if (verb) {
+      // A verb without a native card (build, on, setup, skill-router, hill-climb, offload, json, help,
+      // ...) runs the plugin's own text command, exactly as a text frontend would: never the detect flow.
+      await glideText(host, sid, arg.trim(), verb)
       return
     }
 
