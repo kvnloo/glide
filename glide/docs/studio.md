@@ -55,3 +55,24 @@ For the web fallback it waits for the credential-free URL before recording or ca
 The native recording includes typing the command; the web recording starts after authentication.
 It closes the owned session and bridge after the check. It does not query a model.
 Full suites run through the fleet-runner CI mirror.
+
+## Film take checklist (isolated Linux studio)
+
+- Start the owned headless session with `glide/tools/studio.sh up`. Confirm Tern shows
+  the isolated Glide composer before staging the beat. This is the studio launcher
+  previously at `lab/studio.sh`, not the integration verifier above.
+- Record with `glide/tools/studio.sh rec take.mp4 10` (seconds). Leave `STUDIO_FPS`
+  unset for the 60 fps default. Use a new filename for each take; recording continues
+  even when the scene is still.
+- Inspect the encoded video before accepting the take:
+
+  ```sh
+  ffprobe -v error -select_streams v:0 -count_frames \
+    -show_entries stream=width,height,r_frame_rate,avg_frame_rate,duration,nb_read_frames \
+    -of default=noprint_wrappers=1 take.mp4
+  ```
+
+  Expect 1920×1080, a nominal rate of `60/1`, an average rate near 60, and about
+  60 decoded frames per second of video. Check that the clip covers the planned beat. Play back the whole take and check motion and framing;
+  a rate tag alone does not prove smooth motion. Record the take path and Glide commit.
+- Stop the isolated session with `glide/tools/studio.sh down`.

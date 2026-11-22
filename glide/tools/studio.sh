@@ -8,6 +8,7 @@
 # `hermes tern`. Every unit is `glide-studio-*` in the user's agent.slice; `down` stops them all.
 #
 #   glide/tools/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|wall IMG|ctl ARGS...
+#   rec defaults to 60 fps; STUDIO_FPS overrides the rate.
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
 #        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
 #        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
@@ -129,8 +130,17 @@ case "${1:-}" in
   up) up ;;
   down) stop; echo "studio: down" ;;
   shot) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 grim "${2:?out.png}" ;;
-  rec) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout -s INT -k 5 "${3:-20}" nice -n 10 wf-recorder -y -r "${STUDIO_FPS:-30}" \
-    -c libx264 -p preset=veryfast -p crf=18 -f "${2:?out.mp4}" >/dev/null 2>&1; [ -s "$2" ] ;;
+  rec)
+    take=${2:?out.mp4}
+    if [[ -e "$take" || -L "$take" ]]; then
+      echo "studio: take already exists: $take" >&2
+      exit 1
+    fi
+    # Keep capturing static scenes. SIGINT lets the recorder finish the MP4 at the time limit.
+    XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout --preserve-status -s INT -k 5 "${3:-20}" \
+      nice -n 10 wf-recorder -D -r "${STUDIO_FPS:-60}" \
+      -c libx264 -p preset=veryfast -p crf=18 -f "$take"
+    [ -s "$take" ] ;;
   ctl) shift; ctl "$@" ;;
   wall) shift; [ $# -gt 0 ] || { echo "studio: wall IMG..." >&2; exit 2; }
     # Each image is a new swaybg drawn over the last (a later background surface stacks on top), so a run of images
@@ -143,5 +153,5 @@ case "${1:-}" in
     for u in $(systemctl --user list-units --plain --no-legend 'glide-studio-wall-*' | awk '{print $1}' | head -n -1); do systemctl --user stop "$u"; done
     for p in $(cat "/sys/fs/cgroup$(systemctl --user show -p ControlGroup --value glide-studio-sway)/cgroup.procs" 2>/dev/null); do
       [ "$(cat /proc/$p/comm 2>/dev/null)" = swaybg ] && kill "$p"; done; : ;;
-  *) sed -n 6,13p "$0"; exit 2 ;;
+  *) sed -n 6,14p "$0"; exit 2 ;;
 esac
