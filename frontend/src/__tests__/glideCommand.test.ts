@@ -492,3 +492,39 @@ describe('/glide focus', () => {
     expect(readFileSync(join(euiDir(), 'kit.css'), 'utf8')).not.toMatch(/\.ah-/)
   })
 })
+
+describe('/glide onboard', () => {
+  it('previews and applies only on approval, then shows checkpoint results', async () => {
+    const { host, request, titles, view } = setup()
+    request.mockResolvedValueOnce({ status: 'plan', resident: ['fixture-model'], on_demand: [] })
+    await glideCommand(host, 'onboard')
+    expect(request.mock.calls).toEqual([['glide.z0_onboard_plan', { session_id: 'glide-session' }]])
+    expect(titles()).toEqual(['Review z0intelligence setup'])
+    expect(JSON.stringify(view(0))).toContain('fixture-model')
+
+    request.mockResolvedValueOnce({ status: 'incomplete', steps: { doctor: 'needs attention' } })
+    must(view(0).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(request.mock.calls[1]).toEqual(['glide.z0_onboard_apply', { session_id: 'glide-session' }])
+    expect(titles()[1]).toBe('z0intelligence setup not complete')
+
+    request.mockResolvedValueOnce({ status: 'plan', resident: [], on_demand: [] })
+    await glideCommand(host, 'onboard')
+    request.mockResolvedValueOnce({ status: 'done', steps: { layout: 'already done', 'models.sync': 'skipped' } })
+    must(view(2).activate)(HOST_APPROVE_ID)
+    await settle()
+    expect(titles()[3]).toBe('z0intelligence setup complete')
+    expect(JSON.stringify(view(3))).toContain('already done')
+    expect(request.mock.calls.every(([verb]) => verb.startsWith('glide.z0_onboard_'))).toBe(true)
+  })
+
+  it('leaves regular Glide available without the optional CLI', async () => {
+    const { host, titles, view, request } = setup()
+    request.mockResolvedValueOnce({ status: 'not installed' })
+    await glideCommand(host, 'onboard')
+    expect(titles()).toEqual(['z0intelligence setup unavailable'])
+    expect(JSON.stringify(view(0))).not.toContain('Run or resume setup')
+    await glideCommand(host, '')
+    expect(titles()).toContain('Build your local memory')
+  })
+})

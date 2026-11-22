@@ -13,7 +13,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from . import attention, core, fleet, source, taste
+from . import attention, core, fleet, source, taste, z0_onboarding
 from .skill_router import install as skill_router_install
 from .offload import savings_card as offload_savings_card
 
@@ -23,6 +23,7 @@ NAMESPACE = "glide"
 class SessionParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
     session_id: str = Field(min_length=1)
+
 
 
 class FleetParams(SessionParams):
@@ -87,6 +88,8 @@ _SAMPLE_TASK = (
 
 VERBS = {
     "detect": (SessionParams, lambda home, p: core.detect(home)),
+    "z0_onboard_plan": (SessionParams, lambda home, p: z0_onboarding.run()),
+    "z0_onboard_apply": (SessionParams, lambda home, p: z0_onboarding.run(apply=True)),
     "taste": (SessionParams, lambda home, p: taste.board()),
     "fleet": (FleetParams, lambda home, p: fleet.card(home, p.view, p.portfolio)),
     "fleet_pod": (FleetPodParams, lambda home, p: fleet.pod(home, p.host, p.ns, p.name)),
