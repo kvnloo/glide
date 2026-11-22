@@ -36,6 +36,7 @@ import type { Cron } from '../processes/cron.js'
 import type { Processes } from '../processes/store.js'
 import type { Automation } from '../session/automation.js'
 import { applyEffort } from '../session/effort.js'
+import { fastTier } from '../session/fast.js'
 import { forgetPane } from '../session/pane.js'
 import type { SessionState } from '../session/state.js'
 import { fileSettings, type SettingsSource, type ThemeMode } from '../settings.js'
@@ -357,7 +358,7 @@ export class App implements ChatPorts {
       : this.#orbActivity.state(this.overlays.some(o => o.key.startsWith('prompt:')))
     const modal = this.overlays.at(-1)?.modal === true
     this.#lanes?.update(live, modal, orbState, focusBlock.active())
-    this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true || cleanFocus.on)
+    this.#orb?.update(orbState, modal || this.#lanes?.orbiting === true || cleanFocus.on, fastTier(this.session.info) === 'ultrafast')
     this.#clean?.update(orbState)
     if (!this.#view || this.#surface.closed) {
       return

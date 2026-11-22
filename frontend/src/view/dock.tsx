@@ -460,12 +460,13 @@ function effortChip(r: DockRoute, on: DockActions): JSX.Element {
 function composerNode(cx: DockContext, on: DockActions, ring?: readonly JSX.Element[]): JSX.Element {
   const { draft, attachments, dictation } = cx.composer
   const { route } = cx
+  const turbo = route.fast === 'ultrafast'
   const busy = cx.activity.kind === 'turn'
 
   return (
     <col key="composer" role="omp.editor">
       {ring?.length ? ring : null}
-      {busy ? <row key="streak" role="hermes.streak" /> : null}
+      {busy ? <row key="streak" role={turbo ? 'hermes.streak.turbo' : 'hermes.streak'} /> : null}
       {on.onContext ? contextMeter(cx.status.context, on.onContext) : null}
       <row gap="sm" hidden={!attachments.length} key="chips" role="omp.composer.chips" wrap>
         {attachments.map((a, i) => imageChip(a, i, on.onRemoveAttachment))}
@@ -500,12 +501,12 @@ function composerNode(cx: DockContext, on: DockActions, ring?: readonly JSX.Elem
             key="model"
             onClick={on.onModel}
             role="omp.composer.model"
-            title={`Model: ${route.model}${route.fast ? ` · ${route.fast === 'ultrafast' ? 'ultrafast' : 'fast'} mode (priority processing, billed higher; /fast turns it off)` : ''} · click to switch`}
+            title={`Model: ${route.model}${route.fast ? ` · ${turbo ? 'Turbo (ultrafast)' : 'fast'} mode (priority processing, billed higher; /fast turns it off)` : ''} · click to switch`}
           >
             <icon key="icon" name="model" />
             <text key="name" spans={[{ t: route.model }]} wrap="none" />
             {route.fast ? <icon key="fast" name="bolt" role="hermes.composer.fast" tone="warning" /> : null}
-            {route.fast === 'ultrafast' ? <icon key="fast2" name="bolt" role="hermes.composer.fast" tone="warning" /> : null}
+            {turbo ? <text key="turbo" role="hermes.composer.turbo" spans={[{ s: 'warning', t: 'Turbo' }]} wrap="none" /> : null}
             <icon key="chev" name="chev" />
           </row>
         ) : null}

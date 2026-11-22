@@ -2,7 +2,7 @@ import type { Session, Surface } from '@stencil-hq/tern'
 import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { OrbActivity, ThinkingOrb } from '../chrome/orb.js'
+import { OrbActivity, orbSvg, ThinkingOrb } from '../chrome/orb.js'
 
 import { stub } from './fakes.js'
 
@@ -126,6 +126,39 @@ describe('orb animation boundaries', () => {
       surface.closed = true
       vi.advanceTimersByTime(1000)
       expect(send).not.toHaveBeenCalled()
+    } finally {
+      orb.close()
+      vi.useRealTimers()
+    }
+  })
+
+  it('advances twice as far per tick in Turbo and still honors reduced motion', () => {
+    vi.useFakeTimers()
+    const send = vi.fn<Surface['send']>()
+    const orb = new ThinkingOrb(
+      stub<Session>({ blob: (bytes: Uint8Array) => Buffer.from(bytes).toString(), caps: { dark: true } }),
+      stub<Surface>({ send, blocked: false, closed: false })
+    )
+
+    try {
+      orb.update('composing')
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 1 / 15, true))
+
+      orb.update('composing', false, true)
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 3 / 15, true))
+      expect(send).toHaveBeenCalledTimes(2)
+
+      orb.update('composing')
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 4 / 15, true))
+
+      orb.environment({ reduce: true })
+      orb.update('composing', false, true)
+      vi.advanceTimersByTime(1000)
+      expect(orb.props().blob).toBe(orbSvg('composing', 0, true))
+      expect(send).toHaveBeenCalledTimes(3)
     } finally {
       orb.close()
       vi.useRealTimers()

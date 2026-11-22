@@ -173,6 +173,7 @@ export class ThinkingOrb {
   #reduce: boolean
   #visible = true
   #paused = false
+  #step = 1
   #closed = false
   #timer: NodeJS.Timeout | undefined
   readonly #scene: OrbScene | undefined
@@ -191,7 +192,7 @@ export class ThinkingOrb {
     this.#reduce = Boolean(tern.caps.reduceMotion)
   }
 
-  update(state: OrbState, paused = false) {
+  update(state: OrbState, paused = false, turbo = false) {
     if (this.#closed) {
       return
     }
@@ -205,6 +206,8 @@ export class ThinkingOrb {
     }
 
     this.#paused = paused
+    // Advance the existing frame clock twice as fast without sending extra operations.
+    this.#step = turbo ? 2 : 1
     this.#sync()
   }
 
@@ -261,7 +264,7 @@ export class ThinkingOrb {
           return
         }
 
-        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps)
+        this.#frame = (this.#frame + this.#step) % Math.round(CYCLE_S * this.#fps)
         this.#surface.send([['set', this.#node, { blob: this.#blob() }]])
       }, 1000 / this.#fps)
       this.#timer.unref()

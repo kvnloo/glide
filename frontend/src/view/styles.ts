@@ -224,7 +224,8 @@ export const STYLES = minifyCss(css`
     }
   }
 
-  [data-role='hermes.streak'] {
+  [data-role='hermes.streak'],
+  [data-role='hermes.streak.turbo'] {
     height: 1px;
     margin: 0 18px -1px;
     background-image: linear-gradient(to right, transparent, var(--sf-p-accent, var(--accent)), transparent);
@@ -233,8 +234,13 @@ export const STYLES = minifyCss(css`
     animation: hermes-streak 1.8s ease-in-out infinite alternate;
   }
 
+  [data-role='hermes.streak.turbo'] {
+    animation-duration: 0.9s;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    [data-role='hermes.streak'] {
+    [data-role='hermes.streak'],
+    [data-role='hermes.streak.turbo'] {
       animation: none;
       background-position: 50% 0;
     }
@@ -581,8 +587,10 @@ export const STYLES = minifyCss(css`
     margin-left: -2px;
   }
 
-  [data-role='hermes.composer.fast'] + [data-role='hermes.composer.fast'] {
-    margin-left: -7px;
+  [data-role='hermes.composer.turbo'] {
+    background: var(--l1);
+    border-radius: 4px;
+    padding: 0 4px;
   }
 
   /* A background card's process line opens the Background sheet. */
