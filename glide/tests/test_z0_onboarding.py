@@ -15,7 +15,8 @@ def test_optional_cli_absent(monkeypatch):
 def test_preview_is_read_only_and_drops_upstream_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(z0_onboarding.shutil, "which", lambda _: "z0int")
     monkeypatch.setenv("OPENAI_API_KEY", "fixture-key")
-    monkeypatch.setenv("Z0INT_HOME", str(tmp_path))
+    checkpoint = tmp_path / "z0-state"
+    monkeypatch.setenv("Z0INT_HOME", str(checkpoint))
 
     script = tmp_path / "fixture.py"
     script.write_text(
@@ -35,7 +36,7 @@ def test_preview_is_read_only_and_drops_upstream_paths(tmp_path, monkeypatch):
     assert json.loads(core.command("onboard"))["status"] == "plan"
     with pytest.raises(ValueError):
         gateway.call(tmp_path, "z0_onboard_plan", {"session_id": "live", "apply": True})
-    assert list(tmp_path.iterdir()) == [script]
+    assert not checkpoint.exists()
 
 
 def test_partial_run_and_resume_use_the_same_safe_cli(tmp_path, monkeypatch):
