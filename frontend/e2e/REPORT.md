@@ -51,18 +51,8 @@ Existing tests are source coverage references, not new execution receipts for th
 ### Fleet cohort
 
 In a clean committed Linux checkout with the Python and frontend test
-dependencies installed, build the pinned Ephemeral UI source from the
-revision in `frontend/src/vendor/ephemeral-ui/PIN.json`:
-
-```sh
-cd frontend
-node scripts/fleet-kit-fixture.mjs SOURCE_DIR FIXTURE_DIR
-cd ..
-FLEET_KIT_DIR="$FIXTURE_DIR" bash glide/tools/fleet-army.sh RECEIPT_DIR
-```
-
-Use absolute paths for the source checkout and fixture output.
-This runs the fleet source-worker and command/renderer suites before issuing
+dependencies installed, run `bash glide/tools/fleet-army.sh RECEIPT_DIR`.
+This runs the fleet source-worker and native renderer fixture suites before issuing
 HEAD-bound receipts for `fleet-hosts`, `fleet-portfolio`, and `fleet-factory`.
 Hosts reads real Linux gauges and a disposable read-only SQLite database;
 portfolio reads a disposable work config; factory reads a disposable queue,
