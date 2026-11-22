@@ -1,7 +1,10 @@
+import ast
 import importlib.util
 import json
 import os
 from pathlib import Path
+import shlex
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -61,6 +64,38 @@ class SweepContracts(unittest.TestCase):
         lane = (ROOT / 'boat/sweep_lane.py').read_text()
         self.assertIn('cwd=cwd or str(ROOT)', lane)
         self.assertIn("os.chdir(ROOT)\n        Path('sweep-config.json')", lane)
+
+    def test_snapshot_reset_preserves_prior_data_without_deletion(self):
+        source = ast.parse((ROOT / 'boat/sweeps_up.py').read_text())
+        commands = [node.args[1].value for node in ast.walk(source)
+                    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == 'remote' and len(node.args) > 1
+                    and isinstance(node.args[1], ast.Constant)
+                    and isinstance(node.args[1].value, str)
+                    and 'mkdir' in node.args[1].value]
+        self.assertEqual(len(commands), 1)
+        command = commands[0]
+        # Refuse to execute a destructive regression, even inside a temporary home.
+        self.assertNotIn('rm', shlex.split(command))
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp)
+            army = home / 'army'
+            for path in (army / 'runs', army / 'site', home / 'army-private'):
+                path.mkdir(parents=True)
+                (path / 'sentinel').write_text(path.name)
+            subprocess.run(['bash', '-euc', command], cwd=army, check=True)
+            archives = list(army.glob('.snapshot.*'))
+            self.assertEqual(len(archives), 1)
+            for name in ('runs', 'site', 'army-private'):
+                self.assertEqual((archives[0] / name / 'sentinel').read_text(), name)
+            self.assertEqual(list((army / 'runs').iterdir()), [])
+            self.assertFalse((army / 'site').exists())
+            self.assertFalse((home / 'army-private').exists())
+            (army / 'site').symlink_to(home / 'missing-site')
+            subprocess.run(['bash', '-euc', command], cwd=army, check=True)
+            self.assertTrue(any((path / 'site').is_symlink() for path in army.glob('.snapshot.*')))
+            for name in ('runs', 'site', 'army-private'):
+                self.assertEqual((archives[0] / name / 'sentinel').read_text(), name)
 
     def test_no_model_keys_in_sweep_lifecycle(self):
         source = (ROOT / 'boat/sweeps_up.py').read_text()
