@@ -22,7 +22,7 @@ def _home() -> Path:
 
 
 def _active() -> str:
-    import yaml
+    import hermes_yaml as yaml
 
     return yaml.safe_load((_home() / "config.yaml").read_text())["display"]["skin"]
 

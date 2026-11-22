@@ -90,7 +90,7 @@ def glide_skin(args: dict, **_kw) -> str:
             return _fail("colors maps skin keys to hex colours like #1a1030.")
         if css is not None and (not isinstance(css, str) or len(css.encode()) > CSS_LIMIT):
             return _fail(f"customCSS must be a string of at most {CSS_LIMIT} bytes.")
-        import yaml
+        import hermes_yaml as yaml
 
         body: dict[str, object] = {"name": name, "description": str(args.get("description") or "Made in chat")}
         if colors:
