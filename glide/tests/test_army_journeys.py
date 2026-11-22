@@ -1,10 +1,13 @@
 """The TesterArmy journey runner's own contracts: evidence parsing, isolation and verdicts."""
 
 import importlib.util
+import json
 import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 _spec = importlib.util.spec_from_file_location("_army_journeys", ROOT / "glide/tools/army_journeys.py")
@@ -95,6 +98,23 @@ def test_the_fixture_host_refuses_to_run_outside_a_fixture_profile(tmp_path):
                           env=env, capture_output=True, text=True)
     assert done.returncode != 0 and "must be inside the disposable HOME" in done.stderr
     assert not outside.exists()
+
+
+def test_fixture_gateway_refusal_does_not_break_the_reply_stream(tmp_path):
+    pytest.importorskip("hermes_cli.plugin_gateway_methods")
+    env = army.fixture_env(tmp_path)
+    requests = [
+        {"op": "gateway", "method": "glide.media.image", "params": {"path": "/fixture/missing.png"}},
+        {"op": "inventory"},
+    ]
+    done = subprocess.run(
+        [sys.executable, str(army.HOST), "--fixture-home", env["HERMES_HOME"], "serve"],
+        input="".join(json.dumps(request) + "\n" for request in requests),
+        env=env, capture_output=True, text=True, check=True,
+    )
+    refusal, inventory = map(json.loads, done.stdout.splitlines())
+    assert not refusal["ok"] and "Image is not an exact canonical native-inputs reference" in refusal["error"]
+    assert inventory["ok"] and "glide.media.image" in inventory["result"]["gateway"]
 
 
 def test_receipts_from_a_dirty_tree_are_never_written_as_pass(tmp_path, monkeypatch):

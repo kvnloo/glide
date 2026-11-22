@@ -173,12 +173,15 @@ def run_gateway(ctx: FixtureCtx, method: str, params: dict) -> dict:
     if schema is not None:
         schema.model_validate(params)
     try:
-        from hermes_cli.plugin_gateway_methods import GatewayRequestContext
+        from hermes_cli.plugin_gateway_methods import GatewayMethodFailure, GatewayRequestContext
     except ImportError:
-        caller = FixtureRequest()
+        out = _settle(entry["handler"](FixtureRequest(), params))
     else:
         caller = GatewayRequestContext(session_id=SESSION, profile="army", _attached=lambda: True)
-    out = _settle(entry["handler"](caller, params))
+        try:
+            out = _settle(entry["handler"](caller, params))
+        except GatewayMethodFailure as refusal:
+            return {"ok": False, "error": f"{type(refusal).__name__}: {refusal}"}
     return {"ok": True, "result": json.loads(json.dumps(out, default=str))}
 
 
