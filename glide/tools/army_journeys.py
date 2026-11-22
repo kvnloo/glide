@@ -24,11 +24,13 @@ the gate's strict verdict is run against them. Exit 0 only when every feature pa
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime as _dt
 import json
 import os
 import re
 import shlex
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -39,6 +41,10 @@ ROOT = Path(__file__).resolve().parents[2]
 HOST = ROOT / "glide" / "tools" / "army_host.py"
 INVENTORIES = ("frontend/e2e/features.json", "frontend/e2e/features.intel.json")
 MANIFEST = ROOT / "plugin.yaml"
+SUITE_TIMEOUT_S = 1800  # one suite, start to JUnit
+SHELL_TIMEOUT_S = 120  # one shipped CLI call in the plugin drive
+TIMED_OUT = 124  # the exit code `timeout(1)` reports, for a suite this runner stopped
+REPLY_CHARS = 600  # how much of a step's reply a receipt keeps
 
 # Plugin-side steps per feature: (op, request, expectation). `expect` keys: `exit` (CLI exit code),
 # `match` (regex over the reply), `absent` (gateway method that must NOT be registered by default).
@@ -173,7 +179,7 @@ def fixture_env(base: Path, extra: dict[str, str] | None = None) -> dict[str, st
     return env
 
 
-def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int = 1800) -> int:
+def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int = SUITE_TIMEOUT_S) -> int:
     with log.open("w") as out:
         out.write("$ " + shlex.join(cmd) + f"\n# cwd: {cwd.relative_to(ROOT) if cwd != ROOT else '.'}\n")
         out.flush()
@@ -181,7 +187,7 @@ def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int 
             return subprocess.run(cmd, cwd=cwd, env=env, stdout=out, stderr=subprocess.STDOUT, timeout=timeout).returncode
         except subprocess.TimeoutExpired:
             out.write(f"\n# timed out after {timeout}s\n")
-            return 124
+            return TIMED_OUT
 
 
 def junit_cases(path: Path, prefix: str, key: str, strip: str = "") -> dict[str, dict[str, int]]:
@@ -208,9 +214,6 @@ def junit_cases(path: Path, prefix: str, key: str, strip: str = "") -> dict[str,
 def seed_history(home: Path) -> None:
     """Two local sessions with corrections (and a cron one without), in the sessions/messages schema the
     memory suite defines once (``glide/tests/test_memory.py``: SCHEMA), read without importing the suite."""
-    import ast
-    import sqlite3
-
     tree = ast.parse((ROOT / "glide/tests/test_memory.py").read_text())
     schema = next(ast.literal_eval(node.value) for node in tree.body if isinstance(node, ast.Assign)
                   and any(isinstance(t, ast.Name) and t.id == "SCHEMA" for t in node.targets))
@@ -226,6 +229,59 @@ def seed_history(home: Path) -> None:
         db.execute("INSERT INTO messages (session_id, role, content, timestamp) VALUES (?, 'user', ?, 2.0)", (sid, text))
     db.commit()
     db.close()
+
+
+def _manifest_step(inventory: dict, _request: dict, _expect: dict, _env: dict) -> dict:
+    """The manifest's declared tools and hooks are exactly the registered ones, and one install gives both CLIs and /glide."""
+    manifest = MANIFEST.read_text()
+    declared = {key: sorted(re.findall(r"[a-z_]+", re.search(rf"^{key}: \[(.*)\]$", manifest, re.M).group(1)))
+                for key in ("provides_tools", "provides_hooks")}
+    got = {"provides_tools": inventory.get("tools", []), "provides_hooks": inventory.get("hooks", [])}
+    ok = declared == got and {"tern", "glide"} <= set(inventory.get("cli", [])) and "glide" in inventory.get("commands", [])
+    return {"ok": ok, "detail": {"declared": declared, "registered": got, "cli": inventory.get("cli"), "commands": inventory.get("commands")}}
+
+
+def _absent_step(inventory: dict, request: dict, _expect: dict, _env: dict) -> dict:
+    ok = request["method"] not in inventory.get("gateway", [])
+    return {"ok": ok, "detail": "not registered by default" if ok else "registered without explicit opt-in"}
+
+
+def _registered_step(inventory: dict, request: dict, _expect: dict, _env: dict) -> dict:
+    ok = request["name"] in inventory.get(request["kind"], [])
+    return {"ok": ok, "detail": f"{request['kind']} {request['name']} registered" if ok else "missing"}
+
+
+def _shell_step(_inventory: dict, request: dict, expect: dict, env: dict) -> dict:
+    """A shipped CLI run from the repository root, its input files written into the fixture home."""
+    home = Path(env["HOME"])
+    for name, content in request.get("files", {}).items():
+        (home / name).write_text(content)
+    argv = [a.replace("{home}", str(home)) for a in request["argv"]]
+    done = subprocess.run(argv, cwd=ROOT, env=env, capture_output=True, text=True, timeout=SHELL_TIMEOUT_S)
+    text = (done.stdout + done.stderr).strip()
+    ok = done.returncode == expect.get("exit", 0) and re.search(expect.get("match", r"\S"), text, re.S) is not None
+    return {"ok": ok, "exit": done.returncode, "reply": text[:REPLY_CHARS], "argv": argv}
+
+
+LOCAL_STEPS = {"manifest": _manifest_step, "absent": _absent_step, "registered": _registered_step, "shell": _shell_step}
+
+
+def _host_step(reply: dict, expect: dict) -> dict:
+    """A fixture-host reply against its expectation: a matching answer, or the listed visible refusal."""
+    text = json.dumps(reply.get("result"), default=str) if "result" in reply else str(reply.get("output", ""))
+    text = text if text not in ("", "None") else str(reply.get("stdout", ""))
+    if "exit" in reply:
+        text = str(reply.get("stdout", "")) + str(reply.get("exit"))
+    step: dict = {}
+    if expect.get("refusal"):
+        ok = not reply.get("ok") and re.search(expect["refusal"], str(reply.get("error", ""))) is not None
+        step["refused"] = reply.get("error")
+    else:
+        ok = bool(reply.get("ok")) and ("exit" not in expect or reply.get("exit") == expect["exit"])
+        ok = ok and (not expect.get("match") or re.search(expect["match"], text, re.M) is not None)
+        if not reply.get("ok"):
+            step["error"] = str(reply.get("error", ""))[:REPLY_CHARS]
+    return {**step, "ok": ok, "reply": (text or str(reply.get("error", "")))[:REPLY_CHARS]}
 
 
 def plugin_drive(host_python: str, env: dict[str, str], order: list[str], log: Path) -> dict[str, list[dict]]:
@@ -244,50 +300,9 @@ def plugin_drive(host_python: str, env: dict[str, str], order: list[str], log: P
     results: dict[str, list[dict]] = {}
     for feature in order:
         for op, request, expect in PLUGIN_DRIVES.get(feature, []):
-            step = {"op": op, **request}
-            if op == "manifest":
-                manifest = MANIFEST.read_text()
-                declared = {
-                    key: sorted(re.findall(r"[a-z_]+", re.search(rf"^{key}: \[(.*)\]$", manifest, re.M).group(1)))
-                    for key in ("provides_tools", "provides_hooks")
-                }
-                got = {"provides_tools": inventory.get("tools", []), "provides_hooks": inventory.get("hooks", [])}
-                ok = declared == got and {"tern", "glide"} <= set(inventory.get("cli", [])) and "glide" in inventory.get("commands", [])
-                step.update(ok=ok, detail={"declared": declared, "registered": got, "cli": inventory.get("cli"), "commands": inventory.get("commands")})
-            elif op == "absent":
-                ok = request["method"] not in inventory.get("gateway", [])
-                step.update(ok=ok, detail="not registered by default" if ok else "registered without explicit opt-in")
-            elif op == "shell":
-                home = Path(env["HOME"])
-                for name, content in request.get("files", {}).items():
-                    (home / name).write_text(content)
-                argv = [a.replace("{home}", str(home)) for a in request["argv"]]
-                done = subprocess.run(argv, cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
-                text = (done.stdout + done.stderr).strip()
-                ok = done.returncode == expect.get("exit", 0) and re.search(expect.get("match", r"\S"), text, re.S) is not None
-                step.update(ok=ok, exit=done.returncode, reply=text[:600], argv=argv)
-            elif op == "registered":
-                ok = request["name"] in inventory.get(request["kind"], [])
-                step.update(ok=ok, detail=f"{request['kind']} {request['name']} registered" if ok else "missing")
-            else:
-                reply = ask({"op": op, **request})
-                text = json.dumps(reply.get("result"), default=str) if "result" in reply else str(reply.get("output", ""))
-                text = text if text not in ("", "None") else str(reply.get("stdout", ""))
-                if "exit" in reply:
-                    text = str(reply.get("stdout", "")) + str(reply.get("exit"))
-                if expect.get("refusal"):
-                    ok = not reply.get("ok") and re.search(expect["refusal"], str(reply.get("error", ""))) is not None
-                    step["refused"] = reply.get("error")
-                else:
-                    ok = bool(reply.get("ok"))
-                    if ok and "exit" in expect:
-                        ok = reply.get("exit") == expect["exit"]
-                    if ok and expect.get("match"):
-                        ok = re.search(expect["match"], text, re.M) is not None
-                step.update(ok=ok, reply=(text or str(reply.get("error", "")))[:600])
-                if not reply.get("ok") and not expect.get("refusal"):
-                    step["error"] = str(reply.get("error", ""))[:600]
-            results.setdefault(feature, []).append(step)
+            local = LOCAL_STEPS.get(op)
+            outcome = local(inventory, request, expect, env) if local else _host_step(ask({"op": op, **request}), expect)
+            results.setdefault(feature, []).append({"op": op, **request, **outcome})
     proc.stdin.close()
     proc.wait(timeout=60)
     return results

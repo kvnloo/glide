@@ -1,7 +1,9 @@
 """The TesterArmy journey runner's own contracts: evidence parsing, isolation and verdicts."""
 
 import importlib.util
-import json
+import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -67,8 +69,6 @@ def test_every_drive_names_an_inventory_feature_in_journey_order():
 
 
 def test_seeded_history_has_two_local_corrections(tmp_path):
-    import sqlite3
-
     army.seed_history(tmp_path)
     db = sqlite3.connect(tmp_path / "state.db")
     sources = dict(db.execute("SELECT id, source FROM sessions").fetchall())
@@ -77,9 +77,6 @@ def test_seeded_history_has_two_local_corrections(tmp_path):
 
 
 def test_the_fixture_host_refuses_to_run_outside_a_fixture_profile(tmp_path):
-    import subprocess
-    import sys
-
     env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path), "HERMES_HOME": str(tmp_path / "h")}
     done = subprocess.run([sys.executable, str(army.HOST), "inventory"], env=env, capture_output=True, text=True)
     assert done.returncode != 0 and "fixture profile" in done.stderr
@@ -89,3 +86,14 @@ def test_receipts_from_a_dirty_tree_are_never_written_as_pass(tmp_path, monkeypa
     monkeypatch.setattr(army, "git", lambda *a: " M x" if a[0] == "status" else "0" * 40)
     assert army.main(["--out", str(tmp_path / "run")]) == 2
     assert not (tmp_path / "run").exists()
+
+
+def test_a_host_reply_passes_on_its_match_or_its_listed_refusal_only():
+    assert army._host_step({"ok": True, "output": "Offload tracking reset."}, {"match": r"^Offload tracking reset\.$"})["ok"]
+    assert not army._host_step({"ok": True, "output": "something else"}, {"match": r"^Offload"})["ok"]
+    assert army._host_step({"ok": True, "exit": 1, "stdout": "not a Tern pane"}, {"exit": 1, "match": "Tern"})["ok"]
+    assert not army._host_step({"ok": True, "exit": 0, "stdout": "not a Tern pane"}, {"exit": 1})["ok"]
+    refused = {"ok": False, "error": "PermissionError: browser profile scope changed"}
+    assert army._host_step(refused, {"refusal": "browser profile scope"})["ok"]
+    assert not army._host_step(refused, {"match": r"\S"})["ok"]
+    assert not army._host_step({"ok": True, "result": {}}, {"refusal": "anything"})["ok"]

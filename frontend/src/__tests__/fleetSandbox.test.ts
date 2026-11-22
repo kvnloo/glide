@@ -22,7 +22,7 @@ const DOCS = {
   portfolio: { kind: 'fleet-portfolio', app: 'dash', data: { at, notes: [], portfolios: { glide: { label: 'Glide', products: [
     { id: 'glide:cards', label: 'Cards', horizon: 'now', features: [{ id: 'fleet', label: 'demo/r', tasks: [
       { id: 'demo/r#7', label: 'Sample task', status: 'next', url: 'https://example.test/task/7' },
-      { id: 'demo/r#8', label: 'Later task', status: 'todo', url: 'https://example.test/task/8' }] }] }], shared: [] } } } },
+      { id: 'demo/r#8', label: 'Later task', status: 'active', url: 'https://example.test/task/8' }] }] }], shared: [] } } } },
   factory: { kind: 'fleet-factory', app: 'aodl', data: { at, notes: [],
     nodes: [{ id: 'brain', col: 0, label: 'Brain', state: 'live', url: 'https://example.test/node/brain' },
       { id: 'lane:b', col: 1, label: 'build', state: 'failing', reason: 'red', action: 'Prepare fix' }],

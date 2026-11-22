@@ -20,6 +20,8 @@ refuses to run otherwise, so a journey never writes the owner's profile.
 
 from __future__ import annotations
 
+import argparse
+import asyncio
 import contextlib
 import importlib.util
 import inspect
@@ -27,12 +29,15 @@ import io
 import json
 import os
 import sys
+import tempfile
 import traceback
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKAGE = "hermes_plugins.glide_army"
 SESSION = "army-s1"
+TRACE_CHARS = 1500  # the tail of a traceback a reply carries
+OUTPUT_CHARS = 4000  # the tail of captured stdout/stderr a reply carries
 
 
 class FixtureRequest:
@@ -43,7 +48,7 @@ class FixtureRequest:
         self.profile = profile
 
     def assert_attached(self) -> None:
-        return None
+        """The fixture caller stays attached for the whole run."""
 
     def capture_scope(self):
         raise PermissionError("gateway scope capture is unavailable in the fixture host")
@@ -75,6 +80,7 @@ class FixtureCtx:
         self.unload: list = []
 
     def has_capability(self, _capability) -> bool:
+        """No optional host capability is granted to the fixture plugin."""
         return False
 
     def on_unload(self, fn) -> None:
@@ -144,11 +150,8 @@ def inventory(ctx: FixtureCtx) -> dict:
 
 
 def _settle(value):
-    if inspect.isawaitable(value):
-        import asyncio
-
-        return asyncio.run(value)
-    return value
+    """A handler's result, awaited when the handler is a coroutine function."""
+    return asyncio.run(value) if inspect.isawaitable(value) else value
 
 
 def run_command(ctx: FixtureCtx, name: str, arg: str) -> dict:
@@ -160,8 +163,8 @@ def run_command(ctx: FixtureCtx, name: str, arg: str) -> dict:
         params = inspect.signature(handler).parameters
         kwargs = {"session_id": SESSION} if "session_id" in params else {}
         out = _settle(handler(arg, **kwargs))
-    except Exception as error:  # a crash is the finding
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-1500:]}
+    except Exception as error:  # a crash is the finding, reported in the reply
+        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     text = out if isinstance(out, str) else json.dumps(out, default=str)
     return {"ok": True, "output": text}
 
@@ -176,43 +179,37 @@ def run_gateway(ctx: FixtureCtx, method: str, params: dict) -> dict:
         if schema is not None:
             schema.model_validate(params)
         out = _settle(entry["handler"](_request(), params))
-    except Exception as error:
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-1500:]}
+    except Exception as error:  # a refusal or crash is the finding, reported in the reply
+        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     return {"ok": True, "result": json.loads(json.dumps(out, default=str))}
 
 
-def run_cli_help(ctx: FixtureCtx, name: str) -> dict:
-    import argparse
-
-    entry = ctx.cli.get(name)
-    if entry is None:
-        return {"ok": False, "error": f"no registered CLI command hermes {name}"}
+def _parser(ctx: FixtureCtx, name: str) -> tuple[dict, argparse.ArgumentParser]:
+    entry = ctx.cli[name]
     parser = argparse.ArgumentParser(prog=f"hermes {name}")
-    try:
-        if entry["setup"] is not None:
-            entry["setup"](parser)
-        text = parser.format_help()
-    except Exception as error:
-        return {"ok": False, "error": f"{type(error).__name__}: {error}"}
+    if entry["setup"] is not None:
+        entry["setup"](parser)
+    return entry, parser
+
+
+def run_cli_help(ctx: FixtureCtx, name: str) -> dict:
+    if name not in ctx.cli:
+        return {"ok": False, "error": f"no registered CLI command hermes {name}"}
+    entry, parser = _parser(ctx, name)
+    text = parser.format_help()
     return {"ok": bool(text.strip()) and callable(entry["handler"]), "output": text}
 
 
 def run_cli(ctx: FixtureCtx, name: str, argv: list[str]) -> dict:
-    import argparse
-
-    entry = ctx.cli.get(name)
-    if entry is None:
+    if name not in ctx.cli:
         return {"ok": False, "error": f"no registered CLI command hermes {name}"}
-    parser = argparse.ArgumentParser(prog=f"hermes {name}")
-    if entry["setup"] is not None:
-        entry["setup"](parser)
+    entry, parser = _parser(ctx, name)
     try:
-        args = parser.parse_args(argv)
-        code = entry["handler"](args)
+        code = entry["handler"](parser.parse_args(argv))
     except SystemExit as stop:
         code = stop.code
-    except Exception as error:
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-1500:]}
+    except Exception as error:  # a crash is the finding, reported in the reply
+        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     return {"ok": True, "exit": 0 if code is None else code}
 
 
@@ -222,8 +219,8 @@ def run_tool(ctx: FixtureCtx, name: str, args: dict) -> dict:
         return {"ok": False, "error": f"no registered tool {name}"}
     try:
         out = _settle(entry["handler"](args, session_id=SESSION))
-    except Exception as error:
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-1500:]}
+    except Exception as error:  # a crash is the finding, reported in the reply
+        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     return {"ok": True, "output": out if isinstance(out, str) else json.dumps(out, default=str)}
 
 
@@ -233,16 +230,14 @@ def run_hook(ctx: FixtureCtx, name: str, kwargs: dict) -> dict:
         return {"ok": False, "error": f"no registered hook {name}"}
     try:
         out = [_settle(fn(**kwargs)) for fn in handlers]
-    except Exception as error:
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-1500:]}
+    except Exception as error:  # a crash is the finding, reported in the reply
+        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     return {"ok": True, "result": json.loads(json.dumps(out, default=str))}
 
 
 @contextlib.contextmanager
 def _captured():
     """Both Python prints and child processes write to a file, never to the reply channel."""
-    import tempfile
-
     sys.stdout.flush()
     sys.stderr.flush()
     saved = os.dup(1), os.dup(2)
@@ -266,29 +261,65 @@ def _captured():
             os.close(fd)
 
 
+def _dispatch(ctx: FixtureCtx, request: dict) -> dict:
+    match request.get("op"):
+        case "inventory":
+            return {"ok": True, "result": inventory(ctx)}
+        case "command":
+            return run_command(ctx, str(request["name"]), str(request.get("arg", "")))
+        case "gateway":
+            return run_gateway(ctx, str(request["method"]), dict(request.get("params") or {}))
+        case "cli":
+            return run_cli_help(ctx, str(request["name"]))
+        case "cli_run":
+            return run_cli(ctx, str(request["name"]), [str(a) for a in request.get("argv") or []])
+        case "tool":
+            return run_tool(ctx, str(request["name"]), dict(request.get("args") or {}))
+        case "hook":
+            return run_hook(ctx, str(request["name"]), dict(request.get("kwargs") or {}))
+        case op:
+            return {"ok": False, "error": f"unknown op {op!r}"}
+
+
 def handle(ctx: FixtureCtx, request: dict) -> dict:
-    op = request.get("op")
     with _captured() as output:
-        if op == "inventory":
-            reply = {"ok": True, "result": inventory(ctx)}
-        elif op == "command":
-            reply = run_command(ctx, str(request["name"]), str(request.get("arg", "")))
-        elif op == "gateway":
-            reply = run_gateway(ctx, str(request["method"]), dict(request.get("params") or {}))
-        elif op == "cli":
-            reply = run_cli_help(ctx, str(request["name"]))
-        elif op == "cli_run":
-            reply = run_cli(ctx, str(request["name"]), [str(a) for a in request.get("argv") or []])
-        elif op == "tool":
-            reply = run_tool(ctx, str(request["name"]), dict(request.get("args") or {}))
-        elif op == "hook":
-            reply = run_hook(ctx, str(request["name"]), dict(request.get("kwargs") or {}))
-        else:
-            reply = {"ok": False, "error": f"unknown op {op!r}"}
+        reply = _dispatch(ctx, request)
         captured = output()
     if captured:
-        reply["stdout"] = captured[-4000:]
+        reply["stdout"] = captured[-OUTPUT_CHARS:]
     return reply
+
+
+def _request_of(op: str, rest: list[str]) -> dict:
+    """The one-shot command line as the request `serve` would read."""
+    match op:
+        case "command":
+            return {"op": op, "name": rest[0], "arg": " ".join(rest[1:])}
+        case "gateway":
+            return {"op": op, "method": rest[0], "params": json.loads(rest[1]) if len(rest) > 1 else {}}
+        case "cli":
+            return {"op": op, "name": rest[0]}
+        case "cli_run":
+            return {"op": op, "name": rest[0], "argv": rest[1:]}
+        case "tool":
+            return {"op": op, "name": rest[0], "args": json.loads(rest[1]) if len(rest) > 1 else {}}
+        case "hook":
+            return {"op": op, "name": rest[0], "kwargs": json.loads(rest[1]) if len(rest) > 1 else {}}
+        case _:
+            return {"op": op}
+
+
+def serve(ctx: FixtureCtx) -> int:
+    for line in sys.stdin:
+        if not line.strip():
+            continue
+        try:
+            reply = handle(ctx, json.loads(line))
+        except Exception as error:  # one bad request must not end the session
+            reply = {"ok": False, "error": f"{type(error).__name__}: {error}"}
+        sys.stdout.write(json.dumps(reply, default=str) + "\n")
+        sys.stdout.flush()
+    return 0
 
 
 def main(argv: list[str]) -> int:
@@ -296,33 +327,9 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     ctx = load()
-    op, rest = argv[0], argv[1:]
-    if op == "serve":
-        for line in sys.stdin:
-            if not line.strip():
-                continue
-            try:
-                reply = handle(ctx, json.loads(line))
-            except Exception as error:
-                reply = {"ok": False, "error": f"{type(error).__name__}: {error}"}
-            sys.stdout.write(json.dumps(reply, default=str) + "\n")
-            sys.stdout.flush()
-        return 0
-    if op == "command":
-        request = {"op": op, "name": rest[0], "arg": " ".join(rest[1:])}
-    elif op == "gateway":
-        request = {"op": op, "method": rest[0], "params": json.loads(rest[1]) if len(rest) > 1 else {}}
-    elif op == "cli":
-        request = {"op": op, "name": rest[0]}
-    elif op == "cli_run":
-        request = {"op": op, "name": rest[0], "argv": rest[1:]}
-    elif op == "tool":
-        request = {"op": op, "name": rest[0], "args": json.loads(rest[1]) if len(rest) > 1 else {}}
-    elif op == "hook":
-        request = {"op": op, "name": rest[0], "kwargs": json.loads(rest[1]) if len(rest) > 1 else {}}
-    else:
-        request = {"op": op}
-    reply = handle(ctx, request)
+    if argv[0] == "serve":
+        return serve(ctx)
+    reply = handle(ctx, _request_of(argv[0], argv[1:]))
     print(json.dumps(reply, indent=1, default=str))
     return 0 if reply.get("ok") else 1
 

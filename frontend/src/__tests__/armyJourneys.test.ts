@@ -5,7 +5,7 @@
 // reaches is missing: a plugin command or method the plugin did not register, or a forwarded command
 // the pinned Hermes registry does not know, fails the feature. Set GLIDE_ARMY_OUT to keep the record.
 import { spawn, execFileSync, type ChildProcessWithoutNullStreams } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
@@ -31,7 +31,7 @@ const ternLog = join(scratch, 'tern-calls.log')
 mkdirSync(join(scratch, 'bin'))
 writeFileSync(join(scratch, 'bin', 'tern'), `#!/bin/sh\nprintf '%s\\n' "$*" >> '${ternLog}'\n`, { mode: 0o755 })
 process.env['PATH'] = `${join(scratch, 'bin')}:${process.env['PATH'] ?? ''}`
-const ternCalls = (): string[] => { try { return readFileSync(ternLog, 'utf8').split('\n').filter(Boolean) } catch { return [] } }
+const ternCalls = (): string[] => (existsSync(ternLog) ? readFileSync(ternLog, 'utf8').split('\n').filter(Boolean) : [])
 // Media the fixture user attaches and views: a PNG header and a one-triangle OBJ.
 const png = join(scratch, 'army.png')
 writeFileSync(png, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]))
