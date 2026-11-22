@@ -1,7 +1,7 @@
 [project]
 name = "glide"
 version = "0.2.0"
-description = "Hermes for Tern: the chat UI drawn natively by the Tern terminal over its Surface Protocol (community plugin)"
+description = "Glide: an agent workspace for Hermes Agent in Tern, with native cards, an attention guard and corrections memory (community plugin)"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "alt-glitch" }, { name = "Kevin Rajan" }]
