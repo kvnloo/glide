@@ -6,9 +6,11 @@ import type { ChatPorts } from '../app/ports.js'
 import { errorText } from '../core/errors.js'
 import { contextCount, contextPercent, contextWindow } from '../session/context.js'
 import type { SessionState } from '../session/state.js'
+import { contextGrid, type ContextView } from '../view/context.js'
 import { actionsRow } from '../view/ui/button.js'
 import { rpc } from '../wire/rpc.js'
 
+import { nativeOverlayKey } from './identity.js'
 import type { Overlay } from './overlay.js'
 
 export type ContextHost = Pick<ChatPorts, 'changed' | 'close' | 'gw' | 'open'> & {
@@ -40,7 +42,39 @@ export function contextFacts(usage: Usage | null, estimatedTotal?: number): KvIt
   ]
 }
 
-export function openContext(host: ContextHost) {
+function drawGrid(usage: Usage | null) {
+  const context = contextWindow(usage)
+  return context ? contextGrid(context, 'md') : null
+}
+
+function openQuickContext(host: ContextHost) {
+  const context = contextWindow(host.session.usage)
+  if (!context) return
+  const overlay: Overlay = {
+    key: 'context',
+    modal: true,
+    node: id => (
+      <overlay anchor="bottom" aria="Quick context grid" head="Quick context grid" key={nativeOverlayKey(id)} modal role="omp.overlay.context.quick" size="sm">
+        <col gap="sm" key="body">
+          {contextGrid(context, 'sm')}
+          {actionsRow([
+            { key: 'details', label: 'Details', onClick: () => openContext(host) },
+            { key: 'close', label: 'Close', keys: ['escape'], onClick: () => host.close(overlay) }
+          ])}
+        </col>
+      </overlay>
+    ),
+    onKey: key => {
+      if (key.name === 'escape' || key.name === 'q') host.close(overlay)
+      if (key.name === 'enter') openContext(host)
+      return true
+    }
+  }
+  host.open(overlay)
+}
+
+export function openContext(host: ContextHost, view: ContextView = 'full') {
+  if (view === 'quick') return openQuickContext(host)
   const ticket = host.session.ticket()
   const initial = host.session.usage
   let usage = initial
@@ -52,9 +86,10 @@ export function openContext(host: ContextHost) {
     key: 'context',
     modal: true,
     onClose: () => { closed = true },
-    node: () => (
-      <overlay anchor="center" aria="Context window" head="Context window" key="context" modal role="omp.overlay.context" size="md">
+    node: id => (
+      <overlay anchor="center" aria="Context window" head="Context window" key={nativeOverlayKey(id)} modal role="omp.overlay.context" size="md">
         <col gap="md" key="body">
+          {drawGrid(usage)}
           <text key="scope" text="Read-only snapshot · reopen to refresh" tone="muted" />
           <kv items={contextFacts(usage, breakdown?.categories.length ? breakdown.estimated_total : undefined)} key="facts" />
           <text key="status" text={status} tone="muted" />
