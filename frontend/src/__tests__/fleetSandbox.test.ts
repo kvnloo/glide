@@ -53,11 +53,12 @@ describe('native fleet cards through App and native Tern taps', () => {
       while (pending.length) {
         const node = pending.pop()
         if (Array.isArray(node)) {
-          pending.push(...[...node].reverse())
+          const children: readonly unknown[] = node
+          pending.push(...[...children].reverse())
         } else if (node && typeof node === 'object') {
           const props = 'p' in node ? record(node.p) : undefined
           if ('id' in node && typeof node.id === 'string' && (props?.['aria'] === name || props?.['label'] === name)) found = node.id
-          pending.push(...Object.values(node).reverse())
+          pending.push(...Object.values(record(node) ?? {}).reverse())
         }
       }
       const id = must(found)

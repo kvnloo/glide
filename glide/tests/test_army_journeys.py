@@ -33,6 +33,16 @@ def test_junit_tallies_pass_fail_and_skip_per_file(tmp_path):
         "frontend/x.test.mjs": {"passed": 1, "failed": 0, "skipped": 0}}
 
 
+def test_named_cases_keep_their_own_results_not_the_suite_result(tmp_path):
+    report = _junit(tmp_path, '<testcase classname="src/demo.test.ts" name="menu &gt; opens"/>'
+                              '<testcase classname="src/demo.test.ts" name="menu &gt; stays open"><skipped/></testcase>')
+    executed = army.junit_cases(report, "frontend/", "classname", names=frozenset({"opens", "stays open"}))
+    assert executed["opens"] == {"passed": 1, "failed": 0, "skipped": 0}
+    assert executed["stays open"] == {"passed": 0, "failed": 0, "skipped": 1}
+    row = {"id": "menu", "tests": ["frontend/src/demo.test.ts", "opens", "stays open"]}
+    assert army.judge(row, executed, None, [])[2] == ["stays open: no test ran"]
+
+
 def test_a_feature_passes_only_on_executed_green_tests_and_green_drives():
     row = {"id": "f", "tests": ["a.py", "b.ts"]}
     green = {"a.py": {"passed": 2, "failed": 0, "skipped": 0}, "b.ts": {"passed": 1, "failed": 0, "skipped": 3}}

@@ -190,8 +190,9 @@ def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int 
             return TIMED_OUT
 
 
-def junit_cases(path: Path, prefix: str, key: str, strip: str = "") -> dict[str, dict[str, int]]:
-    """{repo-relative test file: {passed, failed, skipped}} from one JUnit report."""
+def junit_cases(path: Path, prefix: str, key: str, strip: str = "",
+                names: frozenset[str] = frozenset()) -> dict[str, dict[str, int]]:
+    """Test tallies keyed by repo-relative file and by requested case titles."""
     files: dict[str, dict[str, int]] = {}
     if not path.is_file():
         return files
@@ -200,14 +201,14 @@ def junit_cases(path: Path, prefix: str, key: str, strip: str = "") -> dict[str,
         if not name:
             continue
         rel = prefix + name.replace("\\", "/").removeprefix(strip)
-        tally = files.setdefault(rel, {"passed": 0, "failed": 0, "skipped": 0})
+        title = case.get("name", "")
+        # Vitest prefixes the authored title with its enclosing describe blocks.
+        aliases = {ref for ref in names if title == ref or title.endswith(f" > {ref}")}
         tags = {child.tag for child in case}
-        if tags & {"failure", "error"}:
-            tally["failed"] += 1
-        elif "skipped" in tags:
-            tally["skipped"] += 1
-        else:
-            tally["passed"] += 1
+        verdict = "failed" if tags & {"failure", "error"} else "skipped" if "skipped" in tags else "passed"
+        for ref in {rel, *aliases}:
+            tally = files.setdefault(ref, {"passed": 0, "failed": 0, "skipped": 0})
+            tally[verdict] += 1
     return files
 
 
@@ -373,11 +374,21 @@ def main(argv: list[str] | None = None) -> int:
         drives = plugin_drive(args.host_python, fixture_env(base / "plugin"), order, out / "logs/plugin-host.log")
     (out / "plugin-drives.json").write_text(json.dumps(drives, indent=1))
 
+    # The inventory accepts authored test names as well as paths. Count the actual case results,
+    # not just the enclosing file, so a named test that was skipped still fails its receipt.
+    names = frozenset(ref for row in rows for ref in row["tests"] if Path(ref).suffix not in {".py", ".ts", ".tsx", ".js", ".mjs", ".cjs"})
+    reports = (
+        junit_cases(out / "root-pytest.xml", "", "file", names=names),
+        junit_cases(out / "glide-pytest.xml", "glide/", "file", names=names),
+        junit_cases(out / "vitest.xml", "frontend/", "classname", names=names),
+        junit_cases(out / "openui-preview.xml", "", "file", strip=str(ROOT) + "/", names=names),
+    )
     executed: dict[str, dict[str, int]] = {}
-    executed.update(junit_cases(out / "root-pytest.xml", "", "file"))
-    executed.update(junit_cases(out / "glide-pytest.xml", "glide/", "file"))
-    executed.update(junit_cases(out / "vitest.xml", "frontend/", "classname"))
-    executed.update(junit_cases(out / "openui-preview.xml", "", "file", strip=str(ROOT) + "/"))
+    for report in reports:
+        for ref, counts in report.items():
+            tally = executed.setdefault(ref, {"passed": 0, "failed": 0, "skipped": 0})
+            for verdict, count in counts.items():
+                tally[verdict] += count
     frontend = {}
     if (out / "frontend-drives.json").is_file():
         frontend = {r["feature"]: r for r in json.loads((out / "frontend-drives.json").read_text())["record"]}
