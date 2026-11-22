@@ -6,8 +6,10 @@ from __future__ import annotations
 import json
 import os
 import stat
+import sys
 import threading
 import time
+from types import SimpleNamespace
 
 import pytest
 
@@ -168,7 +170,7 @@ def test_a_failed_dzsave_leaves_no_cache(tmp_path, monkeypatch):
 
 def test_glide_zoom_command(tmp_path, monkeypatch):
     home, dzi = _home(tmp_path), _pyramid(tmp_path / "my art")
-    monkeypatch.setattr(ui, "_home", lambda: home)
+    monkeypatch.setitem(sys.modules, "hermes_constants", SimpleNamespace(get_hermes_home=lambda: home))
     monkeypatch.setattr(ui, "WAIT_S", 0)
     monkeypatch.setattr(deep_zoom.open_deep_zoom, "__kwdefaults__", {"wait": 0, "now": None})
     assert deep_zoom.command("").startswith("Usage: /glide zoom")
