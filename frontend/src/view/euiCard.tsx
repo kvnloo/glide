@@ -5,7 +5,7 @@ import { EL_TAGS, type ElTag, html, type JSX, ui } from '@stencil-hq/tern'
 
 import type { EuiCards, EuiCardView } from '../eui/cards.js'
 import { node as glideNode } from '../glideui/render.js'
-import type { EuiNode } from '../eui/sandbox.js'
+import type { EuiMotion, EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
 /** What drawing a card needs of the card registry: blobs for SVG, rules for inline styles, demo clicks. */
@@ -30,7 +30,7 @@ function ternTag(tag: string, attrs: Readonly<Record<string, string>>): ElTag {
   return isTag(tag) ? tag : INLINE.has(tag) ? 'span' : 'div'
 }
 
-function convert(n: EuiNode, key: string, eui: KitRender, activate: (id: number) => void): JSX.Element | string | null {
+function convert(n: EuiNode, key: string, eui: KitRender, activate: (id: number) => void, effects: EuiMotion[]): JSX.Element | string | null {
   if (n.t === 'text') {
     return n.text
   }
@@ -69,13 +69,13 @@ function convert(n: EuiNode, key: string, eui: KitRender, activate: (id: number)
     attrs['data-eui-s'] = eui.style(n.style)
   }
 
-  const motion = n.motion && eui.motion?.(n.motion)
-  if (motion) {
-    attrs['data-eui-motion'] = motion
-    if (n.motion?.paused) attrs['data-eui-motion-paused'] = ''
+  if (n.motion && eui.motion) {
+    effects.push(n.motion)
+    attrs['data-eui-motion'] = n.motion.name
+    if (n.motion.paused) attrs['data-eui-motion-paused'] = ''
   }
 
-  const kids = n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, eui, activate))
+  const kids = n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, eui, activate, effects))
 
   if (n.tag === 'input' && tag === 'span') {
     kids.push(n.attrs['value'] || n.attrs['placeholder'] || '')
@@ -117,8 +117,11 @@ export function euiCardNode(card: string, view: EuiCardView, eui: KitRender, pop
   const key = view.identity === undefined ? card : `${card}.${view.identity}`
   const activate = view.activate ?? ((id: number) => { eui.click(card, id) })
 
-  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eu': '', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: `eu${root.t === 'el' && root.cls ? ` ${root.cls}` : ''}`, role: 'eui.card' },
-    root.t === 'el' ? root.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `t${i}`, eui, activate)) : [])
+  const effects: EuiMotion[] = []
+  const kids = root.t === 'el' ? root.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `t${i}`, eui, activate, effects)) : []
+  if (effects.length) eui.motion?.(effects)
+
+  return html.div({ key, attrs: { 'data-eui': 'card', 'data-eu': '', 'data-eui-kind': view.spec.kind, 'data-eui-app': view.app, ...(popup ? { 'data-eui-popup': '' } : {}) }, class: `eu${root.t === 'el' && root.cls ? ` ${root.cls}` : ''}`, role: 'eui.card' }, kids)
 }
 
 /** A trusted host card drawn as a centred popup in the layer (glide's /council); `key` is the overlay's native key. */

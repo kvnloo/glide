@@ -405,7 +405,6 @@ describe('ephemeral-ui kit motion', () => {
       expect(exit.motion.css).toContain('100%{opacity:0;')
       const native = euiCardNode('merge', { spec: { kind: 'merge', app: 'github' }, app: 'github', label: 'Merge', node: card.snapshot() }, renderer)
       expect(JSON.stringify(native)).toContain(exit.motion.name)
-      await Promise.resolve()
       expect(sheets.get('ephemeral-ui-kit-motion')).toContain('prefers-reduced-motion: reduce')
       await vi.advanceTimersByTimeAsync(358)
       expect(conflict()?.id).toBe(enter?.id)

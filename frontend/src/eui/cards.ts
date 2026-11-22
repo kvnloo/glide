@@ -331,15 +331,15 @@ export class EuiCards {
   }
 
   /** Bounded rule cache: repeated kit effects reuse the same native keyframes. */
-  motion({ name, css }: EuiMotion): string | undefined {
-    if (!this.#motionRules.has(name)) {
-      if (this.#motionBytes + css.length > 32 * 1024) return undefined
+  motion(effects: readonly EuiMotion[]): void {
+    for (const { name, css } of effects) {
+      if (this.#motionRules.has(name) || this.#motionBytes + css.length > 32 * 1024) continue
       this.#motionBytes += css.length
       this.#motionRules.set(name, css)
       this.#motionDirty = true
-      queueMicrotask(() => { this.#flush() })
     }
-    return name
+    // Send before the native tree that references these rules, not in a later microtask.
+    if (this.#motionDirty) this.#flush()
   }
 
   close() {
