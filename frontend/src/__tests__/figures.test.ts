@@ -185,7 +185,7 @@ describe('media lines in a reply', () => {
     startedAt: 10
   })
   const drawn = (text: string, links: TranscriptContext['links']) =>
-    JSON.stringify(tree(entryNode(turn(text), 'main.t', { copy: () => undefined, links, now: 12, welcome: { version: '' } })))
+    JSON.stringify(tree(entryNode(turn(text), 'main.t', { copy: () => undefined, ...(links ? { links } : {}), now: 12, welcome: { version: '' } })))
   const here = { cwd: '/work', hostLocal: true, media: true }
 
   it('draws a local viewable file as a media node, relative paths against the session folder', () => {
