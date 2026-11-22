@@ -18,7 +18,7 @@ small,output { color:var(--muted); font:11px ui-monospace,monospace }
 .workspace { display:grid; grid-template-columns:minmax(130px,180px) minmax(250px,1fr) minmax(160px,220px); gap:10px }
 .panel,.stage,footer { background:var(--surface); border:1px solid var(--line); border-radius:12px }
 .panel,footer { padding:13px }
-.stage { position:relative; min-width:0; overflow:hidden; background:radial-gradient(ellipse at 50% 40%,var(--surface),var(--bg)) }
+.stage { position:relative; min-width:0; overflow:hidden; background:var(--bg) }
 .stage small { position:absolute; top:12px; left:12px; pointer-events:none }
 canvas { display:block; width:100%; height:clamp(310px,56vh,620px); touch-action:none; cursor:grab }
 canvas:active { cursor:grabbing }
