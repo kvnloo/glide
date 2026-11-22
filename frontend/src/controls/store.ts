@@ -34,7 +34,7 @@ interface ControlsHost {
 const safe = (part: string) => part.replace(/[^A-Za-z0-9_-]/g, '_')
 
 /** The control a finished `ask_control` call showed, if the tool showed one. */
-export function controlOf(call: ToolCall): FastControl | undefined {
+function controlOf(call: ToolCall): FastControl | undefined {
   if (call.name !== CONTROL_TOOL || call.outcome.kind === 'running') {
     return undefined
   }
