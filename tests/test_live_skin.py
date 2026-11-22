@@ -10,7 +10,7 @@ import pytest
 
 pytest.importorskip("hermes_cli.skin_engine")
 
-from hermes_tern_plugin.live_skin import glide_skin
+from hermes_tern_plugin.glide.live_skin import glide_skin
 
 
 def _call(**args):

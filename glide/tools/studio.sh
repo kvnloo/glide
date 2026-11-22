@@ -7,7 +7,7 @@
 # HERMES_HOME with Glide from this checkout and a real model, its own gateway and one fullscreen Tern running
 # `hermes tern`. Every unit is `glide-studio-*` in the user's agent.slice; `down` stops them all.
 #
-#   lab/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|wall IMG|ctl ARGS...
+#   glide/tools/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|wall IMG|ctl ARGS...
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
 #        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
 #        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
@@ -19,7 +19,7 @@
 #        folder (on STUDIO_REPO_BRANCH), so the session has a real history (the commits widget reads it). STUDIO_GLIDE / STUDIO_TERN: JSON merged into the
 #        home's glide/settings.json / the studio Tern's settings.json at `up`.
 set -euo pipefail
-root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 S=${STUDIO:-$HOME/glide-studio/run}
 H=$S/home R=$S/rt
 HERMES_BIN=${HERMES_BIN:-$HOME/glide-studio/hermes/.venv/bin/hermes}
@@ -81,7 +81,7 @@ unlock() {  # Tern's Stencil sign-in needs the login keyring; it re-locks on its
     org.freedesktop.Secret.Collection Locked) u
   export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}
   timeout 8 "${q[@]}" 2>/dev/null | grep -q true || return 0
-  u=$(ls -t /mnt/zer0models/releases/host-storage/*/scripts/keyring-autounlock 2>/dev/null | head -1)
+  u=${STUDIO_KEYRING_HELPER:-}
   [ -n "$u" ] && timeout 30 /usr/bin/python3 "$u" >/dev/null 2>&1
   timeout 8 "${q[@]}" 2>/dev/null | grep -q false || { echo "studio: login keyring locked; Tern can't sign in" >&2; exit 1; }
 }
@@ -103,7 +103,7 @@ up() {
   # Every take starts from an empty pane: Tern's daemon replays saved panes (and their old sessions).
   rm -rf "$S/tern/daemon.sock.state" "$S/tern/daemon.prompt"
   systemd-run --user --unit=glide-studio-tern --slice=agent.slice -p MemoryMax=${STUDIO_TERN_MEM:-2G} -p Nice=5 --working-directory="$S/work" "${env[@]}" \
-    -E XDG_RUNTIME_DIR="$R" -E WAYLAND_DISPLAY=wayland-1 -E XDG_SESSION_TYPE=wayland -E TERN_BUILD_URL=http://127.0.0.1:9 \
+    -E XDG_RUNTIME_DIR="$R" -E WAYLAND_DISPLAY=wayland-1 -E XDG_SESSION_TYPE=wayland -E TERN_BUILD_URL=http://localhost:9 \
     -E TERN_CONFIG_DIR="$S/tern/cfg" -E PI_CODING_AGENT_DIR="$S/omp" -E TERN_DAEMON_SOCKET="$S/tern/daemon.sock" -E XDG_STATE_HOME="$S/tern/state" -E XDG_CACHE_HOME="$S/tern/cache" \
     "$TERN" --control "$S/ctl.sock" -e /bin/bash >/dev/null
   # Tern opens its own shell; the pane runs `hermes tern` from it (as a user would).

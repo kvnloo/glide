@@ -8,6 +8,7 @@ __all__ = ["GlideMemory", "Match", "MemoryNotReady", "SourceError", "StateVersio
 
 
 def register(ctx) -> None:
-    from . import core
+    from . import core, live_skin
 
+    live_skin.register(ctx)
     core.register(ctx)

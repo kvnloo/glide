@@ -25,9 +25,9 @@ FIXED = frozenset((
     "scripts/e2e-fresh-install.sh",
     "docs/SUBMISSION.md",
     "docs/REQUIREMENTS-LEDGER.md",
+    "docs/plans/fork-standard.md",
 ))
 FIXED_DIRS = (".github/ISSUE_TEMPLATE/", ".github/PULL_REQUEST_TEMPLATE/")
-FIXED = frozenset((*FIXED, "docs/plans/fork-standard.md"))
 
 
 def git(*args: str) -> str:
