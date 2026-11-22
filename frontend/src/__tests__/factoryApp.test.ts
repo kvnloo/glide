@@ -329,8 +329,10 @@ describe('GL-106 live running agents', () => {
     } })
     await h.type('/factory graph')
     await h.press(key('enter'))
-    const panel = () => must(h.app.transcript.entries.find(e => e.kind === 'panel'), 'factory card')
-    const ui = () => JSON.stringify(h.app.eui.hostView(panel())?.ui)
+    const ui = () => {
+      const panel = must(h.app.transcript.entries.find(e => e.kind === 'panel'), 'factory card')
+      return JSON.stringify(h.app.eui.hostView(panel)?.ui)
+    }
     await vi.waitFor(() => expect(ui()).toContain('Running agents'))
 
     const goal = 'Check the fixture inventory'

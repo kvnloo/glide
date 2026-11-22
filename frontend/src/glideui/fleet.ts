@@ -269,24 +269,24 @@ function graph(doc: EuiKitDoc): Record<string, GlideSlot> | undefined {
 function runningAgents(agents: AgentNode[]): Record<string, GlideSlot> {
   const rows = agentLineage(agents)
   const w = 640, h = rows.length * 40 + 12
-  const x = (depth: number) => 20 + Math.min(12, depth) * 24
-  const y = (index: number) => 26 + index * 40
+  const tileLeft = (depth: number) => 20 + Math.min(12, depth) * 24
+  const rowCenter = (index: number) => 26 + index * 40
   const wires = rows.map(({ depth, from, node }, i) => {
     const parent = from === undefined ? undefined : rows[from]
     if (!parent || from === undefined) return ''
-    const end = x(depth)
-    const start = Math.min(end - 12, x(parent.depth) + 12)
-    return `<path d="M${start},${y(from) + 15} V${y(i)} H${end}" stroke="var(--accent)" stroke-opacity="${node.state === 'live' ? 1 : 0.4}" fill="none"/>`
+    const end = tileLeft(depth)
+    const start = Math.min(end - 12, tileLeft(parent.depth) + 12)
+    return `<path d="M${start},${rowCenter(from) + 15} V${rowCenter(i)} H${end}" stroke="var(--accent)" stroke-opacity="${node.state === 'live' ? 1 : 0.4}" fill="none"/>`
   }).join('')
   const tiles = rows.map(({ node, depth }, i) => {
-    const left = x(depth), top = y(i) - 15
+    const left = tileLeft(depth), top = rowCenter(i) - 15
     const tone = node.state === 'failed' ? STATUS.bad : node.state === 'live' ? STATUS.ok : 'var(--muted)'
     const max = Math.floor((w - left - 150) / 7)
     const label = node.label.length > max ? node.label.slice(0, max - 1) + '…' : node.label
     return `<rect x="${left}" y="${top}" width="${w - left - 12}" height="30" rx="8" fill="var(--muted)" fill-opacity=".08" stroke="var(--muted)" stroke-opacity=".4"/>` +
-      `<circle cx="${left + 13}" cy="${y(i)}" r="4" fill="${node.parent ? STATUS.ok : 'var(--accent)'}"/>` +
-      `<text x="${left + 25}" y="${y(i) + 4}" font-size="13" fill="var(--text)">${esc(label)}</text>` +
-      `<text x="${w - 23}" y="${y(i) + 4}" text-anchor="end" font-size="12" fill="${tone}">${node.state}</text>`
+      `<circle cx="${left + 13}" cy="${rowCenter(i)}" r="4" fill="${node.parent ? STATUS.ok : 'var(--accent)'}"/>` +
+      `<text x="${left + 25}" y="${rowCenter(i) + 4}" font-size="13" fill="var(--text)">${esc(label)}</text>` +
+      `<text x="${w - 23}" y="${rowCenter(i) + 4}" text-anchor="end" font-size="12" fill="${tone}">${node.state}</text>`
   }).join('')
   return {
     'live.header': slot('Section', { title: 'Running agents', aside: 'Observed gateway sessions · up to 60 nodes' }),

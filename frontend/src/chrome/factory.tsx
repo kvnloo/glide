@@ -8,7 +8,7 @@ import type { LiveSessionId } from '../core/ids.js'
 import { Poller } from '../core/poller.js'
 import { decodeFactory, factoryAnswers, factoryOutput, type FactorySnapshot, type FactorySuggestion } from '../wire/factory.js'
 
-export type FactoryPaneHost = Pick<ChatPorts, 'agentGraph' | 'changed'> & {
+type FactoryPaneHost = Pick<ChatPorts, 'agentGraph' | 'changed'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
   readonly session: Pick<ChatPorts['session'], 'ref' | 'ownerTicket'>
 }
@@ -106,10 +106,9 @@ export class FactoryPane {
     if (!sid || !this.#host.agentGraph) return
     const generation = this.#generation
     const owner = this.#host.session.ownerTicket?.()
-    const current = () => this.#open && generation === this.#generation && owner?.isCurrent() !== false
-    void this.#host.agentGraph.seed(this.#host.gw, sid, current).then(() => {
-      if (current()) this.#host.changed()
-    })
+    void this.#host.agentGraph.seed(this.#host.gw, sid,
+      () => this.#open && generation === this.#generation && owner?.isCurrent() !== false
+    ).then(changed => { if (changed) this.#host.changed() })
   }
 
   #poke() {

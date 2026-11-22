@@ -7,7 +7,7 @@ import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
 import { decodeFleet, decodeFleetIntent, fleetAgent, fleetHost, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
-export type FleetHost = Pick<ChatPorts, 'agentGraph' | 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
+type FleetHost = Pick<ChatPorts, 'agentGraph' | 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
 }
 
@@ -135,7 +135,7 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
     if (graph && owner) {
       const stop = graph.watch(() => {
         if (!current() || !latest) { stop?.(); return }
-        try { publish(latest, 'agents') } catch { stop?.() } // The card was removed.
+        try { publish(latest, 'agents') } catch { stop?.() }
       }, owner.signal)
       void graph.seed(host.gw, sessionId, current)
     }
