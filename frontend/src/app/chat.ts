@@ -169,6 +169,10 @@ export class App implements ChatPorts {
     return this.stores.theme.mode
   }
 
+  get templates() {
+    return this.stores.templates
+  }
+
   openNotices() {
     this.operations.showText('Notices · snapshot', noticeReport(this.stores.notices.active()))
   }

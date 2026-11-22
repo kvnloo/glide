@@ -20,6 +20,7 @@ import { COMPOSER_ID, INPUT_ID, type SurfaceHost } from '../surface/host.js'
 import type { Transcript } from '../transcript/store.js'
 import type { EuiCards } from '../eui/cards.js'
 import type { GlideWidgets } from '../glideui/widgets.js'
+import { TRANSCRIPT_SHEET, type Templates } from '../../../glide/frontend/templates.js'
 import type { WorkTreeCard } from '../glideui/workTreeCard.js'
 import { euiSheets } from '../eui/cards.js'
 import { LIFT_CSS, LIFT_SHEET, type UiRender } from '../glideui/render.js'
@@ -48,6 +49,8 @@ export interface FrameCx extends DockSources {
   /** Agent-mounted widgets around the composer (glide_ui_mount). */
   readonly workTree?: Pick<WorkTreeCard, 'node'>
   readonly widgets?: Pick<GlideWidgets, 'nodes' | 'style'>
+  /** The template's transcript style (terminal, bubble), kept on the surface as a sheet. */
+  readonly templates?: Pick<Templates, 'css'>
   readonly overlays: readonly Overlay[]
   readonly stack: Pick<OverlayStack, 'rootOf'>
   readonly transcript: Pick<Transcript, 'changedEntries' | 'currentTodos' | 'entries' | 'lifetime' | 'live'>
@@ -119,6 +122,13 @@ export function drawFrame(cx: FrameCx, now = Date.now()) {
   const centred = w?.style?.composer === 'center'
   const lift = centred && !cx.transcript.entries.some(e => e.kind === 'user' || e.kind === 'turn')
   const liftCss = centred ? LIFT_CSS : null
+  // The template's transcript style: on every frame, so a recovered surface gets it back.
+  const transcriptCss = cx.templates?.css() ?? null
+  if (euiSheets.get(TRANSCRIPT_SHEET) !== (transcriptCss ?? undefined)) {
+    if (transcriptCss) euiSheets.set(TRANSCRIPT_SHEET, transcriptCss)
+    else euiSheets.delete(TRANSCRIPT_SHEET)
+    cx.surface.raw?.stylesheet(TRANSCRIPT_SHEET, transcriptCss)
+  }
   if (euiSheets.get(LIFT_SHEET) !== (liftCss ?? undefined)) {
     if (liftCss) euiSheets.set(LIFT_SHEET, liftCss)
     else euiSheets.delete(LIFT_SHEET)

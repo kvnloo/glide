@@ -16,6 +16,7 @@ import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { GlidePages, pageThemeOf } from '../glideui/pages.js'
+import { Templates } from '../../../glide/frontend/templates.js'
 import { GlideWidgets } from '../glideui/widgets.js'
 import { paneBlock, ternBrowser } from '../gev/globe.js'
 import { WorkTreeCard } from '../glideui/workTreeCard.js'
@@ -348,10 +349,21 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
   themeRef = theme
+  /** Whole-app templates (the command palette's "Use Mono template"): theme, transcript style and panels at once. */
+  const templates = new Templates({
+    file: settingsFile(),
+    settings,
+    setTheme: mode => theme.set(mode),
+    closePage: id => pages.close(id),
+    reload: () => widgets.reload(),
+    changed,
+    entries: () => transcript.entries,
+    cwd: () => session.info?.cwd || undefined
+  })
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, viewer, warned, welcome, widgets, workTree }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */
