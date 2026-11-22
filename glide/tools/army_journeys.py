@@ -120,6 +120,14 @@ PLUGIN_DRIVES: dict[str, list[tuple[str, dict, dict]]] = {
                     {"refusal": r"not on the requested known cluster node"})],
     "intel-stock-command": [("command", {"name": "intel", "arg": "--json hill"}, {"match": r'"kind": "intel-suite"'})],
     "intel-boundaries-ownership": [("command", {"name": "intel", "arg": "bogus"}, {"match": r"^/intel \[--json\]"})],
+    # The shipped OpenUI CLI, on a synthetic card.v0 document written into the fixture home.
+    "prepare-card-preview": [("shell", {"argv": ["node", "frontend/openui/prepare.mjs", "prepare-card", "{home}/card.json",
+                                                 '["army-session","main"]', "{home}/prepared", "--json"],
+                                        "files": {"card.json": json.dumps({
+                                            "kind": "thread", "app": "gmail", "title": "Synthetic thread", "subject": "Invoice 42",
+                                            "summary": "Synthetic due date", "fields": {"Sender": "Sample person"},
+                                            "actions": "host-confirmed", "buttons": ["Dismiss"]})}},
+                              {"exit": 0, "match": r'"id": ?"[^"]+".*"path": ?"[^"]+"|"path": ?"[^"]+".*"id": ?"[^"]+"'})],
     "background-live-charts": [("registered", {"kind": "rpc", "name": "charts.author"}, {}),
                                ("registered", {"kind": "aux", "name": "tern_charts"}, {})],
     "reply-figures": [("registered", {"kind": "rpc", "name": "figures.check"}, {})],
@@ -249,6 +257,15 @@ def plugin_drive(host_python: str, env: dict[str, str], order: list[str], log: P
             elif op == "absent":
                 ok = request["method"] not in inventory.get("gateway", [])
                 step.update(ok=ok, detail="not registered by default" if ok else "registered without explicit opt-in")
+            elif op == "shell":
+                home = Path(env["HOME"])
+                for name, content in request.get("files", {}).items():
+                    (home / name).write_text(content)
+                argv = [a.replace("{home}", str(home)) for a in request["argv"]]
+                done = subprocess.run(argv, cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
+                text = (done.stdout + done.stderr).strip()
+                ok = done.returncode == expect.get("exit", 0) and re.search(expect.get("match", r"\S"), text, re.S) is not None
+                step.update(ok=ok, exit=done.returncode, reply=text[:600], argv=argv)
             elif op == "registered":
                 ok = request["name"] in inventory.get(request["kind"], [])
                 step.update(ok=ok, detail=f"{request['kind']} {request['name']} registered" if ok else "missing")

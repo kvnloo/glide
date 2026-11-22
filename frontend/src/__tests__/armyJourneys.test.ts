@@ -50,12 +50,22 @@ const inventory = (name: string) => Inventory.parse(parseJson(readFileSync(join(
 const features = [...inventory('features.json'), ...inventory('features.intel.json')]
 
 /** Steps per feature: a slash line, a typed prompt, a composer completion, or a key chord. */
-type Step = { line: string; pane?: true; forbid?: RegExp } | { prompt: string } | { complete: string } | { chord: string; mods: Record<string, boolean> }
+type Step = { line: string; pane?: true; forbid?: RegExp } | { replay: string } | { events: Record<string, unknown>[] } | { prompt: string } | { complete: string } | { chord: string; mods: Record<string, boolean> }
 
 // Concrete forms of each typed entry. Placeholders take fixture values; a feature not listed here has
 // no typed entry (an event-driven card or pane) and is exercised by its fixture suites instead.
 const DRIVES: Record<string, Step[]> = {
   'chat-send': [{ prompt: 'army: say hello' }],
+  // Event-driven surfaces: a recorded gateway stream (the golden replays' fixtures) or a minimal one.
+  'thinking-orb': [{ prompt: 'list the files' }, { replay: 'turn-tools' }],
+  'tool-cards': [{ replay: 'turn-tools' }],
+  'gateway-prompts': [{ replay: 'approval-clarify' }],
+  'ephemeral-chat-cards': [{ events: [
+    { type: 'message.start', payload: {} },
+    { type: 'message.complete', payload: { text: 'Here is the thread.\n\n```ephemeral-ui\n' + JSON.stringify({
+      kind: 'thread', app: 'gmail', title: 'Synthetic thread', subject: 'Invoice 42', summary: 'Synthetic due date',
+      fields: { Sender: 'Sample person' }, actions: 'host-confirmed', buttons: ['Dismiss'] }) + '\n```' } }
+  ] }],
   'slash-completion': [{ complete: '/hel' }],
   'glide-detect': [{ line: '/glide' }, { line: '/glide help' }],
   'memory-build': [{ line: '/glide build' }],
@@ -270,7 +280,11 @@ const settle = async (gw: FakeGateway) => {
   }
 }
 
-const describeEntry = (e: { kind: string; text?: unknown; title?: unknown; tone?: unknown }) =>
+/** A turn by what it drew: its text and each tool or card block. */
+const describeTurn = (blocks: readonly { kind: string; text?: unknown; call?: unknown }[]) =>
+  'turn: ' + blocks.map(b => b.kind === 'tool' ? `tool ${String(record(b.call)?.['name'] ?? '')}` : b.kind === 'text' && typeof b.text === 'string' ? `text(${b.text.length})` : b.kind).join(', ')
+const describeEntry = (e: { kind: string; text?: unknown; title?: unknown; tone?: unknown; blocks?: unknown }) =>
+  e.kind === 'turn' && Array.isArray(e.blocks) ? describeTurn(e.blocks) :
   `${e.kind}${typeof e.tone === 'string' && e.tone !== 'info' ? `(${e.tone})` : ''}${typeof e.text === 'string' ? ': ' + e.text.slice(0, 160) : typeof e.title === 'string' ? ': ' + e.title : ''}`
 
 /** One fresh app per feature: the gateway's plugin half is the fixture host, the rest a fake. */
@@ -375,6 +389,7 @@ async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
     const reachedAt = reached.length
     const missingAt = missing.length
     const before = state()
+    const passing = new Set<string>()
     const opsAt = tern.ops.length
     const nativeAt = ternCalls().length
     // A step that needs a Tern pane runs with the pane variable the real launcher exports.
@@ -384,6 +399,17 @@ async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
       line = 'line' in step ? step.line : step.prompt
       app.stores.composer.set(line)
       tern.press('enter')
+    } else if ('replay' in step || 'events' in step) {
+      // Gateway events for the live session, one at a time, as the gateway delivers them.
+      const fed = 'replay' in step
+        ? readFileSync(new URL(`./fixtures/${step.replay}.jsonl`, import.meta.url), 'utf8').split('\n').filter(Boolean).map(l => record(parseJson(l)) ?? {})
+        : step.events
+      line = 'replay' in step ? `replay ${step.replay}` : `events ${fed.map(e => String(e['type'])).join(',')}`
+      for (const ev of fed.filter(e => e['type'] !== 'gateway.ready')) {
+        gw.event({ ...ev, session_id: app.session.ref.live })
+        await settle(gw)
+        for (const o of app.overlays) if (!overlays.includes(o.key)) passing.add(o.key)
+      }
     } else if ('complete' in step) {
       line = `${step.complete} + tab`
       for (const ch of step.complete) {
@@ -400,7 +426,7 @@ async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
     await settle(gw)
     delete process.env['TERN_PANE']
     const added = app.transcript.entries.filter(e => !shown.has(e))
-    const opened = app.overlays.map(o => o.key).filter(k => !overlays.includes(k))
+    const opened = [...new Set([...passing, ...app.overlays.map(o => o.key).filter(k => !overlays.includes(k))])]
     const notices = added.flatMap(e => (e.kind === 'notice' ? [e] : []))
     const name = line.startsWith('/') ? line.slice(1).split(/\s+/u)[0] ?? '' : ''
     const refused = EXTERNAL[name] ? notices.filter(n => n.tone === 'error' && n.text.includes(`/${name}`)).map(n => `${EXTERNAL[name]} is absent: ${n.text}`) : []
