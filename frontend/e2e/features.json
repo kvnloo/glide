@@ -1902,6 +1902,7 @@
       "journey": "fleet",
       "expect": "Real fleet payload reaches the kit; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
       ],
@@ -1915,6 +1916,7 @@
       "journey": "fleet",
       "expect": "Optional portfolio key reaches glide.fleet; Task URLs open safely; Set next drafts without sending",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
@@ -1929,6 +1931,7 @@
       "journey": "fleet",
       "expect": "Graph uses the existing inline kit renderer; SVG nodes have native click controls; Queue fix drafts without sending; Other factory commands retain their existing path",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts",

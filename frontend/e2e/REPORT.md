@@ -47,3 +47,16 @@ These inventory entries have no existing test references:
 - `native-visual-route`, the optional native Tern route.
 
 Existing tests are source coverage references, not new execution receipts for those features. No native Tern window, microphone, private profile, or live provider was exercised. No army receipts were created, and strict promotion remains blocked until every feature has a passing receipt for the exact promoted HEAD. The PR job intentionally runs the non-strict gate.
+
+### Fleet cohort
+
+In a clean committed Linux checkout with the Python and frontend test
+dependencies installed, run `bash glide/tools/fleet-army.sh RECEIPT_DIR`.
+This runs the fleet source-worker and command/renderer suites before issuing
+HEAD-bound receipts for `fleet-hosts`, `fleet-portfolio`, and `fleet-factory`.
+Hosts reads real Linux gauges and a disposable read-only SQLite database;
+portfolio reads a disposable work config; factory reads a disposable queue,
+brain snapshot and verification ledger. The test inputs are checked for
+changes. Cluster, GitHub, and native Tern checks still require the operator's
+connected profile. This scoped cohort does not satisfy the all-feature
+`--strict` gate.
