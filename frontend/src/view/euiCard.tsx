@@ -9,7 +9,7 @@ import type { EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
 /** What drawing a card needs of the card registry: blobs for SVG, rules for inline styles, demo clicks. */
-export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'> & Partial<Pick<EuiCards, 'picture'>>
+export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'> & Partial<Pick<EuiCards, 'picture' | 'motion'>>
 
 const TAGS: ReadonlySet<string> = new Set(EL_TAGS)
 const BOOLEAN = new Set(['checked', 'open', 'hidden', 'disabled'])
@@ -65,6 +65,12 @@ function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number)
 
   if (n.style) {
     attrs['data-eui-s'] = eui.style(n.style)
+  }
+
+  const motion = n.motion && eui.motion?.(n.motion)
+  if (motion) {
+    attrs['data-eui-motion'] = motion
+    if (n.motion?.paused) attrs['data-eui-motion-paused'] = ''
   }
 
   const kids = n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, eui, activate))

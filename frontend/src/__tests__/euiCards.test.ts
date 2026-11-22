@@ -366,3 +366,62 @@ describe('ephemeral-ui kit stylesheet', () => {
     expect(euiStyles()).toMatch(/\[data-eui-svg\] \.sf-img-svg\s*\{\s*max-width:\s*100%;\s*height:\s*auto/)
   })
 })
+
+describe('ephemeral-ui kit motion', () => {
+  it('publishes the pinned merge card’s enter, update and exit on stable native keys', async () => {
+    const changed = vi.fn()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] })
+    const kit = await createSandbox(euiDir())
+    const sheets = new Map<string, string>()
+    const renderer = new EuiCards(() => undefined, {
+      blob: () => undefined,
+      stylesheet: (name, css) => { sheets.set(name, css) }
+    })
+    const card = kit.mount('merge', 'github', changed)
+    const conflict = () => {
+      let match: Extract<EuiNode, { t: 'el' }> | undefined
+      walk(card.snapshot(), n => { if (n.t === 'el' && n.cls === 'conflict') match = n })
+      return match
+    }
+    try {
+      await vi.advanceTimersByTimeAsync(0)
+      const enter = conflict()
+      expect(enter?.motion?.css).toContain('0%{opacity:0;transform:translateY(6px)}')
+      expect(enter?.motion?.css).toContain('500ms')
+      expect(changed).toHaveBeenCalled()
+
+      let resolve = -1
+      walk(card.snapshot(), n => {
+        if (n.t === 'el' && n.kids.some(k => k.t === 'text' && k.text === 'Resolve conflicts')) resolve = n.id
+      })
+      expect(card.click(resolve)).toBe(true)
+      expect(conflict()?.id).toBe(enter?.id)
+      expect(conflict()?.motion?.css).toContain('50%{transform:translateX(3px)}')
+
+      await vi.advanceTimersByTimeAsync(1561)
+      const exit = conflict()
+      if (!exit?.motion) throw Error('conflict must stay mounted while its exit animation runs')
+      expect(exit.id).toBe(enter?.id)
+      expect(exit.motion.css).toContain('100%{opacity:0;')
+      const native = euiCardNode('merge', { spec: { kind: 'merge', app: 'github' }, app: 'github', label: 'Merge', node: card.snapshot() }, renderer)
+      expect(JSON.stringify(native)).toContain(exit.motion.name)
+      await Promise.resolve()
+      expect(sheets.get('ephemeral-ui-kit-motion')).toContain('prefers-reduced-motion: reduce')
+      await vi.advanceTimersByTimeAsync(358)
+      expect(conflict()?.id).toBe(enter?.id)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(conflict()).toBeUndefined()
+      expect(card.click(exit.id)).toBe(false)
+
+      card.dispose()
+      await vi.advanceTimersByTimeAsync(0)
+      changed.mockClear()
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(changed).not.toHaveBeenCalled()
+    } finally {
+      card.dispose()
+      renderer.close()
+      vi.useRealTimers()
+    }
+  })
+})

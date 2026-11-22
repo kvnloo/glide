@@ -1,5 +1,11 @@
 // Types of sandbox.js, the DOM sandbox the vendored ephemeral-ui kit runs in.
 
+export interface EuiMotion {
+  readonly name: string
+  readonly css: string
+  readonly paused: boolean
+}
+
 /** One element of a mounted card, as plain data. `id` is stable for the element's lifetime. */
 export interface EuiEl {
   readonly t: 'el'
@@ -10,6 +16,7 @@ export interface EuiEl {
   readonly attrs: Readonly<Record<string, string>>
   /** The kit listens for a click, press or change on it (or it is a native control). */
   readonly click: boolean
+  readonly motion?: EuiMotion
   readonly kids: readonly EuiNode[]
 }
 

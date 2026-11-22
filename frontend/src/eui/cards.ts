@@ -22,7 +22,7 @@ import { MOTION_CSS, MOTION_SHEET } from '../glideui/motion.js'
 
 import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
-import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
+import { createSandbox, type EuiMotion, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
 import { ternBody } from './ternCss.js'
 
 export type EuiPart =
@@ -55,6 +55,7 @@ const MAX_CARDS = 48
 const MAX_BLOBS = 512
 const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, 'g')
 export const INLINE_SHEET = 'ephemeral-ui-inline'
+export const KIT_MOTION_SHEET = 'ephemeral-ui-kit-motion'
 export const KIT_SHEET = 'ephemeral-ui'
 /** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
 export const GLIDE_UI_SHEET = UI_SHEET
@@ -214,6 +215,9 @@ export class EuiCards {
   #blobs = new Map<string, string>()
   #rules = new Map<string, string>()
   #sheetDirty = false
+  #motionRules = new Map<string, string>()
+  #motionBytes = 0
+  #motionDirty = false
 
   constructor(changed: (key?: string) => void, sink?: EuiSink, host?: EuiHostPort, dir = euiDir()) {
     this.dir = dir
@@ -227,6 +231,7 @@ export class EuiCards {
     this.#sink = sink
     this.#blobs.clear()
     euiSheets.clear()
+    this.#motionDirty = this.#motionRules.size > 0
     this.theme(dark)
     this.#flush()
   }
@@ -325,6 +330,18 @@ export class EuiCards {
     return key
   }
 
+  /** Bounded rule cache: repeated kit effects reuse the same native keyframes. */
+  motion({ name, css }: EuiMotion): string | undefined {
+    if (!this.#motionRules.has(name)) {
+      if (this.#motionBytes + css.length > 32 * 1024) return undefined
+      this.#motionBytes += css.length
+      this.#motionRules.set(name, css)
+      this.#motionDirty = true
+      queueMicrotask(() => { this.#flush() })
+    }
+    return name
+  }
+
   close() {
     this.host.close()
     this.#reset()
@@ -345,6 +362,12 @@ export class EuiCards {
       this.#sink.stylesheet(GEV_SHEET, GEV_CSS)
       euiSheets.set(MOTION_SHEET, MOTION_CSS)
       this.#sink.stylesheet(MOTION_SHEET, MOTION_CSS)
+    }
+    if (this.#motionDirty) {
+      this.#motionDirty = false
+      const css = `${[...this.#motionRules.values()].join('')}[data-eui-motion-paused]{animation-play-state:paused}`
+      euiSheets.set(KIT_MOTION_SHEET, css)
+      this.#sink.stylesheet(KIT_MOTION_SHEET, css)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false
