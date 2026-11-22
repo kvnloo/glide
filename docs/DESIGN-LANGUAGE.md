@@ -58,7 +58,8 @@ Score each criterion 0–5 and take the weighted percentage: **≥ 80 ship · 65
 - Sample/demo data is labelled once, quietly (`SAMPLE` status pill), never with a paragraph.
 
 ## 6. Evidence a change needs
-- A unit test for the behaviour, plus an opt-in to the drift gate for every file the change styles:
+- A unit test for the behaviour. Every source file under `frontend/src` and `glide/frontend` is already held
+  to the drift gate (§8), so a new surface needs no opt-in. A surface's own test may still assert it:
   `expect(tokenDrift(readFileSync(<file>, 'utf8'))).toEqual(NO_DRIFT)`.
 - A headless shot script, `glide/tools/<surface>-shots.mts` (copy `lanes-shots.mts`), that renders the
   real component over synthetic data at 1060 px and 412 px in the Dash theme.
@@ -94,3 +95,17 @@ own tool card, which passes R05–R17.
 Loop: shoot every surface (`/hosts`, `/portfolio`, `/factory`, `/factory graph`, `/intel` and its
 tabs, `/glide taste`), score them, fix the first failure in app code, then re-shoot. Anything vision
 reports is a hint until the dump or the pixels confirm it.
+
+## 8. Coverage: every surface, one gate
+`frontend/src/__tests__/designSurfaces.test.ts` walks every source file under `frontend/src` and
+`glide/frontend` (tests and the vendored kit aside) and fails any radius, font size, letter-spacing or hex that
+is not a token. Comments are not read, so `glide#326` is an issue, not a colour. Two kinds of file are exempt,
+each named in the test with its reason:
+- **Palettes** define colours (the token module, the Tern theme palettes, the orbit ramp, the council's
+  gemstones, the lane chips' model hues, light-theme inks with no Dash token). They may write hex literals;
+  their sizes, radii and tracking stay on the scale.
+- **Foreign skins** reproduce another app's look on purpose (God's Eye View's HUD) and are exempt in full.
+
+Both lists may only shrink: an entry that no longer needs its exemption fails. Sizes the kit computes at
+runtime are not in any source file, so they are pinned in the same test (the card icon's glyph is 10 px,
+not the 8 px the kit's `0.4 × icon` gives).

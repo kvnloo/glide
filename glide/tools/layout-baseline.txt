@@ -601,3 +601,5 @@ frontend/src/splash/art.ts
 frontend/src/splash/launch.tsx
 # The plugin-level suite exercises the installed Hermes registration contract.
 tests/test_live_skin.py
+# Vitest collects only frontend/src/**/__tests__; this one holds every Glide surface to the design tokens (#306).
+frontend/src/__tests__/designSurfaces.test.ts
