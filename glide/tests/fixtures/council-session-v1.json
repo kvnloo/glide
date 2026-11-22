@@ -1,0 +1,155 @@
+{
+  "schema": "glide.council-session/v1",
+  "council_id": "council-6f1c2a9e8d7b4c3a2f1e0d9c8b7a6f5e",
+  "stored_session_id": "20261122_101500_a1b2c3",
+  "revision": 1,
+  "created_at": "2026-11-22T10:15:00.000Z",
+  "updated_at": "2026-11-22T10:15:00.000Z",
+  "started_by": "glide",
+  "updated_by": "glide",
+  "live": false,
+  "from": "synthetic seats and brief",
+  "run": {
+    "schema": "glide.council-run/v1",
+    "brief": "Should the council keep listening on the phone after it starts in Glide?",
+    "constraints": [
+      "Keep one wire shape for both apps."
+    ],
+    "rounds": 2,
+    "seats": [
+      {
+        "id": "argon",
+        "name": "Argon",
+        "family": "Google",
+        "mineral": "malachite",
+        "crew": []
+      },
+      {
+        "id": "astra",
+        "name": "Astra",
+        "family": "OpenAI",
+        "mineral": "labradorite",
+        "crew": []
+      },
+      {
+        "id": "fable",
+        "name": "Fable",
+        "family": "Anthropic",
+        "mineral": "rose",
+        "crew": []
+      }
+    ],
+    "events": [
+      {
+        "type": "spawn",
+        "seat": "argon"
+      },
+      {
+        "type": "turn",
+        "seat": "argon",
+        "round": 1,
+        "cites": []
+      },
+      {
+        "type": "turn",
+        "seat": "astra",
+        "round": 1,
+        "cites": []
+      },
+      {
+        "type": "turn",
+        "seat": "fable",
+        "round": 1,
+        "cites": []
+      },
+      {
+        "type": "turn",
+        "seat": "argon",
+        "round": 2,
+        "cites": [
+          "astra"
+        ]
+      },
+      {
+        "type": "turn",
+        "seat": "astra",
+        "round": 2,
+        "cites": [
+          "fable"
+        ]
+      },
+      {
+        "type": "turn",
+        "seat": "fable",
+        "round": 2,
+        "cites": [
+          "argon",
+          "astra"
+        ]
+      }
+    ],
+    "verdicts": [
+      {
+        "seat": "argon",
+        "stance": "agree",
+        "text": "Yes. Store the position with the council, not on the device."
+      },
+      {
+        "seat": "astra",
+        "stance": "dissent",
+        "text": "Only if the phone can tell a demo from a live run."
+      },
+      {
+        "seat": "fable",
+        "stance": "agree",
+        "text": "Yes, and refuse a stale writer so only one device speaks."
+      }
+    ],
+    "outcome": "Continue on the phone"
+  },
+  "passages": [
+    {
+      "key": "brief",
+      "label": "The brief",
+      "text": "Should the council keep listening on the phone after it starts in Glide? Keep one wire shape for both apps.",
+      "seat": null
+    },
+    {
+      "key": "report:verdict",
+      "label": "Verdict",
+      "text": "Verdict. Continue on the phone",
+      "seat": null
+    },
+    {
+      "key": "report:agreements",
+      "label": "Agreements",
+      "text": "Agreements. Argon: Yes. Store the position with the council, not on the device. Fable: Yes, and refuse a stale writer so only one device speaks.",
+      "seat": null
+    },
+    {
+      "key": "report:dissent",
+      "label": "Dissent",
+      "text": "Dissent. Astra: Only if the phone can tell a demo from a live run.",
+      "seat": null
+    },
+    {
+      "key": "report:abstentions",
+      "label": "Abstentions",
+      "text": "Abstentions. None recorded.",
+      "seat": null
+    },
+    {
+      "key": "report:receipts",
+      "label": "Receipts",
+      "text": "Receipts. Round 2: Argon cited Astra. Round 2: Astra cited Fable. Round 2: Fable cited Argon, Astra.",
+      "seat": null
+    }
+  ],
+  "position": {
+    "elapsed_ms": 0,
+    "passage": null,
+    "sentence": 0,
+    "read_aloud": false,
+    "muted": false
+  }
+}

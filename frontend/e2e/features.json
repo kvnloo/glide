@@ -679,6 +679,19 @@
       "army": []
     },
     {
+      "id": "council-handoff",
+      "title": "Continue a council started in Glide on another device",
+      "surface": "slash",
+      "entry": "/council in Glide, then /council resume [council-id] in a fresh client (the phone loads the same council through glide.council.load)",
+      "journey": "taste-intent",
+      "expect": "The fresh client opens the same council id at the same clock, toggles and read-aloud sentence; the handed-off client stops writing",
+      "tests": [
+        "frontend/src/__tests__/councilSession.test.ts",
+        "glide/tests/test_council_session.py"
+      ],
+      "army": []
+    },
+    {
       "id": "music-emotion-sort",
       "title": "Sort and filter the music page's queue by colour-coded emotion",
       "surface": "pane",

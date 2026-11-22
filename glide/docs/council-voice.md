@@ -6,6 +6,8 @@ The brief and optional constraints type onto the card. One envelope travels to e
 
 The endpoint still supplies a complete `glide.council-run/v1` snapshot. This view does not dispatch agents or invent their replies. The demo remains labelled DEMO. A snapshot can include `constraints`, an optional list of up to eight strings.
 
+A council opened with `/council` in a pane with an attached session is also a council session. Another client can continue it at the same clock and read-aloud sentence. `/council resume [council-id]` does this in Glide. The wire shape the phone follows is in [council-session.md](council-session.md).
+
 ## Read aloud
 
 Select Read aloud before convening. The popup reads the brief and constraints, then the completed report. R toggles this mode. M toggles mute from the card.

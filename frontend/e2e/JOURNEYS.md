@@ -101,7 +101,7 @@ Protect a focus block and talk beside helper lanes. Start a block, hold a non-cr
 
 ## taste-intent
 
-Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat. Declare an ask, inspect its unevidenced contract, and advance to the explicitly synthetic work rail. Open the council popup and check its live or demo label. Sort and filter the music page by colour-coded emotion.
+Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat. Declare an ask, inspect its unevidenced contract, and advance to the explicitly synthetic work rail. Open the council popup and check its live or demo label, then continue that council from another client with `/council resume`. Sort and filter the music page by colour-coded emotion.
 
 1. `taste-pane`
 2. `intent-declare`
@@ -109,7 +109,8 @@ Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat.
 4. `intent-work-preview`
 5. `council-popup`
 6. `council-card`
-7. `music-emotion-sort`
+7. `council-handoff`
+8. `music-emotion-sort`
 
 ## factory
 

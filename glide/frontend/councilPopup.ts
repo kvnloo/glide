@@ -10,12 +10,17 @@ import { nativeOverlayKey } from '../../frontend/src/overlays/identity.js'
 import type { Overlay, OverlayHost } from '../../frontend/src/overlays/overlay.js'
 import type { Transcript } from '../../frontend/src/transcript/store.js'
 import { euiPopupNode, type EuiRender } from '../../frontend/src/view/euiCard.js'
+import type { Requester } from '../../frontend/src/wire/rpc.js'
 
 import {
   closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, narration, parseCouncilRun, swatchSvg
 } from './council.js'
-import { deliverySvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
-import { type CouncilSpeech, type SpeechAudio, platformSpeech, speechSentences } from './councilSpeech.js'
+import { deliverySvg, exchangeAt, exchangeTiming } from './councilExchange.js'
+import {
+  type CouncilPassage, type CouncilPosition, type CouncilSession, CouncilSync, type CouncilWire, councilPassages,
+  listCouncilSessions, loadCouncilSession, remaining, startCouncilSession
+} from './councilSession.js'
+import { type CouncilSpeech, type SpeechAudio, platformSpeech } from './councilSpeech.js'
 import { DASH, GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'
 
 export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'
@@ -42,6 +47,12 @@ export const RETURN_ID = 5
 export interface CouncilOptions {
   readonly reduceMotion?: boolean
   readonly speech?: CouncilSpeech
+  /** What Read aloud speaks, in order: a council session's passages; derived from the run otherwise. */
+  readonly passages?: readonly CouncilPassage[]
+  /** Where a council continued from another client stands: its clock, passage, sentence and toggles. */
+  readonly resume?: CouncilPosition
+  /** Called when the clock starts, a sentence starts or ends, a toggle flips, or the popup closes. */
+  readonly onPosition?: (position: CouncilPosition) => void
 }
 export interface CouncilReading {
   readonly readAloud?: boolean
@@ -75,6 +86,9 @@ export interface CouncilHost extends OverlayHost {
   readonly eui?: (EuiRender & { readonly host: Pick<EuiHostCards, 'publish'> }) | undefined
   readonly transcript: Pick<Transcript, 'notice'>
   readonly tern?: { readonly caps: { readonly reduceMotion?: boolean } }
+  /** With a gateway and an attached session, a council is a council session another device can continue. */
+  readonly gw?: Requester
+  readonly session?: { readonly ref: { readonly live: string | null; readonly stored: string | null } }
 }
 
 /** The configured endpoint's run, else the demo run (with a note when the endpoint failed). */
@@ -250,7 +264,13 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
     release()
     host.changed()
   }
-  const read = (text: string) => {
+  const passages = options.passages ?? councilPassages(src.run)
+  let at: { passage: string | null; sentence: number } = { passage: options.resume?.passage ?? null, sentence: options.resume?.sentence ?? 0 }
+  const report = () => {
+    if (!closed) options.onPosition?.({ elapsed_ms: Math.round(elapsed() ?? 0), passage: at.passage, sentence: at.sentence, read_aloud: readAloud, muted })
+  }
+  const read = (lines: readonly { key: string; sentence: number; text: string }[]) => {
+    if (!lines.length) return
     returnToCard()
     const current = new AbortController()
     controller = current
@@ -258,14 +278,19 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
     voiceStatus = 'Preparing local speech…'
     void (async () => {
       try {
-        for (const caption of speechSentences(text)) {
+        for (const line of lines) {
           if (current.signal.aborted) break
+          at = { passage: line.key, sentence: line.sentence }
+          report()
+          const caption = line.text
           await speech.speak(caption, current.signal, audio => {
             if (closed || current.signal.aborted || controller !== current) return
             speaking = { caption, audio, at: clock.now() }
             voiceStatus = ''
             host.changed()
           })
+          // A finished sentence moves the position past it, so a resumed reader starts at the next.
+          if (!current.signal.aborted) { at = { passage: line.key, sentence: line.sentence + 1 }; report() }
         }
       } catch (error) {
         if (!closed && !current.signal.aborted && controller === current) {
@@ -288,10 +313,11 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
     if (readAloud && !muted && !controller && t !== null) {
       if (!briefRead && t >= timing.typing && t < timing.working) {
         briefRead = true
-        read([src.run.brief, ...(src.run.constraints ?? [])].join(' '))
+        read(remaining(passages, { passage: 'brief', sentence: 0 }, 'brief'))
       } else if (!reportRead && t >= timing.total) {
         reportRead = true
-        read(reportClauses(src.run).map(c => `${c.label}. ${c.text}`).join(' '))
+        const first = passages[1]
+        if (first) read(remaining(passages, { passage: first.key, sentence: 0 }))
       }
     }
     if (t !== null && t >= timing.total && !controller && clock.now() - viewAt >= 180) halt()
@@ -304,10 +330,12 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
     briefRead = false
     reportRead = false
     start = clock.now()
+    at = { passage: null, sentence: 0 }
+    report()
     animate()
     if (reduceMotion && readAloud && !muted) {
       briefRead = true
-      read([src.run.brief, ...(src.run.constraints ?? [])].join(' '))
+      read(remaining(passages, { passage: 'brief', sentence: 0 }, 'brief'))
     }
     host.changed()
   }
@@ -323,6 +351,7 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
       if (!readAloud) returnToCard()
       else if (start !== null) { reportRead = false; animate(); tick() }
     }
+    if (n === MUTE_ID || n === READ_ID) report()
     host.changed()
   }
   const overlay: Overlay = {
@@ -347,9 +376,28 @@ export function openCouncilPopup(host: CouncilHost, src: CouncilSource, clock: C
       else if ((key.name === 'enter' || key.name === 'space') && !stop) convene()
       return true
     },
-    onClose: () => { closed = true; halt(); returnToCard() }
+    onClose: () => { report(); closed = true; halt(); returnToCard() }
+  }
+  // A council continued from another client picks up its clock, its toggles and the rest of its reading.
+  const resume = options.resume
+  let pending: ReturnType<typeof remaining> = []
+  if (resume) {
+    readAloud = resume.read_aloud
+    muted = resume.muted
+    const t = Math.min(timing.total, resume.elapsed_ms)
+    start = clock.now() - t
+    if (resume.passage === null) briefRead = t >= timing.working
+    else {
+      briefRead = true
+      reportRead = resume.passage !== 'brief'
+      pending = remaining(passages, resume, resume.passage === 'brief' ? 'brief' : undefined)
+    }
   }
   host.open(overlay)
+  if (resume) {
+    animate()
+    if (readAloud && !muted) read(pending)
+  }
   return overlay
 }
 
@@ -389,18 +437,67 @@ export function publishCouncilCard(host: CouncilHost, src: CouncilSource, clock?
   const handle = cards.publish(data, open)
 }
 
-/** `/council` opens the popup; `/council card` posts the card whose button opens it. */
-export async function councilCommand(host: CouncilHost, arg: string, load: () => Promise<CouncilSource> = loadCouncil, clock?: CouncilClock): Promise<void> {
-  const verb = arg.trim().toLowerCase()
-  if (verb !== '' && verb !== 'card') {
-    host.transcript.notice('Usage: /council [card]', 'warning')
+const USAGE = 'Usage: /council [card] · /council resume [council-id]'
+
+function councilWire(host: CouncilHost): CouncilWire | undefined {
+  const live = host.session?.ref.live
+  return host.gw && live ? { gw: host.gw, sessionId: live, storedSessionId: host.session?.ref.stored ?? null } : undefined
+}
+
+/** Publishes this pane's position; stops, with one notice, once another client has taken the council over. */
+function syncing(host: CouncilHost, wire: CouncilWire, session: CouncilSession): CouncilOptions['onPosition'] {
+  const sync = new CouncilSync(wire, session.state.council_id, session.state.revision, () => {
+    host.transcript.notice('/council: this council continued on another device; this pane stopped updating it', 'info')
+  })
+  let warned = false
+  return position => {
+    sync.report(position).catch((e: unknown) => {
+      if (warned) return
+      warned = true
+      host.transcript.notice(`/council: could not save where the council is (${e instanceof Error ? e.message : String(e)})`, 'warning')
+    })
+  }
+}
+
+/** `/council resume [id]`: the named council session, else this conversation's newest, opened where it stands. */
+async function resumeCouncil(host: CouncilHost, id: string, clock: CouncilClock | undefined, options: CouncilOptions): Promise<void> {
+  const wire = councilWire(host)
+  if (!wire) { host.transcript.notice('/council resume needs an attached session', 'warning'); return }
+  const councilId = id || (await listCouncilSessions(wire))[0]?.council_id
+  if (!councilId) { host.transcript.notice('/council: no council to continue in this conversation', 'info'); return }
+  const session = await loadCouncilSession(wire, councilId)
+  const { state, run } = session
+  host.transcript.notice(`/council: continuing ${councilId}${state.updated_by === 'glide' ? '' : ` from ${state.updated_by}`}`, 'info')
+  openCouncilPopup(host, { run, live: state.live, from: state.from }, clock, {
+    ...options, passages: state.passages, resume: state.position, onPosition: syncing(host, wire, session)
+  })
+}
+
+/** `/council` opens the popup; `/council card` posts the card whose button opens it; `/council resume` continues one. */
+export async function councilCommand(host: CouncilHost, arg: string, load: () => Promise<CouncilSource> = loadCouncil, clock?: CouncilClock, options: CouncilOptions = {}): Promise<void> {
+  const [verb = '', id = '', ...extra] = arg.trim().split(/\s+/)
+  const lower = verb.toLowerCase()
+  if ((lower !== '' && lower !== 'card' && lower !== 'resume') || extra.length || (id && lower !== 'resume')) {
+    host.transcript.notice(USAGE, 'warning')
     return
   }
-  const src = await load()
-  if (src.note) host.transcript.notice(`/council: ${src.note}`, 'warning')
   try {
-    if (verb === 'card') publishCouncilCard(host, src, clock)
-    else openCouncilPopup(host, src, clock)
+    if (lower === 'resume') { await resumeCouncil(host, id, clock, options); return }
+    const src = await load()
+    if (src.note) host.transcript.notice(`/council: ${src.note}`, 'warning')
+    if (lower === 'card') { publishCouncilCard(host, src, clock); return }
+    // With an attached session the council gets an id another device can load; without one it still opens.
+    const wire = councilWire(host)
+    let onPosition: CouncilOptions['onPosition']
+    if (wire) {
+      try {
+        const session = await startCouncilSession(wire, src)
+        onPosition = syncing(host, wire, session)
+      } catch (e) {
+        host.transcript.notice(`/council: this council cannot be continued on another device (${e instanceof Error ? e.message : String(e)})`, 'warning')
+      }
+    }
+    openCouncilPopup(host, src, clock, onPosition ? { ...options, onPosition } : options)
   } catch (e) {
     host.transcript.notice(`/council: ${e instanceof Error ? e.message : String(e)}`, 'error')
   }

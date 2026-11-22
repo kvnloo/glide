@@ -442,7 +442,7 @@ const COMMANDS: readonly LocalCommand[] = [
     run: (host, arg) => /\s/.test(arg.trim()) ? host.transcript.notice('Usage: /portfolio [key]', 'warning') : fleetCommand(host, 'portfolio', arg.trim() || undefined)
   },
   {
-    help: 'The Socratic council as a popup: seats as minerals, rounds as rings, a verdict per seat [card]',
+    help: 'The Socratic council as a popup: seats as minerals, rounds as rings, a verdict per seat [card | resume [council-id]]',
     name: 'council',
     run: (host, arg) => councilCommand(host, arg)
   },
