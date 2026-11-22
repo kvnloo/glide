@@ -346,7 +346,6 @@ export class App implements ChatPorts {
       void refreshFocusBlock(this.#gw, sid).then(() => this.#renders.request(), () => undefined)
     }
     this.#wasLive = live
-
     if (!this.#visible) {
       return
     }

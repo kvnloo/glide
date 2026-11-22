@@ -506,10 +506,10 @@ function composerNode(cx: DockContext, on: DockActions, ring?: readonly JSX.Elem
             <icon key="icon" name="model" />
             <text key="name" spans={[{ t: route.model }]} wrap="none" />
             {route.fast ? <icon key="fast" name="bolt" role="hermes.composer.fast" tone="warning" /> : null}
-            {turbo ? <text key="turbo" role="hermes.composer.turbo" spans={[{ s: 'warning', t: 'Turbo' }]} wrap="none" /> : null}
             <icon key="chev" name="chev" />
           </row>
         ) : null}
+        {turbo ? <text key="turbo" role="hermes.composer.turbo" spans={[{ s: 'warning', t: 'Turbo' }]} wrap="none" /> : null}
         {route.reasons !== false ? effortChip(route, on) : null}
         {dictation ? micButton(dictation, on) : null}
         {draft.vim.enabled ? (
