@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Records a take of a page that ships with Glide (glide/pages/<id>.html) in headless Chrome, the way the Glide pane
-// shows it: opened from its file:// URL, themed by the pane's own theme function (frontend/src/glideui/pages.ts),
+// shows it: opened from its file:// URL, themed by the pane's own theme function (glide/frontend/pageThemeScript.ts),
 // driven with real mouse and key input. The page's audio is tapped where it reaches the speakers and recorded with
 // MediaRecorder, the screen with a CDP screencast, and ffmpeg muxes both into <out>/<id>.webm. The scene a page
 // plays is glide/tools/page-takes/<id>.mjs; what it measured on the way (the analyser's live bins, notes on screen)
 // lands in <out>/<id>.json.
 //
-//   node glide/tools/page-take.mjs <id> <out-dir>      (CHROME=<binary> to pick the browser; needs ffmpeg)
+//   bun glide/tools/page-take.mjs <id> <out-dir>      (CHROME=<binary> to pick the browser; needs ffmpeg)
 import { spawn, execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -16,13 +16,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const [id, outArg] = process.argv.slice(2)
 if (!id || !outArg) {
-  console.error('usage: node glide/tools/page-take.mjs <id> <out-dir>')
+  console.error('usage: bun glide/tools/page-take.mjs <id> <out-dir>')
   process.exit(2)
 }
 const page = resolve(here, '../pages', `${id}.html`)
 const out = resolve(outArg)
 mkdirSync(out, { recursive: true })
-const { scene, viewport = { width: 960, height: 640 } } = await import(pathToFileURL(join(here, 'page-takes', `${id}.mjs`)).href)
+const { scene, measure, chromeArgs = [], fps = 30, viewport = { width: 960, height: 640 } } = await import(pathToFileURL(join(here, 'page-takes', `${id}.mjs`)).href)
 const { themeFunction } = await import(pathToFileURL(resolve(here, '../frontend/pageThemeScript.ts')).href)
 
 // Taps every connection to the speakers into a MediaRecorder, so the take carries what the page played.
@@ -64,7 +64,7 @@ const chrome = process.env.CHROME || ['google-chrome', 'chromium', 'chromium-bro
 if (!chrome) throw new Error('no Chrome found; set CHROME')
 const profile = mkdtempSync(join(tmpdir(), 'glide-take-'))
 const browser = spawn(chrome, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
-  '--no-default-browser-check', '--allow-file-access-from-files', `--window-size=${viewport.width},${viewport.height}`, 'about:blank'],
+  '--no-default-browser-check', '--allow-file-access-from-files', ...chromeArgs, `--window-size=${viewport.width},${viewport.height}`, 'about:blank'],
 { stdio: 'ignore' })
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -123,9 +123,20 @@ const take = {
   page: id,
   wait: sleep,
   eval: evaluate,
+  async still() {
+    const result = await send('Page.captureScreenshot', { format: 'png' })
+    writeFileSync(join(out, `${id}.png`), Buffer.from(result.data, 'base64'))
+  },
   async click(selector) {
     const { x, y } = await box(selector)
     for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 })
+  },
+  async drag(points) {
+    for (const [i, [x, y]] of points.entries()) {
+      const type = i === 0 ? 'mousePressed' : i === points.length - 1 ? 'mouseReleased' : 'mouseMoved'
+      await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 })
+      await sleep(22)
+    }
   },
   async pointer(selector, holdMs = 160) {
     const { x, y } = await box(selector)
@@ -156,13 +167,20 @@ try {
 }
 const seconds = at()
 await send('Page.stopScreencast')
+if (!failed && measure) {
+  try { await measure(take) } catch (error) { failed = error }
+}
 const audio = await evaluate('window.__take ? window.__take.stop() : null')
 const audioStart = await evaluate('window.__take ? window.__take.startedAt() : 0')
 ws.close()
 browser.kill()
 
-const list = frames.map((f, i) => `file '${f.file}'\nduration ${(((frames[i + 1]?.at ?? f.at + 40) - f.at) / 1000).toFixed(3)}`).join('\n')
-writeFileSync(join(framesDir, 'list.txt'), `${list}\nfile '${frames.at(-1)?.file}'\n`)
+const inputRate = fps === 30 ? '' : `\noption framerate ${fps}`
+const list = frames.map((f, i) => {
+  const duration = ((frames[i + 1]?.at ?? f.at + (inputRate ? 1000/fps : 40)) - f.at) / 1000
+  return `file '${f.file}'\nduration ${duration.toFixed(6)}${inputRate}`
+}).join('\n')
+writeFileSync(join(framesDir, 'list.txt'), `${list}\nfile '${frames.at(-1)?.file}'${inputRate}\n`)
 const video = join(out, `${id}.webm`)
 const args = ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', join(framesDir, 'list.txt')]
 if (audio) {
@@ -170,7 +188,7 @@ if (audio) {
   writeFileSync(a, Buffer.from(audio, 'base64'))
   args.push('-itsoffset', ((audioStart - (frames[0]?.at ?? began)) / 1000).toFixed(3), '-i', a, '-map', '0:v', '-map', '1:a', '-c:a', 'libopus', '-b:a', '128k')
 }
-args.push('-c:v', 'libvpx-vp9', '-b:v', '1800k', '-pix_fmt', 'yuv420p', '-r', '30', '-fps_mode', 'cfr', video)
+args.push('-c:v', 'libvpx-vp9', '-b:v', '1800k', '-pix_fmt', 'yuv420p', '-r', String(fps), '-fps_mode', 'cfr', video)
 execFileSync('ffmpeg', args, { stdio: 'inherit' })
 writeFileSync(join(out, `${id}.json`), `${JSON.stringify({ page: `glide/pages/${id}.html`, chrome: (await (async () => {
   try { return execFileSync(chrome, ['--version'], { encoding: 'utf8' }).trim() } catch { return chrome }
