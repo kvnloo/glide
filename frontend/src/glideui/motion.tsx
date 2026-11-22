@@ -1,24 +1,11 @@
 import { html, type JSX, ui } from '@stencil-hq/tern'
 
+import { CRITICAL_EASE, criticalProgress, NORMAL_MOTION_MS } from '../../../glide/frontend/motion.js'
 import type { UiNode, UiTone } from './library.js'
 
 export const MOTION_SHEET = 'glide-motion'
 const FRAMES = 16
-const LEAD_MS = 120
-const FRAME_MS = 30
-
-/** Samples cubic-bezier(0.45,0,0.1,1), including its non-linear time axis. */
-function ease(time: number): number {
-  let low = 0, high = 1
-  for (let i = 0; i < 20; i++) {
-    const t = (low + high) / 2
-    const x = 3 * (1 - t) ** 2 * t * 0.45 + 3 * (1 - t) * t ** 2 * 0.1 + t ** 3
-    if (x < time) low = t
-    else high = t
-  }
-  const t = (low + high) / 2
-  return 3 * (1 - t) * t ** 2 + t ** 3
-}
+const FRAME_MS = NORMAL_MOTION_MS.enter / (FRAMES - 1)
 
 /** Only a single formatted figure, never clocks, ranges, versions or prose. */
 export function countFrames(value: string): string[] {
@@ -31,7 +18,7 @@ export function countFrames(value: string): string[] {
   if (decimals > 6) return []
   return Array.from({ length: FRAMES }, (_, i) => {
     if (i === FRAMES - 1) return value
-    const scaled = target * (i === 0 ? 0 : ease(i / (FRAMES - 1)))
+    const scaled = target * (i === 0 ? 0 : criticalProgress(i / (FRAMES - 1)))
     const [whole = '', fraction] = scaled.toFixed(decimals).split('.')
     const formatted = digits.includes(',') ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : whole
     return `${prefix}${formatted}${fraction === undefined ? '' : '.' + fraction}${suffix}`
@@ -57,7 +44,7 @@ export function figure(value: string, role: string, tone?: UiTone, entrance = tr
   if (!frames.length) return ui.text({ key: 'v', role, text: value, ...(tone ? { tone } : {}) })
   return html.span({ key: 'v', role, class: 'glide-count', aria: value, ...(tone ? { tone } : {}) }, [
     html.span({ key: 'final', class: 'glide-count-final' }, value),
-    ...frames.map((text, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { 'aria-hidden': 'true' } }, text))
+    ...frames.slice(0, -1).map((text, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { 'aria-hidden': 'true' } }, text))
   ])
 }
 
@@ -68,28 +55,26 @@ const ROWS = [
   "[data-role='glide.body']>*", "[data-role='glide.list']>*", "[data-role='glide.flow.row']>*",
   "[data-role='glide.table'] .sf-tbl-body>.sf-tbl-row", "[data-role='glide.steps'] .sf-ck-item", "[data-role='glide.kv']>.sf-kv-item"
 ]
-const rows = (suffix = '') => ROWS.map(selector => `${ENTER} ${selector}${suffix}`).join(',')
+const ROW_ENTRANCES = ROWS.map(selector => `${ENTER} ${selector}`).join(',')
 
 /** Separate from untrusted widget markup checks: only this host-owned sheet may animate cards. */
 export const MOTION_CSS = `
-${ROOT}{position:relative;--glide-ease:cubic-bezier(0.45,0,0.1,1)}
+${ROOT}{position:relative;--glide-ease:${CRITICAL_EASE}}
 ${ROOT} [data-role='omp.btn']{box-shadow:none!important}
-${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline 180ms var(--glide-ease) both}
-${ENTER}>[data-role='glide.card']{animation:glide-shell 180ms var(--glide-ease) both}
-${rows()},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
-${Array.from({ length: 8 }, (_, i) => `${rows(`:nth-child(${i + 1})`)}{animation-delay:${120 + i * 10}ms}`).join('\n')}
-${rows(':nth-child(n+9)')}{animation-delay:200ms}
-${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar 480ms var(--glide-ease) 120ms backwards}
-${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow 480ms var(--glide-ease) 120ms backwards}
-${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) both}
+${ENTER}>[data-role='glide.card']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
 ${ROOT} .glide-count{position:relative;display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
-${ROOT} .glide-count-final{animation:glide-count-final 600ms step-end backwards}
+${ROOT} .glide-count-final{animation:glide-count-final ${NORMAL_MOTION_MS.enter}ms step-end backwards}
 ${ROOT} .glide-count-frame{position:absolute;left:0;top:0;opacity:0;pointer-events:none;animation:glide-count-frame ${FRAME_MS}ms step-end}
-${Array.from({ length: FRAMES }, (_, i) => `${ROOT} .glide-count-f${i}{animation-delay:${LEAD_MS + i * FRAME_MS}ms}`).join('\n')}
+${Array.from({ length: FRAMES - 1 }, (_, i) => `${ROOT} .glide-count-f${i}{animation-delay:${i * FRAME_MS}ms}`).join('\n')}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track{position:relative;overflow:hidden}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--sf-accent) 12%,transparent) 50%,transparent 65%);animation:glide-shimmer 3200ms var(--glide-ease) 700ms infinite}
 ${LIVE} [data-role='glide.spark']{animation:glide-drift 4200ms ease-in-out 700ms infinite}
-${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards,glide-drift 4200ms ease-in-out 700ms infinite}
+${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards,glide-drift 4200ms ease-in-out 700ms infinite}
 ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--sf-accent);pointer-events:none;animation:glide-tick 2800ms ease-in-out 700ms infinite}
 @keyframes glide-outline{from{opacity:0;transform:scaleX(.02)}to{opacity:1;transform:scaleX(1)}}
 @keyframes glide-shell{from{opacity:0}to{opacity:1}}
@@ -102,7 +87,8 @@ ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height
 @keyframes glide-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(1px)}}
 @keyframes glide-tick{0%,100%{opacity:.45}50%{opacity:.8}}
 @media (prefers-reduced-motion: reduce){
-${ROOT},${ROOT} *,${ROOT}::before,${ROOT}::after,${ROOT} *::after{animation:none!important;transition:none!important;transform:none!important}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source'],${ENTER} [data-role='glide.spark'],${ENTER}${LIVE} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ENTER} [data-role='glide.bars'] .bars>.b,${ENTER} .sf-mt-fill,${LIVE}:not(${ENTER}) [data-role='glide.spark'],${ROOT} .glide-count-final{animation:none}
 ${ROOT} .glide-count-frame{display:none!important}
 ${ROOT} .glide-count-final{opacity:1!important}
 ${ROOT}::before,${ROOT}::after,${LIVE} [data-role='glide.meter'] .sf-mt-track::after{display:none!important}
