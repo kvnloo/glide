@@ -25,7 +25,7 @@ In a Tern pane, outside tmux, screen, or zellij:
 hermes tern
 ```
 
-The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py)
+The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py) To launch a fresh Glide pane with **Ctrl+L**, see the [desktop shortcut setup](glide/docs/launch-shortcut.md).
 
 ## First run
 
