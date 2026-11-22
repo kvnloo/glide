@@ -19,7 +19,6 @@ const label = (call: { name: string }, running: boolean) => `${running ? 'Runnin
 const parts = (card: EuiNativeCard): readonly UiNode[] => card.ui.typeName === 'Card' ? card.ui.props.children : []
 const part = <K extends UiNode['typeName']>(card: EuiNativeCard, k: K) => parts(card).find((p): p is Extract<UiNode, { typeName: K }> => p.typeName === k)
 const receipt = (card: EuiNativeCard) => parts(card).flatMap(p => p.typeName === 'Text' ? [p.props.body] : []).at(-1)
-const status = (card: EuiNativeCard) => card.ui.typeName === 'Card' ? card.ui.props.status : undefined
 
 function liveTurn() {
   const t = new Transcript()
@@ -37,7 +36,7 @@ describe('the tool-progress card projection', () => {
     t.toolStart({ tool_id: 'c', name: 'mcp_index', args: {} }, 6)
     const card = toolProgressCard(t.entries, turn, '/repo', label, new Map([['c', { progress: 3, total: 4, percent: null, message: 'Indexing' }]]))
     expect(card).toMatchObject({ kind: 'tool-progress', title: 'Tool progress', app: 'LIVE' })
-    expect(status(card)).toBe('running')
+    expect(card.ui.typeName === 'Card' ? card.ui.props.status : undefined).toBe('running')
     expect(must(part(card, 'Steps')).props.items).toEqual([
       { id: 'a', text: 'Ran read_file', status: 'done', note: '100 ms' },
       { id: 'b', text: 'Running patch', status: 'active' },
@@ -145,19 +144,36 @@ describe('ToolProgressCards', () => {
     expect(cards.map(c => c.app)).toEqual(['LIVE', 'SETTLED', 'LIVE'])
   })
 
-  it('a host that refuses (no active session) or goes stale leaves the transcript alone', () => {
+  it('a host that refuses (no active session) says why, and the turn\'s next event publishes once it accepts', () => {
     const t = new Transcript()
-    const publishNative = vi.fn(() => { throw new Error('Host card needs an active session') })
+    let active = false
+    const publishNative = vi.fn(() => {
+      if (!active) throw new Error('Host card needs an active session')
+      return { update: vi.fn() }
+    })
     const tp = new ToolProgressCards({ eui: () => ({ host: { publishNative } }), transcript: () => t, cwd: () => '', label })
     t.messageStart(1)
     t.toolStart({ tool_id: 'a', name: 'write_file', args: { path: 'a.md', content: '' } }, 2)
-    expect(() => { tp.track(); tp.progress({ tool_id: 'a', name: 'write_file', progress: 1 }); tp.settle() }).not.toThrow()
+    expect(() => { tp.track(); tp.progress({ tool_id: 'a', name: 'write_file', progress: 1 }) }).not.toThrow()
+    expect(tp.refused).toBe('Host card needs an active session')
+    expect(tp.turn).toBeUndefined()
+    active = true
+    tp.track()
+    expect(tp.turn).toBe(t.live)
+    expect(tp.refused).toBeUndefined()
+    expect(publishNative).toHaveBeenCalledTimes(3)
+  })
+
+  it('a card that went stale stops updating and says why', () => {
+    const t = new Transcript()
+    t.messageStart(1)
     const stale = vi.fn(() => { throw new Error('Host card is no longer current') })
     const tp2 = new ToolProgressCards({ eui: () => ({ host: { publishNative: () => ({ update: stale }) } }), transcript: () => t, cwd: () => '', label })
     t.toolStart({ tool_id: 'b', name: 'write_file', args: { path: 'b.md', content: '' } }, 3)
     tp2.track()
     expect(() => { tp2.track(); tp2.track() }).not.toThrow()
     expect(stale).toHaveBeenCalledOnce()
+    expect(tp2.refused).toBe('Host card is no longer current')
   })
 })
 
@@ -177,9 +193,8 @@ describe('App replaying fixtures/turn-tools.jsonl', () => {
     await settle()
     const events = readFileSync(new URL('./fixtures/turn-tools.jsonl', import.meta.url), 'utf8').split('\n').filter(Boolean)
       .map(l => record(parseJson(l)) ?? {}).filter(e => e['type'] !== 'gateway.ready')
-    const panel = () => app.transcript.entries.find(e => e.kind === 'panel' && app.eui.hostView(e)?.label === 'Tool progress')
     const view = () => {
-      const e = panel()
+      const e = app.transcript.entries.find(e => e.kind === 'panel' && app.eui.hostView(e)?.label === 'Tool progress')
       return e ? app.eui.hostView(ofKind(e, 'panel')) : undefined
     }
     const seen: { type: string; meter?: number; app?: string; steps?: string; receipt?: string }[] = []

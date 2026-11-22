@@ -4,21 +4,22 @@
 // transcript's turn plus the progress the gateway reported; ToolProgressCards publishes it through
 // the eui host (eui/host.ts) on tool.start, updates it on tool.progress and tool.complete, and
 // settles it into its receipt at message.complete.
-import type { ToolProgressPayload } from '@hermes/shared/gateway-events'
-
+import type { EventOf } from '../../frontend/src/gateway/dispatch.js'
 import type { EuiKitIntent, EuiNativeCard, EuiNativeHandle } from '../../frontend/src/eui/host.js'
 import type { Entry, ToolCall, TurnEntry } from '../../frontend/src/model.js'
 import type { Transcript } from '../../frontend/src/transcript/store.js'
 import type { UiNode, UiParts, UiStatus } from '../../frontend/src/glideui/library.js'
 import { fileRows, projectWorkTree } from '../../frontend/src/glideui/workTree.js'
 
+/** A tool.progress event's payload: an MCP server's progress for a running call. */
+type ToolProgressPayload = NonNullable<EventOf<'tool.progress'>['payload']>
 /** How the card words a call: the transcript's step label, present tense while `running`. */
-export type CallLabel = (call: ToolCall, running: boolean) => string
+type CallLabel = (call: ToolCall, running: boolean) => string
 /** The last `tool.progress` each running call reported, by tool id. */
-export type ProgressReport = Pick<ToolProgressPayload, 'progress' | 'total' | 'percent' | 'message'>
-export type ProgressByCall = ReadonlyMap<string, ProgressReport>
+type ProgressReport = Pick<ToolProgressPayload, 'progress' | 'total' | 'percent' | 'message'>
+type ProgressByCall = ReadonlyMap<string, ProgressReport>
 
-export const TOOL_PROGRESS_KIND = 'tool-progress'
+const TOOL_PROGRESS_KIND = 'tool-progress'
 /** Long turns keep their newest steps; the receipt still counts all of them. */
 export const MAX_STEPS = 12
 
@@ -90,11 +91,11 @@ export function toolProgressCard(entries: readonly Entry[], turn: TurnEntry, cwd
 }
 
 /** The eui host's one door this card uses: a trusted native publication. */
-export interface ProgressPublisher {
+interface ProgressPublisher {
   readonly host: { publishNative(card: EuiNativeCard, intent: EuiKitIntent): Pick<EuiNativeHandle, 'update'> }
 }
 
-export interface ToolProgressDeps {
+interface ToolProgressDeps {
   readonly eui: () => ProgressPublisher | undefined
   /** Read late: the composition root builds its transcript after this card's owner. */
   readonly transcript: () => Pick<Transcript, 'entries' | 'live'>
@@ -121,11 +122,14 @@ export class ToolProgressCards {
   #turn: TurnEntry | undefined
   #handle: Pick<EuiNativeHandle, 'update'> | undefined
   readonly #progress = new Map<string, ProgressReport>()
+  #refused: string | undefined
 
   constructor(deps: ToolProgressDeps) { this.#deps = deps }
 
   /** The turn the card follows now, if one is up. */
   get turn(): TurnEntry | undefined { return this.#turn }
+  /** Why the host last refused a publish or an update (no active session, a hidden surface, a stale card). */
+  get refused(): string | undefined { return this.#refused }
 
   /** After the transcript took a tool.start or tool.complete: publishes the live turn's card, or updates it. */
   track(): void {
@@ -136,12 +140,20 @@ export class ToolProgressCards {
       if (this.#turn) this.#update(this.#turn)
       const ids = new Set<string>(turn.blocks.flatMap(b => b.kind === 'tool' ? [b.call.id] : []))
       for (const id of this.#progress.keys()) if (!ids.has(id)) this.#progress.delete(id)
-      this.#turn = turn
+      this.#turn = undefined
+      this.#handle = undefined
+      const eui = this.#deps.eui()
+      if (!eui) return
+      // The host refuses while no session is active or the surface is hidden: the turn stays unclaimed,
+      // so its next tool event publishes the card once the pane is back.
       try {
-        this.#handle = this.#deps.eui()?.host.publishNative(this.#card(turn), NO_INTENT)
-      } catch {
-        this.#handle = undefined // No active session or surface: no card, the transcript rows still show.
+        this.#handle = eui.host.publishNative(this.#card(turn), NO_INTENT)
+      } catch (error) {
+        this.#refused = error instanceof Error ? error.message : String(error)
+        return
       }
+      this.#turn = turn
+      this.#refused = undefined
       return
     }
     this.#update(turn)
@@ -170,10 +182,13 @@ export class ToolProgressCards {
 
   #update(turn: TurnEntry) {
     if (!this.#handle) return
+    // A card whose session or surface moved on is no longer current; the host draws the panel's
+    // fallback text, and later events leave it alone.
     try {
       this.#handle.update(this.#card(turn), NO_INTENT)
-    } catch {
-      this.#handle = undefined // The session or surface moved on; the host shows the panel's fallback.
+    } catch (error) {
+      this.#refused = error instanceof Error ? error.message : String(error)
+      this.#handle = undefined
     }
   }
 }
