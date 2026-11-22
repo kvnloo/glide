@@ -92,7 +92,6 @@ export class App implements ChatPorts {
   readonly #gw: GatewayClient
   readonly #launch: LaunchEnv
   readonly #hostLifecycle: HostLifecycle
-  /** What the user starts and the stores call back into, bound once. */
   readonly #act: AppActions
   #surface!: SurfaceHost
   readonly #orbActivity = new OrbActivity()
@@ -106,10 +105,8 @@ export class App implements ChatPorts {
   #visible = true
   #editingExternal = false
   #retention: Retention | undefined
-  /** What each frame draws from (app/frame.ts); set once run() opened the surface. */
   #view: FrameCx | undefined
 
-  /** Entry defaults are read at startup; `recorder` injects the dictation helper in tests. */
   constructor(
     tern: Session,
     gw: GatewayClient,
