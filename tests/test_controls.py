@@ -15,13 +15,9 @@ from hermes_tern_plugin import controls
 VECTORS = json.loads((Path(__file__).resolve().parents[1] / "frontend/src/vendor/ripple/vectors.json").read_text())
 
 
-def _raw(case):
-    return VECTORS["controls"][case["raw"]] if isinstance(case["raw"], str) else case["raw"]
-
-
 @pytest.mark.parametrize("case", VECTORS["parse"], ids=[c["name"] for c in VECTORS["parse"]])
 def test_parse_matches_ripples_vectors(case):
-    raw = _raw(case)
+    raw = VECTORS["controls"][case["raw"]] if isinstance(case["raw"], str) else case["raw"]
     if not case["ok"]:
         with pytest.raises(controls.ControlError):
             controls.parse_control(raw)

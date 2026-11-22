@@ -12,7 +12,7 @@ import * as z from 'zod/mini'
 import { toolCallId } from '../core/ids.js'
 import type { ToolCall } from '../model.js'
 import type { Overlay } from '../overlays/overlay.js'
-import { type ControlInput, type FastControl, type Intent, intentText, parseFastControl, parseIntent } from '../vendor/ripple/index.js'
+import { type ControlInput, intentText, parseFastControl, parseIntent } from '../vendor/ripple/index.js'
 import { parseJson, record } from '../wire/json.js'
 
 import { FakeGateway, fakeTern, key, must, topNodes, tree } from './fakes.js'
@@ -48,8 +48,6 @@ const Vectors = z.object({
 })
 
 const vectors = Vectors.parse(parseJson(readFileSync(new URL('../vendor/ripple/vectors.json', import.meta.url), 'utf8')))
-const controlOf = (name: string): FastControl => must(parseFastControl(vectors.controls[name]), name)
-const intentOf = (raw: unknown): Intent | null => parseIntent(raw)
 
 const flush = () => new Promise(resolve => setImmediate(resolve))
 
@@ -89,9 +87,6 @@ function walk(nodes: readonly JSX.Element[]): Node[] {
   return nodes.flatMap(n => (n instanceof Node ? [n, ...walk(n.children)] : []))
 }
 
-/** The overlay layer's nodes with role `role`, as last drawn. */
-const byRole = (role: string) => walk(topNodes(tern.region('layer'))).filter(n => n.props['role'] === role)
-
 const top = (app: InstanceType<typeof App>) => app.stores.stack.items.at(-1)
 
 /** `input` as Tern would send it: a key press, or an activate on the sheet's option list. */
@@ -100,7 +95,7 @@ async function send(app: InstanceType<typeof App>, id: string, input: ControlInp
     tern.press(key(input.key, input.key.length === 1 ? { text: input.key } : {}))
   } else if (input.kind === 'pick') {
     // As Tern would: the list's activate handler with the item's id (the list's own id, then the row's).
-    const list = must(byRole('omp.ask.options')[0], 'the option list')
+    const list = must(walk(topNodes(tern.region('layer'))).find(n => n.props['role'] === 'omp.ask.options'), 'the option list')
     const first = String(list.props['selected'])
     const item = `${first.slice(0, first.lastIndexOf('.'))}.${input.id}`
     list.handlers?.onActivate?.({ ev: 'activate', id: 'rows', item, raw: {}, sf: 'hermes' })
@@ -146,8 +141,8 @@ describe('an ask_control sheet', () => {
         await send(app, id, input)
       }
 
-      const intent = intentOf(v.intent)
-      const expected = intent ? [intentText(controlOf(v.control), { ...intent, surface: 'tern' })] : []
+      const intent = parseIntent(v.intent)
+      const expected = intent ? [intentText(must(parseFastControl(vectors.controls[v.control]), v.control), { ...intent, surface: 'tern' })] : []
       expect(told(app)).toEqual(expected)
       // Still open while unanswered; closed once answered or put away.
       expect(top(app)?.key === `control:${id}`).toBe(!intent && !v.dismiss)

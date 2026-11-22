@@ -242,6 +242,14 @@ def _subagent_calls(messages: list[dict]) -> list[dict] | None:
     return [_call("terminal", {"command": steps[done]}, f"call-step{done}")]
 
 
+# The "control" flow's ask_control arguments: a three-way choice, and a slider.
+CONTROL_CHOICE = {"id": "db", "kind": "choice", "prompt": "Which database should the demo use?",
+                  "options": [{"id": "postgres", "label": "Postgres", "detail": "the default"},
+                              {"id": "sqlite", "label": "SQLite"}, {"id": "duckdb", "label": "DuckDB"}]}
+CONTROL_SLIDER = {"id": "budget", "kind": "slider", "prompt": "Latency budget?", "min": 0, "max": 200, "step": 10,
+                  "value": 50, "unit": "ms"}
+
+
 def _calls(prompt: str, target: Path) -> list[dict] | None:
     words = prompt.lower()
     # Only a prompt that starts with it: the parent's completion notice quotes the delegation and
@@ -330,13 +338,7 @@ def _calls(prompt: str, target: Path) -> list[dict] | None:
         return [_call("terminal", {"command": f"rm -rf -- {target}"})]
     if "control" in words.split():
         # Plugin tools sit behind Tool Search: called through the tool_call bridge, as a real model does.
-        if "slider" in words.split():
-            control = {"id": "budget", "kind": "slider", "prompt": "Latency budget?", "min": 0, "max": 200, "step": 10,
-                       "value": 50, "unit": "ms"}
-        else:
-            control = {"id": "db", "kind": "choice", "prompt": "Which database should the demo use?",
-                       "options": [{"id": "postgres", "label": "Postgres", "detail": "the default"},
-                                   {"id": "sqlite", "label": "SQLite"}, {"id": "duckdb", "label": "DuckDB"}]}
+        control = CONTROL_SLIDER if "slider" in words.split() else CONTROL_CHOICE
         return [_call("tool_call", {"name": "ask_control", "arguments": control}, "call-control")]
     if "clarify" in words:
         return [_call("clarify", {"questions": [{"question": "Which colour?", "choices": ["red", "green", "blue"]}]})]

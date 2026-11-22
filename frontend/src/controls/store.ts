@@ -20,7 +20,7 @@ import { record } from '../wire/json.js'
 import { type ControlSheet, controlSheet } from './sheet.js'
 
 /** What the controls reach of the app. */
-export interface ControlsHost {
+interface ControlsHost {
   readonly transcript: Pick<Transcript, 'calls' | 'mutateCall'>
   open(overlay: Overlay): void
   close(overlay: Overlay): void

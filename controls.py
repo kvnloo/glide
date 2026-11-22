@@ -40,8 +40,32 @@ def _text(value: Any, limit: int, field: str) -> str:
     return value.strip()
 
 
-def _number(value: Any) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and value == value and abs(value) != float("inf")
+def _number(value: Any) -> int | float | None:
+    """``value`` when it is a finite number (not a bool), else None."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and value == value and abs(value) != float("inf"):
+        return value
+    return None
+
+
+def _slider(raw: dict[str, Any]) -> dict[str, Any]:
+    """A slider's range, step, start and unit, checked."""
+    lo, hi = _number(raw.get("min")), _number(raw.get("max"))
+    if lo is None or hi is None or lo >= hi:
+        raise ControlError("a slider needs numbers min < max")
+    out: dict[str, Any] = {"min": lo, "max": hi}
+    if raw.get("step") is not None:
+        step = _number(raw["step"])
+        if step is None or step <= 0 or step > hi - lo:
+            raise ControlError("step must be above 0 and no larger than max - min")
+        out["step"] = step
+    if raw.get("value") is not None:
+        value = _number(raw["value"])
+        if value is None or not lo <= value <= hi:
+            raise ControlError("value must be a number between min and max")
+        out["value"] = value
+    if raw.get("unit") is not None:
+        out["unit"] = _text(raw["unit"], _LIMITS["unit"], "unit")
+    return out
 
 
 def _id(value: Any, field: str) -> str:
@@ -80,40 +104,26 @@ def parse_control(raw: Any) -> dict[str, Any]:
         raise ControlError("the control must be an object")
     control: dict[str, Any] = {"id": _id(raw.get("id"), "id"), "kind": raw.get("kind"),
                                "prompt": _text(raw.get("prompt"), _LIMITS["prompt"], "prompt")}
-    kind = raw.get("kind")
-    if kind == "choice":
-        control["options"] = _options(raw.get("options"), "options", keep_version=False)
-        multiple = raw.get("multiple")
-        if multiple is not None and not isinstance(multiple, bool):
-            raise ControlError("multiple must be true or false")
-        if multiple:
-            control["multiple"] = True
-    elif kind == "candidates":
-        control["candidates"] = _options(raw.get("candidates"), "candidates", keep_version=True)
-    elif kind == "slider":
-        lo, hi, step, value = raw.get("min"), raw.get("max"), raw.get("step"), raw.get("value")
-        if not _number(lo) or not _number(hi) or float(lo) >= float(hi):  # type: ignore[arg-type]
-            raise ControlError("a slider needs numbers min < max")
-        assert lo is not None and hi is not None
-        control.update(min=lo, max=hi)
-        if step is not None:
-            if not _number(step) or step <= 0 or step > hi - lo:
-                raise ControlError("step must be above 0 and no larger than max - min")
-            control["step"] = step
-        if value is not None:
-            if not _number(value) or not lo <= value <= hi:
-                raise ControlError("value must be a number between min and max")
-            control["value"] = value
-        if raw.get("unit") is not None:
-            control["unit"] = _text(raw["unit"], _LIMITS["unit"], "unit")
-    elif kind == "confirm":
-        for field in ("confirmLabel", "cancelLabel"):
-            if raw.get(field) is not None:
-                control[field] = _text(raw[field], _LIMITS[field], field)
-        if raw.get("detail") is not None:
-            control["detail"] = _text(raw["detail"], _LIMITS["prompt"], "detail")
-    else:
-        raise ControlError("kind must be choice, slider, confirm or candidates")
+    match raw.get("kind"):
+        case "choice":
+            control["options"] = _options(raw.get("options"), "options", keep_version=False)
+            multiple = raw.get("multiple")
+            if multiple is not None and not isinstance(multiple, bool):
+                raise ControlError("multiple must be true or false")
+            if multiple:
+                control["multiple"] = True
+        case "candidates":
+            control["candidates"] = _options(raw.get("candidates"), "candidates", keep_version=True)
+        case "slider":
+            control.update(_slider(raw))
+        case "confirm":
+            for field in ("confirmLabel", "cancelLabel"):
+                if raw.get(field) is not None:
+                    control[field] = _text(raw[field], _LIMITS[field], field)
+            if raw.get("detail") is not None:
+                control["detail"] = _text(raw["detail"], _LIMITS["prompt"], "detail")
+        case _:
+            raise ControlError("kind must be choice, slider, confirm or candidates")
     return control
 
 

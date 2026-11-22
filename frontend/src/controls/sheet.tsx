@@ -23,10 +23,10 @@ import {
 } from '../vendor/ripple/index.js'
 
 /** Where a Tern answer says it came from (`Intent.surface`). */
-export const SURFACE = 'tern'
+const SURFACE = 'tern'
 
 /** The overlay key of call `id`'s sheet. */
-export const controlKey = (id: string) => overlayKey(`control:${id}`)
+const controlKey = (id: string) => overlayKey(`control:${id}`)
 
 /** A control's sheet on the stack, and how to feed it an input from outside (a transcript). */
 export interface ControlSheet {
@@ -35,14 +35,14 @@ export interface ControlSheet {
 }
 
 /** What the sheet reaches of the app. */
-export interface ControlSheetHost {
+interface ControlSheetHost {
   changed(): void
   /** The control was answered or put away; the host closes the sheet. */
   settle(outcome: Outcome): void
 }
 
 /** `1–3 picks · ↑↓ moves · enter sends · esc not now`: the keys this control takes. */
-export function keyHint(control: FastControl): string {
+function keyHint(control: FastControl): string {
   const n = rowsOf(control).length
   const esc = 'esc not now'
 
@@ -63,7 +63,7 @@ export function keyHint(control: FastControl): string {
 }
 
 /** Tern's key as the interaction model names it; undefined for a key it has no word for. */
-export function keyName(k: Key): string | undefined {
+function keyName(k: Key): string | undefined {
   if (k.ctrl || k.meta || k.alt) {
     return undefined
   }

@@ -21,12 +21,10 @@ export interface ControlDetail {
 
 /** `raw` without its null fields, at the top and in its rows: models send null for an absent option. */
 function withoutNulls(raw: Record<string, unknown>): Record<string, unknown> {
-  const rows = (v: unknown) => (Array.isArray(v) ? v.map(r => (record(r) ? withoutNulls(record(r) ?? {}) : r)) : v)
-
   return Object.fromEntries(
     Object.entries(raw)
       .filter(([, v]) => v !== null)
-      .map(([k, v]) => [k, k === 'options' || k === 'candidates' ? rows(v) : v])
+      .map(([k, v]) => [k, (k === 'options' || k === 'candidates') && Array.isArray(v) ? v.map(r => (record(r) ? withoutNulls(record(r) ?? {}) : r)) : v])
   )
 }
 
