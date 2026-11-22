@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path'
 import type { Entry } from '../../frontend/src/model.js'
 import { shippedPage, type PageHow } from '../../frontend/src/glideui/pages.js'
 import { mix, readableOn } from '../../frontend/src/hermes/theme.js'
-import type { SettingsSource, ThemeMode } from '../../frontend/src/settings.js'
+import type { Settings, SettingsSource, ThemeMode } from '../../frontend/src/settings.js'
 import { readStoredSettings } from '../../frontend/src/wire/files.js'
 import { minifyCss } from './css.js'
 import { tintFloor, wallSamples } from './glass.js'
@@ -221,6 +221,8 @@ export interface TemplateHost {
   /** settings.json: the template, the transcript style, and `ui.pages`. */
   readonly file: string
   readonly settings: SettingsSource
+  /** The settings the pane read at boot, so the first frame reads no file; none: read on first use. */
+  readonly saved?: Pick<Settings, 'template' | 'transcript'> | undefined
   /** Switches the theme mode now and keeps it (theme.ts Theme.set). */
   setTheme(mode: ThemeMode): void
   /** Closes the open page `id` (pages.ts GlidePages.close). */
@@ -247,30 +249,42 @@ const gitCommits = (cwd: string) => new Promise<number[]>(resolve => {
 /** Applies templates and panels; the transcript style it keeps is drawn by the frame (frame.ts). */
 export class Templates {
   readonly #host: TemplateHost
+  /** What settings.json kept, read once on first use: the frame asks for the sheet on every frame. */
+  #kept: { template: TemplateId; transcript: TranscriptStyle; css: string | null } | undefined
 
   constructor(host: TemplateHost) {
     this.#host = host
   }
 
+  #state() {
+    if (!this.#kept) {
+      const s = this.#host.saved ?? this.#host.settings.load()
+      const transcript = s.transcript ?? 'standard'
+      this.#kept = { template: s.template ?? 'default', transcript, css: transcriptCss(transcript) }
+    }
+    return this.#kept
+  }
+
   /** The template settings.json keeps; default when none. */
   get current(): TemplateId {
-    return this.#host.settings.load().template ?? 'default'
+    return this.#state().template
   }
 
   /** The transcript style settings.json keeps. */
   get transcript(): TranscriptStyle {
-    return this.#host.settings.load().transcript ?? 'standard'
+    return this.#state().transcript
   }
 
   /** The sheet the frame keeps on the surface; null for the standard transcript. */
   css(): string | null {
-    return transcriptCss(this.transcript)
+    return this.#state().css
   }
 
   /** Applies template `id` live: theme, transcript style, panels. The line the transcript shows. */
   async use(id: TemplateId): Promise<string> {
     const t = TEMPLATES[id]
     this.#host.settings.save({ template: id, transcript: t.transcript })
+    this.#kept = { template: id, transcript: t.transcript, css: transcriptCss(t.transcript) }
     this.#host.setTheme(t.theme)
     await this.#pages(t.panels)
     this.#host.changed()

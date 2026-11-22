@@ -353,6 +353,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const templates = new Templates({
     file: settingsFile(),
     settings,
+    saved,
     setTheme: mode => theme.set(mode),
     closePage: id => pages.close(id),
     reload: () => widgets.reload(),
