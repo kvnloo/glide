@@ -86,7 +86,8 @@ These commands show local state as native cards in the chat.
 
 | Command | What it shows |
 |---|---|
-| `/theme` | Pick the colours: Tern, Nous, the Hermes skin, the wallpaper (pywal, live) or Dash's black and gold. `/glide theme auto\|dash` sets the same. |
+| `/theme` | Pick the colours: Tern, Nous, the Hermes skin, the wallpaper (pywal, live) Dash's black and gold, Mono or Studio. `/glide theme auto\|dash` sets the same. |
+| `/template` | Restyle the whole app from the command palette (**Use Mono template**, **Use Studio template**, **Use Default template**). Mono: greyscale, a terminal transcript and an Analytics page of this session beside the chat. Studio: charcoal and gold, a bubble transcript and a Whiteboard page. Default restores Tern's theme and closes the template pages. `/template panel analytics\|whiteboard` opens one page. |
 | `/glide glass` | A liquid-glass demo card. It is the only surface allowed to glow. |
 | `/glide taste` | The newest Taste Atlas board beside the chat. [Requirements](glide/docs/taste.md) |
 | `/glide studio [project-id]` | Opens fframestudio and previews the selected project's scene layers. [Requirements](glide/docs/studio.md) |
