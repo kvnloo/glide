@@ -1,24 +1,27 @@
 import type { EuiCards } from '../../frontend/src/eui/cards.js'
+import { record } from '../../frontend/src/wire/json.js'
 
-interface SetupReply {
-  status: string
-  resident?: string[] | undefined
-  on_demand?: string[] | undefined
-  steps?: Record<string, string> | undefined
+type Call = (verb: string) => Promise<unknown>
+
+const models = (ids: unknown) => Array.isArray(ids) ? ids.filter(id => typeof id === 'string').join(', ').slice(0, 500) : ''
+
+function setupReply(raw: unknown) {
+  const reply = record(raw)
+  const status = reply?.['status']
+  if (!reply || typeof status !== 'string') throw new Error('Invalid z0intelligence setup reply')
+  return { reply, status }
 }
-
-type Call = (verb: string) => Promise<SetupReply>
 
 export async function z0Onboarding(
   cards: EuiCards['host'], call: Call, current: () => boolean, fail: (error: unknown) => void
 ): Promise<void> {
-  const preview = await call('z0_onboard_plan')
+  const { reply, status } = setupReply(await call('z0_onboard_plan'))
   if (!current()) return
-  if (preview.status !== 'plan') {
+  if (status !== 'plan') {
     cards.publish({
       kind: 'intel-health', app: 'glide', title: 'z0intelligence setup unavailable',
-      rows: [{ label: 'Status', value: preview.status }],
-      summary: preview.status === 'not installed'
+      rows: [{ label: 'Status', value: status }],
+      summary: status === 'not installed'
         ? 'z0intelligence is optional. Use /glide for corrections memory without it.'
         : 'Check your installed CLI with z0int models plan --json, then retry /glide onboard.'
     })
@@ -27,8 +30,8 @@ export async function z0Onboarding(
   cards.publish({
     kind: 'approve', app: 'glide', title: 'Review z0intelligence setup',
     rows: [
-      { label: 'Resident models', value: preview.resident?.join(', ').slice(0, 500) || 'none recommended' },
-      { label: 'On-demand models', value: preview.on_demand?.join(', ').slice(0, 500) || 'none recommended' }
+      { label: 'Resident models', value: models(reply['resident']) || 'none recommended' },
+      { label: 'On-demand models', value: models(reply['on_demand']) || 'none recommended' }
     ],
     approval: {
       label: 'Run or resume setup',
@@ -37,7 +40,7 @@ export async function z0Onboarding(
   }, async ({ signal }) => {
     if (signal.aborted || !current()) return
     try {
-      const result = await call('z0_onboard_apply')
+      const result = setupReply(await call('z0_onboard_apply'))
       if (signal.aborted || !current()) return
       cards.publish({
         kind: 'receipt', app: 'glide',
@@ -46,7 +49,8 @@ export async function z0Onboarding(
           : 'After any running setup has stopped, fix steps needing attention and retry /glide onboard. For a long install, resume in a terminal with z0int onboard --json.',
         rows: [
           { label: 'Status', value: result.status },
-          ...Object.entries(result.steps ?? {}).map(([label, value]) => ({ label, value }))
+          ...Object.entries(record(result.reply['steps']) ?? {}).flatMap(([label, value]) =>
+            typeof value === 'string' ? [{ label, value }] : [])
         ]
       })
     } catch (error) {
