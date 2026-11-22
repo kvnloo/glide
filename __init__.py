@@ -13,8 +13,8 @@ import contextlib
 from pathlib import Path
 
 from . import (
-    browser_backend, channels, charts, ephemeral_cards, launcher, plan_gateway,
-    plugin_data, pull_requests, tern_env, viewers,
+    browser_backend, channels, charts, ephemeral_cards, figure_check, launcher, plan_gateway,
+    plugin_data, pull_requests, render_hints, tern_env, viewers,
 )
 
 
@@ -44,6 +44,8 @@ def register(ctx) -> None:
     ephemeral_cards.register(ctx)
     viewers.register(ctx)
     tern_env.register(ctx)
+    render_hints.register(ctx)
+    figure_check.register(ctx)
     # Optional downstream gateway methods remain unavailable on older Hermes.
     if callable(getattr(ctx, "register_gateway_method", None)):
         from . import gateway_operations, media_backend
