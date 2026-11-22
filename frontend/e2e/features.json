@@ -984,6 +984,19 @@
       "army": []
     },
     {
+      "id": "ask-control",
+      "title": "Answer an agent's ask_control question as a native control",
+      "surface": "card",
+      "entry": "The agent calls ask_control (choice, slider, confirm, or candidates); answer in the sheet with a number key, arrows and Enter, or a click",
+      "journey": "cards",
+      "expect": "The sheet opens when the call finishes; the answer reaches the agent as the next user message, sent literally; the card ticks it and the first of two panes wins",
+      "tests": [
+        "frontend/src/__tests__/controls.test.ts",
+        "tests/test_controls.py"
+      ],
+      "army": []
+    },
+    {
       "id": "new-session",
       "title": "Start a named or fresh conversation",
       "surface": "slash",

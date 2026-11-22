@@ -5,6 +5,7 @@ import type { TspEvent } from '@stencil-hq/tern'
 
 import { pastedImageEvent, type NativeImageEvent } from '../artifacts/attachments.js'
 import type { ConnectWatcher } from '../connections/watcher.js'
+import type { Controls } from '../controls/store.js'
 
 import { INPUT_ID } from './host.js'
 
@@ -23,6 +24,7 @@ export interface ActionCx {
   /** The exact native byte or host-path image intent; text remains the native editor's. */
   attachNativeImage(image: NativeImageEvent): void
   readonly connect: Pick<ConnectWatcher, 'approve' | 'continue' | 'open' | 'retry' | 'skip'>
+  readonly controls: Pick<Controls, 'reopen'>
   /** A modal sheet is on top: the composer's input does not take the keys back. */
   modal(): boolean
   /** The composer's input took Tern's focus: the pills let go of the keys, and the caret stays there. */
@@ -36,6 +38,7 @@ export type ActionName =
   | 'connect-open'
   | 'connect-retry'
   | 'connect-skip'
+  | 'control-open'
   | 'open-agent'
   | 'open-agents'
   | 'open-lanes'
@@ -64,6 +67,8 @@ export const ACTIONS = {
   'connect-retry': (value, cx) => cx.connect.retry(...cardRow(value)),
   // A live connect card's Skip on one app.
   'connect-skip': (value, cx) => cx.connect.skip(...cardRow(value)),
+  // An ask_control card's Answer: its sheet again.
+  'control-open': (value, cx) => cx.controls.reopen(value),
   'open-agent': (value, cx) => cx.openAgent(value),
   'open-agents': (_value, cx) => cx.openAgents(),
   'open-lanes': (_value, cx) => cx.openLanes?.(),

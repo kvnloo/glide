@@ -460,6 +460,7 @@ describe('the Tern actions', () => {
         retry: (ref, name) => void log.push(`retry ${ref} ${name}`),
         skip: (ref, name) => void log.push(`skip ${ref} ${name}`)
       },
+      controls: { reopen: ref => void log.push(`control ${ref}`) },
       focusComposer: () => void log.push('focus'),
       modal: () => modal,
       openAgent: id => void log.push(`agent ${id}`),
@@ -486,6 +487,7 @@ describe('the Tern actions', () => {
     onTernEvent(action('connect-skip', 'op1:figma'), cx)
     onTernEvent(action('connect-retry', 'op1:figma'), cx)
     onTernEvent(action('connect-approve', 'op1:linear'), cx)
+    onTernEvent(action('control-open', 'call_7'), cx)
     expect(log).toEqual([
       'agent a1',
       'agents',
@@ -496,7 +498,8 @@ describe('the Tern actions', () => {
       'open call:1 github',
       'skip op1 figma',
       'retry op1 figma',
-      'approve op1 linear'
+      'approve op1 linear',
+      'control call_7'
     ])
     expect(Object.keys(ACTIONS).sort()).toEqual([
       'connect-approve',
@@ -504,6 +507,7 @@ describe('the Tern actions', () => {
       'connect-open',
       'connect-retry',
       'connect-skip',
+      'control-open',
       'open-agent',
       'open-agents',
       'open-lanes',

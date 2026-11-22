@@ -14,6 +14,7 @@ import type { Hud } from '../chrome/hud.js'
 import type { NoticeStrip } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import type { ConnectWatcher } from '../connections/watcher.js'
+import type { Controls } from '../controls/store.js'
 import { durable, type DurableSessionId, type LiveSessionId, type SessionIds, type SessionRef } from '../core/ids.js'
 import type { PullRequests } from '../github/store.js'
 import type { MediaDelivery } from '../media-delivery.js'
@@ -65,6 +66,7 @@ export interface AdoptHost {
   readonly agents: Pick<Agents, 'adopt' | 'scan'>
   readonly automation: Pick<Automation, 'adopt'>
   readonly connect: Pick<ConnectWatcher, 'restore' | 'watch'>
+  readonly controls: Pick<Controls, 'adopt'>
   readonly media: Pick<Media, 'showAll'>
   readonly mediaDelivery: Pick<MediaDelivery, 'clear'>
   readonly notices: Pick<NoticeStrip, 'reset'>
@@ -185,9 +187,10 @@ export function adoptSteps(host: AdoptHost): readonly Adoptable[] {
     } },
     {
       adopt: ({ ref }) => {
-        // The new session's processes, PRs and git state (and none of the last one's), and its open connect cards.
+        // The new session's processes, PRs and git state (and none of the last one's), its open connect cards and its controls' answers.
         host.processes.poke()
         host.connect.watch()
+        host.controls.adopt()
         host.prs.adopt()
         host.sidebar.adopt(ref.live)
         host.factory.adopt(ref.live)

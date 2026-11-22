@@ -49,6 +49,12 @@ export const replays: Record<string, Replay> = {
     steps: [{ feed: 1 }, { type: 'list the files' }, { press: 'enter' }, { feed: 3 }, { feed: 2 }, { feed: 2 }, { feed: 3 }]
   },
 
+  'an ask_control choice answered with the arrows and Enter while the turn ends': {
+    fixture: 'ask-control',
+    replies: started,
+    steps: [{ feed: 1 }, { type: 'set up the demo' }, { press: 'enter' }, { feed: 1 }, { feed: 2 }, { press: 'down' }, { press: 'enter' }, { feed: 1 }]
+  },
+
   'a prompt queued behind the turn, steered, and one that starts after it': {
     fixture: 'queue-steer',
     replies: {

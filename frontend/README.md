@@ -44,6 +44,8 @@ flowchart LR
 | `src/view/ui/` | The parts the views share: pills, buttons and the action row, the shimmer and working row, sections headed by a child, facts lists |
 | `src/overlays/` | Floating sheets (`overlay.ts` is their contract): approvals, clarify, masked prompts, completions, pickers |
 | `src/prompts/` | The prompt sheets on the overlay stack: their keys, and closing them when the gateway withdraws their questions |
+| `src/controls/` | `ask_control` sheets: Ripple's fast control drawn with the ask sheet's components (`sheet.tsx`), and the store that opens them, claims an answer across panes and sends it as the user's message |
+| `src/vendor/ripple/` | Ripple's fast-control schema, interaction model and conformance vectors, vendored unchanged |
 | `src/connections/` | Connect cards: the gateway's `connection.request` operation, which the card answers (`live.ts`), the card's model (`cards.ts`), and the watcher that keeps each card current |
 | `src/hermes/` | What the frontend asks of Hermes: the gateway client and the attach (`connect.ts`), the capabilities it needs (`requirements.ts`), the session list and stored transcripts (`sessionList.ts`, `sessionTranscript.ts`, `compactions.ts`), the plugin's own RPC methods (`viewer.ts`), the clipboard image, shell, history |
 
