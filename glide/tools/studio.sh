@@ -7,7 +7,9 @@
 # HERMES_HOME with Glide from this checkout and a real model, its own gateway and one fullscreen Tern running
 # `hermes tern`. Every unit is `glide-studio-*` in the user's agent.slice; `down` stops them all.
 #
-#   glide/tools/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|wall IMG|ctl ARGS...
+#   glide/tools/studio.sh up|down|shot OUT.png|rec OUT.mp4 [SECS]|check TAKE.mp4|wall IMG|ctl ARGS...
+#   rec records at 60 fps (STUDIO_FPS=30 for a 30 fps take), then runs check: ffprobe's avg_frame_rate must be STUDIO_FPS.
+#   Take checklist: glide/docs/film-takes.md.
 #   env: STUDIO (default ~/glide-studio/run), HERMES_BIN (the Hermes to run), TERN, SWAY, STUDIO_MODEL (default
 #        moonshotai/kimi-k3.1-pro), STUDIO_BASE_URL (default NVIDIA NIM), STUDIO_PROVIDER (default nvidia: `custom`
 #        replays `reasoning` next to `reasoning_content`, which NIM rejects; Groq's 8k TPM can't fit one turn),
@@ -25,6 +27,20 @@ H=$S/home R=$S/rt
 HERMES_BIN=${HERMES_BIN:-$HOME/glide-studio/hermes/.venv/bin/hermes}
 SWAY=${SWAY:-$(command -v sway)} TERN=${TERN:-$(command -v tern)}
 ctl() { "$TERN" ctl --control "$S/ctl.sock" "$@"; }
+want_fps() {  # the take's rate: 60 unless STUDIO_FPS names another whole number.
+  local f=${STUDIO_FPS:-60}
+  [[ $f =~ ^[1-9][0-9]*$ ]] || { echo "studio: STUDIO_FPS must be a whole number, got '$f'" >&2; exit 2; }
+  echo "$f"
+}
+check() {  # check TAKE FPS: fail a take whose measured average frame rate is not FPS (within 0.5).
+  local rate
+  rate=$(ffprobe -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 "$1") ||
+    { echo "studio: ffprobe could not read $1" >&2; exit 1; }
+  awk -v r="$rate" -v want="$2" -v take="$1" 'BEGIN { n = split(r, p, "/"); fps = (n == 2 && p[2] > 0) ? p[1] / p[2] : r + 0
+    ok = fps - want <= 0.5 && want - fps <= 0.5
+    printf "studio: %s %s: %.2f fps (avg_frame_rate %s, want %d)\n", ok ? "take ok" : "REJECT take", take, fps, r, want > (ok ? "/dev/stdout" : "/dev/stderr")
+    exit !ok }'
+}
 stop() { for u in glide-studio-tern glide-studio-gw glide-studio-sway 'glide-studio-wall-*'; do systemctl --user stop "$u" 2>/dev/null || true; systemctl --user reset-failed "$u" 2>/dev/null || true; done; }
 
 merge() {  # merge FILE JSON: the object's keys laid over FILE's (a missing file is {}).
@@ -129,8 +145,13 @@ case "${1:-}" in
   up) up ;;
   down) stop; echo "studio: down" ;;
   shot) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 grim "${2:?out.png}" ;;
-  rec) XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout -s INT -k 5 "${3:-20}" nice -n 10 wf-recorder -y -r "${STUDIO_FPS:-30}" \
-    -c libx264 -p preset=veryfast -p crf=18 -f "${2:?out.mp4}" >/dev/null 2>&1; [ -s "$2" ] ;;
+  rec) fps=$(want_fps); take=${2:?out.mp4}
+    # timeout exits 124 when it ends the take on time (SIGINT lets wf-recorder finish the MP4); that is success.
+    XDG_RUNTIME_DIR="$R" WAYLAND_DISPLAY=wayland-1 timeout -s INT -k 5 "${3:-20}" nice -n 10 wf-recorder -y -r "$fps" \
+      -c libx264 -p preset=veryfast -p crf=18 -f "$take" >/dev/null 2>&1 || [ $? -eq 124 ]
+    [ -s "$take" ] || { echo "studio: no take written to $take" >&2; exit 1; }
+    check "$take" "$fps" ;;
+  check) fps=$(want_fps); check "${2:?take.mp4}" "$fps" ;;
   ctl) shift; ctl "$@" ;;
   wall) shift; [ $# -gt 0 ] || { echo "studio: wall IMG..." >&2; exit 2; }
     # Each image is a new swaybg drawn over the last (a later background surface stacks on top), so a run of images
@@ -143,5 +164,5 @@ case "${1:-}" in
     for u in $(systemctl --user list-units --plain --no-legend 'glide-studio-wall-*' | awk '{print $1}' | head -n -1); do systemctl --user stop "$u"; done
     for p in $(cat "/sys/fs/cgroup$(systemctl --user show -p ControlGroup --value glide-studio-sway)/cgroup.procs" 2>/dev/null); do
       [ "$(cat /proc/$p/comm 2>/dev/null)" = swaybg ] && kill "$p"; done; : ;;
-  *) sed -n 6,13p "$0"; exit 2 ;;
+  *) sed -n 6,15p "$0"; exit 2 ;;
 esac
