@@ -103,6 +103,8 @@ export function euiStyles(): string {
 [data-eui='card'] .eu-card .eu-ico{--s:20px;font-size:10px}[data-eui='card'] .eu-card .eu-h{padding:6px var(--pad) 4px}[data-eui='card'] .eu-card .eu-t{flex-direction:row;align-items:baseline;gap:8px}[data-eui='card'] .eu-card .eu-t b{font-size:13px;flex:none}
 [data-eui][data-eui='card'] .eui-host-head.eui-host-head{padding:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none}
 [data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
+[data-eui='card'] button { max-width: 100%; }
+[data-eui='card'] button > .eu-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
 [data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
