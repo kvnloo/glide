@@ -600,6 +600,7 @@ frontend/src/__tests__/splash.test.ts
 frontend/src/__tests__/glidePageNightDrive.test.ts
 frontend/src/glideui/pages.ts
 frontend/src/splash/art.ts
+frontend/src/__tests__/glidePagePiano.test.ts
 frontend/src/splash/launch.tsx
 # The plugin-level suite exercises the installed Hermes registration contract.
 tests/test_live_skin.py
