@@ -7,128 +7,88 @@ An agent workspace that guards two scarce resources: your attention and the agen
 
 Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backend, attention guard, onboarding cards, a skill-ranking catalog, a benchmark referee, local-model offload, local fleet and intelligence cards, and the Dash-derived design language. [Submission](docs/SUBMISSION.md) · [Fork details](FORK.md) · [License](LICENSE)
 
+[![Watch the Glide film (1:44)](glide/docs/media/glide-film-poster.jpg)](https://github.com/kvnloo/glide/releases/tag/film-v41)
+
+**[Watch the film](https://github.com/kvnloo/glide/releases/tag/film-v41)** · 1080p60, 1:44 · [download mp4](https://github.com/kvnloo/glide/releases/download/film-v41/glide-film.mp4). Every Tern shot in it is a live take over sample data.
+
 ## Install
 
-Prerequisites: [Hermes Agent](https://github.com/NousResearch/hermes-agent) ≥0.23.0, [Tern](https://stencil.so/tern), and Node.js. [Manifest](plugin.yaml)
+You need [Hermes Agent](https://github.com/NousResearch/hermes-agent) ≥0.23.0, [Tern](https://stencil.so/tern) and Node.js. [Manifest](plugin.yaml)
 
 ```sh
 hermes plugins install kvnloo/glide
+hermes tern        # in a Tern pane, outside tmux, screen or zellij
 ```
 
-Review Hermes' scanner findings before approving the install. It may report **CAUTION**, as it does for the base Tern plugin. The scan is not bypassed by this guide.
+Accept Hermes' enable prompt. One install ships the Tern frontend and Glide as one plugin named `glide`. Earlier releases used `hermes-tern`: their data folders move to the new name on first load, but settings under `plugins.entries.hermes-tern` must be set again under `plugins.entries.glide`. Don't also install the `glide/` subdirectory into the same profile. The frontend needs Tern's Surface Protocol, so an ordinary terminal can't render it. [Registration](https://github.com/kvnloo/glide/pull/223) · [Launcher](launcher.py)
 
-After a successful install, accept Hermes' plugin-enable prompt. One install includes the Tern frontend and Glide. The installed plugin is named `glide` (earlier releases used `hermes-tern`; its data folders move to the new name on first load, and settings under `plugins.entries.hermes-tern` must be set again under `plugins.entries.glide`). Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
-
-In a Tern pane, outside tmux, screen, or zellij:
-
-```sh
-hermes tern
-```
-
-The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py)
+Hermes' plugin scanner may rate the install **CAUTION**, as it does the base Tern plugin. Review its findings before you approve; this guide does not bypass the scan.
 
 ## First run
 
-In Tern, start with **`/glide` → Detect → Build memory → Turn on**. Build and enable are separate approvals. A fresh profile with no eligible corrections won't return a match. Try **`/glide focus`** for attention controls; the skill catalog, benchmark and offload are optional.
+In Tern, start with **`/glide` → Detect → Build memory → Turn on**. Build and enable are separate approvals, and a fresh profile with no eligible corrections won't return a match yet. Try **`/glide focus`** for attention controls. The skill catalog, benchmark and offload are optional.
 
-Screenshots: [Detect](#real-tern-screenshots) · [Memory proof](#real-tern-screenshots) · [Recall](#real-tern-screenshots). These are existing captures using synthetic history, not new captures from this release.
+## Features
 
-## Guard your attention
-
-In the attached Tern chat:
-
-```text
-/glide focus
-```
-
-1. **Focus card.** Phase, flow likelihood (only with a live Flowkit estimate; an estimate, not a diagnosis), next deep-work window, bedtime, and how many asks are held.
-2. **Start block.** Approve a 50-minute block. Hermes keeps replies short and holds non-critical questions. Notices routed through `glide.route` wait; `critical` still passes.
-3. **End block.** One digest card lists everything held.
-4. **Wind-down.** `/glide focus wind-down` saves your last session's open asks; tomorrow's first turn quotes them once.
-5. **Your hours.** `/glide focus hours` shows the two-hour windows you worked in most over the last 30 days.
-
-With no wearable and no z0intelligence, everything comes from your local session timestamps. [How it decides](glide/docs/attention.md)
-
-## Guard the context window
-
-In the attached Tern chat, enter:
-
-```text
-/glide
-```
-
-The [card flow](frontend/src/commands/glide.ts) presents these steps. Each write or benchmark waits for its approval button.
-
-1. **Detect.** Inspect CPU, RAM, GPU, local runtimes, and optional z0intelligence health. Detection installs nothing.
-2. **Build memory.** Approve a read of up to 100 recent eligible local sessions, excluding the current session. Glide keeps user messages that begin with `Correction:`, `Actually,`, or `No,`. Review the counts on the proof card. A new profile needs prior corrections before recall can return a match.
-3. **Turn on.** Approve the recall hook. Current instructions take precedence over quoted history.
-4. **Skill router.** Approve **Install** to save the built-in category-to-skills catalog. This installs ranking metadata, not the referenced skills or an automatic per-turn skill loader.
-5. **Hill climb.** Approve **Run one round** to repeat the same CPU benchmark command for baseline and candidate samples to demonstrate noise handling. The referee can report KEEP, REVERT, or INCONCLUSIVE. This demo does not edit code or train a model.
-6. **Offload.** With Ollama and an existing local model available, approve **Offload it** to send one sample summary task to that model. The savings card reports estimated tokens and cost, not a measured billing reduction. No model is downloaded for you.
-
-For a correction about frontend work, inspect the matching history:
-
-```text
-/glide recall frontend
-```
-
-Disable automatic quoting:
-
-```text
-/glide off
-```
-
-Memory extraction and BM25 ranking make no model calls. If an existing z0intelligence corrections reader returns matches, recall prefers those and otherwise falls back to Glide's store. [Recall selection](glide/core.py) Glide opens the source database read-only and writes derived memory under the active profile's `glide/` directory. Once you enable recall, excerpts enter Hermes' model context and can reach your configured remote provider. Do not enable it for history you do not want that provider to receive. [Storage and privacy contract](glide/docs/memory.md)
-
-## More in the chat
-
-These commands show local state as native cards in the chat.
-
-| Command | What it shows |
+| | |
 |---|---|
-| `/theme` | Pick the colours: Tern, Nous, the Hermes skin, the wallpaper (pywal, live) or Dash's black and gold. `/glide theme auto\|dash` sets the same. |
-| `/glide glass` | A liquid-glass demo card. It is the only surface allowed to glow. |
-| `/glide taste` | The newest Taste Atlas board beside the chat. [Requirements](glide/docs/taste.md) |
-| `/glide studio [project-id]` | Opens fframestudio and previews the selected project's scene layers. [Requirements](glide/docs/studio.md) |
-| `/glide lanes` | Live-voice helper lanes, their model and billing. |
-| `/intel` | Local intelligence: hill climbs, skills, memory, failures, traces. |
-| `/hosts` | Fleet hosts, agents, gauges and k3s pods. |
-| `/portfolio` | Work portfolios, products and tasks. |
-| `/factory` | The content factory graph, runs and renders. [Factory](glide/docs/factory.md) |
-| `/council` | A Socratic council popup with one verdict per seat. |
+| **Declare an intent.** `/glide intent <ask>` turns an ask into declaration, contract and approval cards, then a work rail. The rail is a labelled sample: no agent is dispatched. | ![Intent declaration card](glide/docs/media/features/intent.png) |
+| **Convene a council.** `/council` opens a Socratic review where model seats vote on a hard call, one verdict per seat. Without `GLIDE_COUNCIL_URL` the run is a labelled **DEMO**. | ![Council popup](glide/docs/media/features/council.png) |
+| **Watch the lanes.** `/glide lanes` shows each live-voice helper lane's model, billing, state and words. Without a lane broker it says **NOT CONNECTED** instead of drawing one. | ![Voice lanes popup](glide/docs/media/features/lanes.png) |
+| **Hold a deep-work block.** `/glide focus` shows your phase, bedtime and next deep-work window. Start a 50-minute block and non-critical agent asks wait; critical ones still pass. | ![Focus block card](glide/docs/media/features/focus.png) |
+| **Get one digest.** `/glide focus stop` ends the block and hands back every held ask once. | ![Digest of held asks](glide/docs/media/features/digest.png) |
+| **Know your hours.** `/glide focus hours` draws the two-hour windows you worked in most over 30 days, learned from your own local sessions. | ![Best deep-work hours](glide/docs/media/features/hours.png) |
+| **Wind down.** `/glide focus wind-down` saves where you left off; tomorrow's first turn starts there. | ![Wind-down card](glide/docs/media/features/wind-down.png) |
+| **Ring the composer.** Ask *"add a focus timer that runs around my composer"* and Hermes mounts a focus ring on the composer's border (`glide_ui_mount`). It ticks every second and survives a relaunch. | ![Focus ring round the composer](glide/docs/media/features/focus-ring.png) |
+| **Graph your commits.** Ask *"add a graph of my commits under the composer"* for a 52-week heatmap of the session repository's git log. It redraws when a commit lands. | ![Commit heatmap under the composer](glide/docs/media/features/heatmap.png) |
+| **See the fleet.** `/hosts` lists your hosts' agents, machine gauges and k3s pods from local read-only collectors. Missing sources never become fictional hosts. | ![Hosts and k3s card](glide/docs/media/features/fleet.png) |
+| **Wear the wallpaper.** `/glide theme auto` themes Tern from your pywal colours (or `GLIDE_WAL_COLORS`); `dash` picks Dash's black and gold, `default` reverts and `export` writes the palette. | ![Wallpaper-themed contract cards](glide/docs/media/features/theme-cards.png) |
 
-Every card follows one design language: omp's card grammar and Dash's palette, text at 11 px or larger, no glow outside `/glide glass`. A token drift test fails on any radius, size or colour that is not a token. [Design language](docs/DESIGN-LANGUAGE.md)
+Also in the chat: `/portfolio` and `/factory graph` render validated fleet cards, `/intel` shows hill climbs, skills, memory, failures and traces, `/film` opens a fframestudio project, `/glide taste` opens a separately running [Taste Atlas](glide/docs/taste.md) board, `/glide studio` previews an fframestudio project ([requirements](glide/docs/studio.md)), and `/glide glass` is the only surface allowed to glow. Live voice (`/live`, Alt+Shift+V) needs a Hermes gateway with `voice.live` methods and a local lane broker. [Voice and lanes](frontend/docs/voice.md)
 
-## Real Tern screenshots
+Attention features need no wearable. They learn from your local session timestamps and use z0intelligence's circadian schedule and a Flowkit flow estimate when those are installed. [Attention contract](glide/docs/attention.md)
 
-Captured from a fresh `HERMES_HOME` after `hermes plugins install kvnloo/glide`, with six synthetic sessions seeded by [demo/seed.py](glide/demo/seed.py). No personal history appears.
+Every card follows one design language: omp's card grammar and Dash's palette, text at 11 px or larger, and no glow outside `/glide glass` and an opt-in focus ring. A token drift test fails on any radius, size or colour that is not a token. [Design language](docs/DESIGN-LANGUAGE.md)
 
-![Detect: hardware, local runtimes, and the memory-build approval](glide/docs/media/glide-fresh-1-detect.png)
-![Memory built from five synthetic sessions, with the turn-on approval](glide/docs/media/glide-fresh-2-memory-built.png)
-![/glide recall returns the matching correction](glide/docs/media/glide-fresh-7-recall-hit.png)
-![Skill router approval](glide/docs/media/glide-s4-ask.png)
-![Skill router receipt and benchmark approval](glide/docs/media/glide-s4-router.png)
-![Benchmark verdict and offload approval](glide/docs/media/glide-s5-hillclimb.png)
-![Local offload estimate](glide/docs/media/glide-s6-savings.png)
+**About these pictures.** The intent, council, lanes, focus, digest, hours, wind-down and theme shots are live Tern takes over synthetic data. The focus ring, heatmap and fleet shots are browser renders of the real widget and card trees over synthetic data, made by [readme-shots.mts](glide/tools/readme-shots.mts); Tern's own renderer draws them slightly differently.
 
-The inherited base chat is shown below, not a Glide onboarding capture.
+## Corrections memory
 
-![Native Tern chat and pull request view](docs/images/hero-dark.png)
+`/glide` walks an opt-in onboarding flow. Each write or benchmark waits for its approval button. [Card flow](frontend/src/commands/glide.ts)
+
+1. **Detect** CPU, RAM, GPU, local runtimes and optional z0intelligence health. Detection installs nothing.
+2. **Build memory** from up to 100 recent eligible local sessions, excluding the current one. Glide keeps user messages that begin with `Correction:`, `Actually,` or `No,`.
+3. **Turn on** recall: up to three matching past corrections are quoted into a turn, so you stop repeating yourself. Current instructions take precedence over quoted history.
+4. **Skill router** saves a category-to-skills ranking catalog. It installs metadata, not the referenced skills or a per-turn loader.
+5. **Hill climb** runs one CPU benchmark round; the referee reports KEEP, REVERT or INCONCLUSIVE. It edits no code and trains no model.
+6. **Offload** sends one sample task to an existing Ollama model and estimates the tokens saved. It is an estimate, not a billing measurement, and no model is downloaded for you.
+
+`/glide recall <words>` shows matching corrections; `/glide off` stops quoting.
+
+| Detect | Memory built | Recall hit |
+|---|---|---|
+| ![Detect: hardware, local runtimes and the memory-build approval](glide/docs/media/glide-fresh-1-detect.png) | ![Memory built from synthetic sessions, with the turn-on approval](glide/docs/media/glide-fresh-2-memory-built.png) | ![/glide recall returns the matching correction](glide/docs/media/glide-fresh-7-recall-hit.png) |
+| **Skill router** | **Hill climb** | **Offload** |
+| ![Skill router receipt and benchmark approval](glide/docs/media/glide-s4-router.png) | ![Benchmark verdict and offload approval](glide/docs/media/glide-s5-hillclimb.png) | ![Local offload estimate](glide/docs/media/glide-s6-savings.png) |
+
+Captured in Tern from a fresh `HERMES_HOME` after `hermes plugins install kvnloo/glide`, with six synthetic sessions seeded by [demo/seed.py](glide/demo/seed.py). No personal history appears.
+
+**Privacy.** Extraction and BM25 ranking make no model calls. If an existing z0intelligence corrections reader returns matches, recall prefers those and otherwise falls back to Glide's store. Glide opens the session database read-only and writes derived memory under the profile's `glide/` directory. Once recall is on, quoted excerpts enter Hermes' model context and can reach your configured remote provider, so don't enable it for history you don't want that provider to receive. [Storage and privacy contract](glide/docs/memory.md)
 
 ## Check a fresh install yourself
 
-`bash scripts/e2e-fresh-install.sh` installs the committed checkout into a throwaway `HERMES_HOME`, validates the plugin, and exercises memory, focus and Taste with synthetic data through Hermes' command loader. It does not launch Tern, touch your profile, or call a model. [Details](glide/docs/fresh-install.md)
+```sh
+bash scripts/e2e-fresh-install.sh
+```
 
-## What runs beyond a prompt
+It installs the committed checkout into a throwaway `HERMES_HOME`, validates the plugin, and exercises memory, focus and Taste with synthetic data through Hermes' command loader. It does not launch Tern, touch your profile, or call a model. [Details](glide/docs/fresh-install.md)
 
-- [Python memory backend](glide/memory.py), [source reader](glide/source.py), and [atomic storage](glide/storage.py) resolve eligible message generations and build a bounded local BM25 index.
-- The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) validate parameters and serve the cards on a Hermes core with `ctx.register_gateway_method`. Released Hermes does not have it, so those methods stay inactive and the cards run through the `/glide` command.
-- The [TypeScript flow](frontend/src/commands/glide.ts) renders native cards and handles approval actions. [Router](glide/skill_router.py), [benchmark](glide/hill_climb.py), and [Ollama offload](glide/offload.py) modules persist their own results.
-- Opt-in live voice (`/live` or Alt+Shift+V) shows helper lanes beside the thinking orb. They read real state from a local lane broker on `127.0.0.1:8791` and stay off without its token file. Live voice needs a Hermes gateway with the `voice.live` methods; the pinned Hermes may lack them, which shows a visible activation failure. [Voice and lanes](frontend/docs/voice.md)
+## Code map
 
-Optional z0intelligence health detection does not install or configure z0intelligence. The optional Taste pane needs a separately running Taste Atlas app and is not part of the basic memory flow. [Core](glide/core.py) · [Taste requirements](glide/docs/taste.md)
-
-See [the upstream project](https://github.com/alt-glitch/hermes-tern) for the base frontend and [frontend development](frontend/README.md) for build instructions.
+- Memory: [backend](glide/memory.py), [source reader](glide/source.py), [atomic storage](glide/storage.py), [hook and command](glide/core.py). The [session-bound gateway methods](glide/gateway.py) need `ctx.register_gateway_method`, which released Hermes lacks, so the cards run through the `/glide` command for now.
+- Cards: [`/glide` flow](frontend/src/commands/glide.ts), [intent](glide/frontend/intentCards.ts), [council](glide/frontend/councilPopup.ts), [lanes](glide/frontend/lanesPopup.ts), [fleet](frontend/src/commands/fleet.ts) and its [adapter](glide/fleet.py), [theme](glide/frontend/wal.ts) and [glass](glide/frontend/glass.ts).
+- Widgets and pages: [agent tools](glide/ui.py), [mounts](frontend/src/glideui/mounts.ts), [widget host](frontend/src/glideui/widgets.tsx).
+- [Attention](glide/attention.py), [skill router](glide/skill_router.py), [benchmark](glide/hill_climb.py), [offload](glide/offload.py). Frontend build: [frontend/README.md](frontend/README.md).
 
 ## Credits and license
 

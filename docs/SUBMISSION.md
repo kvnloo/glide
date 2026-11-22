@@ -82,5 +82,5 @@ For a headless check of the committed source without Tern, a provider, or your r
 - [Fork feature guide](../FORK.md)
 - [Attention guard: sources and rules](../glide/docs/attention.md)
 - [Memory design and limitations](../glide/docs/memory.md)
-- [Real Tern screenshots](../README.md#real-tern-screenshots) from a fresh `HERMES_HOME` install with synthetic sessions.
+- [Real Tern screenshots](../README.md#corrections-memory) from a fresh `HERMES_HOME` install with synthetic sessions.
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent) and [Tern](https://stencil.so/tern)
