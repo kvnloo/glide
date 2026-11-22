@@ -30,8 +30,9 @@ function byteRange(raw: string, size: number): ByteRange | undefined {
   return undefined
 }
 
-interface PageFile { path: string; mime: string; limit: number }
-async function serve(req: IncomingMessage, res: ServerResponse, file: PageFile) {
+export interface PageFile { path: string; mime: string; limit: number }
+/** Streams one regular file (Range-aware) after checking it is still at its real path and under its limit. */
+export async function serve(req: IncomingMessage, res: ServerResponse, file: PageFile) {
   if (await realpath(file.path) !== file.path) throw new Error('page file moved')
   const handle = await open(file.path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK)
   try {

@@ -13,6 +13,7 @@ import type { Browser } from '../gev/globe.js'
 
 import { themeFunction } from '../../../glide/frontend/pageThemeScript.js'
 import { pageOrigin, type PageOrigin } from '../../../glide/frontend/pageAssets.js'
+import { deepZoomOrigin } from '../../../glide/frontend/deepZoom.js'
 
 export const PAGE_HOWS = ['over', 'beside', 'below'] as const
 export type PageHow = (typeof PAGE_HOWS)[number]
@@ -23,6 +24,8 @@ export interface PageMount {
   /** The page's .html file (absolute). */
   readonly path: string
   readonly assets?: readonly string[] | undefined
+  /** A deep-zoom page (glide_deep_zoom_open): the .dzi pyramid the viewer at `path` shows. */
+  readonly tiles?: string | undefined
   readonly how: PageHow
   /** When glide_page_open last asked for it (ms); a newer value opens it again. */
   readonly opened: number
@@ -172,7 +175,8 @@ export class GlidePages {
     const known = this.#open.get(p.id)
     let origin: PageOrigin | undefined
     try {
-      origin = p.assets?.length ? await pageOrigin(p.path, p.assets) : undefined
+      origin = p.tiles ? await deepZoomOrigin(p.tiles, p.path)
+        : p.assets?.length ? await pageOrigin(p.path, p.assets) : undefined
       const url = origin?.url ?? pageUrl(p.path)
       let block = known
         ? await this.#browser({ op: 'goto', block: known.block, url }).then(() => known.block, () => undefined)

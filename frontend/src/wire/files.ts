@@ -83,6 +83,7 @@ const page = z.object({
   title: z.string().check(z.maxLength(60)),
   path: z.string().check(z.regex(/^\/.*\.html?$/i)),
   assets: loose(z.array(z.string())),
+  tiles: loose(z.string().check(z.regex(/^\/.*\.dzi$/i))),
   how: z.catch(z.enum(PAGE_HOWS), 'over'),
   opened: z.catch(z.number(), 0)
 })
