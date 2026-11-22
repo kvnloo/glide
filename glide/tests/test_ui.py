@@ -106,7 +106,8 @@ def test_register_adds_the_skin_and_ui_tools():
                                 register_tool=lambda **kw: tools.__setitem__(kw["name"], kw),
                                 register_system_prompt_section=lambda id, content: sections.__setitem__(id, content))
     plugin.register(ctx)
-    assert sorted(tools) == ["glide_page_open", "glide_skin", "glide_ui_mount", "glide_ui_style", "glide_ui_unmount"]
+    assert sorted(tools) == ["glide_page_open", "glide_skin", "glide_theme", "glide_ui_mount", "glide_ui_style",
+                            "glide_ui_unmount"]
     assert "never the model's temperature" in sections["glide.ui"]
     assert all(t["toolset"] == "glide" and t["schema"]["name"] == n for n, t in tools.items())
 

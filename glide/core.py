@@ -392,9 +392,10 @@ def register(ctx) -> None:
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
                          args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]]")
     if callable(getattr(ctx, "register_tool", None)):  # The agent's widgets around the composer (#326).
-        from . import ui
+        from . import ui, whole_theme
 
         ui.register(ctx)
+        whole_theme.register(ctx)  # The whole-theme switch and its day/night flip (GL-062).
     from . import intel
 
     ctx.register_command("intel", intel.command, description="Read-only local intelligence, source notes and safe details",

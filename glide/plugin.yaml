@@ -9,5 +9,5 @@ license: MIT
 homepage: https://github.com/kvnloo/glide
 tags: [memory, corrections, local]
 requires_hermes: ">=0.22.2"
-provides_tools: [glide_skin, glide_ui_mount, glide_ui_unmount, glide_ui_style, glide_page_open]
+provides_tools: [glide_skin, glide_ui_mount, glide_ui_unmount, glide_ui_style, glide_page_open, glide_theme]
 provides_hooks: [pre_llm_call]

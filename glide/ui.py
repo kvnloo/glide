@@ -139,10 +139,11 @@ def _read(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def _write_ui(home: Path, ui: dict[str, Any] | None) -> int:
-    """Replaces settings.json's ``ui`` (None removes it), keeping every other key; returns the new rev."""
+def _write_ui(home: Path, ui: dict[str, Any] | None, **top: Any) -> int:
+    """Replaces settings.json's ``ui`` (None removes it), sets the ``top`` keys beside it (glide_theme's
+    ``theme``) in the same write, and keeps every other key; returns the new rev."""
     path = settings_file(home)
-    data = _read(path)
+    data = {**_read(path), **top}
     rev = 0
     if ui is None:
         data.pop("ui", None)
@@ -321,10 +322,11 @@ def _tool(fn):
 PROMPT = """<glide_ui>
 The Glide pane's look is yours to change. A widget around the composer (above or below it, on its edge,
 in the sidebar) is glide_ui_mount; removing one is glide_ui_unmount; a restyle ("make it warmer", cooler,
-an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole app
+an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole new
+look (light, dark code, sepia, warm dark, day, night, "the same in dark") is glide_theme. A whole app
 ("build me a game", a music player, a whiteboard, a piano) is a page: write one self-contained HTML file in the
 session folder that colors itself from the --glide-* CSS variables, then glide_page_open. If these tools are not
-loaded, find them with tool_search ("glide ui").
+loaded, find them with tool_search ("glide ui" or "glide theme").
 </glide_ui>"""
 
 
