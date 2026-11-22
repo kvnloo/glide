@@ -190,17 +190,17 @@ def run(cmd: list[str], cwd: Path, env: dict[str, str], log: Path, timeout: int 
             return TIMED_OUT
 
 
-def junit_cases(path: Path, prefix: str, key: str, strip: str = "",
-                names: frozenset[str] = frozenset()) -> dict[str, dict[str, int]]:
+def junit_cases(path: Path, prefix: str, key: str, names: frozenset[str] = frozenset(),
+                *, source: str = "") -> dict[str, dict[str, int]]:
     """Test tallies keyed by repo-relative file and by requested case titles."""
     files: dict[str, dict[str, int]] = {}
     if not path.is_file():
         return files
     for case in ET.parse(path).getroot().iter("testcase"):
-        name = case.get(key) or ""
+        name = source or case.get(key) or ""
         if not name:
             continue
-        rel = prefix + name.replace("\\", "/").removeprefix(strip)
+        rel = prefix + name.replace("\\", "/")
         title = case.get("name", "")
         # Vitest prefixes the authored title with its enclosing describe blocks.
         aliases = {ref for ref in names if title == ref or title.endswith(f" > {ref}")}
@@ -366,11 +366,23 @@ def main(argv: list[str] | None = None) -> int:
                            f"--outputFile.junit={out / 'vitest.xml'}"], ROOT / "frontend",
                           fixture_env(base / "vitest", {"GLIDE_ARMY_OUT": str(out), "GLIDE_ARMY_PYTHON": args.host_python}),
                           out / "logs/vitest.log"),
-            "openui-preview": run(["node", "--test", "--test-reporter=spec", "--test-reporter-destination=stdout",
-                                   "--test-reporter=junit", f"--test-reporter-destination={out / 'openui-preview.xml'}",
-                                   *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "frontend/openui/openui-preview/test").glob("*.test.mjs"))],
-                                  ROOT, fixture_env(base / "openui"), out / "logs/openui-preview.log"),
         }
+        # Node 22 JUnit results can omit the testcase's file. A single explicit input
+        # per invocation gives each report source provenance without guessing from titles.
+        preview_env = fixture_env(base / "openui")
+        preview_inputs = sorted((ROOT / "frontend/openui/openui-preview/test").glob("*.test.mjs"))
+        preview_reports: dict[str, Path] = {}
+        preview_status = 0 if preview_inputs else 1
+        for source in preview_inputs:
+            rel = source.relative_to(ROOT).as_posix()
+            report = out / f"openui-{source.stem}.xml"
+            log = out / "logs" / f"openui-{source.stem}.log"
+            code = run(["node", "--test", "--test-reporter=spec", "--test-reporter-destination=stdout",
+                        "--test-reporter=junit", f"--test-reporter-destination={report}", rel],
+                       ROOT, preview_env, log)
+            preview_status = preview_status or code
+            preview_reports[rel] = report
+        suites["openui-preview"] = preview_status
         drives = plugin_drive(args.host_python, fixture_env(base / "plugin"), order, out / "logs/plugin-host.log")
     (out / "plugin-drives.json").write_text(json.dumps(drives, indent=1))
 
@@ -381,7 +393,7 @@ def main(argv: list[str] | None = None) -> int:
         junit_cases(out / "root-pytest.xml", "", "file", names=names),
         junit_cases(out / "glide-pytest.xml", "glide/", "file", names=names),
         junit_cases(out / "vitest.xml", "frontend/", "classname", names=names),
-        junit_cases(out / "openui-preview.xml", "", "file", strip=str(ROOT) + "/", names=names),
+        *(junit_cases(report, "", "file", names, source=source) for source, report in preview_reports.items()),
     )
     executed: dict[str, dict[str, int]] = {}
     for report in reports:
