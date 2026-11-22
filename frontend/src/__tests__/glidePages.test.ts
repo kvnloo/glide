@@ -1,7 +1,7 @@
 // Agent pages (glide_page_open, kvnloo/glide#326): settings.json's `ui.pages` opens each page in a Tern browser
 // block once per request, themes it with the surface's colors, restyles every open page, and the verdict
 // lands in ui-status.json beside the widgets'.
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 import type { Browser } from '../gev/globe.js'
 import { GlidePages, pageThemeOf, pageUrl, type PageTheme, themeFunction } from '../glideui/pages.js'
 import { GlideWidgets, statusFile } from '../glideui/widgets.js'
-import { readUi } from '../wire/files.js'
+import { readJsonFile, readUi } from '../wire/files.js'
 
 const NIGHT: PageTheme = { dark: true, bg: '#0e0c14', surface: '#17141f', fg: '#ece8f4', muted: '#9a93ab', accent: '#a78bfa', accentInk: '#111111' }
 const DAY: PageTheme = { ...NIGHT, dark: false, bg: '#f5f1ea', fg: '#2a2620' }
@@ -25,7 +25,8 @@ function fakeBrowser(opts: { failOpen?: string; goneBlocks?: Set<number> } = {})
       if (opts.failOpen) throw new Error(opts.failOpen)
       return { block: ++next }
     }
-    if (opts.goneBlocks?.has(op['block'] as number)) throw new Error('no such block')
+    const block = op['block']
+    if (typeof block === 'number' && opts.goneBlocks?.has(block)) throw new Error('no such block')
     return {}
   }
   return { browser, ops }
@@ -73,7 +74,8 @@ describe('themeFunction', () => {
   it('sets the --glide-* variables and dispatches glide-theme in the page', () => {
     const set: Record<string, string> = {}
     const events: unknown[] = []
-    const documentElement = { style: { setProperty: (k: string, v: string) => { set[k] = v }, colorScheme: '' }, dataset: {} as Record<string, string> }
+    const dataset: Record<string, string> = {}
+    const documentElement = { style: { setProperty: (k: string, v: string) => { set[k] = v }, colorScheme: '' }, dataset }
     const win: Record<string, unknown> = { dispatchEvent: (e: { detail: unknown }) => events.push(e.detail) }
     const ctx = { document: { documentElement }, window: win, CustomEvent: class { constructor(public type: string, public init: { detail: unknown }) {} get detail() { return this.init.detail } } }
     expect(runInNewContext(`(${themeFunction(DAY)})()`, ctx)).toBe(true)
@@ -95,16 +97,18 @@ describe('themeFunction', () => {
 describe('pages in settings.json', () => {
   it('reads ui.pages, drops a bad one, and writes the verdict to ui-status.json', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'glide-pages-'))
-    mkdirSync(dir, { recursive: true })
     const file = join(dir, 'settings.json')
     writeFileSync(file, JSON.stringify({ ui: { rev: 3, widgets: [], pages: [page('blockworld', 5), { id: 'Bad Id', title: 'x', path: '/x.html' }, { id: 'rel', title: 'x', path: 'x.html' }] } }))
     expect(readUi(file).pages?.map(p => p.id)).toEqual(['blockworld'])
     const { browser } = fakeBrowser()
-    const w = new GlideWidgets({ file, pages: new GlidePages(browser, () => 7), restyled: () => undefined, changed: () => {}, cwd: () => undefined, glide: async () => ({ compile: () => { throw new Error('unused') }, bind: () => { throw new Error('unused') } }) as never })
+    const w = new GlideWidgets({
+      file, pages: new GlidePages(browser, () => 7), restyled: () => undefined,
+      changed: () => {}, cwd: () => undefined
+    })
     await w.reload()
-    const status = JSON.parse(readFileSync(statusFile(file), 'utf8'))
-    expect(status.rev).toBe(3)
-    expect(status.pages).toEqual({ blockworld: { ok: true, block: 41 } })
+    expect(readJsonFile(statusFile(file))).toMatchObject({
+      rev: 3, pages: { blockworld: { ok: true, block: 41 } }
+    })
     w.dispose()
   })
 })
