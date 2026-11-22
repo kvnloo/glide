@@ -55,7 +55,6 @@ def test_the_fixture_profile_inherits_nothing_but_path_and_locale(tmp_path, monk
     monkeypatch.setenv("TERN_PANE", "owner-pane")
     env = army.fixture_env(tmp_path)
     assert "HERMES_WRITE_SAFE_ROOT" not in env and "TERN_PANE" not in env
-    assert env["GLIDE_ARMY_FIXTURE"] == "1"
     for key in ("HOME", "HERMES_HOME", "TMPDIR", "XDG_CONFIG_HOME", "PI_CODING_AGENT_DIR", "HERMES_TERN_CHANNELS"):
         assert env[key].startswith(str(tmp_path)), key
     assert Path(env["HERMES_HOME"]).is_dir()
@@ -79,7 +78,13 @@ def test_seeded_history_has_two_local_corrections(tmp_path):
 def test_the_fixture_host_refuses_to_run_outside_a_fixture_profile(tmp_path):
     env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path), "HERMES_HOME": str(tmp_path / "h")}
     done = subprocess.run([sys.executable, str(army.HOST), "inventory"], env=env, capture_output=True, text=True)
-    assert done.returncode != 0 and "fixture profile" in done.stderr
+    assert done.returncode != 0 and "--fixture-home" in done.stderr
+
+    outside = tmp_path.parent / "other-profile"
+    done = subprocess.run([sys.executable, str(army.HOST), "--fixture-home", str(outside), "inventory"],
+                          env=env, capture_output=True, text=True)
+    assert done.returncode != 0 and "must be inside the disposable HOME" in done.stderr
+    assert not outside.exists()
 
 
 def test_receipts_from_a_dirty_tree_are_never_written_as_pass(tmp_path, monkeypatch):

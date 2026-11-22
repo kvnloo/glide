@@ -167,11 +167,11 @@ def fixture_env(base: Path, extra: dict[str, str] | None = None) -> dict[str, st
     home = base / "home"
     env = {
         "PATH": os.environ.get("PATH", "/usr/bin:/bin"), "LANG": os.environ.get("LANG", "C.UTF-8"),
-        "HOME": str(home), "TMPDIR": str(base / "tmp"), "HERMES_HOME": str(base / "hermes"),
+        "HOME": str(home), "TMPDIR": str(base / "tmp"), "HERMES_HOME": str(home / "hermes"),
         "XDG_CONFIG_HOME": str(home / ".config"), "XDG_CACHE_HOME": str(home / ".cache"),
         "XDG_DATA_HOME": str(home / ".local/share"), "XDG_STATE_HOME": str(home / ".local/state"),
         "PI_CODING_AGENT_DIR": str(base / "omp-agent"), "HERMES_TERN_CHANNELS": str(base / "tern-channels/channels.json"),
-        "GLIDE_ARMY_FIXTURE": "1", "TERM": "dumb", "NO_COLOR": "1",
+        "TERM": "dumb", "NO_COLOR": "1",
     }
     for key in ("HOME", "TMPDIR", "HERMES_HOME"):
         Path(env[key]).mkdir(parents=True, exist_ok=True)
@@ -231,7 +231,7 @@ def seed_history(home: Path) -> None:
     db.close()
 
 
-def _manifest_step(inventory: dict, _request: dict, _expect: dict, _env: dict) -> dict:
+def _manifest_step(inventory: dict) -> dict:
     """The manifest's declared tools and hooks are exactly the registered ones, and one install gives both CLIs and /glide."""
     manifest = MANIFEST.read_text()
     declared = {key: sorted(re.findall(r"[a-z_]+", re.search(rf"^{key}: \[(.*)\]$", manifest, re.M).group(1)))
@@ -241,17 +241,17 @@ def _manifest_step(inventory: dict, _request: dict, _expect: dict, _env: dict) -
     return {"ok": ok, "detail": {"declared": declared, "registered": got, "cli": inventory.get("cli"), "commands": inventory.get("commands")}}
 
 
-def _absent_step(inventory: dict, request: dict, _expect: dict, _env: dict) -> dict:
+def _absent_step(inventory: dict, request: dict) -> dict:
     ok = request["method"] not in inventory.get("gateway", [])
     return {"ok": ok, "detail": "not registered by default" if ok else "registered without explicit opt-in"}
 
 
-def _registered_step(inventory: dict, request: dict, _expect: dict, _env: dict) -> dict:
+def _registered_step(inventory: dict, request: dict) -> dict:
     ok = request["name"] in inventory.get(request["kind"], [])
     return {"ok": ok, "detail": f"{request['kind']} {request['name']} registered" if ok else "missing"}
 
 
-def _shell_step(_inventory: dict, request: dict, expect: dict, env: dict) -> dict:
+def _shell_step(request: dict, expect: dict, env: dict) -> dict:
     """A shipped CLI run from the repository root, its input files written into the fixture home."""
     home = Path(env["HOME"])
     for name, content in request.get("files", {}).items():
@@ -261,9 +261,6 @@ def _shell_step(_inventory: dict, request: dict, expect: dict, env: dict) -> dic
     text = (done.stdout + done.stderr).strip()
     ok = done.returncode == expect.get("exit", 0) and re.search(expect.get("match", r"\S"), text, re.S) is not None
     return {"ok": ok, "exit": done.returncode, "reply": text[:REPLY_CHARS], "argv": argv}
-
-
-LOCAL_STEPS = {"manifest": _manifest_step, "absent": _absent_step, "registered": _registered_step, "shell": _shell_step}
 
 
 def _host_step(reply: dict, expect: dict) -> dict:
@@ -287,7 +284,7 @@ def _host_step(reply: dict, expect: dict) -> dict:
 def plugin_drive(host_python: str, env: dict[str, str], order: list[str], log: Path) -> dict[str, list[dict]]:
     """Every plugin step, in journey order, through one fixture-host process, over seeded local history."""
     seed_history(Path(env["HERMES_HOME"]))
-    proc = subprocess.Popen([host_python, str(HOST), "serve"], cwd=env["HOME"], env=env, text=True,
+    proc = subprocess.Popen([host_python, str(HOST), "--fixture-home", env["HERMES_HOME"], "serve"], cwd=env["HOME"], env=env, text=True,
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log.open("w"))
 
     def ask(request: dict) -> dict:
@@ -300,8 +297,17 @@ def plugin_drive(host_python: str, env: dict[str, str], order: list[str], log: P
     results: dict[str, list[dict]] = {}
     for feature in order:
         for op, request, expect in PLUGIN_DRIVES.get(feature, []):
-            local = LOCAL_STEPS.get(op)
-            outcome = local(inventory, request, expect, env) if local else _host_step(ask({"op": op, **request}), expect)
+            match op:
+                case "manifest":
+                    outcome = _manifest_step(inventory)
+                case "absent":
+                    outcome = _absent_step(inventory, request)
+                case "registered":
+                    outcome = _registered_step(inventory, request)
+                case "shell":
+                    outcome = _shell_step(request, expect, env)
+                case _:
+                    outcome = _host_step(ask({"op": op, **request}), expect)
             results.setdefault(feature, []).append({"op": op, **request, **outcome})
     proc.stdin.close()
     proc.wait(timeout=60)

@@ -1571,9 +1571,11 @@
       "surface": "slash",
       "entry": "/fast or the fast control in the model picker",
       "journey": "settings",
-      "expect": "The shared session fast flag updates or an unsupported-model reason appears",
+      "expect": "The shared session fast flag updates or an unsupported-model reason appears. Ultrafast shows Turbo with faster composer motion; ordinary Fast keeps its bolt",
       "tests": [
-        "frontend/src/__tests__/fastMode.test.ts"
+        "frontend/src/__tests__/fastMode.test.ts",
+        "frontend/src/__tests__/statusUi.test.ts",
+        "frontend/src/__tests__/orb.test.ts"
       ],
       "army": []
     },

@@ -5,17 +5,17 @@ The plugin directory loads the way Hermes loads it (a package whose ``register(c
 recording context instead of a live Hermes. Every registration lands in an inventory the journey runner
 checks, and the registered handlers are called exactly as a frontend reaches them:
 
-    army_host.py inventory                      # what register(ctx) wired up, as JSON
-    army_host.py command NAME [ARG...]          # a text-plugin slash command (`/glide focus`)
-    army_host.py gateway METHOD JSON_PARAMS     # a registered gateway method, attached to the session
-    army_host.py cli NAME                       # a registered `hermes NAME` subcommand's parser
-    army_host.py cli_run NAME [ARGV...]         # that subcommand run with ARGV, stdin closed, output captured
-    army_host.py tool NAME JSON_ARGS            # a registered tool's handler, for the fixture session
-    army_host.py hook NAME JSON_KWARGS          # every handler registered for a hook
-    army_host.py serve                          # one JSON request per stdin line, one reply per stdout line
+    army_host.py --fixture-home DIR inventory                      # what register(ctx) wired up, as JSON
+    army_host.py --fixture-home DIR command NAME [ARG...]          # a text-plugin slash command (`/glide focus`)
+    army_host.py --fixture-home DIR gateway METHOD JSON_PARAMS     # a registered gateway method, attached to the session
+    army_host.py --fixture-home DIR cli NAME                       # a registered `hermes NAME` subcommand's parser
+    army_host.py --fixture-home DIR cli_run NAME [ARGV...]         # that subcommand run with ARGV, stdin closed, output captured
+    army_host.py --fixture-home DIR tool NAME JSON_ARGS            # a registered tool's handler, for the fixture session
+    army_host.py --fixture-home DIR hook NAME JSON_KWARGS          # every handler registered for a hook
+    army_host.py --fixture-home DIR serve                          # one JSON request per stdin line, one reply per stdout line
 
-``HERMES_HOME`` must point at a disposable profile and ``GLIDE_ARMY_FIXTURE`` must be set: the host
-refuses to run otherwise, so a journey never writes the owner's profile.
+``--fixture-home`` must name a profile inside the caller's disposable HOME. The host refuses to run
+without this explicit option.
 """
 
 from __future__ import annotations
@@ -28,9 +28,11 @@ import inspect
 import io
 import json
 import os
+import pwd
 import sys
 import tempfile
 import traceback
+from enum import StrEnum
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,26 +42,31 @@ TRACE_CHARS = 1500  # the tail of a traceback a reply carries
 OUTPUT_CHARS = 4000  # the tail of captured stdout/stderr a reply carries
 
 
+class Operation(StrEnum):
+    INVENTORY = "inventory"
+    COMMAND = "command"
+    GATEWAY = "gateway"
+    CLI = "cli"
+    CLI_RUN = "cli_run"
+    TOOL = "tool"
+    HOOK = "hook"
+    SERVE = "serve"
+
+
 class FixtureRequest:
     """The attached caller a registered gateway method sees (the public seam's fields only)."""
 
-    def __init__(self, session_id: str = SESSION, profile: str = "army") -> None:
+    def __init__(self, session_id: str = SESSION, profile: str = "army", attached: bool = True) -> None:
         self.session_id = session_id
         self.profile = profile
+        self.attached = attached
 
     def assert_attached(self) -> None:
-        """The fixture caller stays attached for the whole run."""
+        if not self.attached:
+            raise PermissionError("fixture caller is detached")
 
     def capture_scope(self):
         raise PermissionError("gateway scope capture is unavailable in the fixture host")
-
-
-def _request():
-    with contextlib.suppress(ImportError):
-        from hermes_cli.plugin_gateway_methods import GatewayRequestContext
-
-        return GatewayRequestContext(session_id=SESSION, profile="army", _attached=lambda: True)
-    return FixtureRequest()
 
 
 class FixtureCtx:
@@ -79,9 +86,10 @@ class FixtureCtx:
         self.other: list[str] = []
         self.unload: list = []
 
-    def has_capability(self, _capability) -> bool:
-        """No optional host capability is granted to the fixture plugin."""
-        return False
+    capabilities: frozenset[str] = frozenset()
+
+    def has_capability(self, capability: str) -> bool:
+        return capability in self.capabilities
 
     def on_unload(self, fn) -> None:
         self.unload.append(fn)
@@ -117,17 +125,7 @@ class FixtureCtx:
         return lambda *a, **k: self.other.append(name)
 
 
-def _private_home() -> Path:
-    raw = os.environ.get("HERMES_HOME", "")
-    if not raw or not os.environ.get("GLIDE_ARMY_FIXTURE"):
-        raise SystemExit("army_host: run under the army runner's fixture profile (HERMES_HOME + GLIDE_ARMY_FIXTURE)")
-    home = Path(raw)
-    home.mkdir(parents=True, exist_ok=True)
-    return home
-
-
 def load() -> FixtureCtx:
-    _private_home()
     sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != ROOT]
     parent = sys.modules.setdefault("hermes_plugins", type(sys)("hermes_plugins"))
     if not hasattr(parent, "__path__"):
@@ -159,12 +157,9 @@ def run_command(ctx: FixtureCtx, name: str, arg: str) -> dict:
     if entry is None:
         return {"ok": False, "error": f"no registered command /{name}"}
     handler = entry["handler"]
-    try:
-        params = inspect.signature(handler).parameters
-        kwargs = {"session_id": SESSION} if "session_id" in params else {}
-        out = _settle(handler(arg, **kwargs))
-    except Exception as error:  # a crash is the finding, reported in the reply
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
+    params = inspect.signature(handler).parameters
+    kwargs = {"session_id": SESSION} if "session_id" in params else {}
+    out = _settle(handler(arg, **kwargs))
     text = out if isinstance(out, str) else json.dumps(out, default=str)
     return {"ok": True, "output": text}
 
@@ -174,13 +169,16 @@ def run_gateway(ctx: FixtureCtx, method: str, params: dict) -> dict:
     if entry is None:
         return {"ok": False, "error": f"no registered gateway method {method}"}
     params = {"session_id": SESSION, **params}
+    schema = entry["schema"]
+    if schema is not None:
+        schema.model_validate(params)
     try:
-        schema = entry["schema"]
-        if schema is not None:
-            schema.model_validate(params)
-        out = _settle(entry["handler"](_request(), params))
-    except Exception as error:  # a refusal or crash is the finding, reported in the reply
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
+        from hermes_cli.plugin_gateway_methods import GatewayRequestContext
+    except ImportError:
+        caller = FixtureRequest()
+    else:
+        caller = GatewayRequestContext(session_id=SESSION, profile="army", _attached=lambda: True)
+    out = _settle(entry["handler"](caller, params))
     return {"ok": True, "result": json.loads(json.dumps(out, default=str))}
 
 
@@ -193,23 +191,17 @@ def _parser(ctx: FixtureCtx, name: str) -> tuple[dict, argparse.ArgumentParser]:
 
 
 def run_cli_help(ctx: FixtureCtx, name: str) -> dict:
-    if name not in ctx.cli:
-        return {"ok": False, "error": f"no registered CLI command hermes {name}"}
     entry, parser = _parser(ctx, name)
     text = parser.format_help()
     return {"ok": bool(text.strip()) and callable(entry["handler"]), "output": text}
 
 
 def run_cli(ctx: FixtureCtx, name: str, argv: list[str]) -> dict:
-    if name not in ctx.cli:
-        return {"ok": False, "error": f"no registered CLI command hermes {name}"}
     entry, parser = _parser(ctx, name)
     try:
         code = entry["handler"](parser.parse_args(argv))
     except SystemExit as stop:
         code = stop.code
-    except Exception as error:  # a crash is the finding, reported in the reply
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
     return {"ok": True, "exit": 0 if code is None else code}
 
 
@@ -217,10 +209,7 @@ def run_tool(ctx: FixtureCtx, name: str, args: dict) -> dict:
     entry = ctx.tools.get(name)
     if entry is None or not callable(entry.get("handler")):
         return {"ok": False, "error": f"no registered tool {name}"}
-    try:
-        out = _settle(entry["handler"](args, session_id=SESSION))
-    except Exception as error:  # a crash is the finding, reported in the reply
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
+    out = _settle(entry["handler"](args, session_id=SESSION))
     return {"ok": True, "output": out if isinstance(out, str) else json.dumps(out, default=str)}
 
 
@@ -228,10 +217,7 @@ def run_hook(ctx: FixtureCtx, name: str, kwargs: dict) -> dict:
     handlers = ctx.hooks.get(name)
     if not handlers:
         return {"ok": False, "error": f"no registered hook {name}"}
-    try:
-        out = [_settle(fn(**kwargs)) for fn in handlers]
-    except Exception as error:  # a crash is the finding, reported in the reply
-        return {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
+    out = [_settle(fn(**kwargs)) for fn in handlers]
     return {"ok": True, "result": json.loads(json.dumps(out, default=str))}
 
 
@@ -261,49 +247,54 @@ def _captured():
             os.close(fd)
 
 
-def _dispatch(ctx: FixtureCtx, request: dict) -> dict:
-    match request.get("op"):
-        case "inventory":
-            return {"ok": True, "result": inventory(ctx)}
-        case "command":
-            return run_command(ctx, str(request["name"]), str(request.get("arg", "")))
-        case "gateway":
-            return run_gateway(ctx, str(request["method"]), dict(request.get("params") or {}))
-        case "cli":
-            return run_cli_help(ctx, str(request["name"]))
-        case "cli_run":
-            return run_cli(ctx, str(request["name"]), [str(a) for a in request.get("argv") or []])
-        case "tool":
-            return run_tool(ctx, str(request["name"]), dict(request.get("args") or {}))
-        case "hook":
-            return run_hook(ctx, str(request["name"]), dict(request.get("kwargs") or {}))
-        case op:
-            return {"ok": False, "error": f"unknown op {op!r}"}
-
-
 def handle(ctx: FixtureCtx, request: dict) -> dict:
     with _captured() as output:
-        reply = _dispatch(ctx, request)
+        # Catch handler crashes at the request boundary, not in each adapter.
+        try:
+            op = Operation(request.get("op"))
+            match op:
+                case Operation.INVENTORY:
+                    reply = {"ok": True, "result": inventory(ctx)}
+                case Operation.COMMAND:
+                    reply = run_command(ctx, str(request["name"]), str(request.get("arg", "")))
+                case Operation.GATEWAY:
+                    reply = run_gateway(ctx, str(request["method"]), dict(request.get("params") or {}))
+                case Operation.CLI | Operation.CLI_RUN:
+                    name = str(request["name"])
+                    if name not in ctx.cli:
+                        reply = {"ok": False, "error": f"no registered CLI command hermes {name}"}
+                    elif op == Operation.CLI:
+                        reply = run_cli_help(ctx, name)
+                    else:
+                        reply = run_cli(ctx, name, [str(a) for a in request.get("argv") or []])
+                case Operation.TOOL:
+                    reply = run_tool(ctx, str(request["name"]), dict(request.get("args") or {}))
+                case Operation.HOOK:
+                    reply = run_hook(ctx, str(request["name"]), dict(request.get("kwargs") or {}))
+                case _:
+                    reply = {"ok": False, "error": f"unknown op {op!r}"}
+        except (ArithmeticError, AttributeError, ImportError, LookupError, OSError, RuntimeError, TypeError, ValueError) as error:
+            reply = {"ok": False, "error": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()[-TRACE_CHARS:]}
         captured = output()
     if captured:
         reply["stdout"] = captured[-OUTPUT_CHARS:]
     return reply
 
 
-def _request_of(op: str, rest: list[str]) -> dict:
+def _request_of(op: Operation, rest: list[str]) -> dict:
     """The one-shot command line as the request `serve` would read."""
     match op:
-        case "command":
+        case Operation.COMMAND:
             return {"op": op, "name": rest[0], "arg": " ".join(rest[1:])}
-        case "gateway":
+        case Operation.GATEWAY:
             return {"op": op, "method": rest[0], "params": json.loads(rest[1]) if len(rest) > 1 else {}}
-        case "cli":
+        case Operation.CLI:
             return {"op": op, "name": rest[0]}
-        case "cli_run":
+        case Operation.CLI_RUN:
             return {"op": op, "name": rest[0], "argv": rest[1:]}
-        case "tool":
+        case Operation.TOOL:
             return {"op": op, "name": rest[0], "args": json.loads(rest[1]) if len(rest) > 1 else {}}
-        case "hook":
+        case Operation.HOOK:
             return {"op": op, "name": rest[0], "kwargs": json.loads(rest[1]) if len(rest) > 1 else {}}
         case _:
             return {"op": op}
@@ -315,7 +306,7 @@ def serve(ctx: FixtureCtx) -> int:
             continue
         try:
             reply = handle(ctx, json.loads(line))
-        except Exception as error:  # one bad request must not end the session
+        except (ValueError, TypeError) as error:  # malformed JSON must not end the session
             reply = {"ok": False, "error": f"{type(error).__name__}: {error}"}
         sys.stdout.write(json.dumps(reply, default=str) + "\n")
         sys.stdout.flush()
@@ -323,13 +314,29 @@ def serve(ctx: FixtureCtx) -> int:
 
 
 def main(argv: list[str]) -> int:
-    if not argv:
-        print(__doc__)
-        return 2
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--fixture-home", required=True, type=Path, help="disposable Hermes fixture profile")
+    parser.add_argument("op", choices=list(Operation), type=Operation)
+    parser.add_argument("rest", nargs=argparse.REMAINDER)
+    args = parser.parse_args(argv)
+    home = args.fixture_home.resolve()
+    private_root = Path.home().resolve()
+    owner_root = Path(pwd.getpwuid(os.getuid()).pw_dir).resolve()
+    if private_root == owner_root or home == private_root or not home.is_relative_to(private_root):
+        parser.error("fixture profile must be inside the disposable HOME")
+    home.mkdir(parents=True, exist_ok=True)
+    # Hermes and any subprocesses see only fixture-owned profile and XDG locations.
+    os.environ.update({
+        "HERMES_HOME": str(home),
+        "XDG_CONFIG_HOME": str(private_root / ".config"),
+        "XDG_CACHE_HOME": str(private_root / ".cache"),
+        "XDG_DATA_HOME": str(private_root / ".local/share"),
+        "XDG_STATE_HOME": str(private_root / ".local/state"),
+    })
     ctx = load()
-    if argv[0] == "serve":
+    if args.op == Operation.SERVE:
         return serve(ctx)
-    reply = handle(ctx, _request_of(argv[0], argv[1:]))
+    reply = handle(ctx, _request_of(args.op, args.rest))
     print(json.dumps(reply, indent=1, default=str))
     return 0 if reply.get("ok") else 1
 

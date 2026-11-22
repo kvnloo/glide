@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { glideGlass } from '../commands/glide.js'
+import { glideCommand, type GlideHost } from '../commands/glide.js'
 import { contrastRatio, mix, relativeLuminance } from '../hermes/theme.js'
 import { NIGHT_INKS } from '../../../glide/frontend/tokens.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
@@ -8,6 +8,8 @@ import {
   GLASS_FORBIDDEN, GLASS_VIEWS, glassCss, glassPlayCss, hueAt, pickGlow, PLAY_SECONDS, playInks, playStops, restTint, SATURATE_STEPS, saturateHex, tintFloor, wallSamples
 } from '../../../glide/frontend/glass.js'
 import { walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
+
+import { stub } from './fakes.js'
 
 // The hackathon film's palette (sampled from its wallpaper), as a pywal colors.json would carry it.
 const FILM_COLORS = ['#0d1a17', '#7db84a', '#7db84a', '#d9b98a', '#d9c27e', '#5cc3c9', '#2f8f9a', '#a8bbb2',
@@ -118,12 +120,12 @@ describe('glassPlayCss', () => {
     }
   })
 
-  it('/glide glass demo plays the cycle, or says the playground needs the wallpaper theme', () => {
+  it('/glide glass demo plays the cycle, or says the playground needs the wallpaper theme', async () => {
     const notes: [string, string | undefined][] = []
     const transcript = { notice: (t: string, tone?: string) => void notes.push([t, tone]) }
-    glideGlass({ transcript, glassDemo: () => 10 }, 'demo')
-    glideGlass({ transcript, glassDemo: () => null }, 'demo')
-    glideGlass({ transcript }, undefined)
+    await glideCommand(stub<GlideHost>({ transcript, glassDemo: () => 10 }), 'glass demo')
+    await glideCommand(stub<GlideHost>({ transcript, glassDemo: () => null }), 'glass demo')
+    await glideCommand(stub<GlideHost>({ transcript }), 'glass')
     expect(notes[0]).toEqual([expect.stringContaining('cycle for 10 s'), undefined])
     expect(notes[1]).toEqual([expect.stringContaining('/glide theme auto'), 'warning'])
     expect(notes[2]).toEqual(['Usage: /glide glass demo', 'warning'])

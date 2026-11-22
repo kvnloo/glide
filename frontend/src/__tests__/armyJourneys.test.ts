@@ -185,9 +185,9 @@ class PluginHost {
   readonly #waiting: ((reply: Record<string, unknown>) => void)[] = []
 
   constructor() {
-    this.#child = spawn(python, [join(repo, 'glide/tools/army_host.py'), 'serve'], {
+    this.#child = spawn(python, [join(repo, 'glide/tools/army_host.py'), '--fixture-home', join(scratch, 'plugin'), 'serve'], {
       cwd: scratch,
-      env: { ...process.env, GLIDE_ARMY_FIXTURE: '1', HERMES_HOME: join(scratch, 'plugin'), HOME: scratch }
+      env: { PATH: process.env['PATH'], LANG: process.env['LANG'] ?? 'C.UTF-8', HOME: scratch }
     })
     createInterface({ input: this.#child.stdout }).on('line', line => {
       this.#waiting.shift()?.(record(parseJson(line)) ?? { ok: false, error: `unreadable reply: ${line}` })
@@ -209,16 +209,6 @@ class PluginHost {
   close() {
     this.#child.stdin.end()
   }
-}
-
-/** Every name and alias the pinned Hermes slash registry dispatches. */
-function hermesCommands(): Set<string> {
-  const code = 'import json; from hermes_cli.commands import COMMAND_REGISTRY as R; ' +
-    'print(json.dumps(sorted({n for c in R for n in (c.name, *c.aliases)})))'
-  const raw = execFileSync(python, ['-c', code], {
-    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src'), HERMES_HOME: join(scratch, 'registry') }
-  })
-  return new Set(z.array(z.string()).parse(parseJson(raw)))
 }
 
 interface Effect {
@@ -260,7 +250,12 @@ beforeAll(async () => {
   const inv = await host.ask({ op: 'inventory' })
   if (!inv['ok']) throw new Error('fixture host did not register the plugin: ' + JSON.stringify(inv))
   inventoryReply = Registered.parse(inv['result'])
-  registry = hermesCommands()
+  const code = 'import json; from hermes_cli.commands import COMMAND_REGISTRY as R; ' +
+    'print(json.dumps(sorted({n for c in R for n in (c.name, *c.aliases)})))'
+  const raw = execFileSync(python, ['-c', code], {
+    cwd: resolve('.hermes-src'), encoding: 'utf8', env: { ...process.env, PYTHONPATH: resolve('.hermes-src'), HERMES_HOME: join(scratch, 'registry') }
+  })
+  registry = new Set(z.array(z.string()).parse(parseJson(raw)))
 }, 60_000)
 
 afterAll(() => {
@@ -280,12 +275,16 @@ const settle = async (gw: FakeGateway) => {
   }
 }
 
-/** A turn by what it drew: its text and each tool or card block. */
-const describeTurn = (blocks: readonly { kind: string; text?: unknown; call?: unknown }[]) =>
-  'turn: ' + blocks.map(b => b.kind === 'tool' ? `tool ${String(record(b.call)?.['name'] ?? '')}` : b.kind === 'text' && typeof b.text === 'string' ? `text(${b.text.length})` : b.kind).join(', ')
-const describeEntry = (e: { kind: string; text?: unknown; title?: unknown; tone?: unknown; blocks?: unknown }) =>
-  e.kind === 'turn' && Array.isArray(e.blocks) ? describeTurn(e.blocks) :
-  `${e.kind}${typeof e.tone === 'string' && e.tone !== 'info' ? `(${e.tone})` : ''}${typeof e.text === 'string' ? ': ' + e.text.slice(0, 160) : typeof e.title === 'string' ? ': ' + e.title : ''}`
+const describeEntry = (e: { kind: string; text?: unknown; title?: unknown; tone?: unknown; blocks?: unknown }) => {
+  if (e.kind === 'turn' && Array.isArray(e.blocks)) {
+    const blocks: readonly { kind: string; text?: unknown; call?: unknown }[] = e.blocks
+    return 'turn: ' + blocks.map(b => {
+      if (b.kind === 'tool') return `tool ${String(record(b.call)?.['name'] ?? '')}`
+      return b.kind === 'text' && typeof b.text === 'string' ? `text(${b.text.length})` : b.kind
+    }).join(', ')
+  }
+  return `${e.kind}${typeof e.tone === 'string' && e.tone !== 'info' ? `(${e.tone})` : ''}${typeof e.text === 'string' ? ': ' + e.text.slice(0, 160) : typeof e.title === 'string' ? ': ' + e.title : ''}`
+}
 
 /** One fresh app per feature: the gateway's plugin half is the fixture host, the rest a fake. */
 async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
@@ -466,10 +465,13 @@ async function drive(feature: string, steps: Step[]): Promise<Effect[]> {
 const answered = (e: Effect) => e.exited || e.entries.length > 0 || e.overlays.length > 0 || e.layers.length > 0 || e.native.length > 0 ||
   e.draft !== null || e.changed.length > 0
 
-const journeys = [...new Set(features.map(f => f.journey))]
+// Some journeys (for example film) have only a dedicated fixture suite. Their receipts
+// name that suite; registering an empty Vitest describe block would fail the whole run.
+const drivenFeatures = features.filter(f => DRIVES[f.id])
+const journeys = [...new Set(drivenFeatures.map(f => f.journey))]
 for (const journey of journeys) {
   describe(`army journey ${journey}`, () => {
-    for (const feature of features.filter(f => f.journey === journey && DRIVES[f.id])) {
+    for (const feature of drivenFeatures.filter(f => f.journey === journey)) {
       it(`army drive ${feature.id}`, async () => {
         const steps = await drive(feature.id, DRIVES[feature.id] ?? [])
         const ok = steps.every(s => answered(s) && s.missing.length === 0)

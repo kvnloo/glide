@@ -46,7 +46,7 @@ export interface GlideHost {
 }
 
 /** `/glide glass demo`: the glass playground, one cycle of blur, tint, saturation, rim and motes. */
-export function glideGlass(host: Pick<GlideHost, 'glassDemo'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
+function glideGlass(host: Pick<GlideHost, 'glassDemo'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub !== 'demo') {
     host.transcript.notice('Usage: /glide glass demo', 'warning')
     return
@@ -57,7 +57,7 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo'> & { readonly trans
 }
 
 /** `/glide theme auto|dash|<whole theme>|default|export`: wear the wallpaper's pywal colors, Dash's black and gold or a whole theme, go back, or write them out. */
-export function glideTheme(host: Pick<GlideHost, 'setTheme'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
+function glideTheme(host: Pick<GlideHost, 'setTheme'> & { readonly transcript: Pick<Transcript, 'notice'> }, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
     host.transcript.notice(sub === 'auto' ? 'Glide theme now follows your wallpaper colours' : 'Glide theme is back to the default')
