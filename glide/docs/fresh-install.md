@@ -12,15 +12,12 @@ already set one. It ignores inherited `TMPDIR`, replaces `HOME`, and clears envi
 including provider credentials. It never uses a real Hermes profile.
 
 The runner fetches the exact Hermes revision in `frontend/hermes-src.lock` and
-installs its frozen dependencies. It then runs the real commands:
-
-```sh
-hermes plugins install kvnloo/glide --force --enable --yes-deps
-hermes plugins validate "$HERMES_HOME/plugins/glide"
-```
-
-This tests public main, not an unpublished plugin patch. Both installed SHAs
-appear in the log. `--force` is explicit consent to the scanner's CAUTION
+installs its frozen dependencies. The runner fetches the committed checkout into
+a temporary local Git repository and passes its exact SHA to Hermes' real
+`plugins install` command. Hermes validates the resulting installed directory.
+Commit tracked edits before running; local untracked files are never installed.
+The expected and actual Glide SHAs and the Hermes SHA are printed in the log.
+`--force` is explicit consent to the scanner's CAUTION
 verdict for this custom source. The scan still runs, and DANGEROUS still blocks
 installation. Do not treat this test's consent as advice to trust other plugins.
 `--yes-deps` supplies dependency consent for non-interactive installation.

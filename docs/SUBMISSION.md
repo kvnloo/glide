@@ -15,7 +15,7 @@ Derived from alt-glitch/hermes-tern (MIT). The native Tern chat comes from that 
 - **An attention guard with real inputs.** Deterministic code learns deep-work windows and a usual stop time from local session timestamps. When installed, it reads phase and bedtime from z0intelligence's `circadian show --json` and a live flow likelihood from Flowkit's loopback API, showing no raw heart data. A block changes what the per-turn hook tells the model and holds `glide.route` notices except `critical`. The wind-down note links attention to context: tomorrow's first turn quotes it once. Tests use recorded circadian postures and synthetic sessions. [Attention](../glide/attention.py) · [Contract](../glide/docs/attention.md) · [Tests](../glide/tests/test_attention.py)
 - **Memory that survives a session.** A read-only SQLite source reader resolves edits, rewinds, and compression copies before it extracts explicit corrections. Atomic checkpoints, a backup, and validation protect derived state. The built-in BM25 store returns at most three positive matches without embeddings or model calls. Recall prefers nonempty results from an existing z0intelligence corrections reader, with Glide's store as fallback. [Source](../glide/source.py) · [Storage](../glide/storage.py) · [Retrieval](../glide/memory.py) · [Extraction contract and limits](../glide/docs/memory.md)
 - **A registered per-turn hook.** Python code adds matching corrections to Hermes' context only after opt-in. Recall failures do not fail the model turn. Enabling recall can send those excerpts to the configured remote model provider. Local storage is not a guarantee of local-only inference. [Hook](../glide/core.py)
-- **Native approval cards.** TypeScript renders detection, approval, and proof cards through `/glide` command dispatch. The session-bound gateway methods (Python input validation tied to the caller's attached session) need `ctx.register_gateway_method`, which released Hermes lacks, so they are inactive for now. [Frontend](../frontend/src/commands/glide.ts) · [Gateway](../glide/gateway.py)
+- **Native approval cards.** TypeScript renders detection, approval, and proof cards through `/glide` command dispatch. The session-bound gateway methods (Python input validation tied to the caller's attached session) need `ctx.register_gateway_method`, which the pinned Hermes lacks, so those methods stay inactive there and onboarding falls back to the registered command. [Frontend](../frontend/src/commands/glide.ts) · [Gateway](../glide/gateway.py)
 - **Concrete optional tools.** The router saves a deterministic category-to-skills catalog, not skill packages or a per-turn skill loader. The hill-climb module scaffolds a CPU benchmark and records KEEP, REVERT, or INCONCLUSIVE after paired samples. Its demo repeats the same command for both arms, without editing code. Offload calls Ollama and records estimated token and cost savings. These are not automatic model training or proven billing savings. [Router](../glide/skill_router.py) · [Referee](../glide/hill_climb.py) · [Offload](../glide/offload.py) · [Merged card integration](https://github.com/kvnloo/glide/pull/222)
 - **Opt-in live voice with honest helper lanes.** `/live` asks before it opens the gateway mic. During a call, lanes beside the thinking orb show each helper's role, model and real state from a loopback lane broker; a dead lane renders as dead, and with no broker token nothing is polled. Live voice needs a Hermes gateway with `voice.live` methods. [Voice and lanes](../frontend/docs/voice.md) · [Lanes](../frontend/src/voice/lanes.tsx)
 
@@ -25,7 +25,7 @@ The [existing synthetic tests](../glide/tests/) cover memory, onboarding, routin
 
 Use a current Hermes Agent, Tern, and Node.js. The root manifest requires Hermes 0.23.0 or later. [Manifest](../plugin.yaml) · [Launcher](../launcher.py)
 
-Hermes scans community plugins and rates this one CAUTION, the same verdict as upstream alt-glitch/hermes-tern: text matches in the Tern frontend's sudo-password prompt and Markdown parser. Review the findings and answer `y` (or pass `--force` non-interactively); this guide does not override the scan. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+Review any Hermes community-plugin scanner warnings before consenting. The stock install does not bypass the scan.
 
 ```sh
 hermes plugins install kvnloo/glide
@@ -71,6 +71,8 @@ To stop automatic quoting:
 ```
 
 These instructions follow the [merged card flow](../frontend/src/commands/glide.ts). On an empty profile, build has no history to extract and recall has no matches. Glide's derived memory stays under the active profile's `glide/` directory. [Memory behavior](../glide/core.py) · [Data handling](../glide/docs/memory.md)
+
+For a headless check of the committed source without Tern, a provider, or your real profile, run `bash scripts/e2e-fresh-install.sh` from a clone. This exercises the installed command path with synthetic history; it is not evidence of native rendering.
 
 ## Links
 
