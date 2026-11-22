@@ -197,6 +197,8 @@ export interface DockSlots {
   readonly above?: readonly JSX.Element[]
   readonly ring?: readonly JSX.Element[]
   readonly below?: readonly JSX.Element[]
+  /** An empty chat with the composer centred (glide_ui_style composer: center): a spacer under it, holding the below widgets, lifts it mid-pane. */
+  readonly lift?: boolean
 }
 
 /** The sidebar slot's widgets, docked at the pane's right edge as the aside (only while no other aside is open). */
@@ -263,7 +265,10 @@ export function dockNodes(cx: DockContext, on: DockActions, slots: DockSlots = {
   // A role-less dock column takes Tern's reader measure for its children, so widgets line up with the composer.
   if (slots.above?.length) nodes.push(<col key="glide.above"><col gap="sm" key="w" role="glide.dock">{slots.above}</col></col>)
   nodes.push(composerNode(cx, on, slots.ring))
-  if (slots.below?.length) nodes.push(<col key="glide.below"><col gap="sm" key="w" role="glide.dock">{slots.below}</col></col>)
+  // Lifted, the below-composer widgets hang in the spacer, so the composer itself sits mid-pane whatever they hold.
+  const below = slots.below?.length ? <col gap="sm" key="w" role="glide.dock">{slots.below}</col> : null
+  if (slots.lift) nodes.push(<col key="glide.below"><col key="lift" role="glide.lift">{below ?? <spacer key="s" size="none" />}</col></col>)
+  else if (below) nodes.push(<col key="glide.below">{below}</col>)
 
   return nodes
 }
