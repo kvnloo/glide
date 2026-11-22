@@ -22,6 +22,7 @@ BASELINE = Path(__file__).with_name("layout-baseline.txt")
 FIXED = frozenset((
     ".github/README.md",
     ".github/workflows/glide.yml",
+    ".github/workflows/pages.yml",
     "scripts/e2e-fresh-install.sh",
     "docs/SUBMISSION.md",
     "docs/REQUIREMENTS-LEDGER.md",

@@ -28,4 +28,8 @@ node glide/tools/site-check.mjs http://127.0.0.1:8817/ /tmp/site-check   # drive
 
 ## Publish
 
-Any static host can serve `glide/site/` as the web root, with no build command. GitHub Pages can serve only the repository root or `docs/`, so it needs either a Pages workflow or a host that accepts a subdirectory (Cloudflare Pages or Netlify, with the output directory set to `glide/site`).
+The [Pages workflow](../../.github/workflows/pages.yml) checks the generated tokens,
+stages only the five runtime files above, and scans the staging directory before
+uploading it. Set the repository's Pages source to **GitHub Actions**. Site changes
+on `main` publish automatically; to publish the first time after enabling Pages,
+run **Glide Pages** from the Actions tab against `main`.
