@@ -904,6 +904,19 @@
       "army": []
     },
     {
+      "id": "reply-figures",
+      "title": "Draw a reply's figures and media lines natively, and ask once for a broken figure",
+      "surface": "card",
+      "entry": "An answer in a session the Tern frontend created, with a mermaid or svg fence or a MEDIA:/path line",
+      "journey": "cards",
+      "expect": "The prompt section tells the agent what Tern draws; a local viewable MEDIA line shows in Tern's viewer on a host-local pane; a figure that would not render is asked for once, as an app prompt",
+      "tests": [
+        "frontend/src/__tests__/figures.test.ts",
+        "tests/test_render_hints.py"
+      ],
+      "army": []
+    },
+    {
       "id": "lsp-results",
       "title": "Inspect structured language-server results",
       "surface": "card",
@@ -1836,7 +1849,9 @@
       "expect": "The backend proves profile, byte identity, and retained native-input ownership before returning image bytes",
       "tests": [
         "tests/test_media_backend.py",
-        "frontend/src/__tests__/media-delivery.test.ts"
+        "frontend/src/__tests__/media-delivery.test.ts",
+        "frontend/src/__tests__/mediaBounds.test.ts",
+        "frontend/src/__tests__/mediaLifetime.test.ts"
       ],
       "army": []
     },

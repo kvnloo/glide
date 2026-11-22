@@ -126,12 +126,13 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 10. `image-attachments`
 11. `artifact-links`
 12. `written-media`
-13. `lsp-results`
-14. `lsp-edit-diagnostics`
-15. `tool-cards`
-16. `table-charts`
-17. `tool-results-sheet`
-18. `gateway-prompts`
+13. `reply-figures`
+14. `lsp-results`
+15. `lsp-edit-diagnostics`
+16. `tool-cards`
+17. `table-charts`
+18. `tool-results-sheet`
+19. `gateway-prompts`
 
 ## sessions
 
