@@ -1,13 +1,14 @@
 # OMP × Tern → Hermes × Tern differential audit
 
-Review artifact for [Glide #55](https://github.com/kvnloo/glide/issues/55), following
-[#53](https://github.com/kvnloo/glide/issues/53) and [#57](https://github.com/kvnloo/glide/issues/57).
+Review artifact for the parity RFC, [Glide #55](https://github.com/kvnloo/glide/issues/55).
+The roadmap and entry point for new work is [#53](https://github.com/kvnloo/glide/issues/53).
 This is source and fixture evidence, **not native parity sign-off**.
 
 - **O**: [OMP at `eb74cf84d8e16ac9b8c4fa5d7c43037023d016ac`](https://github.com/can1357/oh-my-pi/tree/eb74cf84d8e16ac9b8c4fa5d7c43037023d016ac).
 - **H**: [Hermes donor at `724b2aaec5981eb264f65923f72858faff27bb5b`](https://github.com/kvnloo/hermes-agent/tree/724b2aaec5981eb264f65923f72858faff27bb5b/ui-tsp)
   (`feat/tern-omp-parity` and the archived preview). Bare H paths are in `ui-tsp/src/`, except Markdown, which is in `ui-tsp/`.
-- **G**: Glide base `6c1e67768b01f33cd5026def0efa364f02dd09d1` plus the splash change in this branch.
+- **G**: Glide base `6c1e67768b01f33cd5026def0efa364f02dd09d1` plus the splash change from #380.
+  Both are on main `9b31baf2` (#389). Rows were not re-audited against commits after that base.
   Bare G paths are in `frontend/src/`; `../` in the table denotes the **repository root**.
   Test names omit `.test.ts` and resolve under `frontend/src/**/__tests__/` unless an explicit path is given.
 - Hermes remains authoritative for prompts, settings, sessions, provider state and approvals.
@@ -202,12 +203,19 @@ Never substitute a browser snapshot for a Tern capture.
   mid-recording. Confirm capture stops, transcription reaches the owning draft only, and unsupported
   microphone or provider states remain visible. Do not use real user audio in the receipt.
 
-## What remains for #53 / #55 / #57
+## What remains
 
 First qualify installed bytes and the L/I/S/D journeys. Then separate independently the three
 tool-display policies, measure ANSI fidelity, and check agent-hub ownership against real runtime
 capabilities. Treat the current Dash-adjacent agent, session, BTW and PR panes as views over
 authoritative state; qualify “what needs attention” with overlapping work before adding chrome.
-This closes no issue by itself: leave #55 open until the referenced native checks are recorded
-or the operator explicitly accepts further scope exclusions. Keep #53 as the roadmap and #57
-as the execution tracker until their remaining work is dispositioned.
+
+## Trackers
+
+- [#55](https://github.com/kvnloo/glide/issues/55) is the one parity RFC. Its body carries the
+  counts and every row that is not yet P. It stays open until the native checks above are recorded
+  or the operator accepts a scope exclusion for each remaining row.
+- [#53](https://github.com/kvnloo/glide/issues/53) is the one roadmap: what to do next, in order.
+- [#54](https://github.com/kvnloo/glide/issues/54) owns installed-build and native-journey qualification.
+- The port charter (#1), merge wave (#31), overnight execution log (#57), research intake (#58)
+  and nightly-integration RFC (#59) are historical. Their residual work moved into #53, #54 and #55.
