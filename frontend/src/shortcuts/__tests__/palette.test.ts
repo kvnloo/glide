@@ -76,6 +76,25 @@ describe('Tern native command palette', () => {
     expect(f.overlays).toHaveLength(0)
   })
 
+  it('runs a template row as its /template command, and Tab inserts that command', async () => {
+    const f = fixture()
+    openCommandPalette(f.host)
+    const overlay = top(f.overlays)
+    await vi.waitFor(() => expect(JSON.stringify(overlay.node('layer.command-palette'))).toContain('Use Mono template'))
+    // Enter straight after typing, before a frame: the new query's best match runs.
+    type(overlay, 'use mono template')
+    overlay.onKey(key('enter'))
+    expect(f.run).toHaveBeenCalledWith('/template mono')
+
+    openCommandPalette(f.host)
+    const again = top(f.overlays)
+    await vi.waitFor(() => expect(JSON.stringify(again.node('layer.command-palette'))).toContain('Use Studio template'))
+    type(again, 'use studio template')
+    again.node('layer.command-palette')
+    again.onKey(key('tab'))
+    expect(f.set).toHaveBeenCalledWith('/template studio ')
+  })
+
   it('Tab inserts an unsent command; Escape preserves the draft and query', async () => {
     const f = fixture()
     f.composer.set('draft with caret', { cursor: 6 })

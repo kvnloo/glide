@@ -99,6 +99,11 @@ export function openCommandPalette(host: PaletteHost): void {
 
   const current = (id = selected) => all.find(row => row.id === id)
   const pick = (id: string | undefined, execute: boolean) => {
+    // Enter before the next frame after an edit: the new query's best match.
+    if (id === undefined) {
+      view()
+      id = selected
+    }
     const row = current(id)
     const command = row?.command ?? row?.name
 
@@ -179,8 +184,10 @@ export function openCommandPalette(host: PaletteHost): void {
         } else {
           const edited = editQuery(key, query)
 
-          if (edited !== undefined) {
+          if (edited !== undefined && edited !== query) {
             query = edited
+            // A new query selects its best match, not a row the old query left selected.
+            selected = undefined
           }
         }
       }
