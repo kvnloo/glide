@@ -67,7 +67,12 @@ function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number)
     attrs['data-eui-s'] = eui.style(n.style)
   }
 
-  const kids = n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, eui, activate))
+  // Tern draws a button as an inline-flex row, where text-overflow does nothing, so a long text-only label
+  // overflowed and clipped at both ends (#289). Its own span is a flex item that can shrink and ellipsize.
+  const label = tag === 'button' && n.kids.length > 0 && n.kids.every(k => k.t === 'text') ? n.kids.map(k => k.t === 'text' ? k.text : '').join('') : ''
+  const kids = label.trim()
+    ? [ui.el({ key: 'label', tag: 'span', class: 'eu-label' }, label)]
+    : n.kids.map((k, i) => convert(k, k.t === 'el' ? `n${k.id}` : `${key}.${i}`, eui, activate))
 
   if (n.tag === 'input' && tag === 'span') {
     kids.push(n.attrs['value'] || n.attrs['placeholder'] || '')
