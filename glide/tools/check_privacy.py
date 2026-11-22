@@ -8,6 +8,10 @@ redacted, say) ends with the marker `privacy: ok`.
 
     python glide/tools/check_privacy.py [--upstream REF]   # default REF: upstream/main
 
+For a staged text-only artifact, scan every line without repository exclusions or waivers:
+
+    python glide/tools/check_privacy.py --directory DIR
+
 reuse-checked: the host's chatgpt-driver privacy_gate -- it needs private rules that cannot live in
 a public repo, so CI uses only generic shapes here.
 """
@@ -47,21 +51,57 @@ def added_lines(base: str):
             line += 1
 
 
+def scan_line(path: str, n: int, text: str) -> int:
+    hits = 0
+    for name, rule in RULES.items():
+        if rule.search(text):
+            hits += 1
+            print(f"{path}:{n}: {name}")
+    return hits
+
+
+def scan_directory(directory: Path) -> int:
+    if not directory.is_dir() or directory.is_symlink():
+        print("privacy: expected a real artifact directory", file=sys.stderr)
+        return 1
+
+    files = hits = 0
+    for path in sorted(directory.rglob("*")):
+        relative = path.relative_to(directory).as_posix()
+        if not path.is_symlink() and path.is_dir():
+            continue
+        if path.is_symlink() or not path.is_file():
+            print(f"privacy: not a regular file: {relative}", file=sys.stderr)
+            return 1
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeError):
+            print(f"privacy: cannot read as UTF-8: {relative}", file=sys.stderr)
+            return 1
+        files += 1
+        for n, line in enumerate(lines, 1):
+            hits += scan_line(relative, n, line)
+
+    print(f"privacy: {hits} finding(s) in {files} artifact file(s)")
+    return 1 if hits or not files else 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--upstream", default="upstream/main")
-    ref = ap.parse_args().upstream
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--upstream", default="upstream/main")
+    mode.add_argument("--directory", type=Path)
+    args = ap.parse_args()
+    if args.directory is not None:
+        return scan_directory(args.directory)
+    ref = args.upstream
     base = subprocess.run(["git", "merge-base", ref, "HEAD"], cwd=ROOT, check=True,
                           capture_output=True, text=True).stdout.strip()
     hits = 0
     for path, n, text in added_lines(base):
         if SKIP.search(path) or text.rstrip().endswith("privacy: ok"):
             continue
-        for name, rule in RULES.items():
-            m = rule.search(text)
-            if m:
-                hits += 1
-                print(f"{path}:{n}: {name}: {m.group(0)}")
+        hits += scan_line(path, n, text)
     print(f"privacy: {hits} finding(s) in lines added on top of {ref}")
     return 1 if hits else 0
 
