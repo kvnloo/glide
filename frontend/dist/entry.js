@@ -3428,8 +3428,8 @@ var require_webidl = __commonJS({
       return new TypeError(`${message.header}: ${message.message}`);
     };
     webidl.errors.conversionFailed = function(context) {
-      const plural5 = context.types.length === 1 ? "" : " one of";
-      const message = `${context.argument} could not be converted to${plural5}: ${context.types.join(", ")}.`;
+      const plural6 = context.types.length === 1 ? "" : " one of";
+      const message = `${context.argument} could not be converted to${plural6}: ${context.types.join(", ")}.`;
       return webidl.errors.exception({
         header: context.prefix,
         message
@@ -10991,9 +10991,9 @@ var require_pluralizer = __commonJS({
       this: "these"
     };
     module.exports = class Pluralizer {
-      constructor(singular, plural5) {
+      constructor(singular, plural6) {
         this.singular = singular;
-        this.plural = plural5;
+        this.plural = plural6;
       }
       pluralize(count6) {
         const one7 = count6 === 1;
@@ -22828,6 +22828,156 @@ async function connect(options2 = {}) {
   return await session3.handshake() ? session3 : null;
 }
 
+// src/core/ids.ts
+import { randomUUID } from "node:crypto";
+var liveSessionId = (raw2) => raw2;
+var storedSessionId = (raw2) => raw2;
+var subscriptionId = (raw2) => raw2;
+var admissionId = (raw2) => raw2;
+var inputId = (raw2) => raw2;
+var newInputId = () => inputId(randomUUID());
+var toolCallId = (raw2) => raw2;
+var entryId = (raw2) => raw2;
+var subagentKey = (raw2) => raw2;
+var prKey = (ref) => `${ref.host}/${ref.repository}#${ref.number}`;
+var stackKey = (host2, repository, number5) => `${host2}/${repository}#stack:${number5}`;
+var overlayKey = (raw2) => raw2;
+var isLive = (ids) => ids.live !== null;
+var NO_SESSION = { live: null, stored: null };
+function durable(ids) {
+  return ids.stored ?? ids.live;
+}
+
+// src/wire/rpc.ts
+function rpc(gw2, method, params) {
+  return gw2.request(method, params);
+}
+async function rpcParsed(gw2, method, params, schema2) {
+  return schema2.parse(await gw2.request(method, params));
+}
+function snapshotIds(r) {
+  const stored = r.info?.stored_session_id || r.stored_session_id;
+  return {
+    ref: { live: liveSessionId(r.session_id), stored: stored ? storedSessionId(stored) : null },
+    subscription: r.subscription_id ? subscriptionId(r.subscription_id) : void 0
+  };
+}
+function admissionOf(r) {
+  return r && "admission_id" in r && r.admission_id ? admissionId(r.admission_id) : void 0;
+}
+
+// ../glide/frontend/agentGraph.ts
+var MAX_NODES = 60;
+var AgentGraph = class {
+  #nodes = /* @__PURE__ */ new Map();
+  #listeners = /* @__PURE__ */ new Set();
+  observe(ev) {
+    const sid = ev.session_id;
+    if (!sid) return false;
+    const root7 = "session:" + sid;
+    const seen = this.#nodes.get(root7);
+    if (ev.type === "message.start" || ev.type === "message.complete") {
+      return this.#put({ id: root7, label: seen?.label ?? "Session " + sid, state: ev.type === "message.start" ? "live" : "idle" });
+    } else if (ev.type === "session.info" && ev.payload?.title) {
+      return this.#put({ id: root7, label: ev.payload.title, state: seen?.state ?? "idle" });
+    } else if (ev.type === "subagent.spawn_requested" || ev.type === "subagent.start" || ev.type === "subagent.complete") {
+      const child = ev.payload;
+      if (!child?.subagent_id) return false;
+      if (!seen) this.#nodes.set(root7, { id: root7, label: "Session " + sid, state: "idle" });
+      const key3 = (id4) => JSON.stringify([sid, id4]);
+      const id3 = key3(child.subagent_id);
+      const prior = this.#nodes.get(id3);
+      if (prior && !["queued", "live"].includes(prior.state)) return false;
+      const status = child.status;
+      const state = ev.type === "subagent.complete" ? status === "completed" ? "done" : status === "interrupted" ? "interrupted" : status ? "failed" : "ended" : ev.type === "subagent.start" || prior?.state === "live" ? "live" : "queued";
+      return this.#put({
+        id: id3,
+        label: child.goal || prior?.label || "Subagent",
+        state,
+        parent: child.parent_id ? key3(child.parent_id) : prior?.parent ?? root7
+      });
+    }
+    return false;
+  }
+  #put(node4) {
+    node4.label = node4.label.replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, 120) || "Untitled";
+    const prev = this.#nodes.get(node4.id);
+    if (prev?.state === node4.state && prev.label === node4.label && prev.parent === node4.parent) return false;
+    this.#nodes.set(node4.id, node4);
+    if (this.#nodes.size > MAX_NODES) {
+      const oldest = [...this.#nodes.values()];
+      const drop = oldest.find((n5) => n5.parent && n5.state !== "live" && n5.state !== "queued") ?? oldest.find((n5) => n5.parent) ?? oldest[0];
+      if (drop) this.#nodes.delete(drop.id);
+    }
+    this.#notify();
+    return true;
+  }
+  nodes(sid) {
+    const root7 = "session:" + sid;
+    const current = this.#nodes.get(root7) ?? { id: root7, label: "Current session", state: "idle" };
+    return [current, ...[...this.#nodes.values()].filter((n5) => n5.id !== root7).slice(-(MAX_NODES - 1))];
+  }
+  /** Seed already-running children of the attached session. Events always win over this read. */
+  async seed(gw2, sid, current) {
+    try {
+      const result = await rpc(gw2, "subagent.list", { session_id: sid });
+      if (!current()) return;
+      const root7 = "session:" + sid;
+      for (const child of result?.subagents ?? []) {
+        if (!child.subagent_id || child.status !== "running" && child.status !== "queued") continue;
+        const id3 = JSON.stringify([sid, child.subagent_id]);
+        if (this.#nodes.has(id3)) continue;
+        this.#put({
+          id: id3,
+          label: child.goal || "Subagent",
+          state: child.status === "queued" ? "queued" : "live",
+          parent: child.parent_id ? JSON.stringify([sid, child.parent_id]) : root7
+        });
+      }
+    } catch {
+    }
+  }
+  watch(listener, signal) {
+    if (signal.aborted) return void 0;
+    const stop3 = () => {
+      this.#listeners.delete(listener);
+      signal.removeEventListener("abort", stop3);
+    };
+    this.#listeners.add(listener);
+    signal.addEventListener("abort", stop3, { once: true });
+    return stop3;
+  }
+  reset() {
+    this.#nodes.clear();
+    this.#notify();
+  }
+  #notify() {
+    for (const listener of this.#listeners) listener();
+  }
+};
+function agentLineage(nodes) {
+  const children3 = /* @__PURE__ */ new Map();
+  const ids = new Set(nodes.map((n5) => n5.id));
+  for (const node4 of nodes) {
+    const parent = node4.parent && ids.has(node4.parent) ? node4.parent : void 0;
+    const siblings = children3.get(parent) ?? [];
+    siblings.push(node4);
+    children3.set(parent, siblings);
+  }
+  const rows2 = [];
+  const seen = /* @__PURE__ */ new Set();
+  const walk = (node4, depth, from) => {
+    if (seen.has(node4.id)) return;
+    seen.add(node4.id);
+    const index2 = rows2.length;
+    rows2.push({ node: node4, depth, ...from === void 0 ? {} : { from } });
+    for (const child of children3.get(node4.id) ?? []) walk(child, depth + 1, index2);
+  };
+  for (const node4 of children3.get(void 0) ?? []) walk(node4, 0);
+  for (const node4 of nodes) walk(node4, 0);
+  return rows2;
+}
+
 // assets/logo.png
 var logo_default = __toBinaryNode("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");
 
@@ -23959,10 +24109,10 @@ var ORB_WAIT_RIM = { dark: DASH.gold, light: "#8a6a2f" };
 var ORB_ERROR_INK = { dark: "#ee888b", light: "#b3383c" };
 var SOURCE = 64;
 var STILL = 0.6;
-function orbSvg(state, seconds, dark) {
+function orbSvg(state, seconds2, dark) {
   const preset = Lt(LIBRARY_STATE[state], SOURCE);
   const animated = state !== "idle" && state !== "waiting" && state !== "error";
-  const frame2 = vt[preset.mode](SOURCE, animated ? seconds * preset.speed : STILL, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE, animated ? seconds2 * preset.speed : STILL, preset.opts);
   const grey = (white) => {
     const ink3 = Math.min(1, Math.max(0, white));
     const level = Math.round((dark ? 1 - ink3 : ink3) * 255);
@@ -24148,7 +24298,7 @@ function orbitScene(lanes2) {
   const { w, h: h2 } = orbitUnits(lanes2);
   return { w: Math.round(w * ORBIT_SCALE), h: Math.round(h2 * ORBIT_SCALE) };
 }
-function orbitLayout(lanes2, seconds, reduce = false) {
+function orbitLayout(lanes2, seconds2, reduce = false) {
   const { w, h: h2 } = orbitUnits(lanes2);
   const moving = /* @__PURE__ */ new Map();
   for (const l of lanes2) if (l.state !== "dead") moving.set(orbitRadius(l.role), (moving.get(orbitRadius(l.role)) ?? 0) + 1);
@@ -24167,7 +24317,7 @@ function orbitLayout(lanes2, seconds, reduce = false) {
     } else {
       const j = seat.get(r) ?? 0;
       seat.set(r, j + 1);
-      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds / lanePeriod(lane.role);
+      theta = reduce ? Math.PI * (k + 0.5) / total : Math.PI / 4 + (ROLE_PHASE[lane.role] ?? 0) + 2 * Math.PI * j / (moving.get(r) ?? 1) + 2 * Math.PI * seconds2 / lanePeriod(lane.role);
       k++;
     }
     const z = parked ? 0 : Math.sin(theta);
@@ -24187,16 +24337,16 @@ function orbitLayout(lanes2, seconds, reduce = false) {
   });
 }
 var n = (v) => v.toFixed(1);
-function orbMarks(state, seconds, animated, ink3) {
+function orbMarks(state, seconds2, animated, ink3) {
   const preset = Lt(state, SOURCE2);
-  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds * preset.speed : 0.6, preset.opts);
+  const frame2 = vt[preset.mode](SOURCE2, animated ? seconds2 * preset.speed : 0.6, preset.opts);
   const a2 = (v) => (v ?? 1).toFixed(2);
   const out = frame2.lines.map((l) => `<line x1="${n(l.x1)}" y1="${n(l.y1)}" x2="${n(l.x2)}" y2="${n(l.y2)}" stroke="${ink3(l.white)}" stroke-width="${n(l.w)}" stroke-opacity="${a2(l.a)}"/>`);
   for (const d of frame2.dots) out.push(`<circle cx="${n(d.x)}" cy="${n(d.y)}" r="${n(d.r)}" fill="${ink3(d.white)}" fill-opacity="${a2(d.a)}"/>`);
   return out.join("");
 }
-function marks(state, seconds, animated, dark) {
-  return orbMarks(state, seconds, animated, (white) => {
+function marks(state, seconds2, animated, dark) {
+  return orbMarks(state, seconds2, animated, (white) => {
     const ink3 = Math.min(1, Math.max(0, dark ? white : white * 0.7));
     return `#${Math.round((dark ? 1 - ink3 : ink3) * 255).toString(16).padStart(2, "0").repeat(3)}`;
   });
@@ -24230,12 +24380,12 @@ function tracks(lanes2, dark) {
     return `<circle data-ring="${r}" cx="${n(w / 2)}" cy="${n(h2 / 2)}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${dark ? 1.4 : 1.5}" stroke-opacity="${alpha}"${dead ? ' stroke-dasharray="3 3"' : ""}/>`;
   }).join("");
 }
-function core(main, lanes2, seconds, dark, reduce) {
+function core(main, lanes2, seconds2, dark, reduce) {
   const { w, h: h2 } = orbitUnits(lanes2);
-  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds, !reduce && !still(main), dark)}</g>`;
+  return `<g transform="translate(${n(w / 2 - CORE / 2)} ${n(h2 / 2 - CORE / 2)}) scale(${(CORE / SOURCE2).toFixed(4)})">${marks(LIBRARY_STATE[main], reduce ? 0 : seconds2, !reduce && !still(main), dark)}</g>`;
 }
-function orbitBackdrop(main, lanes2, seconds, dark, reduce = false) {
-  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds, dark, reduce));
+function orbitBackdrop(main, lanes2, seconds2, dark, reduce = false) {
+  return frame(lanes2, tracks(lanes2, dark) + core(main, lanes2, seconds2, dark, reduce));
 }
 function laneSwatch(lane, dark, size = 14) {
   const c = size / 2;
@@ -24632,7 +24782,7 @@ var LaneStrip = class {
             },
             moves: false,
             key: () => this.lanes().map((l) => `${l.role}=${l.state === "dead"}`).join(","),
-            svg: (state, seconds, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds, dark, reduce)
+            svg: (state, seconds2, dark, reduce) => orbitBackdrop(state, this.lanes().map((l) => orbitLane(l, dark)), seconds2, dark, reduce)
           }
         });
         this.#orbit.environment(this.#env);
@@ -24728,7 +24878,7 @@ var LaneStrip = class {
     if (!lanes2.length && !this.#live) return null;
     const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 waiting for a voice call";
     const said = /* @__PURE__ */ new Set();
-    const rows3 = lanes2.map((lane, i) => {
+    const rows2 = lanes2.map((lane, i) => {
       const quote3 = laneQuote(lane, said);
       return /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lane", children: [
         this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
@@ -24744,8 +24894,8 @@ var LaneStrip = class {
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
       this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
         this.#orbitNode(lanes2),
-        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows3 }, "rows")
-      ] }, "orbit") : rows3
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows2 }, "rows")
+      ] }, "orbit") : rows2
     ] }, "lanes");
   }
 };
@@ -24836,22 +24986,25 @@ function actionsRow(buttons) {
   ] }, "actions");
 }
 
+// ../glide/frontend/motion.ts
+var NORMAL_MOTION_MS = {
+  press: 70,
+  fade: 120,
+  nav: 140,
+  snappy: 150,
+  settle: 180,
+  enter: 150,
+  exit: 120
+};
+var CRITICAL_EASE = "linear(0, 0.228, 0.538, 0.752, 0.875, 0.940, 0.972, 0.988, 0.995, 0.998, 1)";
+function criticalProgress(t) {
+  return (1 - (1 + 9 * t) * Math.exp(-9 * t)) / (1 - 10 * Math.exp(-9));
+}
+
 // src/glideui/motion.tsx
 var MOTION_SHEET = "glide-motion";
 var FRAMES = 16;
-var LEAD_MS = 120;
-var FRAME_MS = 30;
-function ease(time3) {
-  let low = 0, high = 1;
-  for (let i = 0; i < 20; i++) {
-    const t2 = (low + high) / 2;
-    const x = 3 * (1 - t2) ** 2 * t2 * 0.45 + 3 * (1 - t2) * t2 ** 2 * 0.1 + t2 ** 3;
-    if (x < time3) low = t2;
-    else high = t2;
-  }
-  const t = (low + high) / 2;
-  return 3 * (1 - t) * t ** 2 + t ** 3;
-}
+var FRAME_MS = NORMAL_MOTION_MS.enter / (FRAMES - 1);
 function countFrames(value2) {
   const match = /^([\p{Sc}+−-]?)(-?\d+(?:,\d{3})*(?:\.\d+)?)(\s*(?:%|×|[kKmMbB]|ms|s|GB|MB|KB|px|checks|commits)?)$/u.exec(value2);
   if (!match) return [];
@@ -24862,7 +25015,7 @@ function countFrames(value2) {
   if (decimals > 6) return [];
   return Array.from({ length: FRAMES }, (_2, i) => {
     if (i === FRAMES - 1) return value2;
-    const scaled = target2 * (i === 0 ? 0 : ease(i / (FRAMES - 1)));
+    const scaled = target2 * (i === 0 ? 0 : criticalProgress(i / (FRAMES - 1)));
     const [whole = "", fraction2] = scaled.toFixed(decimals).split(".");
     const formatted = digits.includes(",") ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : whole;
     return `${prefix2}${formatted}${fraction2 === void 0 ? "" : "." + fraction2}${suffix}`;
@@ -24887,7 +25040,7 @@ function figure(value2, role, tone3, entrance = true) {
   if (!frames2.length) return ui.text({ key: "v", role, text: value2, ...tone3 ? { tone: tone3 } : {} });
   return html.span({ key: "v", role, class: "glide-count", aria: value2, ...tone3 ? { tone: tone3 } : {} }, [
     html.span({ key: "final", class: "glide-count-final" }, value2),
-    ...frames2.map((text24, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text24))
+    ...frames2.slice(0, -1).map((text24, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text24))
   ]);
 }
 var ROOT = "[data-glide-motion]";
@@ -24901,26 +25054,24 @@ var ROWS = [
   "[data-role='glide.steps'] .sf-ck-item",
   "[data-role='glide.kv']>.sf-kv-item"
 ];
-var rows = (suffix = "") => ROWS.map((selector) => `${ENTER} ${selector}${suffix}`).join(",");
+var ROW_ENTRANCES = ROWS.map((selector) => `${ENTER} ${selector}`).join(",");
 var MOTION_CSS = `
-${ROOT}{position:relative;--glide-ease:cubic-bezier(0.45,0,0.1,1)}
+${ROOT}{position:relative;--glide-ease:${CRITICAL_EASE}}
 ${ROOT} [data-role='omp.btn']{box-shadow:none!important}
-${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline 180ms var(--glide-ease) both}
-${ENTER}>[data-role='glide.card']{animation:glide-shell 180ms var(--glide-ease) both}
-${rows()},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
-${Array.from({ length: 8 }, (_2, i) => `${rows(`:nth-child(${i + 1})`)}{animation-delay:${120 + i * 10}ms}`).join("\n")}
-${rows(":nth-child(n+9)")}{animation-delay:200ms}
-${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar 480ms var(--glide-ease) 120ms backwards}
-${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow 480ms var(--glide-ease) 120ms backwards}
-${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) both}
+${ENTER}>[data-role='glide.card']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
 ${ROOT} .glide-count{position:relative;display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
-${ROOT} .glide-count-final{animation:glide-count-final 600ms step-end backwards}
+${ROOT} .glide-count-final{animation:glide-count-final ${NORMAL_MOTION_MS.enter}ms step-end backwards}
 ${ROOT} .glide-count-frame{position:absolute;left:0;top:0;opacity:0;pointer-events:none;animation:glide-count-frame ${FRAME_MS}ms step-end}
-${Array.from({ length: FRAMES }, (_2, i) => `${ROOT} .glide-count-f${i}{animation-delay:${LEAD_MS + i * FRAME_MS}ms}`).join("\n")}
+${Array.from({ length: FRAMES - 1 }, (_2, i) => `${ROOT} .glide-count-f${i}{animation-delay:${i * FRAME_MS}ms}`).join("\n")}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track{position:relative;overflow:hidden}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--sf-accent) 12%,transparent) 50%,transparent 65%);animation:glide-shimmer 3200ms var(--glide-ease) 700ms infinite}
 ${LIVE} [data-role='glide.spark']{animation:glide-drift 4200ms ease-in-out 700ms infinite}
-${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards,glide-drift 4200ms ease-in-out 700ms infinite}
+${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards,glide-drift 4200ms ease-in-out 700ms infinite}
 ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--sf-accent);pointer-events:none;animation:glide-tick 2800ms ease-in-out 700ms infinite}
 @keyframes glide-outline{from{opacity:0;transform:scaleX(.02)}to{opacity:1;transform:scaleX(1)}}
 @keyframes glide-shell{from{opacity:0}to{opacity:1}}
@@ -24933,7 +25084,8 @@ ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height
 @keyframes glide-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(1px)}}
 @keyframes glide-tick{0%,100%{opacity:.45}50%{opacity:.8}}
 @media (prefers-reduced-motion: reduce){
-${ROOT},${ROOT} *,${ROOT}::before,${ROOT}::after,${ROOT} *::after{animation:none!important;transition:none!important;transform:none!important}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source'],${ENTER} [data-role='glide.spark'],${ENTER}${LIVE} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ENTER} [data-role='glide.bars'] .bars>.b,${ENTER} .sf-mt-fill,${LIVE}:not(${ENTER}) [data-role='glide.spark'],${ROOT} .glide-count-final{animation:none}
 ${ROOT} .glide-count-frame{display:none!important}
 ${ROOT} .glide-count-final{opacity:1!important}
 ${ROOT}::before,${ROOT}::after,${LIVE} [data-role='glide.meter'] .sf-mt-track::after{display:none!important}
@@ -25010,18 +25162,18 @@ function node2(n5, key3, r) {
       return /* @__PURE__ */ jsx("meter", { label: p3.label, role: "glide.meter", value: clamp(p3.value), ...p3.total ? { total: p3.total } : {}, ...toneProps(p3.tone) }, key3);
     }
     case "Table": {
-      const { columns: columns2, rows: rows3 } = n5.props;
+      const { columns: columns2, rows: rows2 } = n5.props;
       const first = columns2[0]?.id ?? "";
       const table3 = /* @__PURE__ */ jsx(
         "table",
         {
           cols: columns2.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns2.some((x) => x.grow) ? { grow: 1 } : {} })),
           role: "glide.table",
-          rows: rows3.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
+          rows: rows2.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
         },
         "t"
       );
-      const open6 = rows3.filter((row2) => row2.intent);
+      const open6 = rows2.filter((row2) => row2.intent);
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.table.wrap", children: [
         table3,
         open6.length === 0 ? null : /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.table.open", wrap: true, children: open6.map((row2, i) => {
@@ -25488,7 +25640,7 @@ function lanesCard(src, roles, focus2, actions, message = "") {
     }
     return [];
   });
-  const rows3 = lanes2.map((lane, i) => {
+  const rows2 = lanes2.map((lane, i) => {
     const current = lane.model;
     const info = laneModel(current, lane.resolved, roles);
     const hue = PROVIDERS[info.provider].hue;
@@ -25572,7 +25724,7 @@ function lanesCard(src, roles, focus2, actions, message = "") {
   );
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
-    el("div", "display:flex;flex-direction:column", rows3),
+    el("div", "display:flex;flex-direction:column", rows2),
     ...add2.length ? [el("div", "display:flex;flex-wrap:wrap;gap:6px", add2)] : [],
     legend,
     el("div", "display:flex;justify-content:flex-end", [close])
@@ -25692,7 +25844,7 @@ function readableOn(bg, inks = DEFAULT_INKS) {
   }
   return best;
 }
-function ensureContrast(color2, bg, min, step2 = 0.2) {
+function ensureContrast(color2, bg, min, step3 = 0.2) {
   const bgLuminance = relativeLuminance(bg);
   if (bgLuminance === null || parseColor(color2) === null) {
     return color2;
@@ -25703,7 +25855,7 @@ function ensureContrast(color2, bg, min, step2 = 0.2) {
   }
   const pole = bgLuminance < 0.5 ? "#ffffff" : "#000000";
   let best = color2;
-  const rung = Number.isFinite(step2) && step2 >= 1e-3 ? Math.min(step2, 1) : 0.2;
+  const rung = Number.isFinite(step3) && step3 >= 1e-3 ? Math.min(step3, 1) : 0.2;
   for (let amount = rung; amount <= 1.0001; amount += rung) {
     best = mix(color2, pole, Math.min(amount, 1));
     const stepRatio = contrastRatio(best, bg);
@@ -25794,23 +25946,23 @@ var CLEAN_CYCLE = 9.6;
 var DRIFT = 0.4;
 var PULSE = 0.045;
 var PULSE_S = 4.8;
-function cleanInk(p3, state, seconds, reduce = false) {
+function cleanInk(p3, state, seconds2, reduce = false) {
   if (state === "error") return p3.error;
   const base3 = STATE_HUE[state];
-  const drift = reduce ? 0 : DRIFT * Math.sin(2 * Math.PI * seconds / CLEAN_CYCLE);
+  const drift = reduce ? 0 : DRIFT * Math.sin(2 * Math.PI * seconds2 / CLEAN_CYCLE);
   const t = Math.min(1, Math.max(0, base3 + (base3 <= 0 ? Math.abs(drift) : base3 >= 1 ? -Math.abs(drift) : drift)));
   return mix(p3.accent, p3.alt, t);
 }
-var cleanPulse = (seconds, reduce = false) => reduce ? 1 : 1 + PULSE * Math.sin(2 * Math.PI * seconds / PULSE_S);
+var cleanPulse = (seconds2, reduce = false) => reduce ? 1 : 1 + PULSE * Math.sin(2 * Math.PI * seconds2 / PULSE_S);
 var n3 = (v) => v.toFixed(1);
 var SOURCE3 = 64;
 var CLEAN_ORB = 200;
 var CLEAN_RING = 300;
-function cleanOrbSvg(p3, state, seconds, reduce = false) {
-  const hue = cleanInk(p3, state, seconds, reduce);
+function cleanOrbSvg(p3, state, seconds2, reduce = false) {
+  const hue = cleanInk(p3, state, seconds2, reduce);
   const animated = !reduce && state !== "idle" && state !== "waiting" && state !== "error";
-  const body = orbMarks(LIBRARY_STATE[state], seconds, animated, (white) => mix(hue, p3.bg, Math.min(1, Math.max(0, white)) * 0.55));
-  const k = cleanPulse(seconds, reduce);
+  const body = orbMarks(LIBRARY_STATE[state], seconds2, animated, (white) => mix(hue, p3.bg, Math.min(1, Math.max(0, white)) * 0.55));
+  const k = cleanPulse(seconds2, reduce);
   const c = SOURCE3 / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${CLEAN_ORB}" height="${CLEAN_ORB}" viewBox="0 0 ${SOURCE3} ${SOURCE3}"><g transform="translate(${n3(c)} ${n3(c)}) scale(${k.toFixed(4)}) translate(${n3(-c)} ${n3(-c)})">${body}</g></svg>`;
 }
@@ -25822,7 +25974,7 @@ function cleanScene(palette) {
       const p3 = palette();
       return `${p3.accent}:${p3.alt}:${p3.error}:${p3.bg}`;
     },
-    svg: (state, seconds, _dark, reduce) => cleanOrbSvg(palette(), state, seconds, reduce)
+    svg: (state, seconds2, _dark, reduce) => cleanOrbSvg(palette(), state, seconds2, reduce)
   };
 }
 function cleanRingSvg(p3, left, total, track2) {
@@ -28337,13 +28489,13 @@ function playStops(p3) {
     { at: 100, hue: p3.bg, tint: rest, blur: card2.blur, saturate: card2.saturate, glow: 1, motes: 1 }
   ];
 }
-function glassPlayCss(p3, seconds = PLAY_SECONDS) {
+function glassPlayCss(p3, seconds2 = PLAY_SECONDS) {
   const shade = mix(p3.bg, "#000000", 0.7);
   const stops = playStops(p3);
   const frame2 = (sel) => stops.slice(1, -1).map((s2) => `${s2.at}% { ${sel(s2)} }`).join(" ");
   const glass = (s2) => `background-color: ${rgba2(s2.hue, s2.tint)}; -webkit-backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%); backdrop-filter: blur(${s2.blur}px) saturate(${s2.saturate}%)`;
   const halo = (s2) => `box-shadow: 0 22px 48px -26px ${rgba2(shade, 90)}, 0 0 ${Math.round(34 * s2.glow)}px -12px ${rgba2(p3.glow, 60 * s2.glow)}, 0 0 ${Math.round(64 * s2.glow)}px -28px ${rgba2(p3.accent, 55 * s2.glow)}, inset 0 1px 0 ${rgba2(p3.fg, 8 * s2.glow)}`;
-  const run8 = (name) => `animation: ${name} ${seconds}s cubic-bezier(.45, 0, .55, 1) 1`;
+  const run8 = (name) => `animation: ${name} ${seconds2}s cubic-bezier(.45, 0, .55, 1) 1`;
   const lit2 = [CARD, EDITOR, POPUP, LANES].join(", ");
   const all8 = [lit2, STATUS2, NATIVE, TEXT, after(RIMMED), MOTES].join(", ");
   return minifyCss(`
@@ -28851,7 +29003,7 @@ function studioTree(project2) {
 }
 function studioCard(state) {
   const snapshot4 = "snapshot" in state ? state.snapshot : void 0;
-  const rows3 = studioTree(snapshot4?.project ?? null);
+  const rows2 = studioTree(snapshot4?.project ?? null);
   return {
     kind: "studio",
     app: "glide",
@@ -28864,8 +29016,8 @@ function studioCard(state) {
       children: [
         { type: "element", typeName: "Text", props: { body: state.phase === "starting" ? "Opening studio\u2026" : state.phase === "error" ? state.message : snapshot4?.mode === "native" ? "Native studio open beside chat" : "Web editor open in a Tern browser pane" } },
         ...snapshot4 ? [{ type: "element", typeName: "Kv", props: { items: [{ k: "Editor", v: snapshot4.url }, { k: "Preview", v: "Read-only \xB7 scenes \u2192 layers" }] } }] : [],
-        { type: "element", typeName: "Section", props: { title: "Project layers", aside: "Read-only", children: rows3.length ? [
-          { type: "element", typeName: "List", props: { items: rows3 } }
+        { type: "element", typeName: "Section", props: { title: "Project layers", aside: "Read-only", children: rows2.length ? [
+          { type: "element", typeName: "List", props: { items: rows2 } }
         ] : [{ type: "element", typeName: "Text", props: { body: snapshot4?.project ? "This project has no scenes or layers." : "Select a project with /glide studio <project-id>." } }] } }
       ]
     } }
@@ -28995,9 +29147,9 @@ function glideGlass(host2, sub) {
     host2.transcript.notice("Usage: /glide glass demo", "warning");
     return;
   }
-  const seconds = host2.glassDemo?.() ?? null;
-  if (seconds === null) host2.transcript.notice("The glass playground plays on the wallpaper theme: /glide theme auto first", "warning");
-  else host2.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`);
+  const seconds2 = host2.glassDemo?.() ?? null;
+  if (seconds2 === null) host2.transcript.notice("The glass playground plays on the wallpaper theme: /glide theme auto first", "warning");
+  else host2.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds2} s, then settle. Text keeps 4.5:1 throughout.`);
 }
 function glideTheme(host2, sub) {
   if (sub === "auto" || sub === "default") {
@@ -29280,9 +29432,9 @@ async function glideCommand(host2, arg) {
       climb();
     }));
     const steps = { router, climb, savings };
-    const step2 = verb ? steps[verb] : void 0;
-    if (step2) {
-      step2();
+    const step3 = verb ? steps[verb] : void 0;
+    if (step3) {
+      step3();
       return;
     }
     if (verb) return await glideText(host2, sid, arg.trim(), verb);
@@ -29785,26 +29937,6 @@ var NoticeStrip = class {
     }
   }
 };
-
-// src/core/ids.ts
-import { randomUUID } from "node:crypto";
-var liveSessionId = (raw2) => raw2;
-var storedSessionId = (raw2) => raw2;
-var subscriptionId = (raw2) => raw2;
-var admissionId = (raw2) => raw2;
-var inputId = (raw2) => raw2;
-var newInputId = () => inputId(randomUUID());
-var toolCallId = (raw2) => raw2;
-var entryId = (raw2) => raw2;
-var subagentKey = (raw2) => raw2;
-var prKey = (ref) => `${ref.host}/${ref.repository}#${ref.number}`;
-var stackKey = (host2, repository, number5) => `${host2}/${repository}#stack:${number5}`;
-var overlayKey = (raw2) => raw2;
-var isLive = (ids) => ids.live !== null;
-var NO_SESSION = { live: null, stored: null };
-function durable(ids) {
-  return ids.stored ?? ids.live;
-}
 
 // src/commands/host.ts
 function sessionHost(cx, literal3 = false) {
@@ -30408,7 +30540,6 @@ var IGNORED = [
   "terminal.close",
   "tip.show",
   "tool.output_risk",
-  "tool.progress",
   "voice.interrupted",
   "voice.partial",
   "voice.status",
@@ -30557,24 +30688,6 @@ var processHandlers = {
     return "quiet";
   }
 };
-
-// src/wire/rpc.ts
-function rpc(gw2, method, params) {
-  return gw2.request(method, params);
-}
-async function rpcParsed(gw2, method, params, schema2) {
-  return schema2.parse(await gw2.request(method, params));
-}
-function snapshotIds(r) {
-  const stored = r.info?.stored_session_id || r.stored_session_id;
-  return {
-    ref: { live: liveSessionId(r.session_id), stored: stored ? storedSessionId(stored) : null },
-    subscription: r.subscription_id ? subscriptionId(r.subscription_id) : void 0
-  };
-}
-function admissionOf(r) {
-  return r && "admission_id" in r && r.admission_id ? admissionId(r.admission_id) : void 0;
-}
 
 // src/hermes/sharedPrompts.ts
 var sharedPromptId = (promptId) => `shared:${String(promptId)}`;
@@ -31147,13 +31260,13 @@ var UndoHistory = class {
   }
   /** Takes the newest step of `from`, and keeps `current` on `to`; a step ends the typing burst. */
   #step(from, to, current) {
-    const step2 = from.pop();
-    if (!step2) {
+    const step3 = from.pop();
+    if (!step3) {
       return void 0;
     }
     to.push(current);
     this.#lastEdit = 0;
-    return step2;
+    return step3;
   }
 };
 
@@ -31779,14 +31892,14 @@ var Composer = class {
     return { cursor: this.cursor, pasted: [...this.#pasted], text: this.text, ...this.literal ? { literal: true } : {} };
   }
   /** Puts back the draft an undo or redo step held, if there was one, with the pastes it held. */
-  #restore(step2) {
-    if (step2) {
+  #restore(step3) {
+    if (step3) {
       this.rev++;
       this.#revision++;
-      this.#text = step2.text;
-      this.#cursor = step2.cursor;
-      this.#pasted = [...step2.pasted];
-      this.#literal = step2.literal === true;
+      this.#text = step3.text;
+      this.#cursor = step3.cursor;
+      this.#pasted = [...step3.pasted];
+      this.#literal = step3.literal === true;
       this.#anchor = void 0;
       this.#browse = -1;
     }
@@ -32044,7 +32157,7 @@ function clarifyOverlay(host2, prompt) {
   const sending = { busy: false, error: "" };
   const respond = (result) => answerWith(host2, overlay2, req, sending, { ...result });
   const cancel3 = () => sending.error ? host2.close(overlay2) : respond({});
-  let step2 = Math.max(
+  let step3 = Math.max(
     0,
     questions.findIndex((q2) => !(q2.qid in answers2))
   );
@@ -32063,14 +32176,14 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
+    const q2 = questions[step3];
     if (q2) {
       answers2[q2.qid] = answer2;
     }
-    const next2 = questions.findIndex((other, i) => i > step2 && !(other.qid in answers2));
+    const next2 = questions.findIndex((other, i) => i > step3 && !(other.qid in answers2));
     const first = questions.findIndex((other) => !(other.qid in answers2));
     if (next2 >= 0 || first >= 0) {
-      step2 = next2 >= 0 ? next2 : first;
+      step3 = next2 >= 0 ? next2 : first;
       host2.changed();
       return;
     }
@@ -32080,8 +32193,8 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
-    const d = drafts[step2];
+    const q2 = questions[step3];
+    const d = drafts[step3];
     if (!q2 || !d) {
       return;
     }
@@ -32103,8 +32216,8 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    const q2 = questions[step2];
-    const d = drafts[step2];
+    const q2 = questions[step3];
+    const d = drafts[step3];
     if (!q2 || !d) {
       return;
     }
@@ -32124,7 +32237,7 @@ function clarifyOverlay(host2, prompt) {
     if (sending.busy) {
       return;
     }
-    step2 = (to + questions.length) % questions.length;
+    step3 = (to + questions.length) % questions.length;
     host2.changed();
   };
   const overlay2 = {
@@ -32133,18 +32246,18 @@ function clarifyOverlay(host2, prompt) {
     // Every question at once: an empty answer is the contract's cancel ('' skips on the shared wire).
     cancel: cancel3,
     focus: (id3) => {
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       return q2 && d && (d.typing || !q2.choices.length) ? `${id3}.body.answer` : null;
     },
     node: (id3) => {
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       if (!q2 || !d) {
         return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md" }, nativeOverlayKey(id3));
       }
       const freeText = !q2.choices.length;
-      const last = questions.every((other, i) => i === step2 || other.qid in answers2);
+      const last = questions.every((other, i) => i === step3 || other.qid in answers2);
       const previewLabel = q2.previews?.some(Boolean) && d.selected < q2.choices.length ? q2.choices[d.selected]?.replace(RECOMMENDED, "") : void 0;
       const previewDetail = q2.previews?.[d.selected];
       return /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
@@ -32152,7 +32265,7 @@ function clarifyOverlay(host2, prompt) {
           /* @__PURE__ */ jsx(
             "tabs",
             {
-              active: String(step2),
+              active: String(step3),
               items: questions.map((other, i) => ({
                 id: String(i),
                 label: `${other.qid in answers2 ? "\u2713 " : ""}${tabLabel(other.question)}`
@@ -32168,12 +32281,12 @@ function clarifyOverlay(host2, prompt) {
             "tabs"
           ),
           /* @__PURE__ */ jsx("spacer", { grow: 1 }, "fill"),
-          /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: `${step2 + 1} of ${questions.length}` }], wrap: "none" }, "count")
+          /* @__PURE__ */ jsx("text", { spans: [{ s: "dim", t: `${step3 + 1} of ${questions.length}` }], wrap: "none" }, "count")
         ] }, "head") : null,
         /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: q2.question }, "question"),
         freeText ? null : optionList(
-          `q${step2}`,
-          `${id3}.body.q${step2}`,
+          `q${step3}`,
+          `${id3}.body.q${step3}`,
           optionsOf(q2, d),
           d.selected,
           (i) => {
@@ -32232,8 +32345,8 @@ function clarifyOverlay(host2, prompt) {
       if (sending.busy) {
         return true;
       }
-      const q2 = questions[step2];
-      const d = drafts[step2];
+      const q2 = questions[step3];
+      const d = drafts[step3];
       if (!q2 || !d) {
         return true;
       }
@@ -32242,7 +32355,7 @@ function clarifyOverlay(host2, prompt) {
       if (isCtrlC(k) || k.name === "escape" && unmodified(k) && sending.error) {
         cancel3();
       } else if (k.name === "tab" && questions.length > 1) {
-        go(step2 + (k.shift ? -1 : 1));
+        go(step3 + (k.shift ? -1 : 1));
       } else if (k.name === "escape" && unmodified(k) && typing && q2.choices.length) {
         d.typing = false;
       } else if (k.name === "escape" && unmodified(k)) {
@@ -32647,8 +32760,8 @@ var pendingRow = object({
   user: _catch(string2(), "")
 });
 function pendingRows(info) {
-  const { pending_submissions: rows3 } = info ?? {};
-  return Array.isArray(rows3) ? rowsOf(pendingRow, rows3) : void 0;
+  const { pending_submissions: rows2 } = info ?? {};
+  return Array.isArray(rows2) ? rowsOf(pendingRow, rows2) : void 0;
 }
 var settle = _catch(object({ admission_id: loose(string2()), outcome: optional2(unknown()) }), {});
 function cancelledAdmission(payload) {
@@ -33228,12 +33341,12 @@ function parseFastControl(raw2) {
       return list10 ? { candidates: list10, id: id3, kind: "candidates", prompt } : null;
     }
     case "slider": {
-      const { max, min, step: step2, unit } = value2;
+      const { max, min, step: step3, unit } = value2;
       const initial = value2["value"];
       if (typeof min !== "number" || typeof max !== "number" || !Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
         return null;
       }
-      if (step2 !== void 0 && (typeof step2 !== "number" || !(step2 > 0) || step2 > max - min)) {
+      if (step3 !== void 0 && (typeof step3 !== "number" || !(step3 > 0) || step3 > max - min)) {
         return null;
       }
       if (initial !== void 0 && (typeof initial !== "number" || initial < min || initial > max)) {
@@ -33249,7 +33362,7 @@ function parseFastControl(raw2) {
         max,
         min,
         prompt,
-        ...step2 !== void 0 ? { step: step2 } : {},
+        ...step3 !== void 0 ? { step: step3 } : {},
         ...initial !== void 0 ? { value: initial } : {},
         ...u ? { unit: u } : {}
       };
@@ -33326,9 +33439,9 @@ function stepOf(control2) {
   return control2.step ?? (control2.max - control2.min) / 100;
 }
 function snap(control2, value2) {
-  const step2 = stepOf(control2);
-  const snapped = control2.min + Math.round((value2 - control2.min) / step2) * step2;
-  const decimals = (String(step2).split(".")[1] ?? "").length;
+  const step3 = stepOf(control2);
+  const snapped = control2.min + Math.round((value2 - control2.min) / step3) * step3;
+  const decimals = (String(step3).split(".")[1] ?? "").length;
   return Math.min(control2.max, Math.max(control2.min, Number(snapped.toFixed(decimals))));
 }
 function initialState(control2) {
@@ -33341,12 +33454,12 @@ function intentOf(state, surface, id3) {
   if (control2.kind === "slider") {
     return { ...base3, label: `${state.value}${control2.unit ? ` ${control2.unit}` : ""}`, value: state.value };
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   if (control2.kind === "choice" && control2.multiple && id3 === void 0) {
-    const picked2 = rows3.filter((r) => state.picked.includes(r.id));
+    const picked2 = rows2.filter((r) => state.picked.includes(r.id));
     return { ...base3, label: picked2.map((r) => r.label).join(", "), value: picked2.map((r) => r.id) };
   }
-  const row2 = rows3.find((r) => r.id === id3) ?? rows3[state.focus];
+  const row2 = rows2.find((r) => r.id === id3) ?? rows2[state.focus];
   if (!row2) {
     throw new Error(`control ${control2.id} has no row ${id3 ?? state.focus}`);
   }
@@ -33375,13 +33488,13 @@ function step(state, input2, surface) {
   if (control2.kind === "slider") {
     return sliderStep(state, control2, input2, surface);
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   const multiple = control2.kind === "choice" && control2.multiple === true;
   if (input2.kind === "set") {
     return ignored(state);
   }
   if (input2.kind === "pick") {
-    if (!rows3.some((r) => r.id === input2.id)) {
+    if (!rows2.some((r) => r.id === input2.id)) {
       return ignored(state);
     }
     return multiple ? { state: toggle(state, input2.id) } : answer(state, surface, input2.id);
@@ -33394,11 +33507,11 @@ function step(state, input2, surface) {
   if (control2.kind === "confirm" && (key3 === "y" || key3 === "n")) {
     return answer(state, surface, key3 === "y" ? "confirm" : "cancel");
   }
-  if (n5 && n5 <= rows3.length) {
-    const id3 = rows3[n5 - 1]?.id ?? "";
+  if (n5 && n5 <= rows2.length) {
+    const id3 = rows2[n5 - 1]?.id ?? "";
     return multiple ? { state: toggle(state, id3) } : answer(state, surface, id3);
   }
-  const last = rows3.length - 1;
+  const last = rows2.length - 1;
   const moves = {
     down: state.focus >= last ? 0 : state.focus + 1,
     end: last,
@@ -33412,13 +33525,13 @@ function step(state, input2, surface) {
     return { state: { ...state, focus: moved2 } };
   }
   if (key3 === "space" && multiple) {
-    return { state: toggle(state, rows3[state.focus]?.id ?? "") };
+    return { state: toggle(state, rows2[state.focus]?.id ?? "") };
   }
   if (key3 === "enter") {
     if (!multiple) {
       return answer(state, surface);
     }
-    const checked = state.picked.length ? state : toggle(state, rows3[state.focus]?.id ?? "");
+    const checked = state.picked.length ? state : toggle(state, rows2[state.focus]?.id ?? "");
     return answer(checked, surface);
   }
   return ignored(state);
@@ -33482,9 +33595,9 @@ function heard(state, transcript, surface) {
       return answer(state, surface, "cancel");
     }
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   const hits = /* @__PURE__ */ new Set();
-  rows3.forEach((row2, i) => {
+  rows2.forEach((row2, i) => {
     const label2 = words2(row2.label);
     const byLabel = label2.length > 0 && (said === label2 || ` ${said} `.includes(` ${label2} `));
     const byId = ` ${said} `.includes(` ${words2(row2.id)} `);
@@ -33499,7 +33612,7 @@ function heard(state, transcript, surface) {
     return ignored(state);
   }
   const [at3] = [...hits];
-  const id3 = rows3[at3 ?? 0]?.id ?? "";
+  const id3 = rows2[at3 ?? 0]?.id ?? "";
   if (control2.kind === "choice" && control2.multiple) {
     return answer(toggle({ ...state, picked: [] }, id3), surface);
   }
@@ -33652,6 +33765,13 @@ var turnHandlers = {
       const call = cx.transcript.call(toolCallId(ev.payload.tool_id));
       cx.activity.relabel(call ? cx.labels.busy(call) : `Running ${ev.payload.name}\u2026`);
       cx.showImage(call);
+      cx.toolProgress?.track();
+    }
+    return "render";
+  },
+  "tool.progress": (ev, cx) => {
+    if (ev.payload) {
+      cx.toolProgress?.progress(ev.payload);
     }
     return "render";
   },
@@ -33659,6 +33779,7 @@ var turnHandlers = {
     if (ev.payload) {
       cx.transcript.toolComplete(ev.payload);
       afterToolComplete(ev.payload, cx);
+      cx.toolProgress?.track();
     }
     return "render";
   },
@@ -33674,6 +33795,7 @@ var turnHandlers = {
     }
     const followup = cx.queue.count() > 0;
     afterMessageComplete(ev.payload ?? {}, cx);
+    cx.toolProgress?.settle();
     if (!followup) {
       cx.hostLifecycle.finish(ev.payload?.status);
     }
@@ -33767,6 +33889,7 @@ function followGateway(gw2, cx) {
   cx.life.follow(deliver);
   gw2.on("event", (ev) => {
     log.event(ev);
+    cx.observe?.(ev);
     deliver(ev);
   });
   gw2.on("request", (req) => {
@@ -35342,9 +35465,9 @@ function moveSelection(key3, ids, selected) {
     return void 0;
   }
   const at3 = selected === void 0 ? -1 : ids.indexOf(selected);
-  const step2 = key3.name === "up" || key3.ctrl && key3.name === "p" ? -1 : key3.name === "down" || key3.ctrl && key3.name === "n" ? 1 : key3.name === "page_up" ? -PAGE : key3.name === "page_down" ? PAGE : 0;
-  if (step2) {
-    return ids[Math.max(0, Math.min(ids.length - 1, at3 + step2))];
+  const step3 = key3.name === "up" || key3.ctrl && key3.name === "p" ? -1 : key3.name === "down" || key3.ctrl && key3.name === "n" ? 1 : key3.name === "page_up" ? -PAGE : key3.name === "page_down" ? PAGE : 0;
+  if (step3) {
+    return ids[Math.max(0, Math.min(ids.length - 1, at3 + step3))];
   }
   if (key3.name === "home") {
     return ids[0];
@@ -35544,8 +35667,8 @@ var JsonRpcRequestChannel = class {
         pending2.timer = setTimeout(() => {
           if (this.pending.delete(id3)) {
             detachAbort();
-            const seconds = Math.round(timeoutMs / 1e3);
-            reject(new Error(`request timed out after ${seconds}s: ${method}`));
+            const seconds2 = Math.round(timeoutMs / 1e3);
+            reject(new Error(`request timed out after ${seconds2}s: ${method}`));
           }
         }, timeoutMs);
         if (this.options.unrefTimers) {
@@ -35879,10 +36002,10 @@ var SubagentTranscript = class {
     }
   }
 };
-var ms = (seconds) => seconds === null || seconds === void 0 ? void 0 : Math.round(seconds * 1e3);
-function stepsOf(rows3) {
+var ms = (seconds2) => seconds2 === null || seconds2 === void 0 ? void 0 : Math.round(seconds2 * 1e3);
+function stepsOf(rows2) {
   const steps = [];
-  for (const row2 of rows3) {
+  for (const row2 of rows2) {
     const at3 = ms(row2.timestamp);
     const text24 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
@@ -35939,7 +36062,7 @@ var line = (text24) => text24.replace(/\s+/g, " ").trim();
 var short = (text24, max) => text24.length > max ? `${text24.slice(0, max - 1)}\u2026` : text24;
 function agentContext(agent2) {
   const steps = agentSteps(agent2);
-  const tools2 = steps.filter((step2) => step2.kind === "tool");
+  const tools2 = steps.filter((step3) => step3.kind === "tool");
   const files = /* @__PURE__ */ new Set();
   for (const tool of tools2) {
     if (!["read_file", "write_file", "edit_file", "patch", "apply_patch"].includes(tool.name)) continue;
@@ -35954,7 +36077,7 @@ function agentContext(agent2) {
     }
   }
   const latest2 = steps.at(-1);
-  const thought = steps.findLast((step2) => step2.kind === "think");
+  const thought = steps.findLast((step3) => step3.kind === "think");
   return {
     current: agent2.tool ? line(`${agent2.tool} ${agent2.toolPreview ?? ""}`) : latest2 ? line(latest2.kind === "tool" ? `${latest2.name} ${latest2.args}` : latest2.text) : agent2.status === "queued" ? "Waiting for a slot" : agent2.summary ?? "No step reported yet",
     tools: tools2.slice(-3).map((tool) => line(`${tool.name} ${tool.args}`)),
@@ -36029,8 +36152,8 @@ function reduceHub(state, action, agents2) {
       if (state.view.kind !== "timeline" || !a2) {
         return { state };
       }
-      const step2 = action.id === stepIds(a2).at(-1) ? void 0 : action.id;
-      return { state: { ...state, view: { ...state.view, step: step2 } } };
+      const step3 = action.id === stepIds(a2).at(-1) ? void 0 : action.id;
+      return { state: { ...state, view: { ...state.view, step: step3 } } };
     }
     case "listed":
       return action.ids.some((id3) => id3 === state.selected) ? { state } : {
@@ -36782,17 +36905,17 @@ function lspDetail({ args, result }) {
 var COUNT_LIMIT = 200;
 function readCounts(value2) {
   if (!value2 || typeof value2 !== "object" || Array.isArray(value2)) return void 0;
-  const rows3 = [];
+  const rows2 = [];
   let seen = 0;
   let invalid2 = false;
   for (const path2 in value2) {
     if (!Object.hasOwn(value2, path2)) continue;
-    if (seen++ >= COUNT_LIMIT) return { rows: rows3, clipped: true, invalid: invalid2 };
+    if (seen++ >= COUNT_LIMIT) return { rows: rows2, clipped: true, invalid: invalid2 };
     const n5 = Reflect.get(value2, path2);
-    if (path2 && typeof n5 === "number" && Number.isSafeInteger(n5) && n5 >= 0) rows3.push({ path: path2, count: n5 });
+    if (path2 && typeof n5 === "number" && Number.isSafeInteger(n5) && n5 >= 0) rows2.push({ path: path2, count: n5 });
     else invalid2 = true;
   }
-  return { rows: rows3, clipped: false, invalid: invalid2 };
+  return { rows: rows2, clipped: false, invalid: invalid2 };
 }
 function searchDetail({ args, result }) {
   const matches3 = list(result?.["matches"]);
@@ -37012,7 +37135,7 @@ function taskCard(call, d, now) {
   const goals = tasks.length ? tasks.map((t) => t.goal ?? "") : d.goal ? [d.goal] : [];
   const agents2 = call.subagents ?? [];
   const wait = agentWaitNode(agents2, now);
-  const rows3 = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
+  const rows2 = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
   const context = d.context ?? (tasks.length === 1 ? tasks[0]?.context : void 0);
   const working = agents2.some((a2) => a2.status === "running" || a2.status === "queued") || !agents2.length && d.dispatched;
   const settled2 = agents2.filter((a2) => a2.status !== "running" && a2.status !== "queued");
@@ -37040,7 +37163,7 @@ function taskCard(call, d, now) {
     // The agents first; the brief they share stays folded.
     body: [
       ...limited ? [/* @__PURE__ */ jsx("text", { role: "hermes.task.iteration-limit", text: ITERATION_LIMIT_NOTICE, wrap: "word" }, "iteration-limit")] : [],
-      ...rows3,
+      ...rows2,
       ...context ? [briefNode("Shared brief", context)] : []
     ],
     folded: limited ? false : void 0,
@@ -37641,17 +37764,17 @@ function retainedGenericText(call) {
 }
 function webPage(call, index2) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return void 0;
-  const rows3 = resultOf(call)?.["results"];
-  if (!Array.isArray(rows3)) return void 0;
-  const row2 = rows3[index2];
+  const rows2 = resultOf(call)?.["results"];
+  if (!Array.isArray(rows2)) return void 0;
+  const row2 = rows2[index2];
   if (!row2 || typeof row2 !== "object" || Array.isArray(row2)) return void 0;
   const value2 = record(row2)?.["content"];
   return typeof value2 === "string" && value2.length > RESULT_PREVIEW_LIMIT ? { row: row2, text: value2 } : void 0;
 }
 function hasRetainedWeb(call) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return false;
-  const rows3 = resultOf(call)?.["results"];
-  return Array.isArray(rows3) && rows3.some((_2, index2) => webPage(call, index2) !== void 0);
+  const rows2 = resultOf(call)?.["results"];
+  return Array.isArray(rows2) && rows2.some((_2, index2) => webPage(call, index2) !== void 0);
 }
 function retainedResultText(candidate) {
   if (!candidate.web) return retainedGenericText(candidate.call);
@@ -37682,9 +37805,9 @@ function retainedResults(entries2) {
       if (call.name !== "web_extract") continue;
       const ordinal = ++webOrdinal;
       if (call.outcome.kind === "running") continue;
-      const rows3 = resultOf(call)?.["results"];
-      if (!Array.isArray(rows3)) continue;
-      for (let index2 = 0; index2 < rows3.length; index2++) {
+      const rows2 = resultOf(call)?.["results"];
+      if (!Array.isArray(rows2)) continue;
+      for (let index2 = 0; index2 < rows2.length; index2++) {
         const page2 = webPage(call, index2);
         if (page2) add2({
           call,
@@ -38757,9 +38880,9 @@ function applyFrame(card2, frame2) {
   if (!r || !op || card2.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
     return void 0;
   }
-  const rows3 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
+  const rows2 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
   const before2 = new Map(card2.targets.map((t) => [t.name, t]));
-  const targets2 = rows3.length ? rows3.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card2.targets;
+  const targets2 = rows2.length ? rows2.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card2.targets;
   return { ...card2, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets: targets2 };
 }
 function verbOf(t) {
@@ -39344,25 +39467,25 @@ function lintText(text24, limit = 2e3, singleLine = false) {
 }
 function v4aLintNodes(d, call) {
   if (!v4aLintNeedsAttention(call) || !d.v4aLint) return [];
-  const rows3 = [];
+  const rows2 = [];
   if (d.v4aLint.failure) {
     const failure6 = lintText(patchContextWarning(call) ? "Apply phase failed (state may be inconsistent \u2014 run `git diff` to assess)." : d.v4aLint.failure);
-    rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
-    if (failure6.clipped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
-    if (failure6.escaped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
+    if (failure6.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
+    if (failure6.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
   }
   d.v4aLint.errors.forEach(({ path: path2, output, message }, i) => {
     const name = lintText(path2, 256, true);
     const report = output ? lintText(output, 1e3) : void 0;
     const summary4 = message ? lintText(message, 1e3) : void 0;
-    rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
-    if (summary4) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
-    if (report) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
-    if (name.clipped || summary4?.clipped || report?.clipped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
-    if (name.escaped || summary4?.escaped || report?.escaped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
+    if (summary4) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
+    if (report) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
+    if (name.clipped || summary4?.clipped || report?.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
+    if (name.escaped || summary4?.escaped || report?.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
   });
-  if (d.v4aLint.uninspected) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
-  return rows3;
+  if (d.v4aLint.uninspected) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
+  return rows2;
 }
 function lintNodes(d, call) {
   if (!writeLintNeedsAttention(call) && !patchLintNeedsAttention(call) || !d.lintError) return [];
@@ -39876,18 +39999,18 @@ function countPath(path2) {
   }).join("");
 }
 function countCard(call, d, pattern) {
-  const rows3 = d.counts?.rows ?? [];
-  const rendered = rows3.map((row2) => ({ ...row2, display: countPath(row2.path) }));
+  const rows2 = d.counts?.rows ?? [];
+  const rendered = rows2.map((row2) => ({ ...row2, display: countPath(row2.path) }));
   const notices = [
     ...d.total !== void 0 ? [`Hermes total count: ${d.totalLowerBound || d.truncated ? "at least " : ""}${d.total}`] : [],
     ...d.omitted ? ["Hermes omitted some search results"] : [],
     ...d.truncated ? ["Search results truncated upstream"] : [],
     ...d.counts?.clipped ? ["Count entries clipped in view"] : [],
-    ...rows3.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
+    ...rows2.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
     ...rendered.some((row2) => row2.display !== countPathPrefix(row2.path)) ? ["Control characters escaped in view"] : [],
     ...d.counts?.invalid ? ["Invalid count entries omitted"] : [],
     ...!d.counts && d.resultPresent && call.outcome.kind !== "running" ? [d.total === 0 && !d.omitted && !d.countsMalformed ? "No per-file counts returned" : "Per-file counts unavailable"] : [],
-    ...d.counts && !rows3.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
+    ...d.counts && !rows2.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
   ];
   return {
     body: [
@@ -39895,9 +40018,9 @@ function countCard(call, d, pattern) {
       ...disclosures(notices),
       ...errorNotice(call)
     ],
-    folded: rows3.length > 20,
+    folded: rows2.length > 20,
     frame: "inline",
-    meta: [...d.counts ? [`${plural(rows3.length, "retained count")} shown`] : [], ...notices],
+    meta: [...d.counts ? [`${plural(rows2.length, "retained count")} shown`] : [], ...notices],
     name: "grep",
     target: pattern,
     targetKind: "pattern",
@@ -40488,7 +40611,7 @@ var ALIASES2 = { byte: "B", bytes: "B", msec: "ms", sec: "s", secs: "s", second:
 function unitStep(value2, unit) {
   const base3 = unit ? ALIASES2[unit.toLowerCase()] ?? unit : "";
   const steps = SCALES[base3];
-  const hit = steps?.find(([step2]) => Math.abs(value2) >= step2);
+  const hit = steps?.find(([step3]) => Math.abs(value2) >= step3);
   return hit ? { step: hit[0], unit: hit[1] } : void 0;
 }
 function formatNumber(value2, unit, digits) {
@@ -40503,11 +40626,11 @@ function formatNumber(value2, unit, digits) {
   const magnitude = Math.abs(value2);
   let text24;
   if (magnitude >= COMPACT_FROM) {
-    for (const [step2, suffix] of COMPACT_STEPS) {
-      if (magnitude < step2) {
+    for (const [step3, suffix] of COMPACT_STEPS) {
+      if (magnitude < step3) {
         continue;
       }
-      const scaled2 = value2 / step2;
+      const scaled2 = value2 / step3;
       text24 = `${scaled2.toFixed(digits ?? (Math.abs(scaled2) >= 100 ? 0 : 1))}${suffix}`;
       break;
     }
@@ -42182,9 +42305,9 @@ var Processes = class {
       this.#failures = 0;
       this.#sid = sid;
     }
-    let rows3;
+    let rows2;
     try {
-      rows3 = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
+      rows2 = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
     } catch {
       const unknown4 = sid === this.#host.sid && this.#failed();
       return unknown4 || changed ? this.#host.changed() : void 0;
@@ -42196,7 +42319,7 @@ var Processes = class {
     const now = Date.now();
     const touched = /* @__PURE__ */ new Set();
     const listed2 = /* @__PURE__ */ new Set();
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       if (!row2.session_id) {
         continue;
       }
@@ -43782,10 +43905,10 @@ function openAgents(host2, focus2) {
     if (!action) {
       return;
     }
-    const step2 = reduceHub(state, action, agents2());
-    state = step2.state;
-    if (step2.effect) {
-      run8(step2.effect);
+    const step3 = reduceHub(state, action, agents2());
+    state = step3.state;
+    if (step3.effect) {
+      run8(step3.effect);
     }
   };
   const click = (action) => {
@@ -43876,8 +43999,8 @@ function openAgents(host2, focus2) {
   function timelineNode(a2, now, id3) {
     const entries2 = agentSteps(a2);
     const ids = stepIds(a2);
-    const step2 = state.view.kind === "timeline" ? state.view.step : void 0;
-    const sel = step2 && ids.includes(step2) ? step2 : ids.at(-1);
+    const step3 = state.view.kind === "timeline" ? state.view.step : void 0;
+    const sel = step3 && ids.includes(step3) ? step3 : ids.at(-1);
     const at3 = sel ? ids.indexOf(sel) : -1;
     const shown3 = entries2[at3];
     return /* @__PURE__ */ jsx(
@@ -44356,10 +44479,10 @@ function openBackground(host2, at3) {
     if (!action) {
       return;
     }
-    const step2 = reduceSheet(state, action, sheetFacts());
-    state = step2.state;
-    if (step2.effect) {
-      run8(step2.effect);
+    const step3 = reduceSheet(state, action, sheetFacts());
+    state = step3.state;
+    if (step3.effect) {
+      run8(step3.effect);
     }
   };
   const click = (action) => {
@@ -45673,7 +45796,7 @@ function pickerValue(model, provider) {
 function openModelPicker(host2) {
   let state = "loading";
   let message = "";
-  let rows3 = [];
+  let rows2 = [];
   let providers = [];
   let current = "";
   let query2 = "";
@@ -45696,7 +45819,7 @@ function openModelPicker(host2) {
       rememberCaps(list10);
       const names = providerDisplayNames(list10);
       providers = list10.map((provider, i) => ({ name: names[i] ?? provider.name, provider }));
-      rows3 = providers.flatMap(
+      rows2 = providers.flatMap(
         ({ provider, name }) => (provider.models ?? []).map((model) => ({
           id: `${provider.slug}	${model}`,
           model,
@@ -45705,8 +45828,8 @@ function openModelPicker(host2) {
         }))
       );
       const currentProvider = list10.find((p3) => p3.is_current)?.slug ?? r.provider ?? "";
-      current = rows3.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows3.find((row2) => row2.model === r.model)?.id ?? "";
-      selected = current || rows3[0]?.id;
+      current = rows2.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows2.find((row2) => row2.model === r.model)?.id ?? "";
+      selected = current || rows2[0]?.id;
       state = "ready";
     } catch (error) {
       state = "error";
@@ -45715,7 +45838,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const choose = async (id3, confirmed2 = false) => {
-    const row2 = rows3.find((r) => r.id === id3);
+    const row2 = rows2.find((r) => r.id === id3);
     if (!row2 || busy) {
       return;
     }
@@ -45745,7 +45868,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const view = () => {
-    const inScope = scope2 === ALL2 ? rows3 : rows3.filter((r) => `provider:${r.provider.slug}` === scope2);
+    const inScope = scope2 === ALL2 ? rows2 : rows2.filter((r) => `provider:${r.provider.slug}` === scope2);
     const ranked = rank(inScope, query2, (r) => `${modelSearchText(r.model)} ${r.providerName} ${r.provider.slug}`);
     const hits = {};
     const order2 = [];
@@ -45778,10 +45901,10 @@ function openModelPicker(host2) {
     modal: true,
     node: (id3) => {
       const { hits, order: order2 } = view();
-      const priced = rows3.some((r) => r.provider.pricing?.[r.model]);
+      const priced = rows2.some((r) => r.provider.pricing?.[r.model]);
       const columns2 = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
       const scopes = [
-        { count: rows3.length, icon: "list", id: ALL2, label: "All models" },
+        { count: rows2.length, icon: "list", id: ALL2, label: "All models" },
         ...providers.map(({ provider, name }) => ({
           count: provider.models?.length ?? 0,
           ...optional("dot", provider.warning ? "warning" : void 0),
@@ -45791,7 +45914,7 @@ function openModelPicker(host2) {
           mark: { seed: provider.slug, text: name }
         }))
       ];
-      const row2 = rows3.find((r) => r.id === selected);
+      const row2 = rows2.find((r) => r.id === selected);
       const levels = levelsFor(row2 && caps(row2));
       return /* @__PURE__ */ jsx(
         "picker",
@@ -45807,7 +45930,7 @@ function openModelPicker(host2) {
           ...optional("empty", query2 ? void 0 : "No models in this scope"),
           hits,
           icon: "cpu",
-          items: rows3.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
+          items: rows2.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
           layout: "rows",
           ...optional("message", state === "error" ? message : void 0),
           noun: "models",
@@ -45861,7 +45984,7 @@ function openModelPicker(host2) {
             }
           } : {},
           title: "Models",
-          total: rows3.length,
+          total: rows2.length,
           children: row2 ? preview2(row2, row2.id === current) : null
         },
         nativeOverlayKey(id3)
@@ -45885,14 +46008,14 @@ function openModelPicker(host2) {
         return true;
       }
       if (k.ctrl && k.name === "e") {
-        const row2 = rows3.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         const levels = levelsFor(row2 && caps(row2));
         const at3 = levels.findIndex((l) => l.id === effort2);
         effort2 = levels[(at3 + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort2;
         return true;
       }
       if (k.ctrl && k.name === "f") {
-        const row2 = rows3.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         if (row2 && fastable(row2)) {
           fast = !fast;
           fastTouched = true;
@@ -46971,8 +47094,8 @@ function parseActivity(data) {
   return items.sort((a2, b) => Date.parse(a2.at) - Date.parse(b.at));
 }
 var fileRow = object({ filename: text7, previous_filename: text7, status: text7, additions: count2, deletions: count2, patch: text7 });
-function parseFiles(rows3) {
-  return rowsOf(fileRow, Array.isArray(rows3) ? rows3 : []).map((r) => ({
+function parseFiles(rows2) {
+  return rowsOf(fileRow, Array.isArray(rows2) ? rows2 : []).map((r) => ({
     additions: r.additions,
     deletions: r.deletions,
     patch: r.patch || void 0,
@@ -47887,7 +48010,7 @@ function visitParents(tree, test, visitor, reverse) {
     check2 = test;
   }
   const is6 = convert2(check2);
-  const step2 = reverse ? -1 : 1;
+  const step3 = reverse ? -1 : 1;
   factory3(tree, void 0, [])();
   function factory3(node4, index2, parents) {
     const value2 = (
@@ -47924,7 +48047,7 @@ function visitParents(tree, test, visitor, reverse) {
           node4
         );
         if (nodeAsParent.children && result[0] !== SKIP2) {
-          offset = (reverse ? nodeAsParent.children.length : -1) + step2;
+          offset = (reverse ? nodeAsParent.children.length : -1) + step3;
           grandparents = parents.concat(nodeAsParent);
           while (offset > -1 && offset < nodeAsParent.children.length) {
             const child = nodeAsParent.children[offset];
@@ -47932,7 +48055,7 @@ function visitParents(tree, test, visitor, reverse) {
             if (subresult[0] === EXIT) {
               return subresult;
             }
-            offset = typeof subresult[1] === "number" ? subresult[1] : offset + step2;
+            offset = typeof subresult[1] === "number" ? subresult[1] : offset + step3;
           }
         }
       }
@@ -49212,20 +49335,20 @@ function table(state, node4) {
   }
   state.inTable = true;
   const { align, headless } = inspect(node4);
-  const rows3 = state.toSpecificContent(state.all(node4), createRow);
+  const rows2 = state.toSpecificContent(state.all(node4), createRow);
   if (headless) {
-    rows3.unshift(createRow());
+    rows2.unshift(createRow());
   }
   let rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const row2 = rows3[rowIndex];
+  while (++rowIndex < rows2.length) {
+    const row2 = rows2[rowIndex];
     const cells2 = state.toSpecificContent(row2.children, createCell);
     row2.children = cells2;
   }
   let columns2 = 1;
   rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const cells2 = rows3[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = -1;
     while (++cellIndex < cells2.length) {
       const cell4 = cells2[cellIndex];
@@ -49241,14 +49364,14 @@ function table(state, node4) {
           while (++otherRowIndex < rowIndex + rowSpan) {
             let colIndex = cellIndex - 1;
             while (++colIndex < cellIndex + colSpan) {
-              if (!rows3[otherRowIndex]) {
+              if (!rows2[otherRowIndex]) {
                 break;
               }
               const newCells = [];
               if (otherRowIndex !== rowIndex || colIndex !== cellIndex) {
                 newCells.push({ type: "tableCell", children: [] });
               }
-              rows3[otherRowIndex].children.splice(colIndex, 0, ...newCells);
+              rows2[otherRowIndex].children.splice(colIndex, 0, ...newCells);
             }
           }
         }
@@ -49262,8 +49385,8 @@ function table(state, node4) {
     if (cells2.length > columns2) columns2 = cells2.length;
   }
   rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const cells2 = rows3[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = cells2.length - 1;
     while (++cellIndex < columns2) {
       cells2.push({ type: "tableCell", children: [] });
@@ -49274,7 +49397,7 @@ function table(state, node4) {
     align.push(null);
   }
   state.inTable = false;
-  const result = { type: "table", align, children: rows3 };
+  const result = { type: "table", align, children: rows2 };
   state.patch(node4, result);
   return result;
 }
@@ -71650,8 +71773,8 @@ function strong3(state, node4) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/table.js
 function table2(state, node4) {
-  const rows3 = state.all(node4);
-  const firstRow = rows3.shift();
+  const rows2 = state.all(node4);
+  const firstRow = rows2.shift();
   const tableContent = [];
   if (firstRow) {
     const head2 = {
@@ -71663,12 +71786,12 @@ function table2(state, node4) {
     state.patch(node4.children[0], head2);
     tableContent.push(head2);
   }
-  if (rows3.length > 0) {
+  if (rows2.length > 0) {
     const body = {
       type: "element",
       tagName: "tbody",
       properties: {},
-      children: state.wrap(rows3, true)
+      children: state.wrap(rows2, true)
     };
     const start = pointStart(node4.children[1]);
     const end = pointEnd(node4.children[node4.children.length - 1]);
@@ -75690,8 +75813,8 @@ var PreviewLoader = class {
     this.#done(id3, entry);
   }
   /** Appends the rows not seen yet; how many it kept. */
-  #keep(entry, rows3) {
-    const fresh = rows3.filter((r) => !entry.seen.has(r.key));
+  #keep(entry, rows2) {
+    const fresh = rows2.filter((r) => !entry.seen.has(r.key));
     for (const r of fresh) {
       entry.seen.add(r.key);
     }
@@ -75739,12 +75862,12 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
     workspace = key3;
     sessions = listed2.filter((s2) => s2.messages > 0 || isCurrent(s2));
     tab3 = sessions.some((s2) => inWorkspace(s2, workspace)) ? "here" : "all";
-    selected = rows3().find((s2) => !isCurrent(s2))?.id ?? rows3()[0]?.id;
+    selected = rows2().find((s2) => !isCurrent(s2))?.id ?? rows2()[0]?.id;
     state = "ready";
     host2.changed();
   };
   const here = (s2) => inWorkspace(s2, workspace);
-  const rows3 = () => tab3 === "here" ? sessions.filter(here) : sessions;
+  const rows2 = () => tab3 === "here" ? sessions.filter(here) : sessions;
   const resume = (id3) => {
     const s2 = sessions.find((x) => x.id === id3);
     if (!s2) {
@@ -75837,7 +75960,7 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
   };
   const view = (now) => {
     const rank0 = (x) => x.pinned ? 0 : tab3 === "all" && here(x) ? 1 : 2;
-    const list10 = query2 ? rows3() : [...rows3()].sort((a2, b) => rank0(a2) - rank0(b));
+    const list10 = query2 ? rows2() : [...rows2()].sort((a2, b) => rank0(a2) - rank0(b));
     const ranked = rank(list10, query2, (s2) => `${sessionLabel(s2)}
 ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
     const hits = {};
@@ -75912,7 +76035,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           focus: focus2,
           hits,
           icon: "history",
-          items: rows3().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
+          items: rows2().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
           layout: "cards",
           noun: "sessions",
           onAction: {
@@ -75968,7 +76091,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
             { count: sessions.length, id: "all", label: "All folders" }
           ],
           title: "Sessions",
-          total: rows3().length,
+          total: rows2().length,
           children: pane?.nodes ?? null
         },
         nativeOverlayKey(id3)
@@ -76074,11 +76197,11 @@ async function readValue(access, field) {
 }
 function readProfile(access) {
   return ordered(access.gw, async () => {
-    const rows3 = [];
+    const rows2 = [];
     for (const field of PROFILE_PREFERENCES) {
-      rows3.push({ field, value: await readValue(access, field) });
+      rows2.push({ field, value: await readValue(access, field) });
     }
-    return rows3;
+    return rows2;
   });
 }
 function writeProfile(access, field, requested, expected) {
@@ -76164,7 +76287,7 @@ var SettingsSheet = class {
     this.#message = "";
     this.#host.changed();
     try {
-      const rows3 = await readProfile({
+      const rows2 = await readProfile({
         active: () => this.#live() && this.#generation === generation,
         gw: this.#host.gw,
         sid: this.#sid,
@@ -76173,7 +76296,7 @@ var SettingsSheet = class {
       if (!this.#live() || generation !== this.#generation) {
         return;
       }
-      this.#rows = new Map(rows3.map((row2) => [row2.field.key, row2]));
+      this.#rows = new Map(rows2.map((row2) => [row2.field.key, row2]));
       this.#status = "ready";
     } catch (error) {
       if (!this.#live() || generation !== this.#generation) {
@@ -76342,7 +76465,7 @@ var SettingsSheet = class {
       if (!this.#searching && this.#page !== `profile.${group}`) {
         continue;
       }
-      const rows3 = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
+      const rows2 = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
         control: this.#control(row2),
         hint: `${row2.field.hint}
 Confirmed profile value: ${row2.value}`,
@@ -76350,7 +76473,7 @@ Confirmed profile value: ${row2.value}`,
         label: row2.field.label,
         ...this.#busy === row2.field.key ? { disabled: "Waiting for Hermes readback." } : {}
       }));
-      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows: rows3, title: `${group} \xB7 saved Hermes profile defaults` });
+      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows: rows2, title: `${group} \xB7 saved Hermes profile defaults` });
     }
     return sections2;
   }
@@ -76533,8 +76656,8 @@ Confirmed profile value: ${row2.value}`,
       this.#host.changed();
       return true;
     }
-    const rows3 = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
-    const selected = moveSelection(key3, rows3, this.#selected);
+    const rows2 = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
+    const selected = moveSelection(key3, rows2, this.#selected);
     if (selected !== void 0) {
       this.#selected = selected;
       this.#host.changed();
@@ -77714,7 +77837,7 @@ var TURN_MS = 520;
 var SPAWN_MS = 90;
 var FLY_MS = 220;
 var THREAD_MS = 360;
-var ease2 = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 function schedule(run8) {
   const at3 = [];
   let t = 0;
@@ -77946,7 +78069,7 @@ function instrumentSvg(run8, frame2, size = 480, options2 = {}) {
   }
   if (m2.speaking >= 0 && cur?.type === "turn") {
     const p3 = pos[m2.speaking];
-    const k = ease2(m2.since / THREAD_MS);
+    const k = ease(m2.since / THREAD_MS);
     const targets2 = cur.cites.filter((j) => j !== m2.speaking);
     if (p3 && !targets2.length) {
       s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
@@ -77970,12 +78093,12 @@ function instrumentSvg(run8, frame2, size = 480, options2 = {}) {
     if (!p3) return;
     const talk = m2.speaking === i;
     const crew = seat.crew;
-    const step2 = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
+    const step3 = Math.min(0.17, 1.9 / Math.max(crew.length, 1));
     crew.forEach((stone, k) => {
-      const ang = p3.a + (k - (crew.length - 1) / 2) * step2;
+      const ang = p3.a + (k - (crew.length - 1) / 2) * step3;
       const on = frame2.t === null || k < (m2.lit[i] ?? 0);
       const born = m2.running && !options2.reduce ? m2.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease2((t - born) / FLY_MS));
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
       const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
       s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
     });
@@ -78317,9 +78440,9 @@ async function loadCouncilSession(wire, councilId) {
 }
 async function listCouncilSessions(wire) {
   const reply2 = record(await request(wire.gw, wire.sessionId, "list", { ...wire.storedSessionId ? { stored_session_id: wire.storedSessionId } : {} }));
-  const rows3 = reply2?.["councils"];
-  if (!Array.isArray(rows3)) throw new Error("glide.council.list did not answer with councils");
-  return rows3.flatMap((row2) => {
+  const rows2 = reply2?.["councils"];
+  if (!Array.isArray(rows2)) throw new Error("glide.council.list did not answer with councils");
+  return rows2.flatMap((row2) => {
     const { council_id, brief, updated_at, updated_by, revision } = record(row2) ?? {};
     return typeof council_id === "string" && ID2.test(council_id) && typeof brief === "string" && typeof updated_at === "string" && typeof updated_by === "string" && nat(revision) ? [{ council_id, brief, updated_at, updated_by, revision }] : [];
   });
@@ -78374,9 +78497,9 @@ var CouncilSync = class {
 
 // ../glide/frontend/councilPopup.ts
 var COUNCIL_URL_ENV = "GLIDE_COUNCIL_URL";
-function councilOrbSvg(seconds, amplitude, reduce, ink3 = DASH.gold) {
+function councilOrbSvg(seconds2, amplitude, reduce, ink3 = DASH.gold) {
   const level = Math.max(0, Math.min(1, amplitude));
-  const source3 = orbSvg("speaking", reduce ? 0.6 : seconds, true);
+  const source3 = orbSvg("speaking", reduce ? 0.6 : seconds2, true);
   const scale = reduce ? 1 : 0.9 + level * 0.14;
   const hue = reduce ? ink3 : `#${[1, 3, 5].map((at3) => Math.round(parseInt(ink3.slice(at3, at3 + 2), 16) * (1 - level * 0.25) + 255 * level * 0.25).toString(16).padStart(2, "0")).join("")}`;
   return source3.replace(/width="68" height="68"/, 'width="320" height="320"').replace(/#[0-9a-f]{6}/gi, hue).replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`).replace("</svg>", "</g></svg>");
@@ -78902,9 +79025,9 @@ function analyticsData(entries2, now, cwd = "", commitTimes = []) {
       byTool.set(b.call.name, (byTool.get(b.call.name) ?? 0) + 1);
     }
     const ended = e.end.status === "live" ? void 0 : e.end.endedAt;
-    const seconds = ended && ended > e.startedAt ? Math.round((ended - e.startedAt) / 1e3) : 0;
+    const seconds2 = ended && ended > e.startedAt ? Math.round((ended - e.startedAt) / 1e3) : 0;
     const tokens2 = e.usage?.total ?? e.tickTokens ?? 0;
-    perTurn.push({ n: perTurn.length + 1, tokens: tokens2, seconds, tools: tools3 });
+    perTurn.push({ n: perTurn.length + 1, tokens: tokens2, seconds: seconds2, tools: tools3 });
   }
   const ranked = [...byTool].map(([name, count6]) => ({ name, count: count6 })).sort((a2, b) => b.count - a2.count || a2.name.localeCompare(b.name));
   const tools2 = ranked.length > 8 ? [...ranked.slice(0, 7), { name: "Other", count: ranked.slice(7).reduce((s2, t) => s2 + t.count, 0) }] : ranked;
@@ -79401,12 +79524,16 @@ var vacant = (view, source3) => ({
   source: source3,
   slots: { empty: slot("Text", { body: "Fleet snapshot unavailable. Refresh to retry.", tone: "muted" }), actions: refresh }
 });
-function fleetGlide(raw2, view, tab3 = "agents") {
+function fleetGlide(raw2, view, tab3 = "agents", agents2) {
   const doc = fleetVisibleDoc(raw2);
   const source3 = kitNotes(doc)[0] ?? "Source: read-only fleet collectors";
   const built2 = doc.kind !== "fleet-" + view ? void 0 : view === "hosts" ? hosts2(doc, tab3) : view === "portfolio" ? portfolio(doc) : graph(doc);
-  if (!built2) return { program: "fleet.vacant", doc: vacant(view, source3) };
-  return { program: fleetProgram(view, tab3), doc: { id: "fleet", title: FLEET_TITLES[view], app: doc.app, source: source3, slots: { actions: refresh, ...built2 } } };
+  const live = agents2 ? runningAgents(agents2) : {};
+  if (!built2) {
+    const empty3 = vacant(view, source3);
+    return agents2 ? { program: "fleet.factory-vacant", doc: { ...empty3, slots: { ...empty3.slots, ...live } } } : { program: "fleet.vacant", doc: empty3 };
+  }
+  return { program: agents2 ? "fleet.factory-live" : fleetProgram(view, tab3), doc: { id: "fleet", title: FLEET_TITLES[view], app: doc.app, source: source3, slots: { actions: refresh, ...built2, ...live } } };
 }
 var AGENT_STATE = {
   working: ["working", "success"],
@@ -79438,7 +79565,7 @@ function hosts2(doc, tab3) {
     { label: "Need you", value: String(blocked2), tone: blocked2 ? "warning" : "success" },
     { label: "Pods", value: String(pods.length) }
   ] });
-  const rows3 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
+  const rows2 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
     const [badge, tone3] = AGENT_STATE[a2.state] ?? [a2.state, "neutral"];
     const resumable = g.kind.toLowerCase() === "hermes" && !a2.id.startsWith("process:") && !/^\d+$/.test(a2.id);
     const reachable = h2.online && a2.state !== "offline";
@@ -79455,7 +79582,7 @@ function hosts2(doc, tab3) {
     };
   })));
   const bare = list10.filter((h2) => !h2.harnesses.some((g) => g.agents.length)).map((h2) => h2.online ? h2.label : `${h2.label} (offline)`);
-  slots["hosts.agents"] = slot("List", { items: rows3, numbered: false });
+  slots["hosts.agents"] = slot("List", { items: rows2, numbered: false });
   slots["hosts.quiet"] = slot("Text", { body: bare.length ? `No agents reported: ${bare.join(", ")}` : "Every host reports agents.", tone: "muted" });
   const GAUGES = ["cpu", "mem", "disk", "gpu"];
   slots["hosts.machines"] = slot("Table", {
@@ -79550,12 +79677,12 @@ function factorySpine(nodes, edges, W = 920) {
   const used = [0, 1, 2, 3].filter((c) => nodes.some((n5) => col(n5) === c));
   const slotOf = (c) => Math.max(0, used.indexOf(c));
   const colW = (W - 16) / Math.max(1, used.length), rowH = 38, top = 24, pw = Math.min(190, colW - 28);
-  const rows3 = Math.max(1, ...used.map((c) => nodes.filter((n5) => col(n5) === c).length));
-  const H2 = top + rows3 * rowH + 4;
+  const rows2 = Math.max(1, ...used.map((c) => nodes.filter((n5) => col(n5) === c).length));
+  const H2 = top + rows2 * rowH + 4;
   const pos = /* @__PURE__ */ new Map();
   for (const c of used) {
     const here = nodes.filter((n5) => col(n5) === c);
-    const y0 = top + (rows3 - here.length) * rowH / 2 + rowH / 2;
+    const y0 = top + (rows2 - here.length) * rowH / 2 + rowH / 2;
     here.forEach((n5, i) => pos.set(n5.id, { x: 8 + colW * slotOf(c) + colW / 2, y: y0 + i * rowH }));
   }
   const heads = used.map((c) => `<text x="${8 + colW * slotOf(c) + colW / 2}" y="12" text-anchor="middle" font-size="10" letter-spacing="1" fill="var(--muted)" font-family="monospace">${(COLS[c] ?? "").toUpperCase()} \xB7 ${nodes.filter((n5) => col(n5) === c).length}</text>`);
@@ -79618,6 +79745,36 @@ function graph(doc) {
       ...fix?.action ? [{ label: `${fix.action} \xB7 ${fix.label}`, primary: true, intent: intent3({ action: "queue-fix", entities: { node: fix.id } }) }] : [],
       { label: "Refresh", intent: { action: "refresh", entities: {} } }
     ] })
+  };
+}
+function runningAgents(agents2) {
+  const rows2 = agentLineage(agents2);
+  const w = 640, h2 = rows2.length * 40 + 12;
+  const tileLeft = (depth) => 20 + Math.min(12, depth) * 24;
+  const rowCenter = (index2) => 26 + index2 * 40;
+  const wires = rows2.map(({ depth, from, node: node4 }, i) => {
+    const parent = from === void 0 ? void 0 : rows2[from];
+    if (!parent || from === void 0) return "";
+    const end = tileLeft(depth);
+    const start = Math.min(end - 12, tileLeft(parent.depth) + 12);
+    return `<path d="M${start},${rowCenter(from) + 15} V${rowCenter(i)} H${end}" stroke="var(--accent)" stroke-opacity="${node4.state === "live" ? 1 : 0.4}" fill="none"/>`;
+  }).join("");
+  const tiles = rows2.map(({ node: node4, depth }, i) => {
+    const left = tileLeft(depth), top = rowCenter(i) - 15;
+    const tone3 = node4.state === "failed" ? STATUS.bad : node4.state === "live" ? STATUS.ok : "var(--muted)";
+    const max = Math.floor((w - left - 150) / 7);
+    const label2 = node4.label.length > max ? node4.label.slice(0, max - 1) + "\u2026" : node4.label;
+    return `<rect x="${left}" y="${top}" width="${w - left - 12}" height="30" rx="8" fill="var(--muted)" fill-opacity=".08" stroke="var(--muted)" stroke-opacity=".4"/><circle cx="${left + 13}" cy="${rowCenter(i)}" r="4" fill="${node4.parent ? STATUS.ok : "var(--accent)"}"/><text x="${left + 25}" y="${rowCenter(i) + 4}" font-size="13" fill="var(--text)">${esc3(label2)}</text><text x="${w - 23}" y="${rowCenter(i) + 4}" text-anchor="end" font-size="12" fill="${tone3}">${node4.state}</text>`;
+  }).join("");
+  return {
+    "live.header": slot("Section", { title: "Running agents", aside: "Observed gateway sessions \xB7 up to 60 nodes" }),
+    "live.graph": slot("Graphic", {
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}" font-family="system-ui,sans-serif">${wires}${tiles}</svg>`,
+      w,
+      h: h2,
+      alt: rows2.map(({ node: node4 }) => `${node4.parent ? "Subagent" : "Session"}: ${node4.label} \xB7 ${node4.state}`).join("; ")
+    }),
+    "snapshot.header": slot("Section", { title: "Content factory snapshot" })
   };
 }
 
@@ -79733,10 +79890,13 @@ async function fleetCommand(host2, view, portfolio2) {
   const owner2 = host2.session.ownerTicket?.();
   const lifetime = host2.transcript.lifetime;
   const current = () => host2.session.ref === ref && host2.session.ref.live === sessionId && owner2?.isCurrent() !== false && !owner2?.signal.aborted && host2.transcript.lifetime === lifetime;
+  const graph2 = view === "factory" ? host2.agentGraph : void 0;
   const params = { view, ...portfolio2 ? { portfolio: portfolio2 } : {} };
   const read = async () => decodeFleet(await fleetRequest(host2.gw, sessionId, params), view);
   let handle3;
   let g;
+  let latest2;
+  let refreshing = false;
   const publish = (doc, tab3) => {
     const intent5 = async (detail, context) => {
       if (!current() || !context.isCurrent() || context.signal.aborted) return;
@@ -79746,26 +79906,49 @@ async function fleetCommand(host2, view, portfolio2) {
         return;
       }
       if (local === "refresh") {
+        if (refreshing) return;
+        refreshing = true;
         try {
           const next2 = await read();
-          if (current() && context.isCurrent() && !context.signal.aborted) publish(next2, tab3);
+          if (current() && (graph2 || context.isCurrent() && !context.signal.aborted)) publish(next2, tab3);
         } catch (error) {
-          if (current()) host2.notice(`${label2}: ${error instanceof Error ? error.message : String(error)}`, "warning");
+          if (current() && (context.isCurrent() || graph2)) host2.notice(`${label2}: ${error instanceof Error ? error.message : String(error)}`, "warning");
+        } finally {
+          refreshing = false;
         }
         return;
       }
       await fleetIntent(host2, doc, detail, context);
     };
     if (!g) throw new Error("OpenUI glide library is not loaded");
-    const { program, doc: bound2 } = fleetGlide(doc, view, tab3);
+    latest2 = doc;
+    const { program, doc: bound2 } = fleetGlide(doc, view, tab3, graph2?.nodes(sessionId));
     const card2 = { kind: "fleet-" + view, app: doc.app, title: FLEET_TITLES[view], ui: g.bind(g.program(program, sessionId), bound2) };
     if (handle3) handle3.update(card2, intent5);
     else handle3 = eui.host.publishNative(card2, intent5);
   };
   try {
-    const [lib, doc] = await Promise.all([glide(), read()]);
+    const [lib, doc] = await Promise.all([glide(), read().catch((error) => {
+      if (!graph2) throw error;
+      return decodeFleet({ kind: "fleet-factory", app: "aodl", data: { notes: ["Content factory snapshot unavailable"] } }, view);
+    })]);
     g = lib;
-    if (current()) publish(doc, "agents");
+    if (!current()) return;
+    publish(doc, "agents");
+    if (graph2 && owner2) {
+      const stop3 = graph2.watch(() => {
+        if (!current() || !latest2) {
+          stop3?.();
+          return;
+        }
+        try {
+          publish(latest2, "agents");
+        } catch {
+          stop3?.();
+        }
+      }, owner2.signal);
+      void graph2.seed(host2.gw, sessionId, current);
+    }
   } catch (error) {
     if (current()) host2.notice(`${label2}: ${error instanceof Error ? error.message : String(error)}`, "warning");
   }
@@ -80253,14 +80436,14 @@ function gevAnswer(name, result, rawText) {
   const sc = findStructured(result) ?? findStructured(resultText);
   if (!sc) return void 0;
   const view = sc.view;
-  const rows3 = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
+  const rows2 = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
   return {
     tool,
     summary: findSummary(resultText) ?? findSummary(result) ?? "",
     url: view.url,
     layers: Array.isArray(view["layers"]) ? view["layers"].filter((l) => typeof l === "string") : [],
-    total: typeof sc["total"] === "number" ? sc["total"] : rows3.length || void 0,
-    rows: rows3
+    total: typeof sc["total"] === "number" ? sc["total"] : rows2.length || void 0,
+    rows: rows2
   };
 }
 function embedUrl(url) {
@@ -82271,7 +82454,7 @@ async function researchCommand(host2, arg, o = {}) {
   const browser2 = o.browser ?? ternBrowser;
   const owner2 = "owner" in o ? o.owner : paneBlock();
   const url = new URL(c.view, GEV).toString();
-  const seconds = o.seconds ?? 40;
+  const seconds2 = o.seconds ?? 40;
   const fps = o.fps ?? 4;
   let view = {};
   let x = 0;
@@ -82292,7 +82475,7 @@ async function researchCommand(host2, arg, o = {}) {
   const play = () => {
     stop3();
     timer = setInterval(() => {
-      x = Math.min(1, x + 1 / (seconds * fps));
+      x = Math.min(1, x + 1 / (seconds2 * fps));
       push3();
       if (x >= 1) stop3();
     }, 1e3 / fps);
@@ -82365,8 +82548,8 @@ var filmBridge = (text24) => decode3(bridge, text24);
 function filmProject(text24) {
   const saved = decode3(canonical, text24);
   if (!saved) return decode3(project, text24);
-  const seconds = (n5) => n5 * saved.fps.den / saved.fps.num;
-  const shots = saved.videos[0]?.clips.map((c) => ({ id: c.id, name: c.name, t0: seconds(c.start), t1: seconds(c.start + c.duration) })) ?? [];
+  const seconds2 = (n5) => n5 * saved.fps.den / saved.fps.num;
+  const shots = saved.videos[0]?.clips.map((c) => ({ id: c.id, name: c.name, t0: seconds2(c.start), t1: seconds2(c.start + c.duration) })) ?? [];
   return { id: saved.id, title: saved.title, shots, kind: saved.metadata?.kind, renders: saved.metadata?.renders };
 }
 var filmTakes = (text24) => decode3(takes, text24)?.takes.filter((take) => filmId(take.id));
@@ -82502,9 +82685,9 @@ ${done}` : done, r?.connected ? "info" : "warning");
   }
   note(r?.connected ? `Browser connected: ${r.url || "(url unavailable)"}` : "Browser not connected (set browser.cdp_url in config.yaml to attach one).");
 }
-function pluginLines(rows3) {
+function pluginLines(rows2) {
   const mark2 = (status = "") => status === "enabled" ? "\u2713" : status === "disabled" ? "\u2717" : "\xB7";
-  return rows3.map((p3) => {
+  return rows2.map((p3) => {
     const facts2 = [p3.version, p3.source, p3.status === "enabled" || p3.status === "disabled" ? "" : p3.status].filter(Boolean).join(", ");
     return `- ${mark2(p3.status)} **${p3.name}**${facts2 ? ` (${facts2})` : ""}${p3.description ? ` \u2014 ${p3.description}` : ""}`;
   });
@@ -82518,11 +82701,11 @@ async function plugins(host2, arg) {
     );
   }
   const r = await rpc(host2.gw, "plugins.manage", { action: "list" });
-  const rows3 = r?.plugins ?? [];
-  const user = rows3.filter((p3) => p3.source !== "bundled");
-  const shown3 = sub === "all" || !user.length ? rows3 : user;
-  const hidden2 = rows3.length - shown3.length;
-  if (!rows3.length) {
+  const rows2 = r?.plugins ?? [];
+  const user = rows2.filter((p3) => p3.source !== "bundled");
+  const shown3 = sub === "all" || !user.length ? rows2 : user;
+  const hidden2 = rows2.length - shown3.length;
+  if (!rows2.length) {
     return host2.transcript.notice("No plugins installed.");
   }
   host2.transcript.panel(
@@ -83480,11 +83663,11 @@ function effectiveShortcuts(raw2) {
 function shortcutGroups(actions = APP_SHORTCUTS) {
   const groups = /* @__PURE__ */ new Map();
   for (const action of actions) {
-    const rows3 = groups.get(action.group) ?? [];
-    rows3.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
-    groups.set(action.group, rows3);
+    const rows2 = groups.get(action.group) ?? [];
+    rows2.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
+    groups.set(action.group, rows2);
   }
-  return [...groups].map(([group, rows3]) => ({ group, rows: rows3 }));
+  return [...groups].map(([group, rows2]) => ({ group, rows: rows2 }));
 }
 
 // src/overlays/help.tsx
@@ -83548,29 +83731,29 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
   ];
   const sections2 = /* @__PURE__ */ new Map();
   for (const section of [...HOTKEYS, ...shortcutGroups(actions)]) {
-    const rows3 = sections2.get(section.group) ?? [];
+    const rows2 = sections2.get(section.group) ?? [];
     for (const [keys3, title2] of section.rows) {
-      if (!rows3.some(([prior, label2]) => label2 === title2 && prior.join(" ") === keys3.join(" "))) {
-        rows3.push([[...keys3], title2]);
+      if (!rows2.some(([prior, label2]) => label2 === title2 && prior.join(" ") === keys3.join(" "))) {
+        rows2.push([[...keys3], title2]);
       }
     }
-    sections2.set(section.group, rows3);
+    sections2.set(section.group, rows2);
   }
   const commandGroups = /* @__PURE__ */ new Map();
   for (const category of categories) {
-    const rows3 = commandGroups.get(category.name) ?? [];
+    const rows2 = commandGroups.get(category.name) ?? [];
     for (const pair3 of category.pairs) {
-      if (!rows3.some(([command2]) => command2 === pair3[0])) {
-        rows3.push([...pair3]);
+      if (!rows2.some(([command2]) => command2 === pair3[0])) {
+        rows2.push([...pair3]);
       }
     }
-    commandGroups.set(category.name, rows3);
+    commandGroups.set(category.name, rows2);
   }
   const overlay2 = {
     key: KEY12,
     modal: true,
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Commands and shortcuts", modal: true, role: "omp.overlay.hotkeys", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "lg", children: [
-      [...sections2].map(([group, rows3]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
+      [...sections2].map(([group, rows2]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
         "table",
         {
           cols: [
@@ -83578,7 +83761,7 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
             { grow: 1, head: "Action", id: "action" }
           ],
           role: "omp.hotkeys.table",
-          rows: rows3.map(([keys3, action], i) => ({
+          rows: rows2.map(([keys3, action], i) => ({
             cells: {
               action: [{ t: action }],
               keys: keys3.flatMap((k, j) => [...j ? [{ s: "dim", t: " " }] : [], { s: "key", t: k }])
@@ -84007,15 +84190,15 @@ function waveform(words5, bars = 64) {
 }
 function waveSvg(words5) {
   const w = 480, h2 = 72, amps = waveform(words5);
-  const step2 = w / amps.length;
+  const step3 = w / amps.length;
   const rects = amps.map((a2, i) => {
     const bh = Math.max(2, a2 * h2);
-    return `<rect x="${(i * step2 + 1).toFixed(1)}" y="${((h2 - bh) / 2).toFixed(1)}" width="${(step2 - 2).toFixed(1)}" height="${bh.toFixed(1)}" rx="1.5"/>`;
+    return `<rect x="${(i * step3 + 1).toFixed(1)}" y="${((h2 - bh) / 2).toFixed(1)}" width="${(step3 - 2).toFixed(1)}" height="${bh.toFixed(1)}" rx="1.5"/>`;
   }).join("");
   return { t: "svg", w, h: h2, cls: "ih-wave", style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}"><g fill="var(--h-primary)" opacity="0.55">${rects}</g></svg>` };
 }
-function clauseRuns(ask, rows3) {
-  const hits = rows3.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
+function clauseRuns(ask, rows2) {
+  const hits = rows2.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
   const runs3 = [];
   let at3 = 0;
   for (const x of hits) {
@@ -84412,10 +84595,10 @@ function fleetFit(kind) {
       } : g);
     }
     for (const [list10, row2, cap2] of fit.caps) if (is3(n5, list10) && !opened.has(MORE2 + ":" + n5.id)) {
-      const rows3 = els(kids2, row2);
-      const kept = rows3.filter((k) => picked2.has(k.id) || marks2 !== "" && has(k, marks2));
+      const rows2 = els(kids2, row2);
+      const kept = rows2.filter((k) => picked2.has(k.id) || marks2 !== "" && has(k, marks2));
       let room = cap2 - kept.length;
-      const hidden2 = rows3.filter((k) => !kept.includes(k) && room-- <= 0);
+      const hidden2 = rows2.filter((k) => !kept.includes(k) && room-- <= 0);
       if (!hidden2.length) continue;
       const last = kids2.findLastIndex((k) => is3(k, row2));
       const more = el("button", "fl-tag fl-more", control(n5.id, MORE2), { type: "button" }, [{ t: "text", text: hidden2.length + " more" }]);
@@ -96807,8 +96990,8 @@ function analyzeTable(source3) {
   if (source3.length > 8192 || /[\\`<>]/.test(source3) || [...source3].some((c) => c !== "\n" && c.charCodeAt(0) < 32)) {
     return;
   }
-  const rows3 = source3.trim().split("\n").map(cells);
-  const [header, delimiter, ...body] = rows3;
+  const rows2 = source3.trim().split("\n").map(cells);
+  const [header, delimiter, ...body] = rows2;
   if (!header || header.length !== 2 || header.some((s2) => !s2) || !delimiter || delimiter.length !== 2 || !delimiter.every((s2) => /^:?-{3,}:?$/.test(s2)) || body.length < 2 || body.length > 24 || body.some((row2) => row2.length !== 2 || !row2[0] || NUMBER.test(row2[0]) || !NUMBER.test(row2[1] ?? ""))) {
     return;
   }
@@ -96870,10 +97053,10 @@ function chartSvg(table3, kind) {
   const max = Math.max(0, ...table3.values);
   const scale = (n5) => 260 - (n5 - min) / (max - min) * 210;
   const baseline = scale(0);
-  const step2 = 500 / table3.values.length;
-  const points = table3.values.map((n5, i) => `${60 + (i + 0.5) * step2},${scale(n5)}`).join(" ");
-  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n5, i) => `<rect x="${60 + i * step2 + 4}" y="${Math.min(baseline, scale(n5))}" width="${step2 - 8}" height="${Math.max(1, Math.abs(baseline - scale(n5)))}" fill="var(--accent)"/>`).join("");
-  const labels = table3.labels.map((s2, i) => `<text x="${60 + (i + 0.5) * step2}" y="285" text-anchor="middle" fill="var(--text)" font-size="10">${xml2(s2.slice(0, 12))}</text>`).join("");
+  const step3 = 500 / table3.values.length;
+  const points = table3.values.map((n5, i) => `${60 + (i + 0.5) * step3},${scale(n5)}`).join(" ");
+  const marks2 = kind === "line" ? `<polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="3"/>` : table3.values.map((n5, i) => `<rect x="${60 + i * step3 + 4}" y="${Math.min(baseline, scale(n5))}" width="${step3 - 8}" height="${Math.max(1, Math.abs(baseline - scale(n5)))}" fill="var(--accent)"/>`).join("");
+  const labels = table3.labels.map((s2, i) => `<text x="${60 + (i + 0.5) * step3}" y="285" text-anchor="middle" fill="var(--text)" font-size="10">${xml2(s2.slice(0, 12))}</text>`).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="620" height="320" viewBox="0 0 620 320"><title>${xml2(table3.title)}</title><text x="60" y="25" fill="var(--text)" font-size="16">${xml2(table3.title)}</text><text x="5" y="55" fill="var(--muted)" font-size="10">${max}</text><text x="5" y="260" fill="var(--muted)" font-size="10">${min}</text><path d="M60 ${baseline}H560" stroke="var(--muted)"/>${marks2}${labels}</svg>`;
 }
 var TableCharts = class {
@@ -97026,8 +97209,8 @@ function cellText(key3, v) {
   }
   return typeof v === "string" ? v : typeof v === "boolean" ? v ? "yes" : "no" : "";
 }
-function columns(rows3) {
-  const first = rows3[0];
+function columns(rows2) {
+  const first = rows2[0];
   if (!first) return [];
   return Object.keys(first).filter((k) => !SKIP3.test(k) && ["string", "number", "boolean"].includes(typeof first[k])).slice(0, 4);
 }
@@ -97190,15 +97373,15 @@ function wordPath(from, to) {
   return d;
 }
 var clamp3 = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
-var ease3 = (t) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+var ease2 = (t) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 var lerp = (a2, b, t) => a2 + (b - a2) * t;
 var artInk = (dark) => dark ? { ink: "#ece8e1", gold: "#d7b986", dark } : { ink: "#1d1b18", gold: "#8a6a2f", dark };
 var OPENING = ["working", "solving", "weaving"];
 var LOOP = ["composing", "searching", "connecting", "listening"];
-function orbMarks2(state, seconds, cx, cy, size, alpha, ink3) {
+function orbMarks2(state, seconds2, cx, cy, size, alpha, ink3) {
   if (alpha <= 0.01) return "";
   const preset = Lt(state, 64);
-  const frame2 = vt[preset.mode](64, seconds * preset.speed, preset.opts);
+  const frame2 = vt[preset.mode](64, seconds2 * preset.speed, preset.opts);
   const k = size / 64;
   const grey = (white) => {
     const v = Math.round((ink3.dark ? 1 - clamp3(white) : clamp3(white)) * 255);
@@ -97235,9 +97418,9 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
   const parts3 = [];
   const t = reduce ? Math.max(ms3, MORPH_END) : ms3;
   const L2 = WORD3.length;
-  const move = ease3(clamp3((t - ORB_END) / 900));
+  const move = ease2(clamp3((t - ORB_END) / 900));
   const ox = lerp(BIG.x, SMALL.x, move), oy = lerp(BIG.y, SMALL.y, move), size = lerp(BIG.size, SMALL.size, move);
-  const appear = ease3(clamp3(t / 320));
+  const appear = ease2(clamp3(t / 320));
   if (t < MORPH_END) {
     parts3.push(cycleOrb(OPENING, t, 380, 140, ox, oy, size * lerp(0.7, 1, appear), appear, ink3));
   } else {
@@ -97253,7 +97436,7 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
       const u = k / (PARTICLES - 1);
       const p3 = (t - ORB_END - u * LAUNCH_SPREAD_MS) / FLIGHT_MS;
       if (p3 <= 0 || p3 >= 1.25) continue;
-      const f2 = ease3(clamp3(p3));
+      const f2 = ease2(clamp3(p3));
       const ang = hash(k) * Math.PI * 2, rad = Math.sqrt(hash(k + 99)) * size * 0.18;
       const sx = ox + Math.cos(ang) * rad, sy = oy + Math.sin(ang) * rad;
       const end = pointAt(u * L2);
@@ -97272,7 +97455,7 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
       parts3.push(`<path d="${wordPath(Math.max(0, head2 - L2 * 0.08), Math.min(L2, head2))}" fill="none" stroke="${ink3.gold}" stroke-width="${STROKE_W + 0.4}" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>`);
     }
   }
-  const leaving = exitMs === null ? 0 : ease3(clamp3((ms3 - exitMs) / SPLASH_EXIT_MS));
+  const leaving = exitMs === null ? 0 : ease2(clamp3((ms3 - exitMs) / SPLASH_EXIT_MS));
   const body = parts3.join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${ART_W * 2}" height="${ART_H * 2}" viewBox="0 0 ${ART_W} ${ART_H}"><g opacity="${(1 - leaving).toFixed(3)}" transform="translate(0 ${(-8 * leaving).toFixed(2)})">${body}</g></svg>`;
 }
@@ -97730,7 +97913,7 @@ function build2(title2, inline, body) {
     return items.length ? { items, kind: "breakdown", note: /_\((.*?)\)_/.exec(inline)?.[1], title: name } : text22(name, inline, lines);
   }
   if (lower.includes("session") || lower.includes("token usage")) {
-    const rows3 = [];
+    const rows2 = [];
     let context;
     for (const l of lines) {
       const p3 = pair2(l);
@@ -97740,23 +97923,23 @@ function build2(title2, inline, body) {
       if (Number.isFinite(used) && max > 0) {
         context = { max, used };
       } else if (p3) {
-        rows3.push(p3);
+        rows2.push(p3);
       }
     }
-    return rows3.length || context ? { context, kind: "session", rows: rows3, title: name } : text22(name, inline, lines);
+    return rows2.length || context ? { context, kind: "session", rows: rows2, title: name } : text22(name, inline, lines);
   }
   if (lower.includes("credit")) {
-    const rows3 = [];
+    const rows2 = [];
     const notes = [];
     for (const l of lines) {
       const p3 = pair2(l);
       if (p3) {
-        rows3.push(p3);
+        rows2.push(p3);
       } else {
         notes.push(l.trim());
       }
     }
-    return rows3.length ? { kind: "credits", notes, rows: rows3, title: name } : text22(name, inline, lines);
+    return rows2.length ? { kind: "credits", notes, rows: rows2, title: name } : text22(name, inline, lines);
   }
   return text22(name, inline, lines);
 }
@@ -97873,9 +98056,9 @@ function limitsTable(items) {
     "limits"
   );
 }
-function sessionBody(rows3, context) {
-  const model = rows3.find((r) => /^model$/i.test(r.key));
-  const rest = rows3.filter((r) => r !== model);
+function sessionBody(rows2, context) {
+  const model = rows2.find((r) => /^model$/i.test(r.key));
+  const rest = rows2.filter((r) => r !== model);
   const out = [];
   if (model) {
     out.push(
@@ -97918,7 +98101,7 @@ function sessionBody(rows3, context) {
   }
   return out;
 }
-function pairTable(rows3, id3) {
+function pairTable(rows2, id3) {
   return /* @__PURE__ */ jsx(
     "table",
     {
@@ -97926,7 +98109,7 @@ function pairTable(rows3, id3) {
         { id: "k", truncate: "end" },
         { align: "end", id: "v", grow: 1 }
       ],
-      rows: rows3.map((r, i) => ({
+      rows: rows2.map((r, i) => ({
         cells: {
           k: [{ s: "muted", t: r.key }],
           v: /^https?:\/\//.test(r.value) ? [{ href: r.value, s: "link", t: r.value }] : [{ s: /^[\d$,.%\s-]+$/.test(r.value) ? "num" : "", t: r.value }]
@@ -99206,7 +99389,13 @@ var STYLES2 = minifyCss(css`
   /* The group's own chevron sits right after its summary and turns as it opens (Tern's is hidden). */
   [data-role='hermes.work.chev'] {
     opacity: 0.45;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform ${NORMAL_MOTION_MS.snappy}ms ${CRITICAL_EASE}, opacity ${NORMAL_MOTION_MS.fade}ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-role='hermes.work.chev'] {
+      transition-property: opacity;
+    }
   }
 
   .sf-section.collapsed > .sf-section-head [data-role='hermes.work.chev'] {
@@ -99561,7 +99750,7 @@ var STYLES2 = minifyCss(css`
     border-radius: 999px;
     background: var(--l1);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background ${NORMAL_MOTION_MS.snappy}ms ease;
   }
 
   .sf-row[data-role='hermes.automation.item']:hover {
@@ -99639,7 +99828,7 @@ var STYLES2 = minifyCss(css`
     background: var(--sf-card-bg);
     box-shadow: inset 0 0 0 1px var(--l2);
     cursor: pointer;
-    transition: background 120ms ease;
+    transition: background ${NORMAL_MOTION_MS.fade}ms ease;
   }
 
   .sf-agent[data-role='hermes.task.solo']:hover {
@@ -100914,16 +101103,16 @@ function openAutomation(host2, which) {
 
 // src/overlays/historySearch.tsx
 function openPromptHistorySearch(host2, composer2, history2 = load()) {
-  const rows3 = history2.map((text24, index2) => {
+  const rows2 = history2.map((text24, index2) => {
     const search3 = text24.replace(/\s+/g, " ").trim();
     return { id: String(index2), text: text24, search: search3, label: search3.length > 140 ? search3.slice(0, 140) + "\u2026" : search3 };
   }).filter((row2) => row2.search.length > 0).reverse();
   let query2 = "";
-  let shown3 = rows3.map((row2) => row2.id);
+  let shown3 = rows2.map((row2) => row2.id);
   let selected = shown3[0];
   let alive = true;
   const refresh2 = () => {
-    const matches3 = rank(rows3, query2, (row2) => row2.search);
+    const matches3 = rank(rows2, query2, (row2) => row2.search);
     shown3 = matches3.map((match) => match.item.id);
     if (selected === void 0 || !shown3.includes(selected)) {
       selected = shown3[0];
@@ -100932,7 +101121,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
   };
   const fill = (id3 = selected) => {
     if (!alive || id3 === void 0 || !shown3.includes(id3)) return;
-    const picked2 = rows3.find((row2) => row2.id === id3);
+    const picked2 = rows2.find((row2) => row2.id === id3);
     if (!picked2) return;
     host2.close(overlay2);
     composer2.set(picked2.text, { literal: true });
@@ -100947,7 +101136,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
     node: (root7) => {
       const matches3 = refresh2();
       const hits = {};
-      const items = rows3.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
+      const items = rows2.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
       for (const { item: item3, positions } of matches3) {
         if (positions.length) hits[item3.id] = hitRuns(positions, item3.label.length);
       }
@@ -100985,7 +101174,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
           size: "lg",
           state: "ready",
           title: "Prompt history",
-          total: rows3.length
+          total: rows2.length
         },
         nativeOverlayKey(root7)
       );
@@ -101150,9 +101339,9 @@ var BindingPreferences = class {
 
 // src/shortcuts/model-cycle.ts
 function availableModels(options2) {
-  const rows3 = (options2.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
+  const rows2 = (options2.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
   const seen = /* @__PURE__ */ new Set();
-  return rows3.filter((row2) => {
+  return rows2.filter((row2) => {
     const id3 = modelId(row2);
     if (seen.has(id3)) {
       return false;
@@ -101179,15 +101368,15 @@ function cycleTarget(available, recent, active2, direction) {
     seen.add(id3);
     return true;
   });
-  const rows3 = valid2.length > 1 ? valid2 : available;
-  if (rows3.length < 2) {
+  const rows2 = valid2.length > 1 ? valid2 : available;
+  if (rows2.length < 2) {
     return null;
   }
-  const at3 = rows3.findIndex((row2) => modelId(row2) === modelId(active2));
+  const at3 = rows2.findIndex((row2) => modelId(row2) === modelId(active2));
   if (at3 < 0) {
-    return direction === 1 ? rows3[0] ?? null : rows3[rows3.length - 1] ?? null;
+    return direction === 1 ? rows2[0] ?? null : rows2[rows2.length - 1] ?? null;
   }
-  return rows3[(at3 + direction + rows3.length) % rows3.length] ?? null;
+  return rows2[(at3 + direction + rows2.length) % rows2.length] ?? null;
 }
 function cycleModel(host2, direction) {
   const owner2 = host2.session.ref;
@@ -101532,7 +101721,7 @@ function shellsOf(processes, now) {
 
 // src/shortcuts/palette.tsx
 function templateRows() {
-  const rows3 = ["mono", "studio", "default"].map((id3) => ({
+  const rows2 = ["mono", "studio", "default"].map((id3) => ({
     command: `/template ${id3}`,
     description: TEMPLATES[id3].detail,
     group: "Templates",
@@ -101540,12 +101729,12 @@ function templateRows() {
     name: `Use ${TEMPLATES[id3].label} template`
   }));
   for (const panel of TEMPLATE_PANELS) {
-    rows3.push({ command: `/template panel ${panel}`, description: `Dock the ${PANEL_TITLES[panel]} page beside the chat`, group: "Templates", id: `panel:${panel}`, name: `Open ${PANEL_TITLES[panel]} page` });
+    rows2.push({ command: `/template panel ${panel}`, description: `Dock the ${PANEL_TITLES[panel]} page beside the chat`, group: "Templates", id: `panel:${panel}`, name: `Open ${PANEL_TITLES[panel]} page` });
   }
-  return rows3;
+  return rows2;
 }
 function paletteRows(catalog = {}) {
-  const rows3 = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const add2 = (raw2, description, group) => {
     const name = /^\/?[a-z][\w-]*/i.exec(raw2.trim())?.[0]?.replace(/^\//, "").toLowerCase();
@@ -101553,7 +101742,7 @@ function paletteRows(catalog = {}) {
       return;
     }
     seen.add(name);
-    rows3.push({ id: `/${name}`, name: `/${name}`, description, group });
+    rows2.push({ id: `/${name}`, name: `/${name}`, description, group });
   };
   for (const c of localCommands()) {
     add2(c.name, c.help ?? "Hermes command", "Tern / Hermes");
@@ -101563,7 +101752,7 @@ function paletteRows(catalog = {}) {
       add2(raw2, description.replace(/\s*\(usage: .+\)\s*$/, ""), category.name);
     }
   }
-  return [...rows3, ...templateRows()];
+  return [...rows2, ...templateRows()];
 }
 function openCommandPalette(host2) {
   const sid = host2.session.ref.live;
@@ -101917,13 +102106,13 @@ var ServerQueue = class {
   /** Input ids of own admissions the FIFO has listed. */
   #listed = /* @__PURE__ */ new Set();
   /** Another session: its FIFO from the resume snapshot, and none of the last one's bookkeeping. */
-  reset(rows3) {
+  reset(rows2) {
     this.#own.length = 0;
     this.#shown.clear();
     this.#queuedOnly.clear();
     this.#listed.clear();
     this.rows = [];
-    this.update(rows3);
+    this.update(rows2);
   }
   /** A prompt about to be admitted behind the turn; its row shows at once. */
   admit(own14) {
@@ -101959,13 +102148,13 @@ var ServerQueue = class {
    * in order: this pane's admissions that started, and another viewer's rows this pane saw move
    * from queued to started (a resume snapshot's started row is already in the replayed history).
    */
-  update(rows3) {
-    if (!rows3) {
+  update(rows2) {
+    if (!rows2) {
       return [];
     }
     const was = new Set(this.rows.filter((r) => r.status === "queued").map((r) => r.admission_id));
     const owed = [];
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       if (row2.status === "queued") {
         this.#queuedOnly.add(row2.admission_id);
         const own15 = this.#own.find((o) => o.inputId === row2.input_id);
@@ -101992,8 +102181,8 @@ var ServerQueue = class {
         owed.push({ own: own14, text: own14?.display ?? row2.user });
       }
     }
-    this.rows = rows3;
-    const listed2 = new Set(rows3.map((r) => r.input_id));
+    this.rows = rows2;
+    const listed2 = new Set(rows2.map((r) => r.input_id));
     for (const own14 of [...this.#own]) {
       if (listed2.has(own14.inputId)) {
         this.#listed.add(own14.inputId);
@@ -102015,12 +102204,12 @@ var ServerQueue = class {
   }
   /** The rows that still wait, oldest first: the FIFO's, then admissions it does not list yet. */
   queued() {
-    const rows3 = this.rows.filter(isServerQueued).map((row2) => {
+    const rows2 = this.rows.filter(isServerQueued).map((row2) => {
       const own14 = this.#own.find((o) => o.inputId === row2.input_id);
       return own14 ? ownRow(own14) : { kind: "theirs", row: row2, text: row2.user };
     });
     const listed2 = new Set(this.rows.map((r) => r.input_id));
-    return [...rows3, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
+    return [...rows2, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
   }
 };
 
@@ -103461,9 +103650,9 @@ var Agents = class {
     if (!sid) {
       return;
     }
-    let rows3;
+    let rows2;
     try {
-      rows3 = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
+      rows2 = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
     } catch {
       return;
     }
@@ -103472,7 +103661,7 @@ var Agents = class {
     }
     const owners = this.#owners();
     const present = /* @__PURE__ */ new Set();
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       const id3 = row2.subagent_id;
       if (!id3) {
         continue;
@@ -104283,7 +104472,10 @@ var FactoryPane = class {
     this.#open = !this.#open;
     this.#poller.adopt(++this.#generation);
     clearTimeout(this.#timer);
-    if (this.#open) this.#poke();
+    if (this.#open) {
+      this.#poke();
+      this.#seedAgents();
+    }
     this.#host.changed();
   }
   adopt(sid) {
@@ -104295,13 +104487,27 @@ var FactoryPane = class {
     this.#busy = false;
     this.#operation = void 0;
     clearTimeout(this.#timer);
-    if (this.#open) this.#poke();
+    if (this.#open) {
+      this.#poke();
+      this.#seedAgents();
+    }
   }
   dispose() {
     this.#disposed = true;
     this.#open = false;
     clearTimeout(this.#timer);
     this.#poller.dispose();
+  }
+  #seedAgents() {
+    const sid = this.#host.session.ref.live;
+    if (!sid || !this.#host.agentGraph) return;
+    const generation = this.#generation;
+    const owner2 = this.#host.session.ownerTicket?.();
+    void this.#host.agentGraph.seed(
+      this.#host.gw,
+      sid,
+      () => this.#open && generation === this.#generation && owner2?.isCurrent() !== false
+    ).then(() => this.#host.changed());
   }
   #poke() {
     clearTimeout(this.#timer);
@@ -104371,7 +104577,14 @@ var FactoryPane = class {
         hint: run8.state === "failed" ? "FAILED \xB7 Inspect with /factory runs." : "DONE \xB7 Awaiting review in /factory runs."
       }];
     });
+    const sid = this.#host.session.ref.live;
+    const live = sid && this.#host.agentGraph ? agentLineage(this.#host.agentGraph.nodes(sid)) : [];
     const sections2 = [
+      ...live.length ? [{ id: "live-agents", title: "Running agents \xB7 gateway", rows: live.map(({ node: node4, depth }) => ({
+        id: node4.id,
+        label: (depth ? "\u3000".repeat(Math.min(5, depth - 1)) + "\u21B3 " : "\u25C9 ") + node4.label,
+        hint: node4.state
+      })) }] : [],
       { id: "status-line", title: "Factory now", rows: [hero] },
       {
         id: "suggestions",
@@ -105242,7 +105455,7 @@ function taskRows(tasks) {
     const parent = task2.parent && unique.has(task2.parent) && task2.parent !== task2.id ? task2.parent : "";
     children3.set(parent, [...children3.get(parent) ?? [], task2]);
   }
-  const rows3 = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const walk = (roots) => {
     const stack = roots.map((task2) => ({ task: task2, depth: 0 })).reverse();
@@ -105251,16 +105464,16 @@ function taskRows(tasks) {
       if (!next2 || seen.has(next2.task.id)) continue;
       const { task: task2, depth } = next2;
       seen.add(task2.id);
-      rows3.push({ id: task2.id, label: `${"  ".repeat(Math.min(depth, 8))}${depth ? "\u2514 " : ""}${MARK2[task2.state]} ${task2.text}`, value: task2.state === "untracked" ? "requested" : task2.state, tone: tone2(task2.state) });
+      rows2.push({ id: task2.id, label: `${"  ".repeat(Math.min(depth, 8))}${depth ? "\u2514 " : ""}${MARK2[task2.state]} ${task2.text}`, value: task2.state === "untracked" ? "requested" : task2.state, tone: tone2(task2.state) });
       stack.push(...(children3.get(task2.id) ?? []).map((task3) => ({ task: task3, depth: depth + 1 })).reverse());
     }
   };
   walk(children3.get("") ?? []);
   walk([...unique.values()].filter((t) => !seen.has(t.id)));
-  return rows3;
+  return rows2;
 }
 function fileRows(files) {
-  const rows3 = [];
+  const rows2 = [];
   const dirs = /* @__PURE__ */ new Set();
   for (const file2 of [...files].sort((a2, b) => a2.path.localeCompare(b.path))) {
     const parts3 = file2.path.split("/").filter(Boolean);
@@ -105268,9 +105481,9 @@ function fileRows(files) {
       const path2 = parts3.slice(0, i + 1).join("/");
       if (dirs.has(path2)) continue;
       dirs.add(path2);
-      rows3.push({ id: `dir:${path2}`, label: `${"  ".repeat(Math.min(i, 8))}\u2514 ${parts3[i]}/` });
+      rows2.push({ id: `dir:${path2}`, label: `${"  ".repeat(Math.min(i, 8))}\u2514 ${parts3[i]}/` });
     }
-    rows3.push({
+    rows2.push({
       id: `file:${file2.path}`,
       label: `${"  ".repeat(Math.min(parts3.length - 1, 8))}\u2514 ${MARK2[file2.state]} ${parts3.at(-1) ?? file2.path}`,
       ...file2.action === "read" ? { detail: "Read" } : {},
@@ -105278,10 +105491,10 @@ function fileRows(files) {
       tone: tone2(file2.state)
     });
   }
-  return rows3;
+  return rows2;
 }
 function workTreeDoc(work2, tab3, expanded) {
-  const rows3 = tab3 === "files" ? fileRows(work2.files) : taskRows(work2.tasks);
+  const rows2 = tab3 === "files" ? fileRows(work2.files) : taskRows(work2.tasks);
   return {
     id: "work-tree",
     title: "Work tree",
@@ -105289,7 +105502,7 @@ function workTreeDoc(work2, tab3, expanded) {
     status: work2.turn.end.status === "live" ? "running" : work2.turn.end.status === "error" ? "error" : "done",
     slots: {
       tabs: slot("Tabs", { active: tab3, items: [{ id: "files", label: "FILES", count: work2.files.length, intent: { action: "tab", entities: { tab: "files" } } }, { id: "tasks", label: "FEATURES / TASKS", count: work2.tasks.length, intent: { action: "tab", entities: { tab: "tasks" } } }] }),
-      rows: slot("List", { numbered: false, items: rows3 }),
+      rows: slot("List", { numbered: false, items: rows2 }),
       empty: slot("Text", { body: tab3 === "files" ? "Waiting for file tools\u2026" : "No tasks in the current plan.", tone: "muted" }),
       receipt: slot("Text", { body: work2.receipt }),
       actions: slot("Buttons", { items: [{ label: expanded ? "Collapse work tree" : "Show work tree", intent: { action: expanded ? "collapse" : "expand" } }] })
@@ -105360,8 +105573,8 @@ var WorkTreeCard = class {
       return /* @__PURE__ */ jsx("text", { role: "glide.work-tree.notice", text: this.#error ? `Work tree unavailable: ${this.#error}` : "Preparing work tree\u2026", wrap: "word" }, "glide.work-tree.loading");
     }
     const doc = workTreeDoc(work2, this.#tab, this.#expanded);
-    const rows3 = this.#tab === "files" ? work2.files : work2.tasks;
-    const program = this.#expanded ? rows3.length ? PROGRAM : EMPTY4 : RECEIPT;
+    const rows2 = this.#tab === "files" ? work2.files : work2.tasks;
+    const program = this.#expanded ? rows2.length ? PROGRAM : EMPTY4 : RECEIPT;
     const view = this.#views.get(program);
     if (!view) return null;
     const bound2 = this.#glide.bind(view, doc);
@@ -105415,6 +105628,149 @@ ${dim ? `${dim}{color:var(--t3)}` : ""}
 @media (max-width:480px){${both} .sf-card{padding:10px}${both} [data-role='glide.list']{max-height:116px}${both} [data-role='glide.list.value']{max-width:9ch}${both} .sf-tabs button{min-height:44px}}
 `;
 }
+
+// ../glide/frontend/toolProgress.ts
+var TOOL_PROGRESS_KIND = "tool-progress";
+var MAX_STEPS2 = 12;
+var plural5 = (n5, word) => `${n5} ${word}${n5 === 1 ? "" : "s"}`;
+var seconds = (ms3) => ms3 < 1e3 ? `${Math.max(0, Math.round(ms3))} ms` : `${(ms3 / 1e3).toFixed(1)} s`;
+function progressFraction(p3) {
+  if (typeof p3.percent === "number" && Number.isFinite(p3.percent)) return Math.max(0, Math.min(1, p3.percent / 100));
+  if (typeof p3.total === "number" && p3.total > 0 && Number.isFinite(p3.progress)) return Math.max(0, Math.min(1, p3.progress / p3.total));
+  return void 0;
+}
+function step2(call, label2, progress) {
+  const o = call.outcome;
+  if (o.kind === "running") {
+    const p3 = progress.get(call.id);
+    const fraction2 = p3 ? progressFraction(p3) : void 0;
+    const note2 = [p3?.message?.trim(), fraction2 === void 0 ? void 0 : `${Math.round(fraction2 * 100)}%`].filter(Boolean).join(" \xB7 ");
+    return { id: call.id, text: label2(call, true), status: "active", ...note2 ? { note: note2 } : {} };
+  }
+  const note = [o.summary?.trim(), o.kind === "cancelled" ? "stopped" : void 0, seconds(o.duration)].filter(Boolean).join(" \xB7 ");
+  return { id: call.id, text: label2(call, false), status: o.kind === "done" ? "done" : "blocked", note };
+}
+function toolProgressCard(entries2, turn2, cwd, label2, progress) {
+  const calls = turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call] : []);
+  const live = turn2.end.status === "live";
+  const running2 = calls.filter((c) => c.outcome.kind === "running");
+  const failed2 = calls.filter((c) => c.outcome.kind === "error").length;
+  const files = projectWorkTree(entries2, turn2, cwd).files;
+  const changed = files.filter((f2) => f2.action !== "read").length;
+  const children3 = [];
+  const shown3 = calls.slice(-MAX_STEPS2);
+  const hidden2 = calls.length - shown3.length;
+  children3.push({ type: "element", typeName: "Steps", props: { items: shown3.map((c) => step2(c, label2, progress)) } });
+  if (hidden2 > 0) children3.push({ type: "element", typeName: "Text", props: { body: `${plural5(hidden2, "earlier step")} not shown`, tone: "muted" } });
+  const metered = live ? running2.findLast((c) => {
+    const p3 = progress.get(c.id);
+    return p3 !== void 0 && progressFraction(p3) !== void 0;
+  }) : void 0;
+  const report = metered ? progress.get(metered.id) : void 0;
+  const fraction2 = report ? progressFraction(report) : void 0;
+  if (metered && report && fraction2 !== void 0) {
+    const total = typeof report.total === "number" && report.total > 0 ? `${report.progress}/${report.total}` : `${Math.round(fraction2 * 100)}%`;
+    children3.push({ type: "element", typeName: "Meter", props: { label: report.message?.trim() || label2(metered, true), value: fraction2, total, tone: "accent" } });
+  }
+  if (files.length) {
+    children3.push({ type: "element", typeName: "Section", props: { title: "Files", aside: changed ? `${changed} changed` : plural5(files.length, "read"), children: [
+      { type: "element", typeName: "List", props: { items: fileRows(files) } }
+    ] } });
+  }
+  const done = calls.length - running2.length;
+  const state = live ? "Working" : { done: "Done", error: "Turn failed", interrupted: "Interrupted", live: "Working" }[turn2.end.status];
+  const ended = turn2.end.status !== "live" ? turn2.end.endedAt : void 0;
+  const receipt = [
+    state,
+    live ? `${done} of ${plural5(calls.length, "tool")} done` : plural5(calls.length, "tool"),
+    ...files.length ? [plural5(files.length, "file")] : [],
+    ...failed2 ? [`${failed2} failed`] : [],
+    ...ended !== void 0 ? [seconds(ended - turn2.startedAt)] : []
+  ].join(" \xB7 ");
+  children3.push({ type: "element", typeName: "Text", props: { body: receipt, tone: "muted" } });
+  const status = live ? "running" : turn2.end.status === "error" || failed2 ? "error" : "done";
+  return {
+    kind: TOOL_PROGRESS_KIND,
+    app: live ? "LIVE" : "SETTLED",
+    title: "Tool progress",
+    ui: { type: "element", typeName: "Card", props: { title: "Tool progress", app: live ? "LIVE" : "SETTLED", status, children: children3 } }
+  };
+}
+var NO_INTENT = () => void 0;
+var EDITS = /* @__PURE__ */ new Set(["patch", "write_file"]);
+function worthACard(turn2, progress) {
+  const calls = turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call] : []);
+  return calls.length >= 2 || calls.some((c) => progress.has(c.id) || EDITS.has(c.name));
+}
+var ToolProgressCards = class {
+  #deps;
+  #turn;
+  #handle;
+  #progress = /* @__PURE__ */ new Map();
+  #refused;
+  constructor(deps) {
+    this.#deps = deps;
+  }
+  /** The turn the card follows now, if one is up. */
+  get turn() {
+    return this.#turn;
+  }
+  /** Why the host last refused a publish or an update (no active session, a hidden surface, a stale card). */
+  get refused() {
+    return this.#refused;
+  }
+  /** After the transcript took a tool.start or tool.complete: publishes the live turn's card, or updates it. */
+  track() {
+    const turn2 = this.#deps.transcript().live;
+    if (!turn2 || turn2 !== this.#turn && !worthACard(turn2, this.#progress)) return;
+    if (turn2 !== this.#turn) {
+      if (this.#turn) this.#update(this.#turn);
+      const ids = new Set(turn2.blocks.flatMap((b) => b.kind === "tool" ? [b.call.id] : []));
+      for (const id3 of this.#progress.keys()) if (!ids.has(id3)) this.#progress.delete(id3);
+      this.#turn = void 0;
+      this.#handle = void 0;
+      const eui = this.#deps.eui();
+      if (!eui) return;
+      try {
+        this.#handle = eui.host.publishNative(this.#card(turn2), NO_INTENT);
+      } catch (error) {
+        this.#refused = error instanceof Error ? error.message : String(error);
+        return;
+      }
+      this.#turn = turn2;
+      this.#refused = void 0;
+      return;
+    }
+    this.#update(turn2);
+  }
+  /** A running call's tool.progress: its meter and note move. Reports for a call the turn lacks wait for its tool.start. */
+  progress(p3) {
+    this.#progress.set(p3.tool_id, { progress: p3.progress, total: p3.total ?? null, percent: p3.percent ?? null, message: p3.message ?? null });
+    const turn2 = this.#turn;
+    if (turn2 && turn2 === this.#deps.transcript().live) this.#update(turn2);
+    else this.track();
+  }
+  /** The turn ended (message.complete, an interrupt): the card's last update is its receipt. */
+  settle() {
+    const turn2 = this.#turn;
+    if (turn2) this.#update(turn2);
+    this.#turn = void 0;
+    this.#handle = void 0;
+    this.#progress.clear();
+  }
+  #card(turn2) {
+    return toolProgressCard(this.#deps.transcript().entries, turn2, this.#deps.cwd(), this.#deps.label, this.#progress);
+  }
+  #update(turn2) {
+    if (!this.#handle) return;
+    try {
+      this.#handle.update(this.#card(turn2), NO_INTENT);
+    } catch (error) {
+      this.#refused = error instanceof Error ? error.message : String(error);
+      this.#handle = void 0;
+    }
+  }
+};
 
 // src/todo-hud.ts
 var MAX_CACHED_SESSIONS = 24;
@@ -105802,7 +106158,7 @@ function controlSheet(ref, control2, host2) {
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: control2.prompt }, "question"),
       control2.kind === "confirm" && control2.detail ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: control2.detail }], wrap: "word" }, "detail") : null,
-      control2.kind === "slider" ? slider(state, control2, feed) : rows2(`${id3}.body.rows`, state, feed, focus2),
+      control2.kind === "slider" ? slider(state, control2, feed) : rows(`${id3}.body.rows`, state, feed, focus2),
       /* @__PURE__ */ jsx("text", { role: "omp.ask.hint", spans: [{ s: "dim", t: keyHint(control2) }], wrap: "word" }, "hint"),
       actionsRow([
         { hint: "escape", key: "skip", keys: ["escape"], label: "Not now", onClick: () => feed({ key: "escape", kind: "key" }) },
@@ -105823,7 +106179,7 @@ function controlSheet(ref, control2, host2) {
   };
   return { feed, overlay: overlay2 };
 }
-function rows2(id3, state, feed, focus2) {
+function rows(id3, state, feed, focus2) {
   const { control: control2 } = state;
   const list10 = rowsOf2(control2);
   const multiple = control2.kind === "choice" && control2.multiple === true;
@@ -106851,8 +107207,8 @@ function layerOf(raw2) {
   const p3 = layerRow.safeParse(raw2).data;
   return p3 && { head: p3.head.ref, number: p3.number, state: p3.merged_at ? "merged" : p3.state };
 }
-function parseStacks(host2, repository, rows3) {
-  return rowsOf(stackRow, Array.isArray(rows3) ? rows3 : []).map((s2) => ({
+function parseStacks(host2, repository, rows2) {
+  return rowsOf(stackRow, Array.isArray(rows2) ? rows2 : []).map((s2) => ({
     base: s2.base,
     host: host2,
     key: stackKey(host2, repository, s2.number),
@@ -106976,7 +107332,7 @@ function due(remote, updatedAt, now) {
       return remote.last?.at !== updatedAt && now - remote.failedAt >= RETRY_MS;
   }
 }
-var pageLength = (rows3) => Array.isArray(rows3) ? rows3.length : 0;
+var pageLength = (rows2) => Array.isArray(rows2) ? rows2.length : 0;
 var MUTATIONS = {
   close: "mutation($id: ID!) { closePullRequest(input: {pullRequestId: $id}) { clientMutationId } }",
   draft: "mutation($id: ID!) { convertPullRequestToDraft(input: {pullRequestId: $id}) { clientMutationId } }",
@@ -107127,9 +107483,9 @@ var PullRequests = class {
       read: async (e) => {
         const files = [];
         for (let page2 = 1; page2 <= 3; page2++) {
-          const rows3 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
-          files.push(...parseFiles(rows3));
-          if (pageLength(rows3) < 100) {
+          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
+          files.push(...parseFiles(rows2));
+          if (pageLength(rows2) < 100) {
             break;
           }
         }
@@ -107287,11 +107643,11 @@ var PullRequests = class {
         }
         asked2.add(key3);
         try {
-          const rows3 = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
+          const rows2 = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
           if (!ticket.isCurrent()) {
             return false;
           }
-          parseStacks(host2, e.ref.repository, rows3).forEach((s2) => this.#stacks.set(s2.key, s2));
+          parseStacks(host2, e.ref.repository, rows2).forEach((s2) => this.#stacks.set(s2.key, s2));
         } catch {
         }
       }
@@ -108501,8 +108857,8 @@ function adoptSteps(host2) {
   ];
 }
 function adoptAll(steps, a2) {
-  for (const step2 of steps) {
-    step2.adopt(a2);
+  for (const step3 of steps) {
+    step3.adopt(a2);
   }
 }
 
@@ -109437,8 +109793,8 @@ function placeCompactions(entries2, compactions, id3) {
     const before2 = entries2.slice(0, next2).findLast((e) => e.kind === "user" || e.kind === "turn");
     const ended = before2?.kind === "turn" ? turnEndedAt(before2) : void 0;
     if (before2?.kind === "turn" && (ended === void 0 || ended >= at3)) {
-      const step2 = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at3);
-      before2.blocks.splice(step2 + 1, 0, { at: at3, compaction, id: id3("z"), kind: "compaction" });
+      const step3 = before2.blocks.findLastIndex((b) => (blockAt(b) ?? Infinity) < at3);
+      before2.blocks.splice(step3 + 1, 0, { at: at3, compaction, id: id3("z"), kind: "compaction" });
       before2.rev++;
     } else {
       entries2.splice(next2, 0, { compaction, id: id3("z"), kind: "compaction", rev: 0 });
@@ -110810,6 +111166,12 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   const viewer = new Viewer(gw2);
   const transcript = new Transcript();
   const workTree = new WorkTreeCard(changed);
+  const toolProgress = new ToolProgressCards({
+    eui: () => chat.eui,
+    transcript: () => transcript,
+    cwd: () => session3.info?.cwd ?? "",
+    label: (call, running2) => liveLabel({ call, id: call.id, kind: "tool" }, running2)
+  });
   const activity = new Activity();
   const live = {
     changed,
@@ -111061,7 +111423,7 @@ function chatStores(chat, { act, gw: gw2, launch: launch3, recorder, settings: s
   });
   const completion2 = new Completion(chat, gw2, () => session3.ref.live, () => session3.ref);
   const welcome = { version: version2 && version2 !== "unknown" ? `v${version2}` : "" };
-  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, viewer, warned, welcome, widgets, workTree };
+  return { ...shared, attachments, completion: completion2, cron, dictation: dictation2, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, toolProgress, viewer, warned, welcome, widgets, workTree };
 }
 function disposeStores(s2) {
   s2.mediaDelivery.clear(true);
@@ -111090,6 +111452,7 @@ function disposeStores(s2) {
 // src/app/chat.ts
 var QUIT_DETACH_MS = 1500;
 var App = class {
+  agentGraph = new AgentGraph();
   session;
   transcript;
   /** Session-scoped derived charts; never changes transcript or answer copy. */
@@ -111264,7 +111627,13 @@ var App = class {
       eventLog: this.#launch.eventLog,
       gw: this.#gw,
       onShown: (ev) => this.#onShown(ev, s2),
-      onLost: () => this.#orbActivity.reset(),
+      observe: (ev) => {
+        if (this.agentGraph.observe(ev) && s2.factory.open) this.changed();
+      },
+      onLost: () => {
+        this.#orbActivity.reset();
+        this.agentGraph.reset();
+      },
       hostLifecycle: this.#hostLifecycle,
       labels: { busy: busyLabel, preparing: preparingLabel },
       reportCwd: () => this.#act.reportCwd(),

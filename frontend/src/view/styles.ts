@@ -5,8 +5,9 @@
 import { css } from '@stencil-hq/tern'
 
 import { minifyCss } from '../../../glide/frontend/css.js'
-import { AGENT_TREE_CSS } from '../agents/treeView.js'
+import { CRITICAL_EASE, NORMAL_MOTION_MS } from '../../../glide/frontend/motion.js'
 import { MONO, RADIUS, TRACK, TYPE } from '../../../glide/frontend/tokens.js'
+import { AGENT_TREE_CSS } from '../agents/treeView.js'
 
 export const STYLES = minifyCss(css`
   ${AGENT_TREE_CSS}
@@ -178,7 +179,13 @@ export const STYLES = minifyCss(css`
   /* The group's own chevron sits right after its summary and turns as it opens (Tern's is hidden). */
   [data-role='hermes.work.chev'] {
     opacity: 0.45;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform ${NORMAL_MOTION_MS.snappy}ms ${CRITICAL_EASE}, opacity ${NORMAL_MOTION_MS.fade}ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-role='hermes.work.chev'] {
+      transition-property: opacity;
+    }
   }
 
   .sf-section.collapsed > .sf-section-head [data-role='hermes.work.chev'] {
@@ -533,7 +540,7 @@ export const STYLES = minifyCss(css`
     border-radius: 999px;
     background: var(--l1);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background ${NORMAL_MOTION_MS.snappy}ms ease;
   }
 
   .sf-row[data-role='hermes.automation.item']:hover {
@@ -611,7 +618,7 @@ export const STYLES = minifyCss(css`
     background: var(--sf-card-bg);
     box-shadow: inset 0 0 0 1px var(--l2);
     cursor: pointer;
-    transition: background 120ms ease;
+    transition: background ${NORMAL_MOTION_MS.fade}ms ease;
   }
 
   .sf-agent[data-role='hermes.task.solo']:hover {

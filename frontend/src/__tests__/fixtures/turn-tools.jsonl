@@ -6,6 +6,12 @@
 {"payload":{"args":{"command":"ls"},"duration_s":0.2,"name":"terminal","result":"{\"output\": \"README.md\\nsrc\", \"exit_code\": 0}","tool_id":"t1"},"session_id":"s1","type":"tool.complete"}
 {"payload":{"args":{"path":"README.md"},"name":"read_file","tool_id":"t2"},"session_id":"s1","type":"tool.start"}
 {"payload":{"args":{"path":"README.md"},"duration_s":0.1,"name":"read_file","result":"{\"content\": \"     1|# Demo\\n     2|A small project.\", \"total_lines\": 2}","tool_id":"t2"},"session_id":"s1","type":"tool.complete"}
+{"payload":{"args":{"path":"docs"},"name":"mcp_docs_index","tool_id":"t3"},"session_id":"s1","type":"tool.start"}
+{"payload":{"message":"Indexing docs","name":"mcp_docs_index","progress":1,"tool_id":"t3","total":4},"session_id":"s1","type":"tool.progress"}
+{"payload":{"message":"Indexing docs","name":"mcp_docs_index","progress":3,"tool_id":"t3","total":4},"session_id":"s1","type":"tool.progress"}
+{"payload":{"args":{"path":"docs"},"duration_s":0.6,"name":"mcp_docs_index","result":"{\"indexed\": 4}","tool_id":"t3"},"session_id":"s1","type":"tool.complete"}
+{"payload":{"args":{"content":"# Notes\n","path":"src/notes.md"},"name":"write_file","tool_id":"t4"},"session_id":"s1","type":"tool.start"}
+{"payload":{"args":{"content":"# Notes\n","path":"src/notes.md"},"duration_s":0.1,"name":"write_file","result":"{\"bytes_written\": 8}","tool_id":"t4"},"session_id":"s1","type":"tool.complete"}
 {"payload":{"text":" There are two entries: `README.md` and `src/`."},"session_id":"s1","type":"message.delta"}
 {"payload":{"text":"Let me look at the project first. There are two entries: `README.md` and `src/`."},"session_id":"s1","type":"message.complete"}
 {"payload":{"usage":{"context_max":200000,"context_used":12000,"input":11000,"output":400,"total":11400}},"session_id":"s1","type":"session.info"}

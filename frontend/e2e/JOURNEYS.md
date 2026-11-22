@@ -144,11 +144,12 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 14. `lsp-results`
 15. `lsp-edit-diagnostics`
 16. `tool-cards`
-17. `table-charts`
-18. `tool-results-sheet`
-19. `gateway-prompts`
-20. `ask-control`
-21. `deep-zoom-pane`
+17. `tool-progress-card`
+18. `table-charts`
+19. `tool-results-sheet`
+20. `gateway-prompts`
+21. `ask-control`
+22. `deep-zoom-pane`
 
 ## sessions
 
@@ -246,7 +247,7 @@ Find commands and inspect integrations. Use the palette and help, inspect config
 
 ## fleet
 
-See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` and `/factory graph`; each card shows its source and per-host notes, or an explicit "Fleet data unavailable" reason, never sample data. Tap every card action: Open chat resumes a trusted session, Open pod describes read-only, Set next drafts without sending, and Refresh re-calls `glide.fleet` in the same panel.
+See the whole fleet from chat with real local data. Run `/hosts`, `/portfolio` and `/factory graph`; each card shows its source and per-host notes, or an explicit "Fleet data unavailable" reason, never sample data. In the factory card, a gateway fixture starts a child, shows the new lineage node within two seconds, then changes its state to done without refreshing the content snapshot. Tap every card action: Open chat resumes a trusted session, Open pod describes read-only, Set next drafts without sending, and Refresh re-calls `glide.fleet` in the same panel.
 
 1. `fleet-hosts`
 2. `fleet-sessions`

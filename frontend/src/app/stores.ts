@@ -21,6 +21,7 @@ import { Templates } from '../../../glide/frontend/templates.js'
 import { GlideWidgets } from '../glideui/widgets.js'
 import { focusBrowser, paneBlock, ternBrowser } from '../gev/globe.js'
 import { WorkTreeCard } from '../glideui/workTreeCard.js'
+import { ToolProgressCards } from '../../../glide/frontend/toolProgress.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
 import { dispatched } from '../commands/slash.js'
@@ -66,6 +67,7 @@ import { Activity } from '../turn/activity.js'
 import { PromptQueue } from '../turn/queue.js'
 import { canDrain, canSwitch, PromptRouter } from '../turn/router.js'
 import type { WelcomeContext } from '../view/welcome.js'
+import { liveLabel } from '../view/workLogModel.js'
 import { LiveVoice } from '../voice/live.js'
 import { laneFeedFromEnv } from '../voice/lanes.js'
 import { TalkGateway } from '../voice/talk-gateway.js'
@@ -106,6 +108,13 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const viewer = new Viewer(gw)
   const transcript = new Transcript()
   const workTree = new WorkTreeCard(changed)
+  /** GL-108: the turn's tool calls as a live eui card in the transcript, settled at turn end. */
+  const toolProgress = new ToolProgressCards({
+    eui: () => chat.eui,
+    transcript: () => transcript,
+    cwd: () => session.info?.cwd ?? '',
+    label: (call, running) => liveLabel({ call, id: call.id, kind: 'tool' }, running)
+  })
   /** The working line's busy state and the compaction phase: their one owner. */
   const activity = new Activity()
   /** What the subagent, process and automation stores read of the app: the shown runtime id on each use. */
@@ -393,7 +402,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, viewer, warned, welcome, widgets, workTree }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, toolProgress, viewer, warned, welcome, widgets, workTree }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */

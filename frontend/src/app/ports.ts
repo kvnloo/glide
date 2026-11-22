@@ -48,6 +48,7 @@ export interface SessionView {
 
 /** Everything the app lends; a consumer takes `Pick<ChatPorts, …>` of it. */
 export interface ChatPorts extends OverlayHost {
+  readonly agentGraph?: import('../../../glide/frontend/agentGraph.js').AgentGraph
   readonly session: SessionView
   readonly gw: GatewayClient
   /** Host-owned ephemeral-ui cards (/glide, /council); absent in panes without the pinned kit. */

@@ -7,7 +7,7 @@ import { openUrl } from '../overlays/pullRequests.js'
 import type { EuiKitDoc } from '../wire/euiKit.js'
 import { decodeFleet, decodeFleetIntent, fleetAgent, fleetHost, fleetNode, fleetPod, fleetRequest, fleetTask, fleetText, type FleetView } from '../wire/fleet.js'
 
-export type FleetHost = Pick<ChatPorts, 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
+type FleetHost = Pick<ChatPorts, 'agentGraph' | 'session' | 'transcript' | 'eui' | 'resume' | 'control' | 'notice' | 'reveal'> & {
   readonly gw: Pick<ChatPorts['gw'], 'request'>
 }
 
@@ -86,10 +86,13 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
   const lifetime = host.transcript.lifetime
   const current = () => host.session.ref === ref && host.session.ref.live === sessionId &&
     owner?.isCurrent() !== false && !owner?.signal.aborted && host.transcript.lifetime === lifetime
+  const graph = view === 'factory' ? host.agentGraph : undefined
   const params = { view, ...(portfolio ? { portfolio } : {}) }
   const read = async () => decodeFleet(await fleetRequest(host.gw, sessionId, params), view)
   let handle: EuiNativeHandle | undefined
   let g: Glide | undefined
+  let latest: EuiKitDoc | undefined
+  let refreshing = false
   const publish = (doc: EuiKitDoc, tab: HostsTab) => {
     // Tabs and Refresh are card-local; every other control is a fleet.v0 intent checked against this snapshot.
     const intent = async (detail: unknown, context: EuiKitContext) => {
@@ -97,27 +100,45 @@ export async function fleetCommand(host: FleetHost, view: FleetView, portfolio?:
       const local = fleetLocalIntent(detail)
       if (local && local !== 'refresh') { publish(doc, local.tab); return }
       if (local === 'refresh') {
+        if (refreshing) return
+        refreshing = true
         try {
           const next = await read()
-          if (current() && context.isCurrent() && !context.signal.aborted) publish(next, tab)
+          // Live graph updates change the card revision. The native handle still
+          // checks the publication is active when applying this read-only reply.
+          if (current() && (graph || (context.isCurrent() && !context.signal.aborted))) publish(next, tab)
         } catch (error) {
-          if (current()) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
+          if (current() && (context.isCurrent() || graph)) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
+        } finally {
+          refreshing = false
         }
         return
       }
       await fleetIntent(host, doc, detail, context)
     }
     if (!g) throw new Error('OpenUI glide library is not loaded')
-    const { program, doc: bound } = fleetGlide(doc, view, tab)
+    latest = doc
+    const { program, doc: bound } = fleetGlide(doc, view, tab, graph?.nodes(sessionId))
     const card = { kind: 'fleet-' + view, app: doc.app, title: FLEET_TITLES[view], ui: g.bind(g.program(program, sessionId), bound) }
     if (handle) handle.update(card, intent)
     else handle = eui.host.publishNative(card, intent)
   }
   try {
     // The snapshot read goes out at once; the OpenUI library loads alongside it.
-    const [lib, doc] = await Promise.all([glide(), read()])
+    const [lib, doc] = await Promise.all([glide(), read().catch((error: unknown) => {
+      if (!graph) throw error
+      return decodeFleet({ kind: 'fleet-factory', app: 'aodl', data: { notes: ['Content factory snapshot unavailable'] } }, view)
+    })])
     g = lib
-    if (current()) publish(doc, 'agents')
+    if (!current()) return
+    publish(doc, 'agents')
+    if (graph && owner) {
+      const stop = graph.watch(() => {
+        if (!current() || !latest) { stop?.(); return }
+        try { publish(latest, 'agents') } catch { stop?.() }
+      }, owner.signal)
+      void graph.seed(host.gw, sessionId, current)
+    }
   } catch (error) {
     if (current()) host.notice(`${label}: ${error instanceof Error ? error.message : String(error)}`, 'warning')
   }

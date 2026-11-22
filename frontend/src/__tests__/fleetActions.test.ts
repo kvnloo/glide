@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
 
-import { fleetIntent, type FleetHost } from '../commands/fleet.js'
+import { fleetIntent } from '../commands/fleet.js'
 import type { EuiKitContext } from '../eui/host.js'
 import { openUrl } from '../overlays/pullRequests.js'
 import { Transcript } from '../transcript/store.js'
@@ -12,6 +12,8 @@ vi.mock('../overlays/pullRequests.js', () => ({ openUrl: vi.fn() }))
 afterEach(() => vi.clearAllMocks())
 
 // Synthetic rows use the fleet-data.js example shape. No local sources are read.
+type FleetHost = Parameters<typeof fleetIntent>[0]
+
 const hosts = (kind = 'Hermes', id = 'ayo') => decodeEuiKit({ kind: 'fleet-hosts', app: 'k3s', data: { hosts: [{
   id: 'groot', online: true, harnesses: [{ kind, agents: [{ id, name: 'ayo', state: 'working' }] }],
   k3s: { pods: [['z0', 'litellm', 'Running', 0, '']] }

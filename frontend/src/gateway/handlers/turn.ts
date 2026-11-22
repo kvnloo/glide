@@ -14,6 +14,7 @@ import { toTodos } from '../../transcript/todos.js'
 import type { TodoHud } from '../../todo-hud.js'
 import type { Activity } from '../../turn/activity.js'
 import { afterMessageComplete, afterToolComplete, type MessageFanout, type ToolFanout } from '../../turn/fanout.js'
+import type { ToolProgressCards } from '../../../../glide/frontend/toolProgress.js'
 import type { PromptQueue } from '../../turn/queue.js'
 import type { EventOf, Handlers, Outcome } from '../dispatch.js'
 import { moaLabel, moaReferenceLabel } from '../moa.js'
@@ -55,6 +56,8 @@ export interface TurnCx extends ToolFanout, MessageFanout {
   summarize(delay?: number): void
   /** Asks for a render. */
   changed(): void
+  /** The turn's live tool-progress card (turn/progressCard.ts), where the app has inline cards. */
+  readonly toolProgress?: Pick<ToolProgressCards, 'progress' | 'settle' | 'track'>
 }
 
 /** `( •_•)>⌐■-■ cogitating...` → `Cogitating…`: hermes's kawaii status without the face. */
@@ -147,6 +150,15 @@ export const turnHandlers = {
       cx.activity.relabel(call ? cx.labels.busy(call) : `Running ${ev.payload.name}…`)
       // vision_analyze names its image up front.
       cx.showImage(call)
+      cx.toolProgress?.track()
+    }
+
+    return 'render'
+  },
+
+  'tool.progress': (ev, cx) => {
+    if (ev.payload) {
+      cx.toolProgress?.progress(ev.payload)
     }
 
     return 'render'
@@ -156,6 +168,7 @@ export const turnHandlers = {
     if (ev.payload) {
       cx.transcript.toolComplete(ev.payload)
       afterToolComplete(ev.payload, cx)
+      cx.toolProgress?.track()
     }
 
     return 'render'
@@ -178,6 +191,7 @@ export const turnHandlers = {
     // Only the final turn in a queued batch merits an attention alert.
     const followup = cx.queue.count() > 0
     afterMessageComplete(ev.payload ?? {}, cx)
+    cx.toolProgress?.settle()
 
     if (!followup) {
       cx.hostLifecycle.finish(ev.payload?.status)

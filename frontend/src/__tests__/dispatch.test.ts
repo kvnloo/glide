@@ -80,6 +80,12 @@ const TODAY: Record<string, [string, Outcome][]> = {
     ['tool.complete', 'render'],
     ['tool.start', 'render'],
     ['tool.complete', 'render'],
+    ['tool.start', 'render'],
+    ['tool.progress', 'render'],
+    ['tool.progress', 'render'],
+    ['tool.complete', 'render'],
+    ['tool.start', 'render'],
+    ['tool.complete', 'render'],
     ['message.delta', 'render'],
     ['message.complete', 'render'],
     ['session.info', 'render']

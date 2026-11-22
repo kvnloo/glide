@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { euiHostPort } from '../app/eui-host.js'
-import { fleetCommand, type FleetHost } from '../commands/fleet.js'
+import { fleetCommand } from '../commands/fleet.js'
 import { localCommand } from '../commands/local.js'
 import { liveSessionId } from '../core/ids.js'
 import { EuiCards } from '../eui/cards.js'
@@ -11,6 +11,8 @@ import { Transcript } from '../transcript/store.js'
 import type { UiNode } from '../glideui/library.js'
 
 import { must, ofKind, stub } from './fakes.js'
+
+type FleetHost = Parameters<typeof fleetCommand>[0]
 
 vi.mock('../overlays/pullRequests.js', () => ({ openUrl: vi.fn() }))
 const cards: EuiCards[] = []
