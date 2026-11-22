@@ -76,13 +76,9 @@ def _gpus() -> list[str]:
     return []
 
 
-def z0int_argv() -> list[str] | None:
-    exe = shutil.which("z0int")
-    return [exe] if exe else [sys.executable, "-m", "z0int"] if find_spec("z0int") else None
-
-
 def _z0int() -> dict:
-    argv = z0int_argv()
+    exe = shutil.which("z0int")
+    argv = [exe] if exe else [sys.executable, "-m", "z0int"] if find_spec("z0int") else None
     if not argv:
         return {"installed": False, "hint": "pip install git+https://github.com/kvnloo/z0intelligence"}
     raw = _run([*argv, "doctor", "--json"])

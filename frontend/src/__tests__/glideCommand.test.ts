@@ -498,14 +498,14 @@ describe('/glide onboard', () => {
     const { host, request, titles, view } = setup()
     request.mockResolvedValueOnce({ status: 'plan', resident: ['fixture-model'], on_demand: [] })
     await glideCommand(host, 'onboard')
-    expect(request.mock.calls).toEqual([['glide.z0_onboard', { session_id: 'glide-session' }]])
+    expect(request.mock.calls).toEqual([['glide.z0_onboard_plan', { session_id: 'glide-session' }]])
     expect(titles()).toEqual(['Review z0intelligence setup'])
     expect(JSON.stringify(view(0))).toContain('fixture-model')
 
     request.mockResolvedValueOnce({ status: 'incomplete', steps: { doctor: 'needs attention' } })
     must(view(0).activate)(HOST_APPROVE_ID)
     await settle()
-    expect(request.mock.calls[1]).toEqual(['glide.z0_onboard', { session_id: 'glide-session', apply: true }])
+    expect(request.mock.calls[1]).toEqual(['glide.z0_onboard_apply', { session_id: 'glide-session' }])
     expect(titles()[1]).toBe('z0intelligence setup not complete')
 
     request.mockResolvedValueOnce({ status: 'plan', resident: [], on_demand: [] })
@@ -515,7 +515,7 @@ describe('/glide onboard', () => {
     await settle()
     expect(titles()[3]).toBe('z0intelligence setup complete')
     expect(JSON.stringify(view(3))).toContain('already done')
-    expect(request.mock.calls.every(([verb]) => verb === 'glide.z0_onboard')).toBe(true)
+    expect(request.mock.calls.every(([verb]) => verb.startsWith('glide.z0_onboard_'))).toBe(true)
   })
 
   it('leaves regular Glide available without the optional CLI', async () => {

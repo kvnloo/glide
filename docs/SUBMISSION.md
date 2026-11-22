@@ -19,7 +19,7 @@ Derived from alt-glitch/hermes-tern (MIT). The native Tern chat comes from that 
 - **Concrete optional tools.** The router saves a deterministic category-to-skills catalog, not skill packages or a per-turn skill loader. The hill-climb module scaffolds a CPU benchmark and records KEEP, REVERT, or INCONCLUSIVE after paired samples. Its demo repeats the same command for both arms, without editing code. Offload calls Ollama and records estimated token and cost savings. These are not automatic model training or proven billing savings. [Router](../glide/skill_router.py) · [Referee](../glide/hill_climb.py) · [Offload](../glide/offload.py) · [Merged card integration](https://github.com/kvnloo/glide/pull/222)
 - **Opt-in live voice with honest helper lanes.** `/live` asks before it opens the gateway mic. During a call, lanes beside the thinking orb show each helper's role, model and real state from a loopback lane broker; a dead lane renders as dead, and with no broker token nothing is polled. Live voice needs a Hermes gateway with `voice.live` methods. [Voice and lanes](../frontend/docs/voice.md) · [Lanes](../frontend/src/voice/lanes.tsx)
 
-The [existing synthetic tests](../glide/tests/) cover memory, onboarding, routing, the referee, and offload. Hardware detection can call optional local diagnostic tools. z0intelligence is optional, and Glide does not download models or set up training infrastructure. [Detection](../glide/core.py)
+The [existing synthetic tests](../glide/tests/) cover memory, onboarding, routing, the referee, and offload. Hardware detection can call optional local diagnostic tools. z0intelligence is optional. With its CLI installed, `/glide onboard` previews the hardware-aware model plan and offers a separate approval to run or resume z0int setup. Glide does not request model downloads. [Detection](../glide/core.py)
 
 ## How to try it
 
@@ -87,7 +87,7 @@ To stop automatic quoting:
 /glide off
 ```
 
-These instructions follow the [merged card flow](../frontend/src/commands/glide.ts). On an empty profile, build has no history to extract and recall has no matches. Glide's derived memory stays under the active profile's `glide/` directory. [Memory behavior](../glide/core.py) · [Data handling](../glide/docs/memory.md)
+These instructions follow the [card flow](../frontend/src/commands/glide.ts). On an empty profile, build has no history to extract and recall has no matches. Glide's derived memory stays under the active profile's `glide/` directory. [Memory behavior](../glide/core.py) · [Data handling](../glide/docs/memory.md)
 
 For a headless check of the committed source without Tern, a provider, or your real profile, run `bash scripts/e2e-fresh-install.sh` from a clone. This exercises the installed command path with synthetic history; it is not evidence of native rendering.
 

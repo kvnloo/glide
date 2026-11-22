@@ -25,10 +25,6 @@ class SessionParams(BaseModel):
     session_id: str = Field(min_length=1)
 
 
-class Z0OnboardParams(SessionParams):
-    apply: bool = Field(default=False, strict=True)
-
-
 
 class FleetParams(SessionParams):
     view: Literal["hosts", "portfolio", "factory"]
@@ -92,7 +88,8 @@ _SAMPLE_TASK = (
 
 VERBS = {
     "detect": (SessionParams, lambda home, p: core.detect(home)),
-    "z0_onboard": (Z0OnboardParams, lambda home, p: z0_onboarding.run(apply=p.apply)),
+    "z0_onboard_plan": (SessionParams, lambda home, p: z0_onboarding.run()),
+    "z0_onboard_apply": (SessionParams, lambda home, p: z0_onboarding.run(apply=True)),
     "taste": (SessionParams, lambda home, p: taste.board()),
     "fleet": (FleetParams, lambda home, p: fleet.card(home, p.view, p.portfolio)),
     "fleet_pod": (FleetPodParams, lambda home, p: fleet.pod(home, p.host, p.ns, p.name)),

@@ -9,12 +9,12 @@ const reply = z.object({
   steps: z.optional(z.record(z.string(), z.string()))
 })
 
-type Call = (verb: string, params?: Record<string, unknown>) => Promise<unknown>
+type Call = (verb: string) => Promise<unknown>
 
 export async function z0Onboarding(
   cards: EuiCards['host'], call: Call, current: () => boolean, fail: (error: unknown) => void
 ): Promise<void> {
-  const preview = reply.parse(await call('z0_onboard'))
+  const preview = reply.parse(await call('z0_onboard_plan'))
   if (!current()) return
   if (preview.status !== 'plan') {
     cards.publish({
@@ -38,7 +38,7 @@ export async function z0Onboarding(
   }, async ({ signal }) => {
     if (signal.aborted || !current()) return
     try {
-      const result = reply.parse(await call('z0_onboard', { apply: true }))
+      const result = reply.parse(await call('z0_onboard_apply'))
       if (signal.aborted || !current()) return
       cards.publish({
         kind: 'receipt', app: 'glide',
