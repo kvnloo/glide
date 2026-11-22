@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Studio</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--glide-bg, #15141c); color: var(--glide-fg, #f4f0fa);
+         font: 15px/1.5 system-ui, sans-serif; }
+  main { width: min(100% - 32px, 680px); margin: 24px auto; }
+  header { margin-bottom: 16px; }
+  h1 { margin: 0; font-size: clamp(26px, 6vw, 40px); letter-spacing: -.04em; }
+  p { margin: 0; }
+  .eyebrow { color: var(--glide-accent, #c3a7fb); text-transform: uppercase;
+             font-size: 12px; font-weight: 700; letter-spacing: .14em; }
+  .studio { display: grid; justify-items: center; gap: 14px; padding: 16px; border-radius: 18px;
+            background: var(--glide-surface, #23212d); }
+  .toolbar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+  button, input { font: inherit; }
+  button { cursor: pointer; min-height: 38px; padding: 5px 12px; border: 1px solid currentColor;
+           border-radius: 8px; color: inherit; background: transparent; }
+  button[aria-pressed="true"], #save { background: var(--glide-accent, #c3a7fb);
+                                        color: var(--glide-accent-ink, #1c122d); }
+  #color { width: 46px; height: 38px; padding: 2px; border-radius: 8px; cursor: pointer; }
+  .board { width: min(100%, 384px); position: relative; }
+  canvas { display: block; width: 100%; aspect-ratio: 1; image-rendering: pixelated; touch-action: none;
+           cursor: crosshair; background: repeating-conic-gradient(#ded9e6 0% 25%, #f9f6ff 0% 50%) 0 0 / 12.5% 12.5%; }
+  .board::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+                 background: linear-gradient(to right, #15141c30 1px, transparent 1px),
+                             linear-gradient(to bottom, #15141c30 1px, transparent 1px);
+                 background-size: 6.25% 6.25%; }
+  #cursor { display: none; position: absolute; width: 6.25%; height: 6.25%; pointer-events: none;
+            border: 1px solid white; outline: 1px solid black; z-index: 1; }
+  canvas:focus-visible + #cursor { display: block; }
+  #help, #status { color: var(--glide-muted, #c9c1d4); font-size: 13px; }
+</style>
+<main>
+  <header><p class="eyebrow">Glide Studio / 16 × 16</p><h1>Pixel Studio</h1></header>
+  <section class="studio" aria-label="Pixel editor">
+    <div class="toolbar" role="group" aria-label="Drawing tools">
+      <label for="color">Ink</label><input id="color" type="color" value="#794eea">
+      <button id="pen" aria-pressed="true">Pencil</button>
+      <button id="eraser" aria-pressed="false">Eraser</button>
+    </div>
+    <div class="board">
+      <canvas id="art" width="16" height="16" tabindex="0" aria-label="16 by 16 pixel canvas"
+              aria-describedby="help"></canvas><span id="cursor" aria-hidden="true"></span>
+    </div>
+    <p id="help">Drag to draw, or use arrows to move and Space to paint.</p>
+    <div class="toolbar" role="group" aria-label="Artwork">
+      <button id="save">Save</button>
+      <button id="export">Export PNG</button>
+    </div>
+    <p id="status" role="status">Save keeps this sprite in this browser.</p>
+  </section>
+</main>
+<script>
+  const side = 16, key = 'glide.pixel-art.v1'
+  const byId = id => document.getElementById(id)
+  const canvas = byId('art'), ctx = canvas.getContext('2d')
+  const color = byId('color'), pen = byId('pen'), eraser = byId('eraser'), status = byId('status')
+  let pixels = Array(side * side).fill(null)
+  let erase = false, pointer = null, last = null, cursor = [0, 0]
+  try {
+    const saved = localStorage.getItem(key)
+    if (saved !== null) {
+      const data = JSON.parse(saved)
+      if (!Array.isArray(data) || data.length !== pixels.length ||
+          !data.every(p => p === null || (typeof p === 'string' && /^#[0-9a-f]{6}$/i.test(p)))) {
+        throw new Error('Invalid sprite')
+      }
+      pixels = data
+      status.textContent = 'Saved sprite restored.'
+    }
+  } catch {
+    status.textContent = 'Could not load a saved sprite.'
+  }
+
+  function paint(x, y, ink) {
+    ctx.clearRect(x, y, 1, 1)
+    if (ink !== null) {
+      ctx.fillStyle = ink
+      ctx.fillRect(x, y, 1, 1)
+    }
+  }
+  pixels.forEach((ink, i) => paint(i % side, Math.floor(i / side), ink))
+
+  function draw(x, y) {
+    const ink = erase ? null : color.value
+    pixels[y * side + x] = ink
+    paint(x, y, ink)
+    status.textContent = 'Unsaved changes.'
+  }
+
+  function tool(next) {
+    erase = next
+    pen.setAttribute('aria-pressed', !erase)
+    eraser.setAttribute('aria-pressed', erase)
+  }
+  pen.onclick = () => tool(false)
+  eraser.onclick = () => tool(true)
+  color.oninput = () => tool(false)
+
+  const clamp = n => Math.min(side - 1, Math.max(0, n))
+  function stroke(event) {
+    const box = canvas.getBoundingClientRect()
+    const x = Math.floor((event.clientX - box.left) * side / box.width)
+    const y = Math.floor((event.clientY - box.top) * side / box.height)
+    if (x !== clamp(x) || y !== clamp(y)) { last = null; return }
+    const [px, py] = last ?? [x, y]
+    const steps = Math.max(Math.abs(x - px), Math.abs(y - py), 1)
+    for (let i = 1; i <= steps; i++) {
+      draw(Math.round(px + (x - px) * i / steps), Math.round(py + (y - py) * i / steps))
+    }
+    last = [x, y]
+  }
+  canvas.onpointerdown = event => {
+    if (pointer !== null || event.button !== 0) return
+    pointer = event.pointerId
+    canvas.setPointerCapture(pointer)
+    stroke(event)
+  }
+  canvas.onpointermove = event => { if (event.pointerId === pointer) stroke(event) }
+  canvas.onlostpointercapture = event => {
+    if (event.pointerId === pointer) { pointer = null; last = null }
+  }
+  canvas.onkeydown = event => {
+    const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
+    if (Object.hasOwn(moves, event.key)) {
+      const [dx, dy] = moves[event.key]
+      cursor = [clamp(cursor[0] + dx), clamp(cursor[1] + dy)]
+      byId('cursor').style.left = cursor[0] * 100 / side + '%'
+      byId('cursor').style.top = cursor[1] * 100 / side + '%'
+    } else if (event.key === ' ') {
+      draw(...cursor)
+    } else {
+      return
+    }
+    event.preventDefault()
+  }
+
+  byId('save').onclick = () => {
+    try {
+      localStorage.setItem(key, JSON.stringify(pixels))
+      status.textContent = 'Saved sprite.'
+    } catch {
+      status.textContent = 'Browser storage is unavailable. Export a PNG to keep your sprite.'
+    }
+  }
+  byId('export').onclick = () => {
+    const link = document.createElement('a')
+    link.download = 'glide-sprite.png'
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+</script>
+</html>

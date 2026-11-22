@@ -80,6 +80,10 @@ Disable automatic quoting:
 
 Memory extraction and BM25 ranking make no model calls. If an existing z0intelligence corrections reader returns matches, recall prefers those and otherwise falls back to Glide's store. [Recall selection](glide/core.py) Glide opens the source database read-only and writes derived memory under the active profile's `glide/` directory. Once you enable recall, excerpts enter Hermes' model context and can reach your configured remote provider. Do not enable it for history you do not want that provider to receive. [Storage and privacy contract](glide/docs/memory.md)
 
+## Glide can be a pixel-art editor
+
+Open [Pixel Studio](docs/pages/README.md) as a Glide Page to draw, save, and export a 16×16 sprite inside the pane.
+
 ## More in the chat
 
 These commands show local state as native cards in the chat.
