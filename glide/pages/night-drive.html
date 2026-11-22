@@ -11,6 +11,13 @@
   (oscillators, seeded noise, filters, delay), into an AudioBuffer that WebAudio plays through an AnalyserNode.
   No recordings, samples or downloads. Dedicated to the public domain (CC0 1.0).
 
+  Emotions (GL-050): every track carries one emotion, and the Emotions control above the track list sorts the queue by
+  emotion or filters it to one. The colours mean something and do not follow the theme: hue is energy, cool to warm,
+  in the same order the control lists them, Calm (teal) < Wistful (violet) < Driving (coral) < Tense (amber) < Bright
+  (yellow). A track's colour is its dot in the list, the tint of its row while it plays, the badge under the title and
+  the glow on the horizon. Rows glide to their new places when the order changes (none of it under reduced motion), and
+  previous/next/auto-advance walk the queue you see. E opens the control; Esc closes it.
+
   Theme: the Glide pane sets the --glide-* CSS variables and sends the `glide-theme` window event on every
   restyle (kvnloo/glide#326); the canvas repaints in those colors.
 -->
@@ -47,14 +54,50 @@
   #play[data-busy]::after { content: attr(data-busy); position: absolute; top: 100%; margin-top: 4px; font-size: 11px;
     color: var(--muted); white-space: nowrap; }
   .vol { position: absolute; right: 0; display: flex; align-items: center; gap: 8px; width: 132px; color: var(--muted); font-size: 12px; }
-  ol { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+  .sortbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--fg) 8%, transparent); position: relative; }
+  .sortbar .count { color: var(--muted); font: 11px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+  #emotions { width: auto; height: 30px; padding: 0 12px 0 10px; gap: 8px; display: inline-flex; align-items: center; font-size: 12px; font-weight: 600;
+    background: color-mix(in srgb, var(--fg) 6%, transparent); border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+    transition: background .2s, border-color .2s, transform .12s; }
+  #emotions:active { transform: scale(.96); }
+  #emotions[aria-expanded=true], #emotions[data-active] { border-color: color-mix(in srgb, var(--feel, var(--accent)) 70%, transparent);
+    background: color-mix(in srgb, var(--feel, var(--accent)) 16%, transparent); }
+  #emotions .caret { width: 10px; height: 10px; transition: transform .2s; }
+  #emotions[aria-expanded=true] .caret { transform: rotate(180deg); }
+  .spectrum { display: inline-flex; gap: 2px; }
+  .spectrum i, .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--feel); flex: none;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 40%, transparent); }
+  .spectrum i { transition: transform .25s, opacity .25s; }
+  #emotions[data-active] .spectrum i:not([data-on]) { opacity: .28; transform: scale(.7); }
+  #emotion-menu { position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 2; min-width: 230px; padding: 6px; border-radius: 14px;
+    background: var(--surface); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+    box-shadow: 0 12px 32px rgba(0,0,0,.35); transform-origin: 20px 100%; transition: opacity .16s, transform .18s cubic-bezier(.2,.9,.3,1.2); }
+  #emotion-menu[hidden] { display: block; visibility: hidden; opacity: 0; transform: translateY(6px) scale(.96); pointer-events: none; }
+  #emotion-menu h2 { margin: 6px 8px 4px; font: 600 10px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  #emotion-menu button { width: 100%; height: 32px; padding: 0 10px; border-radius: 9px; display: grid; grid-template-columns: 14px 1fr auto;
+    align-items: center; justify-items: start; gap: 8px; text-align: left; font-size: 13px; transition: background .15s; }
+  #emotion-menu button small { justify-self: end; color: var(--muted); font: 11px ui-monospace, Menlo, monospace; }
+  #emotion-menu button[aria-checked=true] { background: color-mix(in srgb, var(--feel, var(--accent)) 20%, transparent); }
+  #emotion-menu button[aria-checked=true] .dot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--feel) 35%, transparent); }
+  #emotion-menu button:disabled { opacity: .4; cursor: default; }
+  #emotion-menu .check { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--muted); }
+  #emotion-menu button[aria-checked=true] .check { background: var(--accent); border-color: var(--accent); }
+  #emotion-menu hr { border: 0; height: 1px; margin: 6px 4px; background: color-mix(in srgb, var(--fg) 10%, transparent); }
+  #feel { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 3px 9px 3px 7px; border-radius: 999px; font-size: 11px; font-weight: 600;
+    color: var(--fg); background: color-mix(in srgb, var(--feel) 28%, var(--bg)); border: 1px solid color-mix(in srgb, var(--feel) 70%, transparent); }
+  ol { list-style: none; margin: 8px 0 0; padding: 0;
     display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 4px; }
-  li button { width: 100%; height: auto; padding: 8px 10px; border-radius: 10px; display: grid; grid-template-columns: 1fr auto;
-    text-align: left; gap: 2px 8px; }
+  li[hidden] { display: none; }
+  li button { width: 100%; height: auto; padding: 8px 10px 8px 12px; border-radius: 10px; display: grid; grid-template-columns: 1fr auto;
+    justify-items: start; align-items: center; text-align: left; gap: 2px 8px; position: relative; overflow: hidden; }
+  li button::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--feel); }
+  li button b { display: flex; align-items: center; gap: 7px; }
   li button small { grid-column: 1; color: var(--muted); font-size: 11px; }
-  li button .len { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--muted); font: 12px ui-monospace, Menlo, monospace; }
-  li button[aria-current=true] { background: color-mix(in srgb, var(--accent) 16%, transparent); }
-  li button[aria-current=true] b { color: var(--accent); }
+  li button .len { grid-row: 1 / span 2; grid-column: 2; align-self: center; justify-self: end; color: var(--muted); font: 12px ui-monospace, Menlo, monospace; }
+  li button[aria-current=true] { background: color-mix(in srgb, var(--feel, var(--accent)) 18%, transparent); }
+  li button[aria-current=true] b { color: color-mix(in srgb, var(--feel, var(--accent)) 70%, var(--fg)); }
+  @media (prefers-reduced-motion: reduce) { #emotion-menu, #emotions, #emotions .caret, .spectrum i { transition: none; } }
   .note { margin: 8px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
   @media (max-width: 520px) { .vol { display: none; } h1 { font-size: 24px; } .deck { margin: 0 8px 8px; } }
 </style>
@@ -67,6 +110,7 @@
       <div class="kicker">Glide · Night Drive</div>
       <h1 id="title">Night Drive</h1>
       <div id="mood"></div>
+      <div id="feel"><i class="dot"></i><span></span></div>
     </div>
   </section>
   <section class="deck">
@@ -81,8 +125,16 @@
       <button id="next" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
       <label class="vol"><span>Vol</span><input id="volume" type="range" min="0" max="100" value="80" aria-label="Volume"></label>
     </div>
+    <div class="sortbar">
+      <button id="emotions" aria-haspopup="menu" aria-expanded="false" aria-controls="emotion-menu">
+        <span class="spectrum" aria-hidden="true"></span><span id="emotions-label">Emotions</span>
+        <svg class="caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4z"/></svg>
+      </button>
+      <span class="count" id="queue-count"></span>
+      <div id="emotion-menu" role="menu" aria-label="Sort and filter by emotion" hidden></div>
+    </div>
     <ol id="tracks"></ol>
-    <p class="note">Synthesized live in this page. Space plays or pauses, ← → seek, N next.</p>
+    <p class="note">Synthesized live in this page. Space plays or pauses, ← → seek, N next, E emotions.</p>
   </section>
 </main>
 <script>
@@ -95,11 +147,23 @@
   const MINOR = [0, 2, 3, 5, 7, 8, 10]
   // Chords are [semitones above the key, 'm' | 'M']; a section is [bars, parts].
   const FORM = [[4, 'pad hat arp'], [8, 'pad kick snare hat bass arp'], [8, 'pad kick snare hat hat16 bass arp lead'], [4, 'pad arp tail']]
-  const TRACKS = [
-    { title: 'Night Drive', mood: 'A minor · 96 BPM', bpm: 96, key: 57, chords: [[0, 'm'], [8, 'M'], [3, 'M'], [10, 'M']], seed: 7 },
-    { title: 'Neon Overpass', mood: 'F♯ minor · 108 BPM', bpm: 108, key: 54, chords: [[0, 'm'], [5, 'm'], [8, 'M'], [7, 'M']], seed: 23 },
-    { title: 'Last Exit', mood: 'D minor · 84 BPM', bpm: 84, key: 50, chords: [[0, 'm'], [8, 'M'], [5, 'm'], [7, 'M']], seed: 41 }
+  // Emotions in energy order, low to high; the hue walks cool to warm with them. See the header comment.
+  const EMOTIONS = [
+    { id: 'calm', name: 'Calm', color: '#3fc1b0' },
+    { id: 'wistful', name: 'Wistful', color: '#8c7cf0' },
+    { id: 'driving', name: 'Driving', color: '#ff6b57' },
+    { id: 'tense', name: 'Tense', color: '#f29a2e' },
+    { id: 'bright', name: 'Bright', color: '#f2d43d' }
   ]
+  const TRACKS = [
+    { title: 'Night Drive', mood: 'A minor · 96 BPM', emotion: 'driving', bpm: 96, key: 57, chords: [[0, 'm'], [8, 'M'], [3, 'M'], [10, 'M']], seed: 7 },
+    { title: 'Neon Overpass', mood: 'F♯ minor · 108 BPM', emotion: 'bright', bpm: 108, key: 54, chords: [[0, 'm'], [5, 'm'], [8, 'M'], [7, 'M']], seed: 23 },
+    { title: 'Last Exit', mood: 'D minor · 84 BPM', emotion: 'wistful', bpm: 84, key: 50, chords: [[0, 'm'], [8, 'M'], [5, 'm'], [7, 'M']], seed: 41 },
+    { title: 'Low Tide', mood: 'E minor · 76 BPM', emotion: 'calm', bpm: 76, key: 52, chords: [[0, 'm'], [3, 'M'], [8, 'M'], [5, 'm']], seed: 59 },
+    { title: 'Static Bloom', mood: 'C minor · 116 BPM', emotion: 'tense', bpm: 116, key: 48, chords: [[0, 'm'], [1, 'M'], [0, 'm'], [7, 'M']], seed: 73 },
+    { title: 'Harbor Lights', mood: 'G minor · 88 BPM', emotion: 'wistful', bpm: 88, key: 55, chords: [[0, 'm'], [10, 'M'], [8, 'M'], [10, 'M']], seed: 89 }
+  ]
+  const FEEL = Object.fromEntries(EMOTIONS.map((e, rank) => [e.id, { ...e, rank }]))
   const BARS = FORM.reduce((n, [b]) => n + b, 0)
   const mtof = m => 440 * M.pow(2, (m - 69) / 12)
   const durationOf = t => BARS * 4 * 60 / t.bpm
@@ -310,7 +374,8 @@
 
   // ---- Player -------------------------------------------------------------------------------------------
   const $ = id => document.getElementById(id)
-  const ui = { title: $('title'), mood: $('mood'), elapsed: $('elapsed'), duration: $('duration'), seek: $('seek'), play: $('play'),
+  const ui = { title: $('title'), mood: $('mood'), feel: $('feel'), sort: $('emotions'), sortLabel: $('emotions-label'), menu: $('emotion-menu'),
+    count: $('queue-count'), elapsed: $('elapsed'), duration: $('duration'), seek: $('seek'), play: $('play'),
     icon: $('play-icon'), prev: $('prev'), next: $('next'), volume: $('volume'), tracks: $('tracks'), canvas: $('scene') }
   const clock = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
   const pcm = new Map()     // track index → Promise of rendered PCM
@@ -380,7 +445,7 @@
       state = 'playing'
       delete ui.play.dataset.busy
       // The next track renders while this one plays, so skipping is instant.
-      setTimeout(() => void pcmOf((index + 1) % TRACKS.length), 1500)
+      setTimeout(() => void pcmOf(step(1)), 1500)
     } catch (error) {
       state = 'error'
       ui.mood.textContent = error instanceof Error ? error.message : String(error)
@@ -406,45 +471,165 @@
     paint()
     if (autoplay) void play(0)
   }
+  // The queue is what the list shows: previous, next and the end of a track walk it, sorted and filtered.
+  const view = { sort: 'playlist', only: null }
+  function queue() {
+    const all = TRACKS.map((_, i) => i)
+    const shown = view.only ? all.filter(i => TRACKS[i].emotion === view.only) : all
+    return view.sort === 'emotion' ? shown.sort((a, b) => FEEL[TRACKS[a].emotion].rank - FEEL[TRACKS[b].emotion].rank || a - b) : shown
+  }
+  function step(by) {
+    const q = queue()
+    const at = q.indexOf(index)
+    if (at < 0) return q[by > 0 ? 0 : q.length - 1] ?? index
+    return q[(at + by + q.length) % q.length]
+  }
   const seek = s => { if (state === 'playing') void play(s); else { offset = Math.max(0, Math.min(s, durationOf(TRACKS[index]))); paint() } }
   const toggle = () => (state === 'playing' || state === 'rendering' ? pause() : void play())
 
   // ---- Interface ----------------------------------------------------------------------------------------
-  TRACKS.forEach((t, i) => {
+  const rows = TRACKS.map((t, i) => {
     const li = document.createElement('li')
     const b = document.createElement('button')
-    b.innerHTML = `<b></b><small></small><span class="len"></span>`
-    b.querySelector('b').textContent = t.title
-    b.querySelector('small').textContent = t.mood
+    b.dataset.i = String(i)
+    b.dataset.emotion = t.emotion
+    b.style.setProperty('--feel', FEEL[t.emotion].color)
+    b.innerHTML = `<b><i class="dot" aria-hidden="true"></i><span></span></b><small></small><span class="len"></span>`
+    b.querySelector('b span').textContent = t.title
+    b.querySelector('small').textContent = `${FEEL[t.emotion].name} · ${t.mood}`
     b.querySelector('.len').textContent = clock(durationOf(t))
+    b.setAttribute('aria-label', `${t.title}, ${FEEL[t.emotion].name}`)
     b.addEventListener('click', () => select(i, true))
     li.appendChild(b)
     ui.tracks.appendChild(li)
+    return li
   })
+  const spectrumDots = EMOTIONS.map(e => {
+    const dot = document.createElement('i')
+    dot.style.setProperty('--feel', e.color)
+    dot.dataset.emotion = e.id
+    ui.sort.querySelector('.spectrum').appendChild(dot)
+    return dot
+  })
+
+  // The menu: how to sort, then which emotion to show. Each emotion row carries its colour and how many tracks have it.
+  function menuItem(label, checked, onPick, { color, count, group } = {}) {
+    const b = document.createElement('button')
+    b.setAttribute('role', 'menuitemradio')
+    b.setAttribute('aria-checked', String(checked))
+    b.dataset.group = group
+    if (color) b.style.setProperty('--feel', color)
+    b.innerHTML = `<i class="${color ? 'dot' : 'check'}" aria-hidden="true"></i><span></span><small></small>`
+    b.querySelector('span').textContent = label
+    if (count !== undefined) b.querySelector('small').textContent = String(count)
+    if (count === 0) b.disabled = true
+    b.addEventListener('click', e => { e.stopPropagation?.(); onPick(); renderMenu(); b.focus?.() })
+    return b
+  }
+  function heading(text) { const h = document.createElement('h2'); h.textContent = text; return h }
+  function renderMenu() {
+    const keep = ui.menu.contains?.(document.activeElement) ? document.activeElement.textContent : null
+    ui.menu.textContent = ''
+    ui.menu.appendChild(heading('Sort'))
+    ui.menu.appendChild(menuItem('Playlist order', view.sort === 'playlist', () => sortBy('playlist'), { group: 'sort' }))
+    ui.menu.appendChild(menuItem('By emotion · calm → bright', view.sort === 'emotion', () => sortBy('emotion'), { group: 'sort' }))
+    ui.menu.appendChild(document.createElement('hr'))
+    ui.menu.appendChild(heading('Show'))
+    ui.menu.appendChild(menuItem('Every emotion', view.only === null, () => only(null), { group: 'show', count: TRACKS.length }))
+    for (const e of EMOTIONS) {
+      const n = TRACKS.filter(t => t.emotion === e.id).length
+      ui.menu.appendChild(menuItem(e.name, view.only === e.id, () => only(e.id), { group: 'show', color: e.color, count: n }))
+    }
+    if (keep) [...ui.menu.querySelectorAll('button')].find(b => b.textContent === keep)?.focus?.()
+  }
+  const menuOpen = () => !ui.menu.hidden
+  function openMenu(open = !menuOpen()) {
+    if (open) renderMenu()
+    ui.menu.hidden = !open
+    ui.sort.setAttribute('aria-expanded', String(open))
+    if (open) ui.menu.querySelector('[aria-checked=true]:not(:disabled)')?.focus?.()
+    else if (ui.menu.contains?.(document.activeElement)) ui.sort.focus?.()
+  }
+
+  /** Lay the list out as the queue: hidden rows drop out, the rest glide from where they were (FLIP). */
+  function layout() {
+    const before = new Map(rows.map(li => [li, li.hidden ? null : li.getBoundingClientRect?.()]))
+    const q = queue()
+    rows.forEach((li, i) => { li.hidden = !q.includes(i) })
+    q.forEach(i => ui.tracks.appendChild(rows[i]))
+    const feel = view.only ? FEEL[view.only] : null
+    ui.sortLabel.textContent = feel ? feel.name : view.sort === 'emotion' ? 'By emotion' : 'Emotions'
+    if (feel || view.sort === 'emotion') ui.sort.dataset.active = view.only ?? 'sorted'
+    else delete ui.sort.dataset.active
+    if (feel) ui.sort.style.setProperty('--feel', feel.color)
+    else ui.sort.style.removeProperty('--feel')
+    spectrumDots.forEach(d => { if (!view.only || d.dataset.emotion === view.only) d.dataset.on = ''; else delete d.dataset.on })
+    ui.count.textContent = `${q.length} of ${TRACKS.length}`
+    if (reduced) return
+    for (const i of q) {
+      const li = rows[i], was = before.get(li), now = li.getBoundingClientRect?.()
+      if (typeof li.animate !== 'function' || !now) continue
+      if (!was) li.animate([{ opacity: 0, transform: 'scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1)' })
+      else if (was.left !== now.left || was.top !== now.top) {
+        li.animate([{ transform: `translate(${was.left - now.left}px, ${was.top - now.top}px)` }, { transform: 'none' }],
+          { duration: 320, easing: 'cubic-bezier(.2,.9,.3,1)' })
+      }
+    }
+  }
+  function sortBy(mode) {
+    if (mode !== 'playlist' && mode !== 'emotion') throw new Error(`sort: playlist or emotion, not ${mode}`)
+    view.sort = mode
+    layout()
+  }
+  function only(emotion) {
+    if (emotion !== null && !FEEL[emotion]) throw new Error(`unknown emotion: ${emotion}`)
+    view.only = emotion
+    layout()
+  }
+  ui.sort.addEventListener('click', e => { e.stopPropagation?.(); openMenu() })
+  ui.menu.addEventListener('keydown', e => {
+    const items = [...ui.menu.querySelectorAll('button:not(:disabled)')]
+    const at = items.indexOf(document.activeElement)
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault?.()
+      items[(at + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]?.focus?.()
+    }
+  })
+  document.addEventListener('click', e => { if (menuOpen() && !ui.menu.contains?.(e.target)) openMenu(false) })
+  layout()
+
   ui.play.addEventListener('click', toggle)
-  ui.prev.addEventListener('click', () => (position() > 3 ? seek(0) : select(index - 1)))
-  ui.next.addEventListener('click', () => select(index + 1))
+  ui.prev.addEventListener('click', () => (position() > 3 ? seek(0) : select(step(-1))))
+  ui.next.addEventListener('click', () => select(step(1)))
   ui.volume.addEventListener('input', () => { if (gain) gain.gain.value = Number(ui.volume.value) / 100 })
   ui.seek.addEventListener('pointerdown', () => { scrubbing = true })
   ui.seek.addEventListener('input', () => { scrubbing = true; ui.elapsed.textContent = clock(Number(ui.seek.value) / 1000 * durationOf(TRACKS[index])) })
   ui.seek.addEventListener('change', () => { scrubbing = false; seek(Number(ui.seek.value) / 1000 * durationOf(TRACKS[index])) })
   window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && menuOpen()) { openMenu(false); return }
     if (e.target && e.target.tagName === 'INPUT' && e.key !== ' ') return
+    if (menuOpen() && e.key === ' ' && ui.menu.contains?.(e.target)) return
     if (e.key === ' ') { e.preventDefault?.(); toggle() }
+    else if (e.key === 'e' || e.key === 'E') openMenu()
     else if (e.key === 'ArrowRight') seek(position() + 5)
     else if (e.key === 'ArrowLeft') seek(position() - 5)
-    else if (e.key === 'n' || e.key === 'N') select(index + 1)
+    else if (e.key === 'n' || e.key === 'N') select(step(1))
   })
 
   function paint() {
     const t = TRACKS[index]
     ui.title.textContent = t.title
     if (state !== 'error') ui.mood.textContent = t.mood
+    const feel = FEEL[t.emotion]
+    ui.feel.style.setProperty('--feel', feel.color)
+    ui.feel.querySelector('i').style.setProperty('--feel', feel.color)
+    ui.feel.querySelector('span').textContent = feel.name
+    ui.feel.dataset.emotion = feel.id
     ui.duration.textContent = clock(durationOf(t))
     const playing = state === 'playing' || state === 'rendering'
     ui.play.setAttribute('aria-label', playing ? 'Pause' : 'Play')
     ui.icon.setAttribute('d', playing ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z')
-    ;[...ui.tracks.querySelectorAll('button')].forEach((b, i) => b.setAttribute('aria-current', String(i === index)))
+    ;[...ui.tracks.querySelectorAll('button')].forEach(b => b.setAttribute('aria-current', String(Number(b.dataset.i) === index)))
     document.title = playing ? `▶ ${t.title} · Night Drive` : 'Night Drive'
   }
 
@@ -525,6 +710,12 @@
       g.moveTo(0, y); g.lineTo(w, y)
     }
     g.stroke()
+    // The horizon glows in the colour of the track's emotion.
+    const glow = g.createLinearGradient(0, horizon - 18, 0, horizon + 2)
+    glow.addColorStop(0, rgba(FEEL[t.emotion].color, 0))
+    glow.addColorStop(1, rgba(FEEL[t.emotion].color, 0.55))
+    g.fillStyle = glow
+    g.fillRect(0, horizon - 18, w, 20)
     // The spectrum, standing on the horizon with a faint reflection on the road.
     // Tallest bars stop short of the title; a power curve keeps quiet bands low so the shape reads.
     const gap = 4, bw = Math.max(2, (w - 32 - gap * (BANDS - 1)) / BANDS), tall = Math.max(40, horizon - 120)
@@ -549,7 +740,7 @@
     if (state === 'playing') {
       const d = durationOf(TRACKS[index])
       const p = position()
-      if (p >= d) select(index + 1, true)
+      if (p >= d) select(step(1), true)
       else if (!scrubbing) { ui.elapsed.textContent = clock(p); ui.seek.value = String(Math.round(p / d * 1000)) }
     }
     draw(now)
@@ -564,7 +755,10 @@
 
   // What a test (or an agent driving the page) reads and drives.
   window.nightDrive = {
-    tracks: TRACKS.map(t => ({ title: t.title, mood: t.mood, duration: durationOf(t) })),
+    tracks: TRACKS.map(t => ({ title: t.title, mood: t.mood, emotion: t.emotion, duration: durationOf(t) })),
+    emotions: EMOTIONS.map(e => ({ ...e })),
+    get view() { return { ...view } }, get queue() { return queue() },
+    sortBy, only, openMenu,
     get state() { return state }, get index() { return index }, get time() { return position() },
     get analyser() { return analyser }, get theme() { return theme },
     ready: i => pcmOf(i ?? index), render, spectrum: () => Array.from(levels),
