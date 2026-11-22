@@ -23,7 +23,7 @@ const page = resolve(here, '../pages', `${id}.html`)
 const out = resolve(outArg)
 mkdirSync(out, { recursive: true })
 const { scene, viewport = { width: 960, height: 640 } } = await import(pathToFileURL(join(here, 'page-takes', `${id}.mjs`)).href)
-const { themeFunction } = await import(pathToFileURL(resolve(here, '../../frontend/src/glideui/pages.ts')).href)
+const { themeFunction } = await import(pathToFileURL(resolve(here, '../frontend/pageThemeScript.ts')).href)
 
 // Taps every connection to the speakers into a MediaRecorder, so the take carries what the page played.
 const AUDIO_TAP = `(() => {

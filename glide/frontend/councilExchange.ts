@@ -1,6 +1,5 @@
-import { orbSvg } from '../../frontend/src/chrome/orb.js'
 import { closedSeats, type CouncilRun, type Frame, MINERAL, schedule, TURN_MS } from './council.js'
-import { DASH, NIGHT } from './tokens.js'
+import { NIGHT } from './tokens.js'
 
 const DELIVERY_MS = 900
 const CLAUSE_MS = 650
@@ -82,16 +81,4 @@ export function deliverySvg(run: CouncilRun, view: CouncilExchange, size: number
     return `<g data-envelope="${seat.id}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" stroke="${MINERAL[seat.mineral].base}" fill="${NIGHT.canvas}" stroke-width="1.5"><rect x="-13" y="-9" width="26" height="18" rx="2"/><path d="M-13-9L0 1L13-9" fill="none"/></g>`
   }).join('')
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${marks}</svg>`
-}
-
-/** The shared thinking-orbs engine, tinted with literal inks for Tern SVG images. */
-export function councilOrbSvg(seconds: number, amplitude: number, reduce: boolean, ink: string = DASH.gold): string {
-  const level = Math.max(0, Math.min(1, amplitude))
-  const source = orbSvg('speaking', reduce ? .6 : seconds, true)
-  const scale = reduce ? 1 : .9 + level * .14
-  const hue = reduce ? ink : `#${[1, 3, 5].map(at => Math.round(parseInt(ink.slice(at, at + 2), 16) * (1 - level * .25) + 255 * level * .25).toString(16).padStart(2, '0')).join('')}`
-  return source.replace(/width="68" height="68"/, 'width="320" height="320"')
-    .replace(/#[0-9a-f]{6}/gi, hue)
-    .replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`)
-    .replace('</svg>', '</g></svg>')
 }

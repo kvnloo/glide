@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { ASKS, BLOCK_MINUTES, CORRECTIONS, THEMES, TOUR, findAction, initialState, key, pick, press, rank, submit, tick } from './model.js'
+import { BLOCK_MINUTES, THEMES, TOUR, findAction, initialState, key, pick, press, rank, submit, tick } from './model.js'
 
 const last = s => s.cards.at(-1)
 const run = (s, actionId) => press(s, findAction(s, actionId).id, actionId)
@@ -21,7 +21,7 @@ test('detect, build memory and turn on walk the approval flow', () => {
   assert.equal(s.memory, 'built')
   assert.equal(s.cards[1].settled, true, 'the pressed card loses its buttons')
   assert.deepEqual(s.cards[1].actions, [])
-  assert.match(last(s).lead, new RegExp(`${CORRECTIONS.length} corrections`))
+  assert.match(last(s).lead, /5 corrections/)
   s = run(s, 'enable')
   assert.equal(s.recall, true)
   assert.equal(findAction(s, 'enable'), undefined)
@@ -46,7 +46,7 @@ test('recall ranks the frontend correction first and returns at most three', () 
   assert.ok(rank('commit push main').length <= 3)
   let s = run(submit(initialState(), '/glide'), 'build')
   s = submit(s, '/glide recall frontend')
-  assert.equal(last(s).quotes[0].text, CORRECTIONS[0].text)
+  assert.equal(last(s).quotes[0].text, 'no, use pnpm for the frontend, never npm. The lockfile is pnpm-lock.yaml.')
   assert.equal(last(s).pill.label, '1 MATCH')
 })
 
@@ -61,14 +61,16 @@ test('a deep-work block holds non-critical asks, passes critical ones and ends i
   let s = run(submit(initialState(), '/glide focus'), 'start')
   assert.deepEqual(s.block, { elapsed: 0 })
   s = tick(s, 30)
-  const critical = ASKS.filter(a => a.critical && a.at <= 30)
-  const held = ASKS.filter(a => !a.critical && a.at <= 30)
-  assert.equal(s.held.length, held.length)
-  assert.equal(s.cards.filter(c => c.kind === 'notice' && c.tone === 'bad').length, critical.length)
+  assert.equal(s.held.length, 3)
+  assert.equal(s.cards.filter(c => c.kind === 'notice' && c.tone === 'bad').length, 1)
   s = run(s, 'end')
   assert.equal(s.block, null)
-  assert.deepEqual(last(s).quotes.map(q => q.text), held.map(a => a.text))
-  assert.equal(last(s).pill.label, `${held.length} HELD`)
+  assert.deepEqual(last(s).quotes.map(q => q.text), [
+    'Lint finished with 2 warnings. Review now?',
+    'PR #41 has a new review comment.',
+    'Which changelog heading should the release use?'
+  ])
+  assert.equal(last(s).pill.label, '3 HELD')
   assert.equal(s.cards.find(c => c.title === 'Deep-work block').pill.label, 'DONE')
 })
 

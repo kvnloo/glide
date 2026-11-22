@@ -4,7 +4,8 @@
 // GL-050: the Emotions control sorts the queue by emotion or filters it to one, in fixed colours that mean energy.
 import { describe, expect, it } from 'vitest'
 
-import { type PageTheme, themeFunction } from '../glideui/pages.js'
+import { type PageTheme } from '../glideui/pages.js'
+import { themeFunction } from '../../../glide/frontend/pageThemeScript.js'
 import { type FakeAnalyser, loadPage, type PageRun } from './glidePageHarness.js'
 
 const DAY: PageTheme = { dark: false, bg: '#f5f1ea', surface: '#ece6dc', fg: '#2a2620', muted: '#6b6459', accent: '#7c3aed', accentInk: '#ffffff' }
