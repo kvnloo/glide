@@ -911,7 +911,8 @@
       "expect": "Verified media is displayed or opened with Tern support; generated code is never executed",
       "tests": [
         "frontend/src/__tests__/writtenArtifacts.test.ts",
-        "frontend/src/__tests__/read-media.test.ts"
+        "frontend/src/__tests__/read-media.test.ts",
+        "frontend/src/__tests__/postmergeSmoke.test.ts"
       ],
       "army": []
     },
