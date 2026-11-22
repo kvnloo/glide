@@ -368,6 +368,36 @@ describe('ephemeral-ui kit stylesheet', () => {
 })
 
 describe('ephemeral-ui kit motion', () => {
+  it('bounds native CSS and reclaims expired rules without evicting an active rule', () => {
+    const sheets = new Map<string, string>()
+    const renderer = new EuiCards(() => undefined, {
+      blob: () => undefined,
+      stylesheet: (name, css) => { sheets.set(name, css) }
+    })
+    const effect = (name: string, remaining: number) => ({
+      name,
+      remaining,
+      paused: false,
+      css: `@keyframes ${name}{from{opacity:0}to{opacity:1}} /* ${' '.repeat(950)} */`
+    })
+    const sheet = () => sheets.get('ephemeral-ui-kit-motion') ?? ''
+    vi.useFakeTimers({ toFake: ['performance', 'setTimeout'] })
+    try {
+      renderer.motion([effect('short-a', 100), effect('short-b', 100), effect('short-c', 100), effect('long', 5000)])
+      renderer.motion([effect('next', 100)])
+      expect(Buffer.byteLength(sheet())).toBeLessThanOrEqual(4 * 1024)
+      expect(sheet()).not.toContain('next')
+      vi.advanceTimersByTime(1101)
+      renderer.motion([effect('next', 100)])
+      expect(sheet()).toContain('next')
+      expect(sheet()).toContain('long')
+      expect(sheet()).not.toContain('short-a')
+    } finally {
+      renderer.close()
+      vi.useRealTimers()
+    }
+  })
+
   it('publishes the pinned merge card’s enter, update and exit on stable native keys', async () => {
     const changed = vi.fn()
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] })
