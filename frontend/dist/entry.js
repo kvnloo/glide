@@ -22964,18 +22964,18 @@ function agentLineage(nodes) {
     siblings.push(node4);
     children3.set(parent, siblings);
   }
-  const rows3 = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const walk = (node4, depth, from) => {
     if (seen.has(node4.id)) return;
     seen.add(node4.id);
-    const index2 = rows3.length;
-    rows3.push({ node: node4, depth, ...from === void 0 ? {} : { from } });
+    const index2 = rows2.length;
+    rows2.push({ node: node4, depth, ...from === void 0 ? {} : { from } });
     for (const child of children3.get(node4.id) ?? []) walk(child, depth + 1, index2);
   };
   for (const node4 of children3.get(void 0) ?? []) walk(node4, 0);
   for (const node4 of nodes) walk(node4, 0);
-  return rows3;
+  return rows2;
 }
 
 // assets/logo.png
@@ -24878,7 +24878,7 @@ var LaneStrip = class {
     if (!lanes2.length && !this.#live) return null;
     const head2 = lanes2.length ? `Lanes \xB7 ${laneCounts(lanes2)}${call?.open ? "" : " \xB7 no open call"}` : this.#feed.error ? `Lanes \xB7 ${this.#feed.error}` : "Lanes \xB7 waiting for a voice call";
     const said = /* @__PURE__ */ new Set();
-    const rows3 = lanes2.map((lane, i) => {
+    const rows2 = lanes2.map((lane, i) => {
       const quote3 = laneQuote(lane, said);
       return /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lane", children: [
         this.#orbit ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.key", ...this.#swatch(lane) }, "key") : this.#orbs[i] ? /* @__PURE__ */ jsx("image", { role: "omp.live.lane.orb", ...this.#orbs[i].props() }, "orb") : null,
@@ -24894,8 +24894,8 @@ var LaneStrip = class {
       /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: head2 }], wrap: "none" }, "head"),
       this.#orbit ? /* @__PURE__ */ jsxs("row", { align: "center", gap: "sm", role: "omp.live.lanes.orbit", children: [
         this.#orbitNode(lanes2),
-        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows3 }, "rows")
-      ] }, "orbit") : rows3
+        /* @__PURE__ */ jsx("col", { gap: "xs", grow: 1, min: { w: 0 }, children: rows2 }, "rows")
+      ] }, "orbit") : rows2
     ] }, "lanes");
   }
 };
@@ -24986,22 +24986,25 @@ function actionsRow(buttons) {
   ] }, "actions");
 }
 
+// ../glide/frontend/motion.ts
+var NORMAL_MOTION_MS = {
+  press: 70,
+  fade: 120,
+  nav: 140,
+  snappy: 150,
+  settle: 180,
+  enter: 150,
+  exit: 120
+};
+var CRITICAL_EASE = "linear(0, 0.228, 0.538, 0.752, 0.875, 0.940, 0.972, 0.988, 0.995, 0.998, 1)";
+function criticalProgress(t) {
+  return (1 - (1 + 9 * t) * Math.exp(-9 * t)) / (1 - 10 * Math.exp(-9));
+}
+
 // src/glideui/motion.tsx
 var MOTION_SHEET = "glide-motion";
 var FRAMES = 16;
-var LEAD_MS = 120;
-var FRAME_MS = 30;
-function ease(time3) {
-  let low = 0, high = 1;
-  for (let i = 0; i < 20; i++) {
-    const t2 = (low + high) / 2;
-    const x = 3 * (1 - t2) ** 2 * t2 * 0.45 + 3 * (1 - t2) * t2 ** 2 * 0.1 + t2 ** 3;
-    if (x < time3) low = t2;
-    else high = t2;
-  }
-  const t = (low + high) / 2;
-  return 3 * (1 - t) * t ** 2 + t ** 3;
-}
+var FRAME_MS = NORMAL_MOTION_MS.enter / (FRAMES - 1);
 function countFrames(value2) {
   const match = /^([\p{Sc}+−-]?)(-?\d+(?:,\d{3})*(?:\.\d+)?)(\s*(?:%|×|[kKmMbB]|ms|s|GB|MB|KB|px|checks|commits)?)$/u.exec(value2);
   if (!match) return [];
@@ -25012,7 +25015,7 @@ function countFrames(value2) {
   if (decimals > 6) return [];
   return Array.from({ length: FRAMES }, (_2, i) => {
     if (i === FRAMES - 1) return value2;
-    const scaled = target2 * (i === 0 ? 0 : ease(i / (FRAMES - 1)));
+    const scaled = target2 * (i === 0 ? 0 : criticalProgress(i / (FRAMES - 1)));
     const [whole = "", fraction2] = scaled.toFixed(decimals).split(".");
     const formatted = digits.includes(",") ? whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : whole;
     return `${prefix2}${formatted}${fraction2 === void 0 ? "" : "." + fraction2}${suffix}`;
@@ -25037,7 +25040,7 @@ function figure(value2, role, tone3, entrance = true) {
   if (!frames2.length) return ui.text({ key: "v", role, text: value2, ...tone3 ? { tone: tone3 } : {} });
   return html.span({ key: "v", role, class: "glide-count", aria: value2, ...tone3 ? { tone: tone3 } : {} }, [
     html.span({ key: "final", class: "glide-count-final" }, value2),
-    ...frames2.map((text24, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text24))
+    ...frames2.slice(0, -1).map((text24, i) => html.span({ key: `f${i}`, class: `glide-count-frame glide-count-f${i}`, attrs: { "aria-hidden": "true" } }, text24))
   ]);
 }
 var ROOT = "[data-glide-motion]";
@@ -25051,26 +25054,24 @@ var ROWS = [
   "[data-role='glide.steps'] .sf-ck-item",
   "[data-role='glide.kv']>.sf-kv-item"
 ];
-var rows = (suffix = "") => ROWS.map((selector) => `${ENTER} ${selector}${suffix}`).join(",");
+var ROW_ENTRANCES = ROWS.map((selector) => `${ENTER} ${selector}`).join(",");
 var MOTION_CSS = `
-${ROOT}{position:relative;--glide-ease:cubic-bezier(0.45,0,0.1,1)}
+${ROOT}{position:relative;--glide-ease:${CRITICAL_EASE}}
 ${ROOT} [data-role='omp.btn']{box-shadow:none!important}
-${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline 180ms var(--glide-ease) both}
-${ENTER}>[data-role='glide.card']{animation:glide-shell 180ms var(--glide-ease) both}
-${rows()},${ENTER} [data-role='glide.source']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
-${Array.from({ length: 8 }, (_2, i) => `${rows(`:nth-child(${i + 1})`)}{animation-delay:${120 + i * 10}ms}`).join("\n")}
-${rows(":nth-child(n+9)")}{animation-delay:200ms}
-${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar 480ms var(--glide-ease) 120ms backwards}
-${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow 480ms var(--glide-ease) 120ms backwards}
-${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards}
+${ENTER}::before{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid var(--l3);border-radius:8px;transform-origin:left top;animation:glide-outline ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) both}
+${ENTER}>[data-role='glide.card']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.bars'] .bars>.b{transform-origin:center bottom;animation:glide-bar ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} .sf-mt-fill{transform-origin:left center;animation:glide-grow ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
+${ENTER} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards}
 ${ROOT} .glide-count{position:relative;display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
-${ROOT} .glide-count-final{animation:glide-count-final 600ms step-end backwards}
+${ROOT} .glide-count-final{animation:glide-count-final ${NORMAL_MOTION_MS.enter}ms step-end backwards}
 ${ROOT} .glide-count-frame{position:absolute;left:0;top:0;opacity:0;pointer-events:none;animation:glide-count-frame ${FRAME_MS}ms step-end}
-${Array.from({ length: FRAMES }, (_2, i) => `${ROOT} .glide-count-f${i}{animation-delay:${LEAD_MS + i * FRAME_MS}ms}`).join("\n")}
+${Array.from({ length: FRAMES - 1 }, (_2, i) => `${ROOT} .glide-count-f${i}{animation-delay:${i * FRAME_MS}ms}`).join("\n")}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track{position:relative;overflow:hidden}
 ${LIVE} [data-role='glide.meter'] .sf-mt-track::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--sf-accent) 12%,transparent) 50%,transparent 65%);animation:glide-shimmer 3200ms var(--glide-ease) 700ms infinite}
 ${LIVE} [data-role='glide.spark']{animation:glide-drift 4200ms ease-in-out 700ms infinite}
-${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal 480ms var(--glide-ease) 120ms backwards,glide-drift 4200ms ease-in-out 700ms infinite}
+${ENTER}${LIVE} [data-role='glide.spark']{animation:glide-reveal ${NORMAL_MOTION_MS.enter}ms var(--glide-ease) backwards,glide-drift 4200ms ease-in-out 700ms infinite}
 ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--sf-accent);pointer-events:none;animation:glide-tick 2800ms ease-in-out 700ms infinite}
 @keyframes glide-outline{from{opacity:0;transform:scaleX(.02)}to{opacity:1;transform:scaleX(1)}}
 @keyframes glide-shell{from{opacity:0}to{opacity:1}}
@@ -25083,7 +25084,8 @@ ${LIVE}::after{content:"";position:absolute;top:12px;right:12px;width:5px;height
 @keyframes glide-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(1px)}}
 @keyframes glide-tick{0%,100%{opacity:.45}50%{opacity:.8}}
 @media (prefers-reduced-motion: reduce){
-${ROOT},${ROOT} *,${ROOT}::before,${ROOT}::after,${ROOT} *::after{animation:none!important;transition:none!important;transform:none!important}
+${ROW_ENTRANCES},${ENTER} [data-role='glide.source'],${ENTER} [data-role='glide.spark'],${ENTER}${LIVE} [data-role='glide.spark'],${ENTER} [data-role='glide.graphic']{animation:glide-shell ${NORMAL_MOTION_MS.fade}ms var(--glide-ease) both}
+${ENTER} [data-role='glide.bars'] .bars>.b,${ENTER} .sf-mt-fill,${LIVE}:not(${ENTER}) [data-role='glide.spark'],${ROOT} .glide-count-final{animation:none}
 ${ROOT} .glide-count-frame{display:none!important}
 ${ROOT} .glide-count-final{opacity:1!important}
 ${ROOT}::before,${ROOT}::after,${LIVE} [data-role='glide.meter'] .sf-mt-track::after{display:none!important}
@@ -25160,18 +25162,18 @@ function node2(n5, key3, r) {
       return /* @__PURE__ */ jsx("meter", { label: p3.label, role: "glide.meter", value: clamp(p3.value), ...p3.total ? { total: p3.total } : {}, ...toneProps(p3.tone) }, key3);
     }
     case "Table": {
-      const { columns: columns2, rows: rows3 } = n5.props;
+      const { columns: columns2, rows: rows2 } = n5.props;
       const first = columns2[0]?.id ?? "";
       const table3 = /* @__PURE__ */ jsx(
         "table",
         {
           cols: columns2.map((c, i) => ({ id: c.id, head: c.head, ...c.align ? { align: c.align } : {}, ...c.grow || i === 0 && !columns2.some((x) => x.grow) ? { grow: 1 } : {} })),
           role: "glide.table",
-          rows: rows3.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
+          rows: rows2.map((row2) => ({ id: row2.id, cells: Object.fromEntries(columns2.map((c) => [c.id, cell2(row2.cells[c.id], c.meter === true)])) }))
         },
         "t"
       );
-      const open6 = rows3.filter((row2) => row2.intent);
+      const open6 = rows2.filter((row2) => row2.intent);
       return /* @__PURE__ */ jsxs("col", { gap: "sm", role: "glide.table.wrap", children: [
         table3,
         open6.length === 0 ? null : /* @__PURE__ */ jsx("row", { gap: "sm", role: "glide.table.open", wrap: true, children: open6.map((row2, i) => {
@@ -25638,7 +25640,7 @@ function lanesCard(src, roles, focus2, actions, message = "") {
     }
     return [];
   });
-  const rows3 = lanes2.map((lane, i) => {
+  const rows2 = lanes2.map((lane, i) => {
     const current = lane.model;
     const info = laneModel(current, lane.resolved, roles);
     const hue = PROVIDERS[info.provider].hue;
@@ -25722,7 +25724,7 @@ function lanesCard(src, roles, focus2, actions, message = "") {
   );
   return el("div", "", [el("section", `display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:16px;border:1px solid ${NIGHT.borderStrong};background-color:${LANES_GLASS};-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 1px 0 rgba(236,232,223,0.08), 0 22px 48px -26px rgba(0,0,0,0.9);color:${NIGHT.text}`, [
     header,
-    el("div", "display:flex;flex-direction:column", rows3),
+    el("div", "display:flex;flex-direction:column", rows2),
     ...add2.length ? [el("div", "display:flex;flex-wrap:wrap;gap:6px", add2)] : [],
     legend,
     el("div", "display:flex;justify-content:flex-end", [close])
@@ -29001,7 +29003,7 @@ function studioTree(project2) {
 }
 function studioCard(state) {
   const snapshot4 = "snapshot" in state ? state.snapshot : void 0;
-  const rows3 = studioTree(snapshot4?.project ?? null);
+  const rows2 = studioTree(snapshot4?.project ?? null);
   return {
     kind: "studio",
     app: "glide",
@@ -29014,8 +29016,8 @@ function studioCard(state) {
       children: [
         { type: "element", typeName: "Text", props: { body: state.phase === "starting" ? "Opening studio\u2026" : state.phase === "error" ? state.message : snapshot4?.mode === "native" ? "Native studio open beside chat" : "Web editor open in a Tern browser pane" } },
         ...snapshot4 ? [{ type: "element", typeName: "Kv", props: { items: [{ k: "Editor", v: snapshot4.url }, { k: "Preview", v: "Read-only \xB7 scenes \u2192 layers" }] } }] : [],
-        { type: "element", typeName: "Section", props: { title: "Project layers", aside: "Read-only", children: rows3.length ? [
-          { type: "element", typeName: "List", props: { items: rows3 } }
+        { type: "element", typeName: "Section", props: { title: "Project layers", aside: "Read-only", children: rows2.length ? [
+          { type: "element", typeName: "List", props: { items: rows2 } }
         ] : [{ type: "element", typeName: "Text", props: { body: snapshot4?.project ? "This project has no scenes or layers." : "Select a project with /glide studio <project-id>." } }] } }
       ]
     } }
@@ -32759,8 +32761,8 @@ var pendingRow = object({
   user: _catch(string2(), "")
 });
 function pendingRows(info) {
-  const { pending_submissions: rows3 } = info ?? {};
-  return Array.isArray(rows3) ? rowsOf(pendingRow, rows3) : void 0;
+  const { pending_submissions: rows2 } = info ?? {};
+  return Array.isArray(rows2) ? rowsOf(pendingRow, rows2) : void 0;
 }
 var settle = _catch(object({ admission_id: loose(string2()), outcome: optional2(unknown()) }), {});
 function cancelledAdmission(payload) {
@@ -33453,12 +33455,12 @@ function intentOf(state, surface, id3) {
   if (control2.kind === "slider") {
     return { ...base3, label: `${state.value}${control2.unit ? ` ${control2.unit}` : ""}`, value: state.value };
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   if (control2.kind === "choice" && control2.multiple && id3 === void 0) {
-    const picked2 = rows3.filter((r) => state.picked.includes(r.id));
+    const picked2 = rows2.filter((r) => state.picked.includes(r.id));
     return { ...base3, label: picked2.map((r) => r.label).join(", "), value: picked2.map((r) => r.id) };
   }
-  const row2 = rows3.find((r) => r.id === id3) ?? rows3[state.focus];
+  const row2 = rows2.find((r) => r.id === id3) ?? rows2[state.focus];
   if (!row2) {
     throw new Error(`control ${control2.id} has no row ${id3 ?? state.focus}`);
   }
@@ -33487,13 +33489,13 @@ function step(state, input2, surface) {
   if (control2.kind === "slider") {
     return sliderStep(state, control2, input2, surface);
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   const multiple = control2.kind === "choice" && control2.multiple === true;
   if (input2.kind === "set") {
     return ignored(state);
   }
   if (input2.kind === "pick") {
-    if (!rows3.some((r) => r.id === input2.id)) {
+    if (!rows2.some((r) => r.id === input2.id)) {
       return ignored(state);
     }
     return multiple ? { state: toggle(state, input2.id) } : answer(state, surface, input2.id);
@@ -33506,11 +33508,11 @@ function step(state, input2, surface) {
   if (control2.kind === "confirm" && (key3 === "y" || key3 === "n")) {
     return answer(state, surface, key3 === "y" ? "confirm" : "cancel");
   }
-  if (n5 && n5 <= rows3.length) {
-    const id3 = rows3[n5 - 1]?.id ?? "";
+  if (n5 && n5 <= rows2.length) {
+    const id3 = rows2[n5 - 1]?.id ?? "";
     return multiple ? { state: toggle(state, id3) } : answer(state, surface, id3);
   }
-  const last = rows3.length - 1;
+  const last = rows2.length - 1;
   const moves = {
     down: state.focus >= last ? 0 : state.focus + 1,
     end: last,
@@ -33524,13 +33526,13 @@ function step(state, input2, surface) {
     return { state: { ...state, focus: moved2 } };
   }
   if (key3 === "space" && multiple) {
-    return { state: toggle(state, rows3[state.focus]?.id ?? "") };
+    return { state: toggle(state, rows2[state.focus]?.id ?? "") };
   }
   if (key3 === "enter") {
     if (!multiple) {
       return answer(state, surface);
     }
-    const checked = state.picked.length ? state : toggle(state, rows3[state.focus]?.id ?? "");
+    const checked = state.picked.length ? state : toggle(state, rows2[state.focus]?.id ?? "");
     return answer(checked, surface);
   }
   return ignored(state);
@@ -33594,9 +33596,9 @@ function heard(state, transcript, surface) {
       return answer(state, surface, "cancel");
     }
   }
-  const rows3 = rowsOf2(control2);
+  const rows2 = rowsOf2(control2);
   const hits = /* @__PURE__ */ new Set();
-  rows3.forEach((row2, i) => {
+  rows2.forEach((row2, i) => {
     const label2 = words2(row2.label);
     const byLabel = label2.length > 0 && (said === label2 || ` ${said} `.includes(` ${label2} `));
     const byId = ` ${said} `.includes(` ${words2(row2.id)} `);
@@ -33611,7 +33613,7 @@ function heard(state, transcript, surface) {
     return ignored(state);
   }
   const [at3] = [...hits];
-  const id3 = rows3[at3 ?? 0]?.id ?? "";
+  const id3 = rows2[at3 ?? 0]?.id ?? "";
   if (control2.kind === "choice" && control2.multiple) {
     return answer(toggle({ ...state, picked: [] }, id3), surface);
   }
@@ -35993,9 +35995,9 @@ var SubagentTranscript = class {
   }
 };
 var ms = (seconds) => seconds === null || seconds === void 0 ? void 0 : Math.round(seconds * 1e3);
-function stepsOf(rows3) {
+function stepsOf(rows2) {
   const steps = [];
-  for (const row2 of rows3) {
+  for (const row2 of rows2) {
     const at3 = ms(row2.timestamp);
     const text24 = row2.text?.trim() ?? "";
     if (row2.row_kind === "message" && row2.role === "tool") {
@@ -36895,17 +36897,17 @@ function lspDetail({ args, result }) {
 var COUNT_LIMIT = 200;
 function readCounts(value2) {
   if (!value2 || typeof value2 !== "object" || Array.isArray(value2)) return void 0;
-  const rows3 = [];
+  const rows2 = [];
   let seen = 0;
   let invalid2 = false;
   for (const path2 in value2) {
     if (!Object.hasOwn(value2, path2)) continue;
-    if (seen++ >= COUNT_LIMIT) return { rows: rows3, clipped: true, invalid: invalid2 };
+    if (seen++ >= COUNT_LIMIT) return { rows: rows2, clipped: true, invalid: invalid2 };
     const n5 = Reflect.get(value2, path2);
-    if (path2 && typeof n5 === "number" && Number.isSafeInteger(n5) && n5 >= 0) rows3.push({ path: path2, count: n5 });
+    if (path2 && typeof n5 === "number" && Number.isSafeInteger(n5) && n5 >= 0) rows2.push({ path: path2, count: n5 });
     else invalid2 = true;
   }
-  return { rows: rows3, clipped: false, invalid: invalid2 };
+  return { rows: rows2, clipped: false, invalid: invalid2 };
 }
 function searchDetail({ args, result }) {
   const matches3 = list(result?.["matches"]);
@@ -37125,7 +37127,7 @@ function taskCard(call, d, now) {
   const goals = tasks.length ? tasks.map((t) => t.goal ?? "") : d.goal ? [d.goal] : [];
   const agents2 = call.subagents ?? [];
   const wait = agentWaitNode(agents2, now);
-  const rows3 = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
+  const rows2 = wait ? [wait] : agents2.length ? agents2.map((a2) => agentNode(a2, now)) : call.outcome.kind === "running" || d.dispatched ? goals.map((g, i) => /* @__PURE__ */ jsx("agent", { name: `Agent ${i + 1}`, status: "pending", task: g }, `p${i}`)) : settledRows(goals, d.results);
   const context = d.context ?? (tasks.length === 1 ? tasks[0]?.context : void 0);
   const working = agents2.some((a2) => a2.status === "running" || a2.status === "queued") || !agents2.length && d.dispatched;
   const settled2 = agents2.filter((a2) => a2.status !== "running" && a2.status !== "queued");
@@ -37153,7 +37155,7 @@ function taskCard(call, d, now) {
     // The agents first; the brief they share stays folded.
     body: [
       ...limited ? [/* @__PURE__ */ jsx("text", { role: "hermes.task.iteration-limit", text: ITERATION_LIMIT_NOTICE, wrap: "word" }, "iteration-limit")] : [],
-      ...rows3,
+      ...rows2,
       ...context ? [briefNode("Shared brief", context)] : []
     ],
     folded: limited ? false : void 0,
@@ -37754,17 +37756,17 @@ function retainedGenericText(call) {
 }
 function webPage(call, index2) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return void 0;
-  const rows3 = resultOf(call)?.["results"];
-  if (!Array.isArray(rows3)) return void 0;
-  const row2 = rows3[index2];
+  const rows2 = resultOf(call)?.["results"];
+  if (!Array.isArray(rows2)) return void 0;
+  const row2 = rows2[index2];
   if (!row2 || typeof row2 !== "object" || Array.isArray(row2)) return void 0;
   const value2 = record(row2)?.["content"];
   return typeof value2 === "string" && value2.length > RESULT_PREVIEW_LIMIT ? { row: row2, text: value2 } : void 0;
 }
 function hasRetainedWeb(call) {
   if (call.name !== "web_extract" || call.outcome.kind === "running") return false;
-  const rows3 = resultOf(call)?.["results"];
-  return Array.isArray(rows3) && rows3.some((_2, index2) => webPage(call, index2) !== void 0);
+  const rows2 = resultOf(call)?.["results"];
+  return Array.isArray(rows2) && rows2.some((_2, index2) => webPage(call, index2) !== void 0);
 }
 function retainedResultText(candidate) {
   if (!candidate.web) return retainedGenericText(candidate.call);
@@ -37795,9 +37797,9 @@ function retainedResults(entries2) {
       if (call.name !== "web_extract") continue;
       const ordinal = ++webOrdinal;
       if (call.outcome.kind === "running") continue;
-      const rows3 = resultOf(call)?.["results"];
-      if (!Array.isArray(rows3)) continue;
-      for (let index2 = 0; index2 < rows3.length; index2++) {
+      const rows2 = resultOf(call)?.["results"];
+      if (!Array.isArray(rows2)) continue;
+      for (let index2 = 0; index2 < rows2.length; index2++) {
         const page2 = webPage(call, index2);
         if (page2) add2({
           call,
@@ -38870,9 +38872,9 @@ function applyFrame(card2, frame2) {
   if (!r || !op || card2.settled || r["op_id"] !== op.id || seq === void 0 || seq <= op.seq) {
     return void 0;
   }
-  const rows3 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
+  const rows2 = Array.isArray(r["targets"]) ? parseTargets(r["targets"]) : [];
   const before2 = new Map(card2.targets.map((t) => [t.name, t]));
-  const targets2 = rows3.length ? rows3.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card2.targets;
+  const targets2 = rows2.length ? rows2.map((t) => ({ ...t, url: t.url ?? before2.get(t.name)?.url })) : card2.targets;
   return { ...card2, op: { ...op, deadlineAt: num5(r["deadline_at"]) ?? op.deadlineAt, seq }, settled: settleReason(r), targets: targets2 };
 }
 function verbOf(t) {
@@ -39457,25 +39459,25 @@ function lintText(text24, limit = 2e3, singleLine = false) {
 }
 function v4aLintNodes(d, call) {
   if (!v4aLintNeedsAttention(call) || !d.v4aLint) return [];
-  const rows3 = [];
+  const rows2 = [];
   if (d.v4aLint.failure) {
     const failure6 = lintText(patchContextWarning(call) ? "Apply phase failed (state may be inconsistent \u2014 run `git diff` to assess)." : d.v4aLint.failure);
-    rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
-    if (failure6.clipped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
-    if (failure6.escaped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.error", spans: [{ s: "error", t: failure6.value }], wrap: "word" }, "v4a-failure"));
+    if (failure6.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error clipped in view" }, "v4a-failure-clipped"));
+    if (failure6.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Patch error control characters escaped in view" }, "v4a-failure-escaped"));
   }
   d.v4aLint.errors.forEach(({ path: path2, output, message }, i) => {
     const name = lintText(path2, 256, true);
     const report = output ? lintText(output, 1e3) : void 0;
     const summary4 = message ? lintText(message, 1e3) : void 0;
-    rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
-    if (summary4) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
-    if (report) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
-    if (name.clipped || summary4?.clipped || report?.clipped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
-    if (name.escaped || summary4?.escaped || report?.escaped) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
+    rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint", text: `Lint reported an error for ${name.value}`, wrap: "word" }, `v4a-title-${i}`));
+    if (summary4) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.message", text: summary4.value, wrap: "word" }, `v4a-message-${i}`));
+    if (report) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.lint.output", text: report.value, wrap: "word" }, `v4a-output-${i}`));
+    if (name.clipped || summary4?.clipped || report?.clipped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report clipped in view" }, `v4a-clipped-${i}`));
+    if (name.escaped || summary4?.escaped || report?.escaped) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Lint report control characters escaped in view" }, `v4a-escaped-${i}`));
   });
-  if (d.v4aLint.uninspected) rows3.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
-  return rows3;
+  if (d.v4aLint.uninspected) rows2.push(/* @__PURE__ */ jsx("text", { role: "omp.tool.notice", text: "Additional lint entries were not inspected" }, "v4a-uninspected"));
+  return rows2;
 }
 function lintNodes(d, call) {
   if (!writeLintNeedsAttention(call) && !patchLintNeedsAttention(call) || !d.lintError) return [];
@@ -39989,18 +39991,18 @@ function countPath(path2) {
   }).join("");
 }
 function countCard(call, d, pattern) {
-  const rows3 = d.counts?.rows ?? [];
-  const rendered = rows3.map((row2) => ({ ...row2, display: countPath(row2.path) }));
+  const rows2 = d.counts?.rows ?? [];
+  const rendered = rows2.map((row2) => ({ ...row2, display: countPath(row2.path) }));
   const notices = [
     ...d.total !== void 0 ? [`Hermes total count: ${d.totalLowerBound || d.truncated ? "at least " : ""}${d.total}`] : [],
     ...d.omitted ? ["Hermes omitted some search results"] : [],
     ...d.truncated ? ["Search results truncated upstream"] : [],
     ...d.counts?.clipped ? ["Count entries clipped in view"] : [],
-    ...rows3.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
+    ...rows2.some((row2) => row2.path.length > COUNT_PATH_LIMIT) ? ["Count paths clipped in view"] : [],
     ...rendered.some((row2) => row2.display !== countPathPrefix(row2.path)) ? ["Control characters escaped in view"] : [],
     ...d.counts?.invalid ? ["Invalid count entries omitted"] : [],
     ...!d.counts && d.resultPresent && call.outcome.kind !== "running" ? [d.total === 0 && !d.omitted && !d.countsMalformed ? "No per-file counts returned" : "Per-file counts unavailable"] : [],
-    ...d.counts && !rows3.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
+    ...d.counts && !rows2.length && !d.counts.invalid && !d.counts.clipped ? ["No per-file counts returned"] : []
   ];
   return {
     body: [
@@ -40008,9 +40010,9 @@ function countCard(call, d, pattern) {
       ...disclosures(notices),
       ...errorNotice(call)
     ],
-    folded: rows3.length > 20,
+    folded: rows2.length > 20,
     frame: "inline",
-    meta: [...d.counts ? [`${plural(rows3.length, "retained count")} shown`] : [], ...notices],
+    meta: [...d.counts ? [`${plural(rows2.length, "retained count")} shown`] : [], ...notices],
     name: "grep",
     target: pattern,
     targetKind: "pattern",
@@ -42295,9 +42297,9 @@ var Processes = class {
       this.#failures = 0;
       this.#sid = sid;
     }
-    let rows3;
+    let rows2;
     try {
-      rows3 = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
+      rows2 = await rpcParsed(this.#host.gw, "process.list", { session_id: sid }, processList);
     } catch {
       const unknown4 = sid === this.#host.sid && this.#failed();
       return unknown4 || changed ? this.#host.changed() : void 0;
@@ -42309,7 +42311,7 @@ var Processes = class {
     const now = Date.now();
     const touched = /* @__PURE__ */ new Set();
     const listed2 = /* @__PURE__ */ new Set();
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       if (!row2.session_id) {
         continue;
       }
@@ -45786,7 +45788,7 @@ function pickerValue(model, provider) {
 function openModelPicker(host2) {
   let state = "loading";
   let message = "";
-  let rows3 = [];
+  let rows2 = [];
   let providers = [];
   let current = "";
   let query2 = "";
@@ -45809,7 +45811,7 @@ function openModelPicker(host2) {
       rememberCaps(list10);
       const names = providerDisplayNames(list10);
       providers = list10.map((provider, i) => ({ name: names[i] ?? provider.name, provider }));
-      rows3 = providers.flatMap(
+      rows2 = providers.flatMap(
         ({ provider, name }) => (provider.models ?? []).map((model) => ({
           id: `${provider.slug}	${model}`,
           model,
@@ -45818,8 +45820,8 @@ function openModelPicker(host2) {
         }))
       );
       const currentProvider = list10.find((p3) => p3.is_current)?.slug ?? r.provider ?? "";
-      current = rows3.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows3.find((row2) => row2.model === r.model)?.id ?? "";
-      selected = current || rows3[0]?.id;
+      current = rows2.find((row2) => row2.model === r.model && row2.provider.slug === currentProvider)?.id ?? rows2.find((row2) => row2.model === r.model)?.id ?? "";
+      selected = current || rows2[0]?.id;
       state = "ready";
     } catch (error) {
       state = "error";
@@ -45828,7 +45830,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const choose = async (id3, confirmed2 = false) => {
-    const row2 = rows3.find((r) => r.id === id3);
+    const row2 = rows2.find((r) => r.id === id3);
     if (!row2 || busy) {
       return;
     }
@@ -45858,7 +45860,7 @@ function openModelPicker(host2) {
     host2.changed();
   };
   const view = () => {
-    const inScope = scope2 === ALL2 ? rows3 : rows3.filter((r) => `provider:${r.provider.slug}` === scope2);
+    const inScope = scope2 === ALL2 ? rows2 : rows2.filter((r) => `provider:${r.provider.slug}` === scope2);
     const ranked = rank(inScope, query2, (r) => `${modelSearchText(r.model)} ${r.providerName} ${r.provider.slug}`);
     const hits = {};
     const order2 = [];
@@ -45891,10 +45893,10 @@ function openModelPicker(host2) {
     modal: true,
     node: (id3) => {
       const { hits, order: order2 } = view();
-      const priced = rows3.some((r) => r.provider.pricing?.[r.model]);
+      const priced = rows2.some((r) => r.provider.pricing?.[r.model]);
       const columns2 = priced ? [{ format: "price", head: "$/M", id: "price", priority: 2 }] : [];
       const scopes = [
-        { count: rows3.length, icon: "list", id: ALL2, label: "All models" },
+        { count: rows2.length, icon: "list", id: ALL2, label: "All models" },
         ...providers.map(({ provider, name }) => ({
           count: provider.models?.length ?? 0,
           ...optional("dot", provider.warning ? "warning" : void 0),
@@ -45904,7 +45906,7 @@ function openModelPicker(host2) {
           mark: { seed: provider.slug, text: name }
         }))
       ];
-      const row2 = rows3.find((r) => r.id === selected);
+      const row2 = rows2.find((r) => r.id === selected);
       const levels = levelsFor(row2 && caps(row2));
       return /* @__PURE__ */ jsx(
         "picker",
@@ -45920,7 +45922,7 @@ function openModelPicker(host2) {
           ...optional("empty", query2 ? void 0 : "No models in this scope"),
           hits,
           icon: "cpu",
-          items: rows3.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
+          items: rows2.map((row3) => itemOf(row3, modelRecents(host2.session).list(host2.session.ref.live ?? "").some((item3) => modelId(item3) === row3.id))),
           layout: "rows",
           ...optional("message", state === "error" ? message : void 0),
           noun: "models",
@@ -45974,7 +45976,7 @@ function openModelPicker(host2) {
             }
           } : {},
           title: "Models",
-          total: rows3.length,
+          total: rows2.length,
           children: row2 ? preview2(row2, row2.id === current) : null
         },
         nativeOverlayKey(id3)
@@ -45998,14 +46000,14 @@ function openModelPicker(host2) {
         return true;
       }
       if (k.ctrl && k.name === "e") {
-        const row2 = rows3.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         const levels = levelsFor(row2 && caps(row2));
         const at3 = levels.findIndex((l) => l.id === effort2);
         effort2 = levels[(at3 + (k.shift ? levels.length - 1 : 1)) % levels.length]?.id ?? effort2;
         return true;
       }
       if (k.ctrl && k.name === "f") {
-        const row2 = rows3.find((r) => r.id === selected);
+        const row2 = rows2.find((r) => r.id === selected);
         if (row2 && fastable(row2)) {
           fast = !fast;
           fastTouched = true;
@@ -47084,8 +47086,8 @@ function parseActivity(data) {
   return items.sort((a2, b) => Date.parse(a2.at) - Date.parse(b.at));
 }
 var fileRow = object({ filename: text7, previous_filename: text7, status: text7, additions: count2, deletions: count2, patch: text7 });
-function parseFiles(rows3) {
-  return rowsOf(fileRow, Array.isArray(rows3) ? rows3 : []).map((r) => ({
+function parseFiles(rows2) {
+  return rowsOf(fileRow, Array.isArray(rows2) ? rows2 : []).map((r) => ({
     additions: r.additions,
     deletions: r.deletions,
     patch: r.patch || void 0,
@@ -49325,20 +49327,20 @@ function table(state, node4) {
   }
   state.inTable = true;
   const { align, headless } = inspect(node4);
-  const rows3 = state.toSpecificContent(state.all(node4), createRow);
+  const rows2 = state.toSpecificContent(state.all(node4), createRow);
   if (headless) {
-    rows3.unshift(createRow());
+    rows2.unshift(createRow());
   }
   let rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const row2 = rows3[rowIndex];
+  while (++rowIndex < rows2.length) {
+    const row2 = rows2[rowIndex];
     const cells2 = state.toSpecificContent(row2.children, createCell);
     row2.children = cells2;
   }
   let columns2 = 1;
   rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const cells2 = rows3[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = -1;
     while (++cellIndex < cells2.length) {
       const cell4 = cells2[cellIndex];
@@ -49354,14 +49356,14 @@ function table(state, node4) {
           while (++otherRowIndex < rowIndex + rowSpan) {
             let colIndex = cellIndex - 1;
             while (++colIndex < cellIndex + colSpan) {
-              if (!rows3[otherRowIndex]) {
+              if (!rows2[otherRowIndex]) {
                 break;
               }
               const newCells = [];
               if (otherRowIndex !== rowIndex || colIndex !== cellIndex) {
                 newCells.push({ type: "tableCell", children: [] });
               }
-              rows3[otherRowIndex].children.splice(colIndex, 0, ...newCells);
+              rows2[otherRowIndex].children.splice(colIndex, 0, ...newCells);
             }
           }
         }
@@ -49375,8 +49377,8 @@ function table(state, node4) {
     if (cells2.length > columns2) columns2 = cells2.length;
   }
   rowIndex = -1;
-  while (++rowIndex < rows3.length) {
-    const cells2 = rows3[rowIndex].children;
+  while (++rowIndex < rows2.length) {
+    const cells2 = rows2[rowIndex].children;
     let cellIndex = cells2.length - 1;
     while (++cellIndex < columns2) {
       cells2.push({ type: "tableCell", children: [] });
@@ -49387,7 +49389,7 @@ function table(state, node4) {
     align.push(null);
   }
   state.inTable = false;
-  const result = { type: "table", align, children: rows3 };
+  const result = { type: "table", align, children: rows2 };
   state.patch(node4, result);
   return result;
 }
@@ -71763,8 +71765,8 @@ function strong3(state, node4) {
 
 // node_modules/mdast-util-to-hast/lib/handlers/table.js
 function table2(state, node4) {
-  const rows3 = state.all(node4);
-  const firstRow = rows3.shift();
+  const rows2 = state.all(node4);
+  const firstRow = rows2.shift();
   const tableContent = [];
   if (firstRow) {
     const head2 = {
@@ -71776,12 +71778,12 @@ function table2(state, node4) {
     state.patch(node4.children[0], head2);
     tableContent.push(head2);
   }
-  if (rows3.length > 0) {
+  if (rows2.length > 0) {
     const body = {
       type: "element",
       tagName: "tbody",
       properties: {},
-      children: state.wrap(rows3, true)
+      children: state.wrap(rows2, true)
     };
     const start = pointStart(node4.children[1]);
     const end = pointEnd(node4.children[node4.children.length - 1]);
@@ -75803,8 +75805,8 @@ var PreviewLoader = class {
     this.#done(id3, entry);
   }
   /** Appends the rows not seen yet; how many it kept. */
-  #keep(entry, rows3) {
-    const fresh = rows3.filter((r) => !entry.seen.has(r.key));
+  #keep(entry, rows2) {
+    const fresh = rows2.filter((r) => !entry.seen.has(r.key));
     for (const r of fresh) {
       entry.seen.add(r.key);
     }
@@ -75852,12 +75854,12 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
     workspace = key3;
     sessions = listed2.filter((s2) => s2.messages > 0 || isCurrent(s2));
     tab3 = sessions.some((s2) => inWorkspace(s2, workspace)) ? "here" : "all";
-    selected = rows3().find((s2) => !isCurrent(s2))?.id ?? rows3()[0]?.id;
+    selected = rows2().find((s2) => !isCurrent(s2))?.id ?? rows2()[0]?.id;
     state = "ready";
     host2.changed();
   };
   const here = (s2) => inWorkspace(s2, workspace);
-  const rows3 = () => tab3 === "here" ? sessions.filter(here) : sessions;
+  const rows2 = () => tab3 === "here" ? sessions.filter(here) : sessions;
   const resume = (id3) => {
     const s2 = sessions.find((x) => x.id === id3);
     if (!s2) {
@@ -75950,7 +75952,7 @@ function openSessionPicker(host2, reader = gatewayTranscripts(host2.gw)) {
   };
   const view = (now) => {
     const rank0 = (x) => x.pinned ? 0 : tab3 === "all" && here(x) ? 1 : 2;
-    const list10 = query2 ? rows3() : [...rows3()].sort((a2, b) => rank0(a2) - rank0(b));
+    const list10 = query2 ? rows2() : [...rows2()].sort((a2, b) => rank0(a2) - rank0(b));
     const ranked = rank(list10, query2, (s2) => `${sessionLabel(s2)}
 ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
     const hits = {};
@@ -76025,7 +76027,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
           focus: focus2,
           hits,
           icon: "history",
-          items: rows3().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
+          items: rows2().map((x) => itemOf3(x, now, tab3 === "all" && !here(x))),
           layout: "cards",
           noun: "sessions",
           onAction: {
@@ -76081,7 +76083,7 @@ ${s2.preview} ${s2.cwd} ${s2.branch} ${s2.id}`, { scattered: false });
             { count: sessions.length, id: "all", label: "All folders" }
           ],
           title: "Sessions",
-          total: rows3().length,
+          total: rows2().length,
           children: pane?.nodes ?? null
         },
         nativeOverlayKey(id3)
@@ -76187,11 +76189,11 @@ async function readValue(access, field) {
 }
 function readProfile(access) {
   return ordered(access.gw, async () => {
-    const rows3 = [];
+    const rows2 = [];
     for (const field of PROFILE_PREFERENCES) {
-      rows3.push({ field, value: await readValue(access, field) });
+      rows2.push({ field, value: await readValue(access, field) });
     }
-    return rows3;
+    return rows2;
   });
 }
 function writeProfile(access, field, requested, expected) {
@@ -76277,7 +76279,7 @@ var SettingsSheet = class {
     this.#message = "";
     this.#host.changed();
     try {
-      const rows3 = await readProfile({
+      const rows2 = await readProfile({
         active: () => this.#live() && this.#generation === generation,
         gw: this.#host.gw,
         sid: this.#sid,
@@ -76286,7 +76288,7 @@ var SettingsSheet = class {
       if (!this.#live() || generation !== this.#generation) {
         return;
       }
-      this.#rows = new Map(rows3.map((row2) => [row2.field.key, row2]));
+      this.#rows = new Map(rows2.map((row2) => [row2.field.key, row2]));
       this.#status = "ready";
     } catch (error) {
       if (!this.#live() || generation !== this.#generation) {
@@ -76455,7 +76457,7 @@ var SettingsSheet = class {
       if (!this.#searching && this.#page !== `profile.${group}`) {
         continue;
       }
-      const rows3 = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
+      const rows2 = [...this.#rows.values()].filter((row2) => row2.field.group === group && matching(`${row2.field.key} ${row2.field.label} ${row2.field.hint}`)).map((row2) => ({
         control: this.#control(row2),
         hint: `${row2.field.hint}
 Confirmed profile value: ${row2.value}`,
@@ -76463,7 +76465,7 @@ Confirmed profile value: ${row2.value}`,
         label: row2.field.label,
         ...this.#busy === row2.field.key ? { disabled: "Waiting for Hermes readback." } : {}
       }));
-      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows: rows3, title: `${group} \xB7 saved Hermes profile defaults` });
+      sections2.push({ id: `profile.${group}`, page: `profile.${group}`, rows: rows2, title: `${group} \xB7 saved Hermes profile defaults` });
     }
     return sections2;
   }
@@ -76646,8 +76648,8 @@ Confirmed profile value: ${row2.value}`,
       this.#host.changed();
       return true;
     }
-    const rows3 = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
-    const selected = moveSelection(key3, rows3, this.#selected);
+    const rows2 = this.#sections().flatMap((section) => section.rows.map((row2) => row2.id));
+    const selected = moveSelection(key3, rows2, this.#selected);
     if (selected !== void 0) {
       this.#selected = selected;
       this.#host.changed();
@@ -77827,7 +77829,7 @@ var TURN_MS = 520;
 var SPAWN_MS = 90;
 var FLY_MS = 220;
 var THREAD_MS = 360;
-var ease2 = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+var ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 function schedule(run8) {
   const at3 = [];
   let t = 0;
@@ -78059,7 +78061,7 @@ function instrumentSvg(run8, frame2, size = 480, options2 = {}) {
   }
   if (m2.speaking >= 0 && cur?.type === "turn") {
     const p3 = pos[m2.speaking];
-    const k = ease2(m2.since / THREAD_MS);
+    const k = ease(m2.since / THREAD_MS);
     const targets2 = cur.cites.filter((j) => j !== m2.speaking);
     if (p3 && !targets2.length) {
       s2 += tag2("line", { x1: p3.x, y1: p3.y, x2: p3.x + (c - p3.x) * k, y2: p3.y + (c - p3.y) * k, stroke: NIGHT.strong, "stroke-opacity": 0.55, "stroke-width": 1 });
@@ -78088,7 +78090,7 @@ function instrumentSvg(run8, frame2, size = 480, options2 = {}) {
       const ang = p3.a + (k - (crew.length - 1) / 2) * step2;
       const on = frame2.t === null || k < (m2.lit[i] ?? 0);
       const born = m2.running && !options2.reduce ? m2.born.get(`${i}.${k}`) : void 0;
-      const d = R + 6 + 9 * (born === void 0 ? 1 : ease2((t - born) / FLY_MS));
+      const d = R + 6 + 9 * (born === void 0 ? 1 : ease((t - born) / FLY_MS));
       const x = p3.x + Math.cos(ang) * d, y = p3.y + Math.sin(ang) * d;
       s2 += on ? gem(`t${i}x${k}`, stone, x, y, 3.9, { low: true }) : tag2("circle", { cx: x, cy: y, r: 2.4, fill: "none", stroke: NIGHT.text3, "stroke-opacity": 0.5, "stroke-width": 0.6 });
     });
@@ -78430,9 +78432,9 @@ async function loadCouncilSession(wire, councilId) {
 }
 async function listCouncilSessions(wire) {
   const reply2 = record(await request(wire.gw, wire.sessionId, "list", { ...wire.storedSessionId ? { stored_session_id: wire.storedSessionId } : {} }));
-  const rows3 = reply2?.["councils"];
-  if (!Array.isArray(rows3)) throw new Error("glide.council.list did not answer with councils");
-  return rows3.flatMap((row2) => {
+  const rows2 = reply2?.["councils"];
+  if (!Array.isArray(rows2)) throw new Error("glide.council.list did not answer with councils");
+  return rows2.flatMap((row2) => {
     const { council_id, brief, updated_at, updated_by, revision } = record(row2) ?? {};
     return typeof council_id === "string" && ID2.test(council_id) && typeof brief === "string" && typeof updated_at === "string" && typeof updated_by === "string" && nat(revision) ? [{ council_id, brief, updated_at, updated_by, revision }] : [];
   });
@@ -79555,7 +79557,7 @@ function hosts2(doc, tab3) {
     { label: "Need you", value: String(blocked2), tone: blocked2 ? "warning" : "success" },
     { label: "Pods", value: String(pods.length) }
   ] });
-  const rows3 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
+  const rows2 = list10.flatMap((h2) => h2.harnesses.flatMap((g) => g.agents.map((a2) => {
     const [badge, tone3] = AGENT_STATE[a2.state] ?? [a2.state, "neutral"];
     const resumable = g.kind.toLowerCase() === "hermes" && !a2.id.startsWith("process:") && !/^\d+$/.test(a2.id);
     const reachable = h2.online && a2.state !== "offline";
@@ -79572,7 +79574,7 @@ function hosts2(doc, tab3) {
     };
   })));
   const bare = list10.filter((h2) => !h2.harnesses.some((g) => g.agents.length)).map((h2) => h2.online ? h2.label : `${h2.label} (offline)`);
-  slots["hosts.agents"] = slot("List", { items: rows3, numbered: false });
+  slots["hosts.agents"] = slot("List", { items: rows2, numbered: false });
   slots["hosts.quiet"] = slot("Text", { body: bare.length ? `No agents reported: ${bare.join(", ")}` : "Every host reports agents.", tone: "muted" });
   const GAUGES = ["cpu", "mem", "disk", "gpu"];
   slots["hosts.machines"] = slot("Table", {
@@ -79667,12 +79669,12 @@ function factorySpine(nodes, edges, W = 920) {
   const used = [0, 1, 2, 3].filter((c) => nodes.some((n5) => col(n5) === c));
   const slotOf = (c) => Math.max(0, used.indexOf(c));
   const colW = (W - 16) / Math.max(1, used.length), rowH = 38, top = 24, pw = Math.min(190, colW - 28);
-  const rows3 = Math.max(1, ...used.map((c) => nodes.filter((n5) => col(n5) === c).length));
-  const H2 = top + rows3 * rowH + 4;
+  const rows2 = Math.max(1, ...used.map((c) => nodes.filter((n5) => col(n5) === c).length));
+  const H2 = top + rows2 * rowH + 4;
   const pos = /* @__PURE__ */ new Map();
   for (const c of used) {
     const here = nodes.filter((n5) => col(n5) === c);
-    const y0 = top + (rows3 - here.length) * rowH / 2 + rowH / 2;
+    const y0 = top + (rows2 - here.length) * rowH / 2 + rowH / 2;
     here.forEach((n5, i) => pos.set(n5.id, { x: 8 + colW * slotOf(c) + colW / 2, y: y0 + i * rowH }));
   }
   const heads = used.map((c) => `<text x="${8 + colW * slotOf(c) + colW / 2}" y="12" text-anchor="middle" font-size="10" letter-spacing="1" fill="var(--muted)" font-family="monospace">${(COLS[c] ?? "").toUpperCase()} \xB7 ${nodes.filter((n5) => col(n5) === c).length}</text>`);
@@ -79738,18 +79740,18 @@ function graph(doc) {
   };
 }
 function runningAgents(agents2) {
-  const rows3 = agentLineage(agents2);
-  const w = 640, h2 = rows3.length * 40 + 12;
+  const rows2 = agentLineage(agents2);
+  const w = 640, h2 = rows2.length * 40 + 12;
   const tileLeft = (depth) => 20 + Math.min(12, depth) * 24;
   const rowCenter = (index2) => 26 + index2 * 40;
-  const wires = rows3.map(({ depth, from, node: node4 }, i) => {
-    const parent = from === void 0 ? void 0 : rows3[from];
+  const wires = rows2.map(({ depth, from, node: node4 }, i) => {
+    const parent = from === void 0 ? void 0 : rows2[from];
     if (!parent || from === void 0) return "";
     const end = tileLeft(depth);
     const start = Math.min(end - 12, tileLeft(parent.depth) + 12);
     return `<path d="M${start},${rowCenter(from) + 15} V${rowCenter(i)} H${end}" stroke="var(--accent)" stroke-opacity="${node4.state === "live" ? 1 : 0.4}" fill="none"/>`;
   }).join("");
-  const tiles = rows3.map(({ node: node4, depth }, i) => {
+  const tiles = rows2.map(({ node: node4, depth }, i) => {
     const left = tileLeft(depth), top = rowCenter(i) - 15;
     const tone3 = node4.state === "failed" ? STATUS.bad : node4.state === "live" ? STATUS.ok : "var(--muted)";
     const max = Math.floor((w - left - 150) / 7);
@@ -79762,7 +79764,7 @@ function runningAgents(agents2) {
       svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h2}" viewBox="0 0 ${w} ${h2}" font-family="system-ui,sans-serif">${wires}${tiles}</svg>`,
       w,
       h: h2,
-      alt: rows3.map(({ node: node4 }) => `${node4.parent ? "Subagent" : "Session"}: ${node4.label} \xB7 ${node4.state}`).join("; ")
+      alt: rows2.map(({ node: node4 }) => `${node4.parent ? "Subagent" : "Session"}: ${node4.label} \xB7 ${node4.state}`).join("; ")
     }),
     "snapshot.header": slot("Section", { title: "Content factory snapshot" })
   };
@@ -80426,14 +80428,14 @@ function gevAnswer(name, result, rawText) {
   const sc = findStructured(result) ?? findStructured(resultText);
   if (!sc) return void 0;
   const view = sc.view;
-  const rows3 = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
+  const rows2 = Array.isArray(sc["rows"]) ? sc["rows"].filter(isObj) : [];
   return {
     tool,
     summary: findSummary(resultText) ?? findSummary(result) ?? "",
     url: view.url,
     layers: Array.isArray(view["layers"]) ? view["layers"].filter((l) => typeof l === "string") : [],
-    total: typeof sc["total"] === "number" ? sc["total"] : rows3.length || void 0,
-    rows: rows3
+    total: typeof sc["total"] === "number" ? sc["total"] : rows2.length || void 0,
+    rows: rows2
   };
 }
 function embedUrl(url) {
@@ -82675,9 +82677,9 @@ ${done}` : done, r?.connected ? "info" : "warning");
   }
   note(r?.connected ? `Browser connected: ${r.url || "(url unavailable)"}` : "Browser not connected (set browser.cdp_url in config.yaml to attach one).");
 }
-function pluginLines(rows3) {
+function pluginLines(rows2) {
   const mark2 = (status = "") => status === "enabled" ? "\u2713" : status === "disabled" ? "\u2717" : "\xB7";
-  return rows3.map((p3) => {
+  return rows2.map((p3) => {
     const facts2 = [p3.version, p3.source, p3.status === "enabled" || p3.status === "disabled" ? "" : p3.status].filter(Boolean).join(", ");
     return `- ${mark2(p3.status)} **${p3.name}**${facts2 ? ` (${facts2})` : ""}${p3.description ? ` \u2014 ${p3.description}` : ""}`;
   });
@@ -82691,11 +82693,11 @@ async function plugins(host2, arg) {
     );
   }
   const r = await rpc(host2.gw, "plugins.manage", { action: "list" });
-  const rows3 = r?.plugins ?? [];
-  const user = rows3.filter((p3) => p3.source !== "bundled");
-  const shown3 = sub === "all" || !user.length ? rows3 : user;
-  const hidden2 = rows3.length - shown3.length;
-  if (!rows3.length) {
+  const rows2 = r?.plugins ?? [];
+  const user = rows2.filter((p3) => p3.source !== "bundled");
+  const shown3 = sub === "all" || !user.length ? rows2 : user;
+  const hidden2 = rows2.length - shown3.length;
+  if (!rows2.length) {
     return host2.transcript.notice("No plugins installed.");
   }
   host2.transcript.panel(
@@ -83653,11 +83655,11 @@ function effectiveShortcuts(raw2) {
 function shortcutGroups(actions = APP_SHORTCUTS) {
   const groups = /* @__PURE__ */ new Map();
   for (const action of actions) {
-    const rows3 = groups.get(action.group) ?? [];
-    rows3.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
-    groups.set(action.group, rows3);
+    const rows2 = groups.get(action.group) ?? [];
+    rows2.push([action.keys.length ? action.keys : ["(unbound)"], action.title]);
+    groups.set(action.group, rows2);
   }
-  return [...groups].map(([group, rows3]) => ({ group, rows: rows3 }));
+  return [...groups].map(([group, rows2]) => ({ group, rows: rows2 }));
 }
 
 // src/overlays/help.tsx
@@ -83721,29 +83723,29 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
   ];
   const sections2 = /* @__PURE__ */ new Map();
   for (const section of [...HOTKEYS, ...shortcutGroups(actions)]) {
-    const rows3 = sections2.get(section.group) ?? [];
+    const rows2 = sections2.get(section.group) ?? [];
     for (const [keys3, title2] of section.rows) {
-      if (!rows3.some(([prior, label2]) => label2 === title2 && prior.join(" ") === keys3.join(" "))) {
-        rows3.push([[...keys3], title2]);
+      if (!rows2.some(([prior, label2]) => label2 === title2 && prior.join(" ") === keys3.join(" "))) {
+        rows2.push([[...keys3], title2]);
       }
     }
-    sections2.set(section.group, rows3);
+    sections2.set(section.group, rows2);
   }
   const commandGroups = /* @__PURE__ */ new Map();
   for (const category of categories) {
-    const rows3 = commandGroups.get(category.name) ?? [];
+    const rows2 = commandGroups.get(category.name) ?? [];
     for (const pair3 of category.pairs) {
-      if (!rows3.some(([command2]) => command2 === pair3[0])) {
-        rows3.push([...pair3]);
+      if (!rows2.some(([command2]) => command2 === pair3[0])) {
+        rows2.push([...pair3]);
       }
     }
-    commandGroups.set(category.name, rows3);
+    commandGroups.set(category.name, rows2);
   }
   const overlay2 = {
     key: KEY12,
     modal: true,
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "center", head: "Commands and shortcuts", modal: true, role: "omp.overlay.hotkeys", size: "lg", children: /* @__PURE__ */ jsxs("col", { gap: "lg", children: [
-      [...sections2].map(([group, rows3]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
+      [...sections2].map(([group, rows2]) => /* @__PURE__ */ jsx("section", { head: group, role: "omp.hotkeys.group", children: /* @__PURE__ */ jsx(
         "table",
         {
           cols: [
@@ -83751,7 +83753,7 @@ async function openHelp(host2, actions = APP_SHORTCUTS) {
             { grow: 1, head: "Action", id: "action" }
           ],
           role: "omp.hotkeys.table",
-          rows: rows3.map(([keys3, action], i) => ({
+          rows: rows2.map(([keys3, action], i) => ({
             cells: {
               action: [{ t: action }],
               keys: keys3.flatMap((k, j) => [...j ? [{ s: "dim", t: " " }] : [], { s: "key", t: k }])
@@ -84187,8 +84189,8 @@ function waveSvg(words5) {
   }).join("");
   return { t: "svg", w, h: h2, cls: "ih-wave", style: "", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h2}" width="${w}" height="${h2}"><g fill="var(--h-primary)" opacity="0.55">${rects}</g></svg>` };
 }
-function clauseRuns(ask, rows3) {
-  const hits = rows3.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
+function clauseRuns(ask, rows2) {
+  const hits = rows2.map((r) => ({ clause: r.label.toLowerCase(), phrase: str6(r.value), at: ask.toLowerCase().indexOf(str6(r.value).toLowerCase()) })).filter((x) => x.phrase && x.at >= 0).sort((a2, b) => a2.at - b.at);
   const runs3 = [];
   let at3 = 0;
   for (const x of hits) {
@@ -84585,10 +84587,10 @@ function fleetFit(kind) {
       } : g);
     }
     for (const [list10, row2, cap2] of fit.caps) if (is3(n5, list10) && !opened.has(MORE2 + ":" + n5.id)) {
-      const rows3 = els(kids2, row2);
-      const kept = rows3.filter((k) => picked2.has(k.id) || marks2 !== "" && has(k, marks2));
+      const rows2 = els(kids2, row2);
+      const kept = rows2.filter((k) => picked2.has(k.id) || marks2 !== "" && has(k, marks2));
       let room = cap2 - kept.length;
-      const hidden2 = rows3.filter((k) => !kept.includes(k) && room-- <= 0);
+      const hidden2 = rows2.filter((k) => !kept.includes(k) && room-- <= 0);
       if (!hidden2.length) continue;
       const last = kids2.findLastIndex((k) => is3(k, row2));
       const more = el("button", "fl-tag fl-more", control(n5.id, MORE2), { type: "button" }, [{ t: "text", text: hidden2.length + " more" }]);
@@ -96980,8 +96982,8 @@ function analyzeTable(source3) {
   if (source3.length > 8192 || /[\\`<>]/.test(source3) || [...source3].some((c) => c !== "\n" && c.charCodeAt(0) < 32)) {
     return;
   }
-  const rows3 = source3.trim().split("\n").map(cells);
-  const [header, delimiter, ...body] = rows3;
+  const rows2 = source3.trim().split("\n").map(cells);
+  const [header, delimiter, ...body] = rows2;
   if (!header || header.length !== 2 || header.some((s2) => !s2) || !delimiter || delimiter.length !== 2 || !delimiter.every((s2) => /^:?-{3,}:?$/.test(s2)) || body.length < 2 || body.length > 24 || body.some((row2) => row2.length !== 2 || !row2[0] || NUMBER.test(row2[0]) || !NUMBER.test(row2[1] ?? ""))) {
     return;
   }
@@ -97199,8 +97201,8 @@ function cellText(key3, v) {
   }
   return typeof v === "string" ? v : typeof v === "boolean" ? v ? "yes" : "no" : "";
 }
-function columns(rows3) {
-  const first = rows3[0];
+function columns(rows2) {
+  const first = rows2[0];
   if (!first) return [];
   return Object.keys(first).filter((k) => !SKIP3.test(k) && ["string", "number", "boolean"].includes(typeof first[k])).slice(0, 4);
 }
@@ -97363,7 +97365,7 @@ function wordPath(from, to) {
   return d;
 }
 var clamp3 = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
-var ease3 = (t) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+var ease2 = (t) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 var lerp = (a2, b, t) => a2 + (b - a2) * t;
 var artInk = (dark) => dark ? { ink: "#ece8e1", gold: "#d7b986", dark } : { ink: "#1d1b18", gold: "#8a6a2f", dark };
 var OPENING = ["working", "solving", "weaving"];
@@ -97408,9 +97410,9 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
   const parts3 = [];
   const t = reduce ? Math.max(ms3, MORPH_END) : ms3;
   const L2 = WORD3.length;
-  const move = ease3(clamp3((t - ORB_END) / 900));
+  const move = ease2(clamp3((t - ORB_END) / 900));
   const ox = lerp(BIG.x, SMALL.x, move), oy = lerp(BIG.y, SMALL.y, move), size = lerp(BIG.size, SMALL.size, move);
-  const appear = ease3(clamp3(t / 320));
+  const appear = ease2(clamp3(t / 320));
   if (t < MORPH_END) {
     parts3.push(cycleOrb(OPENING, t, 380, 140, ox, oy, size * lerp(0.7, 1, appear), appear, ink3));
   } else {
@@ -97426,7 +97428,7 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
       const u = k / (PARTICLES - 1);
       const p3 = (t - ORB_END - u * LAUNCH_SPREAD_MS) / FLIGHT_MS;
       if (p3 <= 0 || p3 >= 1.25) continue;
-      const f2 = ease3(clamp3(p3));
+      const f2 = ease2(clamp3(p3));
       const ang = hash(k) * Math.PI * 2, rad = Math.sqrt(hash(k + 99)) * size * 0.18;
       const sx = ox + Math.cos(ang) * rad, sy = oy + Math.sin(ang) * rad;
       const end = pointAt(u * L2);
@@ -97445,7 +97447,7 @@ function splashSvg(ms3, ink3, exitMs = null, reduce = false) {
       parts3.push(`<path d="${wordPath(Math.max(0, head2 - L2 * 0.08), Math.min(L2, head2))}" fill="none" stroke="${ink3.gold}" stroke-width="${STROKE_W + 0.4}" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>`);
     }
   }
-  const leaving = exitMs === null ? 0 : ease3(clamp3((ms3 - exitMs) / SPLASH_EXIT_MS));
+  const leaving = exitMs === null ? 0 : ease2(clamp3((ms3 - exitMs) / SPLASH_EXIT_MS));
   const body = parts3.join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${ART_W * 2}" height="${ART_H * 2}" viewBox="0 0 ${ART_W} ${ART_H}"><g opacity="${(1 - leaving).toFixed(3)}" transform="translate(0 ${(-8 * leaving).toFixed(2)})">${body}</g></svg>`;
 }
@@ -97903,7 +97905,7 @@ function build2(title2, inline, body) {
     return items.length ? { items, kind: "breakdown", note: /_\((.*?)\)_/.exec(inline)?.[1], title: name } : text22(name, inline, lines);
   }
   if (lower.includes("session") || lower.includes("token usage")) {
-    const rows3 = [];
+    const rows2 = [];
     let context;
     for (const l of lines) {
       const p3 = pair2(l);
@@ -97913,23 +97915,23 @@ function build2(title2, inline, body) {
       if (Number.isFinite(used) && max > 0) {
         context = { max, used };
       } else if (p3) {
-        rows3.push(p3);
+        rows2.push(p3);
       }
     }
-    return rows3.length || context ? { context, kind: "session", rows: rows3, title: name } : text22(name, inline, lines);
+    return rows2.length || context ? { context, kind: "session", rows: rows2, title: name } : text22(name, inline, lines);
   }
   if (lower.includes("credit")) {
-    const rows3 = [];
+    const rows2 = [];
     const notes = [];
     for (const l of lines) {
       const p3 = pair2(l);
       if (p3) {
-        rows3.push(p3);
+        rows2.push(p3);
       } else {
         notes.push(l.trim());
       }
     }
-    return rows3.length ? { kind: "credits", notes, rows: rows3, title: name } : text22(name, inline, lines);
+    return rows2.length ? { kind: "credits", notes, rows: rows2, title: name } : text22(name, inline, lines);
   }
   return text22(name, inline, lines);
 }
@@ -98046,9 +98048,9 @@ function limitsTable(items) {
     "limits"
   );
 }
-function sessionBody(rows3, context) {
-  const model = rows3.find((r) => /^model$/i.test(r.key));
-  const rest = rows3.filter((r) => r !== model);
+function sessionBody(rows2, context) {
+  const model = rows2.find((r) => /^model$/i.test(r.key));
+  const rest = rows2.filter((r) => r !== model);
   const out = [];
   if (model) {
     out.push(
@@ -98091,7 +98093,7 @@ function sessionBody(rows3, context) {
   }
   return out;
 }
-function pairTable(rows3, id3) {
+function pairTable(rows2, id3) {
   return /* @__PURE__ */ jsx(
     "table",
     {
@@ -98099,7 +98101,7 @@ function pairTable(rows3, id3) {
         { id: "k", truncate: "end" },
         { align: "end", id: "v", grow: 1 }
       ],
-      rows: rows3.map((r, i) => ({
+      rows: rows2.map((r, i) => ({
         cells: {
           k: [{ s: "muted", t: r.key }],
           v: /^https?:\/\//.test(r.value) ? [{ href: r.value, s: "link", t: r.value }] : [{ s: /^[\d$,.%\s-]+$/.test(r.value) ? "num" : "", t: r.value }]
@@ -99379,7 +99381,13 @@ var STYLES2 = minifyCss(css`
   /* The group's own chevron sits right after its summary and turns as it opens (Tern's is hidden). */
   [data-role='hermes.work.chev'] {
     opacity: 0.45;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform ${NORMAL_MOTION_MS.snappy}ms ${CRITICAL_EASE}, opacity ${NORMAL_MOTION_MS.fade}ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-role='hermes.work.chev'] {
+      transition-property: opacity;
+    }
   }
 
   .sf-section.collapsed > .sf-section-head [data-role='hermes.work.chev'] {
@@ -99734,7 +99742,7 @@ var STYLES2 = minifyCss(css`
     border-radius: 999px;
     background: var(--l1);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background ${NORMAL_MOTION_MS.snappy}ms ease;
   }
 
   .sf-row[data-role='hermes.automation.item']:hover {
@@ -99812,7 +99820,7 @@ var STYLES2 = minifyCss(css`
     background: var(--sf-card-bg);
     box-shadow: inset 0 0 0 1px var(--l2);
     cursor: pointer;
-    transition: background 120ms ease;
+    transition: background ${NORMAL_MOTION_MS.fade}ms ease;
   }
 
   .sf-agent[data-role='hermes.task.solo']:hover {
@@ -101087,16 +101095,16 @@ function openAutomation(host2, which) {
 
 // src/overlays/historySearch.tsx
 function openPromptHistorySearch(host2, composer2, history2 = load()) {
-  const rows3 = history2.map((text24, index2) => {
+  const rows2 = history2.map((text24, index2) => {
     const search3 = text24.replace(/\s+/g, " ").trim();
     return { id: String(index2), text: text24, search: search3, label: search3.length > 140 ? search3.slice(0, 140) + "\u2026" : search3 };
   }).filter((row2) => row2.search.length > 0).reverse();
   let query2 = "";
-  let shown3 = rows3.map((row2) => row2.id);
+  let shown3 = rows2.map((row2) => row2.id);
   let selected = shown3[0];
   let alive = true;
   const refresh2 = () => {
-    const matches3 = rank(rows3, query2, (row2) => row2.search);
+    const matches3 = rank(rows2, query2, (row2) => row2.search);
     shown3 = matches3.map((match) => match.item.id);
     if (selected === void 0 || !shown3.includes(selected)) {
       selected = shown3[0];
@@ -101105,7 +101113,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
   };
   const fill = (id3 = selected) => {
     if (!alive || id3 === void 0 || !shown3.includes(id3)) return;
-    const picked2 = rows3.find((row2) => row2.id === id3);
+    const picked2 = rows2.find((row2) => row2.id === id3);
     if (!picked2) return;
     host2.close(overlay2);
     composer2.set(picked2.text, { literal: true });
@@ -101120,7 +101128,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
     node: (root7) => {
       const matches3 = refresh2();
       const hits = {};
-      const items = rows3.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
+      const items = rows2.map((row2) => ({ id: row2.id, label: row2.label, mono: true }));
       for (const { item: item3, positions } of matches3) {
         if (positions.length) hits[item3.id] = hitRuns(positions, item3.label.length);
       }
@@ -101158,7 +101166,7 @@ function openPromptHistorySearch(host2, composer2, history2 = load()) {
           size: "lg",
           state: "ready",
           title: "Prompt history",
-          total: rows3.length
+          total: rows2.length
         },
         nativeOverlayKey(root7)
       );
@@ -101323,9 +101331,9 @@ var BindingPreferences = class {
 
 // src/shortcuts/model-cycle.ts
 function availableModels(options2) {
-  const rows3 = (options2.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
+  const rows2 = (options2.providers ?? []).filter((provider) => provider.authenticated !== false).flatMap((provider) => (provider.models ?? []).filter((model) => !provider.unavailable_models?.includes(model)).map((model) => ({ model, provider: provider.slug })));
   const seen = /* @__PURE__ */ new Set();
-  return rows3.filter((row2) => {
+  return rows2.filter((row2) => {
     const id3 = modelId(row2);
     if (seen.has(id3)) {
       return false;
@@ -101352,15 +101360,15 @@ function cycleTarget(available, recent, active2, direction) {
     seen.add(id3);
     return true;
   });
-  const rows3 = valid2.length > 1 ? valid2 : available;
-  if (rows3.length < 2) {
+  const rows2 = valid2.length > 1 ? valid2 : available;
+  if (rows2.length < 2) {
     return null;
   }
-  const at3 = rows3.findIndex((row2) => modelId(row2) === modelId(active2));
+  const at3 = rows2.findIndex((row2) => modelId(row2) === modelId(active2));
   if (at3 < 0) {
-    return direction === 1 ? rows3[0] ?? null : rows3[rows3.length - 1] ?? null;
+    return direction === 1 ? rows2[0] ?? null : rows2[rows2.length - 1] ?? null;
   }
-  return rows3[(at3 + direction + rows3.length) % rows3.length] ?? null;
+  return rows2[(at3 + direction + rows2.length) % rows2.length] ?? null;
 }
 function cycleModel(host2, direction) {
   const owner2 = host2.session.ref;
@@ -101705,7 +101713,7 @@ function shellsOf(processes, now) {
 
 // src/shortcuts/palette.tsx
 function templateRows() {
-  const rows3 = ["mono", "studio", "default"].map((id3) => ({
+  const rows2 = ["mono", "studio", "default"].map((id3) => ({
     command: `/template ${id3}`,
     description: TEMPLATES[id3].detail,
     group: "Templates",
@@ -101713,12 +101721,12 @@ function templateRows() {
     name: `Use ${TEMPLATES[id3].label} template`
   }));
   for (const panel of TEMPLATE_PANELS) {
-    rows3.push({ command: `/template panel ${panel}`, description: `Dock the ${PANEL_TITLES[panel]} page beside the chat`, group: "Templates", id: `panel:${panel}`, name: `Open ${PANEL_TITLES[panel]} page` });
+    rows2.push({ command: `/template panel ${panel}`, description: `Dock the ${PANEL_TITLES[panel]} page beside the chat`, group: "Templates", id: `panel:${panel}`, name: `Open ${PANEL_TITLES[panel]} page` });
   }
-  return rows3;
+  return rows2;
 }
 function paletteRows(catalog = {}) {
-  const rows3 = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const add2 = (raw2, description, group) => {
     const name = /^\/?[a-z][\w-]*/i.exec(raw2.trim())?.[0]?.replace(/^\//, "").toLowerCase();
@@ -101726,7 +101734,7 @@ function paletteRows(catalog = {}) {
       return;
     }
     seen.add(name);
-    rows3.push({ id: `/${name}`, name: `/${name}`, description, group });
+    rows2.push({ id: `/${name}`, name: `/${name}`, description, group });
   };
   for (const c of localCommands()) {
     add2(c.name, c.help ?? "Hermes command", "Tern / Hermes");
@@ -101736,7 +101744,7 @@ function paletteRows(catalog = {}) {
       add2(raw2, description.replace(/\s*\(usage: .+\)\s*$/, ""), category.name);
     }
   }
-  return [...rows3, ...templateRows()];
+  return [...rows2, ...templateRows()];
 }
 function openCommandPalette(host2) {
   const sid = host2.session.ref.live;
@@ -102090,13 +102098,13 @@ var ServerQueue = class {
   /** Input ids of own admissions the FIFO has listed. */
   #listed = /* @__PURE__ */ new Set();
   /** Another session: its FIFO from the resume snapshot, and none of the last one's bookkeeping. */
-  reset(rows3) {
+  reset(rows2) {
     this.#own.length = 0;
     this.#shown.clear();
     this.#queuedOnly.clear();
     this.#listed.clear();
     this.rows = [];
-    this.update(rows3);
+    this.update(rows2);
   }
   /** A prompt about to be admitted behind the turn; its row shows at once. */
   admit(own14) {
@@ -102132,13 +102140,13 @@ var ServerQueue = class {
    * in order: this pane's admissions that started, and another viewer's rows this pane saw move
    * from queued to started (a resume snapshot's started row is already in the replayed history).
    */
-  update(rows3) {
-    if (!rows3) {
+  update(rows2) {
+    if (!rows2) {
       return [];
     }
     const was = new Set(this.rows.filter((r) => r.status === "queued").map((r) => r.admission_id));
     const owed = [];
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       if (row2.status === "queued") {
         this.#queuedOnly.add(row2.admission_id);
         const own15 = this.#own.find((o) => o.inputId === row2.input_id);
@@ -102165,8 +102173,8 @@ var ServerQueue = class {
         owed.push({ own: own14, text: own14?.display ?? row2.user });
       }
     }
-    this.rows = rows3;
-    const listed2 = new Set(rows3.map((r) => r.input_id));
+    this.rows = rows2;
+    const listed2 = new Set(rows2.map((r) => r.input_id));
     for (const own14 of [...this.#own]) {
       if (listed2.has(own14.inputId)) {
         this.#listed.add(own14.inputId);
@@ -102188,12 +102196,12 @@ var ServerQueue = class {
   }
   /** The rows that still wait, oldest first: the FIFO's, then admissions it does not list yet. */
   queued() {
-    const rows3 = this.rows.filter(isServerQueued).map((row2) => {
+    const rows2 = this.rows.filter(isServerQueued).map((row2) => {
       const own14 = this.#own.find((o) => o.inputId === row2.input_id);
       return own14 ? ownRow(own14) : { kind: "theirs", row: row2, text: row2.user };
     });
     const listed2 = new Set(this.rows.map((r) => r.input_id));
-    return [...rows3, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
+    return [...rows2, ...this.#own.filter((o) => !listed2.has(o.inputId)).map(ownRow)];
   }
 };
 
@@ -103634,9 +103642,9 @@ var Agents = class {
     if (!sid) {
       return;
     }
-    let rows3;
+    let rows2;
     try {
-      rows3 = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
+      rows2 = (await rpc(this.#host.gw, "subagent.list", { session_id: sid }))?.subagents ?? [];
     } catch {
       return;
     }
@@ -103645,7 +103653,7 @@ var Agents = class {
     }
     const owners = this.#owners();
     const present = /* @__PURE__ */ new Set();
-    for (const row2 of rows3) {
+    for (const row2 of rows2) {
       const id3 = row2.subagent_id;
       if (!id3) {
         continue;
@@ -105439,7 +105447,7 @@ function taskRows(tasks) {
     const parent = task2.parent && unique.has(task2.parent) && task2.parent !== task2.id ? task2.parent : "";
     children3.set(parent, [...children3.get(parent) ?? [], task2]);
   }
-  const rows3 = [];
+  const rows2 = [];
   const seen = /* @__PURE__ */ new Set();
   const walk = (roots) => {
     const stack = roots.map((task2) => ({ task: task2, depth: 0 })).reverse();
@@ -105448,16 +105456,16 @@ function taskRows(tasks) {
       if (!next2 || seen.has(next2.task.id)) continue;
       const { task: task2, depth } = next2;
       seen.add(task2.id);
-      rows3.push({ id: task2.id, label: `${"  ".repeat(Math.min(depth, 8))}${depth ? "\u2514 " : ""}${MARK2[task2.state]} ${task2.text}`, value: task2.state === "untracked" ? "requested" : task2.state, tone: tone2(task2.state) });
+      rows2.push({ id: task2.id, label: `${"  ".repeat(Math.min(depth, 8))}${depth ? "\u2514 " : ""}${MARK2[task2.state]} ${task2.text}`, value: task2.state === "untracked" ? "requested" : task2.state, tone: tone2(task2.state) });
       stack.push(...(children3.get(task2.id) ?? []).map((task3) => ({ task: task3, depth: depth + 1 })).reverse());
     }
   };
   walk(children3.get("") ?? []);
   walk([...unique.values()].filter((t) => !seen.has(t.id)));
-  return rows3;
+  return rows2;
 }
 function fileRows(files) {
-  const rows3 = [];
+  const rows2 = [];
   const dirs = /* @__PURE__ */ new Set();
   for (const file2 of [...files].sort((a2, b) => a2.path.localeCompare(b.path))) {
     const parts3 = file2.path.split("/").filter(Boolean);
@@ -105465,9 +105473,9 @@ function fileRows(files) {
       const path2 = parts3.slice(0, i + 1).join("/");
       if (dirs.has(path2)) continue;
       dirs.add(path2);
-      rows3.push({ id: `dir:${path2}`, label: `${"  ".repeat(Math.min(i, 8))}\u2514 ${parts3[i]}/` });
+      rows2.push({ id: `dir:${path2}`, label: `${"  ".repeat(Math.min(i, 8))}\u2514 ${parts3[i]}/` });
     }
-    rows3.push({
+    rows2.push({
       id: `file:${file2.path}`,
       label: `${"  ".repeat(Math.min(parts3.length - 1, 8))}\u2514 ${MARK2[file2.state]} ${parts3.at(-1) ?? file2.path}`,
       ...file2.action === "read" ? { detail: "Read" } : {},
@@ -105475,10 +105483,10 @@ function fileRows(files) {
       tone: tone2(file2.state)
     });
   }
-  return rows3;
+  return rows2;
 }
 function workTreeDoc(work2, tab3, expanded) {
-  const rows3 = tab3 === "files" ? fileRows(work2.files) : taskRows(work2.tasks);
+  const rows2 = tab3 === "files" ? fileRows(work2.files) : taskRows(work2.tasks);
   return {
     id: "work-tree",
     title: "Work tree",
@@ -105486,7 +105494,7 @@ function workTreeDoc(work2, tab3, expanded) {
     status: work2.turn.end.status === "live" ? "running" : work2.turn.end.status === "error" ? "error" : "done",
     slots: {
       tabs: slot("Tabs", { active: tab3, items: [{ id: "files", label: "FILES", count: work2.files.length, intent: { action: "tab", entities: { tab: "files" } } }, { id: "tasks", label: "FEATURES / TASKS", count: work2.tasks.length, intent: { action: "tab", entities: { tab: "tasks" } } }] }),
-      rows: slot("List", { numbered: false, items: rows3 }),
+      rows: slot("List", { numbered: false, items: rows2 }),
       empty: slot("Text", { body: tab3 === "files" ? "Waiting for file tools\u2026" : "No tasks in the current plan.", tone: "muted" }),
       receipt: slot("Text", { body: work2.receipt }),
       actions: slot("Buttons", { items: [{ label: expanded ? "Collapse work tree" : "Show work tree", intent: { action: expanded ? "collapse" : "expand" } }] })
@@ -105557,8 +105565,8 @@ var WorkTreeCard = class {
       return /* @__PURE__ */ jsx("text", { role: "glide.work-tree.notice", text: this.#error ? `Work tree unavailable: ${this.#error}` : "Preparing work tree\u2026", wrap: "word" }, "glide.work-tree.loading");
     }
     const doc = workTreeDoc(work2, this.#tab, this.#expanded);
-    const rows3 = this.#tab === "files" ? work2.files : work2.tasks;
-    const program = this.#expanded ? rows3.length ? PROGRAM : EMPTY4 : RECEIPT;
+    const rows2 = this.#tab === "files" ? work2.files : work2.tasks;
+    const program = this.#expanded ? rows2.length ? PROGRAM : EMPTY4 : RECEIPT;
     const view = this.#views.get(program);
     if (!view) return null;
     const bound2 = this.#glide.bind(view, doc);
@@ -105999,7 +106007,7 @@ function controlSheet(ref, control2, host2) {
     node: (id3) => /* @__PURE__ */ jsx("overlay", { anchor: "bottom", modal: true, role: "omp.overlay.ask", size: "md", children: /* @__PURE__ */ jsxs("col", { gap: "md", children: [
       /* @__PURE__ */ jsx("md", { role: "omp.ask.question", text: control2.prompt }, "question"),
       control2.kind === "confirm" && control2.detail ? /* @__PURE__ */ jsx("text", { spans: [{ s: "muted", t: control2.detail }], wrap: "word" }, "detail") : null,
-      control2.kind === "slider" ? slider(state, control2, feed) : rows2(`${id3}.body.rows`, state, feed, focus2),
+      control2.kind === "slider" ? slider(state, control2, feed) : rows(`${id3}.body.rows`, state, feed, focus2),
       /* @__PURE__ */ jsx("text", { role: "omp.ask.hint", spans: [{ s: "dim", t: keyHint(control2) }], wrap: "word" }, "hint"),
       actionsRow([
         { hint: "escape", key: "skip", keys: ["escape"], label: "Not now", onClick: () => feed({ key: "escape", kind: "key" }) },
@@ -106020,7 +106028,7 @@ function controlSheet(ref, control2, host2) {
   };
   return { feed, overlay: overlay2 };
 }
-function rows2(id3, state, feed, focus2) {
+function rows(id3, state, feed, focus2) {
   const { control: control2 } = state;
   const list10 = rowsOf2(control2);
   const multiple = control2.kind === "choice" && control2.multiple === true;
@@ -107048,8 +107056,8 @@ function layerOf(raw2) {
   const p3 = layerRow.safeParse(raw2).data;
   return p3 && { head: p3.head.ref, number: p3.number, state: p3.merged_at ? "merged" : p3.state };
 }
-function parseStacks(host2, repository, rows3) {
-  return rowsOf(stackRow, Array.isArray(rows3) ? rows3 : []).map((s2) => ({
+function parseStacks(host2, repository, rows2) {
+  return rowsOf(stackRow, Array.isArray(rows2) ? rows2 : []).map((s2) => ({
     base: s2.base,
     host: host2,
     key: stackKey(host2, repository, s2.number),
@@ -107173,7 +107181,7 @@ function due(remote, updatedAt, now) {
       return remote.last?.at !== updatedAt && now - remote.failedAt >= RETRY_MS;
   }
 }
-var pageLength = (rows3) => Array.isArray(rows3) ? rows3.length : 0;
+var pageLength = (rows2) => Array.isArray(rows2) ? rows2.length : 0;
 var MUTATIONS = {
   close: "mutation($id: ID!) { closePullRequest(input: {pullRequestId: $id}) { clientMutationId } }",
   draft: "mutation($id: ID!) { convertPullRequestToDraft(input: {pullRequestId: $id}) { clientMutationId } }",
@@ -107324,9 +107332,9 @@ var PullRequests = class {
       read: async (e) => {
         const files = [];
         for (let page2 = 1; page2 <= 3; page2++) {
-          const rows3 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
-          files.push(...parseFiles(rows3));
-          if (pageLength(rows3) < 100) {
+          const rows2 = await this.#gh.rest(e.ref.host, "GET", `/repos/${e.ref.repository}/pulls/${e.ref.number}/files?per_page=100&page=${page2}`);
+          files.push(...parseFiles(rows2));
+          if (pageLength(rows2) < 100) {
             break;
           }
         }
@@ -107484,11 +107492,11 @@ var PullRequests = class {
         }
         asked2.add(key3);
         try {
-          const rows3 = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
+          const rows2 = await this.#gh.rest(host2, "GET", `/repos/${e.ref.repository}/stacks?pull_request=${e.ref.number}`);
           if (!ticket.isCurrent()) {
             return false;
           }
-          parseStacks(host2, e.ref.repository, rows3).forEach((s2) => this.#stacks.set(s2.key, s2));
+          parseStacks(host2, e.ref.repository, rows2).forEach((s2) => this.#stacks.set(s2.key, s2));
         } catch {
         }
       }
