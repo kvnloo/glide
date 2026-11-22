@@ -9,6 +9,7 @@ import { isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { fetchPublic, type PublicResponse } from './artifacts.js'
+import { Epoch } from './core/epoch.js'
 import { imageFormat } from './hermes/images.js'
 import type { Entry, ImageSource, ToolCall } from './model.js'
 import { record } from './wire/json.js'
@@ -75,6 +76,8 @@ type Fetch = (url: string, init: { signal: AbortSignal }) => Promise<PublicRespo
 export class Media {
   readonly #host: MediaHost
   readonly #fetch: Fetch
+  /** One generation per transcript: a load begun under an older one applies nothing. */
+  readonly #lifetime = new Epoch()
   readonly #loads = new Map<string, Promise<ImageSource | null>>()
   /** What each settled load gave, so a call rebuilt from history gets it before the next frame. */
   readonly #loaded = new Map<string, ImageSource | null>()
@@ -83,6 +86,16 @@ export class Media {
   constructor(host: MediaHost, fetcher: Fetch = (url, init) => fetchPublic(url, init)) {
     this.#host = host
     this.#fetch = fetcher
+  }
+
+  /**
+   * Abandons every pending preview (its fetch aborts, its bytes never become a blob) and forgets
+   * the loaded ones: on every transcript adoption, and when this pane closes.
+   */
+  invalidate(): void {
+    this.#lifetime.next()
+    this.#loads.clear()
+    this.#loaded.clear()
   }
 
   /**
@@ -106,7 +119,14 @@ export class Media {
       return
     }
 
+    const ticket = this.#lifetime.current()
+
     void this.load(src).then(image => {
+      // A transcript adopted since: this call is not on screen any more, or shows something else.
+      if (!ticket.isCurrent() || shownImage(call) !== src) {
+        return
+      }
+
       call.image = image
       done()
     })
@@ -128,13 +148,16 @@ export class Media {
     let load = this.#loads.get(src)
 
     if (!load) {
-      load = this.#bytes(src)
+      const ticket = this.#lifetime.current()
+      load = this.#bytes(src, ticket.signal)
         .then(
-          bytes => this.#blob(bytes),
+          bytes => (ticket.isCurrent() ? this.#blob(bytes) : null),
           () => null
         )
         .then(image => {
-          this.#loaded.set(src, image)
+          if (ticket.isCurrent()) {
+            this.#loaded.set(src, image)
+          }
 
           return image
         })
@@ -144,21 +167,44 @@ export class Media {
     return load
   }
 
-  async #bytes(src: string): Promise<Buffer | undefined> {
+  async #bytes(src: string, signal: AbortSignal): Promise<Buffer | undefined> {
     const data = /^data:image\/[\w.+-]+;base64,(.*)$/s.exec(src)
 
     if (data) {
-      return Buffer.from(data[1] ?? '', 'base64')
+      const encoded = data[1] ?? ''
+
+      // Bound the allocation before decoding, not only before the blob.
+      return encoded.length > Math.ceil(MAX_BYTES / 3) * 4 ? undefined : Buffer.from(encoded, 'base64')
     }
 
     if (!/^https?:\/\//i.test(src)) {
       return undefined
     }
 
-    const r = await this.#fetch(src, { signal: AbortSignal.timeout(FETCH_MS) })
-    const size = Number(r.headers.get('content-length') ?? 0)
+    const r = await this.#fetch(src, { signal: AbortSignal.any([signal, AbortSignal.timeout(FETCH_MS)]) })
+    const declared = r.headers.get('content-length')
 
-    return r.ok && size <= MAX_BYTES ? Buffer.from(await r.arrayBuffer()) : undefined
+    // Content-Length may be absent or wrong: it only rejects early. The stream is counted as it comes.
+    if (!r.ok || !r.body || (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > MAX_BYTES))) {
+      await r.body?.cancel().catch(() => undefined)
+
+      return undefined
+    }
+
+    const chunks: Uint8Array[] = []
+    let bytes = 0
+
+    // Leaving the loop early cancels the stream (its iterator's return): the rest is never read.
+    for await (const chunk of r.body) {
+      if (!(chunk instanceof Uint8Array) || chunk.byteLength > MAX_BYTES - bytes) {
+        return undefined
+      }
+
+      bytes += chunk.byteLength
+      chunks.push(chunk)
+    }
+
+    return Buffer.concat(chunks, bytes)
   }
 
   #blob(bytes: Buffer | undefined): ImageSource | null {
@@ -169,3 +215,4 @@ export class Media {
     return blob ? { blob } : null
   }
 }
+

@@ -199,7 +199,11 @@ export function projectToolMedia(call: ToolCall, cx: MediaContext): ToolMedia | 
 
   const result = record(call.result)
 
-  if (result?.['content_returned'] === false || result?.['success'] === false || result?.['error'] ||
+  // An explicit flag is authoritative only when it says content came back; a false,
+  // contradictory or malformed flag fails closed. An absent flag keeps older results.
+  const returned = result && Object.hasOwn(result, 'content_returned') ? result['content_returned'] === true : true
+
+  if (!returned || result?.['success'] === false || result?.['error'] ||
       result?.['partial'] === true || result?.['truncated'] === true) {
     return undefined
   }

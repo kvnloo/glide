@@ -8,6 +8,7 @@ the user's prompt, so one home covers every flow:
 
     "approve"   -> a terminal call Hermes flags as dangerous (approval sheet); "approve long": a long one
     "clarify"   -> a clarify call with choices (clarify sheet)
+    "control"   -> an ask_control call: a three-way choice (control sheet); "control slider": a slider
     "tool"      -> a harmless terminal call (tool card)
     "steps"     -> four calls in a row (commands, a read, a search), then an answer
     "work…"     -> (at the start) a turn like a real one: reasoning, short notes and tool calls
@@ -43,6 +44,9 @@ the user's prompt, so one home covers every flow:
                    the parent's transcript gets no link result, so its pane learns of the link
                    from the plugin's event alone
     "cron…"     -> (at the start) two cron jobs: a 30 min digest and a 15 min page monitor
+    "figures…"  -> (at the start) a reply with a broken mermaid diagram, an svg figure, math and a MEDIA
+                   line, saying whether the Tern rendering section reached the system prompt; the
+                   frontend's figure check then asks for the diagram again and gets it fixed
     anything else -> a streamed markdown reply
 """
 
@@ -201,6 +205,37 @@ EVAL_CODE = (
 )
 
 
+FIGURES = """Rendering section in my system prompt: {hinted}.
+
+```mermaid
+flowchart LR
+  P[Prompt --> A{Agent}
+  A --> T[Tools]
+```
+
+An inline formula $e^{i\\pi} + 1 = 0$, a price of \\$5, and a display one:
+
+$$
+\\int_0^1 x^2\\,dx = \\tfrac{1}{3}
+$$
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" font-size="14" font-family="sans-serif">
+  <rect x="2" y="2" width="236" height="56" rx="8" fill="none" stroke="var(--accent)"/>
+  <text x="120" y="35" text-anchor="middle" fill="currentColor">An svg figure</text>
+</svg>
+```
+
+MEDIA:{picture}
+"""
+
+FIGURES_FIX = """```mermaid
+flowchart LR
+  P["Prompt"] --> A{"Agent"}
+  A --> T["Tools"]
+```"""
+
+
 def _todos(*statuses: str) -> tuple[str, dict]:
     items = ["Read the failing test", "Run the test suite", "Fix the timing assumption", "Run the suite again"]
     todos = [{"id": str(i + 1), "content": c, "status": st} for i, (c, st) in enumerate(zip(items, statuses))]
@@ -239,6 +274,14 @@ def _subagent_calls(messages: list[dict]) -> list[dict] | None:
     if done >= len(steps):
         return None
     return [_call("terminal", {"command": steps[done]}, f"call-step{done}")]
+
+
+# The "control" flow's ask_control arguments: a three-way choice, and a slider.
+CONTROL_CHOICE = {"id": "db", "kind": "choice", "prompt": "Which database should the demo use?",
+                  "options": [{"id": "postgres", "label": "Postgres", "detail": "the default"},
+                              {"id": "sqlite", "label": "SQLite"}, {"id": "duckdb", "label": "DuckDB"}]}
+CONTROL_SLIDER = {"id": "budget", "kind": "slider", "prompt": "Latency budget?", "min": 0, "max": 200, "step": 10,
+                  "value": 50, "unit": "ms"}
 
 
 def _calls(prompt: str, target: Path) -> list[dict] | None:
@@ -327,6 +370,10 @@ def _calls(prompt: str, target: Path) -> list[dict] | None:
             loop = " && ".join(f"for f in agent/{m}.py tests/test_{m}.py; do wc -l $f; done" for m in ("chat", "tools", "memory"))
             return [_call("terminal", {"command": f"cd {target} && {loop} && rm -rf -- {target}"})]
         return [_call("terminal", {"command": f"rm -rf -- {target}"})]
+    if "control" in words.split():
+        # Plugin tools sit behind Tool Search: called through the tool_call bridge, as a real model does.
+        control = CONTROL_SLIDER if "slider" in words.split() else CONTROL_CHOICE
+        return [_call("tool_call", {"name": "ask_control", "arguments": control}, "call-control")]
     if "clarify" in words:
         return [_call("clarify", {"questions": [{"question": "Which colour?", "choices": ["red", "green", "blue"]}]})]
     if "tool" in words:
@@ -477,6 +524,14 @@ class Model(BaseHTTPRequestHandler):
             note, round_calls = TODOS_FLOW[min(done, len(TODOS_FLOW) - 1)]
             calls = [_call(name, args, f"call-t{done}-{i}") for i, (name, args) in enumerate(round_calls)] or None
             content, delay = note, 0.0
+        elif prompt.lower().lstrip().startswith("figures") or "does not render in tern" in prompt.lower():
+            # The figure check: one broken diagram, then only the fixed one when the frontend asks.
+            if "does not render in tern" in prompt.lower():
+                content = FIGURES_FIX
+            else:
+                hinted = "yes" if "<tern_rendering>" in json.dumps(system) else "no"
+                content = FIGURES.replace("{hinted}", hinted).replace("{picture}", str(PLUGIN / "frontend" / "assets" / "logo.png"))
+            calls, delay = None, 0.05
         elif "steps" in prompt.lower():
             # One call per request until the steps run out; the tool results so far count them.
             last_user = max(i for i, m in enumerate(messages) if m.get("role") == "user")

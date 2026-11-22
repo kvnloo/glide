@@ -14,6 +14,7 @@ import type { Hud } from '../chrome/hud.js'
 import type { NoticeStrip } from '../chrome/notices.js'
 import type { Sidebar } from '../chrome/sidebar.js'
 import type { ConnectWatcher } from '../connections/watcher.js'
+import type { Controls } from '../controls/store.js'
 import { durable, type DurableSessionId, type LiveSessionId, type SessionIds, type SessionRef } from '../core/ids.js'
 import type { PullRequests } from '../github/store.js'
 import type { MediaDelivery } from '../media-delivery.js'
@@ -65,7 +66,8 @@ export interface AdoptHost {
   readonly agents: Pick<Agents, 'adopt' | 'scan'>
   readonly automation: Pick<Automation, 'adopt'>
   readonly connect: Pick<ConnectWatcher, 'restore' | 'watch'>
-  readonly media: Pick<Media, 'showAll'>
+  readonly controls: Pick<Controls, 'adopt'>
+  readonly media: Pick<Media, 'invalidate' | 'showAll'>
   readonly mediaDelivery: Pick<MediaDelivery, 'clear'>
   readonly notices: Pick<NoticeStrip, 'reset'>
   readonly processes: Pick<Processes, 'poke'>
@@ -121,6 +123,9 @@ export function adoptSteps(host: AdoptHost): readonly Adoptable[] {
         host.mediaDelivery.clear()
         // One step, so nothing of the last session's transcript outlives it: its entries, live
         // turn, reason line, and (another session's) counters and compactions.
+        // Every adoption rebuilds the transcript (a reattach to the same session too): an image fetch
+        // begun for the last one must not land on its calls.
+        host.media.invalidate()
         transcript.reset({ session: other ? 'other' : 'same', usage: r.info?.usage ?? undefined })
 
         if (other) {
@@ -185,9 +190,10 @@ export function adoptSteps(host: AdoptHost): readonly Adoptable[] {
     } },
     {
       adopt: ({ ref }) => {
-        // The new session's processes, PRs and git state (and none of the last one's), and its open connect cards.
+        // The new session's processes, PRs and git state (and none of the last one's), its open connect cards and its controls' answers.
         host.processes.poke()
         host.connect.watch()
+        host.controls.adopt()
         host.prs.adopt()
         host.sidebar.adopt(ref.live)
         host.factory.adopt(ref.live)

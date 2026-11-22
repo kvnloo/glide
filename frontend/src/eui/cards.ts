@@ -22,7 +22,7 @@ import { MOTION_CSS, MOTION_SHEET } from '../glideui/motion.js'
 
 import { FLEET_FIT_CSS } from './fleetFit.js'
 import { EuiHostCards, type EuiHostPort } from './host.js'
-import { createSandbox, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
+import { createSandbox, type EuiMotion, type EuiMounted, type EuiNode, type EuiSandbox, vendorDir } from './sandbox.js'
 import { ternBody } from './ternCss.js'
 
 export type EuiPart =
@@ -55,6 +55,10 @@ const MAX_CARDS = 48
 const MAX_BLOBS = 512
 const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, 'g')
 export const INLINE_SHEET = 'ephemeral-ui-inline'
+// Spend only the motion headroom in the surface stylesheet budget test.
+const KIT_MOTION_BUDGET = 4 * 1024
+const KIT_MOTION_PAUSED = '[data-eui-motion-paused]{animation-play-state:paused}'
+const KIT_MOTION_SHEET = 'ephemeral-ui-kit-motion'
 export const KIT_SHEET = 'ephemeral-ui'
 /** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
 export const GLIDE_UI_SHEET = UI_SHEET
@@ -214,6 +218,9 @@ export class EuiCards {
   #blobs = new Map<string, string>()
   #rules = new Map<string, string>()
   #sheetDirty = false
+  #motionRules = new Map<string, { css: string; expires: number }>()
+  #motionBytes = 0
+  #motionDirty = false
 
   constructor(changed: (key?: string) => void, sink?: EuiSink, host?: EuiHostPort, dir = euiDir()) {
     this.dir = dir
@@ -227,6 +234,7 @@ export class EuiCards {
     this.#sink = sink
     this.#blobs.clear()
     euiSheets.clear()
+    this.#motionDirty = this.#motionRules.size > 0
     this.theme(dark)
     this.#flush()
   }
@@ -325,6 +333,36 @@ export class EuiCards {
     return key
   }
 
+  /** Bounded rule cache: repeated kit effects reuse the same native keyframes. */
+  motion(effects: readonly EuiMotion[]): void {
+    const now = performance.now()
+    for (const { name, css, remaining } of effects) {
+      // Leave a grace window for a delayed native patch. Long/paused animations
+      // should retain their stylesheet even if a different transcript row redraws.
+      const expires = now + remaining + 1000
+      const cached = this.#motionRules.get(name)
+      if (cached) {
+        cached.expires = Math.max(cached.expires, expires)
+        continue
+      }
+      const bytes = Buffer.byteLength(css)
+      if (this.#motionBytes + bytes + KIT_MOTION_PAUSED.length > KIT_MOTION_BUDGET) {
+        for (const [key, entry] of this.#motionRules) {
+          if (entry.expires > now) continue
+          this.#motionBytes -= Buffer.byteLength(entry.css)
+          this.#motionRules.delete(key)
+          this.#motionDirty = true
+        }
+      }
+      if (this.#motionBytes + bytes + KIT_MOTION_PAUSED.length > KIT_MOTION_BUDGET) continue
+      this.#motionBytes += bytes
+      this.#motionRules.set(name, { css, expires })
+      this.#motionDirty = true
+    }
+    // Send before the native tree that references these rules, not in a later microtask.
+    if (this.#motionDirty) this.#flush()
+  }
+
   close() {
     this.host.close()
     this.#reset()
@@ -345,6 +383,12 @@ export class EuiCards {
       this.#sink.stylesheet(GEV_SHEET, GEV_CSS)
       euiSheets.set(MOTION_SHEET, MOTION_CSS)
       this.#sink.stylesheet(MOTION_SHEET, MOTION_CSS)
+    }
+    if (this.#motionDirty) {
+      this.#motionDirty = false
+      const css = `${[...this.#motionRules.values()].map(entry => entry.css).join('')}${KIT_MOTION_PAUSED}`
+      euiSheets.set(KIT_MOTION_SHEET, css)
+      this.#sink.stylesheet(KIT_MOTION_SHEET, css)
     }
     if (this.#sheetDirty) {
       this.#sheetDirty = false

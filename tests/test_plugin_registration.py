@@ -55,8 +55,8 @@ def test_registers_only_public_plugin_apis(ctx):
 def test_the_tools_and_hooks_are_the_declared_ones_and_there_is_no_middleware(ctx):
     tools = [k["name"] for _, k in ctx.of("register_tool")]
     assert tools == [
-        "link_pull_request", "unlink_pull_request", "list_pull_requests", "glide_skin",
-        "glide_ui_mount", "glide_ui_unmount", "glide_ui_style", "glide_page_open",
+        "link_pull_request", "unlink_pull_request", "list_pull_requests", "ask_control", "glide_skin",
+        "glide_ui_mount", "glide_ui_unmount", "glide_ui_style", "glide_page_open", "glide_theme",
     ]
     assert f"provides_tools: [{', '.join(tools)}]" in MANIFEST
     # The one hook is glide's corrections recall, installed with the Tern UI in one plugin.
@@ -203,7 +203,7 @@ def test_the_chart_task_has_a_plugin_namespaced_key(ctx):
 
 def test_the_chart_writer_is_a_plugin_rpc_method(ctx):
     assert [a[0] for a, _ in ctx.of("register_rpc")] == [
-        "charts.author", "pull_requests.linked", "viewer.set", "viewer.clear", "viewer.shown"]
+        "charts.author", "pull_requests.linked", "viewer.set", "viewer.clear", "viewer.shown", "figures.check"]
 
 
 def test_channel_aliases_bind_their_own_channel_and_use_the_launcher(monkeypatch):

@@ -138,6 +138,13 @@ const TODAY: Record<string, [string, Outcome][]> = {
     ['subagent.complete', 'render'],
     ['message.complete', 'render']
   ],
+  'ask-control': [
+    ['gateway.ready', 'render'],
+    ['message.start', 'render'],
+    ['tool.start', 'render'],
+    ['tool.complete', 'render'],
+    ['message.complete', 'render']
+  ],
   'approval-clarify': [
     ['gateway.ready', 'render'],
     ['message.start', 'render'],
@@ -288,6 +295,7 @@ describe('afterToolComplete', () => {
     const cx: ToolFanout = {
       agents: { scan: note('agents.scan') },
       connect: { watch: note('connect.watch') },
+      controls: { show: note('controls.show') },
       processes: { poke: note('processes.poke') },
       prs: { onCall: note('prs.onCall') },
       showImage: note('media'),
@@ -301,22 +309,24 @@ describe('afterToolComplete', () => {
     return log
   }
 
-  it('tells the image, the agents, the PRs, the sidebar, the connect cards and the processes, in that order', () => {
+  it('tells the image, the agents, the PRs, the sidebar, the connect cards, a control and the processes, in that order', () => {
     expect(told('read_file')).toEqual(['media', 'artifacts', 'agents.scan'])
     expect(told('delegate_task')).toEqual(['media', 'artifacts', 'agents.scan'])
     expect(told('link_pull_request')).toEqual(['media', 'artifacts', 'agents.scan', 'prs.onCall'])
     expect(told('patch')).toEqual(['media', 'artifacts', 'agents.scan', 'sidebar.poke'])
     expect(told('manage_connections')).toEqual(['media', 'artifacts', 'agents.scan', 'connect.watch'])
+    expect(told('ask_control')).toEqual(['media', 'artifacts', 'agents.scan', 'controls.show'])
     expect(told('terminal')).toEqual(['media', 'artifacts', 'agents.scan', 'sidebar.poke', 'processes.poke'])
   })
 })
 
 describe('afterMessageComplete', () => {
-  it('folds the message, ends the turn and any compaction, drains, then reads the PRs and the sidebar again', () => {
+  it('folds the message, ends the turn, checks its figures, ends any compaction, drains, then reads the PRs and the sidebar again', () => {
     const log: string[] = []
     const note = (what: string) => () => void log.push(what)
     const cx: MessageFanout = {
       activity: { endBusy: note('endBusy'), endCompaction: note('endCompaction') },
+      checkFigures: note('checkFigures'),
       drain: note('drain'),
       prs: { poke: note('prs.poke') },
       sidebar: { poke: note('sidebar.poke') },
@@ -326,6 +336,6 @@ describe('afterMessageComplete', () => {
 
     afterMessageComplete({}, cx)
 
-    expect(log).toEqual(['complete', 'endBusy', 'endCompaction', 'uncompact running', 'summarize', 'drain', 'prs.poke', 'sidebar.poke'])
+    expect(log).toEqual(['complete', 'endBusy', 'checkFigures', 'endCompaction', 'uncompact running', 'summarize', 'drain', 'prs.poke', 'sidebar.poke'])
   })
 })

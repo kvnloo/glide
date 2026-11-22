@@ -5,12 +5,16 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import type { Palette } from '@stencil-hq/tern'
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod/mini'
 
 import { dashPalette } from '../../../glide/frontend/dash.js'
 import { styleAccent, styleWal } from '../../../glide/frontend/style.js'
 import { walPalette } from '../../../glide/frontend/wal.js'
+import { themePalette } from '../../../glide/frontend/themes.js'
+import { Theme } from '../chrome/theme.js'
+import type { ThemeMode } from '../settings.js'
 import { checkMarkup, checkPalette, checkTree } from '../glideui/checks.js'
 import type { UiNode } from '../glideui/library.js'
 import { commitDays, commitsDoc, focusDoc, heatLevels } from '../glideui/mounts.js'
@@ -232,6 +236,53 @@ describe('GlideWidgets', () => {
     h.write({ rev: 2, widgets: [], style: { warmth: 0.9 } })
     await f.w.reload()
     expect(f.restyles()).toBe(2)
+    f.w.dispose()
+  })
+})
+
+describe('glide_theme (GL-062)', () => {
+  /** A pane: real GlideWidgets and a real Theme, as stores.ts wires them; `sent` is every palette the surface got. */
+  function pane(file: string, start: ThemeMode) {
+    const sent: Palette[] = []
+    const theme = new Theme({ palette: p => void sent.push(p), stylesheet: () => undefined, settings: { save: () => ({}) }, walFile: '/nonexistent/colors.json' }, start)
+    const w = new GlideWidgets({
+      file, changed: () => undefined, cwd: () => undefined,
+      restyled: () => { theme.apply(); return theme.wal },
+      retheme: (mode, restyle) => { if (!theme.wear(mode) && restyle) theme.apply(); return theme.wal },
+      theme: () => theme.mode
+    })
+    return { w, theme, sent }
+  }
+  const status = (file: string) => z.object({ rev: z.number(), theme: z.object({ ok: z.boolean(), mode: z.string() }) }).parse(parseJson(readFileSync(statusFile(file), 'utf8')))
+
+  it('repaints the surface when the tool writes a theme, and reports what it wears', async () => {
+    const h = home({ rev: 1, widgets: [] })
+    const write = (theme: string, rev: number) => writeFileSync(h.file, JSON.stringify({ theme, ui: { rev, widgets: [] } }))
+    const f = pane(h.file, 'auto')
+    await f.w.start()
+    expect(status(h.file)).toEqual({ rev: 1, theme: { ok: true, mode: 'auto' } })
+    // What glide_theme writes: settings.json's theme beside ui, with ui.rev bumped.
+    for (const [rev, mode] of [[2, 'sepia'], [3, 'warm-dark'], [4, 'day'], [5, 'night']] as const) {
+      write(mode, rev)
+      await f.w.reload()
+      expect(f.theme.mode).toBe(mode)
+      expect(f.sent.at(-1)?.name?.dark).toBe(`glide-${mode}`)
+      expect(f.theme.wal?.bg).toBe(themePalette(mode).bg)
+      expect(status(h.file)).toEqual({ rev, theme: { ok: true, mode } })
+    }
+    const painted = f.sent.length
+    write('night', 6)
+    await f.w.reload()
+    expect(f.sent).toHaveLength(painted)
+    f.w.dispose()
+  })
+
+  it('leaves the first read to the mode the pane started in (GLIDE_AUTO_THEME)', async () => {
+    const h = home({ rev: 1, widgets: [] })
+    writeFileSync(h.file, JSON.stringify({ theme: 'sepia', ui: { rev: 1, widgets: [] } }))
+    const f = pane(h.file, 'auto')
+    await f.w.start()
+    expect(f.theme.mode).toBe('auto')
     f.w.dispose()
   })
 })

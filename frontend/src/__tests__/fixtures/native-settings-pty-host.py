@@ -65,6 +65,10 @@ def run(app_path: str, mode: str) -> dict:
         frames = 0
         native_prefs = 0
         frame_parts = {}
+        # The SDK parser treats every byte between paste delimiters as literal paste (#99),
+        # so this host, like pty-host.py, never writes a TSP ack inside a bracketed paste.
+        paste_open = False
+        pending_acks = []
 
         def read_status() -> dict:
             try:
@@ -133,7 +137,11 @@ def run(app_path: str, mode: str) -> dict:
                             validate_node(op[4])
                     frames += 1
                     ack = {"ev": "ack", "sf": frame["sf"], "s": frame["s"]}
-                    os.write(master, b"\x1b_tsp;e;" + json.dumps(ack).encode("utf-8") + b"\x1b\\")
+                    encoded = b"\x1b_tsp;e;" + json.dumps(ack).encode("utf-8") + b"\x1b\\"
+                    if paste_open:
+                        pending_acks.append(encoded)
+                    else:
+                        os.write(master, encoded)
                 readable, _, _ = select.select([master], [], [], 0)
 
         def wait(label: str, predicate, seconds: float = 7.0) -> None:
@@ -163,6 +171,20 @@ def run(app_path: str, mode: str) -> dict:
                 while view:
                     count = os.write(master, view)
                     view = view[count:]
+            pump(0.006)
+
+        def paste(parts) -> None:
+            # Serialized host writes: chunks of one bracketed paste go out back to back,
+            # and acks for frames read meanwhile wait until its terminator is written.
+            nonlocal paste_open
+            paste_open = True
+            try:
+                send(parts)
+            finally:
+                paste_open = False
+            for encoded in pending_acks:
+                os.write(master, encoded)
+            pending_acks.clear()
             pump(0.006)
 
         def tsp(event: dict) -> bytes:
@@ -318,7 +340,7 @@ def run(app_path: str, mode: str) -> dict:
             # reinterpret its contents as Normal commands or shell instructions.
             data = PASTE.encode("utf-8")
             cut = data.index("🧩".encode("utf-8")) + 2
-            send([b"\x1b[20", b"0~", data[:cut], data[cut:], b"\x1b[20", b"1~"])
+            paste([b"\x1b[20", b"0~", data[:cut], data[cut:], b"\x1b[20", b"1~"])
             wait("paste remains literal with command provenance", lambda:
                  read_status().get("draft") == PASTE and read_status().get("pasted") == [PASTE])
             # Real Ctrl+Z traverses the Tern raw-key parser; paste undo restores
@@ -326,7 +348,7 @@ def run(app_path: str, mode: str) -> dict:
             send([b"\x1a"])
             wait("raw undo restores empty draft and removes paste provenance", lambda:
                  read_status().get("draft") == "" and read_status().get("pasted") == [])
-            send([b"\x1b[20", b"0~", data[:cut], data[cut:], b"\x1b[20", b"1~"])
+            paste([b"\x1b[20", b"0~", data[:cut], data[cut:], b"\x1b[20", b"1~"])
             wait("raw paste after undo retains inert provenance", lambda:
                  read_status().get("draft") == PASTE and read_status().get("pasted") == [PASTE])
             send([b"\r"])

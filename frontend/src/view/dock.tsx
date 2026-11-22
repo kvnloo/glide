@@ -26,7 +26,7 @@ import { type AutomationLine, automationNode, reconnectNode } from './automation
 import { btwNoticesNode } from './btwNotices.js'
 import { type DictationActions, dictationRow, type DictationView, micButton } from './dictation.js'
 import { imageChip } from './image-chip.js'
-import { contextMeter } from './context.js'
+import { contextMeter, type ContextView } from './context.js'
 import { queuedNode } from './queued.js'
 import { statusNotices } from './statusNotice.js'
 import { todoPanelNode } from './todos.js'
@@ -128,7 +128,7 @@ export interface DockActions extends DictationActions {
   onUndo(): void
   onInterrupt(): void
   /** Only the main session has context usage; the subagent watch pane has none. */
-  onContext?(): void
+  onContext?(view: ContextView): void
   onModel(): void
   onEffort(): void
   /** The effort pill's context menu, by action: choose a level, save the current one as the default. */

@@ -126,12 +126,14 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 10. `image-attachments`
 11. `artifact-links`
 12. `written-media`
-13. `lsp-results`
-14. `lsp-edit-diagnostics`
-15. `tool-cards`
-16. `table-charts`
-17. `tool-results-sheet`
-18. `gateway-prompts`
+13. `reply-figures`
+14. `lsp-results`
+15. `lsp-edit-diagnostics`
+16. `tool-cards`
+17. `table-charts`
+18. `tool-results-sheet`
+19. `gateway-prompts`
+20. `ask-control`
 
 ## sessions
 
@@ -196,12 +198,13 @@ Change the owning profile and composer. Inspect native settings, choose a sessio
 9. `wallpaper-theme`
 10. `wallpaper-default`
 11. `wallpaper-export`
-12. `profile-keybindings`
-13. `vim-composer`
-14. `external-editor`
-15. `composer-readline`
-16. `prompt-history-search`
-17. `copy-text`
+12. `whole-theme`
+13. `profile-keybindings`
+14. `vim-composer`
+15. `external-editor`
+16. `composer-readline`
+17. `prompt-history-search`
+18. `copy-text`
 
 ## maintenance
 

@@ -298,9 +298,14 @@ def test_dash_theme_is_black_and_gold_with_readable_text():
 def test_install_themes_copies_once_into_omps_theme_folder(tmp_path):
     env = {"PI_CODING_AGENT_DIR": str(tmp_path / "agent")}
     target = tmp_path / "agent" / "themes" / "dash.json"
+    # Dash, then one window theme per entry of Glide's theme table (glide_theme wears glide-<name>).
+    table = [f"glide-{n}.json" for n in json.loads((launcher.THEMES.parent / "frontend" / "themes.json").read_text())["themes"]]
 
-    assert launcher.install_themes(env) == [target]
+    assert launcher.install_themes(env) == [target, *(target.with_name(n) for n in table)]
     assert target.read_bytes() == (launcher.THEMES / "dash.json").read_bytes()
+    for name in table:
+        theme = json.loads(target.with_name(name).read_text())
+        assert theme["name"] == name.removesuffix(".json") and theme["colors"] == json.loads(target.read_text())["colors"]
     assert launcher.install_themes(env) == []
 
     target.write_text("{}")

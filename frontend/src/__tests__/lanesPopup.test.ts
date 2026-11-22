@@ -59,7 +59,7 @@ describe('voice lanes popup', () => {
     expect(JSON.stringify(tree(must(agentWaitNode([agent], 1000, 'lanes-test'))))).toContain('open-lanes=all')
     const none = () => undefined
     const cx: ActionCx = {
-      attachNativeImage: none, connect: { approve: none, continue: none, open: none, retry: none, skip: none },
+      attachNativeImage: none, connect: { approve: none, continue: none, open: none, retry: none, skip: none }, controls: { reopen: none },
       focusComposer: none, modal: () => false, openAgent: none, openAgents: none, openProcess: none, openUrl: none,
       openLanes: () => { openLanesPopup(host, feed, bindings) }
     }

@@ -7,10 +7,13 @@ import vm from 'node:vm'
 
 import { parseHTML } from 'linkedom'
 
+import { motionBridge } from '../../../glide/frontend/sandboxMotion.mjs'
 import { svgInline, svgRules } from './svgStyle.js'
 
 const SVG = 'http://www.w3.org/2000/svg'
 const CLICKY = new Set(['click', 'pointerdown', 'pointerup', 'dblclick', 'change', 'input'])
+const listened = new WeakMap()
+const listening = new WeakSet()
 const NATIVE = new Set(['button', 'a', 'summary', 'input', 'select', 'label'])
 
 /** The first directory holding the vendored kit: beside the source, or the bundle's ../src copy. */
@@ -28,32 +31,18 @@ export function readOfflineData(dir, request) {
 
 export async function createSandbox(dir, scheme = 'light', log = () => {}) {
   const { window, document } = parseHTML('<!doctype html><html><body></body></html>')
-  const listened = new WeakMap()
   const EP = window.Element.prototype
-  const add = EP.addEventListener
-  EP.addEventListener = function (type, fn, opts) {
-    const s = listened.get(this) ?? new Set()
-    s.add(type)
-    listened.set(this, s)
-    return add.call(this, type, fn, opts)
+  if (!listening.has(EP)) {
+    listening.add(EP)
+    const add = EP.addEventListener
+    EP.addEventListener = function (type, fn, opts) {
+      const s = listened.get(this) ?? new Set()
+      s.add(type)
+      listened.set(this, s)
+      return add.call(this, type, fn, opts)
+    }
   }
-  EP.animate = function (frames, opts) {
-    const ms = typeof opts === 'number' ? opts : Number(opts?.duration ?? 0)
-    let done
-    const a = { finished: new Promise(r => (done = r)), currentTime: 0, playState: 'running', onfinish: null, cancel() { clearTimeout(t); this.playState = 'idle' }, finish() {}, play() {}, pause() {}, reverse() {}, addEventListener() {} }
-    const last = Array.isArray(frames) ? frames.at(-1) : undefined
-    const t = setTimeout(() => {
-      a.currentTime = ms
-      a.playState = 'finished'
-      // fill: forwards leaves the last keyframe applied, as a browser would.
-      if (last && (opts?.fill === 'forwards' || opts?.fill === 'both')) for (const [k, v] of Object.entries(last)) if (k !== 'offset' && k !== 'easing') try { this.style[k] = v } catch {}
-      try { a.onfinish?.() } catch (e) { log(e) }
-      done(a)
-    }, Math.max(0, ms))
-    t.unref?.()
-    return a
-  }
-  EP.getAnimations = () => []
+  const motion = motionBridge(document, EP, log)
   EP.getBoundingClientRect = () => ({ x: 0, y: 0, left: 0, top: 0, width: 320, height: 24, right: 320, bottom: 24 })
   EP.scrollIntoView = function () {}
   EP.scrollTo = function () {}
@@ -70,7 +59,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
     Event: window.Event, CustomEvent: window.CustomEvent, KeyboardEvent: window.KeyboardEvent ?? window.Event, PointerEvent: window.Event,
     MouseEvent: window.MouseEvent ?? window.Event, DocumentFragment: window.DocumentFragment, Text: window.Text, MutationObserver: window.MutationObserver,
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
-    matchMedia: q => ({ matches: /reduce/.test(q) || (/dark/.test(q) && scheme === 'dark'), media: q, addEventListener() {}, removeEventListener() {}, addListener() {} }),
+    matchMedia: q => ({ matches: (/dark/.test(q) && scheme === 'dark'), media: q, addEventListener() {}, removeEventListener() {}, addListener() {} }),
     requestAnimationFrame: f => timer(setTimeout)(() => f(performance.now()), 16), cancelAnimationFrame: clearTimeout,
     setTimeout: timer(setTimeout), clearTimeout, setInterval: timer(setInterval), clearInterval, performance, queueMicrotask, structuredClone, URL, URLSearchParams, TextEncoder, TextDecoder, AbortController, Intl,
     console: { log() {}, info() {}, debug() {}, warn() {}, error: (...a) => log(a[0]) },
@@ -114,7 +103,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
   K.theme.base = themes.find(t => t.id === (scheme === 'dark' ? 't3-dark' : 't3-light'))
   const kitCss = join(dir, 'kit.css')
   const rules = existsSync(kitCss) ? svgRules(readFileSync(kitCss, 'utf8'), scheme) : []
-  K.motion.speed = 1
+  motion.cancelReason = K.Run.CANCEL
 
   const ids = new WeakMap()
   const byId = new Map()
@@ -161,7 +150,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       : el.childNodes
     if (el.localName === 'details') attrs.open = el.hasAttribute('open') ? 'true' : ''
     for (const k of shown) { const s = snapshot(k); if (s) kids.push(s) }
-    return { t: 'el', tag: el.localName, id: idOf(el), cls: el.getAttribute('class') ?? '', style: el.getAttribute('style') ?? '', attrs, click: clickable(el), kids }
+    return { t: 'el', tag: el.localName, id: idOf(el), cls: el.getAttribute('class') ?? '', style: el.getAttribute('style') ?? '', attrs, motion: motion.snapshot(el), click: clickable(el), kids }
   }
 
   const fire = (el, type) => {
@@ -187,12 +176,14 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
       // Only host publications supply this callback. Model fences have no intent route.
       const intent = event => onIntent?.(event.detail)
       if (onIntent) root.addEventListener('eui:intent', intent)
-      const c = k.make(app, K.rng(app.id + kind), doc)
+      const lifecycle = motion.createRoot(root, onChange)
+      let c
+      try { c = lifecycle.make(() => k.make(app, K.rng(app.id + kind), doc)) } catch (e) { lifecycle.dispose(); root.remove(); throw e }
       root.append(c.el ?? c)
       const run = new K.Run()
-      if (typeof c.play === 'function') Promise.resolve().then(() => c.play(run)).catch(e => { if (e !== K.Run.CANCEL) log(e) })
+      if (typeof c.play === 'function') Promise.resolve().then(() => { run.check(); return c.play(run) }).catch(e => { if (e !== K.Run.CANCEL) log(e) })
       let pending
-      const mo = new window.MutationObserver(() => { if (!pending) { pending = setTimeout(() => { pending = undefined; onChange() }, 120); pending.unref?.() } })
+      const mo = new window.MutationObserver(() => { lifecycle.prune(); if (!pending) { pending = setTimeout(() => { pending = undefined; onChange() }, 120); pending.unref?.() } })
       mo.observe(root, { subtree: true, childList: true, attributes: true, characterData: true })
       return {
         app: app.id,
@@ -232,7 +223,7 @@ export async function createSandbox(dir, scheme = 'light', log = () => {}) {
           }
           return true
         },
-        dispose() { mo.disconnect(); run.stop(); clearTimeout(pending); root.removeEventListener('eui:intent', intent); root.remove() }
+        dispose() { mo.disconnect(); lifecycle.dispose(); run.stop(); clearTimeout(pending); root.removeEventListener('eui:intent', intent); root.remove() }
       }
     }
   }

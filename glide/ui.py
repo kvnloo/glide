@@ -10,6 +10,7 @@ that verdict and removes a mount that failed it, so a bad program never stays mo
 
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -72,6 +73,8 @@ UNMOUNT_SCHEMA = {
 }
 PAGE_HOWS = ("over", "beside", "below")
 PAGE_MAX_BYTES = 4 << 20
+# Pages that ship with Glide, each one self-contained .html file (a music player, a piano): /glide ui open <id>.
+PAGES_DIR = Path(__file__).resolve().parent / "pages"
 PAGE_SCHEMA = {
     "name": "glide_page_open",
     "description": (
@@ -80,7 +83,7 @@ PAGE_SCHEMA = {
         "(how: over = in place of the chat until closed, the default; beside or below = docked). The pane themes it: "
         "use the CSS variables --glide-bg, --glide-surface, --glide-fg, --glide-muted, --glide-accent and "
         "--glide-accent-ink (they follow glide_ui_style and the wallpaper live), and listen for the window event "
-        "'glide-theme' (detail: {dark, bg, fg, accent, muted, surface}) for canvas or WebGL colors. Opening the same "
+        "'glide-theme' (detail: {dark, phase, bg, fg, accent, muted, surface}; phase is day or night, and glide_theme flips it) for canvas or WebGL colors. Opening the same "
         "id again reloads it. The result says whether the page opened."
     ),
     "parameters": {
@@ -139,10 +142,11 @@ def _read(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def _write_ui(home: Path, ui: dict[str, Any] | None) -> int:
-    """Replaces settings.json's ``ui`` (None removes it), keeping every other key; returns the new rev."""
+def _write_ui(home: Path, ui: dict[str, Any] | None, **top: Any) -> int:
+    """Replaces settings.json's ``ui`` (None removes it), sets the ``top`` keys beside it (glide_theme's
+    ``theme``) in the same write, and keeps every other key; returns the new rev."""
     path = settings_file(home)
-    data = _read(path)
+    data = {**_read(path), **top}
     rev = 0
     if ui is None:
         data.pop("ui", None)
@@ -295,18 +299,55 @@ def reset(home: Path) -> str:
     return "Glide UI reset: no widgets, the wallpaper's own palette."
 
 
+def bundled_pages() -> dict[str, Path]:
+    """The pages Glide ships, by id (the file's stem)."""
+    return {p.stem: p for p in sorted(PAGES_DIR.glob("*.html")) if _ID.match(p.stem)}
+
+
+def page_title(file: Path) -> str:
+    """A page's <title>, else its id."""
+    try:
+        head = file.read_text(errors="replace")[:8192]
+    except OSError:
+        head = ""
+    m = re.search(r"<title>([^<]+)</title>", head, re.IGNORECASE)
+    title = html.unescape(m.group(1)).strip()[:60] if m else ""
+    return title or file.stem
+
+
+def open_bundled(home: Path, rest: str, *, wait: float = WAIT_S) -> str:
+    """`/glide ui open [<id>] [over|beside|below]`: lists the bundled pages, or opens one with glide_page_open."""
+    words = rest.split()
+    pages = bundled_pages()
+    listing = "\n".join(f"- {pid}: {page_title(f)}" for pid, f in pages.items()) or "No pages ship with this Glide."
+    if not words:
+        return f"Pages that ship with Glide (/glide ui open <id> [over|beside|below]):\n{listing}"
+    pid, how = words[0].lower(), (words[1].lower() if len(words) > 1 else "over")
+    file = pages.get(pid)
+    if file is None:
+        return f"No bundled page {pid!r}. Pages:\n{listing}"
+    title = page_title(file)
+    out = open_page(home, {"id": pid, "title": title, "path": str(file), "how": how}, wait=wait)
+    if not out.get("ok"):
+        return f"{title} did not open: {out.get('error') or '; '.join(out.get('problems', []))}"
+    return f"Opened {title}." if out.get("opened") else f"{title} is in the Pages list; it opens when a Glide pane answers."
+
+
 def command(rest: str) -> str:
-    """`/glide ui [list|reset]`."""
+    """`/glide ui [list|reset|open [<page>]]`."""
     home = _home()
-    verb = rest.strip().lower()
+    verb, _, more = rest.strip().partition(" ")
+    verb = verb.lower()
     if verb == "reset":
         return reset(home)
+    if verb == "open":
+        return open_bundled(home, more)
     if verb in ("", "list"):
         s = state(home)
         rows = [f"- {w.get('id')}: {w.get('source')} in {w.get('slot')}" for w in s["widgets"]]
         rows += [f"- page {p.get('id')}: {p.get('title')} ({p.get('path')})" for p in s.get("pages", [])]
         return "\n".join(rows + ([f"Style: {json.dumps(s['style'])}"] if s.get("style") else [])) or "No widgets mounted."
-    return "Usage: /glide ui [list|reset]"
+    return "Usage: /glide ui [list|reset|open [<page>]]"
 
 
 def _tool(fn):
@@ -321,10 +362,11 @@ def _tool(fn):
 PROMPT = """<glide_ui>
 The Glide pane's look is yours to change. A widget around the composer (above or below it, on its edge,
 in the sidebar) is glide_ui_mount; removing one is glide_ui_unmount; a restyle ("make it warmer", cooler,
-an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole app
+an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole new
+look (light, dark code, sepia, warm dark, day, night, "the same in dark") is glide_theme. A whole app
 ("build me a game", a music player, a whiteboard, a piano) is a page: write one self-contained HTML file in the
 session folder that colors itself from the --glide-* CSS variables, then glide_page_open. If these tools are not
-loaded, find them with tool_search ("glide ui").
+loaded, find them with tool_search ("glide ui" or "glide theme").
 </glide_ui>"""
 
 

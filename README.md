@@ -15,9 +15,25 @@ Prerequisites: [Hermes Agent](https://github.com/NousResearch/hermes-agent) ≥0
 hermes plugins install kvnloo/glide
 ```
 
-Review Hermes' scanner findings before approving the install. It may report **CAUTION**, as it does for the base Tern plugin. The scan is not bypassed by this guide.
+Review Hermes' scanner findings. Some Hermes versions report **CAUTION** and block
+a community install instead of asking for confirmation. If you have reviewed the
+findings and trust the source, you can explicitly accept that verdict:
 
-After a successful install, accept Hermes' plugin-enable prompt. One install includes the Tern frontend and Glide. The installed plugin is named `glide` (earlier releases used `hermes-tern`; its data folders move to the new name on first load, and settings under `plugins.entries.hermes-tern` must be set again under `plugins.entries.glide`). Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
+```sh
+hermes plugins install kvnloo/glide --force
+```
+
+This still runs the scan. Do not proceed if the verdict is **DANGEROUS** or if
+you do not trust the source.
+
+After a successful install, accept Hermes' plugin-enable prompt. If Hermes
+reports that the plugin was installed but not enabled, activate it explicitly:
+
+```sh
+hermes plugins enable glide
+```
+
+One install includes the Tern frontend and Glide. The installed plugin is named `glide` (earlier releases used `hermes-tern`; its data folders move to the new name on first load, and settings under `plugins.entries.hermes-tern` must be set again under `plugins.entries.glide`). Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
 
 In a Tern pane, outside tmux, screen, or zellij:
 
@@ -25,7 +41,7 @@ In a Tern pane, outside tmux, screen, or zellij:
 hermes tern
 ```
 
-The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py)
+The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py) To launch a fresh Glide pane with **Ctrl+L**, see the [desktop shortcut setup](glide/docs/launch-shortcut.md).
 
 ## First run
 
@@ -79,6 +95,10 @@ Disable automatic quoting:
 ```
 
 Memory extraction and BM25 ranking make no model calls. If an existing z0intelligence corrections reader returns matches, recall prefers those and otherwise falls back to Glide's store. [Recall selection](glide/core.py) Glide opens the source database read-only and writes derived memory under the active profile's `glide/` directory. Once you enable recall, excerpts enter Hermes' model context and can reach your configured remote provider. Do not enable it for history you do not want that provider to receive. [Storage and privacy contract](glide/docs/memory.md)
+
+## Glide can be a pixel-art editor
+
+Open [Pixel Studio](glide/docs/pages/README.md) as a Glide Page to draw, save, and export a 16×16 sprite inside the pane.
 
 ## More in the chat
 

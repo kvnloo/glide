@@ -9,6 +9,7 @@ on:
   pull_request:
   push:
     branches: [main, 'integration/nightly-*']
+  workflow_dispatch:
 
 permissions:
   contents: read

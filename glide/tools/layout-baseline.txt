@@ -190,6 +190,8 @@ frontend/src/__tests__/clockPreference.test.ts
 frontend/src/__tests__/codeReview.test.ts
 frontend/src/__tests__/commandBudget.test.ts
 frontend/src/__tests__/compactCommand.test.ts
+frontend/src/__tests__/completedWorkAttention.test.ts
+frontend/src/__tests__/composerOwnerFence.test.ts
 frontend/src/__tests__/contextMeter.test.ts
 frontend/src/__tests__/contrast.test.ts
 frontend/src/__tests__/delegateFold.test.ts
@@ -299,6 +301,7 @@ frontend/src/__tests__/orbitDesign.test.ts
 frontend/src/__tests__/orbitTargets.test.ts
 frontend/src/__tests__/overlayOwnership.test.ts
 frontend/src/__tests__/overlayRoots.ts
+frontend/src/__tests__/pasteAckInterleave.test.ts
 frontend/src/__tests__/patchContextWarning.test.ts
 frontend/src/__tests__/patchContextWarningFold.test.ts
 frontend/src/__tests__/patchLint.test.ts
@@ -333,6 +336,7 @@ frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/studio.test.ts
 frontend/src/__tests__/studioCommand.test.ts
 frontend/src/__tests__/subagentTranscript.test.ts
+frontend/src/__tests__/submitOutcome.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
 frontend/src/__tests__/tableChartHelper.test.ts
@@ -504,6 +508,7 @@ frontend/src/tools/write-refusal.ts
 frontend/src/transcript/tableChartPlanner.ts
 frontend/src/transcript/tableCharts.ts
 frontend/src/turn/busyInput.ts
+frontend/src/turn/submitOutcome.ts
 frontend/src/vendor/ephemeral-ui/PIN.json
 frontend/src/vendor/ephemeral-ui/data/apps.json
 frontend/src/vendor/ephemeral-ui/data/themes.json
@@ -595,9 +600,35 @@ frontend/src/wire/gev.ts
 frontend/scripts/splash-demo.ts
 frontend/scripts/splash-preview.ts
 frontend/src/__tests__/glidePages.test.ts
+frontend/src/__tests__/glidePageHarness.ts
 frontend/src/__tests__/splash.test.ts
+frontend/src/__tests__/glidePageNightDrive.test.ts
 frontend/src/glideui/pages.ts
 frontend/src/splash/art.ts
+frontend/src/__tests__/glidePagePiano.test.ts
 frontend/src/splash/launch.tsx
 # The plugin-level suite exercises the installed Hermes registration contract.
 tests/test_live_skin.py
+controls.py  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/docs/ask-control.md  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/__tests__/__snapshots__/golden/ask-control.json  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/__tests__/controls.test.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/__tests__/fixtures/ask-control.jsonl  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/controls/sheet.tsx  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/controls/store.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/tools/control.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/vendor/ripple/index.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/vendor/ripple/message.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/vendor/ripple/schema.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/vendor/ripple/state.ts  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/vendor/ripple/vectors.json  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+frontend/src/view/tools/cards/control.tsx  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+tests/test_controls.py  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+figure_check.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/__tests__/figures.test.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/__tests__/mediaBounds.test.ts  # upstream: alt-glitch/hermes-tern PR 72
+frontend/src/__tests__/mediaLifetime.test.ts  # upstream: alt-glitch/hermes-tern PR 73
+frontend/src/figures.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/replyParts.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+render_hints.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+tests/test_render_hints.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)

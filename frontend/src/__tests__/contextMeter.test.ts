@@ -81,12 +81,12 @@ describe('native context action and sheet', () => {
     expect(json.p?.['aria']).toBe('Show context window: 25% context')
     expect(json.c?.[0]?.p?.['label']).toBe('25%')
     if (n instanceof Node) click(n)
-    expect(onOpen).toHaveBeenCalledOnce()
+    expect(onOpen).toHaveBeenCalledExactlyOnceWith('full')
   })
 
   it('wires the drawn composer action to the read-only sheet without a prompt', async () => {
     const { host, stack, gw, session } = setup({ context_max: 1000, context_used: 250, compressions: 2 })
-    const on = dockActions({ onContext: () => openContext(host) })
+    const on = dockActions({ onContext: view => openContext(host, view) })
     const composer = dockNodes(dockModel(dockSources({ session }), 0), on).find(n => n instanceof Node && n.props['role'] === 'omp.editor')
     expect(composer).toBeInstanceOf(Node)
     if (!(composer instanceof Node)) throw new Error('no composer')
@@ -94,14 +94,38 @@ describe('native context action and sheet', () => {
     click(action)
     await flush()
     const sheet = must(stack.items[0])
-    expect(tree(sheet.node('layer.context')).p?.['head']).toBe('Context window')
+    expect(tree(sheet.node('layer.overlay-1')).p?.['head']).toBe('Context window')
     expect(gw.calls.map(c => c.method)).toEqual(['session.context_breakdown'])
-    expect(JSON.stringify(tree(sheet.node('layer.context')))).toContain('Conversation')
-    expect(JSON.stringify(tree(sheet.node('layer.context')))).toContain('Local estimate')
+    const grid = tree(sheet.node('layer.overlay-1')).c?.[0]?.c?.find(n => n.k === 'meter')
+    expect(grid?.p).toMatchObject({ style: 'blocks', size: 'md', value: 0.25 })
+    expect(grid?.p).not.toHaveProperty('steps')
+    expect(JSON.stringify(tree(sheet.node('layer.overlay-1')))).toContain('Conversation')
+    expect(JSON.stringify(tree(sheet.node('layer.overlay-1')))).toContain('Local estimate')
     expect(on.onSubmit).not.toHaveBeenCalled()
     expect(sheet.onKey(key('enter'))).toBe(true)
     expect(stack.items).toEqual([])
     expect(gw.sent('prompt.submit')).toEqual([])
+  })
+
+  it('routes the native quick-grid menu action to a compact grid without an RPC', () => {
+    const { host, stack, gw, session } = setup({ context_max: 1000, context_used: 250 })
+    const on = dockActions({ onContext: view => openContext(host, view) })
+    const composer = dockNodes(dockModel(dockSources({ session }), 0), on).find(n => n instanceof Node && n.props['role'] === 'omp.editor')
+    if (!(composer instanceof Node)) throw new Error('no composer')
+    const action = must(composer.children.find(n => n.props['role'] === 'omp.composer.context.action'))
+    expect(tree(action).p?.['actions']).toEqual({ click: 'click', menu: ['quick-context-grid'] })
+    must(action.handlers?.onMenu?.['quick-context-grid'])({ act: 'quick-context-grid', ev: 'action', id: 'context', raw: {}, sf: 'hermes' })
+
+    const quick = must(stack.items[0])
+    const node = tree(quick.node(stack.rootOf(quick)))
+    expect(node.p).toMatchObject({ head: 'Quick context grid', anchor: 'bottom', size: 'sm' })
+    expect(node.c?.[0]?.c?.find(n => n.k === 'meter')?.p).toMatchObject({ style: 'blocks', size: 'sm', value: 0.25 })
+    expect(gw.calls).toEqual([])
+
+    quick.onKey(key('enter'))
+    expect(stack.items).toHaveLength(1)
+    const full = must(stack.items[0])
+    expect(tree(full.node(stack.rootOf(full))).p?.['head']).toBe('Context window')
   })
 
   it('keeps unknowns explicit, then closes with Escape', () => {
@@ -109,7 +133,7 @@ describe('native context action and sheet', () => {
     session.ref = { live: null, stored: null }
     openContext(host)
     const sheet = must(stack.items[0])
-    const json = JSON.stringify(tree(sheet.node('layer.context')))
+    const json = JSON.stringify(tree(sheet.node('layer.overlay-1')))
     expect(json).toContain('Unknown')
     expect(json).toContain('No active session')
     sheet.onKey(key('escape'))
@@ -121,7 +145,7 @@ describe('native context action and sheet', () => {
     gw.handlers.set('session.context_breakdown', () => { throw new Error('Method not found') })
     openContext(host)
     await flush()
-    const json = JSON.stringify(tree(must(stack.items[0]).node('layer.context')))
+    const json = JSON.stringify(tree(must(stack.items[0]).node('layer.overlay-1')))
     expect(json).toContain('25%')
     expect(json).toContain('Category breakdown unavailable: Method not found')
   })
@@ -131,7 +155,7 @@ describe('native context action and sheet', () => {
     gw.handlers.set('session.context_breakdown', () => ({ ...snapshot, categories: [], context_used: 0, context_max: 0, estimated_total: 0, context_source: 'provider_usage' }))
     openContext(host)
     await flush()
-    const facts = tree(must(stack.items[0]).node('layer.context')).c?.[0]?.c?.find(n => n.k === 'kv')?.p?.['items']
+    const facts = tree(must(stack.items[0]).node('layer.overlay-1')).c?.[0]?.c?.find(n => n.k === 'kv')?.p?.['items']
     expect(facts).toContainEqual({ k: 'Used tokens', v: '250' })
     expect(facts).toContainEqual({ k: 'Context capacity', v: '1,000' })
     expect(facts).toContainEqual({ k: 'Context used', v: '25%' })
@@ -142,7 +166,7 @@ describe('native context action and sheet', () => {
     gw.handlers.set('session.context_breakdown', () => ({ ...snapshot, estimated_total: 900, context_source: 'provider_usage' }))
     openContext(host)
     await flush()
-    const facts = tree(must(stack.items[0]).node('layer.context')).c?.[0]?.c?.find(n => n.k === 'kv')?.p?.['items']
+    const facts = tree(must(stack.items[0]).node('layer.overlay-1')).c?.[0]?.c?.find(n => n.k === 'kv')?.p?.['items']
     expect(facts).toContainEqual({ k: 'Used tokens', v: '250' })
     expect(facts).toContainEqual({ k: 'Estimated total (categories)', v: '900' })
   })

@@ -13,6 +13,8 @@ on:
       - 'tests/test_bundle_provenance.py'
   pull_request:
     paths:
+      - 'frontend/**'
+      - '!frontend/dist/**'
       - '.github/workflows/bundle-candidate.yml'
       - 'scripts/bundle_provenance.py'
       - 'tests/test_bundle_provenance.py'

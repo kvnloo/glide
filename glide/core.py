@@ -258,7 +258,8 @@ USAGE = """/glide            show this machine and your memory
 /glide hill-climb      optimize a target with KEEP/REVERT referee
 /glide offload      route tasks to local model, view savings card
 /glide focus        your attention: phase, deep-work block, wind-down, best hours
-/glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style"""
+/glide ui [reset]   the widgets agents mounted around the composer; reset removes them and the style
+/glide ui open [page]   open a page that ships with Glide (a music player, a piano); no page lists them"""
 
 
 def _rows(m: dict) -> str:
@@ -392,9 +393,10 @@ def register(ctx) -> None:
     ctx.register_command("glide", command, description="Guards your attention (focus blocks, wind-down) and the agent's context (corrections memory, offload)",
                          args_hint="[focus|build|on|off|recall <words>|taste|ui [list|reset]]")
     if callable(getattr(ctx, "register_tool", None)):  # The agent's widgets around the composer (#326).
-        from . import ui
+        from . import ui, whole_theme
 
         ui.register(ctx)
+        whole_theme.register(ctx)  # The whole-theme switch and its day/night flip (GL-062).
     from . import intel
 
     ctx.register_command("intel", intel.command, description="Read-only local intelligence, source notes and safe details",

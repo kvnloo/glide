@@ -66,6 +66,7 @@ describe('Tern image-paste payloads', () => {
     const cx: ActionCx = {
       attachNativeImage: received,
       connect: { approve: () => undefined, continue: () => undefined, open: () => undefined, retry: () => undefined, skip: () => undefined },
+      controls: { reopen: () => undefined },
       focusComposer: () => undefined,
       modal: () => false,
       openAgent: () => undefined,

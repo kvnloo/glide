@@ -3,14 +3,19 @@
 // `omp.assistant` columns holding streamed `md`, work groups (workLog.tsx) and
 // `tool` cards, and an `omp.turn.usage` footer.
 
+import { homedir } from 'node:os'
+
 import type { JSX } from '@stencil-hq/tern'
 
 import { displayMarkdown, type FileContext } from '../artifacts/links.js'
 import { liveOpen } from '../connections/live.js'
 import { optional } from '../core/assert.js'
 import type { MediaDelivery } from '../media-delivery.js'
+import { mediaNode } from '../tern-media.js'
 import type { SessionIds } from '../core/ids.js'
 import type { Block, Compaction, Entry, NoticeEntry, TurnEntry, UserAttachment, UserEntry } from '../model.js'
+import { localMediaPath, mediaFamily } from '../read-media.js'
+import { replyParts } from '../replyParts.js'
 import { steerState } from '../transcript/messages.js'
 import type { EuiCards } from '../eui/cards.js'
 import type { TableCharts } from '../transcript/tableCharts.js'
@@ -295,11 +300,9 @@ function pieceNodes(turn: TurnEntry, blocks: readonly Block[], parent: string, c
           return euiAnswerNode(b.id, cards, cx.eui)
         }
 
-        return (
-          <md key={b.id} {...optional('stream', (live && b === lastText) || undefined)}>
-            {live ? b.text : displayMarkdown(cx.charts?.markdown(b.text, turn.end.status === 'done') ?? b.text, cx.links?.hostLocal ? cx.links.cwd : '')}
-          </md>
-        )
+        const shown = (text: string) => (live ? text : displayMarkdown(cx.charts?.markdown(text, turn.end.status === 'done') ?? text, cx.links?.hostLocal ? cx.links.cwd : ''))
+
+        return textNodes(b.id, b.text, live && b === lastText, shown, cx.links)
       }
 
       case 'tool':
@@ -315,6 +318,61 @@ function pieceNodes(turn: TurnEntry, blocks: readonly Block[], parent: string, c
         return null
     }
   })
+}
+
+/**
+ * A text block: its Markdown, with each media line (`MEDIA:/path`, replyParts.ts) as Tern's viewer
+ * for that file. Only where Tern opens the gateway's files (the pane runs on the gateway's host and
+ * Tern takes `media` nodes) and the path is a local file of a kind Tern shows; elsewhere the line
+ * stays text, as before.
+ */
+function textNodes(id: string, text: string, streaming: boolean, shown: (md: string) => string, links: FileContext | undefined): JSX.Element {
+  const viewable = (path: string) => {
+    const local = links?.hostLocal && links.media ? localMediaPath(path.replace(/^~(?=\/)/, homedir()), links.cwd) : undefined
+
+    return local && mediaFamily(local) ? local : undefined
+  }
+  // A media line Tern cannot show here goes back into the Markdown around it.
+  const parts: ({ kind: 'md'; text: string } | { kind: 'media'; path: string })[] = []
+
+  for (const part of links?.hostLocal && links.media ? replyParts(text, streaming) : [{ kind: 'md' as const, text }]) {
+    const path = part.kind === 'media' ? viewable(part.path) : undefined
+    const prev = parts.at(-1)
+
+    if (path) {
+      parts.push({ kind: 'media', path })
+    } else {
+      const md = part.kind === 'md' ? part.text : `MEDIA:${part.path}`
+      if (prev?.kind === 'md') {
+        prev.text = `${prev.text}\n${md}`
+      } else {
+        parts.push({ kind: 'md', text: md })
+      }
+    }
+  }
+
+  if (parts.length === 1 && parts[0]?.kind === 'md') {
+    return (
+      <md key={id} {...optional('stream', streaming || undefined)}>
+        {shown(text)}
+      </md>
+    )
+  }
+
+  // Its own key: Tern 0.9.12 drops the subtree when a streamed `md` turns into a `col` under one key.
+  return (
+    <col gap="sm" key={`${id}.parts`} role="hermes.reply.parts">
+      {parts.map((p, i) =>
+        p.kind === 'md' ? (
+          <md key={`md${i}`} {...optional('stream', (streaming && i === parts.length - 1) || undefined)}>
+            {shown(p.text)}
+          </md>
+        ) : (
+          mediaNode({ path: p.path }, `media${i}`)
+        )
+      )}
+    </col>
+  )
 }
 
 /** The reason line's icon: agents, a background command, a watcher, or Hermes going on. */

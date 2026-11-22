@@ -15,6 +15,9 @@ import { readJsonFile } from '../wire/files.js'
 import { record } from '../wire/json.js'
 import { STYLES } from '../view/styles.js'
 import { DASH, dashTernPalette } from '../../../glide/frontend/dash.js'
+import { GLIDE_THEMES, themePalette, themeTokens } from '../../../glide/frontend/themes.js'
+import { checkPalette } from '../glideui/checks.js'
+import { isThemeMode } from '../overlays/theme.js'
 
 import { stub } from './fakes.js'
 
@@ -249,5 +252,95 @@ describe('ternWindowTheme', () => {
     wear?.(null)
     await settle()
     expect(c.calls).toEqual(['state', 'theme dark dash'])
+  })
+})
+
+describe("Glide's whole themes (GL-062)", () => {
+  function host() {
+    const sent: Palette[] = []
+    const sheets: [string, string | null][] = []
+    const saved: object[] = []
+    const worn: (string | null)[] = []
+    return {
+      sent, sheets, saved, worn,
+      palette: (p: Palette) => void sent.push(p),
+      stylesheet: (name: string, css: string | null) => void sheets.push([name, css]),
+      windowTheme: (name: string | null) => void worn.push(name),
+      settings: { save: (patch: object) => (saved.push(patch), {}) },
+      walFile: '/nonexistent/colors.json'
+    }
+  }
+
+  it('holds the four restyles and a day/night pair, each paired with its other phase', () => {
+    expect(GLIDE_THEMES).toEqual(['light', 'dark-code', 'sepia', 'warm-dark', 'day', 'night'])
+    for (const name of GLIDE_THEMES) {
+      const t = themeTokens(name)
+      expect(themeTokens(t.pair).pair).toBe(name)
+      expect(new Set([t.phase, themeTokens(t.pair).phase])).toEqual(new Set(['day', 'night']))
+    }
+  })
+
+  it.each(GLIDE_THEMES)('%s applies its own tokens to the palette, the card sheet and the window, at 4.5:1', name => {
+    const t = themeTokens(name)
+    const h = host()
+    const theme = new Theme(h, name)
+    theme.apply()
+    const p = themePalette(name)
+    expect(h.sent.at(-1)?.name).toEqual({ dark: `glide-${name}`, light: `glide-${name}` })
+    expect(h.sent.at(-1)?.dark).toMatchObject({ text: p.fg, accent: p.accent, muted: p.muted, error: p.error })
+    expect(p.bg).toBe(t.bg)
+    expect(p.dark).toBe(t.phase === 'night')
+    // The theme's own inks where they already clear the floor (walPalette only lifts the ones that do not).
+    expect(p.fg).toBe(t.fg)
+    expect(h.sheets.at(-1)?.[1]).toContain(`background:${t.bg}`)
+    expect(h.worn).toEqual([`glide-${name}`])
+    expect(theme.wal).toEqual(p)
+    expect(checkPalette(p)).toEqual([])
+  })
+
+  it('keeps every theme distinct', () => {
+    const looks = GLIDE_THEMES.map(n => { const p = themePalette(n); return `${p.bg} ${p.fg} ${p.accent}` })
+    expect(new Set(looks).size).toBe(GLIDE_THEMES.length)
+  })
+
+  it('hands the window from theme to theme, and gives its own back on leaving', () => {
+    const h = host()
+    const theme = new Theme(h, 'dash')
+    theme.apply()
+    theme.set('sepia')
+    theme.set('warm-dark')
+    theme.set('auto')
+    theme.set('night')
+    theme.set('tern')
+    expect(h.worn).toEqual(['dash', 'glide-sepia', 'glide-warm-dark', null, 'glide-night', null])
+    expect(h.saved.at(-2)).toEqual({ theme: 'night' })
+    expect(h.sheets.at(-1)).toEqual([expect.any(String), null])
+  })
+
+  it('wears a mode settings.json already keeps (glide_theme) without saving it, and repaints at once', () => {
+    const h = host()
+    const theme = new Theme(h, 'light')
+    theme.apply()
+    expect(theme.wear('light')).toBe(false)
+    expect(h.sent).toHaveLength(1)
+    expect(theme.wear('dark-code')).toBe(true)
+    expect(theme.mode).toBe('dark-code')
+    expect(h.sent.at(-1)?.dark?.['text']).toBe(themePalette('dark-code').fg)
+    expect(h.worn).toEqual(['glide-light', 'glide-dark-code'])
+    expect(h.saved).toEqual([])
+  })
+
+  it("lays the agent's glide_ui_style accent over a theme", () => {
+    const theme = new Theme({ ...host(), style: () => ({ accent: '#ff3366' }) }, 'night')
+    expect(theme.wal?.accent).toBe(themePalette('night', { accent: '#ff3366' }).accent)
+    expect(theme.wal?.accent).not.toBe(themePalette('night').accent)
+  })
+
+  it('is a mode settings.json keeps and the picker lists', async () => {
+    const file = join(await mkdtemp(join(tmpdir(), 'glide-themes-')), 'settings.json')
+    saveSettings({ theme: 'warm-dark' }, file)
+    expect(loadSettings(file).theme).toBe('warm-dark')
+    expect(GLIDE_THEMES.every(isThemeMode)).toBe(true)
+    expect(isThemeMode('neon')).toBe(false)
   })
 })

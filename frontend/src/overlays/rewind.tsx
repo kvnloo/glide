@@ -12,6 +12,7 @@ import type { ChatPorts } from '../app/ports.js'
 import type { SessionHost } from '../commands/session.js'
 import { optional } from '../core/assert.js'
 import { errorText } from '../core/errors.js'
+import { affirmative, negative } from '../core/keys.js'
 import { storedSessionId } from '../core/ids.js'
 import { plural } from '../core/text.js'
 import { mutateSession } from '../hermes/mutate.js'
@@ -261,9 +262,10 @@ export function openRewind(host: RewindHost) {
     },
     onKey: (k: Key) => {
       if (confirming) {
-        if (k.name === 'enter' || k.name === 'y') {
+        // A modified chord (Ctrl+Alt+Y is a help binding) is consumed without confirming.
+        if (affirmative(k)) {
           rewind()
-        } else if (k.name === 'escape' || k.name === 'n') {
+        } else if (negative(k)) {
           confirming = false
         }
 
