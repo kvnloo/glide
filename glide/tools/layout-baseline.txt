@@ -172,6 +172,7 @@ frontend/src/__tests__/agentTreeOverlay.test.ts
 frontend/src/__tests__/architectureBoard.test.ts
 frontend/src/__tests__/armyJourneys.test.ts
 frontend/src/__tests__/councilSession.test.ts  # Vitest collects only frontend/src/**/__tests__; council handoff (GL-103)
+frontend/src/__tests__/toolProgressCard.test.ts  # Vitest collects only frontend/src/**/__tests__; tool-progress eui card (GL-108)
 frontend/src/__tests__/artifactAttachments.test.ts
 frontend/src/__tests__/artifactClipboard.test.ts
 frontend/src/__tests__/artifactLinks.test.ts

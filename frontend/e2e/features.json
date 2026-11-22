@@ -1006,6 +1006,18 @@
       "army": []
     },
     {
+      "id": "tool-progress-card",
+      "title": "Watch a turn's tool calls as a live progress card",
+      "surface": "card",
+      "entry": "Run a turn with several tool calls, one reporting tool.progress, one editing a file",
+      "journey": "cards",
+      "expect": "One eui host card per turn steps through each call, moves its meter per tool.progress, lists the files touched as a tree, and settles into a receipt at turn end",
+      "tests": [
+        "frontend/src/__tests__/toolProgressCard.test.ts"
+      ],
+      "army": []
+    },
+    {
       "id": "table-charts",
       "title": "Append charts to eligible settled tables",
       "surface": "card",

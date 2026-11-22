@@ -46,7 +46,8 @@ export const replays: Record<string, Replay> = {
   'a turn with tool calls': {
     fixture: 'turn-tools',
     replies: started,
-    steps: [{ feed: 1 }, { type: 'list the files' }, { press: 'enter' }, { feed: 3 }, { feed: 2 }, { feed: 2 }, { feed: 3 }]
+    // t3 reports tool.progress twice and t4 writes a file: the live tool-progress card's meter and tree (GL-108).
+    steps: [{ feed: 1 }, { type: 'list the files' }, { press: 'enter' }, { feed: 3 }, { feed: 2 }, { feed: 2 }, { feed: 2 }, { feed: 2 }, { feed: 2 }, { feed: 3 }]
   },
 
   'an ask_control choice answered with the arrows and Enter while the turn ends': {
