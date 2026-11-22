@@ -300,6 +300,7 @@ frontend/src/__tests__/orbitDesign.test.ts
 frontend/src/__tests__/orbitTargets.test.ts
 frontend/src/__tests__/overlayOwnership.test.ts
 frontend/src/__tests__/overlayRoots.ts
+frontend/src/__tests__/pasteAckInterleave.test.ts
 frontend/src/__tests__/patchContextWarning.test.ts
 frontend/src/__tests__/patchContextWarningFold.test.ts
 frontend/src/__tests__/patchLint.test.ts
@@ -334,6 +335,7 @@ frontend/src/__tests__/staleWrite.test.ts
 frontend/src/__tests__/studio.test.ts
 frontend/src/__tests__/studioCommand.test.ts
 frontend/src/__tests__/subagentTranscript.test.ts
+frontend/src/__tests__/submitOutcome.test.ts
 frontend/src/__tests__/surfacePeer.ts
 frontend/src/__tests__/surfaceRecovery.test.ts
 frontend/src/__tests__/tableChartHelper.test.ts
@@ -505,6 +507,7 @@ frontend/src/tools/write-refusal.ts
 frontend/src/transcript/tableChartPlanner.ts
 frontend/src/transcript/tableCharts.ts
 frontend/src/turn/busyInput.ts
+frontend/src/turn/submitOutcome.ts
 frontend/src/vendor/ephemeral-ui/PIN.json
 frontend/src/vendor/ephemeral-ui/data/apps.json
 frontend/src/vendor/ephemeral-ui/data/themes.json
