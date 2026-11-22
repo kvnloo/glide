@@ -13,7 +13,11 @@ _PART = re.compile(r'(Hero\("left"\)|Meter\("meter"\)|Badges\("state"\))')
 _PROGRAM = re.compile(
     r'\s*root\s*=\s*GlideCard\s*\(\s*"focus"\s*,\s*\[([^\[\]]{1,160})\]\s*\)\s*'
 )
-_SLOTS = {"above-composer", "composer-ring"}
+_SLOTS = ("above-composer", "composer-ring")
+_MAX_MINUTES = 240
+_MS_PER_MINUTE = 60_000
+_MAX_START_MS = 2**53 - _MAX_MINUTES * _MS_PER_MINUTE
+_MAX_PROGRAM_LENGTH = 4096
 
 
 def project(widget: dict) -> dict | None:
@@ -22,9 +26,9 @@ def project(widget: dict) -> dict | None:
     )
     if (widget.get("source") != "clock.focus" or not isinstance(slot, str) or slot not in _SLOTS
             or not isinstance(wid, str) or not _ID.fullmatch(wid)
-            or type(minutes) is not int or not 1 <= minutes <= 240
-            or type(started) is not int or not 0 < started < 2**53 - 240 * 60_000
-            or not isinstance(program, str) or len(program) > 4096):
+            or type(minutes) is not int or not 1 <= minutes <= _MAX_MINUTES
+            or type(started) is not int or not 0 < started < _MAX_START_MS
+            or not isinstance(program, str) or len(program) > _MAX_PROGRAM_LENGTH):
         return None
     match = _PROGRAM.fullmatch(program)
     if not match:
@@ -34,8 +38,9 @@ def project(widget: dict) -> dict | None:
         return None
     if slot == "composer-ring" and 'Meter("meter")' not in parts:
         return None
-    return {"id": wid,  "end": started + minutes * 60_000,
-            "duration": minutes * 60_000, "parts": [part.split("(")[0] for part in parts]}
+    duration = minutes * _MS_PER_MINUTE
+    return {"id": wid, "end": started + duration, "duration": duration,
+            "parts": [part.split("(")[0] for part in parts]}
 
 
 @router.get("/widgets")

@@ -36,24 +36,31 @@ function register(ctx) {
   const clock = atom(Date.now())
   let disposed = false
   let busy = false
-  function tick() {
-    clock.set(Date.now())
-    if (busy) return
-    busy = true
-    const key = JSON.stringify([host.state.connectionId.get(), host.state.profile.get()])
-    ctx.rest('/desktop/widgets', { timeoutMs: 3000 }).then(result => {
-      if (!disposed) mounts.set({ key, values: Array.isArray(result?.widgets) ? result.widgets : [] })
-    }).catch(() => {
-      if (!disposed) mounts.set({ key, values: [] })
-    }).finally(() => { busy = false })
-  }
-  // Only query while a composer contribution is mounted, with one shared timer across slots.
+  let reportedFailure = false
+  // One shared poller, only while the main composer's contribution is mounted.
   let consumers = 0
   let stop
   function Widgets() {
     useEffect(() => {
       if (++consumers === 1) {
-        tick()
+        const tick = async () => {
+          clock.set(Date.now())
+          if (busy) return
+          busy = true
+          const key = JSON.stringify([host.state.connectionId.get(), host.state.profile.get()])
+          try {
+            const response = await ctx.rest('/desktop/widgets', { timeoutMs: 3000 })
+            reportedFailure = false
+            if (!disposed) mounts.set({ key, values: Array.isArray(response?.widgets) ? response.widgets : [] })
+          } catch (error) {
+            if (!reportedFailure) console.warn('Glide Desktop widget state unavailable', error)
+            reportedFailure = true
+            if (!disposed) mounts.set({ key, values: [] })
+          } finally {
+            busy = false
+          }
+        }
+        void tick()
         stop = ctx.setInterval(tick, 1000)
       }
       return () => { if (--consumers === 0) stop?.() }
