@@ -28,6 +28,7 @@ import type { Composer } from '../draft/composer.js'
 import type { Dictation } from '../draft/dictation.js'
 import type { KeyCx, Presses } from '../draft/keys.js'
 import { forkSession } from '../fork-session.js'
+import { FigureAsk, gatewayFigureCheck } from '../figures.js'
 import { shellError, shellExec, shellLines } from '../hermes/shell.js'
 import type { Media } from '../media.js'
 import type { ToolCall } from '../model.js'
@@ -139,6 +140,8 @@ export class AppActions {
   /** The folder last reported to Tern by OSC 7. */
   #reportedCwd: string | undefined
   readonly #artifacts = new Artifacts()
+  /** Asks the agent once per prompt to resend a finished reply's figures that would not render. */
+  readonly figures: FigureAsk
   /** What the dock's buttons and fields do. */
   readonly dock: DockActions
   /** What the key rules (draft/keys.ts) reach. */
@@ -152,6 +155,8 @@ export class AppActions {
   readonly host: SessionHostCx
   constructor(cx: ActionsCx) {
     this.#cx = cx
+    // A message the app writes, sent as it is (no `{!cmd}` runs in a checker's error text); it waits behind a running turn.
+    this.figures = new FigureAsk(gatewayFigureCheck(cx.gw), () => cx.state.ref.live, text => cx.router.route({ images: [], kind: 'app', text }, 'queue'))
     const { attachments, chat, composer, dictation, gw, life, queue, transcript } = cx
     const changed = () => cx.changed()
     const admit = () => !isModal(chat.overlays) && !life.switching && !attachments.any && !attachments.uploading
@@ -317,6 +322,7 @@ export class AppActions {
       return
     }
 
+    this.figures.reset()
     const pasted = [...this.#cx.composer.shellPasted]
     this.submit(this.#cx.composer.take(), true, 'queue', pasted)
   }
@@ -333,6 +339,7 @@ export class AppActions {
       return
     }
 
+    this.figures.reset()
     const unknown = raw !== this.#cx.composer.text
     this.submit(raw, true, 'queue', unknown || this.#cx.composer.literal ? [raw] : this.#cx.composer.pasted.filter(p => raw.includes(p)))
   }

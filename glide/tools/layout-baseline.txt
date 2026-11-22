@@ -624,3 +624,11 @@ frontend/src/vendor/ripple/state.ts  # upstream: kvnloo/glide#245; ask_control, 
 frontend/src/vendor/ripple/vectors.json  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
 frontend/src/view/tools/cards/control.tsx  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
 tests/test_controls.py  # upstream: kvnloo/glide#245; ask_control, meant for an alt-glitch/hermes-tern PR after the manual test
+figure_check.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/__tests__/figures.test.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/__tests__/mediaBounds.test.ts  # upstream: alt-glitch/hermes-tern PR 72
+frontend/src/__tests__/mediaLifetime.test.ts  # upstream: alt-glitch/hermes-tern PR 73
+frontend/src/figures.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+frontend/src/replyParts.ts  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+render_hints.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)
+tests/test_render_hints.py  # upstream: alt-glitch/hermes-tern PR 64 (merged upstream; leaves this list at the next upstream sync)

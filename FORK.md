@@ -45,6 +45,7 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | Transcript | LSP diagnostics as native result cards | | #2 |
 | | Charts drawn from settled Markdown tables | [table-charts](frontend/docs/table-charts.md) | #3 |
 | | `ask_control`: a choice, slider, confirm or candidate pick drawn as a native sheet; the answer returns as the next user message (Ripple's fast-control schema) | [ask-control](frontend/docs/ask-control.md) | #245 |
+| | What Tern draws, told to the agent; `MEDIA:` lines in Tern's viewer on a host-local pane; a broken mermaid or svg figure asked for once (upstream #64, #111) | [october-branches](glide/docs/october-branches.md) | #245 |
 | | OpenUI visual previews | [openui](frontend/docs/openui.md) | #4 |
 | | Native ephemeral-ui intent boards (`ephemeral-intent/v1`) | [openui](frontend/docs/openui.md#intent-boards-ephemeral-intentv1) | parity wave 2026-11-04 |
 | | `/council`: the Socratic council instrument as an ephemeral-ui popup (`glide.council-run/v1`; demo run unless `GLIDE_COUNCIL_URL` is set) | [councilPopup.ts](glide/frontend/councilPopup.ts) | |

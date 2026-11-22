@@ -4,6 +4,7 @@
 // calls back; each closure here reads what it calls when it runs, never while the stores are made.
 
 import type { GatewayClient } from '@hermes/shared/gateway-client'
+import type { MessageCompletePayload } from '@hermes/shared/gateway-events'
 import type { Session } from '@stencil-hq/tern'
 
 import { Agents } from '../agents/store.js'
@@ -246,6 +247,8 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     transcript
   })
   const shared = {
+    /** A finished reply's figures: the agent is asked once to resend those that would not render (figures.ts). */
+    checkFigures: (p: MessageCompletePayload) => act().figures.afterReply(p),
     activity,
     agents,
     btw,
@@ -382,6 +385,7 @@ export function disposeStores(s: ChatStores) {
   s.laneFeed?.stop()
   s.dictation.dispose()
   s.talkGateway.dispose()
+  s.media.invalidate()
   s.timers.dispose()
   s.connect.dispose()
   s.controls.dispose()

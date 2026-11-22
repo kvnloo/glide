@@ -161,7 +161,7 @@ function recordingHost() {
     imageLanded: rec('imageLanded'),
     markPane: id => void log.push(`markPane ${id}`),
     markViewer: (now, before) => void log.push(`markViewer ${durable(now)} ${durable(before)}`),
-    media: { showAll: rec('media.showAll') },
+    media: { invalidate: rec('media.invalidate'), showAll: rec('media.showAll') },
     mediaDelivery: { clear: rec('mediaDelivery.clear') },
     notices: { reset: rec('notices.reset') },
     operations: { adopt: sid => void log.push(`operations.adopt ${sid}`) },
@@ -215,6 +215,8 @@ describe('adoptSteps', () => {
       'operations.adopt b',
       // Another session: the transcript starts over at once, and the last one's sheets and busy-input mode go.
       'mediaDelivery.clear',
+      // Every transcript adoption expires the last one's image loads first.
+      'media.invalidate',
       'transcript.reset other',
       'sheets.dropAll',
       'busyMode queue',
@@ -269,6 +271,7 @@ describe('adoptSteps', () => {
       'btw.adopt a',
       'operations.adopt a',
       'mediaDelivery.clear',
+      'media.invalidate',
       'transcript.reset same',
       'readBusyMode',
       'readShortcuts',
