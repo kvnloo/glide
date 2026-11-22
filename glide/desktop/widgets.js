@@ -25,9 +25,9 @@ function ScopedWidgets({ mounts, clock }) {
   const profile = useValue(host.state.profile)
   const connection = useValue(host.state.connectionId)
   const key = JSON.stringify([connection, profile])
-  const active = useValue(host.state.activeSessionId)
-  const { sessionId } = useComposerSession()
-  if (widgets.key !== key || sessionId !== active) return null
+  // Mount state is profile-wide, just like the Tern settings file. The stock
+  // slot does not expose a per-composer session hook.
+  if (widgets.key !== key) return null
   return widgets.values.map(widget => h(Timer, { key: widget.id, widget, now }))
 }
 
@@ -37,7 +37,7 @@ function register(ctx) {
   let disposed = false
   let busy = false
   let reportedFailure = false
-  // One shared poller, only while the main composer's contribution is mounted.
+  // One shared poller, only while at least one composer displays the contribution.
   let consumers = 0
   let stop
   function Widgets() {

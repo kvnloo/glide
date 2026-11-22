@@ -24,7 +24,10 @@ def test_desktop_companion_installed_routes_and_shared_state(tmp_path, monkeypat
     copytree(Path(attention.__file__).parent, package, ignore=lambda _, names: {"__pycache__"} & set(names))
     (agent / "plugin.yaml").touch()
     install(agent, tmp_path / "desktop")
-    assert "registerSettingsPage" in (tmp_path / "desktop/glide/plugin.js").read_text()
+    bundle = (tmp_path / "desktop/glide/plugin.js").read_text()
+    assert "registerSettingsPage" in bundle
+    assert "area: 'composer.top'" in bundle
+    assert "import { atom, host, useValue } from '@hermes/plugin-sdk'" in bundle
     spec = importlib.util.spec_from_file_location("glide_test_desktop_api", agent / "dashboard/plugin_api.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

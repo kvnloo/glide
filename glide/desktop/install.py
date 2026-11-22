@@ -31,7 +31,7 @@ def install(agent_plugin: Path, desktop_plugins: Path) -> None:
     target = desktop_plugins / "glide"
     target.mkdir(parents=True, exist_ok=True)
     (target / "plugin.js").write_text(
-        "import { atom, host, useComposerSession, useValue } from '@hermes/plugin-sdk'\n"
+        "import { atom, host, useValue } from '@hermes/plugin-sdk'\n"
         "import { createElement as h, useEffect, useState } from 'react'\n"
         "export default { id: 'glide', name: 'Glide', register(ctx) {\n"
         + "\n".join(modules)

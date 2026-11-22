@@ -19,8 +19,9 @@ using glide_ui_mount, with the time left and a meter.” The expected tool argum
 }
 ```
 
-Desktop reads the profile's persistent Glide widget state. The timer appears above the
-input, keeps ticking, and survives reload from its saved start time. Ask Glide to
+Desktop reads the profile's persistent Glide widget state. The same profile timer can
+appear in more than one composer; it is not keyed to a chat session. It keeps ticking
+and survives reload from its saved start time. Ask Glide to
 unmount the widget, or use `/glide ui reset` to clear all Glide UI customizations.
 The tool's Tern validation receipt is separate: without Tern, its result can say
 “saved, unchecked” while Desktop shows the supported widget.
