@@ -1,7 +1,9 @@
 // The launch splash's shell: it owns the clock, the skip, the cap and the hand-off, and nothing about
 // the picture (art.ts). It draws on its own `screen` surface above the session chrome and closes it
 // when done. Ported from Hermes ui-tsp's LaunchSplash (same lifecycle rules), drawn as one image.
-import type { JSX, Surface } from '@stencil-hq/tern'
+import type { JSX, Session, Surface, TspEvent } from '@stencil-hq/tern'
+import type { GatewayClient } from '@hermes/shared/gateway-client'
+import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
 
 import { ART_H, ART_W, artInk, HOLD_CYCLE_MS, SPLASH_EXIT_MS, SPLASH_INTRO_MS, splashSvg } from './art.js'
 
@@ -87,6 +89,31 @@ export class LaunchSplash {
     if (this.active && !this.#timer) this.tick()
   }
 
+  /** Consume the key used to skip; it must not reach the composer. */
+  consumeKey(): boolean {
+    if (!this.active) return false
+    this.skip()
+    return true
+  }
+
+  /** Process splash surface events before the app filters them by surface owner. */
+  event(ev: TspEvent): boolean {
+    if (!this.active) return false
+    if (ev.ev === 'gone' && ev.ids.includes('splash')) {
+      this.dismiss()
+      return true
+    }
+    const mine = 'sf' in ev && ev.sf === 'splash'
+    if (!('sf' in ev) || !ev.sf || mine) {
+      if (ev.ev === 'theme') this.environment({ dark: ev.dark })
+      if (ev.ev === 'motion') this.environment({ reduce: ev.reduce })
+      if ((ev.ev === 'visible' || ev.ev === 'resize') && ev.visible !== undefined) {
+        this.environment({ visible: ev.visible })
+      }
+    }
+    return mine
+  }
+
   /** A modal or a request needs the pane immediately, without waiting for the fade. */
   dismiss() {
     if (this.active) this.#finish()
@@ -169,4 +196,25 @@ export class LaunchSplash {
       </col>
     )
   }
+}
+
+
+export function startSplash(tern: Session, gateway: GatewayClient, launch: Parameters<typeof splashEnabled>[1], onDone: () => void): LaunchSplash | undefined {
+  if (!tern.caps.features.includes('blobs') || !splashEnabled(process.env, launch)) return undefined
+  const splash = new LaunchSplash({
+    tern,
+    onDone: () => {
+      gateway.off('event', onEvent)
+      gateway.off('exit', onExit)
+      onDone()
+    }
+  })
+  const onEvent = (event: AnyGatewayEvent) => {
+    if (event.type === 'gateway.ready') splash.ready()
+  }
+  const onExit = () => splash.ready()
+  gateway.on('event', onEvent)
+  gateway.on('exit', onExit)
+  splash.start()
+  return splash.active ? splash : undefined
 }

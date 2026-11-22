@@ -1,9 +1,4 @@
-// The app: one inline Tern surface (role `omp.session`, so Tern's chat styles
-// apply) over one tui_gateway session. Gateway events fold into the
-// transcript, keys go to the top overlay or the composer, and every change
-// schedules one frame of the whole view (app/frame.ts); the SDK diffs it into
-// frame ops. App is the composition root: it makes the stores (app/stores.ts)
-// and the actions over them (app/actions.ts), lends them as ChatPorts, and runs the pane until it quits.
+// App composes the stores and actions for one Tern surface over a gateway session.
 
 import type { ScrollTo, Session, TspEvent } from '@stencil-hq/tern'
 import type { GatewayClient } from '@hermes/shared/gateway-client'
@@ -54,7 +49,7 @@ import { EuiCards } from '../eui/cards.js'
 import { GevCards } from '../gev/cards.js'
 import type { Busy } from '../turn/activity.js'
 import { IMAGE_ONLY_PROMPT } from '../turn/prompt.js'
-import { LaunchSplash, splashEnabled } from '../splash/launch.js'
+import { type LaunchSplash, startSplash } from '../splash/launch.js'
 import { Retention } from '../view/retention.js'
 import { STYLES } from '../view/styles.js'
 import { noticeSink, onCardFault } from '../view/tools/faults.js'
@@ -105,7 +100,6 @@ export class App implements ChatPorts {
   #orb: ThinkingOrb | undefined
   #clean: CleanView | undefined
   #lanes: LaneStrip | undefined
-  /** The launch splash while it covers the pane (it takes the keys until it leaves). */
   #splash: LaunchSplash | undefined
   #orbSid: string | null = null
   #wasLive = false
@@ -281,12 +275,16 @@ export class App implements ChatPorts {
     this.processes.poke()
     this.#frame()
     this.#surface.focus(INPUT_ID)
-    this.#startSplash()
+    this.#splash = startSplash(this.#tern, this.#gw, this.#launch, () => {
+      this.#splash = undefined
+      if (this.#surface.state === 'visible') this.#surface.focus(INPUT_ID)
+      this.changed()
+    })
     void runInput(this.#tern, {
       after: () => this.changed(),
       onError: error => this.#surface.failure(new Error(`Tern input failed: ${errorText(error)}`)),
       onEvent: event => {
-        if (this.#splashEvent(event)) return
+        if (this.#splash?.event(event)) return
         this.#onSurfaceEvent(event)
         if (this.#surface.event(event)) {
           this.#retention?.gone(event)
@@ -296,14 +294,7 @@ export class App implements ChatPorts {
         }
       },
       onKey: key => {
-        if (this.#surface.state !== 'visible') {
-          return
-        }
-        // Any key skips the launch splash, and is spent doing so.
-        if (this.#splash?.active) {
-          this.#splash.skip()
-          return
-        }
+        if (this.#surface.state !== 'visible' || this.#splash?.consumeKey()) return
         if (cleanFocus.on) {
           cleanFocus.exit()
         } else if (this.#retention && key.ctrl && key.name === 'home' && !this.overlays.at(-1)?.modal) {
@@ -409,43 +400,6 @@ export class App implements ChatPorts {
     }
   }
 
-  /** Covers the pane with the launch splash (splash/launch.tsx) until the gateway reports ready. */
-  #startSplash() {
-    if (!this.#tern.caps.features.includes('blobs') || !splashEnabled(process.env, this.#launch)) return
-    const splash = new LaunchSplash({
-      tern: this.#tern,
-      onDone: () => {
-        this.#splash = undefined
-        if (this.#surface.state === 'visible') this.#surface.focus(INPUT_ID)
-        this.changed()
-      }
-    })
-    this.#splash = splash
-    this.#gw.on('event', (ev: AnyGatewayEvent) => {
-      if (ev.type === 'gateway.ready') splash.ready()
-    })
-    // A gateway that dies at startup must not leave the splash up until the cap.
-    this.#gw.on('exit', () => splash.ready())
-    splash.start()
-  }
-
-  /** Splash-surface events reach the splash before the inline surface's owner filter; true when consumed. */
-  #splashEvent(ev: TspEvent): boolean {
-    const splash = this.#splash
-    if (!splash?.active) return false
-    if (ev.ev === 'gone' && ev.ids.includes('splash')) {
-      splash.dismiss()
-      return true
-    }
-    const mine = 'sf' in ev && ev.sf === 'splash'
-    if (!('sf' in ev) || !ev.sf || mine) {
-      if (ev.ev === 'theme') splash.environment({ dark: ev.dark })
-      if (ev.ev === 'motion') splash.environment({ reduce: ev.reduce })
-      if ((ev.ev === 'visible' || ev.ev === 'resize') && ev.visible !== undefined) splash.environment({ visible: ev.visible })
-    }
-    return mine
-  }
-
   /** Only routed events for the shown session affect the orb or hidden-pane completion notices. */
   #onShown(ev: AnyGatewayEvent, s: ChatStores) {
     const sid = this.session.ref.live
@@ -520,7 +474,6 @@ export class App implements ChatPorts {
   }
 
   changed() {
-    // A modal (an approval, a question, a picker) needs the pane now, not after the splash's fade.
     if (this.#splash?.active && this.overlays?.some(o => o.modal)) this.#splash.dismiss()
     this.stores?.liveVoice.syncOwner()
     this.eui?.host.sync()
