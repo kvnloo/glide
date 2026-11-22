@@ -1,20 +1,18 @@
-import * as z from 'zod/mini'
-
 import type { EuiCards } from '../../frontend/src/eui/cards.js'
 
-const reply = z.object({
-  status: z.string(),
-  resident: z.optional(z.array(z.string())),
-  on_demand: z.optional(z.array(z.string())),
-  steps: z.optional(z.record(z.string(), z.string()))
-})
+interface SetupReply {
+  status: string
+  resident?: string[] | undefined
+  on_demand?: string[] | undefined
+  steps?: Record<string, string> | undefined
+}
 
-type Call = (verb: string) => Promise<unknown>
+type Call = (verb: string) => Promise<SetupReply>
 
 export async function z0Onboarding(
   cards: EuiCards['host'], call: Call, current: () => boolean, fail: (error: unknown) => void
 ): Promise<void> {
-  const preview = reply.parse(await call('z0_onboard_plan'))
+  const preview = await call('z0_onboard_plan')
   if (!current()) return
   if (preview.status !== 'plan') {
     cards.publish({
@@ -39,7 +37,7 @@ export async function z0Onboarding(
   }, async ({ signal }) => {
     if (signal.aborted || !current()) return
     try {
-      const result = reply.parse(await call('z0_onboard_apply'))
+      const result = await call('z0_onboard_apply')
       if (signal.aborted || !current()) return
       cards.publish({
         kind: 'receipt', app: 'glide',

@@ -98,6 +98,10 @@ const glideDetect = z.object({
   }),
   memory: glideMemory
 })
+const z0SetupReply = z.object({
+  status: z.string(), resident: z.optional(z.array(z.string())), on_demand: z.optional(z.array(z.string())),
+  steps: z.optional(z.record(z.string(), z.string()))
+})
 const glideRecall = z.object({ hits: z.array(z.object({ text: z.string(), score: z.number() })) })
 export type GlideMemory = z.infer<typeof glideMemory>
 export type GlideDetect = z.infer<typeof glideDetect>
@@ -195,7 +199,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       return
     }
     if (verb === 'onboard') {
-      await z0Onboarding(cards, call, () => host.session.ref === ref && host.session.ref.live === sid, fail)
+      await z0Onboarding(
+        cards, async method => z0SetupReply.parse(await call(method)),
+        () => host.session.ref === ref && host.session.ref.live === sid, fail
+      )
       return
     }
     if (verb === 'taste') {
