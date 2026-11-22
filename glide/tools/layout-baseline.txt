@@ -169,6 +169,7 @@ frontend/src/__tests__/agentTiles.test.ts
 frontend/src/__tests__/agentTree.test.ts
 frontend/src/__tests__/agentTreeOverlay.test.ts
 frontend/src/__tests__/architectureBoard.test.ts
+frontend/src/__tests__/armyJourneys.test.ts
 frontend/src/__tests__/artifactAttachments.test.ts
 frontend/src/__tests__/artifactClipboard.test.ts
 frontend/src/__tests__/artifactLinks.test.ts

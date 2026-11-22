@@ -24,6 +24,18 @@ node frontend/scripts/features-gate.mjs --strict --receipts /absolute/receipt-di
 
 Only `pass` for `git rev-parse HEAD` counts. Missing, failed, stale, malformed, or unknown-feature evidence cannot fill a missing pass. Inline `army` values do not authorize promotion. PR CI runs the non-strict check and does not claim these receipts exist.
 
+### Headless army run
+
+`glide/tools/army_journeys.py` produces those receipts for one clean commit, without a display, model or key:
+
+```sh
+python3 glide/tools/army_journeys.py --out /absolute/new-run-dir \
+  --host-python HERMES_TEST_CORE/.venv/bin/python \
+  --pytest "uv run --project HERMES_TEST_CORE --frozen --no-sync --with pytest --with pytest-asyncio python -m pytest"
+```
+
+It runs every suite the inventories name (root pytest, `glide/tests`, Vitest) in a private profile, then drives each journey: `frontend/src/__tests__/armyJourneys.test.ts` submits every typed entry to the real App on a fake Tern session advertising every terminal feature, with the gateway's plugin half answered by the real plugin (`glide/tools/army_host.py`); the runner calls each CLI subcommand, text command, gateway method, tool and hook the plugin registered, over seeded local history. A feature passes when each named test file ran green and each of its drive steps answered visibly. An allowed refusal is listed in the drive, never inferred. Features with no typed entry rest on their fixture suites (`mode: suite`). Native Tern pixels, microphones and real gateway authority are outside this run.
+
 ## install
 
 Install and send the first message. Install the plugin, launch it in Tern, and send a prompt. Restart the pane to check continuation, then try a slash completion.
