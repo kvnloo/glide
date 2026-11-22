@@ -12,6 +12,7 @@ dictation.py  # upstream: alt-glitch/hermes-tern PR 71
 docs/BUNDLE-ARTIFACT.md
 docs/DESIGN-LANGUAGE.md
 docs/MEDIA-DELIVERY.md
+docs/design/ROUND2-IDEAS.md
 docs/images/agent-tree/serve/collapsed.png
 docs/images/agent-tree/serve/expanded.png
 docs/images/agent-tree/serve/expansion.mp4
