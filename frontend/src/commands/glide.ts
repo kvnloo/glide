@@ -26,7 +26,7 @@ import type { CouncilHost } from '../../../glide/frontend/councilPopup.js'
 import { openLanesPopup } from '../../../glide/frontend/lanesPopup.js'
 
 /** `/glide lanes`: the voice lanes popup, the same call as the subagents card's open-lanes action. */
-export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFeed, 'call' | 'error'> | null | undefined }): void {
+export function glideLanes(host: CouncilHost & { readonly laneFeed?: Pick<LaneFeed, 'call' | 'error'> & Partial<Pick<LaneFeed, 'launch'>> | null | undefined }): void {
   openLanesPopup(host, host.laneFeed)
 }
 

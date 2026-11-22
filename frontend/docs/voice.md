@@ -71,3 +71,16 @@ test with a compatible Hermes gateway: permission failure, automatic
 speech/response, barge-in, mute/unmute, stop-during-start, session switch,
 transport death, existing draft and Tern native Send/undo.
 Headless tests cannot validate acoustic echo rejection or physical key-up.
+
+### Edit helper lanes during a call
+
+Open **Lanes** on the subagents card (or run `/glide lanes`). Add a lane by
+role, remove a lane, or select another model for a row. The popup shows only
+changes it can express through the broker's `POST /v1/lanes/launch`; it does
+not save private overrides. Confirmed rows come from the next broker status
+for the same call. Start a call before editing.
+
+Launch configures this call using the broker's default timing and routing
+policy. The broker requires at least one fast/small helper and a large driver;
+it cannot represent arbitrary model lists in more than one custom tier.
+Unsupported changes are not offered. This is not a global preset editor.
