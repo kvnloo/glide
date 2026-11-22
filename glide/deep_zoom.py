@@ -28,6 +28,10 @@ FORMATS = ("jpg", "jpeg", "png", "webp")
 SOURCE_EXTS = frozenset(".tif .tiff .jpg .jpeg .png .webp .jp2 .psb .svs .ndpi .scn .mrxs .vips .exr .hdr".split())
 DZI_MAX_BYTES = 64 << 10
 MAX_SIDE = 1 << 22  # 4 Mpx a side: 16 terapixels, far past any real pyramid.
+MAX_TILE = 4096
+MAX_OVERLAP = 64
+# Hex digits of the source's path, size and mtime hash that name its cached pyramid.
+CACHE_KEY_CHARS = 24
 DZSAVE_TIMEOUT_S = 3600
 NS = "{http://schemas.microsoft.com/deepzoom/2008}"
 
@@ -73,15 +77,16 @@ def read_dzi(path: Path) -> dict[str, Any]:
         raise DziError(f"{path.name} is not a Deep Zoom Image descriptor")
     size = root.find(f"{NS}Size")
     size = size if size is not None else root.find("Size")
+    numbers = (root.get("TileSize", ""), root.get("Overlap", "0"),
+               *((size.get("Width", ""), size.get("Height", "")) if size is not None else ("", "")))
     try:
-        tile, overlap = int(root.get("TileSize", "")), int(root.get("Overlap", "0"))
-        width, height = int(size.get("Width", "")), int(size.get("Height", ""))  # type: ignore[union-attr]
-    except (AttributeError, ValueError) as exc:
+        tile, overlap, width, height = (int(n) for n in numbers)
+    except ValueError as exc:
         raise DziError(f"{path.name}: TileSize, Width and Height must be integers") from exc
     fmt = (root.get("Format") or "").lower()
     if fmt not in FORMATS:
         raise DziError(f"{path.name}: tile format {fmt or '(none)'} is not one of {', '.join(FORMATS)}")
-    if not (1 <= tile <= 4096 and 0 <= overlap <= 64 and 1 <= width <= MAX_SIDE and 1 <= height <= MAX_SIDE):
+    if not (1 <= tile <= MAX_TILE and 0 <= overlap <= MAX_OVERLAP and 1 <= width <= MAX_SIDE and 1 <= height <= MAX_SIDE):
         raise DziError(f"{path.name}: sizes out of range")
     tiles = path.with_name(path.stem + "_files")
     if not tiles.is_dir():
@@ -98,7 +103,7 @@ def cache_dir(home: Path) -> Path:
 def tile_image(home: Path, source: Path) -> Path:
     """The cached pyramid of ``source`` (cut with ``vips dzsave`` the first time); DziError without libvips."""
     stat = source.stat()
-    key = hashlib.sha256(f"{source}\0{stat.st_size}\0{stat.st_mtime_ns}".encode()).hexdigest()[:24]
+    key = hashlib.sha256(f"{source}\0{stat.st_size}\0{stat.st_mtime_ns}".encode()).hexdigest()[:CACHE_KEY_CHARS]
     out = cache_dir(home) / key
     dzi = out / "image.dzi"
     if dzi.is_file():

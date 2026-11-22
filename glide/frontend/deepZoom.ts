@@ -16,7 +16,7 @@ const TILE_LIMIT = 16 * 2 ** 20
 const VIEWER_LIMIT = 4 * 2 ** 20
 const MAX_SIDE = 2 ** 22
 
-export interface Dzi {
+interface Dzi {
   readonly width: number
   readonly height: number
   readonly tileSize: number
@@ -46,22 +46,16 @@ export function parseDzi(xml: string): Dzi {
   return { width, height, tileSize, overlap, format, maxLevel: Math.ceil(Math.log2(Math.max(width, height))) }
 }
 
-/** Level `level`'s size in pixels and in tiles. */
-export function levelGrid(d: Dzi, level: number) {
-  const scale = 2 ** (d.maxLevel - level)
-  const width = Math.ceil(d.width / scale)
-  const height = Math.ceil(d.height / scale)
-  return { width, height, cols: Math.ceil(width / d.tileSize), rows: Math.ceil(height / d.tileSize) }
-}
-
-/** The tile a request path names, when it is inside the pyramid. */
+/** The tile a request path names, when it is inside its level's grid. Level 0 is 1×1 px; each next one doubles. */
 export function tileOf(d: Dzi, path: string): { level: number; col: number; row: number } | undefined {
   const m = /^image_files\/(\d{1,2})\/(\d{1,7})_(\d{1,7})\.([a-z]+)$/.exec(path)
   if (!m || m[4] !== d.format) return undefined
   const [level, col, row] = [Number(m[1]), Number(m[2]), Number(m[3])]
   if (level > d.maxLevel) return undefined
-  const g = levelGrid(d, level)
-  return col < g.cols && row < g.rows ? { level, col, row } : undefined
+  const scale = 2 ** (d.maxLevel - level)
+  const cols = Math.ceil(Math.ceil(d.width / scale) / d.tileSize)
+  const rows = Math.ceil(Math.ceil(d.height / scale) / d.tileSize)
+  return col < cols && row < rows ? { level, col, row } : undefined
 }
 
 export interface DeepZoomOrigin extends PageOrigin {
@@ -104,8 +98,9 @@ export async function deepZoomOrigin(dziPath: string, viewer: string): Promise<D
       job = file.startsWith(tiles + sep) ? send(file, TILE_MIME[dzi.format] ?? 'application/octet-stream', TILE_LIMIT) : undefined
     }
     if (!job) return refuse()
-    job.catch(() => {
-      if (res.headersSent) res.destroy()
+    job.catch((error: unknown) => {
+      // A tile that vanished or moved mid-request: cut a started response, else answer 404.
+      if (res.headersSent) res.destroy(error instanceof Error ? error : undefined)
       else refuse()
     })
   })

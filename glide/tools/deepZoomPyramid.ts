@@ -21,8 +21,8 @@ export interface Pyramid {
 
 const HUES = 24
 /** RGB of the synthetic image at full-resolution pixel (x, y). */
-export function pixel(x: number, y: number): [number, number, number] {
-  return colour(xCode(x), xCode(y))
+export function pixel(left: number, top: number): [number, number, number] {
+  return colour(xCode(left), xCode(top))
 }
 const xCode = (v: number) => ((v >> 12) << 2) | (((v >> 8) & 1) << 1) | ((v >> 5) & 1)
 function colour(cx: number, cy: number): [number, number, number] {
@@ -32,13 +32,13 @@ function colour(cx: number, cy: number): [number, number, number] {
   return [ch(0), ch(1 / 3), ch(2 / 3)]
 }
 
-function chunk(type: string, data: Buffer) {
+function chunk(type: string, body: Buffer) {
   const head = Buffer.alloc(8)
-  head.writeUInt32BE(data.length, 0)
+  head.writeUInt32BE(body.length, 0)
   head.write(type, 4, 'latin1')
   const crc = Buffer.alloc(4)
-  crc.writeUInt32BE(crc32(Buffer.concat([head.subarray(4), data])) >>> 0, 0)
-  return Buffer.concat([head, data, crc])
+  crc.writeUInt32BE(crc32(Buffer.concat([head.subarray(4), body])) >>> 0, 0)
+  return Buffer.concat([head, body, crc])
 }
 
 function png(width: number, height: number, xs: Int32Array, ys: Int32Array) {
@@ -79,11 +79,11 @@ export function writePyramid(dir: string, width = 40000, height = 30000, tileSiz
         const h = Math.min(tileSize, lh - row * tileSize)
         const ys = Int32Array.from({ length: h }, (_, j) => xCode(Math.min(height - 1, (row * tileSize + j) * k)))
         const sig = `${w}x${h}:${Buffer.from(xs.buffer).toString('base64')}:${Buffer.from(ys.buffer).toString('base64')}`
-        let data = encoded.get(sig)
-        if (!data) encoded.set(sig, data = png(w, h, xs, ys))
-        writeFileSync(join(files, String(level), `${col}_${row}.png`), data)
+        let tilePng = encoded.get(sig)
+        if (!tilePng) encoded.set(sig, tilePng = png(w, h, xs, ys))
+        writeFileSync(join(files, String(level), `${col}_${row}.png`), tilePng)
         count++
-        bytes += data.length
+        bytes += tilePng.length
       }
     }
   }
@@ -94,9 +94,6 @@ export function writePyramid(dir: string, width = 40000, height = 30000, tileSiz
 
 if (process.argv[1]?.endsWith('deepZoomPyramid.ts')) {
   const [out, w, h] = process.argv.slice(2)
-  if (!out) {
-    console.error('usage: bun glide/tools/deepZoomPyramid.ts <out-dir> [width height]')
-    process.exit(2)
-  }
-  console.log(JSON.stringify(writePyramid(out, w ? Number(w) : undefined, h ? Number(h) : undefined)))
+  if (!out) throw new Error('usage: bun glide/tools/deepZoomPyramid.ts <out-dir> [width height]')
+  process.stdout.write(JSON.stringify(writePyramid(out, w ? Number(w) : undefined, h ? Number(h) : undefined)) + '\n')
 }

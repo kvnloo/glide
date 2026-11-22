@@ -21,18 +21,15 @@ import { parseJson, record } from '../wire/json.js'
 const VIEWER = fileURLToPath(new URL('../../../glide/deepzoom/viewer.html', import.meta.url))
 
 const CHROMES = ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser', 'chrome-headless-shell']
-function findChrome(): string | undefined {
-  if (process.env['CHROME']) return process.env['CHROME']
-  for (const name of CHROMES) {
-    try {
-      return execFileSync('which', [name], { encoding: 'utf8' }).trim() || undefined
-    } catch {
-      // not on PATH
-    }
+let chrome = process.env['CHROME'] || undefined
+for (const name of CHROMES) {
+  if (chrome) break
+  try {
+    chrome = execFileSync('which', [name], { encoding: 'utf8' }).trim() || undefined
+  } catch {
+    // not on PATH: try the next name
   }
-  return undefined
 }
-const chrome = findChrome()
 
 /** What the viewer reports (glide/deepzoom/viewer.html, window.deepZoom.stats). */
 const statsShape = z.object({
@@ -121,7 +118,7 @@ describe.skipIf(!chrome)('deep zoom journey in headless Chrome', () => {
     pyramid = writePyramid(join(dir, 'pyramid'), 40000, 30000)
     origin = await deepZoomOrigin(pyramid.dzi, VIEWER)
     const profile = join(dir, 'profile')
-    if (!chrome) throw new Error('no Chrome')
+    if (!chrome) throw new Error('the deep zoom journey needs Chrome: set CHROME=<binary> or put one on PATH')
     proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run', '--hide-scrollbars',
       '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--window-size=1280,800', 'about:blank'], { stdio: 'ignore' })
     let port: string | undefined

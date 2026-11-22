@@ -11,7 +11,6 @@ import time
 
 import pytest
 
-import glide_plugin.core  # noqa: F401  (plugin.core)
 from glide_plugin import core, deep_zoom, ui
 
 GIGA = (40000, 30000)

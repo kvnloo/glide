@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { deepZoomOrigin, levelGrid, parseDzi, tileOf, type DeepZoomOrigin } from '../../../glide/frontend/deepZoom.js'
+import { deepZoomOrigin, parseDzi, tileOf, type DeepZoomOrigin } from '../../../glide/frontend/deepZoom.js'
 import { pixel, writePyramid, type Pyramid } from '../../../glide/tools/deepZoomPyramid.js'
 
 import type { Browser } from '../gev/globe.js'
@@ -35,9 +35,11 @@ function get(url: string, opts: { method?: string; host?: string } = {}) {
 describe('parseDzi and the pyramid grid', () => {
   it('reads a 1.2 gigapixel descriptor and its 17 levels', () => {
     expect(GIGA).toEqual({ width: 40000, height: 30000, tileSize: 510, overlap: 1, format: 'jpg', maxLevel: 16 })
-    expect(levelGrid(GIGA, 16)).toEqual({ width: 40000, height: 30000, cols: 79, rows: 59 })
-    expect(levelGrid(GIGA, 8)).toEqual({ width: 157, height: 118, cols: 1, rows: 1 })
-    expect(levelGrid(GIGA, 0)).toEqual({ width: 1, height: 1, cols: 1, rows: 1 })
+    // Level 16 is 79×59 tiles, level 9 (313×235 px) 1×1, level 0 a single pixel.
+    expect(tileOf(GIGA, 'image_files/9/0_0.jpg')).toEqual({ level: 9, col: 0, row: 0 })
+    expect(tileOf(GIGA, 'image_files/10/1_0.jpg')).toEqual({ level: 10, col: 1, row: 0 })
+    expect(tileOf(GIGA, 'image_files/9/1_0.jpg')).toBeUndefined()
+    expect(tileOf(GIGA, 'image_files/0/0_0.jpg')).toEqual({ level: 0, col: 0, row: 0 })
   })
 
   it('refuses what is not a sane pyramid', () => {
