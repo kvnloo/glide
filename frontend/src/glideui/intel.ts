@@ -40,7 +40,8 @@ export function intelGlide(doc: IntelDoc, tab: IntelTab): GlideDoc {
     })
     slots['hill.best'] = slot('Hero', { value: num(now), label: intelReadableTitle(lead.label, 'Hill climb'), detail: `${signed(gain(lead))} since first score`, tone: gain(lead) >= 0 ? 'accent' : 'warning' })
   } else {
-    slots['hill.trend'] = slot('Text', { body: 'No scored iterations yet.', tone: 'muted' })
+    // The hill program binds a Spark here: an empty series keeps that bind valid on a fresh profile.
+    slots['hill.trend'] = slot('Spark', { points: [], summary: 'No scored iterations yet.' })
     slots['hill.best'] = slot('Hero', { value: '—', label: 'No climbs' })
   }
   slots['hill.climbs'] = slot('List', {

@@ -10,7 +10,7 @@ import type { EuiKitIntent, EuiNativeCard, EuiNativeHandle } from '../eui/host.j
 import { type Browser, paneBlock, ternBrowser } from '../gev/globe.js'
 import type { UiNode } from '../glideui/library.js'
 import type { Transcript } from '../transcript/store.js'
-import { editorUrl, type FilmBridge, filmBridge, filmLibrary, filmProject, filmId, filmTakes, type FilmTake, takeUrl } from '../wire/fframestudio.js'
+import { editorUrl, type FilmBridge, filmBridge, filmLibrary, filmProject, filmProjectPath, filmTakes, type FilmTake, takeUrl } from '../wire/fframestudio.js'
 import { record } from '../wire/json.js'
 
 export interface FilmHost {
@@ -48,7 +48,8 @@ export async function filmCommand(host: FilmHost, arg: string, d: FilmDeps = {})
     host.transcript.panel('/film <project>', lib ? lib.projects.map(p => `${p.id.padEnd(30)} ${p.title}`).join('\n') : 'The fframestudio library is empty.')
     return
   }
-  const p = filmId(id) ? filmProject(await read(join(b.root, 'projects', id, 'project.json')).catch((error: unknown) => {
+  const path = filmProjectPath(b.root, id)
+  const p = path ? filmProject(await read(path).catch((error: unknown) => {
     if (record(error)?.['code'] !== 'ENOENT') host.transcript.notice('/film could not read the project file', 'warning')
     return ''
   })) : undefined
@@ -92,7 +93,7 @@ export async function filmCommand(host: FilmHost, arg: string, d: FilmDeps = {})
   const intent = async (detail: unknown) => {
     const action = record(detail)?.['action']
     const take = takes[0]
-    const url = action === 'open' ? editorUrl(b, id) : action === 'play-take' && take && filmId(take.id) ? takeUrl(b, id, take.id) : undefined
+    const url = action === 'open' ? editorUrl(b, id) : action === 'play-take' && take ? takeUrl(b, id, take.id) : undefined
     if (url) await open(url).catch(e => host.transcript.notice(`fframestudio: ${e instanceof Error ? e.message : String(e)}`, 'warning'))
   }
   handle = eui.host.publishNative(card(false), intent)

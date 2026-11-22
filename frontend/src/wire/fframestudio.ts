@@ -1,10 +1,15 @@
 // fframestudio's own files, decoded at the boundary: the bridge writes `~/.config/fframestudio/bridge.json`
 // ({url, token, root}) when it starts, and every imported film is `<root>/projects/<id>/project.json`.
+import { join } from 'node:path'
+
 import * as z from 'zod/mini'
 
 import { parseJson } from './json.js'
 
-export const filmId = (id: string): boolean => /^[\w.-]+$/.test(id) && id !== '.' && id !== '..'
+const filmId = (id: string): boolean => /^[\w.-]+$/.test(id) && id !== '.' && id !== '..'
+export const filmProjectPath = (root: string, id: string): string | undefined =>
+  filmId(id) ? join(root, 'projects', id, 'project.json') : undefined
+
 const bridge = z.object({ url: z.string().check(z.regex(/^http:\/\/127\.0\.0\.1:\d+$/)), token: z.string().check(z.regex(/^[\w.-]+$/)), root: z.string() })
 const shot = z.object({ id: z.string(), name: z.string(), t0: z.number(), t1: z.number() })
 const project = z.object({
@@ -40,7 +45,8 @@ export function filmProject(text: string): FilmProject | undefined {
 export const filmTakes = (text: string) => decode(takes, text)?.takes.filter(take => filmId(take.id))
 export type FilmTake = NonNullable<ReturnType<typeof filmTakes>>[number]
 
-export function takeUrl(b: FilmBridge, projectId: string, takeId: string): string {
+export function takeUrl(b: FilmBridge, projectId: string, takeId: string): string | undefined {
+  if (!filmId(projectId) || !filmId(takeId)) return undefined
   // Build the route ourselves; never navigate to an arbitrary URL from a receipt.
   const to = `lib/${encodeURIComponent(projectId)}/renders/${encodeURIComponent(takeId)}.mp4`
   return `${b.url}/open?token=${encodeURIComponent(b.token)}&to=${encodeURIComponent(to)}`

@@ -2,7 +2,8 @@ import type { Session, Surface } from '@stencil-hq/tern'
 import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { OrbActivity, ThinkingOrb } from '../chrome/orb.js'
+import { DASH } from '../../../glide/frontend/tokens.js'
+import { OrbActivity, orbSvg, ThinkingOrb } from '../chrome/orb.js'
 
 import { stub } from './fakes.js'
 
@@ -132,6 +133,39 @@ describe('orb animation boundaries', () => {
     }
   })
 
+  it('advances twice as far per tick in Turbo and still honors reduced motion', () => {
+    vi.useFakeTimers()
+    const send = vi.fn<Surface['send']>()
+    const orb = new ThinkingOrb(
+      stub<Session>({ blob: (bytes: Uint8Array) => Buffer.from(bytes).toString(), caps: { dark: true } }),
+      stub<Surface>({ send, blocked: false, closed: false })
+    )
+
+    try {
+      orb.update('composing')
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 1 / 15, true))
+
+      orb.update('composing', false, true)
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 3 / 15, true))
+      expect(send).toHaveBeenCalledTimes(2)
+
+      orb.update('composing')
+      vi.advanceTimersByTime(67)
+      expect(orb.props().blob).toBe(orbSvg('composing', 4 / 15, true))
+
+      orb.environment({ reduce: true })
+      orb.update('composing', false, true)
+      vi.advanceTimersByTime(1000)
+      expect(orb.props().blob).toBe(orbSvg('composing', 0, true))
+      expect(send).toHaveBeenCalledTimes(3)
+    } finally {
+      orb.close()
+      vi.useRealTimers()
+    }
+  })
+
   it('reuses a bounded image cycle rather than growing the blob cache indefinitely', () => {
     vi.useFakeTimers()
     const send = vi.fn<Surface['send']>()
@@ -216,15 +250,15 @@ describe('orb drawing', () => {
   })
 
   it('gives the three still states three different looks: idle ring, waiting ring with a gold rim, error ring in red', async () => {
-    const { LIBRARY_STATE, ORB_ERROR_INK, ORB_WAIT_RIM, orbSvg } = await import('../chrome/orb.js')
+    const { LIBRARY_STATE, ORB_ERROR_INK, orbSvg } = await import('../chrome/orb.js')
     // aodl-views' thinking table: waiting-approval is breathing with a gold rim (gold = the thing to act on).
     expect(LIBRARY_STATE.waiting).toBe('breathing')
     const [idle, waiting, error] = (['idle', 'waiting', 'error'] as const).map(s => orbSvg(s, 0, true))
     expect(new Set([idle, waiting, error]).size).toBe(3)
     expect(waiting).toBe(orbSvg('waiting', 5, true)) // still: it waits on the user, it does not work
-    expect(waiting).toContain(ORB_WAIT_RIM.dark)
-    expect(orbSvg('waiting', 0, false)).toContain(ORB_WAIT_RIM.light)
-    expect(idle).not.toContain(ORB_WAIT_RIM.dark)
+    expect(waiting).toContain(DASH.gold)
+    expect(orbSvg('waiting', 0, false)).toContain('#8a6a2f')
+    expect(idle).not.toContain(DASH.gold)
     expect(error).toContain(ORB_ERROR_INK.dark)
     expect(idle).not.toContain(ORB_ERROR_INK.dark)
     expect(orbSvg('error', 0, false)).toContain(ORB_ERROR_INK.light)

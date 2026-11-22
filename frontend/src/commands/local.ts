@@ -33,7 +33,7 @@ import { answerText } from '../transcript/turns.js'
 import { HOLD_UNAVAILABLE } from '../voice/hold.js'
 import { rpc } from '../wire/rpc.js'
 import { councilCommand } from '../../../glide/frontend/councilPopup.js'
-import { isTemplateId, isTemplatePanel, TEMPLATES } from '../../../glide/frontend/templates.js'
+import { isTemplateId, TEMPLATES } from '../../../glide/frontend/templates.js'
 
 import { CONTROL_COMMANDS } from './control.js'
 import { factoryCommand } from './factory.js'
@@ -269,7 +269,10 @@ const COMMANDS: readonly LocalCommand[] = [
         return host.transcript.notice(`Template: ${t.label}. ${TEMPLATE_USAGE.replace('Usage: ', '')}`)
       }
       try {
-        if (verb === 'panel' && isTemplatePanel(name)) return host.transcript.notice(await host.templates.panel(name), 'success')
+        if (verb === 'panel') {
+          const opened = await host.templates.panel(name)
+          if (opened !== undefined) return host.transcript.notice(opened, 'success')
+        }
         if (isTemplateId(verb)) return host.transcript.notice(await host.templates.use(verb), 'success')
       } catch (error) {
         return host.transcript.notice(`Template not applied: ${error instanceof Error ? error.message : String(error)}`, 'error')

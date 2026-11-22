@@ -2,6 +2,10 @@
 
 This ports `kvnloo/trafficiq`'s `feat/e2e-tester-army:e2e/army` template. W4 uses `e2e explore`; W5 adds deterministic Playwright sweeps. Each lane owns one disposable Boat sandbox. Neither incomplete coverage nor an unreviewed screenshot is a certified PASS.
 
+## Headless journey run (every features.json journey)
+
+`python3 glide/tools/army_journeys.py --out DIR` runs every journey in `frontend/e2e/JOURNEYS.md` on one clean commit, with no Boat, display, model or key: the named suites, the frontend journey drive (`frontend/src/__tests__/armyJourneys.test.ts`, the real App on a fake Tern session with the real plugin behind its gateway) and the plugin drive (`glide/tools/army_host.py`). It writes one receipt per feature to `DIR/receipts/` and runs `features-gate.mjs --strict` against them. See JOURNEYS.md for the command and what a pass means. It does not certify native Tern pixels; the Boat lanes below still own that.
+
 ## Deterministic sweeps (W5)
 
 From this directory, without a provider key:

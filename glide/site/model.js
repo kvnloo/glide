@@ -3,7 +3,7 @@
 // clock: the page passes time in through tick(). Everything it shows is synthetic sample data.
 
 /** The corrections glide/demo/seed.py's six synthetic sessions yield (its cron session is skipped). */
-export const CORRECTIONS = [
+const CORRECTIONS = [
   { id: 'c1', session: 'cli', text: 'no, use pnpm for the frontend, never npm. The lockfile is pnpm-lock.yaml.' },
   { id: 'c2', session: 'tui', text: 'Correction: never push to main. Open a PR and wait for CI to pass.' },
   { id: 'c3', session: 'cli', text: 'actually, our SQL files use two spaces, not tabs.' },
@@ -16,7 +16,7 @@ const SESSIONS_READ = 6
 const MACHINE = [['CPU', '8 cores'], ['RAM', '16 GB'], ['GPU', 'none'], ['Ollama', '1 model']]
 
 /** Asks an agent raises during a deep-work block: non-critical ones are held, critical ones pass. */
-export const ASKS = [
+const ASKS = [
   { at: 4, text: 'Lint finished with 2 warnings. Review now?', critical: false },
   { at: 11, text: 'PR #41 has a new review comment.', critical: false },
   { at: 19, text: 'Disk is 97% full on the build host.', critical: true },

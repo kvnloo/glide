@@ -27,7 +27,7 @@ const TIERS: Record<FastWord, string> = { fast: 'priority', normal: '', ultrafas
 /** The gateway's word for a tier, `normal` for anything else. */
 export const fastWord = (value: unknown): FastWord => (value === 'fast' || value === 'ultrafast' ? value : 'normal')
 
-/** The dock's bolt: the tier the session runs on, when it is a fast one. */
+/** The session’s active fast tier. Glide presents ultrafast as Turbo. */
 export function fastTier(info: SessionLiveInfo | null | undefined): 'fast' | 'ultrafast' | undefined {
   return info?.fast ? (info.service_tier === 'ultrafast' ? 'ultrafast' : 'fast') : undefined
 }

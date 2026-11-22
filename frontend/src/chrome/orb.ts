@@ -175,6 +175,7 @@ export class ThinkingOrb {
   #reduce: boolean
   #visible = true
   #paused = false
+  #step = 1
   #closed = false
   #timer: NodeJS.Timeout | undefined
   readonly #scene: OrbScene | undefined
@@ -193,7 +194,7 @@ export class ThinkingOrb {
     this.#reduce = Boolean(tern.caps.reduceMotion)
   }
 
-  update(state: OrbState, paused = false) {
+  update(state: OrbState, paused = false, turbo = false) {
     if (this.#closed) {
       return
     }
@@ -207,6 +208,8 @@ export class ThinkingOrb {
     }
 
     this.#paused = paused
+    // Advance the existing frame clock twice as fast without sending extra operations.
+    this.#step = turbo ? 2 : 1
     this.#sync()
   }
 
@@ -263,7 +266,7 @@ export class ThinkingOrb {
           return
         }
 
-        this.#frame = (this.#frame + 1) % Math.round(CYCLE_S * this.#fps)
+        this.#frame = (this.#frame + this.#step) % Math.round(CYCLE_S * this.#fps)
         this.#surface.send([['set', this.#node, { blob: this.#blob() }]])
       }, 1000 / this.#fps)
       this.#timer.unref()
@@ -299,7 +302,7 @@ export const LIBRARY_STATE: Readonly<Record<OrbState, LibraryState>> = {
 }
 
 /** The waiting rim's ink: the theme's gold on dark glass, a deeper gold on paper. Gold marks what the user acts on. */
-export const ORB_WAIT_RIM = { dark: DASH.gold, light: '#8a6a2f' } as const
+const ORB_WAIT_RIM = { dark: DASH.gold, light: '#8a6a2f' } as const
 
 /** The error ring's ink: the theme's danger hue on dark glass, a deeper red on paper. */
 export const ORB_ERROR_INK = { dark: '#ee888b', light: '#b3383c' } as const

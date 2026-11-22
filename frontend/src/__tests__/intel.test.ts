@@ -267,6 +267,20 @@ describe('intel command and host-owned actions', () => {
     expect(f.panel).not.toHaveBeenCalled()
   })
 
+  it('draws the hill tab on a fresh profile with no scored climbs, instead of failing the program bind', async () => {
+    const f = setup()
+    const fresh = document()
+    fresh.data.climbs = []
+    f.request.mockResolvedValue(dispatch(fresh))
+    const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session: f.session, transcript: f.transcript }, () => true))
+    closures.push(() => eui.close())
+    await intelCommand({ ...f.host, eui }, 'hill')
+    expect(f.transcript.entries.filter(e => e.kind === 'notice')).toEqual([])
+    const view = must(eui.hostView(ofKind(f.transcript.entries.find(e => e.kind === 'panel'), 'panel')))
+    const tree = JSON.stringify(euiCardNode('main.intel.host', view, eui))
+    for (const text of ['glide.spark', 'No scored iterations yet.', 'No climbs']) expect(tree).toContain(text)
+  })
+
   it('draws the bound program with native Tern kinds through the real card registry, never the kit sandbox', async () => {
     const f = setup()
     const eui = new EuiCards(vi.fn(), undefined, euiHostPort({ session: f.session, transcript: f.transcript }, () => true))

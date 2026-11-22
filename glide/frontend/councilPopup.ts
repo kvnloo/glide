@@ -3,6 +3,7 @@
 // card in the transcript. With GLIDE_COUNCIL_URL set it reads that endpoint's run; otherwise, or when
 // the endpoint fails, it shows the synthetic demo run under a visible "demo" tag. It never draws a
 // live verdict it did not read. The frame clock runs only while a run plays.
+import { orbSvg } from '../../frontend/src/chrome/orb.js'
 import type { EuiApprovalContext, EuiHostCards } from '../../frontend/src/eui/host.js'
 import type { EuiNode } from '../../frontend/src/eui/sandbox.js'
 import { nativeOverlayKey } from '../../frontend/src/overlays/identity.js'
@@ -13,11 +14,23 @@ import { euiPopupNode, type EuiRender } from '../../frontend/src/view/euiCard.js
 import {
   closedSeats, type CouncilRun, demoRun, type Frame, instrumentSvg, MINERAL, narration, parseCouncilRun, swatchSvg
 } from './council.js'
-import { councilOrbSvg, deliverySvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
+import { deliverySvg, exchangeAt, exchangeTiming, reportClauses } from './councilExchange.js'
 import { type CouncilSpeech, type SpeechAudio, platformSpeech, speechSentences } from './councilSpeech.js'
-import { GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'
+import { DASH, GOLD, MONO, NIGHT, SERIF, TRACK, TYPE } from './tokens.js'
 
 export const COUNCIL_URL_ENV = 'GLIDE_COUNCIL_URL'
+/** The shared thinking-orbs engine, tinted with literal inks for Tern SVG images. */
+function councilOrbSvg(seconds: number, amplitude: number, reduce: boolean, ink: string = DASH.gold): string {
+  const level = Math.max(0, Math.min(1, amplitude))
+  const source = orbSvg('speaking', reduce ? .6 : seconds, true)
+  const scale = reduce ? 1 : .9 + level * .14
+  const hue = reduce ? ink : `#${[1, 3, 5].map(at => Math.round(parseInt(ink.slice(at, at + 2), 16) * (1 - level * .25) + 255 * level * .25).toString(16).padStart(2, '0')).join('')}`
+  return source.replace(/width="68" height="68"/, 'width="320" height="320"')
+    .replace(/#[0-9a-f]{6}/gi, hue)
+    .replace('viewBox="0 0 64 64">', `viewBox="0 0 64 64"><g transform="translate(32 32) scale(${scale.toFixed(3)}) translate(-32 -32)">`)
+    .replace('</svg>', '</g></svg>')
+}
+
 const APP = 'glide'
 const TICK_MS = 110
 export const CONVENE_ID = 1

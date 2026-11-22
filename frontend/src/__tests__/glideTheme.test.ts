@@ -5,11 +5,13 @@ import type { Palette } from '@stencil-hq/tern'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { Theme } from '../chrome/theme.js'
-import { glideTheme } from '../commands/glide.js'
+import { glideCommand, type GlideHost } from '../commands/glide.js'
 import { contrastRatio } from '../hermes/theme.js'
 import { parseJson, record } from '../wire/json.js'
 import { PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/glass.js'
 import { pickAccent, TEXT_FLOOR, WAL_SHEET, walCss, walPalette, type WalColors } from '../../../glide/frontend/wal.js'
+
+import { stub } from './fakes.js'
 
 // The auto theme (pywal): synthetic colors.json fixtures in a temp dir only, never the real ~/.cache/wal.
 afterEach(() => { vi.unstubAllEnvs(); vi.clearAllMocks() })
@@ -177,33 +179,33 @@ describe('/glide theme', () => {
     vi.stubEnv('GLIDE_THEME_EXPORT', out)
     const setTheme = vi.fn()
     const notice = vi.fn()
-    const h = { setTheme, transcript: { notice } }
-    glideTheme(h, 'auto')
+    const h = stub<GlideHost>({ setTheme, transcript: { notice } })
+    await glideCommand(h, 'theme auto')
     // Plain words, never the colors file's path.
     expect(notice.mock.calls[0]).toEqual(['Glide theme now follows your wallpaper colours'])
     // An older build printed the colors.json path here (the film caught it): no path, ever.
     expect(JSON.stringify(notice.mock.calls)).not.toMatch(/\/home\/|\.cache|colors\.json/)
     expect(String(notice.mock.calls[0]?.[0])).not.toContain(file)
-    glideTheme(h, 'default')
+    await glideCommand(h, 'theme default')
     expect(setTheme.mock.calls).toEqual([['auto'], ['tern']])
-    glideTheme(h, 'export')
+    await glideCommand(h, 'theme export')
     expect(record(parseJson(await readFile(out, 'utf8')))).toMatchObject({ accent: '#ff8719', bg: '#0f1420' })
     // The export says so in plain words: no path (the home folder would show on screen), no JSON dump.
     expect(notice.mock.calls.at(-1)).toEqual(['Glide palette exported. Other tools can now wear your wallpaper colours too.'])
     for (const [said] of notice.mock.calls) {
       for (const leak of ['/home/', '.cache', dir, file, out]) expect(String(said)).not.toContain(leak)
     }
-    glideTheme(h, 'nope')
+    await glideCommand(h, 'theme nope')
     expect(notice.mock.calls.at(-1)?.[1]).toBe('warning')
   })
 
-  it('wears a whole theme by name and lists them in its usage', () => {
+  it('wears a whole theme by name and lists them in its usage', async () => {
     const setTheme = vi.fn()
     const notice = vi.fn()
-    glideTheme({ setTheme, transcript: { notice } }, 'warm-dark')
+    await glideCommand(stub<GlideHost>({ setTheme, transcript: { notice } }), 'theme warm-dark')
     expect(setTheme.mock.calls).toEqual([['warm-dark']])
     expect(notice.mock.calls[0]).toEqual(['Glide theme now wears Warm dark'])
-    glideTheme({ setTheme, transcript: { notice } }, 'neon')
+    await glideCommand(stub<GlideHost>({ setTheme, transcript: { notice } }), 'theme neon')
     expect(notice.mock.calls.at(-1)).toEqual(['Usage: /glide theme auto|dash|light|dark-code|sepia|warm-dark|day|night|default|export', 'warning'])
   })
 })

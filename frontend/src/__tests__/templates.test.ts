@@ -18,7 +18,7 @@ import { paletteRows } from '../shortcuts/palette.js'
 import { readSettings, readUi } from '../wire/files.js'
 import { parseJson } from '../wire/json.js'
 import {
-  analyticsData, monoPalette, pageWithData, studioPalette, TEMPLATES, Templates, transcriptCss, writeTemplatePages
+  analyticsData, monoPalette, studioPalette, TEMPLATES, Templates, transcriptCss
 } from '../../../glide/frontend/templates.js'
 import { minifyCss } from '../../../glide/frontend/css.js'
 import { MONO } from '../../../glide/frontend/tokens.js'
@@ -35,7 +35,7 @@ const turn = (id: string, over: Partial<TurnEntry>): TurnEntry => stub<TurnEntry
 })
 const tool = (name: string) => stub<TurnEntry['blocks'][number]>({ kind: 'tool', id: name, call: { name } })
 
-function host(file: string, entries: readonly Entry[] = []) {
+function host(file: string, entries: readonly Entry[] = [], cwd = '/work/repo') {
   const themes: ThemeMode[] = []
   const closed: string[] = []
   const reload = vi.fn()
@@ -48,7 +48,7 @@ function host(file: string, entries: readonly Entry[] = []) {
     reload,
     changed,
     entries: () => entries,
-    cwd: () => '/work/repo',
+    cwd: () => cwd,
     commits: async () => [Date.UTC(2026, 10, 20, 12) / 1000, Date.UTC(2026, 10, 20, 13) / 1000],
     now: () => Date.UTC(2026, 10, 22, 12)
   })
@@ -140,16 +140,21 @@ describe('Templates.use', () => {
     expect(h.closed).toEqual([])
   })
 
-  it('a page written with data cannot close its own script', () => {
-    expect(pageWithData('<script type="application/json" id="glide-data">{}</script>', { cwd: '</script><b>' }))
-      .toBe('<script type="application/json" id="glide-data">{"cwd":"\\u003c/script>\\u003cb>"}</script>')
+  it('a page written with data cannot close its own script', async () => {
+    const dir = tmp()
+    const { t } = host(join(dir, 'settings.json'), [], '</script><b>')
+    await t.panel('analytics')
+    const html = readFileSync(join(dir, 'pages', 'analytics.html'), 'utf8')
+    const data = /id="glide-data">([^<]*)</.exec(html)?.[1] ?? ''
+    expect(data).toContain('\\u003c/script>\\u003cb>')
+    expect(parseJson(data)).toMatchObject({ cwd: '</script><b>' })
   })
 
-  it('writing template pages keeps every other settings key and the agent\'s pages', () => {
+  it('writing template pages keeps every unrelated settings key and the agent\'s pages', async () => {
     const file = join(tmp(), 'settings.json')
     writeFileSync(file, JSON.stringify({ theme: 'nous', ui: { rev: 1, widgets: [{ id: 'w' }], style: { warmth: 0.5 }, pages: [{ id: 'template-analytics' }, { id: 'piano' }] } }))
-    writeTemplatePages(file, [])
-    expect(parseJson(readFileSync(file, 'utf8'))).toEqual({ theme: 'nous', ui: { rev: 2, widgets: [{ id: 'w' }], style: { warmth: 0.5 }, pages: [{ id: 'piano' }] } })
+    await host(file).t.use('default')
+    expect(parseJson(readFileSync(file, 'utf8'))).toEqual({ theme: 'nous', template: 'default', transcript: 'standard', ui: { rev: 2, widgets: [{ id: 'w' }], style: { warmth: 0.5 }, pages: [{ id: 'piano' }] } })
   })
 })
 

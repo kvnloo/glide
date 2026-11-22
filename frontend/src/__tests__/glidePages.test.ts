@@ -12,7 +12,8 @@ import { describe, expect, it } from 'vitest'
 import { pageOrigin } from '../../../glide/frontend/pageAssets.js'
 
 import type { Browser } from '../gev/globe.js'
-import { GlidePages, pageThemeOf, pageUrl, type PageTheme, themeFunction } from '../glideui/pages.js'
+import { GlidePages, pageThemeOf, pageUrl, type PageTheme } from '../glideui/pages.js'
+import { themeFunction } from '../../../glide/frontend/pageThemeScript.js'
 import { GlideWidgets, statusFile } from '../glideui/widgets.js'
 import { readJsonFile, readUi } from '../wire/files.js'
 

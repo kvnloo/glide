@@ -479,13 +479,14 @@ def command(home: Path, args: str) -> str:
             return f"Round failed: {result.get('error')}"
         v = result["verdict"]
         stats = v["stats"]
+        spec = KernelSpec(**load_state(home).kernel_spec)
         lines = [
             f"Hill Climb Round {result['round']}",
             f"  Baseline:  {result['baseline_mean']:.2f} (metric: {spec.metric})",
             f"  Candidate: {result['candidate_mean']:.2f}",
             f"  Verdict:   {v['decision']} — {v['reason']}",
             f"  Stats:     n={stats['n']} rel={stats['rel_improvement']:.3f} noise={stats['noise_floor']:.3f} p={stats['p_value']:.3f}",
-            f"  Ledger:    {_ledger_path(home, KernelSpec(**load_state(home).kernel_spec))}",
+            f"  Ledger:    {_ledger_path(home, spec)}",
         ]
         return "\n".join(lines)
 

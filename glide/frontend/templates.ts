@@ -49,7 +49,7 @@ export const TEMPLATES: Readonly<Record<TemplateId, Template>> = {
 export const PANEL_TITLES: Readonly<Record<TemplatePanel, string>> = { analytics: 'Analytics', whiteboard: 'Whiteboard' }
 
 export const isTemplateId = (v: string): v is TemplateId => (TEMPLATE_IDS as readonly string[]).includes(v)
-export const isTemplatePanel = (v: string): v is TemplatePanel => (TEMPLATE_PANELS as readonly string[]).includes(v)
+const isTemplatePanel = (v: string): v is TemplatePanel => (TEMPLATE_PANELS as readonly string[]).includes(v)
 
 /** The page id a panel is listed under in `ui.pages`; only ids with this prefix are a template's to close. */
 const panelPageId = (panel: TemplatePanel) => `template-${panel}`
@@ -177,12 +177,6 @@ export function analyticsData(entries: readonly Entry[], now: number, cwd = '', 
 
 const DATA = /(<script type="application\/json" id="glide-data">)[\s\S]*?(<\/script>)/
 
-/** The shipped page with `data` in its glide-data script; `<` escaped so no value can close the script. */
-export function pageWithData(html: string, payload: unknown): string {
-  const json = JSON.stringify(payload ?? {}).replace(/</g, '\\u003c')
-  return html.replace(DATA, (_m, open: string, close: string) => `${open}${json}${close}`)
-}
-
 /** Writes `file` whole or not at all. */
 function writeAtomic(file: string, text: string) {
   mkdirSync(dirname(file), { recursive: true })
@@ -192,18 +186,6 @@ function writeAtomic(file: string, text: string) {
 }
 
 interface StoredPage { id: string; title: string; path: string; how: PageHow; opened: number }
-
-/**
- * settings.json's `ui.pages` with every template page dropped and `add` appended, rev bumped, every other
- * key kept (the agent's widgets, style and pages; ui.py's writes keep `pages` the same way).
- */
-export function writeTemplatePages(file: string, add: readonly StoredPage[]) {
-  const stored = readStoredSettings(file) as Record<string, unknown>
-  const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
-  const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
-  const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
-  writeAtomic(file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
-}
 
 /** The template panels settings.json lists now, each where it is docked. */
 function templatePanels(file: string): { page: TemplatePanel; how: PageHow }[] {
@@ -293,7 +275,8 @@ export class Templates {
   }
 
   /** Opens one panel beside the chat, keeping the template's others. */
-  async panel(panel: TemplatePanel, how: PageHow = 'beside'): Promise<string> {
+  async panel(panel: string, how: PageHow = 'beside'): Promise<string | undefined> {
+    if (!isTemplatePanel(panel)) return undefined
     const keep = templatePanels(this.#host.file).filter(p => p.page !== panel)
     await this.#pages([...keep, { page: panel, how }])
     return `${PANEL_TITLES[panel]} opened ${how} the chat.`
@@ -311,10 +294,18 @@ export class Templates {
     for (const p of panels) {
       const html = readFileSync((this.#host.shipped ?? shippedPage)(p.page), 'utf8')
       const path = join(dir, `${p.page}.html`)
-      writeAtomic(path, pageWithData(html, p.page === 'analytics' ? await this.#analytics(now) : {}))
+      const panelData = p.page === 'analytics' ? await this.#analytics(now) : {}
+      // Escape less-than so no value can close the embedded application/json script.
+      const json = JSON.stringify(panelData).replace(/</g, '\\u003c')
+      writeAtomic(path, html.replace(DATA, (_m, open: string, close: string) => `${open}${json}${close}`))
       add.push({ id: panelPageId(p.page), title: PANEL_TITLES[p.page], path, how: p.how, opened: now })
     }
-    writeTemplatePages(this.#host.file, add)
+    // Replace only template pages and bump the revision; preserve the agent's own UI.
+    const stored = readStoredSettings(this.#host.file) as Record<string, unknown>
+    const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
+    const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
+    const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
+    writeAtomic(this.#host.file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
     await this.#host.reload()
   }
 

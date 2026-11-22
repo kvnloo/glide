@@ -3,7 +3,8 @@
 // fall at the lane's speed and sound as they land; in Play the song waits at each melody note until you hit it.
 import { describe, expect, it } from 'vitest'
 
-import { type PageTheme, themeFunction } from '../glideui/pages.js'
+import { type PageTheme } from '../glideui/pages.js'
+import { themeFunction } from '../../../glide/frontend/pageThemeScript.js'
 import { type FakeAudioContext, loadPage, type PageRun } from './glidePageHarness.js'
 
 const DAY: PageTheme = { dark: false, bg: '#f5f1ea', surface: '#ece6dc', fg: '#2a2620', muted: '#6b6459', accent: '#7c3aed', accentInk: '#ffffff' }
