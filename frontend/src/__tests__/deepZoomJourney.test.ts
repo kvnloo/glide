@@ -79,6 +79,8 @@ describe.skipIf(!chrome)('deep zoom journey in headless Chrome', () => {
   let pyramid: Pyramid
   let origin: DeepZoomOrigin
   let proc: ChildProcess
+  let browserClosed: Promise<void>
+  let browser: WebSocket
   let cdp: Cdp
   const out = process.env['GLIDE_DEEP_ZOOM_OUT']
   const peek = async (): Promise<Stats | undefined> => {
@@ -121,12 +123,16 @@ describe.skipIf(!chrome)('deep zoom journey in headless Chrome', () => {
     if (!chrome) throw new Error('the deep zoom journey needs Chrome: set CHROME=<binary> or put one on PATH')
     proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run', '--hide-scrollbars',
       '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--window-size=1280,800', 'about:blank'], { stdio: 'ignore' })
+    browserClosed = new Promise(resolve => { proc.once('close', () => resolve()) })
     let port: string | undefined
-    for (let i = 0; i < 200 && !port; i++) {
+    let browserPath: string | undefined
+    for (let i = 0; i < 200 && (!port || !browserPath); i++) {
       await sleep(50)
-      try { port = readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n')[0] } catch { /* not yet */ }
+      try { [port, browserPath] = readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n') } catch { /* not yet */ }
     }
-    if (!port) throw new Error('Chrome did not open its DevTools port')
+    if (!port || !browserPath) throw new Error('Chrome did not open its DevTools port')
+    browser = new WebSocket(`ws://127.0.0.1:${port}${browserPath}`)
+    await new Promise((resolve, reject) => { browser.onopen = resolve; browser.onerror = reject })
     const targets = parseJson(await (await fetch(`http://127.0.0.1:${port}/json/list`)).text())
     const page = (Array.isArray(targets) ? targets : []).map(t => record(t)).find(t => t?.['type'] === 'page')
     const socket = page?.['webSocketDebuggerUrl']
@@ -140,14 +146,18 @@ describe.skipIf(!chrome)('deep zoom journey in headless Chrome', () => {
   afterAll(async () => {
     cdp?.close()
     origin?.close()
-    if (proc && proc.exitCode === null) {
-      const gone = new Promise(resolve => proc.once('exit', resolve))
-      proc.kill()
-      await Promise.race([gone, sleep(5000)])
+    if (proc) {
+      // Let Chrome shut down its profile writers before removing the profile.
+      // Browser.close can disconnect DevTools without returning a response.
+      if (browser?.readyState === WebSocket.OPEN) {
+        browser.send(JSON.stringify({ id: 1, method: 'Browser.close' }))
+      } else if (proc.exitCode === null && proc.signalCode === null) {
+        proc.kill()
+      }
+      await browserClosed
     }
-    // Chrome may still be flushing its profile for a moment after it exits.
     if (dir) rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 })
-  })
+  }, 15000)
 
   it('opens the gigapixel image, zooms three levels, pans, and loads only 200 tiles', async () => {
     expect(pyramid.width * pyramid.height).toBeGreaterThanOrEqual(1e9)
