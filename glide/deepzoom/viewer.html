@@ -1,0 +1,316 @@
+<!doctype html>
+<!--
+  Glide deep-zoom viewer (GL-104). Opens the Deep Zoom Image its origin serves (image.dzi beside
+  image_files/<level>/<col>_<row>.<format>; glide/frontend/deepZoom.ts) and draws only the tiles in view at the
+  level the zoom needs, with the coarser levels it already holds underneath while the finer ones arrive. The
+  source image is never requested or decoded. Original code for Glide; no third-party code or art.
+  window.deepZoom.stats reports what it loaded, for the journey (frontend/src/__tests__/deepZoomJourney.test.ts).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep zoom</title>
+<!-- Keep the browser from requesting a favicon outside the viewer path. -->
+<link rel="icon" href="data:,">
+<style>
+  :root { color-scheme: dark light; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--glide-bg, #0e0c14); color: var(--glide-fg, #ece8f4);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #view { position: fixed; inset: 0; touch-action: none; cursor: grab; outline: none; }
+  #view.dragging { cursor: grabbing; }
+  #view:focus-visible { outline: 2px solid var(--glide-accent, #a78bfa); outline-offset: -2px; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #bar { position: fixed; left: 12px; bottom: 12px; display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-radius: 10px;
+    background: color-mix(in srgb, var(--glide-surface, #17141f) 86%, transparent); backdrop-filter: blur(8px); }
+  #bar button { min-width: 30px; height: 28px; border: 0; border-radius: 7px; font: inherit; font-weight: 600; cursor: pointer;
+    background: var(--glide-accent, #a78bfa); color: var(--glide-accent-ink, #111111); }
+  #bar button:focus-visible { outline: 2px solid var(--glide-fg, #ece8f4); outline-offset: 1px; }
+  #status { color: var(--glide-muted, #9a93ab); padding: 0 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="view" tabindex="0" role="img" aria-label="Zoomable image"><canvas id="canvas"></canvas></div>
+<div id="bar">
+  <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
+  <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
+  <button type="button" data-zoom="home" aria-label="Fit the whole image">Fit</button>
+  <span id="status" role="status">Loading…</span>
+</div>
+<script>
+'use strict'
+;(() => {
+  const view = document.getElementById('view')
+  const canvas = document.getElementById('canvas')
+  const ctx = canvas.getContext('2d')
+  const statusEl = document.getElementById('status')
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const MAX_CACHE = 384
+  const MAX_INFLIGHT = 6
+  const FALLBACK_LEVELS = 6
+  const stats = { ready: false, idle: false, error: null, width: 0, height: 0, maxLevel: 0, baseLevel: 0, homeLevel: 0, level: 0,
+    scale: 0, center: [0, 0], requested: 0, loaded: 0, failed: 0, maxDecoded: 0, cached: 0, inflight: 0, complete: [] }
+  let dzi = null
+  let vw = 1, vh = 1, dpr = 1
+  const cur = { s: 1, cx: 0, cy: 0 }
+  let anim = null
+  const cache = new Map()
+  const pending = new Set()
+  let queue = []
+  let frame = 0, dirty = false
+
+  const levelSize = l => {
+    const k = 2 ** (dzi.maxLevel - l)
+    const w = Math.ceil(dzi.width / k), h = Math.ceil(dzi.height / k)
+    return { w, h, cols: Math.ceil(w / dzi.tileSize), rows: Math.ceil(h / dzi.tileSize), ls: 2 ** (l - dzi.maxLevel) }
+  }
+  const fitScale = () => Math.min(vw / dzi.width, vh / dzi.height)
+  const maxScale = () => Math.max(2, fitScale())
+  const clampScale = s => Math.min(maxScale(), Math.max(fitScale(), s))
+  const levelFor = s => Math.max(dzi.baseLevel, Math.min(dzi.maxLevel, dzi.maxLevel + Math.ceil(Math.log2(s * dpr) - 1e-6)))
+  const color = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+
+  function constrain(v) {
+    const half = [vw / 2 / v.s, vh / 2 / v.s]
+    v.cx = dzi.width * v.s <= vw ? dzi.width / 2 : Math.min(dzi.width - half[0], Math.max(half[0], v.cx))
+    v.cy = dzi.height * v.s <= vh ? dzi.height / 2 : Math.min(dzi.height - half[1], Math.max(half[1], v.cy))
+  }
+
+  function tileRect(l, c, r, g) {
+    const t = dzi.tileSize
+    const x0 = c * t, y0 = r * t, x1 = Math.min(g.w, x0 + t), y1 = Math.min(g.h, y0 + t)
+    return { sx: c > 0 ? dzi.overlap : 0, sy: r > 0 ? dzi.overlap : 0, w: x1 - x0, h: y1 - y0,
+      ix: x0 / g.ls, iy: y0 / g.ls, iw: (x1 - x0) / g.ls, ih: (y1 - y0) / g.ls }
+  }
+
+  function visible(l) {
+    const g = levelSize(l)
+    const ix0 = cur.cx - vw / 2 / cur.s, iy0 = cur.cy - vh / 2 / cur.s
+    const ix1 = cur.cx + vw / 2 / cur.s, iy1 = cur.cy + vh / 2 / cur.s
+    const t = dzi.tileSize
+    const c0 = Math.max(0, Math.floor(ix0 * g.ls / t)), c1 = Math.min(g.cols - 1, Math.floor((ix1 * g.ls - 1e-9) / t))
+    const r0 = Math.max(0, Math.floor(iy0 * g.ls / t)), r1 = Math.min(g.rows - 1, Math.floor((iy1 * g.ls - 1e-9) / t))
+    const out = []
+    for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) out.push({ l, c, r, g })
+    return out
+  }
+
+  const key = (l, c, r) => `${l}/${c}_${r}`
+  const urlOf = (l, c, r) => `image_files/${l}/${c}_${r}.${dzi.format}`
+
+  function load(l, c, r) {
+    const k = key(l, c, r)
+    pending.add(k)
+    stats.requested++
+    fetch(urlOf(l, c, r), { cache: 'no-store' })
+      .then(res => { if (!res.ok) throw new Error(String(res.status)); return res.blob() })
+      .then(blob => createImageBitmap(blob))
+      .then(bmp => {
+        stats.loaded++
+        stats.maxDecoded = Math.max(stats.maxDecoded, bmp.width, bmp.height)
+        cache.set(k, { bmp, used: frame, l })
+        evict()
+      })
+      .catch(() => { stats.failed++; cache.set(k, { bmp: null, used: frame, l }) })
+      .finally(() => { pending.delete(k); pump(); schedule() })
+  }
+
+  function pump() {
+    while (pending.size < MAX_INFLIGHT && queue.length) {
+      const t = queue.shift()
+      const k = key(t.l, t.c, t.r)
+      if (!cache.has(k) && !pending.has(k)) load(t.l, t.c, t.r)
+    }
+    stats.inflight = pending.size
+  }
+
+  function evict() {
+    if (cache.size <= MAX_CACHE) return
+    const old = [...cache.entries()].filter(([, v]) => v.l !== dzi.baseLevel).sort((a, b) => a[1].used - b[1].used)
+    for (const [k, v] of old.slice(0, cache.size - MAX_CACHE)) {
+      v.bmp?.close()
+      cache.delete(k)
+    }
+  }
+
+  function draw() {
+    dirty = false
+    frame++
+    if (anim) {
+      const t = Math.min(1, (performance.now() - anim.t0) / anim.dur)
+      const e = 1 - (1 - t) ** 3
+      cur.s = anim.s0 * (anim.s1 / anim.s0) ** e
+      cur.cx = anim.ix - (anim.px - vw / 2) / cur.s
+      cur.cy = anim.iy - (anim.py - vh / 2) / cur.s
+      constrain(cur)
+      if (t >= 1) anim = null
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.fillStyle = color('--glide-bg') || '#0e0c14'
+    ctx.fillRect(0, 0, vw, vh)
+    const L = levelFor(cur.s)
+    const wanted = []
+    let complete = true
+    for (let l = Math.max(dzi.baseLevel, L - FALLBACK_LEVELS); l <= L; l++) {
+      for (const t of visible(l)) {
+        const hit = cache.get(key(t.l, t.c, t.r))
+        if (hit?.bmp) {
+          hit.used = frame
+          const q = tileRect(t.l, t.c, t.r, t.g)
+          const x = (q.ix - cur.cx) * cur.s + vw / 2, y = (q.iy - cur.cy) * cur.s + vh / 2
+          ctx.drawImage(hit.bmp, q.sx, q.sy, q.w, q.h, x, y, q.iw * cur.s, q.ih * cur.s)
+        } else if (l === L) {
+          complete = false
+          if (!hit && !pending.has(key(t.l, t.c, t.r))) wanted.push(t)
+        }
+      }
+    }
+    const mid = [cur.cx * levelSize(L).ls / dzi.tileSize, cur.cy * levelSize(L).ls / dzi.tileSize]
+    wanted.sort((a, b) => Math.hypot(a.c + 0.5 - mid[0], a.r + 0.5 - mid[1]) - Math.hypot(b.c + 0.5 - mid[0], b.r + 0.5 - mid[1]))
+    queue = wanted
+    pump()
+    Object.assign(stats, { level: L, scale: cur.s, center: [cur.cx, cur.cy], cached: cache.size, inflight: pending.size,
+      idle: !anim && complete && pending.size === 0 && queue.length === 0 })
+    if (complete && !anim && !stats.complete.includes(L)) stats.complete.push(L)
+    const pct = cur.s * dpr * 100
+    statusEl.textContent = `Level ${L}/${dzi.maxLevel} · ${pct >= 10 ? Math.round(pct) : pct.toFixed(pct >= 1 ? 1 : 2)}% · drag to pan · scroll or pinch to zoom`
+    if (anim) schedule()
+  }
+
+  function schedule() {
+    if (dirty || !dzi) return
+    dirty = true
+    requestAnimationFrame(draw)
+  }
+
+  function zoomAt(factor, px, py, animate = !reduce) {
+    const from = anim ? anim.s1 : cur.s
+    const s1 = clampScale(from * factor)
+    const ix = (px - vw / 2) / cur.s + cur.cx, iy = (py - vh / 2) / cur.s + cur.cy
+    if (animate) anim = { s0: cur.s, s1, ix, iy, px, py, t0: performance.now(), dur: 260 }
+    else {
+      anim = null
+      cur.s = s1
+      cur.cx = ix - (px - vw / 2) / s1
+      cur.cy = iy - (py - vh / 2) / s1
+      constrain(cur)
+    }
+    schedule()
+  }
+
+  function panBy(dx, dy) {
+    anim = null
+    cur.cx -= dx / cur.s
+    cur.cy -= dy / cur.s
+    constrain(cur)
+    schedule()
+  }
+
+  function home() {
+    anim = null
+    cur.s = fitScale()
+    cur.cx = dzi.width / 2
+    cur.cy = dzi.height / 2
+    schedule()
+  }
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1
+    vw = Math.max(1, view.clientWidth)
+    vh = Math.max(1, view.clientHeight)
+    canvas.width = Math.round(vw * dpr)
+    canvas.height = Math.round(vh * dpr)
+    if (!dzi) return
+    cur.s = clampScale(cur.s)
+    constrain(cur)
+    schedule()
+  }
+
+  const pointers = new Map()
+  let pinch = null
+  view.addEventListener('pointerdown', e => {
+    view.setPointerCapture(e.pointerId)
+    pointers.set(e.pointerId, [e.clientX, e.clientY])
+    view.classList.add('dragging')
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()]
+      pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) }
+    }
+  })
+  view.addEventListener('pointermove', e => {
+    const last = pointers.get(e.pointerId)
+    if (!last || !dzi) return
+    const next = [e.clientX, e.clientY]
+    if (pointers.size === 1) panBy(next[0] - last[0], next[1] - last[1])
+    pointers.set(e.pointerId, next)
+    if (pointers.size === 2 && pinch) {
+      const [a, b] = [...pointers.values()]
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1])
+      if (pinch.d > 0) zoomAt(d / pinch.d, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, false)
+      pinch.d = d
+    }
+  })
+  const lift = e => {
+    pointers.delete(e.pointerId)
+    if (pointers.size < 2) pinch = null
+    if (!pointers.size) view.classList.remove('dragging')
+  }
+  view.addEventListener('pointerup', lift)
+  view.addEventListener('pointercancel', lift)
+  view.addEventListener('wheel', e => {
+    e.preventDefault()
+    if (!dzi) return
+    const unit = e.deltaMode === 1 ? 0.05 : e.deltaMode === 2 ? 1 : 0.0025
+    zoomAt(Math.exp(-e.deltaY * unit), e.clientX, e.clientY)
+  }, { passive: false })
+  view.addEventListener('dblclick', e => { if (dzi) zoomAt(e.shiftKey ? 0.5 : 2, e.clientX, e.clientY) })
+  document.addEventListener('keydown', e => {
+    if (!dzi) return
+    const step = 0.12
+    const act = { '+': () => zoomAt(1.5, vw / 2, vh / 2), '=': () => zoomAt(1.5, vw / 2, vh / 2), '-': () => zoomAt(1 / 1.5, vw / 2, vh / 2),
+      '0': home, ArrowLeft: () => panBy(vw * step, 0), ArrowRight: () => panBy(-vw * step, 0),
+      ArrowUp: () => panBy(0, vh * step), ArrowDown: () => panBy(0, -vh * step) }[e.key]
+    if (act) { e.preventDefault(); act() }
+  })
+  document.getElementById('bar').addEventListener('click', e => {
+    const z = e.target instanceof HTMLElement && e.target.dataset.zoom
+    if (!z || !dzi) return
+    if (z === 'home') home()
+    else zoomAt(z === 'in' ? 1.5 : 1 / 1.5, vw / 2, vh / 2)
+  })
+  window.addEventListener('glide-theme', schedule)
+  new ResizeObserver(resize).observe(view)
+
+  async function open() {
+    resize()
+    const res = await fetch('image.dzi', { cache: 'no-store' })
+    if (!res.ok) throw new Error(`descriptor ${res.status}`)
+    const doc = new DOMParser().parseFromString(await res.text(), 'application/xml')
+    const img = doc.getElementsByTagNameNS('*', 'Image')[0]
+    const size = doc.getElementsByTagNameNS('*', 'Size')[0]
+    const num = (el, name) => Number(el?.getAttribute(name))
+    const width = num(size, 'Width'), height = num(size, 'Height')
+    const tileSize = num(img, 'TileSize'), overlap = num(img, 'Overlap') || 0
+    const format = (img?.getAttribute('Format') || '').toLowerCase()
+    if (!(width > 0 && height > 0 && tileSize > 0 && /^(jpe?g|png|webp)$/.test(format))) throw new Error('not a Deep Zoom Image')
+    const maxLevel = Math.ceil(Math.log2(Math.max(width, height)))
+    dzi = { width, height, tileSize, overlap, format, maxLevel, baseLevel: 0 }
+    // The finest level that is still a single tile: always held, drawn under everything.
+    let base = 0
+    while (base < maxLevel && levelSize(base + 1).cols === 1 && levelSize(base + 1).rows === 1) base++
+    dzi.baseLevel = base
+    home()
+    Object.assign(stats, { ready: true, width, height, maxLevel, baseLevel: base, homeLevel: levelFor(cur.s) })
+    view.setAttribute('aria-label', `Zoomable image, ${width} by ${height} pixels`)
+    load(base, 0, 0)
+  }
+
+  window.deepZoom = { stats }
+  open().catch(err => {
+    stats.error = String(err && err.message || err)
+    statusEl.textContent = 'This image did not open. Close the page and try again.'
+  })
+})()
+</script>
+</body>
+</html>

@@ -149,6 +149,7 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 19. `tool-results-sheet`
 20. `gateway-prompts`
 21. `ask-control`
+22. `deep-zoom-pane`
 
 ## sessions
 

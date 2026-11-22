@@ -55,6 +55,7 @@ Each row links to the feature's own document. Merged PR numbers are in this fork
 | | Bounded surface recovery after Tern drops the view | [retention](frontend/docs/retention.md) | #21 |
 | Media and browser | Tern browser blocks, with a consent-gated gateway backend | [browser-blocks](frontend/docs/browser-blocks.md) | #5, #22 |
 | | Image delivery across local and remote hosts | [MEDIA-DELIVERY](docs/MEDIA-DELIVERY.md) | #16, #24 |
+| | Deep zoom: `/glide zoom` or `glide_deep_zoom_open` opens a gigapixel image (a `.dzi` pyramid, or an image libvips tiles) in a pane that loads only the tiles in view (GL-104) | [deep-zoom](glide/docs/deep-zoom.md) | |
 | Composer | Optional Vim composer and external editor | [vim-editor](frontend/docs/vim-editor.md) | #8 |
 | | Context meter opens a per-category context breakdown | | upstream #86 |
 | | Shortcut preferences, command palette, model cycling | [SHORTCUTS](frontend/SHORTCUTS.md) | #10 |

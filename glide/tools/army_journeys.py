@@ -111,6 +111,8 @@ PLUGIN_DRIVES: dict[str, list[tuple[str, dict, dict]]] = {
     "ask-control": [("tool", {"name": "ask_control", "args": {"id": "army", "kind": "confirm", "prompt": "Ship it?"}},
                      {"match": r"No hermes tern pane shows this chat"})],
     "whole-theme": [("tool", {"name": "glide_theme", "args": {"theme": "sepia"}}, {"match": r"\S"})],
+    "deep-zoom-pane": [("tool", {"name": "glide_deep_zoom_open", "args": {"path": "/nonexistent/army.dzi"}},
+                        {"refusal": r"no file at"})],
     "mcp-reports": [("gateway", {"method": "glide.operations.report", "params": {"view": "mcp-list"}}, {"match": r"\S"})],
     "ssh-report": [("gateway", {"method": "glide.operations.report", "params": {"view": "ssh-list"}}, {"match": r"\S"})],
     "plan-review-boundary": [("gateway", {"method": "glide.plan.status", "params": {}}, {"match": r"\S"})],
