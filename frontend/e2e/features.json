@@ -673,6 +673,20 @@
       "army": []
     },
     {
+      "id": "music-emotion-sort",
+      "title": "Sort and filter the music page's queue by colour-coded emotion",
+      "surface": "pane",
+      "entry": "/glide ui open night-drive, then the Emotions button (or E)",
+      "journey": "taste-intent",
+      "expect": "The Emotions menu sorts tracks calm to bright or shows one emotion, in fixed energy colours; rows glide to their places and previous/next follow the shown queue",
+      "tests": [
+        "frontend/src/__tests__/glidePageNightDrive.test.ts",
+        "GL-050: the Emotions button opens a colour-coded menu: sort by energy, show one emotion, with counts",
+        "GL-050: previous, next and the end of a track walk the queue the control shows"
+      ],
+      "army": []
+    },
+    {
       "id": "factory-pane",
       "title": "Toggle the nonmodal Factory aside",
       "surface": "slash",
