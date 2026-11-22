@@ -55,7 +55,7 @@ const MAX_CARDS = 48
 const MAX_BLOBS = 512
 const FENCE = new RegExp(String.raw`(^|\n)([ \t]*)(\`{3,}|~{3,})[ \t]*${EUI_FENCE}[ \t]*\n([\s\S]*?)\n[ \t]*\3[ \t]*(?=\n|$)`, 'g')
 export const INLINE_SHEET = 'ephemeral-ui-inline'
-export const KIT_MOTION_SHEET = 'ephemeral-ui-kit-motion'
+const KIT_MOTION_SHEET = 'ephemeral-ui-kit-motion'
 export const KIT_SHEET = 'ephemeral-ui'
 /** glide/v1 native cards' look (glideui/render.tsx), sent with the kit's sheet. */
 export const GLIDE_UI_SHEET = UI_SHEET

@@ -9,7 +9,9 @@ import type { EuiNode } from '../eui/sandbox.js'
 import { TERN_ATTR } from '../eui/ternCss.js'
 
 /** What drawing a card needs of the card registry: blobs for SVG, rules for inline styles, demo clicks. */
-export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'> & Partial<Pick<EuiCards, 'picture' | 'motion'>>
+export type EuiRender = Pick<EuiCards, 'click' | 'style' | 'svg'> & Partial<Pick<EuiCards, 'picture'>>
+
+type KitRender = EuiRender & Partial<Pick<EuiCards, 'motion'>>
 
 const TAGS: ReadonlySet<string> = new Set(EL_TAGS)
 const BOOLEAN = new Set(['checked', 'open', 'hidden', 'disabled'])
@@ -28,7 +30,7 @@ function ternTag(tag: string, attrs: Readonly<Record<string, string>>): ElTag {
   return isTag(tag) ? tag : INLINE.has(tag) ? 'span' : 'div'
 }
 
-function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number) => void): JSX.Element | string | null {
+function convert(n: EuiNode, key: string, eui: KitRender, activate: (id: number) => void): JSX.Element | string | null {
   if (n.t === 'text') {
     return n.text
   }
@@ -93,7 +95,7 @@ function convert(n: EuiNode, key: string, eui: EuiRender, activate: (id: number)
 }
 
 /** The card for one fence; `card` is the transcript-wide card key. */
-export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, popup = false): JSX.Element {
+export function euiCardNode(card: string, view: EuiCardView, eui: KitRender, popup = false): JSX.Element {
   if (view.ui) {
     const send = view.send ?? (() => undefined)
     return (
@@ -120,7 +122,7 @@ export function euiCardNode(card: string, view: EuiCardView, eui: EuiRender, pop
 }
 
 /** A trusted host card drawn as a centred popup in the layer (glide's /council); `key` is the overlay's native key. */
-export function euiPopupNode(key: string, head: string, view: EuiCardView, eui: EuiRender, size: 'lg' | 'full' = 'lg'): JSX.Element {
+export function euiPopupNode(key: string, head: string, view: EuiCardView, eui: KitRender, size: 'lg' | 'full' = 'lg'): JSX.Element {
   return (
     <overlay key={key} anchor="center" aria={head} {...(size === 'full' ? {} : { head })} modal role="eui.popup" size={size}>
       {euiCardNode('card', view, eui, true)}
