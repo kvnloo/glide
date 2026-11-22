@@ -201,6 +201,7 @@ frontend/src/__tests__/dictation.test.ts  # upstream: alt-glitch/hermes-tern PR 
 frontend/src/__tests__/dictationKeys.test.ts
 frontend/src/__tests__/ephemeralCard.test.ts
 frontend/src/__tests__/euiApp.test.ts
+frontend/src/__tests__/euiButtonLabel.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/euiCards.test.ts
 frontend/src/__tests__/euiHostApp.test.ts
 frontend/src/__tests__/euiHostCards.test.ts
