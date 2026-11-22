@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character Poser</title>
+<!-- Original ATLAS rig, CC0-1.0. See character-poser.LICENSE.md. No external assets. -->
+<style>
+:root { color-scheme: dark; --bg:var(--glide-bg,#11100f); --surface:var(--glide-surface,#1d1a16); --ink:var(--glide-fg,#f3ebdf); --muted:var(--glide-muted,#b2a591); --gold:var(--glide-accent,#d7b986); --line:color-mix(in srgb,var(--muted) 25%,transparent) }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px system-ui,sans-serif }
+main { max-width:1420px; padding:clamp(12px,3vw,34px); margin:auto }
+header,footer,.row { display:flex; flex-wrap:wrap; align-items:center; gap:10px }
+header { justify-content:space-between; margin-bottom:17px }
+h1 { font-size:clamp(23px,4vw,34px); margin:3px 0 0; letter-spacing:-.04em }
+h2 { margin:0 0 10px; font-size:12px; letter-spacing:.12em; text-transform:uppercase }
+small,output { color:var(--muted); font:11px ui-monospace,monospace }
+.eyebrow { color:var(--gold); letter-spacing:.18em; text-transform:uppercase }
+.workspace { display:grid; grid-template-columns:minmax(130px,180px) minmax(250px,1fr) minmax(160px,220px); gap:10px }
+.panel,.stage,footer { background:var(--surface); border:1px solid var(--line); border-radius:12px }
+.panel,footer { padding:13px }
+.stage { position:relative; min-width:0; overflow:hidden; background:radial-gradient(ellipse at 50% 40%,var(--surface),var(--bg)) }
+.stage small { position:absolute; top:12px; left:12px; pointer-events:none }
+canvas { display:block; width:100%; height:clamp(310px,56vh,620px); touch-action:none; cursor:grab }
+canvas:active { cursor:grabbing }
+button { color:inherit; background:var(--bg); border:1px solid var(--line); border-radius:7px; padding:7px 9px; cursor:pointer }
+button[aria-pressed="true"],button.primary { border-color:var(--gold); color:var(--gold) }
+button:disabled { opacity:.45; cursor:default }
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px }
+#bones { display:grid; gap:4px }
+#bones button { text-align:left; padding:5px 8px }
+#bones .child { margin-left:10px }
+label { display:flex; align-items:center; gap:8px }
+#axes { display:grid; gap:7px; margin:14px 0 }
+input[type="range"] { width:100%; min-width:0; accent-color:var(--gold) }
+#axes output { min-width:4ch; text-align:right }
+footer { margin-top:10px }
+footer label { flex:1 1 150px }
+#keys { flex:1 0 100%; min-height:28px }
+@media(max-width:720px) {
+  .workspace { grid-template-columns:1fr 1fr }
+  .stage { grid-area:1 / 1 / 2 / -1 }
+}
+</style>
+<main>
+<header>
+  <div><small class="eyebrow">Glide / Character studio</small><h1>Character Poser</h1></div>
+  <small>ATLAS · 12 JOINTS · CC0</small>
+</header>
+<div class="workspace">
+  <section class="panel" aria-labelledby="rig-title"><h2 id="rig-title">Skeleton</h2><div id="bones"></div></section>
+  <div class="stage"><small id="guide">ATLAS / DRAG RING TO ROTATE · DRAG STAGE TO ORBIT</small>
+    <canvas aria-label="3D ATLAS preview. Drag the gold ring to rotate the selected joint. Use the rotation sliders for keyboard control."></canvas>
+  </div>
+  <section class="panel" aria-labelledby="pose-title">
+    <h2 id="pose-title">Local rotation</h2>
+    <div id="axis" role="group" class="row" aria-label="Rotate handle axis"></div>
+    <div id="axes"></div>
+    <button id="reset">Reset joint</button>
+    <h2 style="margin-top:20px">Expression</h2>
+    <div id="expressions" role="group" class="row" aria-label="Expression"></div>
+  </section>
+</div>
+<footer aria-label="Keyframes">
+  <button id="play" class="primary">Play</button>
+  <label>Time <input id="time" type="range" min="0" max="4" step=".05" value="0"></label>
+  <output id="clock" for="time">0.00 / 4 s</output>
+  <button id="save">Set key</button><button id="remove">Delete key</button>
+  <div class="row" id="keys" aria-label="Saved keyframes"></div>
+</footer>
+</main>
+<!-- Original rigid-skinned model: each mesh primitive has a single full-weight joint.
+     Offsets and dimensions are model-space xyz; +Y up, +Z forward. -->
+<script id="atlas" type="application/json">
+[
+ ["Body",-1,[0,0,0],[
+  [[0,0.27,0],[0.82,0.66,0.46],"gold"],[[0,-0.13,0],[0.62,0.24,0.4],"steel"],
+  [[0,0.31,0.244],[0.44,0.26,0.07],"dark"],[[0,0.31,0.29],[0.22,0.045,0.035],"light"]]],
+ ["Head",0,[0,0.65,0],[
+  [[0,0.27,0],[0.74,0.54,0.51],"gold"],[[0,0.27,0.265],[0.59,0.34,0.07],"dark"],
+  [[-0.39,0.26,0],[0.1,0.22,0.23],"steel"],[[0.39,0.26,0],[0.1,0.22,0.23],"steel"],
+  [[0.19,0.57,0],[0.035,0.2,0.035],"steel"],[[0.19,0.69,0],[0.11,0.09,0.1],"light"]]],
+ ["Left shoulder",0,[-0.5,0.48,0],[
+  [[-0.045,-0.11,0],[0.24,0.36,0.26],"gold"],[[0,0,0],[0.22,0.16,0.28],"steel"]]],
+ ["Left elbow",2,[-0.06,-0.31,0],[
+  [[0,-0.14,0],[0.21,0.27,0.23],"steel"],[[0,-0.3,0],[0.24,0.17,0.26],"gold"]]],
+ ["Right shoulder",0,[0.5,0.48,0],[
+  [[0.045,-0.11,0],[0.24,0.36,0.26],"gold"],[[0,0,0],[0.22,0.16,0.28],"steel"]]],
+ ["Right elbow",4,[0.06,-0.31,0],[
+  [[0,-0.14,0],[0.21,0.27,0.23],"steel"],[[0,-0.3,0],[0.24,0.17,0.26],"gold"]]],
+ ["Left hip",0,[-0.22,-0.22,0],[[[0,-0.18,0],[0.27,0.38,0.29],"gold"]]],
+ ["Left knee",6,[0,-0.35,0],[[[0,-0.18,0],[0.23,0.39,0.25],"steel"]]],
+ ["Left foot",7,[0,-0.37,0],[[[0,-0.05,0.076],[0.29,0.17,0.43],"gold"]]],
+ ["Right hip",0,[0.22,-0.22,0],[[[0,-0.18,0],[0.27,0.38,0.29],"gold"]]],
+ ["Right knee",9,[0,-0.35,0],[[[0,-0.18,0],[0.23,0.39,0.25],"steel"]]],
+ ["Right foot",10,[0,-0.37,0],[[[0,-0.05,0.076],[0.29,0.17,0.43],"gold"]]]
+]
+</script>
+<script>
+'use strict'
+const $ = id => document.getElementById(id)
+const rig = JSON.parse($('atlas').textContent)
+const axes = ['X','Y','Z']
+const faces = ['Neutral','Smile','Surprised','Focused']
+const canvas = document.querySelector('canvas')
+const ctx = canvas.getContext('2d')
+const MAX = Number($('time').max)
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+const wrap = v => ((v+180)%360+360)%360-180
+const rest = () => rig.map(() => [0,0,0])
+let pose = rest(), expression = 0, selected = 1, axis = 1, time = 0, playing = false
+let raf = 0, started = 0, drag = null, handle = null, theme
+const keys = new Map()
+const snapshot = () => ({ pose: pose.map(b => [...b]), expression })
+function sample(t) {
+  const times = [...keys.keys()].sort((a,b) => a-b)
+  if (!times.length) return
+  const left = times.findLast(k => k <= t) ?? times[0]
+  const right = times.find(k => k >= t) ?? times.at(-1)
+  const a = keys.get(left), b = keys.get(right)
+  const f = left === right ? 0 : (t-left)/(right-left)
+  pose = a.pose.map((bone,i) => bone.map((v,j) => f === 0 ? v : wrap(v + wrap(b.pose[i][j]-v)*f)))
+  expression = f < .5 ? a.expression : b.expression
+}
+function frame(now) {
+  raf = 0
+  if (playing) {
+    time = ((now-started)/1000) % MAX
+    sample(time)
+    sync()
+  }
+  draw()
+  if (playing) invalidate()
+}
+function invalidate() { if (!raf) raf = requestAnimationFrame(frame) }
+function pause() { playing = false; $('play').textContent = 'Play' }
+function seek(t) { pause(); time = t; sample(t); refresh() }
+function setKey() {
+  time = Number($('time').value)
+  keys.set(time, snapshot())
+  refreshKeys()
+  refresh()
+}
+const buttons = (root, items, onClick) => items.map((text,i) => {
+  const button = document.createElement('button')
+  button.textContent = text
+  button.addEventListener('click', () => onClick(i))
+  root.append(button)
+  return button
+})
+const boneButtons = buttons($('bones'), rig.map(b => b[0]), i => { selected = i; refresh() })
+boneButtons.slice(1).forEach(b => b.classList.add('child'))
+const axisButtons = buttons($('axis'), axes, i => { axis = i; refresh() })
+const faceButtons = buttons($('expressions'), faces, i => { pause(); expression = i; refresh() })
+const sliders = axes.map((name,i) => {
+  const label = document.createElement('label')
+  label.append(name)
+  const input = document.createElement('input')
+  input.type = 'range'; input.min = -180; input.max = 180
+  input.setAttribute('aria-label', `Rotation ${name}`)
+  const output = document.createElement('output')
+  label.append(input, output)
+  $('axes').append(label)
+  input.addEventListener('input', () => { pause(); axis = i; pose[selected][i] = Number(input.value); refresh() })
+  return { input, output }
+})
+function pressed(group, index) {
+  group.forEach((b,i) => {
+    const value = String(i === index)
+    if (b.getAttribute('aria-pressed') !== value) b.setAttribute('aria-pressed',value)
+  })
+}
+function sync() {
+  pressed(boneButtons, selected)
+  pressed(axisButtons, axis)
+  pressed(faceButtons, expression)
+  sliders.forEach(({input,output},i) => {
+    const degrees = Math.round(pose[selected][i])
+    if (input.valueAsNumber !== degrees) input.value = degrees
+    const text = `${degrees}°`
+    if (output.value !== text) output.value = text
+  })
+  $('time').value = time
+  $('clock').value = `${time.toFixed(2)} / ${MAX} s`
+  $('remove').disabled = playing || !keys.has(Number($('time').value))
+  $('save').disabled = playing
+}
+function refresh() { sync(); invalidate() }
+function refreshKeys() {
+  $('keys').replaceChildren()
+  const times = [...keys.keys()].sort((a,b) => a-b)
+  buttons($('keys'), times.map(t => `◆ ${t.toFixed(2)} s`), i => seek(times[i]))
+  $('play').disabled = times.length < 2
+}
+$('reset').onclick = () => { pause(); pose[selected] = [0,0,0]; refresh() }
+$('time').oninput = e => seek(Number(e.target.value))
+$('save').onclick = setKey
+$('remove').onclick = () => { keys.delete(Number($('time').value)); refreshKeys(); refresh() }
+$('play').onclick = () => {
+  if (playing) pause()
+  else {
+    if (time >= MAX) time = 0
+    started = performance.now()-time*1000
+    playing = true
+    $('play').textContent = 'Pause'
+  }
+  refresh()
+}
+
+// Hierarchical rigid skinning: each joint's basis is inherited by its children.
+// Camera rotation and projection are independent of the pose.
+const radians = Math.PI/180
+const add = (a,b) => a.map((v,i) => v+b[i])
+const sub = (a,b) => a.map((v,i) => v-b[i])
+const cross = ([a,b,c],[x,y,z]) => [b*z-c*y,c*x-a*z,a*y-b*x]
+const rotateX = ([x,y,z],c,s) => [x,y*c-z*s,y*s+z*c]
+const rotateY = ([x,y,z],c,s) => [x*c+z*s,y,z*c-x*s]
+function euler([x,y,z]) {
+  const c = Math.cos(z*radians), s = Math.sin(z*radians)
+  const cx = Math.cos(x*radians), sx = Math.sin(x*radians)
+  const cy = Math.cos(y*radians), sy = Math.sin(y*radians)
+  return p => {
+    const [a,b,d] = rotateY(rotateX(p,cx,sx),cy,sy)
+    return [a*c-b*s,a*s+b*c,d]
+  }
+}
+let orbit = .32
+function camera(p) {
+  return rotateX(rotateY(p,Math.cos(orbit),Math.sin(orbit)),Math.cos(.15),Math.sin(.15))
+}
+function mesh([center,[w,h,d],color]) {
+  // Chamfered cross section with two beveled rims, wound outward.
+  const x = w/2, y = h/2, z = d/2, r = Math.min(x,y,z)*.32
+  const ring = (a,b,k) => [[-a+k,b],[a-k,b],[a,b-k],[a,-b+k],[a-k,-b],[-a+k,-b],[-a,-b+k],[-a,b-k]]
+  const layers = [[x-r,z-r,-y],[x,z,-y+r],[x,z,y-r],[x-r,z-r,y]]
+  const vertices = layers.flatMap(([a,b,l]) => ring(a,b,r*.55).map(([i,j]) => add(center,[i,l,j])))
+  const polys = [[7,6,5,4,3,2,1,0],[24,25,26,27,28,29,30,31]]
+  for (let layer = 0; layer < 3; layer++) for (let i = 0; i < 8; i++) {
+    const a = layer*8+i, b = layer*8+(i+1)%8
+    polys.push([a,b,b+8,a+8])
+  }
+  return { vertices, polys, color }
+}
+const meshes = rig.map(b => b[3].map(mesh))
+// Visor decals are painted with the front face, so both eyes stay visible
+// at oblique angles without floating in front of the model.
+const visorZ = .3
+const rect = (x,y,w,h) => [
+  [x-w/2,y-h/2,visorZ],[x+w/2,y-h/2,visorZ],
+  [x+w/2,y+h/2,visorZ],[x-w/2,y+h/2,visorZ]
+]
+const eyes = (w,h) => [rect(-.135,.29,w,h),rect(.135,.29,w,h)]
+const ellipse = (x,y,w,h) => Array.from({ length:12 }, (_,i) => {
+  const a = i*Math.PI/6
+  return [x+Math.cos(a)*w/2,y+Math.sin(a)*h/2,visorZ]
+})
+const decals = [
+  [...eyes(.08,.075),rect(0,.198,.095,.02)],
+  [...eyes(.09,.045),[[ -.083,.225,visorZ],[-.052,.198,visorZ],[.052,.198,visorZ],
+    [.083,.225,visorZ],[.073,.193,visorZ],[.043,.174,visorZ],[-.043,.174,visorZ],[-.073,.193,visorZ]]],
+  [...eyes(.077,.093),ellipse(0,.195,.075,.065)],
+  [...eyes(.105,.028),rect(0,.195,.09,.026)]
+]
+
+function setTheme() {
+  const style = getComputedStyle(document.documentElement)
+  const token = (name,fallback) => style.getPropertyValue(`--glide-${name}`).trim() || fallback
+  theme = { gold:token('accent','#d7b986'), steel:'#66717b', dark:'#141b22',
+    light:'#fff2bf', grid:token('muted','#b2a591'), ink:token('fg','#f3ebdf') }
+  invalidate()
+}
+function path(points,close = true) {
+  ctx.beginPath()
+  points.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y))
+  if (close) ctx.closePath()
+}
+function draw() {
+  const w = canvas.clientWidth, h = canvas.clientHeight
+  if (!w || !h || !ctx) return
+  const dpr = Math.min(devicePixelRatio || 1,2)
+  const width = Math.round(w*dpr), height = Math.round(h*dpr)
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width; canvas.height = height
+  }
+  ctx.setTransform(dpr,0,0,dpr,0,0)
+  ctx.clearRect(0,0,w,h)
+  const scale = Math.min(w*.39,h*.34)
+  const screen = ([x,y]) => [w/2+x*scale,h*.52-y*scale]
+  const project = p => screen(camera(p))
+  ctx.strokeStyle = theme.grid
+  ctx.globalAlpha = .22
+  ctx.lineWidth = 1
+  for (let i = -5; i <= 5; i++) {
+    const g = i*.32
+    path([project([g,-1.08,-1.6]),project([g,-1.08,1.6])],false); ctx.stroke()
+    path([project([-1.6,-1.08,g]),project([1.6,-1.08,g])],false); ctx.stroke()
+  }
+  ctx.globalAlpha = 1
+  const joints = [], polygons = []
+  rig.forEach(([,parent,offset],i) => {
+    const local = euler(pose[i])
+    const toParent = p => add(local(p),offset)
+    const ancestor = joints[parent]
+    const world = ancestor ? p => ancestor(toParent(p)) : toParent
+    joints.push(world)
+    const addMesh = ({ vertices, polys, color }, part) => {
+      const points = vertices.map(p => camera(world(p)))
+      const projected = points.map(screen)
+      for (const poly of polys) {
+        const a = points[poly[0]], b = points[poly[1]], c = points[poly[2]]
+        const n = cross(sub(b,a),sub(c,a))
+        if (n[2] <= 0) continue
+        const light = (n[2]+n[1]*.7-n[0]*.45)/Math.hypot(...n)
+        const z = poly.reduce((sum,j) => sum+points[j][2],0)/poly.length
+        const marks = i === 1 && part === 1 && poly[0] === 8 && poly[1] === 9
+          ? decals[expression].map(mark => mark.map(p => screen(camera(world(p))))) : null
+        polygons.push({ z, light, color, shape:poly.map(j => projected[j]), marks })
+      }
+    }
+    meshes[i].forEach(addMesh)
+  })
+  polygons.sort((a,b) => a.z-b.z)
+  for (const {shape,light,color,marks} of polygons) {
+    path(shape)
+    ctx.fillStyle = theme[color]; ctx.fill()
+    ctx.globalAlpha = clamp(.22-light*.22,0,.55)
+    ctx.fillStyle = '#08080d'; ctx.fill()
+    ctx.globalAlpha = 1
+    if (marks) {
+      ctx.fillStyle = theme.light
+      for (const mark of marks) { path(mark); ctx.fill() }
+    }
+  }
+  const [x,y] = project(joints[selected]([0,0,0]))
+  const radius = clamp(scale*.32,20,49)
+  handle = { x,y,radius }
+  const marker = pose[selected][axis]*radians
+  ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2)
+  ctx.strokeStyle = theme.dark; ctx.lineWidth = 5; ctx.stroke()
+  ctx.strokeStyle = theme.gold; ctx.lineWidth = 2; ctx.stroke()
+  ctx.fillStyle = theme.gold
+  ctx.beginPath(); ctx.arc(x+Math.cos(marker)*radius,y+Math.sin(marker)*radius,5,0,Math.PI*2); ctx.fill()
+  ctx.fillStyle = theme.ink
+  ctx.font = 'bold 12px system-ui'
+  ctx.fillText(axes[axis],x-4,y+4)
+}
+function point(e) {
+  const r = canvas.getBoundingClientRect()
+  return [e.clientX-r.left,e.clientY-r.top]
+}
+canvas.addEventListener('pointerdown', e => {
+  if (!handle || drag || e.button !== 0) return
+  const [x,y] = point(e), { x:cx,y:cy,radius } = handle
+  const ring = Math.abs(Math.hypot(x-cx,y-cy)-radius) <= 12
+  if (ring) pause()
+  drag = { id:e.pointerId, x, cx, cy, ring, selected, axis, angle:Math.atan2(y-cy,x-cx) }
+  canvas.setPointerCapture(e.pointerId)
+  refresh()
+})
+canvas.addEventListener('pointermove', e => {
+  if (e.pointerId !== drag?.id) return
+  const [x,y] = point(e)
+  if (drag.ring) {
+    const angle = Math.atan2(y-drag.cy,x-drag.cx)
+    const delta = (angle-drag.angle+3*Math.PI)%(2*Math.PI)-Math.PI
+    const value = pose[drag.selected][drag.axis]+delta/radians
+    pose[drag.selected][drag.axis] = wrap(value)
+    drag.angle = angle
+  } else {
+    orbit = (orbit+(x-drag.x)*.012)%(2*Math.PI)
+    drag.x = x
+  }
+  refresh()
+})
+canvas.addEventListener('lostpointercapture', () => { drag = null })
+window.addEventListener('glide-theme',setTheme)
+new ResizeObserver(invalidate).observe(canvas)
+// Two starter keys give playback something to show immediately.
+pose[2][2] = -15; pose[4][2] = 15
+keys.set(0,snapshot())
+pose[4][2] = 115; pose[5][0] = -35; pose[1][1] = 26; expression = 1
+keys.set(2,snapshot())
+sample(0)
+keys.set(4,snapshot())
+refreshKeys()
+setTheme()
+refresh()
+</script>
+</html>

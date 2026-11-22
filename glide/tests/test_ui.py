@@ -225,3 +225,24 @@ def test_page_rejects_undeclared_path_shapes_symlinks_and_oversize_assets(tmp_pa
         assert not out["ok"], asset
         assert out["error"].startswith("assets:")
     assert ui.state(home).get("pages", []) == []
+
+
+def test_character_poser_ships_a_cc0_hierarchical_rig():
+    """The ordinary bundled-page picker sees the offline poser and its original mesh."""
+    file = ui.bundled_pages()["character-poser"]
+    assert ui.page_title(file) == "Character Poser"
+    model = file.read_text().split('<script id="atlas" type="application/json">', 1)[1].split("</script>", 1)[0]
+    rig = json.loads(model)
+    assert len({name for name, *_ in rig}) == len(rig) == 12
+    for index, (_, parent, pivot, parts) in enumerate(rig):
+        if index == 0:
+            assert parent == -1
+        else:
+            assert 0 <= parent < index
+        assert len(pivot) == 3 and parts
+        for center, dimensions, _ in parts:
+            assert len(center) == len(dimensions) == 3
+            assert min(dimensions) > 0
+    license_text = file.with_suffix(".LICENSE.md").read_text()
+    assert "CC0-1.0" in license_text
+    assert "https://github.com/kvnloo/glide/blob/main/glide/pages/character-poser.html" in license_text
