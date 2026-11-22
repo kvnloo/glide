@@ -177,6 +177,12 @@ export function analyticsData(entries: readonly Entry[], now: number, cwd = '', 
 
 const DATA = /(<script type="application\/json" id="glide-data">)[\s\S]*?(<\/script>)/
 
+/** The shipped page with `data` in its glide-data script; `<` escaped so no value can close the script. */
+export function pageWithData(html: string, payload: unknown): string {
+  const json = JSON.stringify(payload ?? {}).replace(/</g, '\\u003c')
+  return html.replace(DATA, (_m, open: string, close: string) => `${open}${json}${close}`)
+}
+
 /** Writes `file` whole or not at all. */
 function writeAtomic(file: string, text: string) {
   mkdirSync(dirname(file), { recursive: true })
@@ -186,6 +192,18 @@ function writeAtomic(file: string, text: string) {
 }
 
 interface StoredPage { id: string; title: string; path: string; how: PageHow; opened: number }
+
+/**
+ * settings.json's `ui.pages` with every template page dropped and `add` appended, rev bumped, every other
+ * key kept (the agent's widgets, style and pages; ui.py's writes keep `pages` the same way).
+ */
+export function writeTemplatePages(file: string, add: readonly StoredPage[]) {
+  const stored = readStoredSettings(file) as Record<string, unknown>
+  const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
+  const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
+  const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
+  writeAtomic(file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
+}
 
 /** The template panels settings.json lists now, each where it is docked. */
 function templatePanels(file: string): { page: TemplatePanel; how: PageHow }[] {
@@ -293,18 +311,10 @@ export class Templates {
     for (const p of panels) {
       const html = readFileSync((this.#host.shipped ?? shippedPage)(p.page), 'utf8')
       const path = join(dir, `${p.page}.html`)
-      const payload = p.page === 'analytics' ? await this.#analytics(now) : {}
-      // Escape markup even when a session value contains a closing script tag.
-      const json = JSON.stringify(payload).replace(/</g, '\\u003c')
-      writeAtomic(path, html.replace(DATA, (_match, start: string, end: string) => `${start}${json}${end}`))
+      writeAtomic(path, pageWithData(html, p.page === 'analytics' ? await this.#analytics(now) : {}))
       add.push({ id: panelPageId(p.page), title: PANEL_TITLES[p.page], path, how: p.how, opened: now })
     }
-    const file = this.#host.file
-    const stored = readStoredSettings(file) as Record<string, unknown>
-    const ui = typeof stored['ui'] === 'object' && stored['ui'] !== null ? stored['ui'] as Record<string, unknown> : {}
-    const pages = (Array.isArray(ui['pages']) ? ui['pages'] : []).filter(p => !(typeof p === 'object' && p !== null && TEMPLATE_PAGE.test(String((p as { id?: unknown }).id))))
-    const rev = (typeof ui['rev'] === 'number' ? ui['rev'] : 0) + 1
-    writeAtomic(file, `${JSON.stringify({ ...stored, ui: { ...ui, pages: [...pages, ...add], rev } }, null, 2)}\n`)
+    writeTemplatePages(this.#host.file, add)
     await this.#host.reload()
   }
 

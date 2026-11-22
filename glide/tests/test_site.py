@@ -102,6 +102,6 @@ def test_demo_only_shows_commands_glide_has():
 
 
 def test_demo_model():
-    run = subprocess.run(["node", "--test", str(SITE / "model.test.mjs")], capture_output=True, text=True, timeout=60)
+    run = subprocess.run(["node", "--test", "--test-reporter=tap", str(SITE / "model.test.mjs")], capture_output=True, text=True, timeout=60)
     assert run.returncode == 0, run.stdout + run.stderr
-    assert re.search(r"^ℹ fail 0$", run.stdout, re.M), run.stdout
+    assert re.search(r"^# fail 0$", run.stdout, re.M), run.stdout
