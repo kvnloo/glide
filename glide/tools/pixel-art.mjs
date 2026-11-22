@@ -10,7 +10,7 @@ const [, , playwright, executablePath, screenshot, take] = process.argv
 if (!playwright || !executablePath) throw new Error('Usage: node pixel-art.mjs /path/to/playwright-core /path/to/chromium [screenshot.png] [take.webm]')
 const { chromium } = createRequire(import.meta.url)(playwright)
 const profile = await mkdtemp(join(tmpdir(), 'pixel-studio-'))
-const url = new URL('../../docs/pages/pixel-art.html', import.meta.url).href
+const url = new URL('../docs/pages/pixel-art.html', import.meta.url).href
 const viewport = { width: 720, height: 720 }
 const open = () => chromium.launchPersistentContext(profile, {
   executablePath, viewport, ...(take ? { recordVideo: { dir: profile, size: viewport } } : {})

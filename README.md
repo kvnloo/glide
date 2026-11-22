@@ -98,7 +98,7 @@ Memory extraction and BM25 ranking make no model calls. If an existing z0intelli
 
 ## Glide can be a pixel-art editor
 
-Open [Pixel Studio](docs/pages/README.md) as a Glide Page to draw, save, and export a 16×16 sprite inside the pane.
+Open [Pixel Studio](glide/docs/pages/README.md) as a Glide Page to draw, save, and export a 16×16 sprite inside the pane.
 
 ## More in the chat
 

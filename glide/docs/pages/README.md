@@ -3,7 +3,7 @@
 [Pixel Studio](pixel-art.html) is a self-contained, theme-aware Glide Page with a
 16×16 canvas, custom ink, an eraser, and transparent PNG export.
 
-From a Glide chat inside Tern, ask the agent to copy `docs/pages/pixel-art.html`
+From a Glide chat inside Tern, ask the agent to copy `glide/docs/pages/pixel-art.html`
 from this checkout into the session folder and call `glide_page_open` with:
 
 | Argument | Value |
@@ -21,5 +21,5 @@ downloads the image at its original resolution, without the editing grid.
 For a browser smoke test with a locally installed `playwright-core` and Chromium:
 
 ```sh
-node frontend/e2e/pixel-art.mjs /path/to/playwright-core /path/to/chromium
+node glide/tools/pixel-art.mjs /path/to/playwright-core /path/to/chromium
 ```
