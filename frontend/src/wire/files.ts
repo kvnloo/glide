@@ -13,6 +13,7 @@ import * as z from 'zod/mini'
 import { liveSessionId } from '../core/ids.js'
 import { WIDGET_SLOTS, WIDGET_SOURCES, type UiState } from '../glideui/mounts.js'
 import { PAGE_HOWS } from '../glideui/pages.js'
+import { GLIDE_THEMES } from '../../../glide/frontend/themes.js'
 import type { Settings } from '../settings.js'
 import type { WatchSpec } from '../watch/spec.js'
 
@@ -38,7 +39,7 @@ function isObject(value: unknown): value is object {
 /** settings.json's fields; one of the wrong type reads as unset (its default), and a file that is not an object as no settings. */
 const settingsFile: z.ZodMiniType<Settings> = z.catch(
   z.object({
-    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash'])),
+    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash', ...GLIDE_THEMES])),
     thoughts: loose(z.boolean()),
     jobCharts: loose(z.boolean()),
     tableCharts: loose(z.enum(['off', 'always', 'smart']))

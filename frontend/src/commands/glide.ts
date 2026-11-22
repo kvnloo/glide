@@ -14,6 +14,7 @@ import type { SessionView } from '../app/ports.js'
 import type { Transcript } from '../transcript/store.js'
 import { commandReply } from '../wire/json.js'
 import { exportPalette, readWal, walFile, walPalette } from '../../../glide/frontend/wal.js'
+import { GLIDE_THEMES, isGlideTheme, themeTokens } from '../../../glide/frontend/themes.js'
 import type { ThemeMode } from '../settings.js'
 import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 import { studioCommand } from '../../../glide/frontend/studioCommand.js'
@@ -53,7 +54,7 @@ export function glideGlass(host: Pick<GlideHost, 'glassDemo' | 'transcript'>, su
   else host.transcript.notice(`Glass playground: blur, tint, saturation, rim and motes cycle for ${seconds} s, then settle. Text keeps 4.5:1 throughout.`)
 }
 
-/** `/glide theme auto|dash|default|export`: wear the wallpaper's pywal colors or Dash's black and gold, go back, or write them out. */
+/** `/glide theme auto|dash|<whole theme>|default|export`: wear the wallpaper's pywal colors, Dash's black and gold or a whole theme, go back, or write them out. */
 export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub: string | undefined): void {
   if (sub === 'auto' || sub === 'default') {
     host.setTheme?.(sub === 'auto' ? 'auto' : 'tern')
@@ -63,6 +64,11 @@ export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub
   if (sub === 'dash') {
     host.setTheme?.('dash')
     host.transcript.notice("Glide theme now wears Dash's black and gold")
+    return
+  }
+  if (isGlideTheme(sub)) {
+    host.setTheme?.(sub)
+    host.transcript.notice(`Glide theme now wears ${themeTokens(sub).label}`)
     return
   }
   if (sub === 'export') {
@@ -77,7 +83,7 @@ export function glideTheme(host: Pick<GlideHost, 'setTheme' | 'transcript'>, sub
     host.transcript.notice('Glide palette exported. Other tools can now wear your wallpaper colours too.')
     return
   }
-  host.transcript.notice('Usage: /glide theme auto|dash|default|export', 'warning')
+  host.transcript.notice(`Usage: /glide theme auto|dash|${GLIDE_THEMES.join('|')}|default|export`, 'warning')
 }
 
 const glideMemory = z.object({

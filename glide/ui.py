@@ -80,7 +80,7 @@ PAGE_SCHEMA = {
         "(how: over = in place of the chat until closed, the default; beside or below = docked). The pane themes it: "
         "use the CSS variables --glide-bg, --glide-surface, --glide-fg, --glide-muted, --glide-accent and "
         "--glide-accent-ink (they follow glide_ui_style and the wallpaper live), and listen for the window event "
-        "'glide-theme' (detail: {dark, bg, fg, accent, muted, surface}) for canvas or WebGL colors. Opening the same "
+        "'glide-theme' (detail: {dark, phase, bg, fg, accent, muted, surface}; phase is day or night, and glide_theme flips it) for canvas or WebGL colors. Opening the same "
         "id again reloads it. The result says whether the page opened."
     ),
     "parameters": {

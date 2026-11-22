@@ -15,6 +15,7 @@ import { glassPlayCss, PLAY_SECONDS, PLAY_SHEET } from '../../../glide/frontend/
 import { dashPalette, dashTernPalette } from '../../../glide/frontend/dash.js'
 import { readWal, WAL_SHEET, walCss, walFile, walPalette, walTernPalette, watchWal, type WalPalette } from '../../../glide/frontend/wal.js'
 import { styleAccent, styleWal, type UiStyle } from '../../../glide/frontend/style.js'
+import { isGlideTheme, themePalette, themeTernPalette } from '../../../glide/frontend/themes.js'
 
 /** What the theme reaches of the app. */
 export interface ThemeHost {
@@ -122,8 +123,8 @@ export class Theme {
   #unwatch: (() => void) | undefined
   /** Whether the dash mode's stylesheet is installed (the next mode takes it away). */
   #sheet = false
-  /** Whether the window wears the dash mode's Tern theme (the next mode gives its own back). */
-  #window = false
+  /** The Tern theme the window wears for the dash mode or a whole theme (a mode without one gives its own back). */
+  #window: string | undefined
   /** Takes the glass playground's sheet away once its cycle ends. */
   #play: NodeJS.Timeout | undefined
 
@@ -138,16 +139,18 @@ export class Theme {
     return this.#mode
   }
 
-  /** The wallpaper palette in the auto mode; undefined in the others or without a readable colors.json. */
+  /** The wallpaper palette in the auto mode, Dash's or a whole theme's; undefined in the others or without a readable colors.json. */
   get wal(): WalPalette | undefined {
     if (this.#mode === 'dash') return this.#dash()
+    if (isGlideTheme(this.#mode)) return themePalette(this.#mode, this.#host.style?.())
     return this.#mode === 'auto' ? this.#wal : undefined
   }
 
   /** Sends the palette of the mode and skin now. */
   apply() {
-    if (this.#mode !== 'dash' && this.#window) {
-      this.#window = false
+    const mode = this.#mode
+    if (mode !== 'dash' && !isGlideTheme(mode) && this.#window !== undefined) {
+      this.#window = undefined
       this.#host.windowTheme?.(null)
     }
     if (this.#mode === 'auto') {
@@ -155,15 +158,16 @@ export class Theme {
       return
     }
     this.#leaveWal()
-    if (this.#mode === 'dash') {
-      const dash = this.#dash()
-      const palette = dashTernPalette(dash)
+    if (mode === 'dash' || isGlideTheme(mode)) {
+      // Dash and the whole themes: one fixed palette, its card stylesheet and its Tern window theme.
+      const flat = mode === 'dash' ? this.#dash() : themePalette(mode, this.#host.style?.())
+      const palette = mode === 'dash' ? dashTernPalette(flat) : themeTernPalette(mode, flat)
       this.#host.palette(palette)
-      this.#host.stylesheet?.(WAL_SHEET, walCss(dash))
+      this.#host.stylesheet?.(WAL_SHEET, walCss(flat))
       this.#sheet = true
-      if (!this.#window) {
-        this.#window = true
-        this.#host.windowTheme?.(palette.name.dark)
+      if (this.#window !== palette.name.dark) {
+        this.#window = palette.name.dark
+        this.#host.windowTheme?.(this.#window)
       }
       return
     }
@@ -186,9 +190,20 @@ export class Theme {
   set(mode: ThemeMode) {
     this.#mode = mode
     this.#host.settings.save({ theme: mode })
-    // Asking for dash again wears its window theme again: something may have reset the window since.
-    if (mode === 'dash') this.#window = false
+    // Asking for dash (or a whole theme) again wears its window theme again: something may have reset the window since.
+    if (mode === 'dash' || isGlideTheme(mode)) this.#window = undefined
     this.apply()
+  }
+
+  /**
+   * Wears `mode`, which settings.json already keeps (glide_theme wrote it, or another pane's picker): nothing
+   * to save. Whether it changed anything.
+   */
+  wear(mode: ThemeMode): boolean {
+    if (mode === this.#mode) return false
+    this.#mode = mode
+    this.apply()
+    return true
   }
 
   /**
