@@ -12,6 +12,7 @@ import * as z from 'zod/mini'
 
 import { liveSessionId } from '../core/ids.js'
 import { WIDGET_SLOTS, WIDGET_SOURCES, type UiState } from '../glideui/mounts.js'
+import { PAGE_HOWS } from '../glideui/pages.js'
 import type { Settings } from '../settings.js'
 import type { WatchSpec } from '../watch/spec.js'
 
@@ -73,13 +74,21 @@ const mount = z.object({
   startedAt: loose(z.number()),
   glow: loose(z.boolean())
 })
+const page = z.object({
+  id: z.string().check(z.regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
+  title: z.string().check(z.maxLength(60)),
+  path: z.string().check(z.regex(/^\/.*\.html?$/i)),
+  how: z.catch(z.enum(PAGE_HOWS), 'over'),
+  opened: z.catch(z.number(), 0)
+})
 const uiState: z.ZodMiniType<UiState> = z.catch(
   z.object({
     rev: z.catch(z.number(), 0),
     widgets: z.catch(z.pipe(z.array(z.catch(z.nullable(mount), null)), z.transform(list => list.filter(w => w !== null))), []),
-    style: loose(z.object({ warmth: loose(z.number()), accent: loose(z.string().check(z.regex(/^#[0-9a-f]{6}$/i))) }))
+    pages: z.catch(z.pipe(z.array(z.catch(z.nullable(page), null)), z.transform(list => list.filter(p => p !== null))), []),
+    style: loose(z.object({ warmth: loose(z.number()), accent: loose(z.string().check(z.regex(/^#[0-9a-f]{6}$/i))), composer: loose(z.enum(['center', 'bottom'])) }))
   }),
-  { rev: 0, widgets: [] }
+  { rev: 0, widgets: [], pages: [] }
 )
 
 /** settings.json's `ui`; a widget that does not read is dropped, a file without one is no widgets. */

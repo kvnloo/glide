@@ -21,6 +21,10 @@ export interface UiRender {
 
 const span = (t: string, s?: string): Span => (s ? { t, s } : { t })
 const toneStyle = (tone: UiTone | undefined) => tone === undefined || tone === 'neutral' ? undefined : tone
+const toneProps = (value: UiTone | undefined) => {
+  const tone = toneStyle(value)
+  return tone ? { tone } : {}
+}
 const clamp = (v: number) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0))
 const STEP_STATUS = { pending: 'pending', active: 'running', done: 'done', blocked: 'error' } as const
 
@@ -97,7 +101,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       return <chart key={key} kind="bars" role="glide.bars" series={n.props.values.map((value, i) => ({ value, label: n.props.labels[i] ?? '' }))} size="md" summary={n.props.summary} />
     case 'Meter': {
       const p = n.props
-      return <meter key={key} label={p.label} role="glide.meter" value={clamp(p.value)} {...(p.total ? { total: p.total } : {})} {...(toneStyle(p.tone) ? { tone: toneStyle(p.tone) } : {})} />
+      return <meter key={key} label={p.label} role="glide.meter" value={clamp(p.value)} {...(p.total ? { total: p.total } : {})} {...toneProps(p.tone)} />
     }
     case 'Table': {
       const { columns, rows } = n.props
@@ -138,10 +142,10 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
               <row align="center" gap="md" key="r" role="glide.list.row">
                 {numbered ? <text key="i" role="glide.list.index" text={String(i + 1).padStart(2, '0')} /> : null}
                 <col gap="none" grow={1} key="t" shrink={1}>
-                  <text key="l" role="glide.strong" text={it.label} truncate="end" {...(toneStyle(it.tone) ? { tone: toneStyle(it.tone) } : {})} />
+                  <text key="l" role="glide.strong" text={it.label} truncate="end" {...toneProps(it.tone)} />
                   {it.detail ? <text key="d" role="glide.muted" text={it.detail} wrap="word" /> : null}
                 </col>
-                {it.badge ? <badge key="b" text={it.badge} {...(toneStyle(it.tone) ? { tone: toneStyle(it.tone) } : {})} /> : null}
+                {it.badge ? <badge key="b" text={it.badge} {...toneProps(it.tone)} /> : null}
                 {it.value ? <text key="v" role="glide.list.value" text={it.value} /> : null}
               </row>
             )
@@ -164,7 +168,7 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
       )
     }
     case 'Badges':
-      return <row gap="sm" key={key} role="glide.badges" wrap>{n.props.items.map((b, i) => <badge key={`b${i}`} text={b.text} {...(toneStyle(b.tone) ? { tone: toneStyle(b.tone) } : {})} />)}</row>
+      return <row gap="sm" key={key} role="glide.badges" wrap>{n.props.items.map((b, i) => <badge key={`b${i}`} text={b.text} {...toneProps(b.tone)} />)}</row>
     case 'Steps':
       return (
         <checklist
@@ -213,6 +217,11 @@ export function node(n: UiNode, key: string, r: UiRender): JSX.Element {
 /** The surface sheet names: UI_CSS (shared with transcript cards), and the ring's live position. */
 export const UI_SHEET = 'glide-ui'
 export const RING_SHEET = 'glide-ring'
+/** The centred composer (glide_ui_style composer: center): the spacer under an empty chat's dock, a roomier input line, no welcome card. */
+export const LIFT_SHEET = 'glide-lift'
+export const LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;flex:none;justify-content:flex-start}
+[data-role='omp.welcome']{display:none}
+[data-role='omp.editor'] .sf-editor{min-height:58px}`
 
 /** Where the sweep starts on the top edge: just past the chip, as in the reference. */
 const RING_START = 0.2
@@ -269,13 +278,20 @@ const RING_GLOW = `
 /** The kit's look on native kinds: type ramp, uppercase mono labels, hero figure, hairline rows. */
 export const UI_CSS = `
 [data-role='glide.body']{padding:4px 2px}
+/* A widget in the dock reads as part of the composer's column: no card box, its head the graph's caption. */
+[data-role='glide.dock'] .sf-card[data-role='glide.card']{background:none;border-color:transparent;box-shadow:none;padding:6px 0 0}
+[data-role='glide.dock'] [data-role='glide.card'] .sf-card-head,[data-role='glide.dock'] [data-role='glide.card'] .sf-card-body{padding-left:0;padding-right:0}
+[data-role='glide.dock'] [data-role='glide.card'] .sf-card-head{font-family:Inter,system-ui,sans-serif;font-size:15px}
+[data-role='glide.dock'] [data-role='glide.card'] [data-role='glide.body']{padding:2px 0 0}
+[data-role='glide.dock'] [data-role='glide.source']{display:none}
+[data-role='glide.dock'] [data-glide-enter]::before{display:none}
 /* The composer ring: a stroke on the composer's own border, spent clockwise from the chip. */
 [data-role='glide.ring.t0'],[data-role='glide.ring.t1'],[data-role='glide.ring.t2']{display:none;position:absolute;top:-1px;height:24px;z-index:3;pointer-events:none;border:0 solid transparent;border-top-width:2px}
 [data-role='glide.ring.bl'],[data-role='glide.ring.br']{position:absolute;top:-1px;bottom:-1px;z-index:3;pointer-events:none;border:0 solid transparent;border-bottom-width:2px}
 [data-role='glide.ring.bl']{left:-1px;border-left-width:2px;border-radius:17px 0 0 17px}
 [data-role='glide.ring.br']{right:-1px;border-right-width:2px;border-radius:0 17px 17px 0}
 [data-role='glide.ring.head']{position:absolute;z-index:3;width:8px;height:8px;border-radius:50%;pointer-events:none;background:color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}
-[data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px}
+[data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px;font-family:Inter,system-ui,sans-serif}
 [data-role='glide.ring.dot']{width:8px;height:8px;border-radius:50%;background:${ACCENT}}
 [data-role='glide.ring.label']{opacity:.72}
 [data-role='glide.ring.value']{font-weight:600;font-variant-numeric:tabular-nums}

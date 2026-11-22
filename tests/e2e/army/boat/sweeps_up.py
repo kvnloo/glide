@@ -101,8 +101,12 @@ def main():
                     guard_budget(boat('billing'), 1)
                     lane = pending.pop(0)
                     sid = army.new('glide-' + lane['id'], snapshot)
-                    # Snapshot paths belong only to this clone. Never inherit previous run receipts.
-                    army.remote(sid, 'rm -rf runs site /home/user/army-private; mkdir -p runs', 30)
+                    # Preserve snapshot data without admitting prior receipts into this run.
+                    army.remote(sid, '''archive=$(mktemp -d .snapshot.XXXXXX)
+for path in runs site ../army-private; do
+    if [ -e "$path" ] || [ -L "$path" ]; then mv -- "$path" "$archive/"; fi
+done
+mkdir runs''', 30)
                     army.upload(sid, payloads[lane['sha']], include_glide=True)
                     config = temp / (lane['id'] + '.json')
                     config.write_text(json.dumps(lane))

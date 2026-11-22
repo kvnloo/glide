@@ -572,3 +572,32 @@ tests/test_plan_gateway_dispatch.py
 tests/test_table_chart_gateway.py
 tests/test_table_chart_planner.py
 tests/test_talk_backend.py
+
+# Already merged in #334: Tern-native film and research modules colocated with frontend adapters.
+frontend/src/commands/__tests__/film.test.ts
+frontend/src/commands/film.ts
+frontend/src/gev/__tests__/fixtures/earthquakes.txt
+frontend/src/gev/__tests__/gev.test.ts
+frontend/src/gev/__tests__/research.test.ts
+frontend/src/gev/card.ts
+frontend/src/gev/cards.ts
+frontend/src/gev/globe.ts
+frontend/src/gev/research/card.ts
+frontend/src/gev/research/case.ts
+frontend/src/gev/research/cases/authored.ts
+frontend/src/gev/research/cases/learjet.ts
+frontend/src/gev/research/index.ts
+frontend/src/gev/skin.ts
+frontend/src/wire/fframestudio.ts
+frontend/src/wire/gev.ts
+
+# Frontend entry, test and preview tooling use the frontend package and its JSX/runtime dependencies.
+frontend/scripts/splash-demo.ts
+frontend/scripts/splash-preview.ts
+frontend/src/__tests__/glidePages.test.ts
+frontend/src/__tests__/splash.test.ts
+frontend/src/glideui/pages.ts
+frontend/src/splash/art.ts
+frontend/src/splash/launch.tsx
+# The plugin-level suite exercises the installed Hermes registration contract.
+tests/test_live_skin.py

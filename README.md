@@ -9,13 +9,13 @@ Derived from alt-glitch/hermes-tern (MIT). This fork adds the Glide memory backe
 
 ## Install
 
-Use a current Hermes Agent with standalone-plugin and gateway support, Tern, and Node.js. The plugin manifest requires Hermes ≥0.23.0. [Manifest](plugin.yaml) · [Launcher](launcher.py)
-
-Hermes scans community plugins before installing them. It rates this one **CAUTION**, the same verdict it gives [alt-glitch/hermes-tern](https://github.com/alt-glitch/hermes-tern) itself. The HIGH findings are text matches in the Tern frontend: the sudo-password prompt UI and the Markdown code-span parser. Review them, then answer `y` at the prompt (or pass `--force` in a non-interactive shell). This guide does not bypass the check. [Hermes installer](https://github.com/NousResearch/hermes-agent/blob/b3746e35ddd32079697728e2df57a9d78f1e9e32/hermes_cli/plugins_cmd_install.py)
+Prerequisites: [Hermes Agent](https://github.com/NousResearch/hermes-agent) ≥0.23.0, [Tern](https://stencil.so/tern), and Node.js. [Manifest](plugin.yaml)
 
 ```sh
 hermes plugins install kvnloo/glide
 ```
+
+Review Hermes' scanner findings before approving the install. It may report **CAUTION**, as it does for the base Tern plugin. The scan is not bypassed by this guide.
 
 After a successful install, accept Hermes' plugin-enable prompt. One install includes the Tern frontend and Glide. The installed plugin is named `glide` (earlier releases used `hermes-tern`; its data folders move to the new name on first load, and settings under `plugins.entries.hermes-tern` must be set again under `plugins.entries.glide`). Do not also install the standalone `glide/` subdirectory into the same profile. [Registration](https://github.com/kvnloo/glide/pull/223)
 
@@ -26,6 +26,12 @@ hermes tern
 ```
 
 The frontend needs Tern's Surface Protocol. An ordinary terminal cannot render it. [Launcher contract](launcher.py)
+
+## First run
+
+In Tern, start with **`/glide` → Detect → Build memory → Turn on**. Build and enable are separate approvals. A fresh profile with no eligible corrections won't return a match. Try **`/glide focus`** for attention controls; the skill catalog, benchmark and offload are optional.
+
+Screenshots: [Detect](#real-tern-screenshots) · [Memory proof](#real-tern-screenshots) · [Recall](#real-tern-screenshots). These are existing captures using synthetic history, not new captures from this release.
 
 ## Guard your attention
 
@@ -111,12 +117,12 @@ The inherited base chat is shown below, not a Glide onboarding capture.
 
 ## Check a fresh install yourself
 
-`bash scripts/e2e-fresh-install.sh` installs `kvnloo/glide` from GitHub into a throwaway `HERMES_HOME`, validates it, and runs every `/glide` command against synthetic sessions through Hermes' real plugin loader. It never touches your real profile. [Details](glide/docs/fresh-install.md)
+`bash scripts/e2e-fresh-install.sh` installs the committed checkout into a throwaway `HERMES_HOME`, validates the plugin, and exercises memory, focus and Taste with synthetic data through Hermes' command loader. It does not launch Tern, touch your profile, or call a model. [Details](glide/docs/fresh-install.md)
 
 ## What runs beyond a prompt
 
 - [Python memory backend](glide/memory.py), [source reader](glide/source.py), and [atomic storage](glide/storage.py) resolve eligible message generations and build a bounded local BM25 index.
-- The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) validate parameters and serve the cards on a Hermes core with `ctx.register_gateway_method`. Released Hermes does not have it, so those methods are skipped and the cards run through the `/glide` command.
+- The [registered hook and command](glide/core.py) add matching corrections before model calls. [Session-bound gateway methods](glide/gateway.py) validate parameters and serve the cards on a Hermes core with `ctx.register_gateway_method`. Released Hermes does not have it, so those methods stay inactive and the cards run through the `/glide` command.
 - The [TypeScript flow](frontend/src/commands/glide.ts) renders native cards and handles approval actions. [Router](glide/skill_router.py), [benchmark](glide/hill_climb.py), and [Ollama offload](glide/offload.py) modules persist their own results.
 - Opt-in live voice (`/live` or Alt+Shift+V) shows helper lanes beside the thinking orb. They read real state from a local lane broker on `127.0.0.1:8791` and stay off without its token file. Live voice needs a Hermes gateway with the `voice.live` methods; the pinned Hermes may lack them, which shows a visible activation failure. [Voice and lanes](frontend/docs/voice.md)
 

@@ -1,4 +1,5 @@
-"""Agent-mounted Glide widgets (kvnloo/glide#326): glide_ui_mount, glide_ui_unmount, glide_ui_style.
+"""Agent-mounted Glide widgets and pages (kvnloo/glide#326): glide_ui_mount, glide_ui_unmount, glide_ui_style,
+glide_page_open.
 
 A widget is a glide/v1 OpenUI program that only picks a data source's slots, a dock slot around the
 composer, and that source; the Glide pane binds the source's live data itself. State is the ``ui`` key
@@ -32,7 +33,8 @@ WAIT_S = 6.0
 _PROGRAM_HELP = (
     "A glide/v1 OpenUI program: `root = GlideCard(\"<card key>\", [parts])`, each part naming one of the "
     "source's slot keys, e.g. `root = GlideCard(\"commits\", [Graphic(\"heat\"), Stats(\"stats\")])`. "
-    "Row([..]) puts parts side by side. Programs carry no data, colors or styles."
+    "Row([..]) puts parts side by side. Programs carry no data, colors or styles. Mount what was asked: a graph "
+    "or heatmap is `Graphic(\"heat\")` alone; add Stats, Spark or Hero only when the user asks for numbers."
 )
 
 MOUNT_SCHEMA = {
@@ -57,7 +59,7 @@ MOUNT_SCHEMA = {
             "source": {"type": "string", "enum": list(SOURCES)},
             "program": {"type": "string", "description": _PROGRAM_HELP},
             "minutes": {"type": "integer", "minimum": 1, "maximum": 240, "description": "clock.focus only: the block length."},
-            "glow": {"type": "boolean", "description": "composer-ring only: a soft glow on the ring. Leave it off unless the user asks for a glow."},
+            "glow": {"type": "boolean", "description": "composer-ring only: the soft glow a focus ring wears, on by default; false for a bare stroke (the user asks for no glow)."},
         },
         "required": ["id", "slot", "source", "program"],
         "additionalProperties": False,
@@ -67,6 +69,31 @@ UNMOUNT_SCHEMA = {
     "name": "glide_ui_unmount",
     "description": "Remove a widget mounted with glide_ui_mount, by id; id \"*\" removes every widget.",
     "parameters": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"], "additionalProperties": False},
+}
+PAGE_HOWS = ("over", "beside", "below")
+PAGE_MAX_BYTES = 4 << 20
+PAGE_SCHEMA = {
+    "name": "glide_page_open",
+    "description": (
+        "Open a full app the agent wrote (a game, a music player, a whiteboard, a dashboard, an editor) as a Glide "
+        "page: one self-contained HTML file in the session folder, opened in the Glide pane's own browser block "
+        "(how: over = in place of the chat until closed, the default; beside or below = docked). The pane themes it: "
+        "use the CSS variables --glide-bg, --glide-surface, --glide-fg, --glide-muted, --glide-accent and "
+        "--glide-accent-ink (they follow glide_ui_style and the wallpaper live), and listen for the window event "
+        "'glide-theme' (detail: {dark, bg, fg, accent, muted, surface}) for canvas or WebGL colors. Opening the same "
+        "id again reloads it. The result says whether the page opened."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "description": "Short lowercase id, e.g. blockworld."},
+            "title": {"type": "string", "description": "The page's name in the Pages list, e.g. Blockworld."},
+            "path": {"type": "string", "description": "Absolute path of the page's .html file."},
+            "how": {"type": "string", "enum": list(PAGE_HOWS)},
+        },
+        "required": ["id", "title", "path"],
+        "additionalProperties": False,
+    },
 }
 STYLE_SCHEMA = {
     "name": "glide_ui_style",
@@ -81,6 +108,8 @@ STYLE_SCHEMA = {
         "properties": {
             "warmth": {"type": "number", "minimum": -1, "maximum": 1},
             "accent": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+            "composer": {"type": "string", "enum": ["center", "bottom"],
+                         "description": "center: an empty chat's composer (and its widgets) sits mid-pane until the first message; bottom: Tern's dock."},
             "reset": {"type": "boolean"},
         },
         "additionalProperties": False,
@@ -132,7 +161,9 @@ def state(home: Path) -> dict[str, Any]:
     ui = _read(settings_file(home)).get("ui")
     ui = ui if isinstance(ui, dict) else {}
     widgets = [w for w in ui.get("widgets") or [] if isinstance(w, dict)]
-    return {"widgets": widgets, **({"style": ui["style"]} if isinstance(ui.get("style"), dict) else {})}
+    pages = [p for p in ui.get("pages") or [] if isinstance(p, dict)]
+    return {"widgets": widgets, **({"pages": pages} if pages else {}),
+            **({"style": ui["style"]} if isinstance(ui.get("style"), dict) else {})}
 
 
 def _verdict(home: Path, rev: int, wait: float) -> dict[str, Any] | None:
@@ -158,7 +189,8 @@ def mount(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: float 
     if not isinstance(program, str) or not program.strip() or len(program.encode()) > 4096:
         return {"ok": False, "error": "program: a glide/v1 program of at most 4 KiB"}
     widget: dict[str, Any] = {"id": wid, "slot": slot, "source": source, "program": program}
-    if args.get("glow") is True and slot == "composer-ring":
+    # A focus ring glows as it runs (the reference look) unless the mount turns it off; no other slot glows.
+    if slot == "composer-ring" and args.get("glow") is not False:
         widget["glow"] = True
     if source == "clock.focus":
         minutes = args.get("minutes", 25)
@@ -192,6 +224,38 @@ def unmount(home: Path, args: dict[str, Any]) -> dict[str, Any]:
     return {"ok": True, "mounted": [w.get("id") for w in keep]}
 
 
+def open_page(home: Path, args: dict[str, Any], *, wait: float = WAIT_S, now: float | None = None) -> dict[str, Any]:
+    pid, title, path, how = args.get("id"), args.get("title"), args.get("path"), args.get("how", "over")
+    if not isinstance(pid, str) or not _ID.match(pid):
+        return {"ok": False, "error": "id: use 1-40 lowercase letters, digits or dashes"}
+    if not isinstance(title, str) or not title.strip() or len(title) > 60:
+        return {"ok": False, "error": "title: 1-60 characters"}
+    if how not in PAGE_HOWS:
+        return {"ok": False, "error": f"how: one of {', '.join(PAGE_HOWS)}"}
+    file = Path(path) if isinstance(path, str) else None
+    if file is None or not file.is_absolute() or file.suffix.lower() not in (".html", ".htm"):
+        return {"ok": False, "error": "path: an absolute path to an .html file"}
+    try:
+        size = file.stat().st_size
+    except OSError:
+        return {"ok": False, "error": f"path: no file at {file}; write the page first"}
+    if size > PAGE_MAX_BYTES:
+        return {"ok": False, "error": "path: a page of at most 4 MiB"}
+    page = {"id": pid, "title": title.strip(), "path": str(file.resolve()), "how": how,
+            "opened": int((now if now is not None else time.time()) * 1000)}
+    current = state(home)
+    pages = [p for p in current.get("pages", []) if p.get("id") != pid] + [page]
+    rev = _write_ui(home, {**current, "pages": pages})
+    verdict = _verdict(home, rev, wait)
+    if verdict is None:
+        return {"ok": True, "page": pid, "opened": False,
+                "note": "Saved to the Pages list. No Glide pane answered, so it opens when one does."}
+    result = (verdict.get("pages") or {}).get(pid) or {"ok": False, "problems": ["the pane did not report this page"]}
+    if result.get("ok"):
+        return {"ok": True, "page": pid, "opened": True, "how": how}
+    return {"ok": False, "page": pid, "opened": False, "problems": result.get("problems", [])}
+
+
 def style(home: Path, args: dict[str, Any], *, wait: float = WAIT_S) -> dict[str, Any]:
     current = state(home)
     if args.get("reset"):
@@ -209,8 +273,13 @@ def style(home: Path, args: dict[str, Any], *, wait: float = WAIT_S) -> dict[str
         if not isinstance(a, str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", a):
             return {"ok": False, "error": "accent: #rrggbb"}
         patch["accent"] = a.lower()
+    if "composer" in args:
+        c = args["composer"]
+        if c not in ("center", "bottom"):
+            return {"ok": False, "error": "composer: center or bottom"}
+        patch["composer"] = c
     if not patch:
-        return {"ok": False, "error": "Pass warmth, accent or reset."}
+        return {"ok": False, "error": "Pass warmth, accent, composer or reset."}
     rev = _write_ui(home, {**current, "style": patch})
     verdict = _verdict(home, rev, wait)
     if verdict is None:
@@ -235,6 +304,7 @@ def command(rest: str) -> str:
     if verb in ("", "list"):
         s = state(home)
         rows = [f"- {w.get('id')}: {w.get('source')} in {w.get('slot')}" for w in s["widgets"]]
+        rows += [f"- page {p.get('id')}: {p.get('title')} ({p.get('path')})" for p in s.get("pages", [])]
         return "\n".join(rows + ([f"Style: {json.dumps(s['style'])}"] if s.get("style") else [])) or "No widgets mounted."
     return "Usage: /glide ui [list|reset]"
 
@@ -251,14 +321,16 @@ def _tool(fn):
 PROMPT = """<glide_ui>
 The Glide pane's look is yours to change. A widget around the composer (above or below it, on its edge,
 in the sidebar) is glide_ui_mount; removing one is glide_ui_unmount; a restyle ("make it warmer", cooler,
-an accent color) is glide_ui_style and means the UI palette, never the model's temperature. If these tools
-are not loaded, find them with tool_search ("glide ui").
+an accent color) is glide_ui_style and means the UI palette, never the model's temperature. A whole app
+("build me a game", a music player, a whiteboard, a piano) is a page: write one self-contained HTML file in the
+session folder that colors itself from the --glide-* CSS variables, then glide_page_open. If these tools are not
+loaded, find them with tool_search ("glide ui").
 </glide_ui>"""
 
 
 def register(ctx) -> None:
     if callable(getattr(ctx, "register_system_prompt_section", None)):
         ctx.register_system_prompt_section("glide.ui", PROMPT)
-    for schema, fn in ((MOUNT_SCHEMA, mount), (UNMOUNT_SCHEMA, unmount), (STYLE_SCHEMA, style)):
+    for schema, fn in ((MOUNT_SCHEMA, mount), (UNMOUNT_SCHEMA, unmount), (STYLE_SCHEMA, style), (PAGE_SCHEMA, open_page)):
         ctx.register_tool(name=schema["name"], toolset=TOOLSET, schema=schema, handler=_tool(fn),
                           description=schema["description"], emoji="🧩")

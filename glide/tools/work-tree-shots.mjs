@@ -23,7 +23,11 @@ const env = { ...process.env }
 for (const key of ['DISPLAY', 'WAYLAND_DISPLAY', 'ZDOTDIR', 'BASH_ENV', 'ENV', 'HYPRLAND_INSTANCE_SIGNATURE', 'SWAYSOCK', 'TMUX', 'STY', 'ZELLIJ', 'TERN_PANE', 'TERN_WINDOW', 'TERN_CONTROL', 'TERN_TSP', 'HERMES_TUI_GATEWAY_URL', 'HERMES_TUI_RESUME', 'HERMES_TUI_QUERY', 'HERMES_TUI_IMAGE', 'HERMES_CWD', 'HERMES_TERN_RESTORED', 'GLIDE_LANES_URL', 'GLIDE_LANES_TOKEN_FILE']) delete env[key]
 Object.assign(env, { HOME: join(runtime, 'home'), HERMES_HOME: join(runtime, 'home/.hermes'), XDG_CONFIG_HOME: join(runtime, 'config'), XDG_CACHE_HOME: join(runtime, 'cache'), XDG_DATA_HOME: join(runtime, 'data'), SHELL: '/bin/bash', XDG_STATE_HOME: join(runtime, 'state'), XDG_RUNTIME_DIR: runtime, TERN_CONFIG_DIR: join(runtime, 'tern'), TERN_DAEMON_SOCKET: join(runtime, 'daemon.sock'), WORK_TREE_PROOF: runtime, PI_CODING_AGENT_DIR: join(runtime, 'home/.omp/agent'), GLIDE_AUTO_THEME: '0', TERN_BUILD_URL: 'http://127.0.0.1:9' })
 for (const dir of [env.HOME, env.HERMES_HOME, env.TERN_CONFIG_DIR, join(runtime, 'bin')]) mkdirSync(dir, { recursive: true })
-for (const binary of ['tern', 'wf-recorder']) symlinkSync(`/home/kvn/.local/bin/${binary}`, join(runtime, 'bin', binary))
+for (const binary of ['tern', 'wf-recorder']) {
+  const source = (process.env.PATH ?? '').split(':').filter(Boolean).map(dir => resolve(dir, binary)).find(existsSync)
+  assert(source, `Put ${binary} on PATH before capture`)
+  symlinkSync(source, join(runtime, 'bin', binary))
+}
 env.PATH = `${join(runtime, 'bin')}:/usr/bin:/bin`
 const themes = spawnSync('python3', ['-c', 'import importlib.util, sys; from pathlib import Path; root=Path.cwd(); spec=importlib.util.spec_from_file_location("work_tree_plugin",root/"__init__.py",submodule_search_locations=[str(root)]); module=importlib.util.module_from_spec(spec); sys.modules[spec.name]=module; spec.loader.exec_module(module); module.launcher.install_themes()'], { env, cwd: repo, encoding: 'utf8' })
 assert.equal(themes.status, 0, themes.stderr)
@@ -37,7 +41,7 @@ function ctl(...args) {
 }
 const swayConfig = join(runtime, 'sway.conf')
 writeFileSync(swayConfig, 'output HEADLESS-1 mode 1200x1000@60Hz scale 1\ndefault_border none\ngaps outer 0\nfor_window [app_id="so.stencil.tern"] floating enable, resize set 1060 796, move position 0 0\n')
-const compositor = spawn('/home/kvn/.local/opt/sway-nested/bin/sway', ['-c', swayConfig], { env: { ...env, WLR_BACKENDS: 'headless', WLR_LIBINPUT_NO_DEVICES: '1', WLR_RENDERER: 'gles2', WLR_RENDER_DRM_DEVICE: '/dev/dri/renderD128', LD_LIBRARY_PATH: '/home/kvn/.local/opt/sway-nested/lib' }, stdio: ['ignore', 'pipe', 'pipe'] })
+const compositor = spawn(process.env.SWAY_BIN || 'sway', ['-c', swayConfig], { env: { ...env, WLR_BACKENDS: 'headless', WLR_LIBINPUT_NO_DEVICES: '1', WLR_RENDERER: 'gles2', WLR_RENDER_DRM_DEVICE: '/dev/dri/renderD128' }, stdio: ['ignore', 'pipe', 'pipe'] })
 const compositorLog = createWriteStream(join(runtime, 'sway.log'))
 compositor.stdout.pipe(compositorLog, { end: false }); compositor.stderr.pipe(compositorLog, { end: false })
 const compositorExited = once(compositor, 'exit')

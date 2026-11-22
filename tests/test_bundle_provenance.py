@@ -20,6 +20,20 @@ def git(repo, *args):
     ).stdout.strip()
 
 
+class WorkflowWorkspaceTest(unittest.TestCase):
+    def test_workflows_do_not_install_legacy_npm_workspace(self):
+        workflows = Path(__file__).resolve().parents[1] / ".github/workflows"
+        files = list(workflows.glob("*.yml"))
+        self.assertTrue(files, "no workflows found")
+        for workflow in files:
+            with self.subTest(workflow=workflow.name):
+                self.assertNotRegex(
+                    workflow.read_text(),
+                    r"\bnpm\s+ci\b[^\n]*--workspace(?:\s+|=)ui-tui\b",
+                    "the pinned Hermes source uses pnpm; install frontend/bun.lock instead",
+                )
+
+
 class BundleProvenanceTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

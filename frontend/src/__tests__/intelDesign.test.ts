@@ -33,7 +33,7 @@ function fixture(): IntelDoc {
         { sig: 'failure-' + 'c'.repeat(24), source: 'old-replay', spark: '0000', count: 50, status: 'fixed' }
       ],
       trace: [{ lane: opaqueSession, spans: [[0, 2, 'm'], [2, 5, 't']] }],
-      notes: ['Source: /home/sample/internal.json; read only.']
+      notes: ['Source: /synthetic/internal.json; read only.']
     }
   }
 }
@@ -132,7 +132,7 @@ describe('intel card design projection', () => {
     expect(climb).toBeDefined()
     expect(failure).toBeDefined()
     const score = intelDetailBody('climb',
-      'recall\n/home/sample/trials.jsonl\nrecall@3\nLast 10 points: [0.5, 0.62, 0.7]', climb)
+      'recall\n/synthetic/trials.jsonl\nrecall@3\nLast 10 points: [0.5, 0.62, 0.7]', climb)
     expect(score).toContain('Current score: 0.7')
     expect(score).toContain('Since first score: +0.2')
     expect(score).not.toContain('/home/')

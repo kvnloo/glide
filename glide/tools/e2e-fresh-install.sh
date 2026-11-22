@@ -3,6 +3,11 @@
 # No inherited profile or provider credentials. All history is synthetic.
 set -euo pipefail
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+expected=$(git -C "$repo" rev-parse --verify HEAD)
+if ! git -C "$repo" diff --quiet HEAD --; then
+    echo 'FAIL preflight: commit tracked changes before testing the checkout' >&2
+    exit 1
+fi
 uv=$(command -v uv) || { echo 'FAIL prerequisites: install uv first' >&2; exit 1; }
 # Ignore inherited HERMES_HOME and TMPDIR, even if either names a real profile.
 work=$(mktemp -d /tmp/glide-e2e.XXXXXXXXXX)
@@ -20,6 +25,7 @@ env -i HOME="$work/user" HERMES_HOME="$work" PATH=/usr/bin:/bin \
     UV_CONCURRENT_BUILDS=2 bash -euo pipefail -c '
 repo=$1
 uv=$2
+expected=$3
 core="$HERMES_HOME/core"
 step() {
     local name=$1 rc
@@ -42,12 +48,19 @@ step core-checkout git -C "$core" checkout -q --detach FETCH_HEAD
 printf "Hermes revision=%s\n" "$(git -C "$core" rev-parse HEAD)"
 step dependencies "$uv" sync --project "$core" --frozen --no-dev --python 3.14
 hermes="$core/.venv/bin/hermes"
-# --force explicitly accepts CAUTION for this custom public source. The scanner still runs;
+# --force explicitly accepts CAUTION for this disposable checkout. The scanner still runs;
 # DANGEROUS remains blocked. --yes-deps supplies non-interactive dependency consent.
-step install "$hermes" plugins install kvnloo/glide --force --enable --yes-deps
+# The clone is a committed snapshot, not a copy of private/untracked workspace files.
+snapshot="$HERMES_HOME/glide-source"
+step source-init git init -q "$snapshot"
+step source-fetch git -C "$snapshot" fetch --depth 1 "$repo" "$expected"
+step source-checkout git -C "$snapshot" checkout -q --detach FETCH_HEAD
+step install "$hermes" plugins install "file://$snapshot" --ref "$expected" --force --enable --yes-deps
 installed="$HERMES_HOME/plugins/glide"
-printf "Installed main revision=%s\n" "$(git -C "$installed" rev-parse HEAD)"
+actual=$(git -C "$installed" rev-parse HEAD)
+printf "Installed revision=%s (expected %s)\n" "$actual" "$expected"
+step revision test "$actual" = "$expected"
 step validate "$hermes" plugins validate "$installed"
 step glide-flow "$core/.venv/bin/python" "$repo/glide/tools/fresh_install.py"
 printf "PASS fresh-install exit=0\n"
-' bash "$repo" "$uv"
+' bash "$repo" "$uv" "$expected"
