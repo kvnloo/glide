@@ -124,3 +124,20 @@ The launch check uses a temporary profile and synthetic history. It intercepts t
 so it cannot open a desktop window. For the isolated native Taste check, see [Taste](docs/taste.md).
 
 MIT licensed.
+
+### Optional: full z0intelligence setup
+
+In Tern, run `/glide onboard` with the optional z0int CLI installed. Glide runs
+`z0int models plan --json` to preview hardware-aware recommendations. Only
+**Run or resume setup** invokes `z0int onboard --json`. This can install/update
+Evolution Lab and link OMP extensions if present; it discovers local sources and
+writes z0int configuration. It does not opt into model downloads or Glide recall.
+
+To resume after an interruption or a step that needs attention, resolve the
+issue, then run `/glide onboard` and approve again. z0int owns the checkpoint
+under its state directory and skips completed steps (it checks doctor again).
+If an install needs longer than the card allows, resume with
+`z0int onboard --json` in a terminal after the earlier run has stopped. On
+stock Hermes, the slash command is preview-only; use that terminal command
+to apply. Glide memory, router, hill climb and local offload remain available
+through `/glide` without z0intelligence.

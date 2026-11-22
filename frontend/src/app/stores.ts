@@ -17,8 +17,9 @@ import { Sidebar } from '../chrome/sidebar.js'
 import { Theme, ternWindowTheme } from '../chrome/theme.js'
 import { euiSheets, setSvgInk } from '../eui/cards.js'
 import { GlidePages, pageThemeOf } from '../glideui/pages.js'
+import { Templates } from '../../../glide/frontend/templates.js'
 import { GlideWidgets } from '../glideui/widgets.js'
-import { paneBlock, ternBrowser } from '../gev/globe.js'
+import { focusBrowser, paneBlock, ternBrowser } from '../gev/globe.js'
 import { WorkTreeCard } from '../glideui/workTreeCard.js'
 import { TodoHud } from '../todo-hud.js'
 import { fleetCommand } from '../commands/fleet.js'
@@ -136,7 +137,15 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
    */
   const processes = new Processes(live, { author: gatewayAuthor(gw, () => session.ref.live), enabled: () => jobCharts, memory: chartMemory() })
   const cron = new Cron(chat)
-  const sidebar = new Sidebar(chat)
+  const sidebar = new Sidebar(chat, undefined, {
+    list: () => widgets.savedPages,
+    open: id => {
+      const page = widgets.savedPages.find(p => p.id === id)
+      if (page) void pages.reopen(page).then(v => {
+        if (!v.ok) chat.notice(v.problems.join('; '), 'warning')
+      })
+    }
+  })
   const factory = new FactoryPane(chat, () => void fleetCommand(chat, 'factory'))
   /** The session's standing /goal and /loop (the dock line above the pills and its sheets). */
   const automation = new Automation(live)
@@ -327,7 +336,7 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
   const laneFeed = laneFeedFromEnv(changed)
   laneFeed?.start()
   /** The widgets an agent mounted around the composer; chat.run() starts following settings.json. */
-  const pages = new GlidePages(ternBrowser, paneBlock)
+  const pages = new GlidePages(ternBrowser, paneBlock, focusBrowser)
   let themeRef: Theme | undefined
   const widgets: GlideWidgets = new GlideWidgets({
     file: settingsFile(),
@@ -369,10 +378,22 @@ export function chatStores(chat: ChatPorts, { act, gw, launch, recorder, setting
     settings
   }, process.env['GLIDE_AUTO_THEME'] === '1' ? 'auto' : saved.theme ?? 'tern')
   themeRef = theme
+  /** Whole-app templates (the command palette's "Use Mono template"): theme, transcript style and panels at once. */
+  const templates = new Templates({
+    file: settingsFile(),
+    settings,
+    saved,
+    setTheme: mode => theme.set(mode),
+    closePage: id => pages.close(id),
+    reload: () => widgets.reload(),
+    changed,
+    entries: () => transcript.entries,
+    cwd: () => session.info?.cwd || undefined
+  })
   const completion = new Completion(chat, gw, () => session.ref.live, () => session.ref)
   const welcome: WelcomeContext = { version: version && version !== 'unknown' ? `v${version}` : '' }
 
-  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, theme, viewer, warned, welcome, widgets, workTree }
+  return { ...shared, attachments, completion, cron, dictation, laneFeed, life, liveVoice, talkGateway, router, stack, templates, theme, viewer, warned, welcome, widgets, workTree }
 }
 
 /** Stops what the stores run on their own: every timer, the polls and the sidebar's reads. */

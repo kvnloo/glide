@@ -23,12 +23,15 @@ afterEach(() => {
 })
 
 /** Finds an actual emitted native id, not an invented test handler map. */
-function buttonId(value: unknown, label: string, owner?: string): string | undefined {
-  if (Array.isArray(value)) return value.map(v => buttonId(v, label, owner)).find(Boolean)
-  if (!value || typeof value !== 'object') return undefined
-  const id = 'id' in value && typeof value.id === 'string' ? value.id : owner
-  if (Object.values(value).includes(label)) return id
-  return Object.values(value).map(v => buttonId(v, label, id)).find(Boolean)
+/** The wire id of the el whose text is `label`; a text-only button carries it in a `label` span child (#289). */
+function buttonId(value: unknown, label: string): string | undefined {
+  return (function find(v: unknown, owner?: string): string | undefined {
+    if (Array.isArray(v)) return v.map(c => find(c, owner)).find(Boolean)
+    if (!v || typeof v !== 'object') return undefined
+    const id = 'id' in v && typeof v.id === 'string' ? v.id : owner
+    if (Object.values(v).includes(label)) return id
+    return Object.values(v).map(c => find(c, id)).find(Boolean)
+  })(value)?.replace(/\.label$/, '')
 }
 
 function click(id: string): ActionEvent {

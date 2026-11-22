@@ -89,7 +89,7 @@ export function euiStyles(): string {
     // full-brand accent head tint and top rule are dead bytes, as are its hermes rules for chrome no kind renders.
     .replace(/^\[data-eui='card'\] (\[data-host="hermes"\] \.(eu-card|brandmark|hero h1 em|turn\.user \.bub)|\[data-brand="full"\] \.eu-card( \.eu-h)?)\{[^}]*\}\n/gm, '')
   kitCss = `${kit}
-[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 14px/1.45 var(--h-font); }
+[data-eui='card'] { --h-bg: var(--l1); --h-fg: var(--t1); --h-card: var(--card, var(--l1)); --h-card-solid: var(--card, var(--l1)); --h-muted: var(--l2); --h-mutedFg: var(--t3); --h-accent: var(--l2); --h-border: var(--l3); --h-input: var(--l3); --h-primary: var(--accent); --h-primaryFg: var(--card); --h-font: var(--sans); --h-mono: var(--mono); display: block; margin: 8px 0; color: var(--h-fg); font: 13px/1.45 var(--h-font); }
 [data-eui='card'][data-eui-popup] { max-width: none; margin: 0; }
 [data-eui='card'] [data-eui-svg] { display: inline-block; vertical-align: middle; flex: none; max-width: 100%; min-width: 0; }
 [data-eui='card'] [data-eui-svg] > .sf-image, [data-eui='card'] [data-eui-svg] .sf-img-svg { max-width: 100%; height: auto; }
@@ -100,9 +100,11 @@ export function euiStyles(): string {
 [data-eui='card'] .eu-card.eui-host { padding: 14px; border: 1px solid var(--l3); background: var(--l1); }
 [data-eui='card'] :is([data-host] .eu-card,.eu-card):not(.gone){border-radius:8px;box-shadow:none;border-color:var(--h-border);--pad:14px}
 [data-eui][data-eui='card'] .eu-card:not(.gone)::after{content:none}
-[data-eui='card'] .eu-card .eu-ico{--s:20px}[data-eui='card'] .eu-card .eu-h{padding:6px var(--pad) 4px}[data-eui='card'] .eu-card .eu-t{flex-direction:row;align-items:baseline;gap:8px}[data-eui='card'] .eu-card .eu-t b{font-size:13px;flex:none}
+[data-eui='card'] .eu-card .eu-ico{--s:20px;font-size:10px}[data-eui='card'] .eu-card .eu-h{padding:6px var(--pad) 4px}[data-eui='card'] .eu-card .eu-t{flex-direction:row;align-items:baseline;gap:8px}[data-eui='card'] .eu-card .eu-t b{font-size:13px;flex:none}
 [data-eui][data-eui='card'] .eui-host-head.eui-host-head{padding:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none}
 [data-eui='card'] .eu-card.eui-host > p { max-width: 72ch; }
+[data-eui='card'] button { max-width: 100%; }
+[data-eui='card'] button > .eu-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 [data-eui='card'] .eui-host-rows { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; }
 [data-eui='card'] :is(.eui-host-rows dt, .eu-btn[data-eui-a-disabled]:not(.primary)) { color: var(--h-mutedFg); }
 [data-eui='card'] .eui-host-rows dd { margin: 0; white-space: pre-wrap; }
@@ -119,7 +121,7 @@ export function euiStyles(): string {
 .k-intel-suite .is-hero { padding: 8px 12px; }
 .k-intel-suite .is-segb { padding: 5px 12px; }
 .k-intel-suite .is-act { min-height: 0; height: 24px; padding: 0 12px; }
-.k-intel-suite .is-big b { font-size: 24px; }
+.k-intel-suite .is-big b { font-size: 20px; }
 .k-intel-suite .is-chart { max-width: 420px; }
 ${INTENT_CSS}
 ${ATTENTION_CSS}

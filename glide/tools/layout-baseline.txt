@@ -12,6 +12,7 @@ dictation.py  # upstream: alt-glitch/hermes-tern PR 71
 docs/BUNDLE-ARTIFACT.md
 docs/DESIGN-LANGUAGE.md
 docs/MEDIA-DELIVERY.md
+docs/design/ROUND2-IDEAS.md
 docs/images/agent-tree/serve/collapsed.png
 docs/images/agent-tree/serve/expanded.png
 docs/images/agent-tree/serve/expansion.mp4
@@ -198,11 +199,13 @@ frontend/src/__tests__/delegateFold.test.ts
 frontend/src/__tests__/delegateIterationLimit.test.ts
 frontend/src/__tests__/delegationOwnership.test.ts
 frontend/src/__tests__/denseSearch.test.ts
+frontend/src/__tests__/designSurfaces.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/designTokens.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/dictation.test.ts  # upstream: alt-glitch/hermes-tern PR 71
 frontend/src/__tests__/dictationKeys.test.ts
 frontend/src/__tests__/ephemeralCard.test.ts
 frontend/src/__tests__/euiApp.test.ts
+frontend/src/__tests__/euiButtonLabel.test.ts  # vitest only collects frontend/src
 frontend/src/__tests__/euiCards.test.ts
 frontend/src/__tests__/euiHostApp.test.ts
 frontend/src/__tests__/euiHostCards.test.ts
@@ -345,6 +348,7 @@ frontend/src/__tests__/talkGateway.test.ts
 frontend/src/__tests__/talkNative.test.ts
 frontend/src/__tests__/tasteCard.test.ts
 frontend/src/__tests__/tasteCommand.test.ts
+frontend/src/__tests__/templates.test.ts
 frontend/src/__tests__/terminalAsyncNotify.test.ts
 frontend/src/__tests__/terminalDescription.test.ts
 frontend/src/__tests__/terminalMasked.test.ts

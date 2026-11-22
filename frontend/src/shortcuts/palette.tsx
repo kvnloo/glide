@@ -6,6 +6,7 @@ import type { Key, PickerItem } from '@stencil-hq/tern'
 
 import type { ChatPorts } from '../app/ports.js'
 import { HIDDEN_COMMANDS, localCommands } from '../commands/local.js'
+import { PANEL_TITLES, TEMPLATE_PANELS, TEMPLATES } from '../../../glide/frontend/templates.js'
 import type { Composer } from '../draft/composer.js'
 import { editQuery, hitRuns, moveSelection, rank } from '../overlays/search.js'
 import type { Overlay } from '../overlays/overlay.js'
@@ -21,6 +22,19 @@ export interface PaletteRow {
   readonly name: string
   readonly description: string
   readonly group: string
+  /** The slash command the row runs (or inserts); a command row's own name when unset. */
+  readonly command?: string
+}
+
+/** The whole-app templates ("Use Mono template"), then their panels: each runs a /template command. */
+function templateRows(): PaletteRow[] {
+  const rows: PaletteRow[] = (['mono', 'studio', 'default'] as const).map(id => ({
+    command: `/template ${id}`, description: TEMPLATES[id].detail, group: 'Templates', id: `template:${id}`, name: `Use ${TEMPLATES[id].label} template`
+  }))
+  for (const panel of TEMPLATE_PANELS) {
+    rows.push({ command: `/template panel ${panel}`, description: `Dock the ${PANEL_TITLES[panel]} page beside the chat`, group: 'Templates', id: `panel:${panel}`, name: `Open ${PANEL_TITLES[panel]} page` })
+  }
+  return rows
 }
 
 /** Merge frontend-owned and gateway commands without duplicating aliases. */
@@ -49,7 +63,8 @@ export function paletteRows(catalog: CommandsCatalogResult = {}): PaletteRow[] {
     }
   }
 
-  return rows
+  // After the commands, so the first row (what Enter runs on an empty query) stays a command.
+  return [...rows, ...templateRows()]
 }
 
 /** Command search keeps draft/caret intact until explicit Insert or Run. */
@@ -84,7 +99,13 @@ export function openCommandPalette(host: PaletteHost): void {
 
   const current = (id = selected) => all.find(row => row.id === id)
   const pick = (id: string | undefined, execute: boolean) => {
-    const command = current(id)?.name
+    // Enter before the next frame after an edit: the new query's best match.
+    if (id === undefined) {
+      view()
+      id = selected
+    }
+    const row = current(id)
+    const command = row?.command ?? row?.name
 
     if (!command || !alive || sid !== host.session.ref.live) {
       return
@@ -110,7 +131,7 @@ export function openCommandPalette(host: PaletteHost): void {
         detail: row.description,
         id: row.id,
         label: row.name,
-        mono: true,
+        mono: !row.command,
         title: `${row.group} · ${row.description}`
       }))
 
@@ -163,8 +184,10 @@ export function openCommandPalette(host: PaletteHost): void {
         } else {
           const edited = editQuery(key, query)
 
-          if (edited !== undefined) {
+          if (edited !== undefined && edited !== query) {
             query = edited
+            // A new query selects its best match, not a row the old query left selected.
+            selected = undefined
           }
         }
       }

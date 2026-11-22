@@ -61,7 +61,7 @@ export function speech(s: string | null): string | null {
   return s.replace(/\s*\[[a-z_]+=[^\]]*\]/gi, '').replace(/^\s*(answer|intent|reply|draft)\s*:\s*/i, '').trim()
 }
 
-type Fetch = (url: string, init: { headers: Record<string, string>; signal: AbortSignal }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
+type Fetch = (url: string, init: { headers: Record<string, string>; signal: AbortSignal; redirect: 'error'; method?: 'POST'; body?: string }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
 
 export interface LaneFeedOptions {
   url: string
@@ -82,6 +82,8 @@ export class LaneFeed {
   #timer: NodeJS.Timeout | undefined
   #last = ''
   #stopped = false
+  #generation = 0
+  #editing = false
 
   constructor(o: LaneFeedOptions) {
     this.#o = { fastMs: 1000, slowMs: 5000, ...o, fetch: o.fetch ?? ((url, init) => globalThis.fetch(url, init)) }
@@ -98,13 +100,44 @@ export class LaneFeed {
     this.#timer = undefined
   }
 
+  /** Launch on the rendered, still-current call; never substitute another session. */
+  async launch(call: LaneCall, choice: string): Promise<void> {
+    if (this.#editing || !call.open || !call.sessionId || this.call?.sessionId !== call.sessionId ||
+        this.call.revision !== call.revision || !this.call.open || !loopbackUrl(this.#o.url)) {
+      throw new Error('The active call changed or another edit is in progress.')
+    }
+    this.#editing = true
+    ++this.#generation
+    clearTimeout(this.#timer)
+    this.#timer = undefined
+    try {
+      const res = await this.#o.fetch(this.#o.url.replace(/\/$/, '') + '/v1/lanes/launch', {
+        method: 'POST', redirect: 'error',
+        headers: { Authorization: 'Bearer ' + this.#o.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: call.sessionId, choice }),
+        signal: AbortSignal.timeout(2500)
+      })
+      const result = res.ok ? await res.json() : null
+      if (!obj(result) || result['ok'] !== true || !str(result['revision'])) throw new Error('Lane broker refused the edit.')
+      await this.poll()
+      if (this.call?.sessionId !== call.sessionId || this.call.revision !== result['revision']) {
+        throw new Error('Could not confirm the edit in broker status.')
+      }
+    } finally {
+      this.#editing = false
+      if (!this.#timer && !this.#stopped) void this.poll()
+    }
+  }
+
   async poll(): Promise<void> {
+    const generation = ++this.#generation
     clearTimeout(this.#timer)
     this.#timer = undefined
     let call: LaneCall | null = null
     let error = ''
     try {
       const res = await this.#o.fetch(this.#o.url.replace(/\/$/, '') + '/v1/lanes/status', {
+        redirect: 'error',
         headers: { Authorization: 'Bearer ' + this.#o.token },
         signal: AbortSignal.timeout(2500)
       })
@@ -116,6 +149,7 @@ export class LaneFeed {
     } catch (e) {
       error = 'lane broker is offline'
     }
+    if (generation !== this.#generation) return
     const key = JSON.stringify([call, error])
     if (key !== this.#last) {
       this.#last = key

@@ -30,6 +30,8 @@ describe('host card layout', () => {
       return at < 0 ? '' : css.slice(at, css.indexOf('}', at))
     }
     expect(rule('.eu')).not.toMatch(/max-width:\s*\d+px/)
+    // omp's body size: 13 px is on the type ramp and omp's 10-13 px scale (DESIGN-LANGUAGE.md §3, R15); 14 was on neither.
+    expect(rule('.eu')).toMatch(/font:\s*13px\/1\.45/)
     expect(rule('.eu .eu-card.eui-host')).toMatch(/padding:\s*14px/)
     // One shell rule flattens every card, host and kit alike, past the kit's and the glass sheet's.
     const shell = rule('.eu :is([data-host] .eu-card,.eu-card):not(.gone)')

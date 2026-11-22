@@ -165,9 +165,9 @@ export class App implements ChatPorts {
     return this.stores.dictation
   }
 
-  get theme(): ThemeMode {
-    return this.stores.theme.mode
-  }
+  get theme(): ThemeMode { return this.stores.theme.mode }
+
+  get templates() { return this.stores.templates }
 
   openNotices() {
     this.operations.showText('Notices · snapshot', noticeReport(this.stores.notices.active()))
@@ -209,7 +209,7 @@ export class App implements ChatPorts {
     if (this.#tern.caps.features.includes('blobs')) {
       this.#orb = new ThinkingOrb(this.#tern, this.#surface.motion)
       this.#clean = new CleanView(this.#tern, this.#surface.motion, () => cleanPalette(s.theme.wal), () => this.changed())
-      if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion, i => void openLanesPopup(this, this.laneFeed, undefined, i))
+      if (s.laneFeed) this.#lanes = new LaneStrip(s.laneFeed, this.#tern, this.#surface.motion, i => void openLanesPopup(this, this.laneFeed, i))
     }
     this.#view = {
       ...s,

@@ -27,7 +27,9 @@ const MODES: readonly (PickerItem & { id: ThemeMode })[] = [
   ...GLIDE_THEMES.map(id => {
     const t = themeTokens(id)
     return { detail: `${t.detail}; ${t.phase === 'day' ? 'night' : 'day'} is ${themeTokens(t.pair).label} (/glide theme ${id})`, icon: 'palette', id, label: t.label }
-  })
+  }),
+  { detail: 'Greyscale with white for the one accent (the Mono template wears it)', icon: 'palette', id: 'mono', label: 'Mono' },
+  { detail: 'Warm charcoal and light gold (the Studio template wears it)', icon: 'palette', id: 'studio', label: 'Studio' }
 ]
 
 export function isThemeMode(v: string): v is ThemeMode {

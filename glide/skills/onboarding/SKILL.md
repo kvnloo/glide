@@ -50,3 +50,15 @@ quoted. That output comes from code; describe it, don't paraphrase it into somet
 Quoting stays off until the user turns it on: `/glide on`, or `hermes glide onboard --enable`
 (which turns it on only if every check passed). If they're unsure, leave it off; `/glide off`
 undoes it at any time.
+
+## Optional z0intelligence setup
+
+If the user wants local model management or the full z0intelligence setup, suggest
+`/glide onboard` in Tern. It previews the hardware-aware model plan; the user holds
+**Run or resume setup** to apply. On other frontends, `/glide onboard` previews only;
+the user can run `z0int onboard --json` in their local terminal to apply or resume.
+
+Summarize the recommendations or help interpret failed steps when asked. Do not
+invent model choices, execute the setup on the user's behalf, force a restart, or
+download models. The installed z0int CLI owns the step order and checkpoint. This
+setup is independent of Glide's memory and recall consent.

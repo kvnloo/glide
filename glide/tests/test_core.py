@@ -115,13 +115,16 @@ def test_gateway_methods_are_namespaced_schema_checked_and_session_bound(home):
                                 register_gateway_method=lambda name, fn, schema: methods.__setitem__(name, (fn, schema)))
     gateway.register(ctx)
     assert hooks == ["pre_llm_call"] and commands == ["fleet", "glide", "intel"]
-    assert sorted(methods) == [f"glide.{v}" for v in ("detect", "enable", "fleet", "fleet_pod", "focus", "hill_climb", "offload", "recall", "route", "skill_router", "sync", "taste")]
+    assert sorted(methods) == [f"glide.{v}" for v in ("detect", "enable", "fleet", "fleet_pod", "focus", "hill_climb", "offload", "recall", "route", "skill_router", "sync", "taste", "z0_onboard_apply", "z0_onboard_plan")]
     assert all(schema.model_config["extra"] == "forbid" for _, schema in methods.values())
     request = types.SimpleNamespace(session_id="live", assert_attached=lambda: None)
     fn, _ = methods["glide.enable"]
     assert fn(request, {"session_id": "live", "on": True})["on"] is True
     with pytest.raises(PermissionError):
         fn(request, {"session_id": "other", "on": False})
+    apply, _ = methods["glide.z0_onboard_apply"]
+    with pytest.raises(PermissionError):
+        apply(request, {"session_id": "other"})
 
 
 def test_cores_without_gateway_methods_still_get_the_command(home):

@@ -1,0 +1,192 @@
+<!doctype html>
+<!-- Glide's Whiteboard page (the Studio template's panel, /template panel whiteboard). Every mark is kept as a
+     vector in a theme role (ink, accent, muted), so a restyle (the glide-theme event, frontend/src/glideui/pages.ts)
+     recolours the whole board. The board persists in localStorage. Self-contained: no network, no fonts. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiteboard</title>
+<style>
+  :root {
+    --glide-bg: #0e0c14; --glide-surface: #17141f; --glide-fg: #ece8df; --glide-muted: #a8a39a;
+    --glide-accent: #d7b986; --glide-accent-ink: #111111;
+    --line: color-mix(in srgb, var(--glide-fg) 14%, transparent);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--glide-bg); color: var(--glide-fg); font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #board { position: fixed; inset: 0; display: block; cursor: crosshair; touch-action: none; }
+  #bar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; align-items: center; padding: 5px; background: var(--glide-surface); border: 1px solid var(--line); border-radius: 16px; z-index: 2; }
+  #bar button { font: inherit; font-size: 12px; min-width: 32px; height: 30px; padding: 0 9px; color: var(--glide-fg); background: transparent; border: 1px solid transparent; border-radius: 12px; cursor: pointer; }
+  #bar button:hover { border-color: var(--line); }
+  #bar button:focus-visible { outline: 2px solid var(--glide-accent); outline-offset: 1px; }
+  #bar button[aria-pressed="true"] { background: var(--glide-accent); color: var(--glide-accent-ink); }
+  #bar .sep { width: 1px; height: 20px; background: var(--line); margin: 0 3px; }
+  #bar .sw { width: 22px; min-width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 2px solid var(--glide-surface); box-shadow: 0 0 0 1px var(--line); }
+  #bar .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--glide-fg); background: var(--c); }
+  .note { position: fixed; min-width: 120px; min-height: 64px; max-width: 260px; padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, var(--glide-accent) 22%, var(--glide-surface)); color: var(--glide-fg); border: 1px solid var(--line); box-shadow: 0 6px 18px rgb(0 0 0 / .25); outline: none; white-space: pre-wrap; z-index: 1; cursor: text; }
+  .note:focus { box-shadow: 0 0 0 2px var(--glide-accent), 0 6px 18px rgb(0 0 0 / .25); }
+  #hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: var(--glide-muted); font-size: 11px; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="board" aria-label="Whiteboard canvas"></canvas>
+<div id="bar" role="toolbar" aria-label="Whiteboard tools">
+  <button data-tool="pen" title="Pen (P)">Pen</button>
+  <button data-tool="rect" title="Rectangle (R)">Box</button>
+  <button data-tool="ellipse" title="Ellipse (O)">Oval</button>
+  <button data-tool="arrow" title="Arrow (A)">Arrow</button>
+  <button data-tool="note" title="Sticky note (N)">Note</button>
+  <button data-tool="eraser" title="Eraser (E)">Erase</button>
+  <span class="sep"></span>
+  <button class="sw" data-role="ink" title="Ink" aria-label="Ink colour"></button>
+  <button class="sw" data-role="accent" title="Accent" aria-label="Accent colour"></button>
+  <button class="sw" data-role="muted" title="Muted" aria-label="Muted colour"></button>
+  <span class="sep"></span>
+  <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
+  <button id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+  <button id="clear" title="Clear the board">Clear</button>
+  <button id="png" title="Save as PNG">PNG</button>
+</div>
+<div id="hint">P pen · R box · O oval · A arrow · N note · E erase · Ctrl+Z undo</div>
+<script type="application/json" id="glide-data">{}</script>
+<script>
+(() => {
+  const KEY = 'glide-whiteboard-v1'
+  const canvas = document.getElementById('board'), ctx = canvas.getContext('2d')
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  const colour = role => role === 'accent' ? css('--glide-accent') : role === 'muted' ? css('--glide-muted') : css('--glide-fg')
+  let marks = [], undone = [], tool = 'pen', role = 'ink', drawing = null
+  try { const saved = JSON.parse(localStorage.getItem(KEY) || '[]'); if (Array.isArray(saved)) marks = saved } catch { marks = [] }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)) } catch { /* a board without storage still draws */ } }
+
+  function resize() {
+    const dpr = devicePixelRatio || 1
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr
+    canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px'
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    paint()
+  }
+
+  function stroke(m) {
+    ctx.strokeStyle = colour(m.role); ctx.fillStyle = colour(m.role)
+    ctx.lineWidth = m.w || 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'
+    ctx.beginPath()
+    if (m.t === 'pen') {
+      const p = m.p
+      ctx.moveTo(p[0], p[1])
+      for (let i = 2; i < p.length - 2; i += 2) ctx.quadraticCurveTo(p[i], p[i + 1], (p[i] + p[i + 2]) / 2, (p[i + 1] + p[i + 3]) / 2)
+      if (p.length >= 4) ctx.lineTo(p[p.length - 2], p[p.length - 1])
+      ctx.stroke()
+    } else if (m.t === 'rect') {
+      const r = 8, x = Math.min(m.x1, m.x2), y = Math.min(m.y1, m.y2), w = Math.abs(m.x2 - m.x1), h = Math.abs(m.y2 - m.y1)
+      ctx.roundRect ? ctx.roundRect(x, y, w, h, Math.min(r, w / 2, h / 2)) : ctx.rect(x, y, w, h)
+      ctx.stroke()
+    } else if (m.t === 'ellipse') {
+      ctx.ellipse((m.x1 + m.x2) / 2, (m.y1 + m.y2) / 2, Math.abs(m.x2 - m.x1) / 2, Math.abs(m.y2 - m.y1) / 2, 0, 0, Math.PI * 2)
+      ctx.stroke()
+    } else if (m.t === 'arrow') {
+      const a = Math.atan2(m.y2 - m.y1, m.x2 - m.x1), head = 12
+      ctx.moveTo(m.x1, m.y1); ctx.lineTo(m.x2, m.y2)
+      ctx.moveTo(m.x2, m.y2); ctx.lineTo(m.x2 - head * Math.cos(a - 0.45), m.y2 - head * Math.sin(a - 0.45))
+      ctx.moveTo(m.x2, m.y2); ctx.lineTo(m.x2 - head * Math.cos(a + 0.45), m.y2 - head * Math.sin(a + 0.45))
+      ctx.stroke()
+    }
+  }
+
+  function paint() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight)
+    // A quiet dot grid in the muted ink, so the board reads as one at any theme.
+    ctx.fillStyle = css('--glide-muted'); ctx.globalAlpha = 0.18
+    for (let x = 12; x < innerWidth; x += 24) for (let y = 12; y < innerHeight; y += 24) ctx.fillRect(x, y, 1.2, 1.2)
+    ctx.globalAlpha = 1
+    for (const m of marks) if (m.t !== 'note') stroke(m)
+    if (drawing) stroke(drawing)
+    syncNotes()
+  }
+
+  const notes = new Map()
+  function syncNotes() {
+    const live = new Set()
+    marks.forEach((m, i) => {
+      if (m.t !== 'note') return
+      m.id ??= 'n' + Date.now().toString(36) + i
+      live.add(m.id)
+      let el = notes.get(m.id)
+      if (!el) {
+        el = document.createElement('div'); el.className = 'note'; el.contentEditable = 'true'; el.spellcheck = false
+        el.textContent = m.text || ''
+        el.addEventListener('input', () => { m.text = el.textContent; save() })
+        el.addEventListener('pointerdown', ev => { if (tool === 'eraser') { ev.preventDefault(); commit(() => { marks = marks.filter(x => x !== m) }) } else ev.stopPropagation() })
+        document.body.append(el); notes.set(m.id, el)
+      }
+      el.style.left = m.x + 'px'; el.style.top = m.y + 'px'
+    })
+    for (const [id, el] of notes) if (!live.has(id)) { el.remove(); notes.delete(id) }
+  }
+
+  const commit = change => { undone = []; change(); save(); paint() }
+  const near = (m, x, y) => {
+    if (m.t === 'pen') { for (let i = 0; i < m.p.length; i += 2) if (Math.hypot(m.p[i] - x, m.p[i + 1] - y) < 10) return true; return false }
+    if (m.t === 'note') return false
+    const x0 = Math.min(m.x1, m.x2) - 8, x1 = Math.max(m.x1, m.x2) + 8, y0 = Math.min(m.y1, m.y2) - 8, y1 = Math.max(m.y1, m.y2) + 8
+    return x >= x0 && x <= x1 && y >= y0 && y <= y1
+  }
+
+  canvas.addEventListener('pointerdown', ev => {
+    canvas.setPointerCapture(ev.pointerId)
+    const x = ev.clientX, y = ev.clientY
+    if (tool === 'note') { const m = { t: 'note', x, y, text: '', id: 'n' + Date.now().toString(36) }; commit(() => marks.push(m)); notes.get(m.id)?.focus(); return }
+    if (tool === 'eraser') { commit(() => { marks = marks.filter(m => !near(m, x, y)) }); drawing = { t: 'erase' }; return }
+    drawing = tool === 'pen' ? { t: 'pen', role, w: 2.5, p: [x, y] } : { t: tool, role, w: 2.5, x1: x, y1: y, x2: x, y2: y }
+  })
+  canvas.addEventListener('pointermove', ev => {
+    if (!drawing) return
+    const x = ev.clientX, y = ev.clientY
+    if (drawing.t === 'erase') { const before = marks.length; marks = marks.filter(m => !near(m, x, y)); if (marks.length !== before) { save(); paint() } return }
+    if (drawing.t === 'pen') drawing.p.push(x, y)
+    else { drawing.x2 = x; drawing.y2 = y; if (ev.shiftKey && drawing.t !== 'arrow') { const d = Math.max(Math.abs(x - drawing.x1), Math.abs(y - drawing.y1)); drawing.x2 = drawing.x1 + Math.sign(x - drawing.x1 || 1) * d; drawing.y2 = drawing.y1 + Math.sign(y - drawing.y1 || 1) * d } }
+    paint()
+  })
+  const finish = () => {
+    if (!drawing) return
+    const m = drawing; drawing = null
+    if (m.t === 'erase') return
+    const tiny = m.t === 'pen' ? m.p.length < 4 : Math.hypot(m.x2 - m.x1, m.y2 - m.y1) < 3
+    if (m.t === 'pen' && m.p.length === 2) m.p.push(m.p[0] + 0.1, m.p[1] + 0.1)
+    if (!tiny || m.t === 'pen') commit(() => marks.push(m)); else paint()
+  }
+  canvas.addEventListener('pointerup', finish)
+  canvas.addEventListener('pointercancel', finish)
+
+  const press = (sel, attr, value) => { for (const b of document.querySelectorAll(sel)) b.setAttribute('aria-pressed', String(b.dataset[attr] === value)) }
+  const setTool = t => { tool = t; press('[data-tool]', 'tool', t); canvas.style.cursor = t === 'eraser' ? 'cell' : t === 'note' ? 'copy' : 'crosshair' }
+  const setRole = r => { role = r; press('.sw', 'role', r) }
+  for (const b of document.querySelectorAll('[data-tool]')) b.addEventListener('click', () => setTool(b.dataset.tool))
+  for (const b of document.querySelectorAll('.sw')) b.addEventListener('click', () => setRole(b.dataset.role))
+  const undo = () => { const m = marks.pop(); if (m) { undone.push(m); save(); paint() } }
+  const redo = () => { const m = undone.pop(); if (m) { marks.push(m); save(); paint() } }
+  document.getElementById('undo').addEventListener('click', undo)
+  document.getElementById('redo').addEventListener('click', redo)
+  document.getElementById('clear').addEventListener('click', () => { if (marks.length) commit(() => { undone = marks.slice().reverse(); marks = [] }) })
+  document.getElementById('png').addEventListener('click', () => {
+    const out = document.createElement('canvas'); out.width = canvas.width; out.height = canvas.height
+    const o = out.getContext('2d'); o.fillStyle = css('--glide-bg'); o.fillRect(0, 0, out.width, out.height); o.drawImage(canvas, 0, 0)
+    const a = document.createElement('a'); a.download = 'whiteboard.png'; a.href = out.toDataURL('image/png'); a.click()
+  })
+  addEventListener('keydown', ev => {
+    if (ev.target instanceof HTMLElement && ev.target.isContentEditable) return
+    const k = ev.key.toLowerCase()
+    if ((ev.ctrlKey || ev.metaKey) && k === 'z') { ev.preventDefault(); ev.shiftKey ? redo() : undo(); return }
+    const t = { p: 'pen', r: 'rect', o: 'ellipse', a: 'arrow', n: 'note', e: 'eraser' }[k]
+    if (t && !ev.ctrlKey && !ev.metaKey && !ev.altKey) setTool(t)
+  })
+  const swatches = () => { for (const b of document.querySelectorAll('.sw')) { b.style.background = colour(b.dataset.role); b.style.setProperty('--c', colour(b.dataset.role)) } }
+  addEventListener('glide-theme', () => { swatches(); paint() })
+  addEventListener('resize', resize)
+  setTool('pen'); setRole('ink'); swatches(); resize()
+})()
+</script>
+</body>
+</html>

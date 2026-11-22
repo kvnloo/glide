@@ -1,12 +1,15 @@
 // Agent pages (glide_page_open, kvnloo/glide#326): settings.json's `ui.pages` opens each page in a Tern browser
 // block once per request, themes it with the surface's colors, restyles every open page, and the verdict
 // lands in ui-status.json beside the widgets'.
+import { mkdir, mkdtemp, rm, symlink, truncate, writeFile } from 'node:fs/promises'
 import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
 
 import { describe, expect, it } from 'vitest'
+
+import { pageOrigin } from '../../../glide/frontend/pageAssets.js'
 
 import type { Browser } from '../gev/globe.js'
 import { GlidePages, pageThemeOf, pageUrl, type PageTheme, themeFunction } from '../glideui/pages.js'
@@ -58,6 +61,23 @@ describe('GlidePages', () => {
     expect(ops.at(-1)).toMatchObject({ op: 'open', how: 'beside' })
   })
 
+  it('focuses an existing saved page and reopens a closed one from the list', async () => {
+    const { browser } = fakeBrowser()
+    const focused: number[] = []
+    let closed = false
+    const pages = new GlidePages(browser, () => 7, async block => {
+      if (closed) throw new Error('Cannot navigate a closed browser block')
+      focused.push(block)
+    })
+    const saved = page('music', 1)
+    await pages.sync([saved])
+    expect(await pages.reopen(saved)).toEqual({ ok: true, block: 41 })
+    expect(focused).toEqual([41])
+    closed = true
+    expect(await pages.reopen(saved)).toEqual({ ok: true, block: 42 })
+    expect(await pages.sync([saved])).toEqual({})
+  })
+
   it('restyles every open page and reports failures without a pane', async () => {
     const { browser, ops } = fakeBrowser()
     const pages = new GlidePages(browser, () => 7)
@@ -94,7 +114,7 @@ describe('themeFunction', () => {
       .toEqual({ dark: true, bg: '#000000', surface: '#111111', fg: '#ffffff', muted: '#888888', accent: '#a78bfa', accentInk: '#111111' })
     expect(pageThemeOf(undefined, { dark: { text: '#eeeeee', accent: '#a78bfa', muted: '#999999' } })).toMatchObject({ dark: true, fg: '#eeeeee', accent: '#a78bfa' })
     expect(pageThemeOf(undefined, { light: { text: '#222222', accent: '#7c3aed' } })).toMatchObject({ dark: false, bg: '#f5f1ea', accentInk: '#ffffff' })
-    expect(pageThemeOf(undefined, undefined)).toBeUndefined()
+    expect(pageThemeOf(undefined, { dark: {}, light: {} })).toMatchObject({ dark: true, accent: '#d7b986' })
   })
 })
 
@@ -115,4 +135,41 @@ describe('pages in settings.json', () => {
     })
     w.dispose()
   })
+})
+
+it('serves declared model and seekable audio assets but not neighboring files', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'glide-asset-test-'))
+  try {
+    const entry = join(dir, 'scene.html')
+    await mkdir(join(dir, 'media'))
+    await writeFile(entry, '<title>Scene</title>')
+    const model = join(dir, 'media', 'model file.glb')
+    await writeFile(model, 'glTF')
+    await truncate(model, 5 * 2 ** 20)
+    await writeFile(join(dir, 'media', 'theme.wav'), 'RIFF0123WAVE')
+    await writeFile(join(dir, 'media', 'unlisted.wav'), 'not public')
+    const origin = await pageOrigin(entry, ['media/model file.glb', 'media/theme.wav'])
+    try {
+      expect(await (await fetch(origin.url)).text()).toBe('<title>Scene</title>')
+      const asset = (name: string) => new URL(`media/${name}`, origin.url)
+      const glb = await fetch(asset('model file.glb'))
+      expect(glb.headers.get('content-type')).toBe('model/gltf-binary')
+      expect((await glb.arrayBuffer()).byteLength).toBe(5 * 2 ** 20)
+      const audio = await fetch(asset('theme.wav'), { headers: { Range: 'bytes=8-11' } })
+      expect(audio.status).toBe(206)
+      expect(audio.headers.get('content-type')).toBe('audio/wav')
+      expect(audio.headers.get('content-range')).toBe('bytes 8-11/12')
+      expect(await audio.text()).toBe('WAVE')
+      expect((await fetch(asset('unlisted.wav'))).status).toBe(404)
+      expect((await fetch(asset('theme.wav'), { headers: { Range: 'bytes=100-' } })).status).toBe(416)
+      expect((await fetch(new URL('/media/theme.wav', origin.url))).status).toBe(404)
+    } finally {
+      origin.close()
+    }
+    await symlink(model, join(dir, 'alias.glb'))
+    await expect(pageOrigin(entry, ['alias.glb'])).rejects.toThrow('Invalid page companion')
+    await expect(pageOrigin(entry, ['../model.glb'])).rejects.toThrow('Invalid page companion')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 })

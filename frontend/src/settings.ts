@@ -6,15 +6,17 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
+import type { TemplateId, TranscriptStyle } from '../../glide/frontend/templates.js'
+
 import type { ChartMode } from './transcript/tableCharts.js'
 import { readSettings, readStoredSettings, settingsOf } from './wire/files.js'
 import type { GlideTheme } from '../../glide/frontend/themes.js'
 
 /**
  * Whose colors the surface wears: Tern's theme, the Nous palette, the Hermes skin, the wallpaper (pywal), Dash's
- * black and gold, or one of Glide's whole themes (glide/frontend/themes.json, which glide_theme switches).
+ * black and gold, a template's palette (Mono or Studio), or one of Glide's whole themes (glide/frontend/themes.json, which glide_theme switches).
  */
-export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto' | 'dash' | GlideTheme
+export type ThemeMode = 'tern' | 'nous' | 'skin' | 'auto' | 'dash' | 'mono' | 'studio' | GlideTheme
 
 export interface Settings {
   theme?: ThemeMode | undefined
@@ -24,6 +26,10 @@ export interface Settings {
   jobCharts?: boolean | undefined
   /** Automatic charts for settled tables: off by default; smart uses Hermes' Python auxiliary route. */
   tableCharts?: ChartMode | undefined
+  /** The whole-app template the command palette last applied (default: none). */
+  template?: TemplateId | undefined
+  /** How the transcript is drawn: Tern's chat style, a terminal, or a messaging thread (default standard). */
+  transcript?: TranscriptStyle | undefined
 }
 
 export function settingsFile(env: NodeJS.ProcessEnv = process.env): string {

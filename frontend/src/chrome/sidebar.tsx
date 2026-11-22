@@ -5,6 +5,8 @@
 
 import type { JSX, PrefsRow } from '@stencil-hq/tern'
 
+import type { PageMount } from '../glideui/pages.js'
+
 import type { ChatPorts } from '../app/ports.js'
 import { copyToClipboard } from '../clipboard.js'
 import { launchEnv } from '../config/env.js'
@@ -23,13 +25,19 @@ export type SidebarHost = Pick<ChatPorts, 'changed' | 'prs' | 'session'> & Chang
 
 const POLL_MS = 5000
 /** The sheet's actions: its close, and each row button's `act`. */
-const ACTS = ['close', 'page', 'copy-branch', 'open-pr', 'diff', 'all-files'] as const
+const ACTS = ['close', 'page', 'copy-branch', 'open-pr', 'diff', 'all-files', 'open-page'] as const
 /** The sidebar lists this many changed files; the Changes sheet has them all. */
 const MAX_FILES = 40
+
+interface SidebarPages {
+  list(): readonly PageMount[]
+  open(id: string): void
+}
 
 export class Sidebar {
   readonly #host: SidebarHost
   readonly #read: (cwd: string) => Promise<GitState | undefined>
+  readonly #pages: SidebarPages | undefined
   #open = false
   #state: GitState | undefined
   #cwd: string | null = null
@@ -43,9 +51,10 @@ export class Sidebar {
   readonly #copied = new Flash<true>(() => this.#host.changed())
 
   /** `read`: how a folder's git state is read (tests hold it). */
-  constructor(host: SidebarHost, read: (cwd: string) => Promise<GitState | undefined> = gitState) {
+  constructor(host: SidebarHost, read: (cwd: string) => Promise<GitState | undefined> = gitState, pages?: SidebarPages) {
     this.#host = host
     this.#read = read
+    this.#pages = pages
   }
 
   get open(): boolean {
@@ -158,6 +167,11 @@ export class Sidebar {
         ? [{ disabled: 'Nothing changed since the last commit.', id: 'no-files', label: 'Clean' }]
         : []
 
+    const pages = this.#pages?.list() ?? []
+    const pageRows: PrefsRow[] = pages.length ? pages.map(p => ({
+      id: `page:${p.id}`, label: p.title, control: { k: 'action', act: 'open-page', label: 'Open' }
+    })) : [{ id: 'no-pages', label: 'None yet', disabled: 'Apps opened with glide_page_open appear here.' }]
+
     return (
       <prefs
         key="sidebar"
@@ -166,6 +180,7 @@ export class Sidebar {
         page="session"
         pages={[{ icon: 'branch', id: 'session', label: 'Session' }]}
         sections={[
+          { id: 'pages', rows: pageRows, title: 'Pages' },
           { id: 'branch', rows: branchRows, title: 'Branch' },
           { id: 'prs', rows: prRows, title: `Pull requests${prs.length ? ` · ${prs.length}` : ''}` },
           ...(fileRows.length
@@ -206,6 +221,10 @@ export class Sidebar {
           this.#copied.set(true)
         }
 
+        return
+
+      case 'open-page':
+        if (row.startsWith('page:')) this.#pages?.open(row.slice(5))
         return
 
       case 'open-pr':

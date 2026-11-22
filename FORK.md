@@ -20,7 +20,7 @@ One install registers both the Tern frontend and the bundled Glide plugin. Open
 | Offload | Approve an Ollama sample task with `/glide savings`. Savings are estimates. |
 | Taste | Request `/glide taste` to open an existing local brainstorm board. Native-pane proof is pending. |
 
-The [README screenshots](README.md#real-tern-screenshots) show the real router,
+The [README screenshots](README.md#corrections-memory) show the real router,
 hill-climb, and offload cards. The measured hill-climb result is INCONCLUSIVE, not a speedup.
 The full z0intelligence onboarding plan is not implemented. Taste needs a separately
 running Atlas server, and offload needs an installed Ollama model.

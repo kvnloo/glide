@@ -39,10 +39,13 @@ function isObject(value: unknown): value is object {
 /** settings.json's fields; one of the wrong type reads as unset (its default), and a file that is not an object as no settings. */
 const settingsFile: z.ZodMiniType<Settings> = z.catch(
   z.object({
-    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash', ...GLIDE_THEMES])),
+    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash', 'mono', 'studio', ...GLIDE_THEMES])),
     thoughts: loose(z.boolean()),
     jobCharts: loose(z.boolean()),
-    tableCharts: loose(z.enum(['off', 'always', 'smart']))
+    tableCharts: loose(z.enum(['off', 'always', 'smart'])),
+    // templates.ts TEMPLATE_IDS and TRANSCRIPT_STYLES, written out: templates.ts reads settings through this module.
+    template: loose(z.enum(['default', 'mono', 'studio'])),
+    transcript: loose(z.enum(['standard', 'terminal', 'bubble']))
   }),
   {}
 )
@@ -79,6 +82,7 @@ const page = z.object({
   id: z.string().check(z.regex(/^[a-z0-9][a-z0-9-]{0,39}$/)),
   title: z.string().check(z.maxLength(60)),
   path: z.string().check(z.regex(/^\/.*\.html?$/i)),
+  assets: loose(z.array(z.string())),
   how: z.catch(z.enum(PAGE_HOWS), 'over'),
   opened: z.catch(z.number(), 0)
 })

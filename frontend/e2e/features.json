@@ -2,6 +2,18 @@
   "about": "Owner-visible inventory for the shipped Glide checkout. Test references describe existing source coverage, not execution receipts or native acceptance. Empty tests are uncovered. Army receipts are external and must match HEAD for strict promotion. Text-plugin /glide verbs are not all handled by the native card interceptor.",
   "features": [
     {
+      "id": "film-export-take",
+      "title": "Open a finished fframestudio cut and replay its export take",
+      "surface": "slash",
+      "entry": "/film <project>",
+      "journey": "film",
+      "expect": "A saved cut opens below the pane; when a completed studio export exists, the card replays the latest local take",
+      "tests": [
+        "frontend/src/commands/__tests__/film.test.ts"
+      ],
+      "army": []
+    },
+    {
       "id": "install-plugin",
       "title": "Install the combined Tern and Glide plugin",
       "surface": "cli",
@@ -661,6 +673,20 @@
       "army": []
     },
     {
+      "id": "music-emotion-sort",
+      "title": "Sort and filter the music page's queue by colour-coded emotion",
+      "surface": "pane",
+      "entry": "/glide ui open night-drive, then the Emotions button (or E)",
+      "journey": "taste-intent",
+      "expect": "The Emotions menu sorts tracks calm to bright or shows one emotion, in fixed energy colours; rows glide to their places and previous/next follow the shown queue",
+      "tests": [
+        "frontend/src/__tests__/glidePageNightDrive.test.ts",
+        "GL-050: the Emotions button opens a colour-coded menu: sort by energy, show one emotion, with counts",
+        "GL-050: previous, next and the end of a track walk the queue the control shows"
+      ],
+      "army": []
+    },
+    {
       "id": "factory-pane",
       "title": "Toggle the nonmodal Factory aside",
       "surface": "slash",
@@ -899,7 +925,8 @@
       "expect": "Verified media is displayed or opened with Tern support; generated code is never executed",
       "tests": [
         "frontend/src/__tests__/writtenArtifacts.test.ts",
-        "frontend/src/__tests__/read-media.test.ts"
+        "frontend/src/__tests__/read-media.test.ts",
+        "frontend/src/__tests__/postmergeSmoke.test.ts"
       ],
       "army": []
     },
@@ -1617,6 +1644,19 @@
       "army": []
     },
     {
+      "id": "whole-app-templates",
+      "title": "Switch the whole app to the Mono or Studio template",
+      "surface": "shortcut",
+      "entry": "Command palette: Use Mono template, Use Studio template, Use Default template, Open Analytics page, Open Whiteboard page; or /template [mono|studio|default|panel analytics|panel whiteboard]",
+      "journey": "settings",
+      "expect": "One pick repaints theme, transcript style (terminal or bubble) and docked panels live; Default restores Tern's theme, the standard transcript and closes template panels; agent pages are kept",
+      "tests": [
+        "frontend/src/__tests__/templates.test.ts",
+        "frontend/src/__tests__/dockModel.test.ts"
+      ],
+      "army": []
+    },
+    {
       "id": "profile-keybindings",
       "title": "Use profile-owned shortcut preferences",
       "surface": "shortcut",
@@ -1943,8 +1983,9 @@
       "surface": "slash",
       "entry": "/hosts",
       "journey": "fleet",
-      "expect": "Real fleet payload reaches the kit; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
+      "expect": "Fleet snapshot reaches the native renderer; Source and per-host notes are visible; Refresh re-calls glide.fleet in the same panel",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
       ],
@@ -1958,6 +1999,7 @@
       "journey": "fleet",
       "expect": "Optional portfolio key reaches glide.fleet; Task URLs open safely; Set next drafts without sending",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts"
@@ -1970,8 +2012,9 @@
       "surface": "slash",
       "entry": "/factory graph",
       "journey": "fleet",
-      "expect": "Graph uses the existing inline kit renderer; SVG nodes have native click controls; Queue fix drafts without sending; Other factory commands retain their existing path",
+      "expect": "Native card renders the factory spine graphic and bottleneck actions; Queue fix drafts without sending; Other factory commands retain their existing path",
       "tests": [
+        "glide/tests/test_fleet_readonly.py",
         "frontend/src/__tests__/fleetCommand.test.ts",
         "frontend/src/__tests__/fleetActions.test.ts",
         "frontend/src/__tests__/fleetSandbox.test.ts",

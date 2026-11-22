@@ -29,6 +29,7 @@ import type { LiveVoice } from '../voice/live.js'
 
 import type { Ticket } from '../core/epoch.js'
 import type { EuiCards } from '../eui/cards.js'
+import type { Templates } from '../../../glide/frontend/templates.js'
 
 /** The session as the ports read it, live: each read sees the current ids and info. */
 export interface SessionView {
@@ -80,6 +81,8 @@ export interface ChatPorts extends OverlayHost {
   scroll(id: string, to: ScrollTo): void
   /** Switches the theme mode now and keeps it for the next launch. */
   setTheme(mode: ThemeMode): void
+  /** Whole-app templates and their panels (/template, the command palette's template rows). */
+  readonly templates: Pick<Templates, 'current' | 'panel' | 'use'>
   /** Plays one glass playground cycle; its seconds, or null outside the wallpaper theme. */
   glassDemo(): number | null
   /** Round-trip the draft through Tern or a suspended terminal editor. */

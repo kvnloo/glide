@@ -89,7 +89,7 @@ Protect a focus block and talk beside helper lanes. Start a block, hold a non-cr
 
 ## taste-intent
 
-Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat. Declare an ask, inspect its unevidenced contract, and advance to the explicitly synthetic work rail. Open the council popup and check its live or demo label.
+Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat. Declare an ask, inspect its unevidenced contract, and advance to the explicitly synthetic work rail. Open the council popup and check its live or demo label. Sort and filter the music page by colour-coded emotion.
 
 1. `taste-pane`
 2. `intent-declare`
@@ -97,6 +97,7 @@ Brainstorm in Taste and inspect an intent. Open a local Taste board beside chat.
 4. `intent-work-preview`
 5. `council-popup`
 6. `council-card`
+7. `music-emotion-sort`
 
 ## factory
 
@@ -205,6 +206,7 @@ Change the owning profile and composer. Inspect native settings, choose a sessio
 16. `composer-readline`
 17. `prompt-history-search`
 18. `copy-text`
+19. `whole-app-templates`
 
 ## maintenance
 
@@ -249,3 +251,11 @@ Run `/intel` through stock `command.dispatch`. Switch all five tabs, refresh wit
 5. `intel-failure-detail`
 6. `intel-boundaries-ownership`
 7. `intel-pinned-kit-status`
+
+## film
+
+In the bridge-backed editor, use a 1080p60 project, set a title, add a score and
+choose a look. Export the film, reopen the editor and check the take is listed.
+Rerun `/film <project>` and play the latest export take below the Glide pane.
+
+1. `film-export-take`

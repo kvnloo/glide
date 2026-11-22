@@ -18,6 +18,11 @@ export const ternBrowser: Browser = (op, timeoutMs = 15000) => new Promise((reso
   })
 })
 
+/** Bring a saved native page forward without reloading it. */
+export const focusBrowser = (block: number) => new Promise<void>((resolve, reject) => {
+  execFile('tern', ['focus', String(block)], { timeout: 5000 }, error => error ? reject(error) : resolve())
+})
+
 /** The pane's block: what a browser block floats over or docks by. */
 export function paneBlock(env: NodeJS.ProcessEnv = process.env): number | undefined {
   const n = Number(env['TERN_PANE'])

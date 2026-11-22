@@ -10,7 +10,12 @@ export const NO_DRIFT: Drift = { radii: [], sizes: [], tracking: [], hexes: [] }
 const literal = /^-?[\d.]+(px|em)$|^\d+%$/
 const values = (s: string, prop: RegExp) => [...s.matchAll(prop)].map(m => (m[1] ?? '').trim()).filter(v => literal.test(v))
 
-export function tokenDrift(src: string): Drift {
+/**
+ * The source without its comments: `#326` in "kvnloo/glide#326" is an issue, not a colour. Block comments,
+ * whole-line `//` comments and trailing ` // ` comments go; `https://` keeps its slashes (no space before).
+ */
+export function tokenDrift(source: string): Drift {
+  const src = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/\s.*$/gm, '')
   const radii = new Set([...Object.values(RADIUS).map(r => `${r}px`), '50%', '0'])
   const sizes = new Set(Object.values(TYPE).map(t => `${t}px`))
   const tracking = new Set<string>(Object.values(TRACK))

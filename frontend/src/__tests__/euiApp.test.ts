@@ -38,9 +38,14 @@ describe('App: an ephemeral-ui card in an ordinary answer', () => {
       if (Array.isArray(n)) return n.map(c => find(c, text, seen)).find(Boolean)
       if (!n || typeof n !== 'object' || seen.has(n)) return undefined
       seen.add(n)
+      // A text-only kit button carries its label in one `eu-label` span child (#289).
+      const label = (v: unknown): unknown => v && typeof v === 'object' && 'text' in v ? v.text : undefined
       const p = 'props' in n ? n.props : undefined
+      const kids: unknown = 'children' in n ? n.children : undefined
+      const first: unknown = Array.isArray(kids) && kids.length === 1 ? kids[0] : undefined
+      const kid = first && typeof first === 'object' && 'props' in first ? first.props : undefined
       if ('handlers' in n && n.handlers && typeof n.handlers === 'object' && 'onClick' in n.handlers && typeof n.handlers.onClick === 'function'
-        && p && typeof p === 'object' && 'text' in p && p.text === text) {
+        && (label(p) === text || label(kid) === text)) {
         const onClick = n.handlers.onClick
         return { handlers: { onClick: (e: ActionEvent) => { onClick(e) } } }
       }
@@ -85,14 +90,15 @@ describe('App: an ephemeral-ui card in an ordinary answer', () => {
     await settle()
     await vi.waitFor(() => expect(JSON.stringify(ops())).toContain('View diff'), { timeout: 20_000 })
     await settle()
-    // The button's wire id (ids on the wire are full paths): the el whose text is "View diff".
+    // The button's wire id (ids on the wire are full paths): the el whose text is "View diff", or the button
+    // around its `label` span (#289).
     const id = (function walk(n: unknown, owner?: string): string | undefined {
       if (Array.isArray(n)) return n.map(c => walk(c, owner)).find(Boolean)
       if (!n || typeof n !== 'object') return undefined
       const own = 'id' in n && typeof n.id === 'string' ? n.id : owner
       if (Object.values(n).includes('View diff')) return own
       return Object.values(n).map(v => walk(v, own)).find(Boolean)
-    })(ops())
+    })(ops())?.replace(/\.label$/, '')
     expect(id).toBeDefined()
     // What the button's onClick runs (live Tern routes the action there: measured in a real window).
     const [, card, el] = /^main\.\w+\.\w+\.(main\.[^.]+\.[^.]+:\d+)\..*\bn(\d+)$/.exec(id ?? '') ?? []
