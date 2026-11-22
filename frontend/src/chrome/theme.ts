@@ -19,7 +19,7 @@ import { isGlideTheme, themePalette, themeTernPalette } from '../../../glide/fro
 
 import { monoPalette, studioPalette, templateTernPalette } from '../../../glide/frontend/templates.js'
 
-/** The modes that wear a palette of Glide's own through the wallpaper sheet (walCss); only dash has a Tern window theme. */
+/** The wallpaper-derived palettes; Dash also sets a Tern window theme. */
 type OwnMode = 'dash' | 'mono' | 'studio'
 const ownMode = (mode: ThemeMode): mode is OwnMode => mode === 'dash' || mode === 'mono' || mode === 'studio'
 
@@ -145,7 +145,7 @@ export class Theme {
     return this.#mode
   }
 
-  /** The wallpaper palette in the auto mode, Dash's or a whole theme's; undefined in the others or without a readable colors.json. */
+  /** The palette for auto, Dash, Mono, Studio or a whole theme; undefined for other modes or unreadable wallpaper. */
   get wal(): WalPalette | undefined {
     if (ownMode(this.#mode)) return this.#own(this.#mode)
     if (isGlideTheme(this.#mode)) return themePalette(this.#mode, this.#host.style?.())
@@ -173,7 +173,7 @@ export class Theme {
     }
     if (mode === 'dash' || isGlideTheme(mode)) {
       // Dash and the whole themes: one fixed palette, its card stylesheet and its Tern window theme.
-      const flat = mode === 'dash' ? this.#dash() : themePalette(mode, this.#host.style?.())
+      const flat = mode === 'dash' ? this.#own(mode) : themePalette(mode, this.#host.style?.())
       const palette = mode === 'dash' ? dashTernPalette(flat) : themeTernPalette(mode, flat)
       this.#host.palette(palette)
       this.#host.stylesheet?.(WAL_SHEET, walCss(flat))
