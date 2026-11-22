@@ -38,10 +38,13 @@ function isObject(value: unknown): value is object {
 /** settings.json's fields; one of the wrong type reads as unset (its default), and a file that is not an object as no settings. */
 const settingsFile: z.ZodMiniType<Settings> = z.catch(
   z.object({
-    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash'])),
+    theme: loose(z.enum(['tern', 'nous', 'skin', 'auto', 'dash', 'mono', 'studio'])),
     thoughts: loose(z.boolean()),
     jobCharts: loose(z.boolean()),
-    tableCharts: loose(z.enum(['off', 'always', 'smart']))
+    tableCharts: loose(z.enum(['off', 'always', 'smart'])),
+    // templates.ts TEMPLATE_IDS and TRANSCRIPT_STYLES, written out: templates.ts reads settings through this module.
+    template: loose(z.enum(['default', 'mono', 'studio'])),
+    transcript: loose(z.enum(['standard', 'terminal', 'bubble']))
   }),
   {}
 )

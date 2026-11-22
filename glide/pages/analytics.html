@@ -1,0 +1,162 @@
+<!doctype html>
+<!-- Glide's Analytics page (the Mono template's panel, /template panel analytics). The pane writes a copy with
+     this session's numbers in #glide-data each time it opens the panel, and themes it with the --glide-* variables
+     and the glide-theme event (frontend/src/glideui/pages.ts). Self-contained: no network, no fonts. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytics</title>
+<style>
+  :root {
+    --glide-bg: #0e0c14; --glide-surface: #17141f; --glide-fg: #ece8df; --glide-muted: #a8a39a;
+    --glide-accent: #d7b986; --glide-accent-ink: #111111;
+    --line: color-mix(in srgb, var(--glide-fg) 14%, transparent);
+    --grid: color-mix(in srgb, var(--glide-fg) 8%, transparent);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--glide-bg); color: var(--glide-fg); }
+  body { font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; padding: 20px 22px 28px; }
+  header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  .meta { color: var(--glide-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .tile { background: var(--glide-surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .tile .k { color: var(--glide-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .tile .v { font-size: 28px; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  section { background: var(--glide-surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 10px; margin-bottom: 12px; }
+  section h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 600; margin: 0 0 8px; }
+  section h2 button { font: inherit; font-size: 11px; font-weight: 500; color: var(--glide-muted); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; cursor: pointer; }
+  section h2 button:hover, section h2 button:focus-visible { color: var(--glide-fg); border-color: var(--glide-muted); outline: none; }
+  svg { display: block; width: 100%; overflow: visible; }
+  svg text { fill: var(--glide-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  svg text.value { fill: var(--glide-fg); }
+  .bar { fill: var(--glide-accent); }
+  .hit { fill: transparent; cursor: default; }
+  .hit:hover + .bar, .bar.on { fill: color-mix(in srgb, var(--glide-accent) 78%, var(--glide-fg)); }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .axis { stroke: var(--line); stroke-width: 1; }
+  .empty { color: var(--glide-muted); padding: 18px 0 14px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--grid); }
+  th { color: var(--glide-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  td.n, th.n { text-align: right; }
+  #tip { position: fixed; pointer-events: none; background: var(--glide-bg); color: var(--glide-fg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; font-size: 12px; box-shadow: 0 6px 18px rgb(0 0 0 / .35); opacity: 0; transition: opacity .08s; white-space: nowrap; }
+  #tip b { font-variant-numeric: tabular-nums; }
+  #tip .k { color: var(--glide-muted); }
+</style>
+</head>
+<body>
+<header><h1>Analytics</h1><span class="meta" id="meta"></span></header>
+<div class="tiles" id="tiles"></div>
+<section><h2><span>Tokens per turn</span><button data-table="tokens">Table</button></h2><div id="tokens"></div></section>
+<section><h2><span>Tool calls by tool</span><button data-table="tools">Table</button></h2><div id="tools"></div></section>
+<section><h2><span>Commits per day, last 30 days</span><button data-table="commits">Table</button></h2><div id="commits"></div></section>
+<div id="tip" role="status" aria-live="polite"></div>
+<script type="application/json" id="glide-data">{}</script>
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg'
+  let data = {}
+  try { data = JSON.parse(document.getElementById('glide-data').textContent || '{}') } catch { data = {} }
+  const num = v => (typeof v === 'number' && isFinite(v) ? v : 0)
+  const fmt = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? Math.round(n / 1e3) + 'k' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : String(Math.round(n))
+  const dur = s => s >= 3600 ? Math.floor(s / 3600) + 'h ' + Math.round((s % 3600) / 60) + 'm' : s >= 60 ? Math.floor(s / 60) + 'm ' + (s % 60) + 's' : s + 's'
+  const el = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text !== undefined) e.textContent = text; return e }
+  const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e }
+  const tip = document.getElementById('tip')
+  const show = (ev, label, value) => {
+    tip.replaceChildren(h('span', 'k', label + '  '), h('b', '', value))
+    tip.style.left = Math.min(ev.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px'
+    tip.style.top = Math.max(ev.clientY - 34, 6) + 'px'
+    tip.style.opacity = 1
+  }
+  const hide = () => { tip.style.opacity = 0 }
+
+  const meta = []
+  if (data.cwd) meta.push(data.cwd)
+  if (data.generatedAt) meta.push('as of ' + new Date(data.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
+  document.getElementById('meta').textContent = meta.join(' · ') || 'No session numbers yet'
+
+  const tiles = [
+    ['Prompts', fmt(num(data.prompts))], ['Turns', fmt(num(data.turns))], ['Tokens', fmt(num(data.tokens))],
+    ['Tool calls', fmt(num(data.toolCalls))], ['Agent time', dur(num(data.seconds))], ['Failed turns', fmt(num(data.failed))]
+  ]
+  document.getElementById('tiles').replaceChildren(...tiles.map(([k, v]) => { const t = h('div', 'tile'); t.append(h('div', 'k', k), h('div', 'v', v)); return t }))
+
+  // A bar with a 4 px rounded data end, anchored square on the baseline.
+  const vbar = (x, y, w, hgt) => { const r = Math.min(4, w / 2, hgt); return `M${x},${y + hgt}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + hgt}Z` }
+  const hbar = (x, y, w, hgt) => { const r = Math.min(4, hgt / 2, w); return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + hgt - r}Q${x + w},${y + hgt} ${x + w - r},${y + hgt}H${x}Z` }
+  const ticks = max => { const step = Math.pow(10, Math.floor(Math.log10(max || 1))); const m = max / step; const s = (m > 5 ? 2 : m > 2 ? 1 : 0.5) * step; const out = []; for (let v = 0; v <= max + 1e-9; v += s) out.push(v); return out }
+
+  /** Vertical single-series bars: rows of {label, value, tip}. */
+  function columns(host, rows, unit, labelEvery) {
+    if (!rows.length || rows.every(r => !r.value)) { host.replaceChildren(h('div', 'empty', 'Nothing yet: this fills in as the session runs.')); return }
+    const W = Math.max(host.clientWidth || 600, 280), H = 150, L = 34, B = 20, T = 6
+    const max = Math.max(...rows.map(r => r.value)), ys = ticks(max), top = ys[ys.length - 1] || 1
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, height: H, role: 'img', 'aria-label': host.id })
+    for (const v of ys) { const y = T + (H - B - T) * (1 - v / top); svg.append(el('line', { class: 'gridline', x1: L, x2: W, y1: y, y2: y }), el('text', { x: L - 6, y: y + 4, 'text-anchor': 'end' }, fmt(v))) }
+    svg.append(el('line', { class: 'axis', x1: L, x2: W, y1: H - B, y2: H - B }))
+    const slot = (W - L) / rows.length, bw = Math.max(2, Math.min(28, slot - 2))
+    rows.forEach((r, i) => {
+      const x = L + i * slot + (slot - bw) / 2, bh = (H - B - T) * (r.value / top), y = H - B - bh
+      const hit = el('rect', { class: 'hit', x: L + i * slot, y: T, width: slot, height: H - B - T })
+      const bar = el('path', { class: 'bar', d: vbar(x, y, bw, Math.max(bh, r.value ? 1 : 0)) })
+      hit.addEventListener('mousemove', ev => show(ev, r.tip || r.label, fmt(r.value) + unit))
+      hit.addEventListener('mouseleave', hide)
+      svg.append(hit, bar)
+      if (i % labelEvery === 0 || i === rows.length - 1) svg.append(el('text', { x: L + i * slot + slot / 2, y: H - 5, 'text-anchor': 'middle' }, r.label))
+    })
+    host.replaceChildren(svg)
+  }
+
+  /** Horizontal single-series bars, each directly labelled with its value. */
+  function rowsChart(host, rows) {
+    if (!rows.length) { host.replaceChildren(h('div', 'empty', 'No tool calls yet.')); return }
+    const W = Math.max(host.clientWidth || 600, 280), RH = 22, L = 118, R = 40, H = rows.length * RH
+    const max = Math.max(...rows.map(r => r.value)) || 1
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, height: H, role: 'img', 'aria-label': host.id })
+    rows.forEach((r, i) => {
+      const y = i * RH + 4, w = (W - L - R) * (r.value / max)
+      const name = r.label.length > 16 ? r.label.slice(0, 15) + '…' : r.label
+      const hit = el('rect', { class: 'hit', x: 0, y: i * RH, width: W, height: RH })
+      hit.addEventListener('mousemove', ev => show(ev, r.label, fmt(r.value) + ' calls'))
+      hit.addEventListener('mouseleave', hide)
+      svg.append(el('text', { x: L - 8, y: y + 11, 'text-anchor': 'end' }, name), hit, el('path', { class: 'bar', d: hbar(L, y, Math.max(w, 2), RH - 8) }), el('text', { class: 'value', x: L + w + 6, y: y + 11 }, fmt(r.value)))
+    })
+    host.replaceChildren(svg)
+  }
+
+  function table(host, head, rows) {
+    if (!rows.length) { host.replaceChildren(h('div', 'empty', 'No rows.')); return }
+    const t = h('table'), tr = h('tr')
+    head.forEach((c, i) => tr.append(h('th', i ? 'n' : '', c)))
+    t.append(tr)
+    for (const r of rows) { const row = h('tr'); r.forEach((c, i) => row.append(h('td', i ? 'n' : '', String(c)))); t.append(row) }
+    host.replaceChildren(t)
+  }
+
+  const perTurn = Array.isArray(data.perTurn) ? data.perTurn : []
+  const tools = Array.isArray(data.tools) ? data.tools : []
+  const commits = Array.isArray(data.commits) ? data.commits : []
+  const views = {
+    tokens: { chart: host => columns(host, perTurn.map(t => ({ label: String(t.n), value: num(t.tokens), tip: `Turn ${t.n} · ${dur(num(t.seconds))} · ${num(t.tools)} tools` })), ' tokens', Math.max(1, Math.ceil(perTurn.length / 12))),
+      table: host => table(host, ['Turn', 'Tokens', 'Seconds', 'Tools'], perTurn.map(t => [t.n, num(t.tokens), num(t.seconds), num(t.tools)])) },
+    tools: { chart: host => rowsChart(host, tools.map(t => ({ label: String(t.name), value: num(t.count) }))),
+      table: host => table(host, ['Tool', 'Calls'], tools.map(t => [t.name, num(t.count)])) },
+    commits: { chart: host => columns(host, commits.map(c => ({ label: String(c.day).slice(5), value: num(c.count), tip: String(c.day) })), ' commits', 5),
+      table: host => table(host, ['Day', 'Commits'], commits.map(c => [c.day, num(c.count)])) }
+  }
+  const mode = { tokens: 'chart', tools: 'chart', commits: 'chart' }
+  const draw = () => { for (const k in views) views[k][mode[k]](document.getElementById(k)) }
+  for (const b of document.querySelectorAll('button[data-table]')) {
+    b.addEventListener('click', () => { const k = b.dataset.table; mode[k] = mode[k] === 'chart' ? 'table' : 'chart'; b.textContent = mode[k] === 'chart' ? 'Table' : 'Chart'; draw() })
+  }
+  addEventListener('resize', draw)
+  addEventListener('glide-theme', ev => { document.documentElement.style.colorScheme = ev.detail && ev.detail.dark === false ? 'light' : 'dark' })
+  draw()
+})()
+</script>
+</body>
+</html>

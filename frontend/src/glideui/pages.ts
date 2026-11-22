@@ -3,7 +3,8 @@
 // default, and themes it: the --glide-* CSS variables and a `glide-theme` window event carry the palette the
 // surface wears, again on every restyle, so "make it warmer" or a day/night switch reaches the page too.
 
-import { pathToFileURL } from 'node:url'
+import { existsSync } from 'node:fs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import type { Browser } from '../gev/globe.js'
 
@@ -34,6 +35,12 @@ export interface PageTheme {
 export type PageVerdict = { readonly ok: true; readonly block: number } | { readonly ok: false; readonly problems: readonly string[] }
 
 export const pageUrl = (path: string) => pathToFileURL(path).href
+
+/** A page the plugin ships (glide/pages/<name>.html, the templates' panels): beside the bundle (frontend/dist) or the source. */
+export function shippedPage(name: string, from: string = import.meta.url): string {
+  const bundled = fileURLToPath(new URL(`../../glide/pages/${name}.html`, from))
+  return existsSync(bundled) ? bundled : fileURLToPath(new URL(`../../../glide/pages/${name}.html`, from))
+}
 
 type Tokens = Readonly<Record<string, string>>
 const hex = (v: string | undefined) => (v && /^#[0-9a-f]{6}$/i.test(v) ? v : undefined)
@@ -99,6 +106,13 @@ export class GlidePages {
     for (const [id, o] of this.#open) {
       await this.#apply(o.block).catch(() => this.#open.delete(id))
     }
+  }
+
+  /** Closes page `id`'s block and forgets it (a template's panel that another template does not list); none open is a no-op. */
+  async close(id: string) {
+    const known = this.#open.get(id)
+    this.#open.delete(id)
+    if (known) await this.#browser({ op: 'close', block: known.block }).catch(() => undefined)
   }
 
   async #openOne(p: PageMount): Promise<PageVerdict> {

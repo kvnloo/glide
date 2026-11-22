@@ -17,6 +17,31 @@ export const DASH = {
   success: '#8FB98A'
 } as const
 
+/**
+ * The command-palette templates' palettes (templates.ts): Mono is greyscale with white for the one accent,
+ * Studio a warm charcoal with Dash's light gold (kvnloo/glide#346; red instead of gold is the owner's call).
+ * Error and success keep their hue in both, so a failed turn still reads as one.
+ */
+export const MONO_INK = {
+  bg: '#0a0a0a',
+  fg: '#e8e8e8',
+  accent: '#f5f5f5',
+  muted: '#b0b0b0',
+  dim: '#a0a0a0',
+  error: '#e5484d',
+  success: '#8fb98a'
+} as const
+
+export const STUDIO = {
+  bg: '#17140f',
+  fg: '#f3ecdf',
+  accent: '#e6cd96',
+  muted: '#c2b9a8',
+  dim: '#b3aa98',
+  error: '#e5484d',
+  success: '#8fb98a'
+} as const
+
 /** The popups' night inks (council, lanes) on Dash's canvas; the glass floor keeps each text ink 4.5:1 (wal.ts). */
 export const NIGHT = {
   canvas: DASH.bg, text: DASH.fg, text2: DASH.muted, text3: DASH.dim, faint: '#5e5b52',

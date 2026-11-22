@@ -20,7 +20,9 @@ const MODES: readonly (PickerItem & { id: ThemeMode })[] = [
   { detail: 'Bone ink and quiet grays; gold only for the moments that earn it', icon: 'sparkle', id: 'nous', label: 'Nous' },
   { detail: "The Hermes skin's accent and status colors (/skin picks the skin)", icon: 'appearance', id: 'skin', label: 'Hermes skin' },
   { detail: "The wallpaper's pywal colors, live as the file changes (/glide theme auto)", icon: 'image', id: 'auto', label: 'Wallpaper' },
-  { detail: "Dash's original look: warm black, cream ink, one gold (/glide theme dash)", icon: 'palette', id: 'dash', label: 'Dash' }
+  { detail: "Dash's original look: warm black, cream ink, one gold (/glide theme dash)", icon: 'palette', id: 'dash', label: 'Dash' },
+  { detail: 'Greyscale with white for the one accent (the Mono template wears it)', icon: 'palette', id: 'mono', label: 'Mono' },
+  { detail: 'Warm charcoal and light gold (the Studio template wears it)', icon: 'palette', id: 'studio', label: 'Studio' }
 ]
 
 export function isThemeMode(v: string): v is ThemeMode {
