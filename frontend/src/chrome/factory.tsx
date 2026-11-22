@@ -108,7 +108,7 @@ export class FactoryPane {
     const owner = this.#host.session.ownerTicket?.()
     void this.#host.agentGraph.seed(this.#host.gw, sid,
       () => this.#open && generation === this.#generation && owner?.isCurrent() !== false
-    ).then(changed => { if (changed) this.#host.changed() })
+    ).then(() => this.#host.changed())
   }
 
   #poke() {

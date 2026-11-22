@@ -62,20 +62,17 @@ export class AgentGraph {
   async seed(gw: Requester, sid: string, current: () => boolean) {
     try {
       const result = await rpc(gw, 'subagent.list', { session_id: sid })
-      if (!current()) return false
-      let changed = false
+      if (!current()) return
       const root = 'session:' + sid
       for (const child of result?.subagents ?? []) {
         if (!child.subagent_id || (child.status !== 'running' && child.status !== 'queued')) continue
         const id = JSON.stringify([sid, child.subagent_id])
         if (this.#nodes.has(id)) continue
-        changed = this.#put({ id, label: child.goal || 'Subagent', state: child.status === 'queued' ? 'queued' : 'live',
-          parent: child.parent_id ? JSON.stringify([sid, child.parent_id]) : root }) || changed
+        this.#put({ id, label: child.goal || 'Subagent', state: child.status === 'queued' ? 'queued' : 'live',
+          parent: child.parent_id ? JSON.stringify([sid, child.parent_id]) : root })
       }
-      return changed
     } catch {
       // A gateway without the roster can still stream lifecycle events.
-      return false
     }
   }
 
