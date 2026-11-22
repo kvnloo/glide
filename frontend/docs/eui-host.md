@@ -97,3 +97,19 @@ required before promotion.
 
 This is the host data/approval prerequisite for #209. The z0 CLI adapter,
 onboarding steps and the complete /glide flow are separate work.
+
+## Motion in kit-backed cards
+
+The sandbox forwards the pinned kit’s HTML Web Animations to a bounded
+Tern stylesheet. Entrance effects keep the kit’s stagger and backwards
+fill; updates keep their element keys; kit-owned exits (such as the merge
+conflict banner) stay mounted until the kit’s completion callback removes
+them. Theme changes, eviction and teardown still dispose immediately rather
+than animate stale cards or controls.
+
+The native renderer owns interpolation, so playback does not send a surface
+patch per frame. Springs use a portable cubic-bezier approximation; native
+reduced-motion disables the visual effect without skipping functional delays
+such as a hold-to-confirm. Layout-dependent FLIP and inner SVG animation
+are not bridged: the sandbox has no native layout measurements and Tern
+renders SVGs as static images.
