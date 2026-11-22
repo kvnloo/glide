@@ -76,9 +76,13 @@ def _gpus() -> list[str]:
     return []
 
 
-def _z0int() -> dict:
+def z0int_argv() -> list[str] | None:
     exe = shutil.which("z0int")
-    argv = [exe] if exe else [sys.executable, "-m", "z0int"] if find_spec("z0int") else None
+    return [exe] if exe else [sys.executable, "-m", "z0int"] if find_spec("z0int") else None
+
+
+def _z0int() -> dict:
+    argv = z0int_argv()
     if not argv:
         return {"installed": False, "hint": "pip install git+https://github.com/kvnloo/z0intelligence"}
     raw = _run([*argv, "doctor", "--json"])
@@ -249,6 +253,7 @@ def pre_llm_call(user_message=None, **_kwargs):
 
 
 USAGE = """/glide            show this machine and your memory
+/glide onboard    preview optional z0intelligence setup
 /glide build      read your last 100 local sessions and keep the corrections you gave
 /glide on | off   quote up to three matching corrections into each turn
 /glide taste      open the optional local Taste Atlas brainstorm pane in Tern
@@ -314,6 +319,12 @@ def command(raw_args: str = "", session_id: str | None = None) -> str:
             return "Build your memory first: /glide build"
         return "\n".join(f"- ({h['score'] if h['score'] is not None else h['source']}) {h['text']}"
                          for h in hits) or "No matching correction."
+    if verb == "onboard":
+        from . import z0_onboarding
+
+        if rest.strip():
+            return "Usage: /glide onboard (preview); run z0int onboard --json in your terminal to apply or resume."
+        return json.dumps(z0_onboarding.run(), indent=2)
     if verb == "taste":
         from . import taste
 

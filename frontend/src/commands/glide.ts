@@ -18,6 +18,7 @@ import { GLIDE_THEMES, isGlideTheme, themeTokens } from '../../../glide/frontend
 import type { ThemeMode } from '../settings.js'
 import { focusTastePane, openTastePane, tasteBoard, tasteCard } from '../../../glide/frontend/taste.js'
 import { studioCommand } from '../../../glide/frontend/studioCommand.js'
+import { z0Onboarding } from '../../../glide/frontend/z0Onboarding.js'
 import * as z from 'zod/mini'
 import { focusBlock } from '../voice/orbit.js'
 import { cleanFocus } from '../voice/cleanFocus.js'
@@ -193,6 +194,10 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
       await studioCommand(host, rest.join(' ') || process.env['GLIDE_STUDIO_PROJECT'] || '')
       return
     }
+    if (verb === 'onboard') {
+      await z0Onboarding(cards, call, () => host.session.ref === ref && host.session.ref.live === sid, fail)
+      return
+    }
     if (verb === 'taste') {
       const board = tasteBoard(await call('taste'))
       if (host.session.ref !== ref || host.session.ref.live !== sid) return
@@ -325,9 +330,9 @@ export async function glideCommand(host: GlideHost, arg: string): Promise<void> 
     cards.publish({
       kind: 'intel-health', app: APP, title: 'z0intelligence',
       summary: !z0.installed ? 'Optional. Adds local training loops, hill climbs and model management.'
-        : z0.ok ? 'Ready for training loops and hill climbs.'
-          : z0.unchecked || !z0.failed?.length ? 'Installed. Run `z0int doctor` for details.'
-            : `Needs: ${z0.failed.join(', ')}`,
+        : z0.ok ? 'Ready for training loops and hill climbs. Try /glide onboard to review setup.'
+          : z0.unchecked || !z0.failed?.length ? 'Installed. Try /glide onboard to review setup.'
+            : `Needs: ${z0.failed.join(', ')}. Try /glide onboard to review setup.`,
       rows: z0.installed ? [{ label: 'doctor', value: z0.ok ? 'ok' : z0.unchecked ? 'not checked' : 'attention' }]
         : [{ label: 'Install', value: z0.hint ?? 'pip install z0intelligence' }]
     })
