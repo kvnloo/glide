@@ -46,14 +46,14 @@ export const STYLES = minifyCss(css`
     outline-offset: 2px;
   }
 
-  /* The work log, as t3code draws it: quiet 14px rows in the UI face, a 24px line each. */
+  /* The work log, as t3code draws it: quiet 13px rows in the UI face (omp's body size), a 24px line each. */
   [data-role='hermes.turn.working'],
   [data-role='hermes.turn.fold'] > .sf-section-head,
   [data-role='hermes.work.group'] > .sf-section-head,
   [data-role='hermes.work.row'] > .sf-section-head,
   .sf-col[data-role='hermes.work.row'],
   .sf-row[data-role='hermes.work.row'] {
-    font: 400 14px/24px var(--sans) !important;
+    font: 400 13px/24px var(--sans) !important;
     min-height: 24px;
   }
 
@@ -85,7 +85,7 @@ export const STYLES = minifyCss(css`
 
   :is([data-role='hermes.turn.fold'], [data-role='hermes.work.group'], [data-role='hermes.work.row']) > .sf-section-body {
     font-family: var(--sans) !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   [data-role='hermes.turn.fold'] > .sf-section-body > .sf-md {
@@ -338,7 +338,7 @@ export const STYLES = minifyCss(css`
   /* What an MCP row runs or contacts, under its name, in full. */
   [data-role='hermes.connect.launch'] {
     margin: -4px 0 4px 22px;
-    font: 400 11.5px/16px var(--mono) !important;
+    font: 400 11px/16px var(--mono) !important;
     white-space: pre-wrap;
     word-break: break-all;
   }
@@ -359,7 +359,7 @@ export const STYLES = minifyCss(css`
 
   [data-role='hermes.connect.foot'] > .sf-text,
   [data-role='hermes.connect.note'] {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
   }
 
   :is(
@@ -374,7 +374,7 @@ export const STYLES = minifyCss(css`
     justify-content: center;
     min-width: 76px;
     padding: 1px 10px !important;
-    border-radius: 6px;
+    border-radius: 4px;
     font: 500 12px/20px var(--sans) !important;
     cursor: pointer;
   }
@@ -422,7 +422,7 @@ export const STYLES = minifyCss(css`
     width: 20px;
     height: 20px;
     margin-right: -6px;
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--t3);
     cursor: pointer;
   }
@@ -503,7 +503,7 @@ export const STYLES = minifyCss(css`
   [data-role='hermes.reconnect'] {
     width: min(736px, calc(100% - 8px));
     margin: 0 auto 6px !important;
-    font: 400 12.5px/22px var(--sans) !important;
+    font: 400 12px/22px var(--sans) !important;
     color: var(--t2);
   }
 
@@ -599,7 +599,7 @@ export const STYLES = minifyCss(css`
   .sf-agent[data-role='hermes.task.solo'] {
     margin: 6px 0 !important;
     padding: 6px 12px !important;
-    border-radius: 10px;
+    border-radius: 8px;
     background: var(--sf-card-bg);
     box-shadow: inset 0 0 0 1px var(--l2);
     cursor: pointer;
@@ -667,7 +667,7 @@ export const STYLES = minifyCss(css`
     box-shadow: inset 2px 0 0 var(--l3) !important;
     background: none !important;
     font-family: var(--sans) !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   /* A turn Hermes started by itself: set apart from the answer above, like a new prompt is. */
@@ -695,7 +695,7 @@ export const STYLES = minifyCss(css`
   }
 
   :is([data-role='hermes.pr.frame'], [data-role='hermes.pr.asideview']) .sf-md {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   /* GitHub ticks a done task; it does not strike it through. */
@@ -733,14 +733,14 @@ export const STYLES = minifyCss(css`
   }
 
   [data-role='hermes.pr.title'] {
-    font: 600 19px/1.3 var(--sans) !important;
-    letter-spacing: -0.01em;
+    font: 600 20px/1.3 var(--sans) !important;
+    letter-spacing: -.01em;
     color: var(--t1) !important;
   }
 
   [data-role='hermes.pr.meta'],
   [data-role='hermes.pr.branch'] {
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   [data-role='hermes.pr.checkout'] {
@@ -754,7 +754,7 @@ export const STYLES = minifyCss(css`
 
   [data-role='hermes.pr.checkstate'] {
     cursor: pointer;
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   [data-role='hermes.pr.body'] {
@@ -765,7 +765,7 @@ export const STYLES = minifyCss(css`
   [data-role='hermes.pr.thread'] {
     background: var(--sf-card-bg) !important;
     box-shadow: inset 0 0 0 1px var(--l2) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
   }
 
   [data-role='hermes.pr.comment'] > .sf-card-head,
@@ -791,7 +791,7 @@ export const STYLES = minifyCss(css`
 
   [data-role='hermes.pr.commit'] {
     padding-left: 22px;
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   [data-role='hermes.pr.details'] > .sf-section-head {
@@ -818,9 +818,9 @@ export const STYLES = minifyCss(css`
 
   [data-role='hermes.pr.fileitem'] {
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   [data-role='hermes.pr.fileitem']:hover {
@@ -893,7 +893,7 @@ export const STYLES = minifyCss(css`
 
   .sf-overlay[data-role='omp.autocomplete'] .sf-item-label {
     max-width: 40% !important;
-    font: 550 13.5px/1.35 var(--sans) !important;
+    font: 550 13px/1.35 var(--sans) !important;
   }
 
   .sf-overlay[data-role='omp.autocomplete'] [data-role='hermes.complete.path'] .sf-item-label {
@@ -940,13 +940,13 @@ export const STYLES = minifyCss(css`
     padding: 8px 10px;
     border-radius: 8px;
     background: var(--l1);
-    font-size: 12.5px;
+    font-size: 12px;
     overflow-wrap: anywhere;
     word-break: break-all;
   }
 
   [data-role='hermes.sessions.tool'] {
-    font: 12.5px/1.45 var(--mono);
+    font: 12px/1.45 var(--mono);
   }
 
   /* The native button a control sits in (pressable, view/ui/button.tsx) draws nothing itself: as

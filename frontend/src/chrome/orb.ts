@@ -6,6 +6,8 @@ import type { ImageProps, Session, Surface } from '@stencil-hq/tern'
 import { MODE_FRAMES, type OrbState as LibraryState, resolvePreset } from 'thinking-orbs/engine'
 import type { AnyGatewayEvent } from '@hermes/shared/gateway-types'
 
+import { DASH } from '../../../glide/frontend/tokens.js'
+
 export type OrbState = 'idle' | 'working' | 'thinking' | 'composing' | 'listening' | 'speaking' | 'waiting' | 'error'
 
 /** Presentation of the owning agent, not an estimate of progress. */
@@ -297,7 +299,7 @@ export const LIBRARY_STATE: Readonly<Record<OrbState, LibraryState>> = {
 }
 
 /** The waiting rim's ink: the theme's gold on dark glass, a deeper gold on paper. Gold marks what the user acts on. */
-export const ORB_WAIT_RIM = { dark: '#d7b986', light: '#8a6a2f' } as const
+export const ORB_WAIT_RIM = { dark: DASH.gold, light: '#8a6a2f' } as const
 
 /** The error ring's ink: the theme's danger hue on dark glass, a deeper red on paper. */
 export const ORB_ERROR_INK = { dark: '#ee888b', light: '#b3383c' } as const

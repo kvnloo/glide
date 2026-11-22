@@ -1,7 +1,7 @@
 // One renderer for bound glide/v1 trees (library.ts): every part becomes a native Tern kind (card,
 // tabs, chart, table, kv, checklist, meter, badge), so Tern does layout, truncation and theming itself
 // and nothing is measured in a fake DOM. Roles carry the ephemeral-ui kit's look (UI_CSS).
-import { DASH, NIGHT } from '../../../glide/frontend/tokens.js'
+import { DASH, NIGHT, RADIUS, TYPE } from '../../../glide/frontend/tokens.js'
 import { html, type JSX, type Span, ui } from '@stencil-hq/tern'
 
 import { button, pressable } from '../view/ui/button.js'
@@ -226,6 +226,9 @@ export const LIFT_CSS = `[data-role='glide.lift']{height:42vh;min-height:42vh;fl
 /** Where the sweep starts on the top edge: just past the chip, as in the reference. */
 const RING_START = 0.2
 
+/** The ring's corner: it sits 1 px outside the composer's card corner, so it follows it on the radius scale. */
+const RING_R = RADIUS.card + 1
+
 /**
  * The ring's live paint for a meter at `left` (1 = full, 0 = done). Tern's renderer has no conic gradients, and its
  * masks leave a hairline on an unpadded edge, so the ring is plain border pieces: up to three on the top edge
@@ -244,10 +247,10 @@ export function ringCss(left: number, glow = false): string {
     spans
       .filter(([a, b]) => b > a)
       .map(([a, b, spent], i) =>
-        at(`t${i}`, `display:block;left:${a === 0 ? '-1px' : pct(a)};right:${b === 1 ? '-1px' : pct(1 - b)};border-radius:${a === 0 ? 17 : 0}px ${b === 1 ? 17 : 0}px 0 0;border-color:${colour(spent)}`),
+        at(`t${i}`, `display:block;left:${a === 0 ? '-1px' : pct(a)};right:${b === 1 ? '-1px' : pct(1 - b)};border-radius:${a === 0 ? RING_R : 0}px ${b === 1 ? RING_R : 0}px 0 0;border-color:${colour(spent)}`),
       )
       .join('')
-  const whole = (spent: boolean) => at('bl', `right:-1px;border-right-width:2px;border-radius:17px;border-color:${colour(spent)}`) + at('br', 'display:none')
+  const whole = (spent: boolean) => at('bl', `right:-1px;border-right-width:2px;border-radius:${RING_R}px;border-color:${colour(spent)}`) + at('br', 'display:none')
   let css: string, head: string
   if (d <= 1 - x0) {
     const h = x0 + d
@@ -271,7 +274,7 @@ const RING_SPENT = `color-mix(in srgb,${ACCENT} 14%,var(--l2))`
 
 /** The opt-in glow (glow: true on the mount): a halo round the composer and the head. Kept out of UI_CSS, which the design checks hold glow-free. */
 const RING_GLOW = `
-[data-role='glide.ring.glow']{position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:17px;box-shadow:0 0 26px 2px color-mix(in srgb,${ACCENT} 38%,transparent),0 0 6px color-mix(in srgb,${ACCENT} 55%,transparent)}
+[data-role='glide.ring.glow']{position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:${RING_R}px;box-shadow:0 0 26px 2px color-mix(in srgb,${ACCENT} 38%,transparent),0 0 6px color-mix(in srgb,${ACCENT} 55%,transparent)}
 [data-role='glide.ring.head']{box-shadow:0 0 10px 4px color-mix(in srgb,${ACCENT} 55%,transparent),0 0 3px 1px color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}`
 
 
@@ -288,8 +291,8 @@ export const UI_CSS = `
 /* The composer ring: a stroke on the composer's own border, spent clockwise from the chip. */
 [data-role='glide.ring.t0'],[data-role='glide.ring.t1'],[data-role='glide.ring.t2']{display:none;position:absolute;top:-1px;height:24px;z-index:3;pointer-events:none;border:0 solid transparent;border-top-width:2px}
 [data-role='glide.ring.bl'],[data-role='glide.ring.br']{position:absolute;top:-1px;bottom:-1px;z-index:3;pointer-events:none;border:0 solid transparent;border-bottom-width:2px}
-[data-role='glide.ring.bl']{left:-1px;border-left-width:2px;border-radius:17px 0 0 17px}
-[data-role='glide.ring.br']{right:-1px;border-right-width:2px;border-radius:0 17px 17px 0}
+[data-role='glide.ring.bl']{left:-1px;border-left-width:2px;border-radius:${RING_R}px 0 0 ${RING_R}px}
+[data-role='glide.ring.br']{right:-1px;border-right-width:2px;border-radius:0 ${RING_R}px ${RING_R}px 0}
 [data-role='glide.ring.head']{position:absolute;z-index:3;width:8px;height:8px;border-radius:50%;pointer-events:none;background:color-mix(in srgb,${ACCENT} 40%,var(--ink,${NIGHT.text}))}
 [data-role='glide.ring.chip']{position:absolute;top:-14px;left:20px;z-index:4;gap:7px;padding:4px 13px 4px 11px;border-radius:999px;border:1px solid var(--l2);background:light-dark(var(--pop-bg),var(--raise));font-size:13px;line-height:18px;font-family:Inter,system-ui,sans-serif}
 [data-role='glide.ring.dot']{width:8px;height:8px;border-radius:50%;background:${ACCENT}}
@@ -297,7 +300,7 @@ export const UI_CSS = `
 [data-role='glide.ring.value']{font-weight:600;font-variant-numeric:tabular-nums}
 /* The context hairline steps past the chip. */
 .sf-col[data-role='omp.editor']:has(> [data-role='glide.ring.chip']) .sf-meter[data-role='omp.composer.context']{left:132px}
-[data-role='glide.hero.value']{font-size:32px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,${DASH.gold});font-variant-numeric:tabular-nums}
+[data-role='glide.hero.value']{font-size:${TYPE.display}px;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:var(--sf-accent,${DASH.gold});font-variant-numeric:tabular-nums}
 [data-role='glide.hero.detail']{font-size:12px;opacity:.72}
 [data-role='glide.stat.value']{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
 [data-role='glide.label'],[data-role='glide.list.index']{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace}
@@ -310,6 +313,6 @@ export const UI_CSS = `
 [data-role='glide.list.group']{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.66;font-family:'IBM Plex Mono',ui-monospace,monospace;padding:10px 10px 2px}
 [data-role='glide.list.value']{font-variant-numeric:tabular-nums;font-family:'IBM Plex Mono',ui-monospace,monospace}
 [data-role='glide.flow.arrow']{opacity:.5;align-self:center}
-[data-role^='glide.flow.stage']{padding:8px 10px;border-radius:10px;border:1px solid var(--sf-border,${NIGHT.border})}
+[data-role^='glide.flow.stage']{padding:8px 10px;border-radius:${RADIUS.tile}px;border:1px solid var(--sf-border,${NIGHT.border})}
 [data-role='glide.flow.stage.accent'],[data-role='glide.flow.stage.success']{border-color:var(--sf-accent,${DASH.gold})}
 `

@@ -1,6 +1,6 @@
 import { orbSvg } from '../../frontend/src/chrome/orb.js'
 import { closedSeats, type CouncilRun, type Frame, MINERAL, schedule, TURN_MS } from './council.js'
-import { NIGHT } from './tokens.js'
+import { DASH, NIGHT } from './tokens.js'
 
 const DELIVERY_MS = 900
 const CLAUSE_MS = 650
@@ -85,7 +85,7 @@ export function deliverySvg(run: CouncilRun, view: CouncilExchange, size: number
 }
 
 /** The shared thinking-orbs engine, tinted with literal inks for Tern SVG images. */
-export function councilOrbSvg(seconds: number, amplitude: number, reduce: boolean, ink = '#d7b986'): string {
+export function councilOrbSvg(seconds: number, amplitude: number, reduce: boolean, ink: string = DASH.gold): string {
   const level = Math.max(0, Math.min(1, amplitude))
   const source = orbSvg('speaking', reduce ? .6 : seconds, true)
   const scale = reduce ? 1 : .9 + level * .14
