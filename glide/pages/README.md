@@ -12,3 +12,9 @@ Rules every page here keeps (`glide/tests/test_ui.py` checks the first three):
 - At most 4 MiB.
 - License-clean: sound is synthesized in the page (WebAudio, or samples computed in JavaScript), and any
   melody is an original or a public-domain composition. Each page names its sources in its header comment.
+
+`/glide ui open character-poser over` opens the ATLAS rig. Pick a joint and an axis, then drag the gold
+ring or use the rotation sliders. Drag outside the ring to orbit. Pick an expression, scrub to a time, and
+use **Set key** to save or replace the complete pose and expression. Click a key to jump to it, or use
+**Play** to loop the four-second timeline. Edits are session-only; reopening starts with the demo keys.
+ATLAS is an original rigid-skinned model released under [CC0](character-poser.LICENSE.md).
