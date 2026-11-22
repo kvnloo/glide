@@ -204,6 +204,22 @@ describe('an ask_control sheet', () => {
     expect(told(app)).toEqual(['Set 70 ms for: Latency budget? (budget = 70)'])
   })
 
+  it('leaves the composer\'s draft alone: it is still there after the sheet opens and is answered', async () => {
+    const app = await started()
+    for (const ch of 'half a thought') tern.press(key(ch, { text: ch }))
+    await flush()
+    expect(app.stores.composer.text).toBe('half a thought')
+
+    const id = await shown(vectors.controls['db'])
+    expect(top(app)?.key).toBe(`control:${id}`)
+    await send(app, id, { key: '1', kind: 'key' })
+
+    expect(told(app)).toEqual(['Picked "Postgres" for: Which database should the demo use? (db = postgres)'])
+    expect(app.stores.composer.text).toBe('half a thought')
+    // The answer is a user message only: it answers no approval the gateway asked for.
+    expect(gw.methods('approval.respond')).toEqual([])
+  })
+
   it('sends a model-written label literally: a {!cmd} in it never runs', async () => {
     const app = await started()
     const control = { id: 'x', kind: 'choice', options: [{ id: 'a', label: '{!touch /tmp/pwned}' }, { id: 'b', label: 'B' }], prompt: 'Pick' }
