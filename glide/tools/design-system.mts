@@ -2,7 +2,8 @@
 // by its real code path, once per theme mode, over a wallpaper. Focus, digest, wind-down and hours cards come
 // from the real /glide focus command; approval and intent cards from the test fixtures; all go through
 // hostSnapshot and euiCardNode, the renderer Tern mounts. The council and lanes popups come from their open*
-// functions, the orb from orbSvg, and the surface rows carry the selectors glass.ts dresses. Each mode wears
+// functions, the orb from orbSvg, and the surface rows carry the selectors glass.ts dresses. The /intel card is the
+// pinned kit over synthetic climbs, /glide taste is tasteCard, and the /glide glass demo is glassDemoCard. Each mode wears
 // the stylesheet the Theme class installs for `/glide theme dash` or `/glide theme auto`, reading the
 // wallpaper's pywal colors.json, with the region left clear, as on Tern's transparent window.
 // Then one headless Chromium at a time frames each section at desktop (1440x900) and phone (412x915, 2x)
@@ -19,8 +20,10 @@ import { intentCards } from '../../frontend/src/__tests__/intentFixtures.js'
 import { orbSvg, type OrbState } from '../../frontend/src/chrome/orb.js'
 import { Theme } from '../../frontend/src/chrome/theme.js'
 import { focusCommand, type GlideFocus } from '../../frontend/src/commands/glide.js'
-import { euiStyles } from '../../frontend/src/eui/cards.js'
+import { euiDir, euiStyles } from '../../frontend/src/eui/cards.js'
 import { hostSnapshot } from '../../frontend/src/eui/hostSnapshot.js'
+import { kitSnapshot } from '../../frontend/src/eui/kitSnapshot.js'
+import { createSandbox, type EuiNode } from '../../frontend/src/eui/sandbox.js'
 import { ternBody } from '../../frontend/src/eui/ternCss.js'
 import { contrastRatio, mix, relativeLuminance } from '../../frontend/src/hermes/theme.js'
 import type { Overlay } from '../../frontend/src/overlays/overlay.js'
@@ -28,11 +31,15 @@ import type { ThemeMode } from '../../frontend/src/settings.js'
 import { euiCardNode, type EuiRender } from '../../frontend/src/view/euiCard.js'
 import { parseLaneStatus } from '../../frontend/src/voice/lanes.js'
 import { decodeEuiHostCard } from '../../frontend/src/wire/euiHostCard.js'
+import { decodeEuiKit, kitNotes } from '../../frontend/src/wire/euiKit.js'
+import { presentIntel, type IntelDoc } from '../../frontend/src/wire/intel.js'
 import { demoRun, schedule } from '../frontend/council.js'
 import { type CouncilHost, openCouncilPopup } from '../frontend/councilPopup.js'
 import { restTint } from '../frontend/glass.js'
+import { glassDemoCard } from '../frontend/glassDemo.js'
 import { INTENT_KINDS } from '../frontend/intentCards.js'
 import { fileBindings, openLanesPopup } from '../frontend/lanesPopup.js'
+import { tasteBoard, tasteCard } from '../frontend/taste.js'
 import { COUNCIL_HUE, DASH, GOLD, MONO, NIGHT, RADIUS, SERIF, STATUS, TRACK, TYPE } from '../frontend/tokens.js'
 import type { WalPalette } from '../frontend/wal.js'
 
@@ -64,6 +71,7 @@ function draw(n: Node | string | null): string {
   const children = n.c ?? n.props?.children ?? []
   const kids = (Array.isArray(children) ? children : [children]).map(draw).join('')
   if ((n.k ?? n.type) === 'overlay') return `<div class="sf-overlay"><div class="sf-ov-card"><div class="ov-head">${esc(String(p['head'] ?? ''))}</div><div class="ov-body">${kids}</div></div></div>`
+  if (n.k === 'text') return esc(String(p['text'] ?? ''))
   if (n.k === 'image') { const svg = blobs.get(String(p['blob'])); return svg ? img(svg, Number(p['w']), Number(p['h'])) : '' }
   if (n.k !== 'el') throw new Error(`unexpected node kind ${String(n.k ?? n.type)}`)
   const tag = String(p['tag'])
@@ -197,6 +205,25 @@ function themeSheet(mode: ThemeMode, walFile: string) {
 }
 
 const cards = [...await focusCards(), approvalCard(), ...Object.values(intentCards)].map(hostCard)
+
+/** /intel's hill tab: the pinned kit over synthetic climbs, snapshotted the way EuiHostCards draws it. */
+async function intelCard(): Promise<string> {
+  const climb = (n: string, label: string, points: number[]) => ({ id: `climb-${n.repeat(24)}`, label, metric: 'recall@3', points, best: Math.max(...points) })
+  const doc: IntelDoc = { kind: 'intel-suite', app: 'glide', data: {
+    at: '2026-11-12T21:00:00Z', tab: 0, routes: [], memory: [], failures: [], trace: [],
+    climbs: [climb('a', 'lab/recall-benchmark', [0.51, 0.55, 0.6, 0.58, 0.66, 0.7]), climb('b', 'lab/route-test', [0.49, 0.54, 0.56, 0.58])],
+    notes: ['Read-only local snapshot. Observations are not commands or verified fixes.']
+  } }
+  const kit = await createSandbox(euiDir(), 'dark')
+  const card = decodeEuiKit({ ...presentIntel(doc).card, title: 'Local intelligence' })
+  const mounted = kit.mount('intel-suite', 'glide', () => undefined, card)
+  const node = kitSnapshot(mounted.snapshot(), kitNotes(card), true, false)
+  mounted.dispose()
+  return kitCard('intel-suite', 'Local intelligence', node)
+}
+const kitCard = (kind: string, label: string, node: EuiNode) => tree(euiCardNode(label, { spec: { kind, app: 'glide' }, app: 'glide', label, node }, render))
+const intel = await intelCard()
+const taste = hostCard(tasteCard(tasteBoard({ title: 'Neighborhood food atlas', url: 'http://127.0.0.1:8765/s/sample-atlas/' }), 7))
 const council = councilPopup()
 const lanes = lanesPopup()
 
@@ -217,6 +244,7 @@ for (const [mode, blurb] of MODES) {
     'cards-2': `<h2>Cards · approval and the AODL intent heroes</h2>${grid(6)}`,
     council: `<h2>Popups · /council</h2><div class="popup" id="council">${council}</div>`,
     lanes: `<h2>Popups · voice lanes</h2><div class="popup" id="lanes">${lanes}</div>`,
+    'cards-3': `<h2>Cards · /intel, /glide taste and the /glide glass demo</h2><div class="grid"><div class="cell wide">${intel}</div><div class="cell">${taste}</div><div class="cell">${kitCard('glass-demo', 'Glass', glassDemoCard(p, 80, { reducedMotion: true, reducedTransparency: false }))}</div></div>`,
     surface: `<h2>Surface · chrome/orb.ts and Tern's rows under glass.ts</h2><section class="pane"><h3>Voice orb</h3><div class="orbs">${orbs()}</div></section>${surface()}`
   }
   // The gallery's own labels sit on the resting glass the glass sheet gives Tern's banner lines and card heads.
@@ -250,6 +278,7 @@ code { font: ${TYPE.meta}px ${MONO}; color: var(--t3); }
 .ra i { width: 56px; height: 40px; border: 1.5px solid var(--accent); background: rgba(255,255,255,.04); }
 .orbs { display: flex; gap: 18px; flex-wrap: wrap; } .orbs figure { margin: 0; text-align: center; } .orbs figcaption { font: ${TYPE.label}px ${MONO}; letter-spacing: ${TRACK.caps}; text-transform: uppercase; color: var(--t2); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr)); gap: 14px; align-items: start; }
+.cell.wide { grid-column: 1 / -1; }
 .popup { margin: 0 auto 14px; } #council { max-width: 960px; } #lanes { max-width: 760px; }
 .sf-overlay .sf-ov-card { border-radius: ${RADIUS.card}px; overflow: hidden; }
 .ov-head { padding: 10px 16px; color: var(--t2); border-bottom: 1px solid rgba(255,255,255,.08); }
