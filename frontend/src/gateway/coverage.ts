@@ -39,7 +39,6 @@ export const IGNORED = [
   'terminal.close',
   'tip.show',
   'tool.output_risk',
-  'tool.progress',
   'voice.interrupted',
   'voice.partial',
   'voice.status',

@@ -2956,6 +2956,3958 @@
         ]
        }
       ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "eui.host-panel",
+       "key": "eui4"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "role": "glide.host",
+         "key": "main.eui4.host.host-2"
+        },
+        "c": [
+         {
+          "k": "el",
+          "p": {
+           "tag": "div",
+           "key": "ui",
+           "attrs": {
+            "data-glide-motion": "live",
+            "data-glide-enter": "no"
+           }
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Tool progress",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "checklist",
+                "p": {
+                 "mode": "full",
+                 "phases": [
+                  {
+                   "id": "p",
+                   "items": [
+                    {
+                     "id": "t1",
+                     "text": "Ran ls",
+                     "status": "done",
+                     "note": "200 ms"
+                    },
+                    {
+                     "id": "t2",
+                     "text": "Read README.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.steps",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "col",
+                "p": {
+                 "gap": "sm",
+                 "role": "glide.section",
+                 "key": "p1"
+                },
+                "c": [
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "baseline",
+                   "role": "glide.section.head",
+                   "key": "h"
+                  },
+                  "c": [
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.section.title",
+                     "text": "Files",
+                     "truncate": "end",
+                     "key": "t"
+                    }
+                   },
+                   {
+                    "k": "spacer",
+                    "p": {
+                     "grow": 1,
+                     "key": "f"
+                    }
+                   },
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.label",
+                     "text": "1 read",
+                     "key": "a"
+                    }
+                   }
+                  ]
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p0"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "01",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Working · 2 of 2 tools done · 1 file",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "step": "feed 2"
+  },
+  {
+   "frame": {
+    "dock": [
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.hud.status",
+       "key": "hud"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "spinner",
+          "p": {
+           "style": "starburst",
+           "tone": "accent",
+           "key": "spinner"
+          }
+         },
+         {
+          "k": "shimmer",
+          "p": {
+           "mode": "classic",
+           "palette": {
+            "high": "accent",
+            "low": "dim",
+            "mid": "muted"
+           },
+           "role": "omp.working.label",
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Mcp docs index…"
+            }
+           ],
+           "key": "label"
+          }
+         },
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.working.sep",
+           "text": "·",
+           "key": "sep"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "elapsed"
+          }
+         },
+         {
+          "k": "row",
+          "p": {
+           "grow": 1,
+           "key": "fill"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.working.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "xs",
+             "title": "Stop  esc esc",
+             "key": "face"
+            },
+            "c": [
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k"
+              }
+             },
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k2"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "text": "Stop",
+               "key": "t"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.editor",
+       "key": "composer"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "role": "hermes.streak",
+         "key": "streak"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "gap": "sm",
+         "hidden": true,
+         "role": "omp.composer.chips",
+         "wrap": true,
+         "key": "chips"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "start",
+         "gap": "sm",
+         "role": "omp.composer.line",
+         "key": "line"
+        },
+        "c": [
+         {
+          "k": "editor",
+          "p": {
+           "cursor": 0,
+           "decor": [],
+           "maxLines": 18,
+           "placeholder": "Ask Hermes — / commands · @ files",
+           "sendable": true,
+           "text": "",
+           "key": "input"
+          }
+         }
+        ]
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.composer.bar",
+         "key": "bar"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "xs",
+           "role": "omp.composer.effort",
+           "title": "Reasoning effort: medium (the default) · click to cycle  ⇧⇥ · right-click to choose or save as default",
+           "key": "effort",
+           "actions": {
+            "click": "click",
+            "menu": [
+             "choose-effort",
+             "save-effort-as-default"
+            ]
+           }
+          },
+          "c": [
+           {
+            "k": "effort",
+            "p": {
+             "level": "medium",
+             "key": "glyph"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "spans": [
+              {
+               "s": "muted",
+               "t": "medium"
+              }
+             ],
+             "wrap": "none",
+             "key": "level"
+            }
+           }
+          ]
+         },
+         {
+          "k": "status",
+          "p": {
+           "grow": 1,
+           "role": "omp.composer.extras",
+           "transparent": true,
+           "key": "extras"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.composer.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "text": "Stop",
+             "title": "Stop  esc esc",
+             "tone": "error",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p1"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 1 file · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "layer": [],
+    "main": [
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.welcome",
+       "key": "w0"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "md",
+         "role": "omp.welcome.lockup",
+         "key": "lockup"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "omp.welcome.mark",
+           "key": "mark"
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.wordmark",
+             "spans": [
+              {
+               "s": "strong",
+               "t": "hermes"
+              }
+             ],
+             "wrap": "none",
+             "key": "wordmark"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.version",
+             "spans": [
+              {
+               "s": "dim mono",
+               "t": "v1.0.0"
+              }
+             ],
+             "wrap": "none",
+             "key": "version"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.user",
+       "tone": "user",
+       "key": "u1"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "gap": "xs",
+         "role": "omp.user.tools",
+         "key": "tools"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.user.time",
+           "spans": [
+            {
+             "s": "dim mono",
+             "t": "03:04 AM"
+            }
+           ],
+           "title": "1/2/2026, 3:04:05 AM",
+           "key": "time"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Copy message",
+           "class": "hermes-press",
+           "key": "copy",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "copy",
+             "role": "omp.user.tool",
+             "title": "Copy message",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "key": "body",
+         "text": "list the files"
+        }
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.assistant",
+       "key": "t2"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "xs",
+         "role": "hermes.turn.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Working for"
+            }
+           ],
+           "wrap": "none",
+           "key": "label"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "age"
+          }
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "stream": true,
+         "key": "x3",
+         "text": "Let me look at the project first."
+        }
+       },
+       {
+        "k": "section",
+        "p": {
+         "collapsed": true,
+         "collapsible": true,
+         "head": "main.t2.wt1.head",
+         "key": "wt1",
+         "role": "hermes.work.group"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "sm",
+           "key": "head"
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "hammer",
+             "key": "icon"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "spans": [
+              {
+               "s": "muted",
+               "t": "Ran 1 command and read 1 file"
+              }
+             ],
+             "truncate": "end",
+             "wrap": "none",
+             "key": "label"
+            }
+           },
+           {
+            "k": "icon",
+            "p": {
+             "name": "chev",
+             "role": "hermes.work.chev",
+             "key": "chev"
+            }
+           },
+           {
+            "k": "spacer",
+            "p": {
+             "grow": 1,
+             "key": "gap"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "role": "hermes.work.time",
+             "spans": [
+              {
+               "s": "dim",
+               "t": "3:04 am"
+              }
+             ],
+             "wrap": "none",
+             "key": "time"
+            }
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t1.head",
+           "key": "t1",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "terminal",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "ls"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "bash",
+               "max": {
+                "h": "12lines"
+               },
+               "role": "omp.tool.command",
+               "text": "ls",
+               "key": "cmd"
+              }
+             },
+             {
+              "k": "ansi",
+              "p": {
+               "follow": true,
+               "max": {
+                "h": "20lines"
+               },
+               "text": "README.md\nsrc",
+               "key": "out"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t2.head",
+           "key": "t2",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "eye",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Read README.md"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "markdown",
+               "numbers": true,
+               "start": 1,
+               "text": "# Demo\nA small project.",
+               "key": "code"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "k": "section",
+        "p": {
+         "collapsed": true,
+         "collapsible": true,
+         "head": "main.t2.wt3.head",
+         "key": "wt3",
+         "role": "hermes.work.group"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "sm",
+           "key": "head"
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "wrench",
+             "key": "icon"
+            }
+           },
+           {
+            "k": "shimmer",
+            "p": {
+             "mode": "classic",
+             "palette": {
+              "high": "accent",
+              "low": "dim",
+              "mid": "muted"
+             },
+             "role": "hermes.work.live",
+             "spans": [
+              {
+               "s": "muted",
+               "t": "Mcp docs index"
+              }
+             ],
+             "key": "label"
+            }
+           },
+           {
+            "k": "icon",
+            "p": {
+             "name": "chev",
+             "role": "hermes.work.chev",
+             "key": "chev"
+            }
+           }
+          ]
+         },
+         {
+          "k": "col",
+          "p": {
+           "role": "hermes.work.row",
+           "key": "t3"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "wrench",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "shimmer",
+              "p": {
+               "mode": "classic",
+               "palette": {
+                "high": "accent",
+                "low": "dim",
+                "mid": "muted"
+               },
+               "role": "hermes.work.live",
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Mcp docs index"
+                }
+               ],
+               "key": "label"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "eui.host-panel",
+       "key": "eui4"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "role": "glide.host",
+         "key": "main.eui4.host.host-4"
+        },
+        "c": [
+         {
+          "k": "el",
+          "p": {
+           "tag": "div",
+           "key": "ui",
+           "attrs": {
+            "data-glide-motion": "live",
+            "data-glide-enter": "no"
+           }
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Tool progress",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "checklist",
+                "p": {
+                 "mode": "full",
+                 "phases": [
+                  {
+                   "id": "p",
+                   "items": [
+                    {
+                     "id": "t1",
+                     "text": "Ran ls",
+                     "status": "done",
+                     "note": "200 ms"
+                    },
+                    {
+                     "id": "t2",
+                     "text": "Read README.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    },
+                    {
+                     "id": "t3",
+                     "text": "Mcp docs index",
+                     "status": "running",
+                     "note": "Indexing docs · 25%"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.steps",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "meter",
+                "p": {
+                 "label": "Indexing docs",
+                 "role": "glide.meter",
+                 "value": 0.25,
+                 "total": "1/4",
+                 "tone": "accent",
+                 "key": "p1"
+                }
+               },
+               {
+                "k": "col",
+                "p": {
+                 "gap": "sm",
+                 "role": "glide.section",
+                 "key": "p2"
+                },
+                "c": [
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "baseline",
+                   "role": "glide.section.head",
+                   "key": "h"
+                  },
+                  "c": [
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.section.title",
+                     "text": "Files",
+                     "truncate": "end",
+                     "key": "t"
+                    }
+                   },
+                   {
+                    "k": "spacer",
+                    "p": {
+                     "grow": 1,
+                     "key": "f"
+                    }
+                   },
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.label",
+                     "text": "1 read",
+                     "key": "a"
+                    }
+                   }
+                  ]
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p0"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "01",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Working · 2 of 3 tools done · 1 file",
+                 "wrap": "word",
+                 "key": "p3"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "step": "feed 2"
+  },
+  {
+   "frame": {
+    "dock": [
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.hud.status",
+       "key": "hud"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "spinner",
+          "p": {
+           "style": "starburst",
+           "tone": "accent",
+           "key": "spinner"
+          }
+         },
+         {
+          "k": "shimmer",
+          "p": {
+           "mode": "classic",
+           "palette": {
+            "high": "accent",
+            "low": "dim",
+            "mid": "muted"
+           },
+           "role": "omp.working.label",
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Mcp docs index…"
+            }
+           ],
+           "key": "label"
+          }
+         },
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.working.sep",
+           "text": "·",
+           "key": "sep"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "elapsed"
+          }
+         },
+         {
+          "k": "row",
+          "p": {
+           "grow": 1,
+           "key": "fill"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.working.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "xs",
+             "title": "Stop  esc esc",
+             "key": "face"
+            },
+            "c": [
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k"
+              }
+             },
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k2"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "text": "Stop",
+               "key": "t"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.editor",
+       "key": "composer"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "role": "hermes.streak",
+         "key": "streak"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "gap": "sm",
+         "hidden": true,
+         "role": "omp.composer.chips",
+         "wrap": true,
+         "key": "chips"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "start",
+         "gap": "sm",
+         "role": "omp.composer.line",
+         "key": "line"
+        },
+        "c": [
+         {
+          "k": "editor",
+          "p": {
+           "cursor": 0,
+           "decor": [],
+           "maxLines": 18,
+           "placeholder": "Ask Hermes — / commands · @ files",
+           "sendable": true,
+           "text": "",
+           "key": "input"
+          }
+         }
+        ]
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.composer.bar",
+         "key": "bar"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "xs",
+           "role": "omp.composer.effort",
+           "title": "Reasoning effort: medium (the default) · click to cycle  ⇧⇥ · right-click to choose or save as default",
+           "key": "effort",
+           "actions": {
+            "click": "click",
+            "menu": [
+             "choose-effort",
+             "save-effort-as-default"
+            ]
+           }
+          },
+          "c": [
+           {
+            "k": "effort",
+            "p": {
+             "level": "medium",
+             "key": "glyph"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "spans": [
+              {
+               "s": "muted",
+               "t": "medium"
+              }
+             ],
+             "wrap": "none",
+             "key": "level"
+            }
+           }
+          ]
+         },
+         {
+          "k": "status",
+          "p": {
+           "grow": 1,
+           "role": "omp.composer.extras",
+           "transparent": true,
+           "key": "extras"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.composer.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "text": "Stop",
+             "title": "Stop  esc esc",
+             "tone": "error",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p1"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 1 file · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "layer": [],
+    "main": [
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.welcome",
+       "key": "w0"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "md",
+         "role": "omp.welcome.lockup",
+         "key": "lockup"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "omp.welcome.mark",
+           "key": "mark"
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.wordmark",
+             "spans": [
+              {
+               "s": "strong",
+               "t": "hermes"
+              }
+             ],
+             "wrap": "none",
+             "key": "wordmark"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.version",
+             "spans": [
+              {
+               "s": "dim mono",
+               "t": "v1.0.0"
+              }
+             ],
+             "wrap": "none",
+             "key": "version"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.user",
+       "tone": "user",
+       "key": "u1"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "gap": "xs",
+         "role": "omp.user.tools",
+         "key": "tools"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.user.time",
+           "spans": [
+            {
+             "s": "dim mono",
+             "t": "03:04 AM"
+            }
+           ],
+           "title": "1/2/2026, 3:04:05 AM",
+           "key": "time"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Copy message",
+           "class": "hermes-press",
+           "key": "copy",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "copy",
+             "role": "omp.user.tool",
+             "title": "Copy message",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "key": "body",
+         "text": "list the files"
+        }
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.assistant",
+       "key": "t2"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "xs",
+         "role": "hermes.turn.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Working for"
+            }
+           ],
+           "wrap": "none",
+           "key": "label"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "age"
+          }
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "stream": true,
+         "key": "x3",
+         "text": "Let me look at the project first."
+        }
+       },
+       {
+        "k": "section",
+        "p": {
+         "collapsed": true,
+         "collapsible": true,
+         "head": "main.t2.wt1.head",
+         "key": "wt1",
+         "role": "hermes.work.group"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "sm",
+           "key": "head"
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "wrench",
+             "key": "icon"
+            }
+           },
+           {
+            "k": "shimmer",
+            "p": {
+             "mode": "classic",
+             "palette": {
+              "high": "accent",
+              "low": "dim",
+              "mid": "muted"
+             },
+             "role": "hermes.work.live",
+             "spans": [
+              {
+               "s": "muted",
+               "t": "Mcp docs index"
+              }
+             ],
+             "key": "label"
+            }
+           },
+           {
+            "k": "icon",
+            "p": {
+             "name": "chev",
+             "role": "hermes.work.chev",
+             "key": "chev"
+            }
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t1.head",
+           "key": "t1",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "terminal",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "ls"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "bash",
+               "max": {
+                "h": "12lines"
+               },
+               "role": "omp.tool.command",
+               "text": "ls",
+               "key": "cmd"
+              }
+             },
+             {
+              "k": "ansi",
+              "p": {
+               "follow": true,
+               "max": {
+                "h": "20lines"
+               },
+               "text": "README.md\nsrc",
+               "key": "out"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t2.head",
+           "key": "t2",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "eye",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Read README.md"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "markdown",
+               "numbers": true,
+               "start": 1,
+               "text": "# Demo\nA small project.",
+               "key": "code"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t3.head",
+           "key": "t3",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "wrench",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Mcp docs index"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "json",
+               "text": "{\"indexed\": 4}",
+               "key": "out"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "eui.host-panel",
+       "key": "eui4"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "role": "glide.host",
+         "key": "main.eui4.host.host-6"
+        },
+        "c": [
+         {
+          "k": "el",
+          "p": {
+           "tag": "div",
+           "key": "ui",
+           "attrs": {
+            "data-glide-motion": "live",
+            "data-glide-enter": "no"
+           }
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Tool progress",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "checklist",
+                "p": {
+                 "mode": "full",
+                 "phases": [
+                  {
+                   "id": "p",
+                   "items": [
+                    {
+                     "id": "t1",
+                     "text": "Ran ls",
+                     "status": "done",
+                     "note": "200 ms"
+                    },
+                    {
+                     "id": "t2",
+                     "text": "Read README.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    },
+                    {
+                     "id": "t3",
+                     "text": "Mcp docs index",
+                     "status": "done",
+                     "note": "600 ms"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.steps",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "col",
+                "p": {
+                 "gap": "sm",
+                 "role": "glide.section",
+                 "key": "p1"
+                },
+                "c": [
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "baseline",
+                   "role": "glide.section.head",
+                   "key": "h"
+                  },
+                  "c": [
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.section.title",
+                     "text": "Files",
+                     "truncate": "end",
+                     "key": "t"
+                    }
+                   },
+                   {
+                    "k": "spacer",
+                    "p": {
+                     "grow": 1,
+                     "key": "f"
+                    }
+                   },
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.label",
+                     "text": "1 read",
+                     "key": "a"
+                    }
+                   }
+                  ]
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p0"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "01",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Working · 3 of 3 tools done · 1 file",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "step": "feed 2"
+  },
+  {
+   "frame": {
+    "dock": [
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.hud.status",
+       "key": "hud"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "spinner",
+          "p": {
+           "style": "starburst",
+           "tone": "accent",
+           "key": "spinner"
+          }
+         },
+         {
+          "k": "shimmer",
+          "p": {
+           "mode": "classic",
+           "palette": {
+            "high": "accent",
+            "low": "dim",
+            "mid": "muted"
+           },
+           "role": "omp.working.label",
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Writing src/notes.md…"
+            }
+           ],
+           "key": "label"
+          }
+         },
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.working.sep",
+           "text": "·",
+           "key": "sep"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "elapsed"
+          }
+         },
+         {
+          "k": "row",
+          "p": {
+           "grow": 1,
+           "key": "fill"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.working.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "xs",
+             "title": "Stop  esc esc",
+             "key": "face"
+            },
+            "c": [
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k"
+              }
+             },
+             {
+              "k": "kbd",
+              "p": {
+               "keys": [
+                "esc"
+               ],
+               "key": "k2"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "text": "Stop",
+               "key": "t"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.editor",
+       "key": "composer"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "role": "hermes.streak",
+         "key": "streak"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "gap": "sm",
+         "hidden": true,
+         "role": "omp.composer.chips",
+         "wrap": true,
+         "key": "chips"
+        }
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "start",
+         "gap": "sm",
+         "role": "omp.composer.line",
+         "key": "line"
+        },
+        "c": [
+         {
+          "k": "editor",
+          "p": {
+           "cursor": 0,
+           "decor": [],
+           "maxLines": 18,
+           "placeholder": "Ask Hermes — / commands · @ files",
+           "sendable": true,
+           "text": "",
+           "key": "input"
+          }
+         }
+        ]
+       },
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "sm",
+         "role": "omp.composer.bar",
+         "key": "bar"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "xs",
+           "role": "omp.composer.effort",
+           "title": "Reasoning effort: medium (the default) · click to cycle  ⇧⇥ · right-click to choose or save as default",
+           "key": "effort",
+           "actions": {
+            "click": "click",
+            "menu": [
+             "choose-effort",
+             "save-effort-as-default"
+            ]
+           }
+          },
+          "c": [
+           {
+            "k": "effort",
+            "p": {
+             "level": "medium",
+             "key": "glyph"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "spans": [
+              {
+               "s": "muted",
+               "t": "medium"
+              }
+             ],
+             "wrap": "none",
+             "key": "level"
+            }
+           }
+          ]
+         },
+         {
+          "k": "status",
+          "p": {
+           "grow": 1,
+           "role": "omp.composer.extras",
+           "transparent": true,
+           "key": "extras"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Stop",
+           "class": "hermes-press",
+           "role": "omp.composer.stop",
+           "key": "stop",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "text": "Stop",
+             "title": "Stop  esc esc",
+             "tone": "error",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "key": "glide.below"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "gap": "sm",
+         "role": "glide.dock",
+         "key": "w"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "glide.work-tree",
+           "key": "glide.work-tree"
+          },
+          "c": [
+           {
+            "k": "el",
+            "p": {
+             "tag": "div",
+             "key": "card",
+             "attrs": {
+              "data-glide-motion": "live",
+              "data-glide-enter": "yes"
+             }
+            },
+            "c": [
+             {
+              "k": "card",
+              "p": {
+               "head": [
+                {
+                 "t": "Work tree",
+                 "s": "strong"
+                },
+                {
+                 "t": "  LIVE",
+                 "s": "muted"
+                }
+               ],
+               "role": "glide.card",
+               "status": "running",
+               "key": "card"
+              },
+              "c": [
+               {
+                "k": "col",
+                "p": {
+                 "gap": "md",
+                 "role": "glide.body",
+                 "key": "body"
+                },
+                "c": [
+                 {
+                  "k": "tabs",
+                  "p": {
+                   "active": "files",
+                   "items": [
+                    {
+                     "id": "files",
+                     "label": [
+                      {
+                       "t": "FILES"
+                      },
+                      {
+                       "t": " 2",
+                       "s": "muted"
+                      }
+                     ]
+                    },
+                    {
+                     "id": "tasks",
+                     "label": [
+                      {
+                       "t": "FEATURES / TASKS"
+                      },
+                      {
+                       "t": " 1",
+                       "s": "muted"
+                      }
+                     ]
+                    }
+                   ],
+                   "role": "glide.tabs",
+                   "key": "p0"
+                  }
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p1"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i1"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ src/",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i2"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "  └ ✓ notes.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "edited",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "k": "text",
+                  "p": {
+                   "role": "glide.text",
+                   "text": "Working · 2 files · 1 requested · untracked",
+                   "wrap": "word",
+                   "key": "p2"
+                  }
+                 },
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "center",
+                   "gap": "sm",
+                   "role": "glide.actions",
+                   "wrap": true,
+                   "key": "p3"
+                  },
+                  "c": [
+                   {
+                    "k": "el",
+                    "p": {
+                     "tag": "button",
+                     "aria": "Collapse work tree",
+                     "class": "hermes-press",
+                     "key": "b0",
+                     "actions": {
+                      "click": "click"
+                     }
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "xs",
+                       "role": "omp.btn",
+                       "title": "Collapse work tree",
+                       "key": "face"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "text": "Collapse work tree",
+                         "wrap": "none",
+                         "key": "label"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "layer": [],
+    "main": [
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.welcome",
+       "key": "w0"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "md",
+         "role": "omp.welcome.lockup",
+         "key": "lockup"
+        },
+        "c": [
+         {
+          "k": "col",
+          "p": {
+           "role": "omp.welcome.mark",
+           "key": "mark"
+          },
+          "c": [
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.wordmark",
+             "spans": [
+              {
+               "s": "strong",
+               "t": "hermes"
+              }
+             ],
+             "wrap": "none",
+             "key": "wordmark"
+            }
+           },
+           {
+            "k": "text",
+            "p": {
+             "role": "omp.welcome.version",
+             "spans": [
+              {
+               "s": "dim mono",
+               "t": "v1.0.0"
+              }
+             ],
+             "wrap": "none",
+             "key": "version"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "card",
+      "p": {
+       "role": "omp.user",
+       "tone": "user",
+       "key": "u1"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "gap": "xs",
+         "role": "omp.user.tools",
+         "key": "tools"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "role": "omp.user.time",
+           "spans": [
+            {
+             "s": "dim mono",
+             "t": "03:04 AM"
+            }
+           ],
+           "title": "1/2/2026, 3:04:05 AM",
+           "key": "time"
+          }
+         },
+         {
+          "k": "el",
+          "p": {
+           "tag": "button",
+           "aria": "Copy message",
+           "class": "hermes-press",
+           "key": "copy",
+           "actions": {
+            "click": "click"
+           }
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "copy",
+             "role": "omp.user.tool",
+             "title": "Copy message",
+             "key": "face"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "key": "body",
+         "text": "list the files"
+        }
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "omp.assistant",
+       "key": "t2"
+      },
+      "c": [
+       {
+        "k": "row",
+        "p": {
+         "align": "center",
+         "gap": "xs",
+         "role": "hermes.turn.working",
+         "key": "working"
+        },
+        "c": [
+         {
+          "k": "text",
+          "p": {
+           "spans": [
+            {
+             "s": "muted",
+             "t": "Working for"
+            }
+           ],
+           "wrap": "none",
+           "key": "label"
+          }
+         },
+         {
+          "k": "elapsed",
+          "p": {
+           "age": 0,
+           "format": "short",
+           "key": "age"
+          }
+         }
+        ]
+       },
+       {
+        "k": "md",
+        "p": {
+         "stream": true,
+         "key": "x3",
+         "text": "Let me look at the project first."
+        }
+       },
+       {
+        "k": "section",
+        "p": {
+         "collapsed": true,
+         "collapsible": true,
+         "head": "main.t2.wt1.head",
+         "key": "wt1",
+         "role": "hermes.work.group"
+        },
+        "c": [
+         {
+          "k": "row",
+          "p": {
+           "align": "center",
+           "gap": "sm",
+           "key": "head"
+          },
+          "c": [
+           {
+            "k": "icon",
+            "p": {
+             "name": "pencil",
+             "key": "icon"
+            }
+           },
+           {
+            "k": "shimmer",
+            "p": {
+             "mode": "classic",
+             "palette": {
+              "high": "accent",
+              "low": "dim",
+              "mid": "muted"
+             },
+             "role": "hermes.work.live",
+             "spans": [
+              {
+               "s": "muted",
+               "t": "Writing src/notes.md"
+              }
+             ],
+             "key": "label"
+            }
+           },
+           {
+            "k": "icon",
+            "p": {
+             "name": "chev",
+             "role": "hermes.work.chev",
+             "key": "chev"
+            }
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t1.head",
+           "key": "t1",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "terminal",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "ls"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "bash",
+               "max": {
+                "h": "12lines"
+               },
+               "role": "omp.tool.command",
+               "text": "ls",
+               "key": "cmd"
+              }
+             },
+             {
+              "k": "ansi",
+              "p": {
+               "follow": true,
+               "max": {
+                "h": "20lines"
+               },
+               "text": "README.md\nsrc",
+               "key": "out"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t2.head",
+           "key": "t2",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "eye",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Read README.md"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "markdown",
+               "numbers": true,
+               "start": 1,
+               "text": "# Demo\nA small project.",
+               "key": "code"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t3.head",
+           "key": "t3",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "wrench",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Mcp docs index"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "json",
+               "text": "{\"indexed\": 4}",
+               "key": "out"
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "k": "section",
+          "p": {
+           "collapsed": true,
+           "collapsible": true,
+           "head": "main.t2.wt1.t4.head",
+           "key": "t4",
+           "role": "hermes.work.row"
+          },
+          "c": [
+           {
+            "k": "row",
+            "p": {
+             "align": "center",
+             "gap": "sm",
+             "key": "head"
+            },
+            "c": [
+             {
+              "k": "icon",
+              "p": {
+               "name": "pencil",
+               "key": "icon"
+              }
+             },
+             {
+              "k": "text",
+              "p": {
+               "grow": 1,
+               "spans": [
+                {
+                 "s": "muted",
+                 "t": "Wrote src/notes.md"
+                }
+               ],
+               "truncate": "end",
+               "wrap": "none",
+               "key": "label"
+              }
+             }
+            ]
+           },
+           {
+            "k": "col",
+            "p": {
+             "gap": "xs",
+             "role": "hermes.work.detail",
+             "key": "detail"
+            },
+            "c": [
+             {
+              "k": "code",
+              "p": {
+               "lang": "markdown",
+               "numbers": true,
+               "text": "# Notes",
+               "key": "code"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "eui.host-panel",
+       "key": "eui4"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "role": "glide.host",
+         "key": "main.eui4.host.host-8"
+        },
+        "c": [
+         {
+          "k": "el",
+          "p": {
+           "tag": "div",
+           "key": "ui",
+           "attrs": {
+            "data-glide-motion": "live",
+            "data-glide-enter": "no"
+           }
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Tool progress",
+               "s": "strong"
+              },
+              {
+               "t": "  LIVE",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "running",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "checklist",
+                "p": {
+                 "mode": "full",
+                 "phases": [
+                  {
+                   "id": "p",
+                   "items": [
+                    {
+                     "id": "t1",
+                     "text": "Ran ls",
+                     "status": "done",
+                     "note": "200 ms"
+                    },
+                    {
+                     "id": "t2",
+                     "text": "Read README.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    },
+                    {
+                     "id": "t3",
+                     "text": "Mcp docs index",
+                     "status": "done",
+                     "note": "600 ms"
+                    },
+                    {
+                     "id": "t4",
+                     "text": "Wrote src/notes.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.steps",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "col",
+                "p": {
+                 "gap": "sm",
+                 "role": "glide.section",
+                 "key": "p1"
+                },
+                "c": [
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "baseline",
+                   "role": "glide.section.head",
+                   "key": "h"
+                  },
+                  "c": [
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.section.title",
+                     "text": "Files",
+                     "truncate": "end",
+                     "key": "t"
+                    }
+                   },
+                   {
+                    "k": "spacer",
+                    "p": {
+                     "grow": 1,
+                     "key": "f"
+                    }
+                   },
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.label",
+                     "text": "1 changed",
+                     "key": "a"
+                    }
+                   }
+                  ]
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p0"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "01",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i1"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "02",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ src/",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i2"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "03",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "  └ ✓ notes.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "edited",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Working · 4 of 4 tools done · 2 files",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
      }
     ]
    },
@@ -3188,7 +7140,7 @@
                   "k": "text",
                   "p": {
                    "role": "glide.text",
-                   "text": "Turn ended · 1 file · 1 requested · untracked",
+                   "text": "Turn ended · 2 files · 1 requested · untracked",
                    "wrap": "word",
                    "key": "p0"
                   }
@@ -3453,7 +7405,7 @@
                "spans": [
                 {
                  "s": "muted",
-                 "t": "Ran 1 command and read 1 file"
+                 "t": "Ran 1 command, changed 1 file, and performed 2 other actions"
                 }
                ],
                "truncate": "end",
@@ -3632,6 +7584,131 @@
               ]
              }
             ]
+           },
+           {
+            "k": "section",
+            "p": {
+             "collapsed": true,
+             "collapsible": true,
+             "head": "main.t2.foldx3.wt1.t3.head",
+             "key": "t3",
+             "role": "hermes.work.row"
+            },
+            "c": [
+             {
+              "k": "row",
+              "p": {
+               "align": "center",
+               "gap": "sm",
+               "key": "head"
+              },
+              "c": [
+               {
+                "k": "icon",
+                "p": {
+                 "name": "wrench",
+                 "key": "icon"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "grow": 1,
+                 "spans": [
+                  {
+                   "s": "muted",
+                   "t": "Mcp docs index"
+                  }
+                 ],
+                 "truncate": "end",
+                 "wrap": "none",
+                 "key": "label"
+                }
+               }
+              ]
+             },
+             {
+              "k": "col",
+              "p": {
+               "gap": "xs",
+               "role": "hermes.work.detail",
+               "key": "detail"
+              },
+              "c": [
+               {
+                "k": "code",
+                "p": {
+                 "lang": "json",
+                 "text": "{\"indexed\": 4}",
+                 "key": "out"
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "k": "section",
+            "p": {
+             "collapsed": true,
+             "collapsible": true,
+             "head": "main.t2.foldx3.wt1.t4.head",
+             "key": "t4",
+             "role": "hermes.work.row"
+            },
+            "c": [
+             {
+              "k": "row",
+              "p": {
+               "align": "center",
+               "gap": "sm",
+               "key": "head"
+              },
+              "c": [
+               {
+                "k": "icon",
+                "p": {
+                 "name": "pencil",
+                 "key": "icon"
+                }
+               },
+               {
+                "k": "text",
+                "p": {
+                 "grow": 1,
+                 "spans": [
+                  {
+                   "s": "muted",
+                   "t": "Wrote src/notes.md"
+                  }
+                 ],
+                 "truncate": "end",
+                 "wrap": "none",
+                 "key": "label"
+                }
+               }
+              ]
+             },
+             {
+              "k": "col",
+              "p": {
+               "gap": "xs",
+               "role": "hermes.work.detail",
+               "key": "detail"
+              },
+              "c": [
+               {
+                "k": "code",
+                "p": {
+                 "lang": "markdown",
+                 "numbers": true,
+                 "text": "# Notes",
+                 "key": "code"
+                }
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -3640,7 +7717,7 @@
        {
         "k": "md",
         "p": {
-         "key": "x4",
+         "key": "x5",
          "text": "Let me look at the project first. There are two entries: `README.md` and `src/`."
         }
        },
@@ -3673,6 +7750,335 @@
              "title": "Copy answer",
              "key": "face"
             }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "k": "col",
+      "p": {
+       "role": "eui.host-panel",
+       "key": "eui4"
+      },
+      "c": [
+       {
+        "k": "col",
+        "p": {
+         "role": "glide.host",
+         "key": "main.eui4.host.host-9"
+        },
+        "c": [
+         {
+          "k": "el",
+          "p": {
+           "tag": "div",
+           "key": "ui",
+           "attrs": {
+            "data-glide-motion": "still",
+            "data-glide-enter": "no"
+           }
+          },
+          "c": [
+           {
+            "k": "card",
+            "p": {
+             "head": [
+              {
+               "t": "Tool progress",
+               "s": "strong"
+              },
+              {
+               "t": "  SETTLED",
+               "s": "muted"
+              }
+             ],
+             "role": "glide.card",
+             "status": "done",
+             "key": "card"
+            },
+            "c": [
+             {
+              "k": "col",
+              "p": {
+               "gap": "md",
+               "role": "glide.body",
+               "key": "body"
+              },
+              "c": [
+               {
+                "k": "checklist",
+                "p": {
+                 "mode": "full",
+                 "phases": [
+                  {
+                   "id": "p",
+                   "items": [
+                    {
+                     "id": "t1",
+                     "text": "Ran ls",
+                     "status": "done",
+                     "note": "200 ms"
+                    },
+                    {
+                     "id": "t2",
+                     "text": "Read README.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    },
+                    {
+                     "id": "t3",
+                     "text": "Mcp docs index",
+                     "status": "done",
+                     "note": "600 ms"
+                    },
+                    {
+                     "id": "t4",
+                     "text": "Wrote src/notes.md",
+                     "status": "done",
+                     "note": "100 ms"
+                    }
+                   ]
+                  }
+                 ],
+                 "role": "glide.steps",
+                 "key": "p0"
+                }
+               },
+               {
+                "k": "col",
+                "p": {
+                 "gap": "sm",
+                 "role": "glide.section",
+                 "key": "p1"
+                },
+                "c": [
+                 {
+                  "k": "row",
+                  "p": {
+                   "align": "baseline",
+                   "role": "glide.section.head",
+                   "key": "h"
+                  },
+                  "c": [
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.section.title",
+                     "text": "Files",
+                     "truncate": "end",
+                     "key": "t"
+                    }
+                   },
+                   {
+                    "k": "spacer",
+                    "p": {
+                     "grow": 1,
+                     "key": "f"
+                    }
+                   },
+                   {
+                    "k": "text",
+                    "p": {
+                     "role": "glide.label",
+                     "text": "1 changed",
+                     "key": "a"
+                    }
+                   }
+                  ]
+                 },
+                 {
+                  "k": "col",
+                  "p": {
+                   "gap": "xs",
+                   "role": "glide.list",
+                   "key": "p0"
+                  },
+                  "c": [
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i0"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "01",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ ✓ README.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         },
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.muted",
+                           "text": "Read",
+                           "wrap": "word",
+                           "key": "d"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "read",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i1"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "02",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "└ src/",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "k": "col",
+                    "p": {
+                     "key": "i2"
+                    },
+                    "c": [
+                     {
+                      "k": "row",
+                      "p": {
+                       "align": "center",
+                       "gap": "md",
+                       "role": "glide.list.row",
+                       "key": "r"
+                      },
+                      "c": [
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.index",
+                         "text": "03",
+                         "key": "i"
+                        }
+                       },
+                       {
+                        "k": "col",
+                        "p": {
+                         "gap": "none",
+                         "grow": 1,
+                         "shrink": 1,
+                         "key": "t"
+                        },
+                        "c": [
+                         {
+                          "k": "text",
+                          "p": {
+                           "role": "glide.strong",
+                           "text": "  └ ✓ notes.md",
+                           "truncate": "end",
+                           "key": "l"
+                          }
+                         }
+                        ]
+                       },
+                       {
+                        "k": "text",
+                        "p": {
+                         "role": "glide.list.value",
+                         "text": "edited",
+                         "key": "v"
+                        }
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "k": "text",
+                "p": {
+                 "role": "glide.muted",
+                 "text": "Done · 4 tools · 2 files · 0 ms",
+                 "wrap": "word",
+                 "key": "p2"
+                }
+               }
+              ]
+             }
+            ]
            }
           ]
          }

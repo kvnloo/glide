@@ -59,6 +59,7 @@ const DRIVES: Record<string, Step[]> = {
   // Event-driven surfaces: a recorded gateway stream (the golden replays' fixtures) or a minimal one.
   'thinking-orb': [{ prompt: 'list the files' }, { replay: 'turn-tools' }],
   'tool-cards': [{ replay: 'turn-tools' }],
+  'tool-progress-card': [{ replay: 'turn-tools' }],
   'gateway-prompts': [{ replay: 'approval-clarify' }],
   'ephemeral-chat-cards': [{ events: [
     { type: 'message.start', payload: {} },

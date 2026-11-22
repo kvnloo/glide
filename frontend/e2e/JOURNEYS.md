@@ -144,10 +144,11 @@ Read cards, artifacts, and prepared previews in chat. Read ordinary and host-own
 14. `lsp-results`
 15. `lsp-edit-diagnostics`
 16. `tool-cards`
-17. `table-charts`
-18. `tool-results-sheet`
-19. `gateway-prompts`
-20. `ask-control`
+17. `tool-progress-card`
+18. `table-charts`
+19. `tool-results-sheet`
+20. `gateway-prompts`
+21. `ask-control`
 
 ## sessions
 
