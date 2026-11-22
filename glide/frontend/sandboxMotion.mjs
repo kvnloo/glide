@@ -112,6 +112,7 @@ export function motionBridge(document, prototype, log) {
       const previous = latest.get(el)
       const a = {
         element: el,
+        end,
         rule: css,
         finished: new Promise((res, rej) => { resolve = res; reject = rej }),
         playState: 'running',
@@ -186,7 +187,9 @@ export function motionBridge(document, prototype, log) {
   }
   bridge.snapshot = el => {
     const a = latest.get(el)
-    return a?.rule && { ...a.rule, paused: a.playState === 'paused' }
+    if (!a?.rule) return undefined
+    const paused = a.playState === 'paused'
+    return { ...a.rule, paused, remaining: paused ? Infinity : Math.max(0, a.end - a.currentTime) }
   }
   timers.set(document, bridge)
   // linkedom shares prototypes across documents. Route each call to its own sandbox.

@@ -108,7 +108,7 @@ describe('ephemeral-ui fences', () => {
   it("keeps the chat surface's stylesheets under Tern's per-surface cap", () => {
     // Tern fails the whole surface (no paint, no input) past 256 KiB of stylesheets. Count every sheet a chat
     // can carry at once: ours, the kit's, the wallpaper theme with its glass, the glass playground mid-cycle and
-    // a six-lane orbit, and keep 8 KiB for the cards' inline sheet plus 4 KiB of headroom.
+    // a six-lane orbit, and keep 8 KiB for the cards' inline sheet plus 4 KiB for kit motion.
     const css = euiStyles()
     const wal = walPalette(FILM)
     const lane = (role: string): OrbitLane => ({ role, state: 'thinking', hue: '#888888' })

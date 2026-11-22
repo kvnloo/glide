@@ -4,6 +4,7 @@ export interface EuiMotion {
   readonly name: string
   readonly css: string
   readonly paused: boolean
+  readonly remaining: number
 }
 
 /** One element of a mounted card, as plain data. `id` is stable for the element's lifetime. */
