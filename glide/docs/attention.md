@@ -28,6 +28,18 @@ Glide guards two scarce resources: your attention and the agent's context window
 
 At most one wind-down note per night (the night runs until 05:00). It records the last local session's title and last three asks under `<profile>/glide/attention.json`. On the next day's first turn, the hook quotes that note once and clears it. Cues are events (a command or a turn), not clock timers, and Glide sends nothing outside Hermes.
 
+Each wind-down also records when the evening started and ended, for readers such as other plugins:
+
+```json
+"wind_down": {"started": 1794450600.0, "by": "nudge", "ended": null}
+```
+
+- `started`: epoch seconds when the nudge fired or the wind-down was saved by hand.
+- `by`: `"nudge"` when the evening phase triggered it, `"manual"` for `/glide focus wind-down` (or its card action).
+- `ended`: epoch seconds, set by whichever comes first: the next day's first turn (when the note is quoted) or a new deep-work block. It stays `null` while the wind-down is open, and later events leave it unchanged. The next wind-down replaces the whole object.
+
+Files written before this key existed load unchanged; the other keys (`block`, `queue`, `resume`, `nudged`) keep their shape.
+
 ## Data
 
 Everything stays in `<profile>/glide/attention.json` and the read-only session database. No network calls except the optional loopback Flowkit read.

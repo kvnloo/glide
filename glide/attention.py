@@ -199,9 +199,17 @@ def focus(home: Path, now: datetime | None = None, *, posture: dict | None | boo
     }
 
 
+def _end_wind_down(state: dict, now: datetime) -> None:
+    """Close an open wind-down event; the first closer (next morning's resume or a new block) wins."""
+    event = state.get("wind_down")
+    if isinstance(event, dict) and event.get("ended") is None:
+        event["ended"] = now.timestamp()
+
+
 def start_block(home: Path, minutes: int, now: datetime | None = None) -> dict:
     now = now or datetime.now().astimezone()
     state = load(home)
+    _end_wind_down(state, now)
     state["block"] = {"start": now.timestamp(), "end": (now + timedelta(minutes=minutes)).timestamp(), "minutes": minutes}
     save(home, state)
     return focus(home, now, posture=None, flow=None) | {"started": minutes}
@@ -267,7 +275,10 @@ def _last_session(home: Path, exclude: str = "") -> dict | None:
 
 def wind_down(home: Path, now: datetime | None = None, session_id: str = "", *, force: bool = False,
               posture: dict | None | bool = True) -> dict:
-    """At most one nudge per night: save where you left off so tomorrow's first turn starts there."""
+    """At most one nudge per night: save where you left off so tomorrow's first turn starts there.
+    Also records the event: `wind_down = {started, by, ended}`, `by` "manual" when forced (the
+    command or the card) and "nudge" when the evening phase fired it; `ended` stays null until
+    `take_resume` or `start_block` closes it."""
     at, now = now, now or datetime.now().astimezone()
     tonight = (now - timedelta(hours=_DAY_STARTS)).date().isoformat()
     state = load(home)
@@ -279,6 +290,7 @@ def wind_down(home: Path, now: datetime | None = None, session_id: str = "", *, 
     state["resume"] = {"saved": now.timestamp(), "night": tonight, **(last or {"title": "", "last_asks": []}),
                        "queued": len(state.get("queue", []))}
     state["nudged"] = tonight
+    state["wind_down"] = {"started": now.timestamp(), "by": "manual" if force else "nudge", "ended": None}
     save(home, state)
     return {"nudge": True, "phase": phase, "bedtime": (posture or {}).get("bed"), "resume": state["resume"]}
 
@@ -291,6 +303,7 @@ def take_resume(home: Path, now: datetime | None = None) -> dict | None:
     if not resume or resume.get("night") == (now - timedelta(hours=_DAY_STARTS)).date().isoformat():
         return None
     state["resume"] = None
+    _end_wind_down(state, now)
     save(home, state)
     return resume
 
