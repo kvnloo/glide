@@ -166,6 +166,60 @@ def test_wind_down_nudges_once_per_night_and_resume_quotes_once_next_morning(hom
     assert attention.turn_context(home, at(12, 9, 6)) is None  # once
 
 
+def test_wind_down_event_records_a_phase_nudge(home):
+    attention.wind_down(home, at(11, 22, 10), posture=posture("wind_down"))
+    assert attention.load(home)["wind_down"] == {"started": at(11, 22, 10).timestamp(), "by": "nudge", "ended": None}
+
+
+def test_wind_down_event_records_the_manual_command(home, monkeypatch):
+    real = attention.wind_down
+    monkeypatch.setattr(attention, "wind_down", lambda h, now=None, **kw: real(h, at(11, 21), **kw))
+    assert core.command("focus wind-down").startswith("Time to wrap")
+    assert attention.load(home)["wind_down"] == {"started": at(11, 21).timestamp(), "by": "manual", "ended": None}
+
+
+def test_wind_down_event_ends_on_the_next_mornings_resume(home):
+    attention.wind_down(home, at(11, 22, 10), posture=posture("wind_down"))
+    assert attention.take_resume(home, at(11, 23, 45)) is None  # same night: still open
+    assert attention.load(home)["wind_down"]["ended"] is None
+    assert attention.take_resume(home, at(12, 9, 5))
+    assert attention.load(home)["wind_down"]["ended"] == at(12, 9, 5).timestamp()
+
+
+def test_wind_down_event_ends_on_a_deep_work_block_and_the_first_end_wins(home):
+    attention.wind_down(home, at(11, 22, 10), posture=posture("wind_down"))
+    attention.start_block(home, 30, at(11, 22, 40))
+    assert attention.load(home)["wind_down"]["ended"] == at(11, 22, 40).timestamp()
+    attention.start_block(home, 30, at(11, 23, 30))
+    assert attention.take_resume(home, at(12, 9, 5))
+    event = attention.load(home)["wind_down"]
+    assert event == {"started": at(11, 22, 10).timestamp(), "by": "nudge", "ended": at(11, 22, 40).timestamp()}
+
+
+def test_a_new_wind_down_replaces_the_event(home):
+    attention.wind_down(home, at(11, 22, 10), posture=posture("wind_down"))
+    attention.take_resume(home, at(12, 9, 5))
+    attention.wind_down(home, at(12, 22, 5), force=True)
+    assert attention.load(home)["wind_down"] == {"started": at(12, 22, 5).timestamp(), "by": "manual", "ended": None}
+
+
+def test_wind_down_event_is_optional_in_older_files_and_round_trips(home):
+    old = {"block": None, "queue": [], "resume": None, "nudged": "2026-11-09"}
+    attention.save(home, old)
+    assert attention.load(home) == old
+    attention.start_block(home, 30, at(11, 9))  # nothing to end: no key appears
+    assert "wind_down" not in attention.load(home) and attention.take_resume(home, at(11, 10)) is None
+    assert attention.focus(home, at(11, 9, 10), posture=None, flow=None)["block"]["minutes"] == 30
+    attention.wind_down(home, at(11, 22, 10), posture=posture("wind_down"))
+    raw = json.loads((home / "glide" / "attention.json").read_text())
+    assert set(raw) == {"block", "queue", "resume", "nudged", "wind_down"}
+    assert raw["wind_down"] == {"started": at(11, 22, 10).timestamp(), "by": "nudge", "ended": None}
+    assert set(raw["resume"]) == {"saved", "night", "session_id", "title", "last_asks", "queued"}
+    assert raw["nudged"] == "2026-11-11"
+    attention.save(home, attention.load(home))
+    assert json.loads((home / "glide" / "attention.json").read_text()) == raw
+
+
 def test_hook_adds_block_rules_without_memory_enabled(home):
     attention.start_block(home, 60)
     out = core.pre_llm_call(user_message="refactor the parser")
