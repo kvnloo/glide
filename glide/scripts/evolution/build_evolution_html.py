@@ -12,9 +12,11 @@ import subprocess
 
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
-OUTPUT = ROOT / "docs/evolution/glide-evolution.html"
+OUTPUT = ROOT / "glide/docs/evolution/glide-evolution.html"
+# Old and current archive homes: never feed the archive back into itself.
+ARCHIVE_DIRS = ("docs/evolution/", "glide/docs/evolution/")
 LIMIT = 25_000_000
 CSP = (
     "default-src 'none'; img-src data:; style-src 'unsafe-inline'; "
@@ -76,7 +78,7 @@ def pr_title(subject, body):
 
 def image_path(path):
     return (path.startswith(("docs/", "glide/docs/", "glide/proofs/"))
-            and not path.startswith("docs/evolution/")
+            and not path.startswith(ARCHIVE_DIRS)
             and PurePosixPath(path).suffix.lower() in {".png", ".jpeg", ".jpg", ".webp"}
             and not PurePosixPath(path).name.endswith("-reference.png"))
 
@@ -84,7 +86,7 @@ def image_path(path):
 def doc_path(path):
     return (path in {"README.md", "FORK.md"} or
             (path.startswith(("docs/", "glide/docs/", "frontend/docs/"))
-             and not path.startswith("docs/evolution/") and path.lower().endswith(".md")) or
+             and not path.startswith(ARCHIVE_DIRS) and path.lower().endswith(".md")) or
             PurePosixPath(path).name.upper().startswith("CHANGELOG"))
 
 

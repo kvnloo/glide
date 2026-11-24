@@ -13,10 +13,10 @@ From the repo root, with full Git history and up-to-date `origin/main` and tags:
 ```sh
 python3 -m venv .venv-evolution
 . .venv-evolution/bin/activate
-python -m pip install -r scripts/evolution/requirements.txt
+python -m pip install -r glide/scripts/evolution/requirements.txt
 python -m playwright install chromium
-python scripts/evolution/build_evolution_html.py
-python scripts/evolution/test_evolution_html.py --screenshot docs/evolution/glide-evolution.png
+python glide/scripts/evolution/build_evolution_html.py
+python glide/scripts/evolution/test_evolution_html.py --screenshot glide/docs/evolution/glide-evolution.png
 ```
 
 Pass `--ref <sha>` to reproduce a historical snapshot, or `--chromium <executable>`

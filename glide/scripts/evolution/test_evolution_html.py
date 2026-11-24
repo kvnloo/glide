@@ -8,8 +8,8 @@ from tempfile import TemporaryDirectory
 
 from playwright.sync_api import sync_playwright
 
-ROOT = Path(__file__).resolve().parents[2]
-ARCHIVE = ROOT / "docs/evolution/glide-evolution.html"
+ROOT = Path(__file__).resolve().parents[3]
+ARCHIVE = ROOT / "glide/docs/evolution/glide-evolution.html"
 
 
 def verify(archive, screenshot, chromium):
